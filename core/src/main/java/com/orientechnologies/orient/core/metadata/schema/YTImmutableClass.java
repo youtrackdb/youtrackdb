@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.metadata.security.OSecurityPolicy;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
 import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.schedule.OScheduledEvent;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -372,7 +372,7 @@ public class YTImmutableClass implements YTClass {
   }
 
   @Override
-  public int getClusterForNewInstance(final YTDocument doc) {
+  public int getClusterForNewInstance(final YTEntityImpl doc) {
     return clusterSelection.getCluster(this, doc);
   }
 
@@ -664,7 +664,7 @@ public class YTImmutableClass implements YTClass {
       YTDatabaseSession session, String iName,
       String iType,
       OProgressListener iProgressListener,
-      YTDocument metadata,
+      YTEntityImpl metadata,
       String algorithm,
       String... fields) {
     throw new UnsupportedOperationException();
@@ -675,7 +675,7 @@ public class YTImmutableClass implements YTClass {
       YTDatabaseSession session, String iName,
       String iType,
       OProgressListener iProgressListener,
-      YTDocument metadata,
+      YTEntityImpl metadata,
       String... fields) {
     throw new UnsupportedOperationException();
   }

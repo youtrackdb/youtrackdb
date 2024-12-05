@@ -3,7 +3,7 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -28,12 +28,12 @@ public class IndexConcurrentCommitTest extends DocumentDBBaseTest {
       database.begin();
 
       // Insert two people in a transaction
-      YTDocument person1 = new YTDocument("Person");
+      YTEntityImpl person1 = new YTEntityImpl("Person");
       person1.field("name", "John Doe");
       person1.field("ssn", "111-11-1111");
       person1.save();
 
-      YTDocument person2 = new YTDocument("Person");
+      YTEntityImpl person2 = new YTEntityImpl("Person");
       person2.field("name", "Jane Doe");
       person2.field("ssn", "222-22-2222");
       person2.save();

@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.index;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import org.junit.Assert;
 
 /**
@@ -23,7 +23,7 @@ public class YTPropertyEmbeddedRidBagIndexDefinitionTest extends
   }
 
   @Override
-  void assertEmbedded(ORidBag ridBag) {
+  void assertEmbedded(RidBag ridBag) {
     Assert.assertTrue(ridBag.isEmbedded());
   }
 }

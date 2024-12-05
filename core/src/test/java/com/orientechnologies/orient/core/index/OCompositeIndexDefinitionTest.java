@@ -4,15 +4,15 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
-import com.orientechnologies.orient.core.db.record.OTrackedList;
-import com.orientechnologies.orient.core.db.record.OTrackedMap;
-import com.orientechnologies.orient.core.db.record.OTrackedSet;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.TrackedList;
+import com.orientechnologies.orient.core.db.record.TrackedMap;
+import com.orientechnologies.orient.core.db.record.TrackedSet;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -109,7 +109,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
     compositeIndexDefinition.addIndex(
         new OPropertyRidBagIndexDefinition("testCollectionClass", "fTwo"));
 
-    ORidBag ridBag = new ORidBag(db);
+    RidBag ridBag = new RidBag(db);
     ridBag.add(new YTRecordId("#1:10"));
     ridBag.add(new YTRecordId("#1:11"));
     ridBag.add(new YTRecordId("#1:11"));
@@ -214,7 +214,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
     compositeIndexDefinition.addIndex(
         new OPropertyIndexDefinition("testCollectionClass", "fOne", YTType.INTEGER));
 
-    ORidBag ridBag = new ORidBag(db);
+    RidBag ridBag = new RidBag(db);
     ridBag.add(new YTRecordId("#1:10"));
     ridBag.add(new YTRecordId("#1:11"));
     ridBag.add(new YTRecordId("#1:11"));
@@ -264,7 +264,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
     compositeIndexDefinition.addIndex(
         new OPropertyIndexDefinition("testCollectionClass", "fThree", YTType.STRING));
 
-    ORidBag ridBag = new ORidBag(db);
+    RidBag ridBag = new RidBag(db);
     ridBag.add(new YTRecordId("#1:10"));
     ridBag.add(new YTRecordId("#1:11"));
     ridBag.add(new YTRecordId("#1:11"));
@@ -334,7 +334,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
 
   @Test
   public void testDocumentToIndexSuccessful() {
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
     document.field("fOne", 12);
     document.field("fTwo", "test");
@@ -345,7 +345,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
 
   @Test
   public void testDocumentToIndexMapValueSuccessful() {
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
     final Map<String, String> stringMap = new HashMap<String, String>();
     stringMap.put("key1", "val1");
@@ -374,7 +374,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
 
   @Test
   public void testDocumentToIndexCollectionValueSuccessfulOne() {
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
     document.field("fOne", 12);
     document.field("fTwo", Arrays.asList(1, 2));
@@ -399,7 +399,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
 
   @Test
   public void testDocumentToIndexCollectionValueEmptyOne() {
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
     document.field("fOne", 12);
     document.field("fTwo", Collections.emptyList());
@@ -418,7 +418,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
 
   @Test
   public void testDocumentToIndexCollectionValueEmptyTwo() {
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
     document.field("fOne", Collections.emptyList());
     document.field("fTwo", 12);
@@ -437,7 +437,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
 
   @Test
   public void testDocumentToIndexCollectionValueEmptyOneNullValuesSupport() {
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
     document.field("fOne", 12);
     document.field("fTwo", Collections.emptyList());
@@ -457,7 +457,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
 
   @Test
   public void testDocumentToIndexCollectionValueEmptyTwoNullValuesSupport() {
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
     document.field("fOne", Collections.emptyList());
     document.field("fTwo", 12);
@@ -477,9 +477,9 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
 
   @Test
   public void testDocumentToIndexRidBagValueSuccessfulOne() {
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
-    final ORidBag ridBag = new ORidBag(db);
+    final RidBag ridBag = new RidBag(db);
     ridBag.add(new YTRecordId("#1:10"));
     ridBag.add(new YTRecordId("#1:11"));
     ridBag.add(new YTRecordId("#1:11"));
@@ -508,7 +508,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
 
   @Test
   public void testDocumentToIndexCollectionValueSuccessfulTwo() {
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
     document.field("fOne", 12);
     document.field("fTwo", Arrays.asList(1, 2));
@@ -533,12 +533,12 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
 
   @Test
   public void testDocumentToIndexRidBagValueSuccessfulTwo() {
-    final ORidBag ridBag = new ORidBag(db);
+    final RidBag ridBag = new RidBag(db);
     ridBag.add(new YTRecordId("#1:10"));
     ridBag.add(new YTRecordId("#1:11"));
     ridBag.add(new YTRecordId("#1:11"));
 
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
     document.field("fOne", 12);
     document.field("fTwo", ridBag);
@@ -564,7 +564,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
 
   @Test
   public void testDocumentToIndexCollectionValueSuccessfulThree() {
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
     document.field("fOne", 12);
     document.field("fTwo", Arrays.asList(1, 2));
@@ -592,9 +592,9 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
 
   @Test
   public void testDocumentToIndexRidBagValueSuccessfulThree() {
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
-    final ORidBag ridBag = new ORidBag(db);
+    final RidBag ridBag = new RidBag(db);
     ridBag.add(new YTRecordId("#1:10"));
     ridBag.add(new YTRecordId("#1:11"));
     ridBag.add(new YTRecordId("#1:11"));
@@ -626,7 +626,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
 
   @Test(expected = YTException.class)
   public void testDocumentToIndexCollectionValueTwoCollections() {
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
     document.field("fOne", List.of(12));
     document.field("fTwo", Arrays.asList(1, 2));
@@ -643,7 +643,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
 
   @Test(expected = YTDatabaseException.class)
   public void testDocumentToIndexWrongField() {
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
     document.field("fOne", "1t2");
     document.field("fTwo", "test");
@@ -679,11 +679,11 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
     emptyCompositeIndex.addIndex(new OPropertyIndexDefinition("testClass", "fTwo", YTType.STRING));
 
     database.begin();
-    final YTDocument docToStore = emptyCompositeIndex.toStream(new YTDocument());
+    final YTEntityImpl docToStore = emptyCompositeIndex.toStream(new YTEntityImpl());
     database.save(docToStore, database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final YTDocument docToLoad = database.load(docToStore.getIdentity());
+    final YTEntityImpl docToLoad = database.load(docToStore.getIdentity());
 
     final OCompositeIndexDefinition result = new OCompositeIndexDefinition();
     result.fromStream(docToLoad);
@@ -694,7 +694,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
 
   @Test
   public void testIndexReload() {
-    final YTDocument docToStore = compositeIndex.toStream(new YTDocument());
+    final YTEntityImpl docToStore = compositeIndex.toStream(new YTEntityImpl());
 
     final OCompositeIndexDefinition result = new OCompositeIndexDefinition();
     result.fromStream(docToStore);
@@ -725,11 +725,11 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
     Assert.assertEquals(emptyCompositeIndex, emptyCompositeIndexTwo);
 
     database.begin();
-    final YTDocument docToStore = emptyCompositeIndex.toStream(new YTDocument());
+    final YTEntityImpl docToStore = emptyCompositeIndex.toStream(new YTEntityImpl());
     database.save(docToStore, database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final YTDocument docToLoad = database.load(docToStore.getIdentity());
+    final YTEntityImpl docToLoad = database.load(docToStore.getIdentity());
 
     final OCompositeIndexDefinition result = new OCompositeIndexDefinition();
     result.fromStream(docToLoad);
@@ -749,11 +749,11 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
     compositeIndexDefinition.addIndex(
         new OPropertyIndexDefinition("testCollectionClass", "fThree", YTType.INTEGER));
 
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
     trackedList.enableTracking(doc);
     trackedList.add("l1");
     trackedList.add("l2");
@@ -790,7 +790,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
     compositeIndexDefinition.addIndex(
         new OPropertyIndexDefinition("testCollectionClass", "fThree", YTType.INTEGER));
 
-    final ORidBag ridBag = new ORidBag(db);
+    final RidBag ridBag = new RidBag(db);
     ridBag.enableTracking(null);
     ridBag.add(new YTRecordId("#10:0"));
     ridBag.add(new YTRecordId("#10:1"));
@@ -829,11 +829,11 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
     compositeIndexDefinition.addIndex(
         new OPropertyIndexDefinition("testCollectionClass", "fThree", YTType.INTEGER));
 
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
 
     trackedList.add("l1");
     trackedList.add("l2");
@@ -874,7 +874,7 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
     compositeIndexDefinition.addIndex(
         new OPropertyIndexDefinition("testCollectionClass", "fThree", YTType.INTEGER));
 
-    final ORidBag ridBag = new ORidBag(db);
+    final RidBag ridBag = new RidBag(db);
 
     ridBag.add(new YTRecordId("#10:1"));
     ridBag.add(new YTRecordId("#10:2"));
@@ -916,11 +916,11 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
     compositeIndexDefinition.addIndex(
         new OPropertyIndexDefinition("testCollectionClass", "fThree", YTType.INTEGER));
 
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedSet<String> trackedSet = new OTrackedSet<String>(doc);
+    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
 
     trackedSet.enableTracking(doc);
     trackedSet.add("l1");
@@ -958,11 +958,11 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
     compositeIndexDefinition.addIndex(
         new OPropertyIndexDefinition("testCollectionClass", "fThree", YTType.INTEGER));
 
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedSet<String> trackedMap = new OTrackedSet<String>(doc);
+    final TrackedSet<String> trackedMap = new TrackedSet<String>(doc);
 
     trackedMap.add("l1");
     trackedMap.add("l2");
@@ -1005,11 +1005,11 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
     compositeIndexDefinition.addIndex(
         new OPropertyIndexDefinition("testCollectionClass", "fThree", YTType.INTEGER));
 
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedMap<String> trackedMap = new OTrackedMap<String>(doc);
+    final TrackedMap<String> trackedMap = new TrackedMap<String>(doc);
     trackedMap.enableTracking(doc);
     trackedMap.put("k1", "v1");
     trackedMap.put("k2", "v2");
@@ -1048,11 +1048,11 @@ public class OCompositeIndexDefinitionTest extends DBTestBase {
     compositeIndexDefinition.addIndex(
         new OPropertyIndexDefinition("testCollectionClass", "fThree", YTType.INTEGER));
 
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedMap<String> trackedMap = new OTrackedMap<String>(doc);
+    final TrackedMap<String> trackedMap = new TrackedMap<String>(doc);
 
     trackedMap.put("k1", "v1");
     trackedMap.put("k2", "v2");

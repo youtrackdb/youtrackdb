@@ -3,9 +3,9 @@ package com.orientechnologies.orient.core.serialization.serializer.record.binary
 import com.orientechnologies.common.serialization.types.OUUIDSerializer;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OBonsaiBucketPointer;
-import com.orientechnologies.orient.core.storage.ridbag.ORemoteTreeRidBag;
+import com.orientechnologies.orient.core.storage.ridbag.RemoteTreeRidBag;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.Change;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.ChangeSerializationHelper;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
@@ -19,7 +19,7 @@ public class ORecordSerializerNetworkV37Client extends ORecordSerializerNetworkV
       new ORecordSerializerNetworkV37Client();
   public static final String NAME = "onet_ser_v37_client";
 
-  protected ORidBag readRidBag(YTDatabaseSessionInternal db, BytesContainer bytes) {
+  protected RidBag readRidBag(YTDatabaseSessionInternal db, BytesContainer bytes) {
     UUID uuid = OUUIDSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset);
     bytes.skip(OUUIDSerializer.UUID_SIZE);
     if (uuid.getMostSignificantBits() == -1 && uuid.getLeastSignificantBits() == -1) {
@@ -28,7 +28,7 @@ public class ORecordSerializerNetworkV37Client extends ORecordSerializerNetworkV
     byte b = bytes.bytes[bytes.offset];
     bytes.skip(1);
     if (b == 1) {
-      ORidBag bag = new ORidBag(db, uuid);
+      RidBag bag = new RidBag(db, uuid);
       int size = OVarIntSerializer.readAsInteger(bytes);
 
       if (size > 0) {
@@ -42,7 +42,7 @@ public class ORecordSerializerNetworkV37Client extends ORecordSerializerNetworkV
         }
         // The bag will mark the elements we just added as new events
         // and marking the entire bag as a dirty transaction {@link
-        // OEmbeddedRidBag#transactionDirty}
+        // EmbeddedRidBag#transactionDirty}
         // although we just deserialized it so there are no changes and the transaction isn't dirty
         bag.enableTracking(null);
         bag.transactionClear();
@@ -68,7 +68,7 @@ public class ORecordSerializerNetworkV37Client extends ORecordSerializerNetworkV
         pointer =
             new OBonsaiCollectionPointer(fileId, new OBonsaiBucketPointer(pageIndex, pageOffset));
       }
-      return new ORidBag(db, new ORemoteTreeRidBag(pointer));
+      return new RidBag(db, new RemoteTreeRidBag(pointer));
     }
   }
 }

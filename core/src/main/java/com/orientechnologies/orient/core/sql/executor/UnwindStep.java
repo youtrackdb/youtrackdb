@@ -5,7 +5,7 @@ import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 import com.orientechnologies.orient.core.sql.parser.OUnwind;
@@ -56,7 +56,7 @@ public class UnwindStep extends AbstractExecutionStep {
       final List<String> nextFields = unwindFields.subList(1, unwindFields.size());
 
       Object fieldValue = doc.getProperty(firstField);
-      if (fieldValue == null || fieldValue instanceof YTDocument) {
+      if (fieldValue == null || fieldValue instanceof YTEntityImpl) {
         result.addAll(unwind(db, doc, nextFields));
         return result;
       }

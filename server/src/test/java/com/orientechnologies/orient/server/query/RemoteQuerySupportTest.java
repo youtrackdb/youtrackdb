@@ -10,7 +10,7 @@ import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
@@ -42,7 +42,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   public void testQuery() {
     for (int i = 0; i < 150; i++) {
       db.begin();
-      YTDocument doc = new YTDocument("Some");
+      YTEntityImpl doc = new YTEntityImpl("Some");
       doc.setProperty("prop", "value");
       db.save(doc);
       db.commit();
@@ -60,7 +60,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   public void testCommandSelect() {
     for (int i = 0; i < 150; i++) {
       db.begin();
-      YTDocument doc = new YTDocument("Some");
+      YTEntityImpl doc = new YTEntityImpl("Some");
       doc.setProperty("prop", "value");
       db.save(doc);
       db.commit();
@@ -78,7 +78,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   public void testCommandInsertWithPageOverflow() {
     for (int i = 0; i < 150; i++) {
       db.begin();
-      YTDocument doc = new YTDocument("Some");
+      YTEntityImpl doc = new YTEntityImpl("Some");
       doc.setProperty("prop", "value");
       db.save(doc);
       db.commit();
@@ -97,7 +97,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test(expected = YTDatabaseException.class)
   public void testQueryKilledSession() {
     for (int i = 0; i < 150; i++) {
-      YTDocument doc = new YTDocument("Some");
+      YTEntityImpl doc = new YTEntityImpl("Some");
       doc.setProperty("prop", "value");
       db.save(doc);
     }
@@ -118,9 +118,9 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryEmbedded() {
     db.begin();
-    YTDocument doc = new YTDocument("Some");
+    YTEntityImpl doc = new YTEntityImpl("Some");
     doc.setProperty("prop", "value");
-    YTDocument emb = new YTDocument();
+    YTEntityImpl emb = new YTEntityImpl();
     emb.setProperty("one", "value");
     doc.setProperty("emb", emb, YTType.EMBEDDED);
     db.save(doc);
@@ -136,11 +136,11 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryDoubleEmbedded() {
     db.begin();
-    YTDocument doc = new YTDocument("Some");
+    YTEntityImpl doc = new YTEntityImpl("Some");
     doc.setProperty("prop", "value");
-    YTDocument emb1 = new YTDocument();
+    YTEntityImpl emb1 = new YTEntityImpl();
     emb1.setProperty("two", "value");
-    YTDocument emb = new YTDocument();
+    YTEntityImpl emb = new YTEntityImpl();
     emb.setProperty("one", "value");
     emb.setProperty("secEmb", emb1, YTType.EMBEDDED);
 
@@ -160,9 +160,9 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryEmbeddedList() {
     db.begin();
-    YTDocument doc = new YTDocument("Some");
+    YTEntityImpl doc = new YTEntityImpl("Some");
     doc.setProperty("prop", "value");
-    YTDocument emb = new YTDocument();
+    YTEntityImpl emb = new YTEntityImpl();
     emb.setProperty("one", "value");
     List<Object> list = new ArrayList<>();
     list.add(emb);
@@ -181,11 +181,11 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryEmbeddedSet() {
     db.begin();
-    YTDocument doc = new YTDocument("Some");
+    YTEntityImpl doc = new YTEntityImpl("Some");
     doc.setProperty("prop", "value");
-    YTDocument emb = new YTDocument();
+    YTEntityImpl emb = new YTEntityImpl();
     emb.setProperty("one", "value");
-    Set<YTDocument> set = new HashSet<>();
+    Set<YTEntityImpl> set = new HashSet<>();
     set.add(emb);
     doc.setProperty("set", set, YTType.EMBEDDEDSET);
     db.save(doc);
@@ -203,11 +203,11 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryEmbeddedMap() {
     db.begin();
-    YTDocument doc = new YTDocument("Some");
+    YTEntityImpl doc = new YTEntityImpl("Some");
     doc.setProperty("prop", "value");
-    YTDocument emb = new YTDocument();
+    YTEntityImpl emb = new YTEntityImpl();
     emb.setProperty("one", "value");
-    Map<String, YTDocument> map = new HashMap<>();
+    Map<String, YTEntityImpl> map = new HashMap<>();
     map.put("key", emb);
     doc.setProperty("map", map, YTType.EMBEDDEDMAP);
     db.save(doc);

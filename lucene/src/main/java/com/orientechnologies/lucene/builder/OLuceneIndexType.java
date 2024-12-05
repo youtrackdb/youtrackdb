@@ -22,7 +22,7 @@ import com.orientechnologies.lucene.exception.YTLuceneIndexException;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -166,8 +166,8 @@ public class OLuceneIndexType {
   public static String hashKey(Object key) {
     try {
       String keyString;
-      if (key instanceof YTDocument) {
-        keyString = ((YTDocument) key).toJSON();
+      if (key instanceof YTEntityImpl) {
+        keyString = ((YTEntityImpl) key).toJSON();
       } else {
         keyString = key.toString();
       }

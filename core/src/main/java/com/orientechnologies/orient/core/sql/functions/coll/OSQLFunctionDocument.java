@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.sql.functions.coll;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +30,7 @@ import java.util.Map;
 /**
  * This operator add an entry in a map. The entry is composed by a key and a value.
  */
-public class OSQLFunctionDocument extends OSQLFunctionMultiValueAbstract<YTDocument> {
+public class OSQLFunctionDocument extends OSQLFunctionMultiValueAbstract<YTEntityImpl> {
 
   public static final String NAME = "document";
 
@@ -49,14 +49,14 @@ public class OSQLFunctionDocument extends OSQLFunctionMultiValueAbstract<YTDocum
     if (iParams.length > 2)
     // IN LINE MODE
     {
-      context = new YTDocument();
+      context = new YTEntityImpl();
     }
 
     if (iParams.length == 1) {
-      if (iParams[0] instanceof YTDocument)
+      if (iParams[0] instanceof YTEntityImpl)
       // INSERT EVERY DOCUMENT FIELD
       {
-        context.merge((YTDocument) iParams[0], true, false);
+        context.merge((YTEntityImpl) iParams[0], true, false);
       } else if (iParams[0] instanceof Map<?, ?>)
       // INSERT EVERY SINGLE COLLECTION ITEM
       {
@@ -77,7 +77,7 @@ public class OSQLFunctionDocument extends OSQLFunctionMultiValueAbstract<YTDocum
           if (iParams.length <= 2 && context == null)
           // AGGREGATION MODE (STATEFULL)
           {
-            context = new YTDocument();
+            context = new YTEntityImpl();
           }
 
           context.field(key, value);
@@ -97,15 +97,15 @@ public class OSQLFunctionDocument extends OSQLFunctionMultiValueAbstract<YTDocum
   }
 
   @Override
-  public YTDocument getResult() {
-    final YTDocument res = context;
+  public YTEntityImpl getResult() {
+    final YTEntityImpl res = context;
     context = null;
     return prepareResult(res);
   }
 
-  protected YTDocument prepareResult(YTDocument res) {
+  protected YTEntityImpl prepareResult(YTEntityImpl res) {
     if (returnDistributedResult()) {
-      final YTDocument doc = new YTDocument();
+      final YTEntityImpl doc = new YTEntityImpl();
       doc.field("node", getDistributedStorageId());
       doc.field("context", res);
       return doc;

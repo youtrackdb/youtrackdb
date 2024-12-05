@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.index.OIndexInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,7 +57,8 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
     final YTSchema schema = db.getMetadata().getSchema();
     final YTClass song = schema.getClass(SONG_CLASS);
 
-    final YTDocument meta = new YTDocument().field("analyzer", StandardAnalyzer.class.getName());
+    final YTEntityImpl meta = new YTEntityImpl().field("analyzer",
+        StandardAnalyzer.class.getName());
     final OIndex lucene =
         song.createIndex(db,
             "Song.title",
@@ -107,7 +108,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
   @Test
   public void testCreateIndexEmbeddedMapJSON() {
     db.begin();
-    var songDoc = new YTDocument(SONG_CLASS);
+    var songDoc = new YTEntityImpl(SONG_CLASS);
     songDoc.fromJSON(
         "{\n"
             + "    \"description\": \"Capital\",\n"
@@ -151,7 +152,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
     entries.put("text", "Hello Rome how are you today?");
     entries.put("text2", "Hello Bolzano how are you today?");
 
-    final YTDocument doc = new YTDocument(SONG_CLASS);
+    final YTEntityImpl doc = new YTEntityImpl(SONG_CLASS);
     doc.field("description", "Capital", YTType.STRING);
     doc.field("String" + YTType.EMBEDDEDMAP.getName(), entries, YTType.EMBEDDEDMAP, YTType.STRING);
     db.begin();

@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -147,7 +147,7 @@ public class OLiveQueryHook {
     }
   }
 
-  public static void addOp(YTDocument iDocument, byte iType, YTDatabaseSession database) {
+  public static void addOp(YTEntityImpl iDocument, byte iType, YTDatabaseSession database) {
     var db = database;
     OLiveQueryOps ops = getOpsReference((YTDatabaseSessionInternal) db);
     if (!ops.queueThread.hasListeners()) {

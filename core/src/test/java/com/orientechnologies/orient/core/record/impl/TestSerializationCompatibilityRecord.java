@@ -20,7 +20,7 @@ public class TestSerializationCompatibilityRecord extends DBTestBase {
             .getSchema()
             .createClass("Test", db.getMetadata().getSchema().getClass("V"));
     db.begin();
-    YTDocument doc = new YTDocument("Test");
+    YTEntityImpl doc = new YTEntityImpl("Test");
     Map<String, YTRID> map = new HashMap<String, YTRID>();
     map.put("some", new YTRecordId(10, 20));
     doc.field("map", map, YTType.LINKMAP);
@@ -29,13 +29,13 @@ public class TestSerializationCompatibilityRecord extends DBTestBase {
     klass.createProperty(db, "map", YTType.EMBEDDEDMAP, (YTType) null, true);
 
     db.begin();
-    YTDocument record = db.load(id);
+    YTEntityImpl record = db.load(id);
     // Force deserialize + serialize;
     record.setProperty("some", "aa");
     db.save(record);
     db.commit();
 
-    YTDocument record1 = db.load(id);
+    YTEntityImpl record1 = db.load(id);
     assertEquals(record1.fieldType("map"), YTType.LINKMAP);
   }
 }

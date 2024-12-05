@@ -15,7 +15,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Collection;
@@ -32,7 +32,7 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
     db.getMetadata().getSchema().createClass("TestSubclass", testSuperclass);
 
     db.begin();
-    YTDocument toDelete = new YTDocument("TestSubclass").field("id", 1);
+    YTEntityImpl toDelete = new YTEntityImpl("TestSubclass").field("id", 1);
     toDelete.save();
     db.commit();
 
@@ -44,8 +44,8 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
 
     db.begin();
     try {
-      new YTDocument("TestSuperclass").field("id", 1).save();
-      new YTDocument("TestSubclass").field("id", 1).save();
+      new YTEntityImpl("TestSuperclass").field("id", 1).save();
+      new YTEntityImpl("TestSubclass").field("id", 1).save();
       // 2 SUB, 1 SUPER
 
       Assert.assertEquals(db.countClass("TestSuperclass", false), 1);
@@ -80,7 +80,7 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
   @Test(expected = YTCommitSerializationException.class)
   public void testSaveInvalidRid() {
     db.begin();
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.field("test", new YTRecordId(-2, 10));
     db.save(doc);
     db.commit();
@@ -137,7 +137,7 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
     c1.createProperty(db, "meta", YTType.EMBEDDED, c0);
 
     db.begin();
-    YTDocument doc = new YTDocument("testDocFromJsonEmbedded_Class1");
+    YTEntityImpl doc = new YTEntityImpl("testDocFromJsonEmbedded_Class1");
 
     doc.fromJSON(
         "{\n"
@@ -162,7 +162,7 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
     try (YTResultSet result = db.query("select from testDocFromJsonEmbedded_Class1")) {
       Assert.assertTrue(result.hasNext());
       YTEntity item = result.next().getEntity().get();
-      YTDocument meta = item.getProperty("meta");
+      YTEntityImpl meta = item.getProperty("meta");
       Assert.assertEquals(meta.getClassName(), "testDocFromJsonEmbedded_Class0");
       Assert.assertEquals(meta.field("ip"), "0:0:0:0:0:0:0:1");
     }
@@ -344,10 +344,10 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
     schema.createClass(className, 1, schema.getClass(YTClass.VERTEX_CLASS_NAME));
     db.begin();
 
-    YTDocument document = new YTDocument(className);
+    YTEntityImpl document = new YTEntityImpl(className);
     document.save();
-    ORecordIteratorClassDescendentOrder<YTDocument> reverseIterator =
-        new ORecordIteratorClassDescendentOrder<YTDocument>(db, db, className, true);
+    ORecordIteratorClassDescendentOrder<YTEntityImpl> reverseIterator =
+        new ORecordIteratorClassDescendentOrder<YTEntityImpl>(db, db, className, true);
     Assert.assertTrue(reverseIterator.hasNext());
     Assert.assertEquals(document, reverseIterator.next());
   }

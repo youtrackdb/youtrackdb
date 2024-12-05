@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.db.record.ridbag.embedded.OEmbeddedRidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.embedded.EmbeddedRidBag;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.YTEntity;
@@ -23,7 +23,7 @@ public class ORidBagBasicTest extends DBTestBase {
 
   @Test
   public void embeddedRidBagSerializationTest() {
-    OEmbeddedRidBag bag = new OEmbeddedRidBag();
+    EmbeddedRidBag bag = new EmbeddedRidBag();
 
     bag.add(new YTRecordId(3, 1000));
     bag.convertRecords2Links();
@@ -31,7 +31,7 @@ public class ORidBagBasicTest extends DBTestBase {
     UUID id = UUID.randomUUID();
     bag.serialize(bytes, 0, id);
 
-    OEmbeddedRidBag bag1 = new OEmbeddedRidBag();
+    EmbeddedRidBag bag1 = new EmbeddedRidBag();
     bag1.deserialize(bytes, 0);
 
     assertEquals(bag.size(), 1);
@@ -41,7 +41,7 @@ public class ORidBagBasicTest extends DBTestBase {
 
   @Test(expected = IllegalArgumentException.class)
   public void testExceptionInCaseOfNull() {
-    OEmbeddedRidBag bag = new OEmbeddedRidBag();
+    EmbeddedRidBag bag = new EmbeddedRidBag();
     bag.add(null);
   }
 
@@ -50,7 +50,7 @@ public class ORidBagBasicTest extends DBTestBase {
     try {
       YTVertex record = db.newVertex();
       List<Object> valueList = new ArrayList<>();
-      valueList.add(new ORidBag(db));
+      valueList.add(new RidBag(db));
       record.setProperty("emb", valueList);
       db.save(record);
       fail("Should not be possible to save a ridbag in a list");
@@ -61,7 +61,7 @@ public class ORidBagBasicTest extends DBTestBase {
     try {
       YTVertex record = db.newVertex();
       Set<Object> valueSet = new HashSet<>();
-      valueSet.add(new ORidBag(db));
+      valueSet.add(new RidBag(db));
       record.setProperty("emb", valueSet);
       db.save(record);
       fail("Should not be possible to save a ridbag in a set");
@@ -72,7 +72,7 @@ public class ORidBagBasicTest extends DBTestBase {
     try {
       YTVertex record = db.newVertex();
       Map<String, Object> valueSet = new HashMap<>();
-      valueSet.put("key", new ORidBag(db));
+      valueSet.put("key", new RidBag(db));
       record.setProperty("emb", valueSet);
       db.save(record);
       fail("Should not be possible to save a ridbag in a set");
@@ -84,7 +84,7 @@ public class ORidBagBasicTest extends DBTestBase {
       YTVertex record = db.newVertex();
       Map<String, Object> valueSet = new HashMap<>();
       YTEntity nested = db.newEntity();
-      nested.setProperty("bag", new ORidBag(db));
+      nested.setProperty("bag", new RidBag(db));
       valueSet.put("key", nested);
       record.setProperty("emb", valueSet);
       db.save(record);
@@ -97,7 +97,7 @@ public class ORidBagBasicTest extends DBTestBase {
       YTVertex record = db.newVertex();
       List<Object> valueList = new ArrayList<>();
       YTEntity nested = db.newEntity();
-      nested.setProperty("bag", new ORidBag(db));
+      nested.setProperty("bag", new RidBag(db));
       valueList.add(nested);
       record.setProperty("emb", valueList);
       db.save(record);
@@ -110,7 +110,7 @@ public class ORidBagBasicTest extends DBTestBase {
       YTVertex record = db.newVertex();
       Set<Object> valueSet = new HashSet<>();
       YTEntity nested = db.newEntity();
-      nested.setProperty("bag", new ORidBag(db));
+      nested.setProperty("bag", new RidBag(db));
       valueSet.add(nested);
       record.setProperty("emb", valueSet);
       db.save(record);
@@ -122,7 +122,7 @@ public class ORidBagBasicTest extends DBTestBase {
     try {
       YTVertex record = db.newVertex();
       YTEntity nested = db.newEntity();
-      nested.setProperty("bag", new ORidBag(db));
+      nested.setProperty("bag", new RidBag(db));
       record.setProperty("emb", nested);
       db.save(record);
       fail("Should not be possible to save a ridbag in a set");

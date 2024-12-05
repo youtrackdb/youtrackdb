@@ -19,8 +19,8 @@ package com.orientechnologies.orient.core.sql.functions.text;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
 
 /**
@@ -49,7 +49,8 @@ public class OSQLMethodFromJSON extends OAbstractSQLMethod {
     if (iThis instanceof String) {
       if (iParams.length > 0) {
         try {
-          final YTDocument doc = new YTDocument().fromJSON(iThis.toString(), iParams[0].toString());
+          final YTEntityImpl doc = new YTEntityImpl().fromJSON(iThis.toString(),
+              iParams[0].toString());
           if (iParams[0].toString().contains("embedded")) {
             ODocumentInternal.addOwner(doc, iCurrentRecord.getRecord());
           }
@@ -60,7 +61,7 @@ public class OSQLMethodFromJSON extends OAbstractSQLMethod {
         }
       }
 
-      var doc = new YTDocument();
+      var doc = new YTEntityImpl();
       doc.fromJSON(iThis.toString());
       return doc;
     }

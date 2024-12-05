@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkDistributed;
 import java.io.DataInput;
@@ -35,9 +35,9 @@ public class OTransactionDataChange {
         this.contentChanged = ORecordInternal.isContentChanged(rec);
         break;
       case ORecordOperation.UPDATED:
-        if (recordType == YTDocument.RECORD_TYPE) {
+        if (recordType == YTEntityImpl.RECORD_TYPE) {
           record = Optional.of(
-              ODocumentSerializerDelta.instance().serializeDelta((YTDocument) rec));
+              ODocumentSerializerDelta.instance().serializeDelta((YTEntityImpl) rec));
         } else {
           record = Optional.of(ORecordSerializerNetworkDistributed.INSTANCE.toStream(session, rec));
         }

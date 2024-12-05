@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.OTokenHandler;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -51,7 +51,7 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
     // Parameter names consistent with 4.3.2 (Access Token Request) of RFC 6749
     Map<String, String> content = iRequest.getUrlEncodedContent();
     if (content == null) {
-      YTDocument result = new YTDocument().field("error", "missing_auth_data");
+      YTEntityImpl result = new YTEntityImpl().field("error", "missing_auth_data");
       sendError(iRequest, iResponse, result);
       return false;
     }
@@ -61,7 +61,7 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
     String username = content.get("username");
     String password = content.get("password");
     String authenticatedRid;
-    YTDocument result;
+    YTEntityImpl result;
 
     if (grantType.equals("password")) {
       authenticatedRid = authenticate(username, password, iRequest.getDatabaseName());
@@ -89,15 +89,15 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
         }
 
         // 4.1.4 (Access Token Response) of RFC 6749
-        result = new YTDocument().field("access_token", signedToken).field("expires_in", 3600);
+        result = new YTEntityImpl().field("access_token", signedToken).field("expires_in", 3600);
 
         iResponse.writeRecord(result, RESPONSE_FORMAT, null);
       } else {
-        result = new YTDocument().field("error", "unsupported_grant_type");
+        result = new YTEntityImpl().field("error", "unsupported_grant_type");
         sendError(iRequest, iResponse, result);
       }
     } else {
-      result = new YTDocument().field("error", "unsupported_grant_type");
+      result = new YTEntityImpl().field("error", "unsupported_grant_type");
       sendError(iRequest, iResponse, result);
     }
 
@@ -129,7 +129,7 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
   }
 
   protected void sendError(
-      final OHttpRequest iRequest, final OHttpResponse iResponse, final YTDocument error)
+      final OHttpRequest iRequest, final OHttpResponse iResponse, final YTEntityImpl error)
       throws IOException {
     iResponse.send(
         OHttpUtils.STATUS_BADREQ_CODE,

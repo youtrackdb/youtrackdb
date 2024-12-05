@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.OFieldTypesString;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
@@ -62,13 +62,13 @@ public class OJson extends SimpleNode {
     builder.append("}");
   }
 
-  public YTDocument toDocument(YTIdentifiable source, OCommandContext ctx) {
+  public YTEntityImpl toDocument(YTIdentifiable source, OCommandContext ctx) {
     String className = getClassNameForDocument(ctx);
-    YTDocument doc;
+    YTEntityImpl doc;
     if (className != null) {
-      doc = new YTDocument(className);
+      doc = new YTEntityImpl(className);
     } else {
-      doc = new YTDocument();
+      doc = new YTEntityImpl();
     }
     for (OJsonItem item : items) {
       String name = item.getLeftValue();
@@ -87,8 +87,8 @@ public class OJson extends SimpleNode {
     return doc;
   }
 
-  private YTDocument toDocument(YTResult source, OCommandContext ctx, String className) {
-    YTDocument retDoc = new YTDocument(className);
+  private YTEntityImpl toDocument(YTResult source, OCommandContext ctx, String className) {
+    YTEntityImpl retDoc = new YTEntityImpl(className);
     Map<String, Character> types = null;
     for (OJsonItem item : items) {
       String name = item.getLeftValue();

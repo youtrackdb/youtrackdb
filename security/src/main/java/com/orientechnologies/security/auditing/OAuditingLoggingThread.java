@@ -17,7 +17,7 @@ import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.security.OAuditingOperation;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
 import java.util.concurrent.BlockingQueue;
@@ -28,7 +28,7 @@ import java.util.concurrent.BlockingQueue;
 public class OAuditingLoggingThread extends Thread {
 
   private final String databaseName;
-  private final BlockingQueue<YTDocument> auditingQueue;
+  private final BlockingQueue<YTEntityImpl> auditingQueue;
   private volatile boolean running = true;
   private volatile boolean waitForAllLogs = true;
   private final YouTrackDBInternal context;
@@ -83,7 +83,7 @@ public class OAuditingLoggingThread extends Thread {
           break;
         }
 
-        final YTDocument log = auditingQueue.take();
+        final YTEntityImpl log = auditingQueue.take();
 
         log.setClassName(className);
 

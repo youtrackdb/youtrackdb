@@ -9,14 +9,14 @@ import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.OStorage;
@@ -310,7 +310,7 @@ public class StorageBackupMTStateTest {
         classCounter = classInstancesCounters.get(className);
       } while (classCounter == null);
 
-      final YTDocument doc = new YTDocument(className);
+      final YTEntityImpl doc = new YTEntityImpl(className);
       docId = classCounter.getAndIncrement();
 
       doc.field("id", docId);
@@ -330,7 +330,7 @@ public class StorageBackupMTStateTest {
         linkedClassCounter = classInstancesCounters.get(linkedClassName);
       } while (linkedClassCounter == null);
 
-      ORidBag linkedDocuments = new ORidBag(db);
+      RidBag linkedDocuments = new RidBag(db);
 
       long linkedClassCount = db.countClass(linkedClassName);
       long tCount = 0;

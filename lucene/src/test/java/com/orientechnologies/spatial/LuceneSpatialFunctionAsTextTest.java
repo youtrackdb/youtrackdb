@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.text.ParseException;
@@ -60,8 +60,8 @@ public class LuceneSpatialFunctionAsTextTest extends BaseSpatialLuceneTest {
     createLocation("OGeometryCollection", geometryCollection());
   }
 
-  protected void createLocation(String name, YTDocument geometry) {
-    YTDocument doc = new YTDocument("Location");
+  protected void createLocation(String name, YTEntityImpl geometry) {
+    YTEntityImpl doc = new YTEntityImpl("Location");
     doc.field("name", name);
     doc.field("geometry", geometry);
 

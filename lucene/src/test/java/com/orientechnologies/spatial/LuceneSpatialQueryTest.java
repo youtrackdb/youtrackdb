@@ -21,7 +21,7 @@ import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.File;
 import java.io.InputStream;
@@ -94,7 +94,7 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
           int i = 0;
           while ((line = lnr.readLine()) != null) {
             String[] nextLine = line.split(",");
-            YTDocument doc = new YTDocument("Place");
+            YTEntityImpl doc = new YTEntityImpl("Place");
             doc.field("name", nextLine[3]);
             doc.field("country", nextLine[1]);
             try {

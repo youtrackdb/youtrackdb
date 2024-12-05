@@ -9,10 +9,10 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.metadata.security.OPropertyAccess;
+import com.orientechnologies.orient.core.metadata.security.PropertyAccess;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -23,14 +23,14 @@ public class YTPropertyAccessTest extends DBTestBase {
 
   @Test
   public void testNotAccessible() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.setProperty("name", "one value");
     assertEquals("one value", doc.getProperty("name"));
     assertEquals("one value", doc.field("name"));
     assertTrue(doc.containsField("name"));
     Set<String> toHide = new HashSet<>();
     toHide.add("name");
-    ODocumentInternal.setPropertyAccess(doc, new OPropertyAccess(toHide));
+    ODocumentInternal.setPropertyAccess(doc, new PropertyAccess(toHide));
     assertNull(doc.getProperty("name"));
     assertNull(doc.field("name"));
     assertNull(doc.field("name", YTType.STRING));
@@ -41,9 +41,9 @@ public class YTPropertyAccessTest extends DBTestBase {
 
   @Test
   public void testNotAccessibleAfterConvert() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.setProperty("name", "one value");
-    YTDocument doc1 = new YTDocument();
+    YTEntityImpl doc1 = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc1);
     doc1.fromStream(doc.toStream());
     assertEquals("one value", doc1.getProperty("name"));
@@ -53,7 +53,7 @@ public class YTPropertyAccessTest extends DBTestBase {
 
     Set<String> toHide = new HashSet<>();
     toHide.add("name");
-    ODocumentInternal.setPropertyAccess(doc1, new OPropertyAccess(toHide));
+    ODocumentInternal.setPropertyAccess(doc1, new PropertyAccess(toHide));
     assertNull(doc1.getProperty("name"));
     assertNull(doc1.field("name"));
     assertFalse(doc1.containsField("name"));
@@ -62,7 +62,7 @@ public class YTPropertyAccessTest extends DBTestBase {
 
   @Test
   public void testNotAccessiblePropertyListing() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.setProperty("name", "one value");
     assertArrayEquals(new String[]{"name"}, doc.getPropertyNames().toArray());
     assertArrayEquals(
@@ -75,7 +75,7 @@ public class YTPropertyAccessTest extends DBTestBase {
 
     Set<String> toHide = new HashSet<>();
     toHide.add("name");
-    ODocumentInternal.setPropertyAccess(doc, new OPropertyAccess(toHide));
+    ODocumentInternal.setPropertyAccess(doc, new PropertyAccess(toHide));
     assertArrayEquals(new String[]{}, doc.fieldNames());
     assertArrayEquals(new String[]{}, doc.fieldValues());
     assertEquals(new HashSet<String>(), doc.getPropertyNames());
@@ -86,7 +86,7 @@ public class YTPropertyAccessTest extends DBTestBase {
 
   @Test
   public void testNotAccessiblePropertyListingSer() {
-    YTDocument docPre = new YTDocument();
+    YTEntityImpl docPre = new YTEntityImpl();
     docPre.setProperty("name", "one value");
     assertArrayEquals(new String[]{"name"}, docPre.getPropertyNames().toArray());
     assertArrayEquals(
@@ -99,10 +99,10 @@ public class YTPropertyAccessTest extends DBTestBase {
 
     Set<String> toHide = new HashSet<>();
     toHide.add("name");
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     doc.fromStream(docPre.toStream());
-    ODocumentInternal.setPropertyAccess(doc, new OPropertyAccess(toHide));
+    ODocumentInternal.setPropertyAccess(doc, new PropertyAccess(toHide));
     assertArrayEquals(new String[]{}, doc.getPropertyNames().toArray());
     assertArrayEquals(
         new String[]{}, doc.getPropertyNames().stream().map(doc::getProperty).toArray());
@@ -114,37 +114,37 @@ public class YTPropertyAccessTest extends DBTestBase {
 
   @Test
   public void testJsonSerialization() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.setProperty("name", "one value");
     assertTrue(doc.toJSON().contains("name"));
 
     Set<String> toHide = new HashSet<>();
     toHide.add("name");
-    ODocumentInternal.setPropertyAccess(doc, new OPropertyAccess(toHide));
+    ODocumentInternal.setPropertyAccess(doc, new PropertyAccess(toHide));
     assertFalse(doc.toJSON().contains("name"));
   }
 
   @Test
   public void testToMap() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.setProperty("name", "one value");
     assertTrue(doc.toMap().containsKey("name"));
 
     Set<String> toHide = new HashSet<>();
     toHide.add("name");
-    ODocumentInternal.setPropertyAccess(doc, new OPropertyAccess(toHide));
+    ODocumentInternal.setPropertyAccess(doc, new PropertyAccess(toHide));
     assertFalse(doc.toMap().containsKey("name"));
   }
 
   @Test
   public void testStringSerialization() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.setProperty("name", "one value");
     assertTrue(doc.toString().contains("name"));
 
     Set<String> toHide = new HashSet<>();
     toHide.add("name");
-    ODocumentInternal.setPropertyAccess(doc, new OPropertyAccess(toHide));
+    ODocumentInternal.setPropertyAccess(doc, new PropertyAccess(toHide));
     assertFalse(doc.toString().contains("name"));
   }
 }

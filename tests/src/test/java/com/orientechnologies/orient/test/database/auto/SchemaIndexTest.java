@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.exception.YTSchemaException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.testng.Assert;
@@ -125,7 +125,7 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
 
     for (int i = 0; i < 10; i++) {
       database.begin();
-      YTDocument document = new YTDocument("polymorpicIdsPropagation");
+      YTEntityImpl document = new YTEntityImpl("polymorpicIdsPropagation");
       document.field("value", "val" + counter);
       document.save();
       database.commit();
@@ -136,7 +136,7 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
     final int clusterId2 = database.addCluster("polymorpicIdsPropagationSuperSuper2");
 
     for (int i = 0; i < 10; i++) {
-      YTDocument document = new YTDocument();
+      YTEntityImpl document = new YTEntityImpl();
       document.field("value", "val" + counter);
 
       database.begin();

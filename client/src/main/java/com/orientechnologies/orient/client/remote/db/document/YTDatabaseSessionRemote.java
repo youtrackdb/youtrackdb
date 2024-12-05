@@ -66,8 +66,8 @@ import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.record.impl.YTEdgeDocument;
+import com.orientechnologies.orient.core.record.impl.YTEdgeEntityImpl;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTVertexInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
@@ -489,7 +489,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   }
 
   public static void updateSchema(OStorageRemote storage,
-      YTDocument schema) {
+      YTEntityImpl schema) {
     //    storage.get
     OSharedContext shared = storage.getSharedContext();
     if (shared != null) {
@@ -497,7 +497,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
     }
   }
 
-  public static void updateIndexManager(OStorageRemote storage, YTDocument indexManager) {
+  public static void updateIndexManager(OStorageRemote storage, YTEntityImpl indexManager) {
     OSharedContext shared = storage.getSharedContext();
     if (shared != null) {
       ((OIndexManagerRemote) shared.getIndexManager()).update(indexManager);
@@ -535,15 +535,15 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
     checkSecurity(ORole.PERMISSION_CREATE, id, iClusterName);
     YTRecordHook.RESULT res = callbackHooks(YTRecordHook.TYPE.BEFORE_CREATE, id);
     if (res == YTRecordHook.RESULT.RECORD_CHANGED) {
-      if (id instanceof YTDocument) {
-        ((YTDocument) id).validate();
+      if (id instanceof YTEntityImpl) {
+        ((YTEntityImpl) id).validate();
       }
       return id;
     } else {
       if (res == YTRecordHook.RESULT.RECORD_REPLACED) {
         YTRecord replaced = OHookReplacedRecordThreadLocal.INSTANCE.get();
-        if (replaced instanceof YTDocument) {
-          ((YTDocument) replaced).validate();
+        if (replaced instanceof YTEntityImpl) {
+          ((YTEntityImpl) replaced).validate();
         }
         return replaced;
       }
@@ -556,15 +556,15 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
     checkSecurity(ORole.PERMISSION_UPDATE, id, iClusterName);
     YTRecordHook.RESULT res = callbackHooks(YTRecordHook.TYPE.BEFORE_UPDATE, id);
     if (res == YTRecordHook.RESULT.RECORD_CHANGED) {
-      if (id instanceof YTDocument) {
-        ((YTDocument) id).validate();
+      if (id instanceof YTEntityImpl) {
+        ((YTEntityImpl) id).validate();
       }
       return id;
     } else {
       if (res == YTRecordHook.RESULT.RECORD_REPLACED) {
         YTRecord replaced = OHookReplacedRecordThreadLocal.INSTANCE.get();
-        if (replaced instanceof YTDocument) {
-          ((YTDocument) replaced).validate();
+        if (replaced instanceof YTEntityImpl) {
+          ((YTEntityImpl) replaced).validate();
         }
         return replaced;
       }
@@ -580,7 +580,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
 
   public void afterUpdateOperations(final YTIdentifiable id) {
     callbackHooks(YTRecordHook.TYPE.AFTER_UPDATE, id);
-    if (id instanceof YTDocument doc) {
+    if (id instanceof YTEntityImpl doc) {
       YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null && getTransaction().isActive()) {
         OClassIndexManager.processIndexOnUpdate(this, doc);
@@ -590,7 +590,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
 
   public void afterCreateOperations(final YTIdentifiable id) {
     callbackHooks(YTRecordHook.TYPE.AFTER_CREATE, id);
-    if (id instanceof YTDocument doc) {
+    if (id instanceof YTEntityImpl doc) {
       YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null && getTransaction().isActive()) {
         OClassIndexManager.processIndexOnCreate(this, doc);
@@ -600,7 +600,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
 
   public void afterDeleteOperations(final YTIdentifiable id) {
     callbackHooks(YTRecordHook.TYPE.AFTER_DELETE, id);
-    if (id instanceof YTDocument doc) {
+    if (id instanceof YTEntityImpl doc) {
       YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null && getTransaction().isActive()) {
         OClassIndexManager.processIndexOnDelete(this, doc);
@@ -674,7 +674,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
       YTVertexInternal.deleteLinks((YTVertex) record);
     } else {
       if (record instanceof YTEdge) {
-        YTEdgeDocument.deleteLinks((YTEdge) record);
+        YTEdgeEntityImpl.deleteLinks((YTEdge) record);
       }
     }
 
@@ -683,13 +683,13 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
     } catch (YTException e) {
       throw e;
     } catch (Exception e) {
-      if (record instanceof YTDocument) {
+      if (record instanceof YTEntityImpl) {
         throw YTException.wrapException(
             new YTDatabaseException(
                 "Error on deleting record "
                     + record.getIdentity()
                     + " of class '"
-                    + ((YTDocument) record).getClassName()
+                    + ((YTEntityImpl) record).getClassName()
                     + "'"),
             e);
       } else {

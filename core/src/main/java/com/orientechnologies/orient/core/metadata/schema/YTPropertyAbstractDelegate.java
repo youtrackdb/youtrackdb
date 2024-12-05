@@ -21,7 +21,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collection;
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -177,12 +177,12 @@ public class YTPropertyAbstractDelegate implements YTProperty {
   }
 
   @Override
-  public OIndex createIndex(YTDatabaseSession session, String iType, YTDocument metadata) {
+  public OIndex createIndex(YTDatabaseSession session, String iType, YTEntityImpl metadata) {
     return delegate.createIndex(session, iType, metadata);
   }
 
   @Override
-  public OIndex createIndex(YTDatabaseSession session, INDEX_TYPE iType, YTDocument metadata) {
+  public OIndex createIndex(YTDatabaseSession session, INDEX_TYPE iType, YTEntityImpl metadata) {
     return delegate.createIndex(session, iType, metadata);
   }
 

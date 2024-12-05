@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,9 +53,9 @@ public interface OSecuritySystem {
     return new HashMap<>();
   }
 
-  YTDocument getConfig();
+  YTEntityImpl getConfig();
 
-  YTDocument getComponentConfig(final String name);
+  YTEntityImpl getComponentConfig(final String name);
 
   /**
    * Returns the "System User" associated with 'username' from the system database. If not found,
@@ -90,12 +90,13 @@ public interface OSecuritySystem {
 
   void registerSecurityClass(final Class<?> cls);
 
-  void reload(YTDatabaseSessionInternal session, final YTDocument jsonConfig);
+  void reload(YTDatabaseSessionInternal session, final YTEntityImpl jsonConfig);
 
-  void reload(YTDatabaseSessionInternal session, YTSecurityUser user, final YTDocument jsonConfig);
+  void reload(YTDatabaseSessionInternal session, YTSecurityUser user,
+      final YTEntityImpl jsonConfig);
 
   void reloadComponent(YTDatabaseSessionInternal session, YTSecurityUser user, final String name,
-      final YTDocument jsonConfig);
+      final YTEntityImpl jsonConfig);
 
   void unregisterSecurityClass(final Class<?> cls);
 

@@ -23,14 +23,14 @@ public class GetPropertyOnLoadValueTest extends DBTestBase {
   public void testOnloadValue() {
     db.createClass("test");
     db.begin();
-    YTDocument doc = new YTDocument("test");
+    YTEntityImpl doc = new YTEntityImpl("test");
     doc.setProperty("name", "John Doe");
     doc.save();
     db.commit();
     YTRID id = doc.getIdentity();
     db.activateOnCurrentThread();
     db.begin();
-    YTDocument doc2 = db.load(id);
+    YTEntityImpl doc2 = db.load(id);
     doc2.setProperty("name", "Sun Doe");
     doc2.save();
     doc2.setProperty("name", "Jane Doe");
@@ -105,7 +105,7 @@ public class GetPropertyOnLoadValueTest extends DBTestBase {
     var oBlob2 = new YTRecordBytes(byteArrayAfter);
     db.createVertexClass("test");
     db.begin();
-    YTVertexDocument doc = (YTVertexDocument) db.newVertex("test");
+    YTVertexEntityImpl doc = (YTVertexEntityImpl) db.newVertex("test");
     doc.setProperty("stringBlob", oBlob);
     doc.save();
     db.commit();

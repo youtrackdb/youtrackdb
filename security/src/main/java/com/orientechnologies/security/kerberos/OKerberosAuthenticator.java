@@ -19,7 +19,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.YTImmutableUser;
 import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
 import com.orientechnologies.orient.core.security.authenticator.OSecurityAuthenticatorAbstract;
 import com.orientechnologies.orient.core.security.kerberos.OKrb5ClientLoginModuleConfig;
@@ -192,7 +192,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
   }
 
   // OSecurityAuthenticator
-  public void config(YTDatabaseSessionInternal session, final YTDocument kerbConfig,
+  public void config(YTDatabaseSessionInternal session, final YTEntityImpl kerbConfig,
       OSecuritySystem security) {
     super.config(session, kerbConfig, security);
 
@@ -204,7 +204,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
 
     // service
     if (kerbConfig.containsField("service")) {
-      YTDocument serviceDoc = kerbConfig.field("service");
+      YTEntityImpl serviceDoc = kerbConfig.field("service");
 
       if (serviceDoc.containsField("ktname")) {
         serviceKTName = OSystemVariableResolver.resolveSystemVariables(serviceDoc.field("ktname"));
@@ -221,7 +221,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
 
     // SPNEGO
     if (kerbConfig.containsField("spnego")) {
-      YTDocument spnegoDoc = kerbConfig.field("spnego");
+      YTEntityImpl spnegoDoc = kerbConfig.field("spnego");
 
       if (spnegoDoc.containsField("ktname")) {
         spnegoKTName = OSystemVariableResolver.resolveSystemVariables(spnegoDoc.field("ktname"));
@@ -238,7 +238,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
 
     // client
     if (kerbConfig.containsField("client")) {
-      YTDocument clientDoc = kerbConfig.field("client");
+      YTEntityImpl clientDoc = kerbConfig.field("client");
 
       if (clientDoc.containsField("useTicketCache")) {
         clientUseTicketCache = clientDoc.field("useTicketCache", YTType.BOOLEAN);

@@ -4,11 +4,11 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -65,8 +65,8 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
 
     db.create();
 
-    YTDocument document = new YTDocument();
-    ORidBag ridBag = new ORidBag(db);
+    YTEntityImpl document = new YTEntityImpl();
+    RidBag ridBag = new RidBag(db);
 
     document.field("ridBag", ridBag);
     for (int i = 0; i < 100; i++) {
@@ -137,10 +137,10 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
           }
 
           while (true) {
-            YTDocument document = db.load(docContainerRid);
+            YTEntityImpl document = db.load(docContainerRid);
             document.setLazyLoad(false);
 
-            ORidBag ridBag = document.field("ridBag");
+            RidBag ridBag = document.field("ridBag");
             for (YTRID rid : ridsToAdd) {
               ridBag.add(rid);
             }
@@ -188,9 +188,9 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
       try {
         while (cont) {
           while (true) {
-            YTDocument document = db.load(docContainerRid);
+            YTEntityImpl document = db.load(docContainerRid);
             document.setLazyLoad(false);
-            ORidBag ridBag = document.field("ridBag");
+            RidBag ridBag = document.field("ridBag");
             Iterator<YTIdentifiable> iterator = ridBag.iterator();
 
             List<YTRID> ridsToDelete = new ArrayList<YTRID>();

@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import org.junit.Test;
 
 public class ODatabasePoolTest {
@@ -19,7 +19,7 @@ public class ODatabasePoolTest {
         new ODatabasePool(youTrackDb, "test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     var db = (YTDatabaseSessionInternal) pool.acquire();
     db.executeInTx(
-        () -> db.save(new YTDocument(), db.getClusterNameById(db.getDefaultClusterId())));
+        () -> db.save(new YTEntityImpl(), db.getClusterNameById(db.getDefaultClusterId())));
     db.close();
     pool.close();
     youTrackDb.close();
@@ -51,7 +51,7 @@ public class ODatabasePoolTest {
     YTDatabaseSessionInternal db = (YTDatabaseSessionInternal) pool.acquire();
     db.createClass("Test");
     db.begin();
-    db.save(new YTDocument("Test"));
+    db.save(new YTEntityImpl("Test"));
     db.close();
     db = (YTDatabaseSessionInternal) pool.acquire();
     assertEquals(db.countClass("Test"), 0);

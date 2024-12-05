@@ -18,7 +18,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +40,7 @@ public class OMultiLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeomet
   }
 
   @Override
-  public JtsGeometry fromDoc(YTDocument document) {
+  public JtsGeometry fromDoc(YTEntityImpl document) {
     validate(document);
     List<List<List<Number>>> coordinates = document.field(COORDINATES);
     LineString[] multiLine = new LineString[coordinates.size()];
@@ -65,11 +65,11 @@ public class OMultiLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeomet
   }
 
   @Override
-  public YTDocument toDoc(JtsGeometry shape) {
+  public YTEntityImpl toDoc(JtsGeometry shape) {
     final MultiLineString geom = (MultiLineString) shape.getGeom();
 
     List<List<List<Double>>> coordinates = new ArrayList<List<List<Double>>>();
-    YTDocument doc = new YTDocument(getName());
+    YTEntityImpl doc = new YTEntityImpl(getName());
     for (int i = 0; i < geom.getNumGeometries(); i++) {
       final LineString lineString = (LineString) geom.getGeometryN(i);
       coordinates.add(coordinatesFromLineString(lineString));
@@ -80,13 +80,13 @@ public class OMultiLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeomet
   }
 
   @Override
-  protected YTDocument toDoc(JtsGeometry shape, Geometry geometry) {
+  protected YTEntityImpl toDoc(JtsGeometry shape, Geometry geometry) {
     if (geometry == null || Double.isNaN(geometry.getCoordinates()[0].getZ())) {
       return toDoc(shape);
     }
 
     List<List<List<Double>>> coordinates = new ArrayList<List<List<Double>>>();
-    YTDocument doc = new YTDocument(getName() + "Z");
+    YTEntityImpl doc = new YTEntityImpl(getName() + "Z");
     for (int i = 0; i < geometry.getNumGeometries(); i++) {
       final Geometry lineString = geometry.getGeometryN(i);
       coordinates.add(coordinatesFromLineStringZ(lineString));
@@ -97,7 +97,7 @@ public class OMultiLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeomet
   }
 
   @Override
-  public String asText(YTDocument document) {
+  public String asText(YTEntityImpl document) {
     if (document.getClassName().equals("OMultiLineStringZ")) {
       List<List<List<Double>>> coordinates = document.getProperty("coordinates");
 

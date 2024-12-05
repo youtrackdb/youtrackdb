@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.parser.OAndBlock;
 import com.orientechnologies.orient.core.sql.parser.OBooleanExpression;
@@ -414,7 +414,7 @@ public class OSecurityEngine {
       return true; // TODO check!
     }
     try {
-      // Create a new instance of YTDocument with a user record id, this will lazy load the user data
+      // Create a new instance of YTEntityImpl with a user record id, this will lazy load the user data
       // at the first access with the same execution permission of the policy
       YTIdentifiable user = session.getUser().getIdentity(session);
 
@@ -448,9 +448,9 @@ public class OSecurityEngine {
       return false;
     }
     try {
-      // Create a new instance of YTDocument with a user record id, this will lazy load the user data
+      // Create a new instance of YTEntityImpl with a user record id, this will lazy load the user data
       // at the first access with the same execution permission of the policy
-      final YTDocument user = session.getUser().getIdentity(session).getRecordSilently();
+      final YTEntityImpl user = session.getUser().getIdentity(session).getRecordSilently();
       return session
           .getSharedContext()
           .getYouTrackDB()

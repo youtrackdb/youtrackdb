@@ -5,7 +5,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.OStorageOperationResult;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -66,11 +66,11 @@ public class RemoteProtocolCommandsTest extends DocumentDBBaseTest {
   public void testRawCreateWithoutIDTest() {
     YTClass clazz = this.database.getMetadata().getSchema().createClass("RidCreationTestClass");
     OAbstractPaginatedStorage storage = (OAbstractPaginatedStorage) this.database.getStorage();
-    YTDocument doc = new YTDocument("RidCreationTestClass");
+    YTEntityImpl doc = new YTEntityImpl("RidCreationTestClass");
     doc.field("test", "test");
     YTRecordId bad = new YTRecordId(-1, -1);
     OStorageOperationResult<OPhysicalPosition> res =
-        storage.createRecord(bad, doc.toStream(), doc.getVersion(), YTDocument.RECORD_TYPE, null);
+        storage.createRecord(bad, doc.toStream(), doc.getVersion(), YTEntityImpl.RECORD_TYPE, null);
 
     // assertTrue(" the cluster is not valid", bad.clusterId >= 0);
     String ids = "";

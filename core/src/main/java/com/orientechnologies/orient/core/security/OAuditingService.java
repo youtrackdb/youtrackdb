@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.security;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.io.IOException;
 
 /**
@@ -31,10 +31,10 @@ public interface OAuditingService extends OSecurityComponent {
 
   void changeConfig(YTDatabaseSessionInternal session, YTSecurityUser user,
       final String databaseName,
-      final YTDocument cfg)
+      final YTEntityImpl cfg)
       throws IOException;
 
-  YTDocument getConfig(final String databaseName);
+  YTEntityImpl getConfig(final String databaseName);
 
   void log(YTDatabaseSessionInternal session, final OAuditingOperation operation,
       final String message);

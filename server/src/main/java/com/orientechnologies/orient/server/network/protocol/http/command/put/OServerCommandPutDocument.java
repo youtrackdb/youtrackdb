@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -60,13 +60,13 @@ public class OServerCommandPutDocument extends OServerCommandDocumentAbstract {
         recordId = new ChangeableRecordId();
       }
 
-      YTDocument d =
+      YTEntityImpl d =
           db.computeInTx(
               () -> {
                 var txRecordId = recordId;
-                final YTDocument doc;
+                final YTEntityImpl doc;
                 // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
-                doc = new YTDocument();
+                doc = new YTEntityImpl();
                 doc.fromJSON(iRequest.getContent());
                 doc.setTrackingChanges(false);
 
@@ -84,7 +84,7 @@ public class OServerCommandPutDocument extends OServerCommandDocumentAbstract {
                   throw new IllegalArgumentException("Invalid Record ID in request: " + txRecordId);
                 }
 
-                final YTDocument currentDocument;
+                final YTEntityImpl currentDocument;
                 try {
                   currentDocument = db.load(txRecordId);
                 } catch (YTRecordNotFoundException rnf) {

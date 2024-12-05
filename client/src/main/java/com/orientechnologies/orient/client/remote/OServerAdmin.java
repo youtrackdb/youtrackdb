@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal;
 import com.orientechnologies.orient.core.exception.YTStorageException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
@@ -136,7 +136,7 @@ public class OServerAdmin {
    * @throws IOException
    */
   @Deprecated
-  public synchronized YTDocument getServerInfo() throws IOException {
+  public synchronized YTEntityImpl getServerInfo() throws IOException {
     checkConnected();
     return remote.getServerInfo(user, password);
   }
@@ -320,7 +320,7 @@ public class OServerAdmin {
    *
    * @return the JSON containing the current cluster structure
    */
-  public YTDocument clusterStatus() {
+  public YTEntityImpl clusterStatus() {
     checkConnected();
     return remote.getClusterStatus(user, password);
   }

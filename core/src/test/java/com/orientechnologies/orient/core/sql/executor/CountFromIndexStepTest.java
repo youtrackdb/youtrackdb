@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OIndexIdentifier;
 import com.orientechnologies.orient.core.sql.parser.OIndexName;
@@ -51,7 +51,7 @@ public class CountFromIndexStepTest extends TestUtilsFixture {
 
     for (int i = 0; i < 20; i++) {
       db.begin();
-      YTDocument document = new YTDocument(className);
+      YTEntityImpl document = new YTEntityImpl(className);
       document.field(PROPERTY_NAME, PROPERTY_VALUE);
       document.save();
       db.commit();

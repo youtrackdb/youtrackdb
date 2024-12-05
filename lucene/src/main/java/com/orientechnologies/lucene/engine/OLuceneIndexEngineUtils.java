@@ -1,7 +1,7 @@
 package com.orientechnologies.lucene.engine;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -64,12 +64,12 @@ public class OLuceneIndexEngineUtils {
   }
 
   /**
-   * Builds {@link SortField} from a configuration {@link YTDocument}
+   * Builds {@link SortField} from a configuration {@link YTEntityImpl}
    *
    * @param conf
    * @return
    */
-  public static SortField buildSortField(YTDocument conf) {
+  public static SortField buildSortField(YTEntityImpl conf) {
 
     return buildSortField(conf.toMap());
   }

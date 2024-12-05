@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.YTUser;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.security.OSecurityManager;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
@@ -79,13 +79,13 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryMaxInline() {
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database.query("select max(1,2,7,0,-2,3) as max").stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
 
     Assert.assertEquals(result.size(), 1);
-    for (YTDocument d : result) {
+    for (YTEntityImpl d : result) {
       Assert.assertNotNull(d.field("max"));
 
       Assert.assertEquals(((Number) d.field("max")).intValue(), 7);
@@ -106,13 +106,13 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryMinInline() {
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database.query("select min(1,2,7,0,-2,3) as min").stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
 
     Assert.assertEquals(result.size(), 1);
-    for (YTDocument d : result) {
+    for (YTEntityImpl d : result) {
       Assert.assertNotNull(d.field("min"));
 
       Assert.assertEquals(((Number) d.field("min")).intValue(), -2);
@@ -163,7 +163,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
         .getSecurity()
         .createUser("superReader", "superReader", "reader", "byPassRestrictedRole");
 
-    YTDocument docAdmin = new YTDocument("QueryCountExtendsRestrictedClass");
+    YTEntityImpl docAdmin = new YTEntityImpl("QueryCountExtendsRestrictedClass");
     docAdmin.field(
         "_allowRead",
         new HashSet<YTIdentifiable>(
@@ -173,17 +173,17 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    YTDocument docReader = new YTDocument("QueryCountExtendsRestrictedClass");
+    YTEntityImpl docReader = new YTEntityImpl("QueryCountExtendsRestrictedClass");
     docReader.field("_allowRead",
         new HashSet<>(Collections.singletonList(reader.getIdentity(database))));
     docReader.save();
     database.commit();
 
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database.query("select count(*) from QueryCountExtendsRestrictedClass").stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
-    YTDocument count = result.get(0);
+    YTEntityImpl count = result.get(0);
     Assert.assertEquals(2L, count.<Object>field("count(*)"));
 
     database.close();
@@ -192,7 +192,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
     result =
         database.query("select count(*) as count from QueryCountExtendsRestrictedClass").stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
     count = result.get(0);
     Assert.assertEquals(2L, count.<Object>field("count"));
@@ -202,7 +202,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
     result =
         database.query("select count(*) as count from QueryCountExtendsRestrictedClass").stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
     count = result.get(0);
     Assert.assertEquals(2L, count.<Object>field("count"));
@@ -215,17 +215,17 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
     indexed.createIndex(database, "keyed", YTClass.INDEX_TYPE.NOTUNIQUE, "key");
 
     database.begin();
-    database.<YTDocument>newInstance("Indexed").field("key", "one").save();
-    database.<YTDocument>newInstance("Indexed").field("key", "two").save();
+    database.<YTEntityImpl>newInstance("Indexed").field("key", "one").save();
+    database.<YTEntityImpl>newInstance("Indexed").field("key", "two").save();
     database.commit();
 
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database.query("select count(*) as total from Indexed where key > 'one'").stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
 
     Assert.assertEquals(result.size(), 1);
-    for (YTDocument d : result) {
+    for (YTEntityImpl d : result) {
       Assert.assertNotNull(d.field("total"));
       Assert.assertTrue(((Number) d.field("total")).longValue() > 0);
     }
@@ -233,15 +233,15 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryDistinct() {
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database.query("select distinct(name) as name from City").stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
 
     Assert.assertTrue(result.size() > 1);
 
     Set<String> cities = new HashSet<String>();
-    for (YTDocument city : result) {
+    for (YTEntityImpl city : result) {
       String cityName = city.field("name");
       Assert.assertFalse(cities.contains(cityName));
       cities.add(cityName);
@@ -250,27 +250,27 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryFunctionRenamed() {
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database.query("select distinct(name) as dist from City").stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
 
     Assert.assertTrue(result.size() > 1);
 
-    for (YTDocument city : result) {
+    for (YTEntityImpl city : result) {
       Assert.assertTrue(city.containsField("dist"));
     }
   }
 
   @Test
   public void queryUnionAllAsAggregationNotRemoveDuplicates() {
-    List<YTDocument> result =
-        database.query("select from City").stream().map(r -> (YTDocument) r.toEntity()).toList();
+    List<YTEntityImpl> result =
+        database.query("select from City").stream().map(r -> (YTEntityImpl) r.toEntity()).toList();
     int count = result.size();
 
     result =
         database.query("select unionAll(name) as name from City").stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
     Collection<Object> citiesFound = result.get(0).field("name");
     Assert.assertEquals(citiesFound.size(), count);
@@ -278,9 +278,9 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void querySetNotDuplicates() {
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database.query("select set(name) as name from City").stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
 
     Assert.assertEquals(result.size(), 1);
@@ -297,30 +297,30 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryList() {
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database.query("select list(name) as names from City").stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());
 
-    for (YTDocument d : result) {
+    for (YTEntityImpl d : result) {
       List<Object> citiesFound = d.field("names");
       Assert.assertTrue(citiesFound.size() > 1);
     }
   }
 
   public void testSelectMap() {
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database
             .query("select list( 1, 4, 5.00, 'john', map( 'kAA', 'vAA' ) ) as myresult")
             .stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
 
     Assert.assertEquals(result.size(), 1);
 
-    YTDocument document = result.get(0);
+    YTEntityImpl document = result.get(0);
     @SuppressWarnings("rawtypes")
     List myresult = document.field("myresult");
     Assert.assertNotNull(myresult);
@@ -344,14 +344,14 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void querySet() {
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database.query("select set(name) as names from City").stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());
 
-    for (YTDocument d : result) {
+    for (YTEntityImpl d : result) {
       Set<Object> citiesFound = d.field("names");
       Assert.assertTrue(citiesFound.size() > 1);
     }
@@ -359,14 +359,14 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryMap() {
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database.query("select map(name, country.name) as names from City").stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());
 
-    for (YTDocument d : result) {
+    for (YTEntityImpl d : result) {
       Map<Object, Object> citiesFound = d.field("names");
       Assert.assertTrue(citiesFound.size() > 1);
     }
@@ -374,13 +374,13 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryUnionAllAsInline() {
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database.query("select unionAll(out, in) as edges from V").stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
 
     Assert.assertTrue(result.size() > 1);
-    for (YTDocument d : result) {
+    for (YTEntityImpl d : result) {
       Assert.assertEquals(d.fieldNames().length, 1);
       Assert.assertTrue(d.containsField("edges"));
     }
@@ -388,17 +388,17 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryComposedAggregates() {
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database
             .query(
                 "select MIN(id) as min, max(id) as max, AVG(id) as average, sum(id) as total"
                     + " from Account")
             .stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
 
     Assert.assertEquals(result.size(), 1);
-    for (YTDocument d : result) {
+    for (YTEntityImpl d : result) {
       Assert.assertNotNull(d.field("min"));
       Assert.assertNotNull(d.field("max"));
       Assert.assertNotNull(d.field("average"));
@@ -416,17 +416,17 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryFormat() {
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database
             .query(
                 "select format('%d - %s (%s)', nr, street, type, dummy ) as output from"
                     + " Account")
             .stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
 
     Assert.assertTrue(result.size() > 1);
-    for (YTDocument d : result) {
+    for (YTEntityImpl d : result) {
       Assert.assertNotNull(d.field("output"));
     }
   }
@@ -444,13 +444,13 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void querySysdateWithFormat() {
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database.query("select sysdate('dd-MM-yyyy') as date from Account").stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
 
     Assert.assertTrue(result.size() > 1);
-    for (YTDocument d : result) {
+    for (YTEntityImpl d : result) {
       Assert.assertNotNull(d.field("date"));
     }
   }
@@ -498,7 +498,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
   public void queryUndefinedFunction() {
     //noinspection ResultOfMethodCallIgnored
     database.query("select blaaaa(salary) as max from Account").stream()
-        .map(r -> (YTDocument) r.toEntity())
+        .map(r -> (YTEntityImpl) r.toEntity())
         .toList();
   }
 
@@ -540,13 +540,13 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
               }
             });
 
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database.query("select from Account where bigger(id,1000) = 1000").stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());
-    for (YTDocument d : result) {
+    for (YTEntityImpl d : result) {
       Assert.assertTrue((Integer) d.field("id") <= 1000);
     }
 
@@ -560,11 +560,11 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
         "select numberString.asLong() as value from ( select '"
             + moreThanInteger
             + "' as numberString from Account ) limit 1";
-    List<YTDocument> result =
-        database.query(sql).stream().map(r -> (YTDocument) r.toEntity()).toList();
+    List<YTEntityImpl> result =
+        database.query(sql).stream().map(r -> (YTEntityImpl) r.toEntity()).toList();
 
     Assert.assertEquals(result.size(), 1);
-    for (YTDocument d : result) {
+    for (YTEntityImpl d : result) {
       Assert.assertNotNull(d.field("value"));
       Assert.assertTrue(d.field("value") instanceof Long);
       Assert.assertEquals(moreThanInteger, d.<Object>field("value"));
@@ -573,15 +573,15 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void testHashMethod() throws UnsupportedEncodingException, NoSuchAlgorithmException {
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database
             .query("select name, name.hash() as n256, name.hash('sha-512') as n512 from OUser")
             .stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());
-    for (YTDocument d : result) {
+    for (YTEntityImpl d : result) {
       final String name = d.field("name");
 
       Assert.assertEquals(OSecurityManager.createHash(name, "SHA-256"), d.field("n256"));
@@ -597,14 +597,14 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    new YTDocument("V").field("sequence", sequence).save();
+    new YTEntityImpl("V").field("sequence", sequence).save();
     sequence.remove(0);
-    new YTDocument("V").field("sequence", sequence).save();
+    new YTEntityImpl("V").field("sequence", sequence).save();
     database.commit();
 
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database.query("select first(sequence) as first from V where sequence is not null").stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
 
     Assert.assertEquals(result.size(), 2);
@@ -620,14 +620,14 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    new YTDocument("V").field("sequence2", sequence).save();
+    new YTEntityImpl("V").field("sequence2", sequence).save();
     sequence.remove(sequence.size() - 1);
-    new YTDocument("V").field("sequence2", sequence).save();
+    new YTEntityImpl("V").field("sequence2", sequence).save();
     database.commit();
 
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database.query("select last(sequence2) as last from V where sequence2 is not null").stream()
-            .map(r -> (YTDocument) r.toEntity())
+            .map(r -> (YTEntityImpl) r.toEntity())
             .toList();
 
     Assert.assertEquals(result.size(), 2);
@@ -639,11 +639,11 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
   public void querySplit() {
     String sql = "select v.split('-') as value from ( select '1-2-3' as v ) limit 1";
 
-    List<YTDocument> result =
-        database.query(sql).stream().map(r -> (YTDocument) r.toEntity()).toList();
+    List<YTEntityImpl> result =
+        database.query(sql).stream().map(r -> (YTEntityImpl) r.toEntity()).toList();
 
     Assert.assertEquals(result.size(), 1);
-    for (YTDocument d : result) {
+    for (YTEntityImpl d : result) {
       Assert.assertNotNull(d.field("value"));
       Assert.assertTrue(d.field("value").getClass().isArray());
 

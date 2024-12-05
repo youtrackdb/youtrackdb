@@ -18,7 +18,7 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.query.OLegacyResultSet;
 import com.orientechnologies.orient.core.sql.query.OLiveQuery;
 import com.orientechnologies.orient.core.sql.query.OLiveResultListener;
@@ -76,10 +76,10 @@ public class LiveQueryTest extends DocumentDBBaseTest implements OCommandOutputL
 
     MyLiveQueryListener listener = new MyLiveQueryListener();
 
-    OLegacyResultSet<YTDocument> tokens =
-        database.query(new OLiveQuery<YTDocument>("live select from " + className1, listener));
+    OLegacyResultSet<YTEntityImpl> tokens =
+        database.query(new OLiveQuery<YTEntityImpl>("live select from " + className1, listener));
     Assert.assertEquals(tokens.size(), 1);
-    YTDocument tokenDoc = tokens.get(0);
+    YTEntityImpl tokenDoc = tokens.get(0);
     int token = tokenDoc.field("token");
     Assert.assertNotNull(token);
 
@@ -94,7 +94,7 @@ public class LiveQueryTest extends DocumentDBBaseTest implements OCommandOutputL
     Assert.assertEquals(listener.ops.size(), 2);
     for (ORecordOperation doc : listener.ops) {
       Assert.assertEquals(doc.type, ORecordOperation.CREATED);
-      Assert.assertEquals(((YTDocument) doc.record).field("name"), "foo");
+      Assert.assertEquals(((YTEntityImpl) doc.record).field("name"), "foo");
     }
     unLatch.await(1, TimeUnit.MINUTES);
     Assert.assertEquals(listener.unsubscribe, token);

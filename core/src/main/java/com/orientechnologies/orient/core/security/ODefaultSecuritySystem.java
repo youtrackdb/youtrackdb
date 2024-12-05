@@ -37,7 +37,7 @@ import com.orientechnologies.orient.core.metadata.security.YTImmutableUser;
 import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.YTSystemUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.security.authenticator.ODatabaseUserAuthenticator;
 import com.orientechnologies.orient.core.security.authenticator.OServerConfigAuthenticator;
 import com.orientechnologies.orient.core.security.authenticator.OSystemUserAuthenticator;
@@ -78,17 +78,17 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   private final Object auditingSynch = new Object();
   private OAuditingService auditingService;
 
-  private YTDocument configDoc; // Holds the
+  private YTEntityImpl configDoc; // Holds the
   // current JSON
   // configuration.
   private OSecurityConfig serverConfig;
   private YouTrackDBInternal context;
 
-  private YTDocument auditingDoc;
-  private YTDocument serverDoc;
-  private YTDocument authDoc;
-  private YTDocument passwdValDoc;
-  private YTDocument ldapImportDoc;
+  private YTEntityImpl auditingDoc;
+  private YTEntityImpl serverDoc;
+  private YTEntityImpl authDoc;
+  private YTEntityImpl passwdValDoc;
+  private YTEntityImpl ldapImportDoc;
 
   // We use a list because the order indicates priority of method.
   private volatile List<OSecurityAuthenticator> authenticatorsList;
@@ -196,7 +196,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     close();
   }
 
-  private Class<?> getClass(final YTDocument jsonConfig) {
+  private Class<?> getClass(final YTEntityImpl jsonConfig) {
     Class<?> cls = null;
 
     try {
@@ -356,8 +356,8 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   // OSecuritySystem (via OServerSecurity)
-  public YTDocument getConfig() {
-    YTDocument jsonConfig = new YTDocument();
+  public YTEntityImpl getConfig() {
+    YTEntityImpl jsonConfig = new YTEntityImpl();
 
     try {
       jsonConfig.field("enabled", enabled);
@@ -390,9 +390,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   // OSecuritySystem (via OServerSecurity)
-  // public YTDocument getComponentConfig(final String name) { return getSection(name); }
+  // public YTEntityImpl getComponentConfig(final String name) { return getSection(name); }
 
-  public YTDocument getComponentConfig(final String name) {
+  public YTEntityImpl getComponentConfig(final String name) {
     if (name != null) {
       if (name.equalsIgnoreCase("auditing")) {
         return auditingDoc;
@@ -651,12 +651,13 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   // OSecuritySystem
-  public void reload(YTDatabaseSessionInternal session, final YTDocument configDoc) {
+  public void reload(YTDatabaseSessionInternal session, final YTEntityImpl configDoc) {
     reload(session, null, configDoc);
   }
 
   @Override
-  public void reload(YTDatabaseSessionInternal session, YTSecurityUser user, YTDocument configDoc) {
+  public void reload(YTDatabaseSessionInternal session, YTSecurityUser user,
+      YTEntityImpl configDoc) {
     if (configDoc != null) {
       close();
 
@@ -672,15 +673,15 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
       OLogManager.instance()
           .warn(
               this,
-              "ODefaultServerSecurity.reload(YTDocument) The provided configuration document is"
+              "ODefaultServerSecurity.reload(YTEntityImpl) The provided configuration document is"
                   + " null");
       throw new YTSecuritySystemException(
-          "ODefaultServerSecurity.reload(YTDocument) The provided configuration document is null");
+          "ODefaultServerSecurity.reload(YTEntityImpl) The provided configuration document is null");
     }
   }
 
   public void reloadComponent(YTDatabaseSessionInternal session, YTSecurityUser user,
-      final String name, final YTDocument jsonConfig) {
+      final String name, final YTEntityImpl jsonConfig) {
     if (name == null || name.isEmpty()) {
       throw new YTSecuritySystemException(
           "ODefaultServerSecurity.reloadComponent() name is null or empty");
@@ -716,12 +717,12 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
         user, String.format("The %s security component has been reloaded", name));
   }
 
-  private void loadAuthenticators(YTDatabaseSessionInternal session, final YTDocument authDoc) {
+  private void loadAuthenticators(YTDatabaseSessionInternal session, final YTEntityImpl authDoc) {
     if (authDoc.containsField("authenticators")) {
       List<OSecurityAuthenticator> autheticators = new ArrayList<OSecurityAuthenticator>();
-      List<YTDocument> authMethodsList = authDoc.field("authenticators");
+      List<YTEntityImpl> authMethodsList = authDoc.field("authenticators");
 
-      for (YTDocument authMethodDoc : authMethodsList) {
+      for (YTEntityImpl authMethodDoc : authMethodsList) {
         try {
           if (authMethodDoc.containsField("name")) {
             final String name = authMethodDoc.field("name");
@@ -831,9 +832,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     }
   }
 
-  // Returns a section of the JSON document configuration as an YTDocument if section is present.
-  private YTDocument getSection(final String section) {
-    YTDocument sectionDoc = null;
+  // Returns a section of the JSON document configuration as an YTEntityImpl if section is present.
+  private YTEntityImpl getSection(final String section) {
+    YTEntityImpl sectionDoc = null;
 
     try {
       if (configDoc != null) {
@@ -856,9 +857,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   // Change the component section and save it to disk
-  private void setSection(final String section, YTDocument sectionDoc) {
+  private void setSection(final String section, YTEntityImpl sectionDoc) {
 
-    YTDocument oldSection = getSection(section);
+    YTEntityImpl oldSection = getSection(section);
     try {
       if (configDoc != null) {
 
@@ -882,8 +883,8 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   // "${YOU_TRACK_DB_HOME}/config/security.json"
-  private YTDocument loadConfig(final String cfgPath) {
-    YTDocument securityDoc = null;
+  private YTEntityImpl loadConfig(final String cfgPath) {
+    YTEntityImpl securityDoc = null;
 
     try {
       if (cfgPath != null) {
@@ -901,7 +902,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
             final byte[] buffer = new byte[(int) file.length()];
             fis.read(buffer);
 
-            securityDoc = new YTDocument().fromJSON(new String(buffer), "noMap");
+            securityDoc = new YTEntityImpl().fromJSON(new String(buffer), "noMap");
           } finally {
             if (fis != null) {
               fis.close();
@@ -926,7 +927,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     return securityDoc;
   }
 
-  private boolean isEnabled(final YTDocument sectionDoc) {
+  private boolean isEnabled(final YTEntityImpl sectionDoc) {
     boolean enabled = true;
 
     try {

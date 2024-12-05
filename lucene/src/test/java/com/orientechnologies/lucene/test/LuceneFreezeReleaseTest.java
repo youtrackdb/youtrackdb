@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.File;
 import org.junit.Assert;
@@ -40,7 +40,7 @@ public class LuceneFreezeReleaseTest {
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE").close();
 
     db.begin();
-    db.save(new YTDocument("Person").field("name", "John"));
+    db.save(new YTEntityImpl("Person").field("name", "John"));
     db.commit();
 
     try {
@@ -55,7 +55,7 @@ public class LuceneFreezeReleaseTest {
       db.release();
 
       db.begin();
-      db.save(new YTDocument("Person").field("name", "John"));
+      db.save(new YTEntityImpl("Person").field("name", "John"));
       db.commit();
 
       results = db.query("select from Person where name lucene 'John'");
@@ -85,7 +85,7 @@ public class LuceneFreezeReleaseTest {
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE").close();
 
     db.begin();
-    db.save(new YTDocument("Person").field("name", "John"));
+    db.save(new YTEntityImpl("Person").field("name", "John"));
     db.commit();
 
     try {
@@ -104,7 +104,7 @@ public class LuceneFreezeReleaseTest {
       db.release();
 
       db.begin();
-      db.save(new YTDocument("Person").field("name", "John"));
+      db.save(new YTEntityImpl("Person").field("name", "John"));
       db.commit();
 
       results = db.query("select from Person where name lucene 'John'");

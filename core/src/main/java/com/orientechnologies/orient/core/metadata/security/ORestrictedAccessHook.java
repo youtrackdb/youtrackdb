@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Set;
 
 /**
@@ -35,7 +35,7 @@ import java.util.Set;
 public class ORestrictedAccessHook {
 
   public static boolean onRecordBeforeCreate(
-      final YTDocument iDocument, YTDatabaseSessionInternal database) {
+      final YTEntityImpl iDocument, YTDatabaseSessionInternal database) {
     final YTImmutableClass cls = ODocumentInternal.getImmutableSchemaClass(database, iDocument);
     if (cls != null && cls.isRestricted()) {
       String fieldNames = cls.getCustom(OSecurityShared.ONCREATE_FIELD);
@@ -83,7 +83,7 @@ public class ORestrictedAccessHook {
   @SuppressWarnings("unchecked")
   public static boolean isAllowed(
       YTDatabaseSessionInternal database,
-      final YTDocument iDocument,
+      final YTEntityImpl iDocument,
       final ORestrictedOperation iAllowOperation,
       final boolean iReadOriginal) {
     final YTImmutableClass cls = ODocumentInternal.getImmutableSchemaClass(database, iDocument);
@@ -106,7 +106,7 @@ public class ORestrictedAccessHook {
         }
       }
 
-      final YTDocument doc;
+      final YTEntityImpl doc;
       if (iReadOriginal)
       // RELOAD TO AVOID HACKING OF "_ALLOW" FIELDS
       {

@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.io.File;
 import java.io.IOException;
@@ -311,7 +311,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
         YTClass classTwo = baseDB.getMetadata().getSchema().getClass("TestTwo");
 
         for (int i = 0; i < 10000; i++) {
-          YTDocument docOne = new YTDocument(classOne);
+          YTEntityImpl docOne = new YTEntityImpl(classOne);
           docOne.field("intProp", random.nextInt());
 
           byte[] stringData = new byte[256];
@@ -331,7 +331,7 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
           firstDocs.add(docOne.getIdentity());
 
           if (random.nextBoolean()) {
-            YTDocument docTwo = new YTDocument(classTwo);
+            YTEntityImpl docTwo = new YTEntityImpl(classTwo);
 
             List<String> stringList = new ArrayList<String>();
 
@@ -377,10 +377,10 @@ public class LocalPaginatedStorageRestoreFromWALAndAddAdditionalRecords {
       return null;
     }
 
-    private void saveDoc(YTDocument document) {
+    private void saveDoc(YTEntityImpl document) {
       ODatabaseRecordThreadLocal.instance().set(baseDB);
 
-      YTDocument testDoc = new YTDocument();
+      YTEntityImpl testDoc = new YTEntityImpl();
       document.copyTo(testDoc);
       document.save();
 

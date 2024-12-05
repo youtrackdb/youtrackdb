@@ -69,7 +69,7 @@ import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.security.OCredentialInterceptor;
 import com.orientechnologies.orient.core.security.OSecurityManager;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
@@ -262,16 +262,16 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
     remote.shutdown();
   }
 
-  public YTDocument getServerInfo(String username, String password) {
+  public YTEntityImpl getServerInfo(String username, String password) {
     OServerInfoRequest request = new OServerInfoRequest();
     OServerInfoResponse response = connectAndSend(null, username, password, request);
-    YTDocument res = new YTDocument();
+    YTEntityImpl res = new YTEntityImpl();
     res.fromJSON(response.getResult());
 
     return res;
   }
 
-  public YTDocument getClusterStatus(String username, String password) {
+  public YTEntityImpl getClusterStatus(String username, String password) {
     ODistributedStatusRequest request = new ODistributedStatusRequest();
     ODistributedStatusResponse response = connectAndSend(null, username, password, request);
 

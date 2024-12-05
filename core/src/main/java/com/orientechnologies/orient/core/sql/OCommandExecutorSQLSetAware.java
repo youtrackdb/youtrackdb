@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,7 +42,7 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
   protected static final String KEYWORD_SET = "SET";
   protected static final String KEYWORD_CONTENT = "CONTENT";
 
-  protected YTDocument content = null;
+  protected YTEntityImpl content = null;
   protected int parameterCounter = 0;
 
   protected void parseContent() {
@@ -168,7 +168,7 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
 
               for (Object o : OMultiValue.getMultiValueIterable(v)) {
                 if (o instanceof Map) {
-                  final YTDocument doc =
+                  final YTEntityImpl doc =
                       createDocumentFromMap(embeddedType, (Map<String, Object>) o);
                   set.add(doc);
                 } else if (o instanceof YTIdentifiable) {
@@ -191,7 +191,7 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
 
               for (Object o : OMultiValue.getMultiValueIterable(v)) {
                 if (o instanceof Map) {
-                  final YTDocument doc =
+                  final YTEntityImpl doc =
                       createDocumentFromMap(embeddedType, (Map<String, Object>) o);
                   set.add(doc);
                 } else if (o instanceof YTIdentifiable) {
@@ -212,7 +212,7 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
 
               for (Map.Entry<String, Object> entry : ((Map<String, Object>) v).entrySet()) {
                 if (entry.getValue() instanceof Map) {
-                  final YTDocument doc =
+                  final YTEntityImpl doc =
                       createDocumentFromMap(embeddedType, (Map<String, Object>) entry.getValue());
                   map.put(entry.getKey(), doc);
                 } else if (entry.getValue() instanceof YTIdentifiable) {
@@ -231,8 +231,8 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
     return v;
   }
 
-  private YTDocument createDocumentFromMap(YTClass embeddedType, Map<String, Object> o) {
-    final YTDocument doc = new YTDocument();
+  private YTEntityImpl createDocumentFromMap(YTClass embeddedType, Map<String, Object> o) {
+    final YTEntityImpl doc = new YTEntityImpl();
     if (embeddedType != null) {
       doc.setClassName(embeddedType.getName());
     }
@@ -255,9 +255,9 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
     return OSQLHelper.parseValue(this, fieldValue, context, true);
   }
 
-  protected YTDocument parseJSON() {
+  protected YTEntityImpl parseJSON() {
     final String contentAsString = parserRequiredWord(false, "JSON expected").trim();
-    final YTDocument json = new YTDocument();
+    final YTEntityImpl json = new YTEntityImpl();
     json.fromJSON(contentAsString);
     parserSkipWhiteSpaces();
     return json;

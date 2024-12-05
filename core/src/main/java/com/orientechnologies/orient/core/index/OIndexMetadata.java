@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.stream.OMixedIndexRIDContainerSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.stream.OStreamSerializerRID;
 import com.orientechnologies.orient.core.serialization.serializer.stream.OStreamSerializerSBTreeIndexRIDContainer;
@@ -55,7 +55,7 @@ public class OIndexMetadata {
       String algorithm,
       String valueContainerAlgorithm,
       int version,
-      YTDocument metadata) {
+      YTEntityImpl metadata) {
     assert metadata == null || metadata.getIdentity().isNew();
     this.name = name;
     this.indexDefinition = indexDefinition;
@@ -76,7 +76,7 @@ public class OIndexMetadata {
   }
 
   @Nullable
-  private static Map<String, ?> initMetadata(YTDocument metadataDoc) {
+  private static Map<String, ?> initMetadata(YTEntityImpl metadataDoc) {
     if (metadataDoc == null) {
       return null;
     }
@@ -188,7 +188,7 @@ public class OIndexMetadata {
     return metadata;
   }
 
-  public void setMetadata(YTDocument metadata) {
+  public void setMetadata(YTEntityImpl metadata) {
     this.metadata = initMetadata(metadata);
   }
 }

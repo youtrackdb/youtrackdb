@@ -22,7 +22,7 @@ import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
@@ -297,31 +297,31 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     vertex.setProperty("name", "vertexWithEmbedded");
     vertex.save();
 
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.field("foo", "bar");
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     vertex.setProperty("emb1", doc);
 
-    YTDocument doc2 = new YTDocument("V");
+    YTEntityImpl doc2 = new YTEntityImpl("V");
     doc2.field("foo", "bar1");
     vertex.setProperty("emb2", doc2, YTType.EMBEDDED);
 
-    YTDocument doc3 = new YTDocument("NonVertex");
+    YTEntityImpl doc3 = new YTEntityImpl("NonVertex");
     doc3.field("foo", "bar2");
     vertex.setProperty("emb3", doc3, YTType.EMBEDDED);
 
     Object res1 = vertex.getProperty("emb1");
     Assert.assertNotNull(res1);
-    Assert.assertTrue(res1 instanceof YTDocument);
+    Assert.assertTrue(res1 instanceof YTEntityImpl);
 
     Object res2 = vertex.getProperty("emb2");
     Assert.assertNotNull(res2);
-    Assert.assertFalse(res2 instanceof YTDocument);
+    Assert.assertFalse(res2 instanceof YTEntityImpl);
 
     Object res3 = vertex.getProperty("emb3");
     Assert.assertNotNull(res3);
-    Assert.assertTrue(res3 instanceof YTDocument);
+    Assert.assertTrue(res3 instanceof YTEntityImpl);
     database.commit();
   }
 }

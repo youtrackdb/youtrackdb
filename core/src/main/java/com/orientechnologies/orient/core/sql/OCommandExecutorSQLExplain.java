@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collection;
 import java.util.Map;
 
@@ -65,14 +65,14 @@ public class OCommandExecutorSQLExplain extends OCommandExecutorSQLDelegate {
     final long startTime = System.nanoTime();
 
     final Object result = super.execute(iArgs, querySession);
-    final YTDocument report = new YTDocument(delegate.getContext().getVariables());
+    final YTEntityImpl report = new YTEntityImpl(delegate.getContext().getVariables());
 
     report.field("elapsed", (System.nanoTime() - startTime) / 1000000f);
 
     if (result instanceof Collection<?>) {
       report.field("resultType", "collection");
       report.field("resultSize", ((Collection<?>) result).size());
-    } else if (result instanceof YTDocument) {
+    } else if (result instanceof YTEntityImpl) {
       report.field("resultType", "document");
       report.field("resultSize", 1);
     } else if (result instanceof Number) {

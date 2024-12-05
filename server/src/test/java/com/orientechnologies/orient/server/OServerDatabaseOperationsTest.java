@@ -9,7 +9,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.config.OServerUserConfiguration;
 import java.io.File;
@@ -65,7 +65,7 @@ public class OServerDatabaseOperationsTest {
 
     try (YTDatabaseSession session = server.openDatabase(
         OServerDatabaseOperationsTest.class.getSimpleName())) {
-      YTDocument securityConfig = new YTDocument();
+      YTEntityImpl securityConfig = new YTEntityImpl();
       securityConfig.fromJSON(
           OIOUtils.readStreamAsString(
               this.getClass().getClassLoader().getResourceAsStream("security.json")),

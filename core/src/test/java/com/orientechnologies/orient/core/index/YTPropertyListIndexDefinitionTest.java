@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.index;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.Arrays;
 import java.util.Collection;
@@ -97,7 +97,7 @@ public class YTPropertyListIndexDefinitionTest extends DBTestBase {
 
   @Test
   public void testGetDocumentValueToIndex() {
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
     document.field("fOne", Arrays.asList("12", "23"));
     document.field("fTwo", 10);

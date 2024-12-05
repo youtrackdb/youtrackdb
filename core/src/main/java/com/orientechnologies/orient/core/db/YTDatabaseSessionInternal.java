@@ -47,8 +47,8 @@ import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.YTEdgeInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
@@ -337,7 +337,7 @@ public interface YTDatabaseSessionInternal extends YTDatabaseSession {
    * Browses all the records of the specified cluster.
    *
    * @param iClusterName Cluster name to iterate
-   * @return Iterator of YTDocument instances
+   * @return Iterator of YTEntityImpl instances
    */
   <REC extends YTRecord> ORecordIteratorCluster<REC> browseCluster(String iClusterName);
 
@@ -352,7 +352,7 @@ public interface YTDatabaseSessionInternal extends YTDatabaseSession {
    *
    * @param iClusterName Cluster name to iterate
    * @param iRecordClass The record class expected
-   * @return Iterator of YTDocument instances
+   * @return Iterator of YTEntityImpl instances
    */
   @Deprecated
   <REC extends YTRecord> ORecordIteratorCluster<REC> browseCluster(
@@ -380,9 +380,9 @@ public interface YTDatabaseSessionInternal extends YTDatabaseSession {
    * position 0 until the end. Base classes are worked at first.
    *
    * @param iClassName Class name to iterate
-   * @return Iterator of YTDocument instances
+   * @return Iterator of YTEntityImpl instances
    */
-  ORecordIteratorClass<YTDocument> browseClass(String iClassName);
+  ORecordIteratorClass<YTEntityImpl> browseClass(String iClassName);
 
   /**
    * Browses all the records of the specified class and if iPolymorphic is true also all the
@@ -393,9 +393,9 @@ public interface YTDatabaseSessionInternal extends YTDatabaseSession {
    *
    * @param iClassName   Class name to iterate
    * @param iPolymorphic Consider also the instances of the subclasses or not
-   * @return Iterator of YTDocument instances
+   * @return Iterator of YTEntityImpl instances
    */
-  ORecordIteratorClass<YTDocument> browseClass(String iClassName, boolean iPolymorphic);
+  ORecordIteratorClass<YTEntityImpl> browseClass(String iClassName, boolean iPolymorphic);
 
   /**
    * Counts the entities contained in the specified class and sub classes (polymorphic).

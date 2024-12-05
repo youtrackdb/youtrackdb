@@ -24,7 +24,7 @@ import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -33,7 +33,7 @@ import java.io.IOException;
 
 public class ODistributedStatusRequest implements OBinaryRequest<ODistributedStatusResponse> {
 
-  private YTDocument status;
+  private YTEntityImpl status;
 
   public ODistributedStatusRequest() {
   }
@@ -41,16 +41,16 @@ public class ODistributedStatusRequest implements OBinaryRequest<ODistributedSta
   @Override
   public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
-    network.writeBytes(new YTDocument().field("operation", "status").toStream());
+    network.writeBytes(new YTEntityImpl().field("operation", "status").toStream());
   }
 
   public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
       ORecordSerializer serializer)
       throws IOException {
-    status = new YTDocument(channel.readBytes());
+    status = new YTEntityImpl(channel.readBytes());
   }
 
-  public YTDocument getStatus() {
+  public YTEntityImpl getStatus() {
     return status;
   }
 

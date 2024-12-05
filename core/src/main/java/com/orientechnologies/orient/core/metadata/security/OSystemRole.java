@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.List;
 import java.util.Map;
 
@@ -55,12 +55,12 @@ public class OSystemRole extends ORole {
   /**
    * Create the role by reading the source document.
    */
-  public OSystemRole(YTDatabaseSessionInternal session, final YTDocument iSource) {
+  public OSystemRole(YTDatabaseSessionInternal session, final YTEntityImpl iSource) {
     super(session, iSource);
   }
 
   @Override
-  public void fromStream(YTDatabaseSessionInternal session, final YTDocument iSource) {
+  public void fromStream(YTDatabaseSessionInternal session, final YTEntityImpl iSource) {
     super.fromStream(session, iSource);
 
     var document = getDocument(session);

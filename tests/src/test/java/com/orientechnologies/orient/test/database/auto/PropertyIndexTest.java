@@ -21,7 +21,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collection;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -74,7 +74,7 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
     final YTProperty propOne = oClass.getProperty("prop1");
 
     propOne.createIndex(database, YTClass.INDEX_TYPE.UNIQUE,
-        new YTDocument().field("ignoreNullValues", true));
+        new YTEntityImpl().field("ignoreNullValues", true));
 
     final Collection<OIndex> indexes = propOne.getIndexes(database);
     OIndexDefinition indexDefinition = null;
@@ -103,27 +103,27 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
         "propOne0",
         YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop0", "prop1"});
+        new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"prop0", "prop1"});
     oClass.createIndex(database,
         "propOne1",
         YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop1", "prop2"});
+        new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"prop1", "prop2"});
     oClass.createIndex(database,
         "propOne2",
         YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop1", "prop3"});
+        new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"prop1", "prop3"});
     oClass.createIndex(database,
         "propOne3",
         YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop2", "prop3"});
+        new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"prop2", "prop3"});
     oClass.createIndex(database,
         "propOne4",
         YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop2", "prop1"});
+        new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"prop2", "prop1"});
   }
 
   @Test(dependsOnMethods = "createAdditionalSchemas")
@@ -188,11 +188,12 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
             .size(database);
 
     database.begin();
-    YTDocument doc =
-        new YTDocument("PropertyIndexTestClass").fields("prop1", "testComposite3");
+    YTEntityImpl doc =
+        new YTEntityImpl("PropertyIndexTestClass").fields("prop1", "testComposite3");
     doc.save();
-    new YTDocument("PropertyIndexTestClass").fields("prop0", doc, "prop1", "testComposite1").save();
-    new YTDocument("PropertyIndexTestClass").fields("prop0", doc).save();
+    new YTEntityImpl("PropertyIndexTestClass").fields("prop0", doc, "prop1", "testComposite1")
+        .save();
+    new YTEntityImpl("PropertyIndexTestClass").fields("prop0", doc).save();
     database.commit();
 
     Assert.assertEquals(
@@ -232,12 +233,12 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
             .getInternal()
             .size(database);
 
-    YTDocument doc =
-        new YTDocument("PropertyIndexTestClass").fields("prop1", "testComposite34");
+    YTEntityImpl doc =
+        new YTEntityImpl("PropertyIndexTestClass").fields("prop1", "testComposite34");
     doc.save();
-    new YTDocument("PropertyIndexTestClass").fields("prop0", doc, "prop1", "testComposite33")
+    new YTEntityImpl("PropertyIndexTestClass").fields("prop0", doc, "prop1", "testComposite33")
         .save();
-    new YTDocument("PropertyIndexTestClass").fields("prop0", doc).save();
+    new YTEntityImpl("PropertyIndexTestClass").fields("prop0", doc).save();
 
     database.commit();
 
@@ -268,12 +269,12 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
         "PropertyIndexFirstIndex",
         YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop4"});
+        new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"prop4"});
     oClass.createIndex(database,
         "PropertyIndexSecondIndex",
         YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop4"});
+        new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"prop4"});
 
     oClass.getProperty("prop4").dropIndexes(database);
 
@@ -298,12 +299,12 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
         "PropertyIndexFirstIndex",
         YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop4"});
+        new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"prop4"});
     oClass.createIndex(database,
         "PropertyIndexSecondIndex",
         YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new YTDocument().fields("ignoreNullValues", true), new String[]{"prop4", "prop5"});
+        new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"prop4", "prop5"});
 
     try {
       oClass.getProperty("prop4").dropIndexes(database);

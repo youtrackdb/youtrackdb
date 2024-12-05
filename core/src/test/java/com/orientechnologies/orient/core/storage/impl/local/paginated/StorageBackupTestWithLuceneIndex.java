@@ -10,7 +10,7 @@ import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.io.File;
 import java.io.IOException;
@@ -79,7 +79,7 @@ public class StorageBackupTestWithLuceneIndex {
         "LUCENE", new String[]{"name"});
 
     db.begin();
-    final YTDocument document = new YTDocument("BackupClass");
+    final YTEntityImpl document = new YTEntityImpl("BackupClass");
     document.field("num", 1);
     document.field("name", "Storage");
     document.save();
@@ -149,7 +149,7 @@ public class StorageBackupTestWithLuceneIndex {
     }
 
     db.begin();
-    YTDocument document = new YTDocument("BackupClass");
+    YTEntityImpl document = new YTEntityImpl("BackupClass");
     document.field("num", 1);
     document.field("name", "Storage");
     document.save();
@@ -158,7 +158,7 @@ public class StorageBackupTestWithLuceneIndex {
     db.incrementalBackup(backupDir.getAbsolutePath());
 
     db.begin();
-    document = new YTDocument("BackupClass");
+    document = new YTEntityImpl("BackupClass");
     document.field("num", 1);
     document.field("name", "Storage1");
     document.save();

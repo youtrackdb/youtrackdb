@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.db.OExecutionThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.index.OCompositeKey;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.OMemoryStream;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.index.OCompositeKeySerializer;
@@ -123,14 +123,14 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
 
       buffer.set(!params.isEmpty());
       if (!params.isEmpty()) {
-        final YTDocument param = new YTDocument();
+        final YTEntityImpl param = new YTEntityImpl();
         param.field("parameters", params);
         buffer.set(param.toStream());
       }
 
       buffer.set(!compositeKeyParams.isEmpty());
       if (!compositeKeyParams.isEmpty()) {
-        final YTDocument compositeKey = new YTDocument();
+        final YTEntityImpl compositeKey = new YTEntityImpl();
         compositeKey.field("compositeKeyParams", compositeKeyParams);
         buffer.set(compositeKey.toStream());
       }
@@ -148,7 +148,7 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
     final boolean simpleParams = buffer.getAsBoolean();
     if (simpleParams) {
       final byte[] paramBuffer = buffer.getAsByteArray();
-      final YTDocument param = new YTDocument();
+      final YTEntityImpl param = new YTEntityImpl();
       if (serializer != null) {
         serializer.fromStream(db, paramBuffer, param, null);
       } else {
@@ -187,7 +187,7 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
     final boolean compositeKeyParamsPresent = buffer.getAsBoolean();
     if (compositeKeyParamsPresent) {
       final byte[] paramBuffer = buffer.getAsByteArray();
-      final YTDocument param = new YTDocument();
+      final YTEntityImpl param = new YTEntityImpl();
       if (serializer != null) {
         serializer.fromStream(db, paramBuffer, param, null);
       } else {

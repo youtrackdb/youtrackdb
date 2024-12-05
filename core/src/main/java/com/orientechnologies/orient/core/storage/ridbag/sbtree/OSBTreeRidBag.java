@@ -28,14 +28,14 @@ import com.orientechnologies.common.util.OResettable;
 import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBagDelegate;
+import com.orientechnologies.orient.core.db.record.RecordElement;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBagDelegate;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
-import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
+import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.OSimpleMultiValueTracker;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -71,7 +71,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * Persistent Set<YTIdentifiable> implementation that uses the SBTree to handle entries in persistent
  * way.
  */
-public class OSBTreeRidBag implements ORidBagDelegate {
+public class OSBTreeRidBag implements RidBagDelegate {
 
   private final OSBTreeCollectionManager collectionManager =
       ODatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager();
@@ -90,7 +90,7 @@ public class OSBTreeRidBag implements ORidBagDelegate {
   private final OSimpleMultiValueTracker<YTIdentifiable, YTIdentifiable> tracker =
       new OSimpleMultiValueTracker<>(this);
 
-  private transient ORecordElement owner;
+  private transient RecordElement owner;
   private boolean dirty;
   private boolean transactionDirty = false;
 
@@ -410,12 +410,12 @@ public class OSBTreeRidBag implements ORidBagDelegate {
   }
 
   @Override
-  public ORecordElement getOwner() {
+  public RecordElement getOwner() {
     return owner;
   }
 
   @Override
-  public void setOwner(ORecordElement owner) {
+  public void setOwner(RecordElement owner) {
     if (owner != null && this.owner != null && !this.owner.equals(owner)) {
       throw new IllegalStateException(
           "This data structure is owned by document "
@@ -928,7 +928,7 @@ public class OSBTreeRidBag implements ORidBagDelegate {
   }
 
   private int getHighLevelDocClusterId() {
-    ORecordElement owner = this.owner;
+    RecordElement owner = this.owner;
     while (owner != null && owner.getOwner() != null) {
       owner = owner.getOwner();
     }
@@ -1022,13 +1022,13 @@ public class OSBTreeRidBag implements ORidBagDelegate {
     }
   }
 
-  public void enableTracking(ORecordElement parent) {
+  public void enableTracking(RecordElement parent) {
     if (!tracker.isEnabled()) {
       tracker.enable();
     }
   }
 
-  public void disableTracking(ORecordElement document) {
+  public void disableTracking(RecordElement document) {
     if (tracker.isEnabled()) {
       this.tracker.disable();
       this.dirty = false;

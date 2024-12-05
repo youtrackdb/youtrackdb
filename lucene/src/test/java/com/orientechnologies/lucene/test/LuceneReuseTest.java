@@ -3,7 +3,7 @@ package com.orientechnologies.lucene.test;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Date;
 import org.junit.Assert;
@@ -31,7 +31,7 @@ public class LuceneReuseTest extends BaseLuceneTest {
     for (int i = 0; i < 10; i++) {
       db.begin();
       db.save(
-          new YTDocument("Reuse")
+          new YTEntityImpl("Reuse")
               .field("name", "John")
               .field("date", new Date())
               .field("surname", "Reese")
@@ -68,7 +68,7 @@ public class LuceneReuseTest extends BaseLuceneTest {
     for (int i = 0; i < 10; i++) {
       db.begin();
       db.save(
-          new YTDocument("Reuse")
+          new YTEntityImpl("Reuse")
               .field("name", "John")
               .field("date", new Date())
               .field("surname", "Reese")
@@ -79,7 +79,7 @@ public class LuceneReuseTest extends BaseLuceneTest {
     // additional record
     db.begin();
     db.save(
-        new YTDocument("Reuse")
+        new YTEntityImpl("Reuse")
             .field("name", "John")
             .field("date", new Date())
             .field("surname", "Franklin")

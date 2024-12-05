@@ -13,12 +13,12 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.orient.core.db.record.OList;
+import com.orientechnologies.orient.core.db.record.LinkList;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.math.BigDecimal;
 import java.sql.ResultSetMetaData;
@@ -139,7 +139,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
         // Check if the type is a binary record or a collection of binary
         // records
         return Types.BINARY;
-      } else if (value instanceof OList list) {
+      } else if (value instanceof LinkList list) {
         // check if all the list items are instances of YTRecordBytes
         ListIterator<YTIdentifiable> iterator = list.listIterator();
         YTIdentifiable listElement;
@@ -171,7 +171,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
           if (value == null) {
             return Types.NULL;
           }
-          if (value instanceof OList list) {
+          if (value instanceof LinkList list) {
             // check if all the list items are instances of YTRecordBytes
             ListIterator<YTIdentifiable> iterator = list.listIterator();
             YTIdentifiable listElement;
@@ -258,7 +258,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
     if (currentRecord == null) {
       return "";
     } else {
-      return ((YTDocument) currentRecord.toEntity()).getSession().getName();
+      return ((YTEntityImpl) currentRecord.toEntity()).getSession().getName();
     }
   }
 

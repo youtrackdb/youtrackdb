@@ -39,7 +39,7 @@ import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilter;
 import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
 import java.util.ArrayList;
@@ -194,13 +194,13 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
           if (clazz == null)
           // DELETE ALL THE EDGES
           {
-            query = curDb.command(new OSQLAsynchQuery<YTDocument>("select from E" + where, this));
+            query = curDb.command(new OSQLAsynchQuery<YTEntityImpl>("select from E" + where, this));
           } else
           // DELETE EDGES OF CLASS X
           {
             query =
                 curDb.command(
-                    new OSQLAsynchQuery<YTDocument>(
+                    new OSQLAsynchQuery<YTEntityImpl>(
                         "select from `" + clazz.getName() + "` " + where, this));
           }
         }
@@ -215,7 +215,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
   }
 
   /**
-   * Execute the command and return the YTDocument object created.
+   * Execute the command and return the YTEntityImpl object created.
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (fromExpr == null

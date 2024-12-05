@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import com.orientechnologies.orient.core.exception.YTSecurityException;
 import com.orientechnologies.orient.core.metadata.security.ORule.ResourceGeneric;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.security.OSecurityManager;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
 import java.util.Collection;
@@ -76,7 +76,7 @@ public class YTUser extends OIdentity implements YTSecurityUser {
   /**
    * Create the user by reading the source document.
    */
-  public YTUser(YTDatabaseSession session, final YTDocument iSource) {
+  public YTUser(YTDatabaseSession session, final YTEntityImpl iSource) {
     fromStream((YTDatabaseSessionInternal) session, iSource);
   }
 
@@ -88,7 +88,7 @@ public class YTUser extends OIdentity implements YTSecurityUser {
   }
 
   public static boolean encodePassword(
-      YTDatabaseSessionInternal session, final YTDocument iDocument) {
+      YTDatabaseSessionInternal session, final YTEntityImpl iDocument) {
     final String name = iDocument.field("name");
     if (name == null) {
       throw new YTSecurityException("User name not found");
@@ -111,7 +111,7 @@ public class YTUser extends OIdentity implements YTSecurityUser {
   }
 
   @Override
-  public void fromStream(YTDatabaseSessionInternal session, final YTDocument iSource) {
+  public void fromStream(YTDatabaseSessionInternal session, final YTEntityImpl iSource) {
     if (getDocument(session) != null) {
       return;
     }
@@ -143,7 +143,7 @@ public class YTUser extends OIdentity implements YTSecurityUser {
    * Derived classes can override createRole() to return an extended ORole implementation or null if
    * the role should not be added.
    */
-  protected ORole createRole(YTDatabaseSessionInternal session, final YTDocument roleDoc) {
+  protected ORole createRole(YTDatabaseSessionInternal session, final YTEntityImpl roleDoc) {
     return new ORole(session, roleDoc);
   }
 
@@ -166,7 +166,7 @@ public class YTUser extends OIdentity implements YTSecurityUser {
     if (roles == null || roles.isEmpty()) {
       if (document.field("roles") != null
           && !((Collection<YTIdentifiable>) document.field("roles")).isEmpty()) {
-        final YTDocument doc = document;
+        final YTEntityImpl doc = document;
         document = null;
         fromStream(sessionInternal, doc);
       } else {
@@ -340,7 +340,7 @@ public class YTUser extends OIdentity implements YTSecurityUser {
       roles.add((ORole) iRole);
     }
 
-    final HashSet<YTDocument> persistentRoles = new HashSet<YTDocument>();
+    final HashSet<YTEntityImpl> persistentRoles = new HashSet<YTEntityImpl>();
     for (ORole r : roles) {
       persistentRoles.add(r.toStream(session));
     }
@@ -359,7 +359,7 @@ public class YTUser extends OIdentity implements YTSecurityUser {
     }
 
     if (removed) {
-      final HashSet<YTDocument> persistentRoles = new HashSet<YTDocument>();
+      final HashSet<YTEntityImpl> persistentRoles = new HashSet<YTEntityImpl>();
       for (ORole r : roles) {
         persistentRoles.add(r.toStream(session));
       }

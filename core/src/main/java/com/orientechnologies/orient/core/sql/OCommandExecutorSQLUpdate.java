@@ -28,9 +28,9 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OTrackedMap;
+import com.orientechnologies.orient.core.db.record.TrackedMap;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
@@ -41,7 +41,7 @@ import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurity;
 import com.orientechnologies.orient.core.query.OQuery;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilter;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItem;
@@ -77,7 +77,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
   private final List<OPair<String, Object>> removeEntries = new ArrayList<OPair<String, Object>>();
   private final List<OPair<String, Object>> incrementEntries =
       new ArrayList<OPair<String, Object>>();
-  private YTDocument merge = null;
+  private YTEntityImpl merge = null;
   private OReturnHandler returnHandler = new ORecordCountHandler();
   private OQuery<?> query;
   private OSQLFilter compiledFilter;
@@ -209,7 +209,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
         subjectName = subjectName.trim();
         query =
             database.command(
-                new OSQLAsynchQuery<YTDocument>(
+                new OSQLAsynchQuery<YTEntityImpl>(
                     subjectName.substring(1, subjectName.length() - 1), this)
                     .setContext(context));
 
@@ -245,10 +245,10 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
             updateStm.timeout.toString(params, selectString);
           }
 
-          query = new OSQLAsynchQuery<YTDocument>(selectString.toString(), this);
+          query = new OSQLAsynchQuery<YTEntityImpl>(selectString.toString(), this);
         } else {
           query =
-              new OSQLAsynchQuery<YTDocument>(
+              new OSQLAsynchQuery<YTEntityImpl>(
                   "select from "
                       + getSelectTarget()
                       + " "
@@ -264,7 +264,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
       } else if (!additionalStatement.isEmpty()) {
         throwSyntaxErrorException("Invalid keyword " + additionalStatement);
       } else {
-        query = new OSQLAsynchQuery<YTDocument>("select from " + getSelectTarget(), this);
+        query = new OSQLAsynchQuery<YTEntityImpl>("select from " + getSelectTarget(), this);
       }
 
       if (upsertMode && !isUpsertAllowed) {
@@ -323,7 +323,8 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     if (upsertMode && !updated) {
       // IF UPDATE DOES NOT PRODUCE RESULTS AND UPSERT MODE IS ENABLED, CREATE DOCUMENT AND APPLY
       // SET/ADD/PUT/MERGE and so on
-      final YTDocument doc = subjectName != null ? new YTDocument(subjectName) : new YTDocument();
+      final YTEntityImpl doc =
+          subjectName != null ? new YTEntityImpl(subjectName) : new YTEntityImpl();
       // locks by result(doc)
       try {
         result(querySession, doc);
@@ -362,7 +363,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
    */
   @SuppressWarnings("unchecked")
   public boolean result(YTDatabaseSessionInternal querySession, final Object iRecord) {
-    final YTDocument record = ((YTIdentifiable) iRecord).getRecord();
+    final YTEntityImpl record = ((YTIdentifiable) iRecord).getRecord();
 
     if (updateEdge && !isRecordInstanceOf(iRecord, "E")) {
       throw new YTCommandExecutionException(
@@ -412,7 +413,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     if (!(iRecord instanceof YTIdentifiable)) {
       return false;
     }
-    YTDocument record = ((YTIdentifiable) iRecord).getRecord();
+    YTEntityImpl record = ((YTIdentifiable) iRecord).getRecord();
     if (iRecord == null) {
       return false;
     }
@@ -425,7 +426,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
    * @param db
    * @param record the edge record
    */
-  private void handleUpdateEdge(YTDatabaseSessionInternal db, YTDocument record) {
+  private void handleUpdateEdge(YTDatabaseSessionInternal db, YTEntityImpl record) {
     if (!updateEdge) {
       return;
     }
@@ -452,7 +453,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
    * @param direction     the direction ("out" or "in")
    */
   private void changeVertexEdgePointer(
-      YTDatabaseSessionInternal db, YTDocument edge, YTIdentifiable prevVertex,
+      YTDatabaseSessionInternal db, YTEntityImpl edge, YTIdentifiable prevVertex,
       YTIdentifiable currentVertex, String direction) {
     if (prevVertex != null && !prevVertex.equals(currentVertex)) {
       String edgeClassName = edge.getClassName();
@@ -460,24 +461,24 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
         edgeClassName = "";
       }
       String vertexFieldName = direction + "_" + edgeClassName;
-      YTDocument prevOutDoc = prevVertex.getRecord();
-      ORidBag prevBag = prevOutDoc.field(vertexFieldName);
+      YTEntityImpl prevOutDoc = prevVertex.getRecord();
+      RidBag prevBag = prevOutDoc.field(vertexFieldName);
       if (prevBag != null) {
         prevBag.remove(edge);
         prevOutDoc.save();
       }
 
-      YTDocument currentVertexDoc = currentVertex.getRecord();
-      ORidBag currentBag = currentVertexDoc.field(vertexFieldName);
+      YTEntityImpl currentVertexDoc = currentVertex.getRecord();
+      RidBag currentBag = currentVertexDoc.field(vertexFieldName);
       if (currentBag == null) {
-        currentBag = new ORidBag(db);
+        currentBag = new RidBag(db);
         currentVertexDoc.field(vertexFieldName, currentBag);
       }
       currentBag.add(edge);
     }
   }
 
-  private void validateOutInForEdge(YTDocument record, Object currentOut, Object currentIn) {
+  private void validateOutInForEdge(YTEntityImpl record, Object currentOut, Object currentIn) {
     if (!isRecordInstanceOf(currentOut, "V")) {
       throw new YTCommandExecutionException(
           "Error updating edge: 'out' is not a vertex - " + currentOut);
@@ -526,7 +527,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
   protected void parseMerge() {
     if (!parserIsEnded() && !parserGetLastWord().equals(KEYWORD_WHERE)) {
       final String contentAsString = parserRequiredWord(false, "document to merge expected").trim();
-      merge = new YTDocument();
+      merge = new YTEntityImpl();
       merge.fromJSON(contentAsString);
       parserSkipWhiteSpaces();
     }
@@ -610,11 +611,11 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     }
   }
 
-  private boolean handleContent(YTDocument record) {
+  private boolean handleContent(YTEntityImpl record) {
     boolean updated = false;
     if (content != null) {
       // REPLACE ALL THE CONTENT
-      final YTDocument fieldsToPreserve = new YTDocument();
+      final YTEntityImpl fieldsToPreserve = new YTEntityImpl();
 
       final YTClass restricted =
           getDatabase()
@@ -651,7 +652,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     return updated;
   }
 
-  private boolean handleMerge(YTDocument record) {
+  private boolean handleMerge(YTEntityImpl record) {
     boolean updated = false;
     if (merge != null) {
       // MERGE THE CONTENT
@@ -661,7 +662,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     return updated;
   }
 
-  private boolean handleSetEntries(final YTDocument record) {
+  private boolean handleSetEntries(final YTEntityImpl record) {
     boolean updated = false;
     // BIND VALUES TO UPDATE
     if (!setEntries.isEmpty()) {
@@ -671,7 +672,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     return updated;
   }
 
-  private boolean handleIncrementEntries(final YTDocument record) {
+  private boolean handleIncrementEntries(final YTEntityImpl record) {
     boolean updated = false;
     // BIND VALUES TO INCREMENT
     if (!incrementEntries.isEmpty()) {
@@ -703,13 +704,13 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     return updated;
   }
 
-  private boolean handleAddEntries(YTDatabaseSessionInternal querySession, YTDocument record) {
+  private boolean handleAddEntries(YTDatabaseSessionInternal querySession, YTEntityImpl record) {
     boolean updated = false;
     // BIND VALUES TO ADD
     Object fieldValue;
     for (OPair<String, Object> entry : addEntries) {
       Collection<Object> coll = null;
-      ORidBag bag = null;
+      RidBag bag = null;
       if (!record.containsField(entry.getKey())) {
         // GET THE TYPE IF ANY
         if (ODocumentInternal.getImmutableSchemaClass(record) != null) {
@@ -722,7 +723,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
           }
           if (prop != null && prop.getType() == YTType.LINKBAG) {
             // there is no ridbag value already but property type is defined as LINKBAG
-            bag = new ORidBag(querySession);
+            bag = new RidBag(querySession);
             bag.setOwner(record);
             record.field(entry.getKey(), bag);
           }
@@ -748,8 +749,8 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
 
         if (fieldValue instanceof Collection<?>) {
           coll = (Collection<Object>) fieldValue;
-        } else if (fieldValue instanceof ORidBag) {
-          bag = (ORidBag) fieldValue;
+        } else if (fieldValue instanceof RidBag) {
+          bag = (RidBag) fieldValue;
         } else {
           continue;
         }
@@ -776,7 +777,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private boolean handlePutEntries(YTDatabaseSessionInternal querySession, YTDocument record) {
+  private boolean handlePutEntries(YTDatabaseSessionInternal querySession, YTEntityImpl record) {
     boolean updated = false;
     if (!putEntries.isEmpty()) {
       // BIND VALUES TO PUT (AS MAP)
@@ -818,7 +819,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
           }
           if (YTType.LINKMAP.equals(YTType.getTypeByValue(fieldValue))
               && !(value instanceof YTIdentifiable)) {
-            map = new OTrackedMap(record, map, Object.class);
+            map = new TrackedMap(record, map, Object.class);
             record.field(entry.getKey(), map, YTType.EMBEDDEDMAP);
           }
           map.put(pair.getKey(), value);
@@ -829,7 +830,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     return updated;
   }
 
-  private boolean handleRemoveEntries(YTDatabaseSessionInternal querySession, YTDocument record) {
+  private boolean handleRemoveEntries(YTDatabaseSessionInternal querySession, YTEntityImpl record) {
     boolean updated = false;
     if (!removeEntries.isEmpty()) {
       // REMOVE FIELD IF ANY
@@ -846,8 +847,8 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
             updated = removeFromCollection(updated, value, (Collection<?>) fieldValue);
           } else if (fieldValue instanceof Map<?, ?>) {
             updated = removeFromMap(updated, value, (Map<?, ?>) fieldValue);
-          } else if (fieldValue instanceof ORidBag) {
-            updated = removeFromBag(record, updated, value, (ORidBag) fieldValue);
+          } else if (fieldValue instanceof RidBag) {
+            updated = removeFromBag(record, updated, value, (RidBag) fieldValue);
           }
         }
       }
@@ -875,7 +876,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     return updated;
   }
 
-  private boolean removeFromBag(YTDocument record, boolean updated, Object value, ORidBag bag) {
+  private boolean removeFromBag(YTEntityImpl record, boolean updated, Object value, RidBag bag) {
     if (value instanceof Collection) {
       for (Object o : ((Collection) value)) {
         updated |= removeSingleValueFromBag(bag, o, record);
@@ -886,7 +887,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     return updated;
   }
 
-  private boolean removeSingleValueFromBag(ORidBag bag, Object value, YTDocument record) {
+  private boolean removeSingleValueFromBag(RidBag bag, Object value, YTEntityImpl record) {
     if (!(value instanceof YTIdentifiable)) {
       throw new YTCommandExecutionException("Only links or records can be removed from LINKBAG");
     }
@@ -895,7 +896,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     return record.isDirty();
   }
 
-  private Object extractValue(YTDatabaseSessionInternal requestSession, YTDocument record,
+  private Object extractValue(YTDatabaseSessionInternal requestSession, YTEntityImpl record,
       OPair<String, Object> entry) {
     Object value = entry.getValue();
 

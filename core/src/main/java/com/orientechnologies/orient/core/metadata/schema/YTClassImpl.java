@@ -39,7 +39,7 @@ import com.orientechnologies.orient.core.metadata.schema.clusterselection.OClust
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sharding.auto.OAutoShardingClusterSelectionStrategy;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
@@ -504,7 +504,7 @@ public abstract class YTClassImpl implements YTClass {
     }
   }
 
-  public void fromStream(YTDocument document) {
+  public void fromStream(YTEntityImpl document) {
     subclasses = null;
     superClasses.clear();
 
@@ -561,11 +561,11 @@ public abstract class YTClassImpl implements YTClass {
     YTPropertyImpl prop;
 
     final Map<String, YTProperty> newProperties = new HashMap<String, YTProperty>();
-    final Collection<YTDocument> storedProperties = document.field("properties");
+    final Collection<YTEntityImpl> storedProperties = document.field("properties");
 
     if (storedProperties != null) {
       for (YTIdentifiable id : storedProperties) {
-        YTDocument p = id.getRecord();
+        YTEntityImpl p = id.getRecord();
         String name = p.field("name");
         // To lower case ?
         if (properties.containsKey(name)) {
@@ -589,8 +589,8 @@ public abstract class YTClassImpl implements YTClass {
 
   protected abstract YTPropertyImpl createPropertyInstance();
 
-  public YTDocument toStream() {
-    YTDocument document = new YTDocument();
+  public YTEntityImpl toStream() {
+    YTEntityImpl document = new YTEntityImpl();
     document.field("name", name);
     document.field("shortName", shortName);
     document.field("description", description);
@@ -601,7 +601,7 @@ public abstract class YTClassImpl implements YTClass {
     document.field("strictMode", strictMode);
     document.field("abstract", abstractClass);
 
-    final Set<YTDocument> props = new LinkedHashSet<YTDocument>();
+    final Set<YTEntityImpl> props = new LinkedHashSet<YTEntityImpl>();
     for (final YTProperty p : properties.values()) {
       props.add(((YTPropertyImpl) p).toStream());
     }
@@ -630,7 +630,7 @@ public abstract class YTClassImpl implements YTClass {
   }
 
   @Override
-  public int getClusterForNewInstance(final YTDocument doc) {
+  public int getClusterForNewInstance(final YTEntityImpl doc) {
     acquireSchemaReadLock();
     try {
       return clusterSelection.getCluster(this, doc);
@@ -1109,7 +1109,7 @@ public abstract class YTClassImpl implements YTClass {
       YTDatabaseSession session, String iName,
       String iType,
       OProgressListener iProgressListener,
-      YTDocument metadata,
+      YTEntityImpl metadata,
       String... fields) {
     return createIndex(session, iName, iType, iProgressListener, metadata, null, fields);
   }
@@ -1118,7 +1118,7 @@ public abstract class YTClassImpl implements YTClass {
       YTDatabaseSession session, final String name,
       String type,
       final OProgressListener progressListener,
-      YTDocument metadata,
+      YTEntityImpl metadata,
       String algorithm,
       final String... fields) {
     if (type == null) {
@@ -1393,8 +1393,8 @@ public abstract class YTClassImpl implements YTClass {
       while (result.hasNext()) {
         database.executeInTx(
             () -> {
-              YTDocument record =
-                  database.bindToSession((YTDocument) result.next().getEntity().get());
+              YTEntityImpl record =
+                  database.bindToSession((YTEntityImpl) result.next().getEntity().get());
               record.field(propertyName, record.field(propertyName), type);
               database.save(record);
             });
@@ -1420,8 +1420,8 @@ public abstract class YTClassImpl implements YTClass {
       while (result.hasNext()) {
         database.executeInTx(
             () -> {
-              YTDocument record =
-                  database.bindToSession((YTDocument) result.next().getEntity().get());
+              YTEntityImpl record =
+                  database.bindToSession((YTEntityImpl) result.next().getEntity().get());
               record.setFieldType(propertyName, type);
               record.field(newPropertyName, record.field(propertyName), type);
               database.save(record);
@@ -1564,8 +1564,8 @@ public abstract class YTClassImpl implements YTClass {
     if (!(x instanceof YTEntity)) {
       return false;
     }
-    return !(x instanceof YTDocument)
-        || linkedClass.getName().equalsIgnoreCase(((YTDocument) x).getClassName());
+    return !(x instanceof YTEntityImpl)
+        || linkedClass.getName().equalsIgnoreCase(((YTEntityImpl) x).getClassName());
   }
 
   protected static String getEscapedName(final String iName, final boolean iStrictSQL) {
@@ -1855,8 +1855,8 @@ public abstract class YTClassImpl implements YTClass {
     return s;
   }
 
-  public YTDocument toNetworkStream() {
-    YTDocument document = new YTDocument();
+  public YTEntityImpl toNetworkStream() {
+    YTEntityImpl document = new YTEntityImpl();
     document.setTrackingChanges(false);
     document.field("name", name);
     document.field("shortName", shortName);
@@ -1868,7 +1868,7 @@ public abstract class YTClassImpl implements YTClass {
     document.field("strictMode", strictMode);
     document.field("abstract", abstractClass);
 
-    final Set<YTDocument> props = new LinkedHashSet<YTDocument>();
+    final Set<YTEntityImpl> props = new LinkedHashSet<YTEntityImpl>();
     for (final YTProperty p : properties.values()) {
       props.add(((YTPropertyImpl) p).toNetworkStream());
     }

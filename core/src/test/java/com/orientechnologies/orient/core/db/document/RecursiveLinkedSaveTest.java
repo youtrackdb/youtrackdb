@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.db.document;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import org.junit.Test;
 
 /**
@@ -15,10 +15,10 @@ public class RecursiveLinkedSaveTest extends DBTestBase {
   public void testTxLinked() {
     db.getMetadata().getSchema().createClass("Test");
     db.begin();
-    YTDocument doc = new YTDocument("Test");
-    YTDocument doc1 = new YTDocument("Test");
+    YTEntityImpl doc = new YTEntityImpl("Test");
+    YTEntityImpl doc1 = new YTEntityImpl("Test");
     doc.field("link", doc1);
-    YTDocument doc2 = new YTDocument("Test");
+    YTEntityImpl doc2 = new YTEntityImpl("Test");
     doc1.field("link", doc2);
     doc2.field("link", doc);
     db.save(doc);

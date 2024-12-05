@@ -21,13 +21,13 @@
 package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
+import com.orientechnologies.orient.core.db.record.RecordElement;
 import com.orientechnologies.orient.core.metadata.schema.OGlobalProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.metadata.security.OPropertyAccess;
-import com.orientechnologies.orient.core.metadata.security.OPropertyEncryption;
+import com.orientechnologies.orient.core.metadata.security.PropertyAccess;
+import com.orientechnologies.orient.core.metadata.security.PropertyEncryption;
 import com.orientechnologies.orient.core.record.YTEntity;
 import java.util.Iterator;
 import java.util.List;
@@ -36,85 +36,85 @@ import java.util.Set;
 
 public class ODocumentInternal {
 
-  public static void convertAllMultiValuesToTrackedVersions(YTDocument document) {
+  public static void convertAllMultiValuesToTrackedVersions(YTEntityImpl document) {
     document.convertAllMultiValuesToTrackedVersions();
   }
 
-  public static void addOwner(YTDocument oDocument, ORecordElement iOwner) {
+  public static void addOwner(YTEntityImpl oDocument, RecordElement iOwner) {
     oDocument.addOwner(iOwner);
   }
 
-  public static void removeOwner(YTDocument oDocument, ORecordElement iOwner) {
+  public static void removeOwner(YTEntityImpl oDocument, RecordElement iOwner) {
     oDocument.removeOwner(iOwner);
   }
 
   public static void rawField(
-      final YTDocument oDocument,
+      final YTEntityImpl oDocument,
       final String iFieldName,
       final Object iFieldValue,
       final YTType iFieldType) {
     oDocument.rawField(iFieldName, iFieldValue, iFieldType);
   }
 
-  public static boolean rawContainsField(final YTDocument oDocument, final String iFiledName) {
+  public static boolean rawContainsField(final YTEntityImpl oDocument, final String iFiledName) {
     return oDocument.rawContainsField(iFiledName);
   }
 
   public static YTImmutableClass getImmutableSchemaClass(
-      final YTDatabaseSessionInternal database, final YTDocument oDocument) {
+      final YTDatabaseSessionInternal database, final YTEntityImpl oDocument) {
     if (oDocument == null) {
       return null;
     }
     return oDocument.getImmutableSchemaClass(database);
   }
 
-  public static YTImmutableClass getImmutableSchemaClass(final YTDocument oDocument) {
+  public static YTImmutableClass getImmutableSchemaClass(final YTEntityImpl oDocument) {
     if (oDocument == null) {
       return null;
     }
     return oDocument.getImmutableSchemaClass();
   }
 
-  public static YTImmutableSchema getImmutableSchema(final YTDocument oDocument) {
+  public static YTImmutableSchema getImmutableSchema(final YTEntityImpl oDocument) {
     if (oDocument == null) {
       return null;
     }
     return oDocument.getImmutableSchema();
   }
 
-  public static OGlobalProperty getGlobalPropertyById(final YTDocument oDocument, final int id) {
+  public static OGlobalProperty getGlobalPropertyById(final YTEntityImpl oDocument, final int id) {
     return oDocument.getGlobalPropertyById(id);
   }
 
-  public static void fillClassNameIfNeeded(final YTDocument oDocument, String className) {
+  public static void fillClassNameIfNeeded(final YTEntityImpl oDocument, String className) {
     oDocument.fillClassIfNeed(className);
   }
 
-  public static Set<Entry<String, ODocumentEntry>> rawEntries(final YTDocument document) {
+  public static Set<Entry<String, EntityEntry>> rawEntries(final YTEntityImpl document) {
     return document.getRawEntries();
   }
 
-  public static ODocumentEntry rawEntry(final YTDocument document, String propertyName) {
+  public static EntityEntry rawEntry(final YTEntityImpl document, String propertyName) {
     return document.fields.get(propertyName);
   }
 
-  public static List<Entry<String, ODocumentEntry>> filteredEntries(final YTDocument document) {
+  public static List<Entry<String, EntityEntry>> filteredEntries(final YTEntityImpl document) {
     return document.getFilteredEntries();
   }
 
-  public static void clearTrackData(final YTDocument document) {
+  public static void clearTrackData(final YTEntityImpl document) {
     document.clearTrackData();
   }
 
-  public static void checkClass(YTDocument doc, YTDatabaseSessionInternal database) {
+  public static void checkClass(YTEntityImpl doc, YTDatabaseSessionInternal database) {
     doc.checkClass(database);
   }
 
-  public static void autoConvertValueToClass(YTDatabaseSessionInternal database, YTDocument doc) {
+  public static void autoConvertValueToClass(YTDatabaseSessionInternal database, YTEntityImpl doc) {
     doc.autoConvertFieldsToClass(database);
   }
 
-  public static Object getRawProperty(YTDocument doc, String propertyName) {
+  public static Object getRawProperty(YTEntityImpl doc, String propertyName) {
     if (doc == null) {
       return null;
     }
@@ -125,30 +125,31 @@ public class ODocumentInternal {
     if (element == null) {
       return null;
     }
-    return ((YTDocument) element).rawField(propertyName);
+    return ((YTEntityImpl) element).rawField(propertyName);
   }
 
-  public static void setPropertyAccess(YTDocument doc, OPropertyAccess propertyAccess) {
+  public static void setPropertyAccess(YTEntityImpl doc, PropertyAccess propertyAccess) {
     doc.propertyAccess = propertyAccess;
   }
 
-  public static OPropertyAccess getPropertyAccess(YTDocument doc) {
+  public static PropertyAccess getPropertyAccess(YTEntityImpl doc) {
     return doc.propertyAccess;
   }
 
-  public static void setPropertyEncryption(YTDocument doc, OPropertyEncryption propertyEncryption) {
+  public static void setPropertyEncryption(YTEntityImpl doc,
+      PropertyEncryption propertyEncryption) {
     doc.propertyEncryption = propertyEncryption;
   }
 
-  public static OPropertyEncryption getPropertyEncryption(YTDocument doc) {
+  public static PropertyEncryption getPropertyEncryption(YTEntityImpl doc) {
     return doc.propertyEncryption;
   }
 
-  public static void clearTransactionTrackData(YTDocument doc) {
+  public static void clearTransactionTrackData(YTEntityImpl doc) {
     doc.clearTransactionTrackData();
   }
 
-  public static Iterator<String> iteratePropertieNames(YTDocument doc) {
+  public static Iterator<String> iteratePropertieNames(YTEntityImpl doc) {
     return doc.calculatePropertyNames().iterator();
   }
 }

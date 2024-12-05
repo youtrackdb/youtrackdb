@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.index.YTIndexEngineException;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.spatial.factory.OSpatialStrategyFactory;
@@ -121,7 +121,7 @@ public class OLuceneGeoSpatialIndexEngine extends OLuceneSpatialIndexEngineAbstr
 
     if (key instanceof YTIdentifiable) {
       openIfClosed();
-      YTDocument location = ((YTIdentifiable) key).getRecord();
+      YTEntityImpl location = ((YTIdentifiable) key).getRecord();
       updateLastAccess();
       addDocument(newGeoDocument((YTIdentifiable) value, factory.fromDoc(location), location));
     }
@@ -147,7 +147,7 @@ public class OLuceneGeoSpatialIndexEngine extends OLuceneSpatialIndexEngineAbstr
   @Override
   public Document buildDocument(YTDatabaseSessionInternal session, Object key,
       YTIdentifiable value) {
-    YTDocument location = ((YTIdentifiable) key).getRecord();
+    YTEntityImpl location = ((YTIdentifiable) key).getRecord();
     return newGeoDocument(value, factory.fromDoc(location), location);
   }
 

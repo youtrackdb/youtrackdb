@@ -22,7 +22,7 @@ import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLResultsetDelegate;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLSelect;
 import com.orientechnologies.orient.core.sql.OIterableRecordSource;
@@ -58,7 +58,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
 
   static final String DEFAULT_ALIAS_PREFIX = "$ORIENT_DEFAULT_ALIAS_";
 
-  private OSQLAsynchQuery<YTDocument> request;
+  private OSQLAsynchQuery<YTEntityImpl> request;
   public static final String KEYWORD_MATCH = "MATCH";
   // parsed data
   protected List<OMatchExpression> matchExpressions = new ArrayList<>();
@@ -136,8 +136,8 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       return result;
     }
 
-    public YTDocument toDoc() {
-      YTDocument doc = new YTDocument();
+    public YTEntityImpl toDoc() {
+      YTEntityImpl doc = new YTEntityImpl();
       doc.fromMap(matched);
       return doc;
     }
@@ -241,12 +241,12 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   public <RET extends OCommandExecutor> RET parse(OCommandRequest iRequest) {
     final OCommandRequestText textRequest = (OCommandRequestText) iRequest;
     if (iRequest instanceof OSQLSynchQuery) {
-      request = (OSQLSynchQuery<YTDocument>) iRequest;
+      request = (OSQLSynchQuery<YTEntityImpl>) iRequest;
     } else if (iRequest instanceof OSQLAsynchQuery) {
-      request = (OSQLAsynchQuery<YTDocument>) iRequest;
+      request = (OSQLAsynchQuery<YTEntityImpl>) iRequest;
     } else {
       // BUILD A QUERY OBJECT FROM THE COMMAND REQUEST
-      request = new OSQLSynchQuery<YTDocument>(textRequest.getText());
+      request = new OSQLSynchQuery<YTEntityImpl>(textRequest.getText());
       if (textRequest.getResultListener() != null) {
         request.setResultListener(textRequest.getResultListener());
       }
@@ -379,7 +379,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
    * @return
    */
   public Object execute(
-      OSQLAsynchQuery<YTDocument> request,
+      OSQLAsynchQuery<YTEntityImpl> request,
       OCommandContext context,
       OProgressListener progressListener) {
     if (orderBy != null) {
@@ -645,9 +645,9 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
     return resultingSchedule;
   }
 
-  protected Object getResult(OSQLAsynchQuery<YTDocument> request) {
+  protected Object getResult(OSQLAsynchQuery<YTEntityImpl> request) {
     if (request instanceof OSQLSynchQuery) {
-      return ((OSQLSynchQuery<YTDocument>) request).getResult();
+      return ((OSQLSynchQuery<YTEntityImpl>) request).getResult();
     }
 
     return null;
@@ -660,7 +660,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       Map<String, String> aliasClasses,
       Map<String, OWhereClause> aliasFilters,
       OCommandContext iCommandContext,
-      OSQLAsynchQuery<YTDocument> request,
+      OSQLAsynchQuery<YTEntityImpl> request,
       MatchExecutionPlan executionPlan) {
 
     var db = iCommandContext.getDatabase();
@@ -735,7 +735,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       Map<String, String> aliasClasses,
       Map<String, OWhereClause> aliasFilters,
       OCommandContext iCommandContext,
-      OSQLAsynchQuery<YTDocument> request,
+      OSQLAsynchQuery<YTEntityImpl> request,
       Iterable<YTIdentifiable> candidates,
       String alias,
       int startFromEdge) {
@@ -778,7 +778,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       Map<String, String> aliasClasses,
       Map<String, OWhereClause> aliasFilters,
       OCommandContext iCommandContext,
-      OSQLAsynchQuery<YTDocument> request) {
+      OSQLAsynchQuery<YTEntityImpl> request) {
 
     var db = iCommandContext.getDatabase();
     iCommandContext.setVariable("$matched", matchContext.matched);
@@ -1046,8 +1046,8 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
     }
     try {
       YTRecord record = identifiable.getRecord();
-      if (record instanceof YTDocument) {
-        YTClass schemaClass = ODocumentInternal.getImmutableSchemaClass(((YTDocument) record));
+      if (record instanceof YTEntityImpl) {
+        YTClass schemaClass = ODocumentInternal.getImmutableSchemaClass(((YTEntityImpl) record));
         if (schemaClass == null) {
           return false;
         }
@@ -1115,7 +1115,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       Map<String, String> aliasClasses,
       Map<String, OWhereClause> aliasFilters,
       OCommandContext iCommandContext,
-      OSQLAsynchQuery<YTDocument> request) {
+      OSQLAsynchQuery<YTEntityImpl> request) {
     for (String alias : pattern.aliasToNode.keySet()) {
       if (!matchContext.matched.containsKey(alias)) {
         String target = aliasClasses.get(alias);
@@ -1160,10 +1160,10 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   }
 
   private boolean addResult(
-      MatchContext matchContext, OSQLAsynchQuery<YTDocument> request, OCommandContext ctx) {
+      MatchContext matchContext, OSQLAsynchQuery<YTEntityImpl> request, OCommandContext ctx) {
 
     var db = ctx.getDatabase();
-    YTDocument doc = null;
+    YTEntityImpl doc = null;
     if (returnsElements()) {
       for (Map.Entry<String, YTIdentifiable> entry : matchContext.matched.entrySet()) {
         if (isExplicitAlias(entry.getKey()) && entry.getValue() != null) {
@@ -1215,7 +1215,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       doc.setTrackingChanges(false);
       int i = 0;
 
-      YTDocument mapDoc = new YTDocument();
+      YTEntityImpl mapDoc = new YTEntityImpl();
       mapDoc.setTrackingChanges(false);
       mapDoc.fromMap(matchContext.matched);
       ctx.setVariable("$current", mapDoc);
@@ -1229,7 +1229,8 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
         }
         Object executed = item.execute(mapDoc, ctx);
         // Force Embedded Document
-        if (executed instanceof YTDocument && !((YTDocument) executed).getIdentity().isValid()) {
+        if (executed instanceof YTEntityImpl && !((YTEntityImpl) executed).getIdentity()
+            .isValid()) {
           doc.setProperty(returnAlias.getStringValue(), executed, YTType.EMBEDDED);
         } else {
           doc.setProperty(returnAlias.getStringValue(), executed);
@@ -1253,7 +1254,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
    * @return false if limit was reached
    */
   private boolean addSingleResult(
-      OSQLAsynchQuery<YTDocument> request, OBasicCommandContext ctx, YTRecord record) {
+      OSQLAsynchQuery<YTEntityImpl> request, OBasicCommandContext ctx, YTRecord record) {
     if (((OBasicCommandContext) context).addToUniqueResult(record)) {
       request.getResultListener().result(ctx.getDatabase(), record);
       long currentCount = ctx.getResultsProcessed().incrementAndGet();
@@ -1311,11 +1312,11 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
         && returnAliases.get(0) == null;
   }
 
-  private YTDocument jsonToDoc(MatchContext matchContext, OCommandContext ctx) {
+  private YTEntityImpl jsonToDoc(MatchContext matchContext, OCommandContext ctx) {
     if (returnItems.size() == 1
         && (returnItems.get(0).value instanceof OJson)
         && returnAliases.get(0) == null) {
-      YTDocument result = new YTDocument();
+      YTEntityImpl result = new YTEntityImpl();
       result.setTrackingChanges(false);
       result.fromMap(((OJson) returnItems.get(0).value).toMap(matchContext.toDoc(), ctx));
       return result;

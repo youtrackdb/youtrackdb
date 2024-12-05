@@ -34,9 +34,9 @@ import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerCSVAbstract;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItem;
@@ -68,7 +68,7 @@ public class OSQLHelper {
   private static final ClassLoader orientClassLoader =
       OSQLFilterItemAbstract.class.getClassLoader();
 
-  public static Object parseDefaultValue(YTDatabaseSessionInternal session, YTDocument iRecord,
+  public static Object parseDefaultValue(YTDatabaseSessionInternal session, YTEntityImpl iRecord,
       final String iWord) {
     final Object v = OSQLHelper.parseValue(iWord, null);
 
@@ -164,7 +164,7 @@ public class OSQLHelper {
       // IT'S A DOCUMENT
       // TODO: IMPROVE THIS CASE AVOIDING DOUBLE PARSING
       {
-        var document = new YTDocument();
+        var document = new YTEntityImpl();
         document.fromJSON(iValue);
         fieldValue = document;
       } else {
@@ -355,7 +355,7 @@ public class OSQLHelper {
   }
 
   public static Object resolveFieldValue(
-      YTDatabaseSession session, final YTDocument iDocument,
+      YTDatabaseSession session, final YTEntityImpl iDocument,
       final String iFieldName,
       final Object iFieldValue,
       final OCommandParameters iArguments,
@@ -372,10 +372,11 @@ public class OSQLHelper {
       }
     }
 
-    if (iFieldValue instanceof YTDocument && !((YTDocument) iFieldValue).getIdentity().isValid())
+    if (iFieldValue instanceof YTEntityImpl && !((YTEntityImpl) iFieldValue).getIdentity()
+        .isValid())
     // EMBEDDED DOCUMENT
     {
-      ODocumentInternal.addOwner((YTDocument) iFieldValue, iDocument);
+      ODocumentInternal.addOwner((YTEntityImpl) iFieldValue, iDocument);
     }
 
     // can't use existing getValue with iContext
@@ -389,8 +390,8 @@ public class OSQLHelper {
     return iFieldValue;
   }
 
-  public static YTDocument bindParameters(
-      final YTDocument iDocument,
+  public static YTEntityImpl bindParameters(
+      final YTEntityImpl iDocument,
       final Map<String, Object> iFields,
       final OCommandParameters iArguments,
       final OCommandContext iContext) {
@@ -407,8 +408,8 @@ public class OSQLHelper {
     return bindParameters(iDocument, fields, iArguments, iContext);
   }
 
-  public static YTDocument bindParameters(
-      final YTDocument iDocument,
+  public static YTEntityImpl bindParameters(
+      final YTEntityImpl iDocument,
       final List<OPair<String, Object>> iFields,
       final OCommandParameters iArguments,
       final OCommandContext iContext) {
@@ -464,7 +465,7 @@ public class OSQLHelper {
                   .isPersistent()) {
                 // TEMPORARY / EMBEDDED
                 final YTRecord rec = ((YTIdentifiable) o).getRecord();
-                if (rec != null && rec instanceof YTDocument doc) {
+                if (rec != null && rec instanceof YTEntityImpl doc) {
                   // CHECK FOR ONE FIELD ONLY
                   if (doc.fields() == 1) {
                     singleFieldName = doc.fieldNames()[0];

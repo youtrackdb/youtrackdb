@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.After;
 import org.junit.Before;
@@ -40,7 +40,7 @@ public class TransactionQueryIndexTests {
     prop.createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
 
     database.begin();
-    YTDocument doc = database.newInstance("test");
+    YTEntityImpl doc = database.newInstance("test");
     doc.setProperty("test", "abcdefg");
     database.save(doc);
     YTResultSet res = database.query("select from Test where test='abcdefg' ");
@@ -61,7 +61,7 @@ public class TransactionQueryIndexTests {
     clazz.createIndex(database, "Test2.foo_bar", YTClass.INDEX_TYPE.NOTUNIQUE, "foo", "bar");
 
     database.begin();
-    YTDocument doc = database.newInstance("Test2");
+    YTEntityImpl doc = database.newInstance("Test2");
     doc.setProperty("foo", "abcdefg");
     doc.setProperty("bar", "abcdefg");
     database.save(doc);

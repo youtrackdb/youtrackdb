@@ -5,7 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
@@ -142,8 +142,8 @@ public class OProjection extends SimpleNode {
             .getEntity()
             .ifPresent(
                 (e) -> {
-                  if (e.getRecord() instanceof YTDocument) {
-                    ((YTDocument) e.getRecord()).deserializeFields();
+                  if (e.getRecord() instanceof YTEntityImpl) {
+                    ((YTEntityImpl) e.getRecord()).deserializeFields();
                   }
                 });
         for (String alias : iRecord.getPropertyNames()) {

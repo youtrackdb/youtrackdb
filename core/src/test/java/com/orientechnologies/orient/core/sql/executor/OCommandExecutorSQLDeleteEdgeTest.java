@@ -7,7 +7,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Assert;
@@ -33,10 +33,10 @@ public class OCommandExecutorSQLDeleteEdgeTest extends DBTestBase {
     schema.createClass("CanAccess", schema.getClass("E"));
 
     db.begin();
-    var doc = new YTDocument("User").field("username", "gongolo");
+    var doc = new YTEntityImpl("User").field("username", "gongolo");
     doc.save();
     userId1 = doc.getIdentity();
-    doc = new YTDocument("Folder").field("keyId", "01234567893");
+    doc = new YTEntityImpl("Folder").field("keyId", "01234567893");
     doc.save();
     folderId1 = doc.getIdentity();
     db.commit();

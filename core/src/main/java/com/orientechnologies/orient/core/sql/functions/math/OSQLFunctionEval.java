@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -55,8 +55,8 @@ public class OSQLFunctionEval extends OSQLFunctionMathAbstract {
       predicate = new OSQLPredicate(iContext, String.valueOf(iParams[0]));
     }
 
-    final YTDocument currentResult =
-        iCurrentResult instanceof YTDocument ? (YTDocument) iCurrentResult : null;
+    final YTEntityImpl currentResult =
+        iCurrentResult instanceof YTEntityImpl ? (YTEntityImpl) iCurrentResult : null;
     try {
       return predicate.evaluate(
           iRecord != null ? iRecord.getRecord() : null, currentResult, iContext);

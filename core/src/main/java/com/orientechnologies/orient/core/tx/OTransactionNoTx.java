@@ -22,8 +22,8 @@ package com.orientechnologies.orient.core.tx;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTNoTxRecordReadException;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges.OPERATION;
 import java.util.Collection;
 import java.util.Collections;
@@ -176,7 +176,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
     throw new UnsupportedOperationException("Operation not supported in no tx mode");
   }
 
-  public YTDocument getIndexChanges() {
+  public YTEntityImpl getIndexChanges() {
     return null;
   }
 

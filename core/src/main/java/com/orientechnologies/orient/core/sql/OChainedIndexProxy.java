@@ -35,7 +35,7 @@ import com.orientechnologies.orient.core.index.OIndexKeyCursor;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemField;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemField.FieldChain;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -578,12 +578,12 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   }
 
   @Override
-  public boolean loadFromConfiguration(YTDatabaseSessionInternal session, YTDocument iConfig) {
+  public boolean loadFromConfiguration(YTDatabaseSessionInternal session, YTEntityImpl iConfig) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public YTDocument updateConfiguration(YTDatabaseSessionInternal session) {
+  public YTEntityImpl updateConfiguration(YTDatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 
@@ -608,7 +608,7 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   }
 
   @Override
-  public OIndexMetadata loadMetadata(YTDocument iConfig) {
+  public OIndexMetadata loadMetadata(YTEntityImpl iConfig) {
     throw new UnsupportedOperationException();
   }
 
@@ -656,7 +656,7 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
-  public YTDocument getConfiguration(YTDatabaseSessionInternal session) {
+  public YTEntityImpl getConfiguration(YTDatabaseSessionInternal session) {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 

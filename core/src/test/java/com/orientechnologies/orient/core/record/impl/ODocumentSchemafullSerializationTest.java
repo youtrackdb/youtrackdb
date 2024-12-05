@@ -129,7 +129,7 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
   @Test
   public void testSimpleSerialization() {
     ODatabaseRecordThreadLocal.instance().set(db);
-    YTDocument document = new YTDocument(simple);
+    YTEntityImpl document = new YTEntityImpl(simple);
 
     document.field(STRING_FIELD, NAME);
     document.field(INT_FIELD, 20);
@@ -143,7 +143,8 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
     document.field(RECORDID_FIELD, new YTRecordId(10, 0));
 
     byte[] res = serializer.toStream(db, document);
-    YTDocument extr = (YTDocument) serializer.fromStream(db, res, new YTDocument(), new String[]{});
+    YTEntityImpl extr = (YTEntityImpl) serializer.fromStream(db, res, new YTEntityImpl(),
+        new String[]{});
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field(STRING_FIELD), document.field(STRING_FIELD));
@@ -162,7 +163,7 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
   @Test
   public void testSimpleLiteralList() {
     ODatabaseRecordThreadLocal.instance().set(db);
-    YTDocument document = new YTDocument(embSimp);
+    YTEntityImpl document = new YTEntityImpl(embSimp);
     List<String> strings = new ArrayList<String>();
     strings.add("a");
     strings.add("b");
@@ -237,7 +238,8 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
     document.field(LIST_MIXED, listMixed);
 
     byte[] res = serializer.toStream(db, document);
-    YTDocument extr = (YTDocument) serializer.fromStream(db, res, new YTDocument(), new String[]{});
+    YTEntityImpl extr = (YTEntityImpl) serializer.fromStream(db, res, new YTEntityImpl(),
+        new String[]{});
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field(LIST_STRINGS), document.field(LIST_STRINGS));
@@ -252,7 +254,7 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
   @Test
   public void testSimpleMapStringLiteral() {
     ODatabaseRecordThreadLocal.instance().set(db);
-    YTDocument document = new YTDocument(embMapSimple);
+    YTEntityImpl document = new YTEntityImpl(embMapSimple);
 
     Map<String, String> mapString = new HashMap<String, String>();
     mapString.put("key", "value");
@@ -295,7 +297,8 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
     document.field(MAP_BYTES, bytesMap);
 
     byte[] res = serializer.toStream(db, document);
-    YTDocument extr = (YTDocument) serializer.fromStream(db, res, new YTDocument(), new String[]{});
+    YTEntityImpl extr = (YTEntityImpl) serializer.fromStream(db, res, new YTEntityImpl(),
+        new String[]{});
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field(MAP_STRING), document.field(MAP_STRING));
     assertEquals(extr.<Object>field(MAP_LONG), document.field(MAP_LONG));
@@ -308,17 +311,18 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
   @Test
   public void testSimpleEmbeddedDoc() {
     ODatabaseRecordThreadLocal.instance().set(db);
-    YTDocument document = new YTDocument(simple);
-    YTDocument embedded = new YTDocument(address);
+    YTEntityImpl document = new YTEntityImpl(simple);
+    YTEntityImpl embedded = new YTEntityImpl(address);
     embedded.field(NAME, "test");
     embedded.field(NUMBER, 1);
     embedded.field(CITY, "aaa");
     document.field(EMBEDDED_FIELD, embedded);
 
     byte[] res = serializer.toStream(db, document);
-    YTDocument extr = (YTDocument) serializer.fromStream(db, res, new YTDocument(), new String[]{});
+    YTEntityImpl extr = (YTEntityImpl) serializer.fromStream(db, res, new YTEntityImpl(),
+        new String[]{});
     assertEquals(document.fields(), extr.fields());
-    YTDocument emb = extr.field(EMBEDDED_FIELD);
+    YTEntityImpl emb = extr.field(EMBEDDED_FIELD);
     assertNotNull(emb);
     assertEquals(emb.<Object>field(NAME), embedded.field(NAME));
     assertEquals(emb.<Object>field(NUMBER), embedded.field(NUMBER));
@@ -328,18 +332,19 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
   @Test
   public void testUpdateBooleanWithPropertyTypeAny() {
     ODatabaseRecordThreadLocal.instance().set(db);
-    YTDocument document = new YTDocument(simple);
+    YTEntityImpl document = new YTEntityImpl(simple);
     document.field(ANY_FIELD, false);
 
     byte[] res = serializer.toStream(db, document);
-    YTDocument extr = (YTDocument) serializer.fromStream(db, res, new YTDocument(), new String[]{});
+    YTEntityImpl extr = (YTEntityImpl) serializer.fromStream(db, res, new YTEntityImpl(),
+        new String[]{});
     assertEquals(document.fields(), extr.fields());
     assertEquals(extr.field(ANY_FIELD), false);
 
     extr.field(ANY_FIELD, false);
 
     res = serializer.toStream(db, extr);
-    YTDocument extr2 = (YTDocument) serializer.fromStream(db, res, new YTDocument(),
+    YTEntityImpl extr2 = (YTEntityImpl) serializer.fromStream(db, res, new YTEntityImpl(),
         new String[]{});
     assertEquals(extr.fields(), extr2.fields());
     assertEquals(extr2.field(ANY_FIELD), false);
@@ -348,11 +353,11 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
   @Test
   public void simpleTypeKeepingTest() {
     ODatabaseRecordThreadLocal.instance().set(db);
-    YTDocument document = new YTDocument();
+    YTEntityImpl document = new YTEntityImpl();
     document.field("name", "test");
 
     byte[] res = serializer.toStream(db, document);
-    YTDocument extr = new YTDocument();
+    YTEntityImpl extr = new YTEntityImpl();
     ORecordInternal.unsetDirty(extr);
     extr.fromStream(res);
     assertEquals(YTType.STRING, extr.fieldType("name"));

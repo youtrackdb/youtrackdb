@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -35,15 +35,15 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
     db.command("truncate class test_class");
 
     db.begin();
-    db.save(new YTDocument(testClass).field("name", "x").field("data", Arrays.asList(1, 2)));
-    db.save(new YTDocument(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
+    db.save(new YTEntityImpl(testClass).field("name", "x").field("data", Arrays.asList(1, 2)));
+    db.save(new YTEntityImpl(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
     db.commit();
 
     db.command("truncate class test_class").close();
 
     db.begin();
-    db.save(new YTDocument(testClass).field("name", "x").field("data", Arrays.asList(5, 6, 7)));
-    db.save(new YTDocument(testClass).field("name", "y").field("data", Arrays.asList(8, 9, -1)));
+    db.save(new YTEntityImpl(testClass).field("name", "x").field("data", Arrays.asList(5, 6, 7)));
+    db.save(new YTEntityImpl(testClass).field("name", "y").field("data", Arrays.asList(8, 9, -1)));
     db.commit();
 
     YTResultSet result = db.query("select from test_class");
@@ -193,8 +193,8 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
     db.command("truncate class test_class");
 
     db.begin();
-    db.save(new YTDocument(testClass).field("name", "x").field("data", Arrays.asList(1, 2)));
-    db.save(new YTDocument(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
+    db.save(new YTEntityImpl(testClass).field("name", "x").field("data", Arrays.asList(1, 2)));
+    db.save(new YTEntityImpl(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
     db.commit();
 
     YTResultSet result = db.query("select from test_class");

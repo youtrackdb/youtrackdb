@@ -31,7 +31,7 @@ import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
 import com.orientechnologies.orient.core.exception.YTConfigurationException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;
@@ -59,7 +59,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class OAutomaticBackup extends OServerPluginAbstract implements OServerPluginConfigurable {
 
-  private YTDocument configuration;
+  private YTEntityImpl configuration;
 
   private final Set<OAutomaticBackupListener> listeners =
       Collections.newSetFromMap(new ConcurrentHashMap<OAutomaticBackupListener, Boolean>());
@@ -92,7 +92,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
   public void config(final OServer iServer, final OServerParameterConfiguration[] iParams) {
     serverInstance = iServer;
 
-    configuration = new YTDocument();
+    configuration = new YTEntityImpl();
 
     for (OServerParameterConfiguration param : iParams) {
       if (param.name.equalsIgnoreCase("config") && param.value.trim().length() > 0) {
@@ -286,7 +286,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
       // READ THE FILE
       try {
         final String configurationContent = OIOUtils.readFileAsString(f);
-        configuration = new YTDocument();
+        configuration = new YTEntityImpl();
         configuration.fromJSON(configurationContent);
       } catch (IOException e) {
         throw YTException.wrapException(
@@ -457,13 +457,13 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
   }
 
   @Override
-  public YTDocument getConfig() {
+  public YTEntityImpl getConfig() {
     return configuration;
   }
 
   // TODO change current config and restart the automatic backup plugin
   @Override
-  public void changeConfig(YTDocument document) {
+  public void changeConfig(YTEntityImpl document) {
   }
 
   public void registerListener(OAutomaticBackupListener listener) {

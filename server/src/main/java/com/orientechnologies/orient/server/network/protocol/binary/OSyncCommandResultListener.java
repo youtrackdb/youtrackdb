@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.fetch.remote.ORemoteFetchListener;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -80,7 +80,7 @@ public class OSyncCommandResultListener extends OAbstractCommandResultListener
   }
 
   @Override
-  public void linkdedBySimpleValue(YTDocument doc) {
+  public void linkdedBySimpleValue(YTEntityImpl doc) {
 
     ORemoteFetchListener listener =
         new ORemoteFetchListener() {
@@ -93,7 +93,7 @@ public class OSyncCommandResultListener extends OAbstractCommandResultListener
 
           @Override
           public void parseLinked(
-              YTDocument iRootRecord,
+              YTEntityImpl iRootRecord,
               YTIdentifiable iLinked,
               Object iUserObject,
               String iFieldName,
@@ -106,7 +106,7 @@ public class OSyncCommandResultListener extends OAbstractCommandResultListener
 
           @Override
           public void parseLinkedCollectionValue(
-              YTDocument iRootRecord,
+              YTEntityImpl iRootRecord,
               YTIdentifiable iLinked,
               Object iUserObject,
               String iFieldName,

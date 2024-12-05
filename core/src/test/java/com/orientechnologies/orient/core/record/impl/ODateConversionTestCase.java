@@ -51,10 +51,11 @@ public class ODateConversionTestCase extends DBTestBase {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     Date dateToInsert = format.parse("1975-06-01 01:00:00");
 
-    YTDocument document = new YTDocument();
+    YTEntityImpl document = new YTEntityImpl();
     document.field("date", dateToInsert, YTType.DATE);
     byte[] res = serializer.toStream(db, document);
-    YTDocument extr = (YTDocument) serializer.fromStream(db, res, new YTDocument(), new String[]{});
+    YTEntityImpl extr = (YTEntityImpl) serializer.fromStream(db, res, new YTEntityImpl(),
+        new String[]{});
     final String[] fields = extr.fieldNames();
 
     assertNotNull(fields);
@@ -85,7 +86,7 @@ public class ODateConversionTestCase extends DBTestBase {
 
         db.set(ATTRIBUTES.TIMEZONE, "GMT");
 
-        YTDocument doc = new YTDocument();
+        YTEntityImpl doc = new YTEntityImpl();
 
         doc.setProperty("dateTime", date);
         String formatted = doc.eval("dateTime.format('yyyy-MM-dd')").toString();

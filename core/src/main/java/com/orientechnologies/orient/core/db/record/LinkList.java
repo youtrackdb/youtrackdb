@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.ListIterator;
@@ -38,28 +38,28 @@ import java.util.ListIterator;
  * contentType to speed up some operations like conversion to/from record/links.
  */
 @SuppressWarnings({"serial"})
-public class OList extends OTrackedList<YTIdentifiable> implements OSizeable {
+public class LinkList extends TrackedList<YTIdentifiable> implements OSizeable {
 
   protected ORecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE contentType =
       MULTIVALUE_CONTENT_TYPE.EMPTY;
   protected boolean ridOnly = false;
 
-  public OList() {
+  public LinkList() {
     super(null);
   }
 
-  public OList(final ORecordElement iSourceRecord) {
+  public LinkList(final RecordElement iSourceRecord) {
     super(iSourceRecord);
     if (iSourceRecord != null) {
-      ORecordElement source = iSourceRecord;
-      while (!(source instanceof YTDocument)) {
+      RecordElement source = iSourceRecord;
+      while (!(source instanceof YTEntityImpl)) {
         source = source.getOwner();
       }
     }
   }
 
-  public OList(
-      final ORecordElement iSourceRecord, final Collection<? extends YTIdentifiable> iOrigin) {
+  public LinkList(
+      final RecordElement iSourceRecord, final Collection<? extends YTIdentifiable> iOrigin) {
     this(iSourceRecord);
     if (iOrigin != null && !iOrigin.isEmpty()) {
       addAll(iOrigin);
@@ -93,15 +93,15 @@ public class OList extends OTrackedList<YTIdentifiable> implements OSizeable {
       }
 
       public YTIdentifiable next() {
-        return OList.this.rawGet(++pos);
+        return LinkList.this.rawGet(++pos);
       }
 
       public void remove() {
-        OList.this.remove(pos);
+        LinkList.this.remove(pos);
       }
 
       public YTIdentifiable update(final YTIdentifiable iValue) {
-        return OList.this.set(pos, iValue);
+        return LinkList.this.set(pos, iValue);
       }
     };
   }
@@ -153,7 +153,7 @@ public class OList extends OTrackedList<YTIdentifiable> implements OSizeable {
       ORecordInternal.track(sourceRecord, e);
       if ((ridOnly || contentType == MULTIVALUE_CONTENT_TYPE.ALL_RIDS)
           && e.getIdentity().isPersistent()
-          && (e instanceof YTDocument && !((YTDocument) e).isDirty()))
+          && (e instanceof YTEntityImpl && !((YTEntityImpl) e).isDirty()))
       // IT'S BETTER TO LEAVE ALL RIDS AND EXTRACT ONLY THIS ONE
       {
         e = e.getIdentity();
@@ -171,7 +171,7 @@ public class OList extends OTrackedList<YTIdentifiable> implements OSizeable {
       if (e != null) {
         if ((ridOnly || contentType == MULTIVALUE_CONTENT_TYPE.ALL_RIDS)
             && e.getIdentity().isPersistent()
-            && (e instanceof YTDocument && !((YTDocument) e).isDirty()))
+            && (e instanceof YTEntityImpl && !((YTEntityImpl) e).isDirty()))
         // IT'S BETTER TO LEAVE ALL RIDS AND EXTRACT ONLY THIS ONE
         {
           e = e.getIdentity();
@@ -269,8 +269,8 @@ public class OList extends OTrackedList<YTIdentifiable> implements OSizeable {
     return ORecordMultiValueHelper.toString(this);
   }
 
-  public OList copy(final YTDocument iSourceRecord) {
-    final OList copy = new OList(iSourceRecord);
+  public LinkList copy(final YTEntityImpl iSourceRecord) {
+    final LinkList copy = new LinkList(iSourceRecord);
     copy.contentType = contentType;
 
     final int tot = super.size();

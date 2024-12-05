@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import java.util.stream.Stream;
 import org.junit.Assert;
@@ -51,11 +51,11 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     db.begin();
 
     // saved persons will have null name
-    final YTDocument person1 = db.newInstance("Person");
+    final YTEntityImpl person1 = db.newInstance("Person");
     db.save(person1);
-    final YTDocument person2 = db.newInstance("Person");
+    final YTEntityImpl person2 = db.newInstance("Person");
     db.save(person2);
-    final YTDocument person3 = db.newInstance("Person");
+    final YTEntityImpl person3 = db.newInstance("Person");
     db.save(person3);
 
     // change names to unique
@@ -73,22 +73,22 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     Assert.assertEquals(person3, fetchDocumentFromIndex("Name3"));
   }
 
-  private YTDocument fetchDocumentFromIndex(String o) {
+  private YTEntityImpl fetchDocumentFromIndex(String o) {
     try (Stream<YTRID> stream = index.getInternal().getRids(db, o)) {
-      return (YTDocument) stream.findFirst().map(YTRID::getRecord).orElse(null);
+      return (YTEntityImpl) stream.findFirst().map(YTRID::getRecord).orElse(null);
     }
   }
 
   @Test
   public void testDuplicateNullsOnUpdate() {
     db.begin();
-    YTDocument person1 = db.newInstance("Person");
+    YTEntityImpl person1 = db.newInstance("Person");
     person1.field("name", "Name1");
     db.save(person1);
-    YTDocument person2 = db.newInstance("Person");
+    YTEntityImpl person2 = db.newInstance("Person");
     person2.field("name", "Name2");
     db.save(person2);
-    YTDocument person3 = db.newInstance("Person");
+    YTEntityImpl person3 = db.newInstance("Person");
     person3.field("name", "Name3");
     db.save(person3);
     db.commit();
@@ -134,13 +134,13 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     db.begin();
 
     // saved persons will have same name
-    final YTDocument person1 = db.newInstance("Person");
+    final YTEntityImpl person1 = db.newInstance("Person");
     person1.field("name", "same");
     db.save(person1);
-    final YTDocument person2 = db.newInstance("Person");
+    final YTEntityImpl person2 = db.newInstance("Person");
     person2.field("name", "same");
     db.save(person2);
-    final YTDocument person3 = db.newInstance("Person");
+    final YTEntityImpl person3 = db.newInstance("Person");
     person3.field("name", "same");
     db.save(person3);
 
@@ -162,13 +162,13 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
   @Test
   public void testDuplicateValuesOnUpdate() {
     db.begin();
-    YTDocument person1 = db.newInstance("Person");
+    YTEntityImpl person1 = db.newInstance("Person");
     person1.field("name", "Name1");
     db.save(person1);
-    YTDocument person2 = db.newInstance("Person");
+    YTEntityImpl person2 = db.newInstance("Person");
     person2.field("name", "Name2");
     db.save(person2);
-    YTDocument person3 = db.newInstance("Person");
+    YTEntityImpl person3 = db.newInstance("Person");
     person3.field("name", "Name3");
     db.save(person3);
     db.commit();
@@ -209,16 +209,16 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     db.begin();
 
     // saved persons will have same name
-    final YTDocument person1 = db.newInstance("Person");
+    final YTEntityImpl person1 = db.newInstance("Person");
     person1.field("name", "same");
     db.save(person1);
-    final YTDocument person2 = db.newInstance("Person");
+    final YTEntityImpl person2 = db.newInstance("Person");
     person2.field("name", "same");
     db.save(person2);
-    final YTDocument person3 = db.newInstance("Person");
+    final YTEntityImpl person3 = db.newInstance("Person");
     person3.field("name", "same");
     db.save(person3);
-    final YTDocument person4 = db.newInstance("Person");
+    final YTEntityImpl person4 = db.newInstance("Person");
     person4.field("name", "same");
     db.save(person4);
 
@@ -237,16 +237,16 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
   @Test
   public void testDuplicateValuesOnUpdateDelete() {
     db.begin();
-    YTDocument person1 = db.newInstance("Person");
+    YTEntityImpl person1 = db.newInstance("Person");
     person1.field("name", "Name1");
     db.save(person1);
-    YTDocument person2 = db.newInstance("Person");
+    YTEntityImpl person2 = db.newInstance("Person");
     person2.field("name", "Name2");
     db.save(person2);
-    YTDocument person3 = db.newInstance("Person");
+    YTEntityImpl person3 = db.newInstance("Person");
     person3.field("name", "Name3");
     db.save(person3);
-    YTDocument person4 = db.newInstance("Person");
+    YTEntityImpl person4 = db.newInstance("Person");
     person4.field("name", "Name4");
     db.save(person4);
     db.commit();
@@ -293,14 +293,14 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
   @Test(expected = YTRecordDuplicatedException.class)
   public void testDuplicateCreateThrows() {
     db.begin();
-    YTDocument person1 = db.newInstance("Person");
+    YTEntityImpl person1 = db.newInstance("Person");
     person1.field("name", "Name1");
     db.save(person1);
-    YTDocument person2 = db.newInstance("Person");
+    YTEntityImpl person2 = db.newInstance("Person");
     db.save(person2);
-    YTDocument person3 = db.newInstance("Person");
+    YTEntityImpl person3 = db.newInstance("Person");
     db.save(person3);
-    YTDocument person4 = db.newInstance("Person");
+    YTEntityImpl person4 = db.newInstance("Person");
     person4.field("name", "Name1");
     db.save(person4);
     //    Assert.assertThrows(YTRecordDuplicatedException.class, new Assert.ThrowingRunnable() {
@@ -315,16 +315,16 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
   @Test(expected = YTRecordDuplicatedException.class)
   public void testDuplicateUpdateThrows() {
     db.begin();
-    YTDocument person1 = db.newInstance("Person");
+    YTEntityImpl person1 = db.newInstance("Person");
     person1.field("name", "Name1");
     db.save(person1);
-    YTDocument person2 = db.newInstance("Person");
+    YTEntityImpl person2 = db.newInstance("Person");
     person2.field("name", "Name2");
     db.save(person2);
-    YTDocument person3 = db.newInstance("Person");
+    YTEntityImpl person3 = db.newInstance("Person");
     person3.field("name", "Name3");
     db.save(person3);
-    YTDocument person4 = db.newInstance("Person");
+    YTEntityImpl person4 = db.newInstance("Person");
     person4.field("name", "Name4");
     db.save(person4);
     db.commit();

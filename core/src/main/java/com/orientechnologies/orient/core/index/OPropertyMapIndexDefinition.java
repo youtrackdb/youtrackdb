@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.index;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,7 +65,7 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
   }
 
   @Override
-  public Object getDocumentValueToIndex(YTDatabaseSessionInternal session, YTDocument iDocument) {
+  public Object getDocumentValueToIndex(YTDatabaseSessionInternal session, YTEntityImpl iDocument) {
     return createValue(session, iDocument.<Object>field(field));
   }
 
@@ -108,13 +108,13 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
   }
 
   @Override
-  protected void serializeToStream(YTDocument document) {
+  protected void serializeToStream(YTEntityImpl document) {
     super.serializeToStream(document);
     document.setPropertyInternal("mapIndexBy", indexBy.toString());
   }
 
   @Override
-  protected void serializeFromStream(YTDocument document) {
+  protected void serializeFromStream(YTEntityImpl document) {
     super.serializeFromStream(document);
     indexBy = INDEX_BY.valueOf(document.field("mapIndexBy"));
   }

@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.core.db.record;
 
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 
 /**
  * Base interface that represents a record element.
  */
-public interface ORecordElement {
+public interface RecordElement {
 
   /**
    * Available record statuses.
@@ -49,13 +49,13 @@ public interface ORecordElement {
   /**
    * @return Returns record element which contains given one.
    */
-  ORecordElement getOwner();
+  RecordElement getOwner();
 
-  default YTDocument getOwnerRecord() {
+  default YTEntityImpl getOwnerRecord() {
     var owner = getOwner();
 
     while (true) {
-      if (owner instanceof YTDocument document) {
+      if (owner instanceof YTEntityImpl document) {
         return document;
       }
       if (owner == null) {

@@ -26,9 +26,9 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
+import com.orientechnologies.orient.core.db.record.RecordElement;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBagDelegate;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBagDelegate;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.OSimpleMultiValueTracker;
@@ -46,7 +46,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-public class ORemoteTreeRidBag implements ORidBagDelegate {
+public class RemoteTreeRidBag implements RidBagDelegate {
 
   /**
    * Entries with not valid id.
@@ -56,7 +56,7 @@ public class ORemoteTreeRidBag implements ORidBagDelegate {
   private final OSimpleMultiValueTracker<YTIdentifiable, YTIdentifiable> tracker =
       new OSimpleMultiValueTracker<>(this);
 
-  private transient ORecordElement owner;
+  private transient RecordElement owner;
   private boolean dirty;
   private boolean transactionDirty = false;
   private YTRecordId ownerRecord;
@@ -101,7 +101,7 @@ public class ORemoteTreeRidBag implements ORidBagDelegate {
     @Override
     public void remove() {
       if (removeNext != null) {
-        ORemoteTreeRidBag.this.remove(removeNext);
+        RemoteTreeRidBag.this.remove(removeNext);
         removeNext = null;
       } else {
         throw new IllegalStateException();
@@ -114,18 +114,18 @@ public class ORemoteTreeRidBag implements ORidBagDelegate {
     this.size = size;
   }
 
-  public ORemoteTreeRidBag(OBonsaiCollectionPointer pointer) {
+  public RemoteTreeRidBag(OBonsaiCollectionPointer pointer) {
     this.size = -1;
     this.collectionPointer = pointer;
   }
 
   @Override
-  public ORecordElement getOwner() {
+  public RecordElement getOwner() {
     return owner;
   }
 
   @Override
-  public void setOwner(ORecordElement owner) {
+  public void setOwner(RecordElement owner) {
     if (owner != null && this.owner != null && !this.owner.equals(owner)) {
       throw new IllegalStateException(
           "This data structure is owned by document "
@@ -247,7 +247,7 @@ public class ORemoteTreeRidBag implements ORidBagDelegate {
   public Object returnOriginalState(
       YTDatabaseSessionInternal session,
       List<OMultiValueChangeEvent<YTIdentifiable, YTIdentifiable>> multiValueChangeEvents) {
-    final ORemoteTreeRidBag reverted = new ORemoteTreeRidBag(this.collectionPointer);
+    final RemoteTreeRidBag reverted = new RemoteTreeRidBag(this.collectionPointer);
     for (YTIdentifiable identifiable : this) {
       reverted.add(identifiable);
     }
@@ -341,13 +341,13 @@ public class ORemoteTreeRidBag implements ORidBagDelegate {
     }
   }
 
-  public void enableTracking(ORecordElement parent) {
+  public void enableTracking(RecordElement parent) {
     if (!tracker.isEnabled()) {
       tracker.enable();
     }
   }
 
-  public void disableTracking(ORecordElement document) {
+  public void disableTracking(RecordElement document) {
     if (tracker.isEnabled()) {
       this.tracker.disable();
       this.dirty = false;

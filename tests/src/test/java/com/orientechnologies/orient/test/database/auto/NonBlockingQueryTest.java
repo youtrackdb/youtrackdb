@@ -2,7 +2,7 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.query.OSQLNonBlockingQuery;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
@@ -45,7 +45,7 @@ public class NonBlockingQueryTest extends DocumentDBBaseTest {
     db.commit();
     YTDatabaseSessionInternal newDb = db.copy();
 
-    List<YTDocument> result = newDb.query(new OSQLSynchQuery<YTDocument>("Select from Foo"));
+    List<YTEntityImpl> result = newDb.query(new OSQLSynchQuery<YTEntityImpl>("Select from Foo"));
     Assert.assertEquals(result.size(), 1);
     Assert.assertEquals(result.get(0).field("a"), "bar");
     newDb.close();

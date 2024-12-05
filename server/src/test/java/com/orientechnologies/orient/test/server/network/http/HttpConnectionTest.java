@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.server.network.http;
 
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.io.IOException;
 import java.util.Collection;
 import org.junit.Assert;
@@ -87,7 +87,7 @@ public class HttpConnectionTest extends BaseHttpDatabaseTest {
 
     System.out.print("\nTest completed");
 
-    Collection<YTDocument> conns = null;
+    Collection<YTEntityImpl> conns = null;
     for (int i = 0; i < 20; ++i) {
       Assert.assertEquals(
           get("server")
@@ -98,8 +98,8 @@ public class HttpConnectionTest extends BaseHttpDatabaseTest {
               .getCode(),
           200);
 
-      final YTDocument serverStatus =
-          new YTDocument().fromJSON(getResponse().getEntity().getContent());
+      final YTEntityImpl serverStatus =
+          new YTEntityImpl().fromJSON(getResponse().getEntity().getContent());
       conns = serverStatus.field("connections");
 
       final int openConnections = conns.size();

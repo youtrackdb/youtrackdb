@@ -42,7 +42,7 @@ public class ODocumentSchemalessSerializationTest extends DBTestBase {
 
   @Test
   public void testSimpleSerialization() {
-    YTDocument document = new YTDocument();
+    YTEntityImpl document = new YTEntityImpl();
 
     document.field("name", "name");
     document.field("age", 20);
@@ -57,7 +57,8 @@ public class ODocumentSchemalessSerializationTest extends DBTestBase {
     document.field("recordId", new YTRecordId(10, 10));
 
     byte[] res = serializer.toStream(db, document);
-    YTDocument extr = (YTDocument) serializer.fromStream(db, res, new YTDocument(), new String[]{});
+    YTEntityImpl extr = (YTEntityImpl) serializer.fromStream(db, res, new YTEntityImpl(),
+        new String[]{});
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<String>field("name"), document.field("name"));
@@ -79,7 +80,7 @@ public class ODocumentSchemalessSerializationTest extends DBTestBase {
   @Test
   public void testSimpleLiteralList() {
 
-    YTDocument document = new YTDocument();
+    YTEntityImpl document = new YTEntityImpl();
     List<String> strings = new ArrayList<String>();
     strings.add("a");
     strings.add("b");
@@ -154,7 +155,8 @@ public class ODocumentSchemalessSerializationTest extends DBTestBase {
     document.field("listMixed", listMixed);
 
     byte[] res = serializer.toStream(db, document);
-    YTDocument extr = (YTDocument) serializer.fromStream(db, res, new YTDocument(), new String[]{});
+    YTEntityImpl extr = (YTEntityImpl) serializer.fromStream(db, res, new YTEntityImpl(),
+        new String[]{});
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<String>field("listStrings"), document.field("listStrings"));
@@ -168,7 +170,7 @@ public class ODocumentSchemalessSerializationTest extends DBTestBase {
 
   @Test
   public void testSimpleMapStringLiteral() {
-    YTDocument document = new YTDocument();
+    YTEntityImpl document = new YTEntityImpl();
 
     Map<String, String> mapString = new HashMap<String, String>();
     mapString.put("key", "value");
@@ -211,7 +213,8 @@ public class ODocumentSchemalessSerializationTest extends DBTestBase {
     document.field("bytesMap", bytesMap);
 
     byte[] res = serializer.toStream(db, document);
-    YTDocument extr = (YTDocument) serializer.fromStream(db, res, new YTDocument(), new String[]{});
+    YTEntityImpl extr = (YTEntityImpl) serializer.fromStream(db, res, new YTEntityImpl(),
+        new String[]{});
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<String>field("mapString"), document.field("mapString"));
     assertEquals(extr.<String>field("mapLong"), document.field("mapLong"));
@@ -223,16 +226,17 @@ public class ODocumentSchemalessSerializationTest extends DBTestBase {
 
   @Test
   public void testSimpleEmbeddedDoc() {
-    YTDocument document = new YTDocument();
-    YTDocument embedded = new YTDocument();
+    YTEntityImpl document = new YTEntityImpl();
+    YTEntityImpl embedded = new YTEntityImpl();
     embedded.field("name", "test");
     embedded.field("surname", "something");
     document.field("embed", embedded, YTType.EMBEDDED);
 
     byte[] res = serializer.toStream(db, document);
-    YTDocument extr = (YTDocument) serializer.fromStream(db, res, new YTDocument(), new String[]{});
+    YTEntityImpl extr = (YTEntityImpl) serializer.fromStream(db, res, new YTEntityImpl(),
+        new String[]{});
     assertEquals(document.fields(), extr.fields());
-    YTDocument emb = extr.field("embed");
+    YTEntityImpl emb = extr.field("embed");
     assertNotNull(emb);
     assertEquals(emb.<String>field("name"), embedded.field("name"));
     assertEquals(emb.<String>field("surname"), embedded.field("surname"));
@@ -241,20 +245,21 @@ public class ODocumentSchemalessSerializationTest extends DBTestBase {
   @Test
   public void testMapOfEmbeddedDocument() {
 
-    YTDocument document = new YTDocument();
+    YTEntityImpl document = new YTEntityImpl();
 
-    YTDocument embeddedInMap = new YTDocument();
+    YTEntityImpl embeddedInMap = new YTEntityImpl();
     embeddedInMap.field("name", "test");
     embeddedInMap.field("surname", "something");
-    Map<String, YTDocument> map = new HashMap<String, YTDocument>();
+    Map<String, YTEntityImpl> map = new HashMap<String, YTEntityImpl>();
     map.put("embedded", embeddedInMap);
     document.field("map", map, YTType.EMBEDDEDMAP);
 
     byte[] res = serializer.toStream(db, document);
-    YTDocument extr = (YTDocument) serializer.fromStream(db, res, new YTDocument(), new String[]{});
-    Map<String, YTDocument> mapS = extr.field("map");
+    YTEntityImpl extr = (YTEntityImpl) serializer.fromStream(db, res, new YTEntityImpl(),
+        new String[]{});
+    Map<String, YTEntityImpl> mapS = extr.field("map");
     assertEquals(1, mapS.size());
-    YTDocument emb = mapS.get("embedded");
+    YTEntityImpl emb = mapS.get("embedded");
     assertNotNull(emb);
     assertEquals(emb.<String>field("name"), embeddedInMap.field("name"));
     assertEquals(emb.<String>field("surname"), embeddedInMap.field("surname"));
@@ -263,37 +268,38 @@ public class ODocumentSchemalessSerializationTest extends DBTestBase {
   @Test
   public void testCollectionOfEmbeddedDocument() {
 
-    YTDocument document = new YTDocument();
+    YTEntityImpl document = new YTEntityImpl();
 
-    YTDocument embeddedInList = new YTDocument();
+    YTEntityImpl embeddedInList = new YTEntityImpl();
     embeddedInList.field("name", "test");
     embeddedInList.field("surname", "something");
 
-    List<YTDocument> embeddedList = new ArrayList<YTDocument>();
+    List<YTEntityImpl> embeddedList = new ArrayList<YTEntityImpl>();
     embeddedList.add(embeddedInList);
     document.field("embeddedList", embeddedList, YTType.EMBEDDEDLIST);
 
-    YTDocument embeddedInSet = new YTDocument();
+    YTEntityImpl embeddedInSet = new YTEntityImpl();
     embeddedInSet.field("name", "test1");
     embeddedInSet.field("surname", "something2");
 
-    Set<YTDocument> embeddedSet = new HashSet<YTDocument>();
+    Set<YTEntityImpl> embeddedSet = new HashSet<YTEntityImpl>();
     embeddedSet.add(embeddedInSet);
     document.field("embeddedSet", embeddedSet, YTType.EMBEDDEDSET);
 
     byte[] res = serializer.toStream(db, document);
-    YTDocument extr = (YTDocument) serializer.fromStream(db, res, new YTDocument(), new String[]{});
+    YTEntityImpl extr = (YTEntityImpl) serializer.fromStream(db, res, new YTEntityImpl(),
+        new String[]{});
 
-    List<YTDocument> ser = extr.field("embeddedList");
+    List<YTEntityImpl> ser = extr.field("embeddedList");
     assertEquals(1, ser.size());
-    YTDocument inList = ser.get(0);
+    YTEntityImpl inList = ser.get(0);
     assertNotNull(inList);
     assertEquals(inList.<String>field("name"), embeddedInList.field("name"));
     assertEquals(inList.<String>field("surname"), embeddedInList.field("surname"));
 
-    Set<YTDocument> setEmb = extr.field("embeddedSet");
+    Set<YTEntityImpl> setEmb = extr.field("embeddedSet");
     assertEquals(1, setEmb.size());
-    YTDocument inSet = setEmb.iterator().next();
+    YTEntityImpl inSet = setEmb.iterator().next();
     assertNotNull(inSet);
     assertEquals(inSet.<String>field("name"), embeddedInSet.field("name"));
     assertEquals(inSet.<String>field("surname"), embeddedInSet.field("surname"));

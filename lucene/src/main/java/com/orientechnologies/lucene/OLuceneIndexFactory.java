@@ -30,7 +30,7 @@ import com.orientechnologies.orient.core.index.OIndexFactory;
 import com.orientechnologies.orient.core.index.OIndexInternal;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.index.engine.OBaseIndexEngine;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.Collections;
 import java.util.HashSet;
@@ -90,7 +90,7 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
     final String algorithm = im.getAlgorithm();
 
     if (metadata == null) {
-      var metadataDoc = new YTDocument();
+      var metadataDoc = new YTEntityImpl();
       metadataDoc.field("analyzer", StandardAnalyzer.class.getName());
       im.setMetadata(metadataDoc);
     }
@@ -147,6 +147,6 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
   }
 
   @Override
-  public void onLocalNodeConfigurationRequest(YTDocument iConfiguration) {
+  public void onLocalNodeConfigurationRequest(YTEntityImpl iConfiguration) {
   }
 }

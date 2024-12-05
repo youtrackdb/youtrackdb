@@ -1,16 +1,16 @@
 package com.orientechnologies.orient.core.command;
 
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 
 /**
  * This class is designed to compare documents based on deep equality (to be used in Sets)
  */
 public class ODocumentEqualityWrapper {
 
-  private final YTDocument internal;
+  private final YTEntityImpl internal;
 
-  ODocumentEqualityWrapper(YTDocument internal) {
+  ODocumentEqualityWrapper(YTEntityImpl internal) {
 
     this.internal = internal;
   }

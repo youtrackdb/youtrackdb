@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Random;
@@ -124,7 +124,7 @@ public class FreezeAndRecordInsertAtomicityTest {
                         var val = i1;
                         db.executeInTx(
                             () ->
-                                db.<YTDocument>newInstance("Person")
+                                db.<YTEntityImpl>newInstance("Person")
                                     .field("name", "name-" + thread + "-" + val)
                                     .save());
                         break;
@@ -132,7 +132,7 @@ public class FreezeAndRecordInsertAtomicityTest {
                       case 1:
                         db.freeze();
                         try {
-                          for (YTDocument document : db.browseClass("Person")) {
+                          for (YTEntityImpl document : db.browseClass("Person")) {
                             try (Stream<YTRID> rids =
                                 index.getInternal().getRids(db, document.field("name"))) {
                               assertEquals(document.getIdentity(), rids.findFirst().orElse(null));

@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Collection;
@@ -53,7 +53,7 @@ public class LuceneTransactionEmbeddedQueryTest {
     db.create();
     createSchema(db);
     try {
-      YTDocument doc = new YTDocument("c1");
+      YTEntityImpl doc = new YTEntityImpl("c1");
       doc.field("p1", new String[]{"abc"});
       db.begin();
       db.save(doc);
@@ -88,7 +88,7 @@ public class LuceneTransactionEmbeddedQueryTest {
     try {
       db.begin();
 
-      YTDocument doc = new YTDocument("c1");
+      YTEntityImpl doc = new YTEntityImpl("c1");
       doc.field("p1", new String[]{"abc"});
 
       OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
@@ -161,7 +161,7 @@ public class LuceneTransactionEmbeddedQueryTest {
       db.begin();
       Assert.assertEquals(0, index.getInternal().size(db));
 
-      YTDocument doc = new YTDocument("c1");
+      YTEntityImpl doc = new YTEntityImpl("c1");
       doc.field("p1", new String[]{"update removed", "update fixed"});
 
       db.save(doc);
@@ -254,10 +254,10 @@ public class LuceneTransactionEmbeddedQueryTest {
 
       db.begin();
 
-      YTDocument doc = new YTDocument("c1");
+      YTEntityImpl doc = new YTEntityImpl("c1");
       doc.field("p1", new String[]{"abc"});
 
-      YTDocument doc1 = new YTDocument("c1");
+      YTEntityImpl doc1 = new YTEntityImpl("c1");
       doc1.field("p1", new String[]{"abc"});
 
       db.save(doc1);

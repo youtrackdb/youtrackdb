@@ -24,8 +24,8 @@ import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItem;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemFieldAll;
@@ -75,7 +75,7 @@ public class OTraverseRecordProcess extends OTraverseAbstractProcess<YTIdentifia
       pop();
     } else {
       final YTRecord targetRec = target.getRecord();
-      if (!(targetRec instanceof YTDocument targetDoc))
+      if (!(targetRec instanceof YTEntityImpl targetDoc))
       // SKIP IT
       {
         return pop();
@@ -158,7 +158,7 @@ public class OTraverseRecordProcess extends OTraverseAbstractProcess<YTIdentifia
   }
 
   private void processFields(Iterator<Object> target) {
-    YTDocument doc = this.target.getRecord();
+    YTEntityImpl doc = this.target.getRecord();
     var database = command.getContext().getDatabase();
     if (doc.isNotBound(database)) {
       doc = database.bindToSession(doc);
@@ -186,7 +186,7 @@ public class OTraverseRecordProcess extends OTraverseAbstractProcess<YTIdentifia
               new OTraverseMultiValueProcess(
                   command, (Iterator<Object>) coll, path.appendField(field.toString()));
         } else if (fieldValue instanceof YTIdentifiable
-            && ((YTIdentifiable) fieldValue).getRecord() instanceof YTDocument) {
+            && ((YTIdentifiable) fieldValue).getRecord() instanceof YTEntityImpl) {
           subProcess =
               new OTraverseRecordProcess(
                   command,

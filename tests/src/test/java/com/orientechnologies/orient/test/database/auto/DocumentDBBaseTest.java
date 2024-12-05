@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.FetchFromIndexStep;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStep;
@@ -64,46 +64,46 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
     return (YTDatabaseSessionInternal) session;
   }
 
-  protected List<YTDocument> executeQuery(String sql, YTDatabaseSessionInternal db,
+  protected List<YTEntityImpl> executeQuery(String sql, YTDatabaseSessionInternal db,
       Object... args) {
     return db.query(sql, args).stream()
         .map(YTResult::toEntity)
-        .map(element -> (YTDocument) element)
+        .map(element -> (YTEntityImpl) element)
         .toList();
   }
 
-  protected List<YTDocument> executeQuery(String sql, YTDatabaseSessionInternal db, Map args) {
+  protected List<YTEntityImpl> executeQuery(String sql, YTDatabaseSessionInternal db, Map args) {
     return db.query(sql, args).stream()
         .map(YTResult::toEntity)
-        .map(element -> (YTDocument) element)
+        .map(element -> (YTEntityImpl) element)
         .toList();
   }
 
-  protected List<YTDocument> executeQuery(String sql, YTDatabaseSessionInternal db) {
+  protected List<YTEntityImpl> executeQuery(String sql, YTDatabaseSessionInternal db) {
     return db.query(sql).stream()
         .map(YTResult::toEntity)
-        .map(element -> (YTDocument) element)
+        .map(element -> (YTEntityImpl) element)
         .toList();
   }
 
-  protected List<YTDocument> executeQuery(String sql, Object... args) {
+  protected List<YTEntityImpl> executeQuery(String sql, Object... args) {
     return database.query(sql, args).stream()
         .map(YTResult::toEntity)
-        .map(element -> (YTDocument) element)
+        .map(element -> (YTEntityImpl) element)
         .toList();
   }
 
-  protected List<YTDocument> executeQuery(String sql, Map<?, ?> args) {
+  protected List<YTEntityImpl> executeQuery(String sql, Map<?, ?> args) {
     return database.query(sql, args).stream()
         .map(YTResult::toEntity)
-        .map(element -> (YTDocument) element)
+        .map(element -> (YTEntityImpl) element)
         .toList();
   }
 
-  protected List<YTDocument> executeQuery(String sql) {
+  protected List<YTEntityImpl> executeQuery(String sql) {
     return database.query(sql).stream()
         .map(YTResult::toEntity)
-        .map(element -> (YTDocument) element)
+        .map(element -> (YTEntityImpl) element)
         .toList();
   }
 
@@ -409,7 +409,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
         .setMin(database, "3")
         .setMax(database, "30")
         .createIndex(database, YTClass.INDEX_TYPE.UNIQUE,
-            new YTDocument().field("ignoreNullValues", true));
+            new YTEntityImpl().field("ignoreNullValues", true));
     cls.createProperty(database, "followings", YTType.LINKSET, cls);
     cls.createProperty(database, "followers", YTType.LINKSET, cls);
     cls.createProperty(database, "name", YTType.STRING)

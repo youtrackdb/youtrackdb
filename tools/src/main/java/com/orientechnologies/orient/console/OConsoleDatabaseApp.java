@@ -79,7 +79,7 @@ import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.security.OSecurityManager;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -271,7 +271,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     message("OK");
 
-    final YTDocument distribCfg = getDistributedConfiguration();
+    final YTEntityImpl distribCfg = getDistributedConfiguration();
     if (distribCfg != null) {
       listServers();
     }
@@ -460,14 +460,14 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   public void listConnections() throws IOException {
     checkForRemoteServer();
     YouTrackDBRemote remote = (YouTrackDBRemote) YouTrackDBInternal.extract(youTrackDB);
-    final YTDocument serverInfo =
+    final YTEntityImpl serverInfo =
         remote.getServerInfo(currentDatabaseUserName, currentDatabaseUserPassword);
 
     final List<YTIdentifiable> resultSet = new ArrayList<YTIdentifiable>();
 
     final List<Map<String, Object>> connections = serverInfo.field("connections");
     for (Map<String, Object> conn : connections) {
-      final YTDocument row = new YTDocument();
+      final YTEntityImpl row = new YTEntityImpl();
 
       String commandDetail = (String) conn.get("commandInfo");
 
@@ -500,8 +500,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
         new Comparator<YTIdentifiable>() {
           @Override
           public int compare(final YTIdentifiable o1, final YTIdentifiable o2) {
-            final String o1s = ((YTDocument) o1).field("LAST_OPERATION_ON");
-            final String o2s = ((YTDocument) o2).field("LAST_OPERATION_ON");
+            final String o1s = ((YTEntityImpl) o1).field("LAST_OPERATION_ON");
+            final String o2s = ((YTEntityImpl) o2).field("LAST_OPERATION_ON");
             return o2s.compareTo(o1s);
           }
         });
@@ -707,8 +707,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
       String iCommandText) {
     Object result = sqlCommand("explain", iCommandText, "\n", false);
-    if (result != null && result instanceof YTDocument) {
-      message(((YTDocument) result).getProperty("executionPlanAsString"));
+    if (result != null && result instanceof YTEntityImpl) {
+      message(((YTEntityImpl) result).getProperty("executionPlanAsString"));
     } else if (result != null
         && result instanceof List
         && ((List) result).size() == 1
@@ -717,8 +717,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     } else if (result != null
         && result instanceof List
         && ((List) result).size() == 1
-        && ((List) result).get(0) instanceof YTDocument) {
-      message(((YTDocument) (((List) result).get(0))).getProperty("executionPlanAsString"));
+        && ((List) result).get(0) instanceof YTEntityImpl) {
+      message(((YTEntityImpl) (((List) result).get(0))).getProperty("executionPlanAsString"));
     }
   }
 
@@ -786,8 +786,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
           "Switches off storage profiling for issued set of commands and "
               + "returns reslut of profiling.")
   public void profileStorageOff() {
-    final Collection<YTDocument> result =
-        (Collection<YTDocument>)
+    final Collection<YTEntityImpl> result =
+        (Collection<YTEntityImpl>)
             sqlCommand(
                 "profile", " storage off", "\nProfiling of storage is switched off\n", false);
 
@@ -799,10 +799,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       return;
     }
 
-    final Iterator<YTDocument> profilerIterator = result.iterator();
+    final Iterator<YTEntityImpl> profilerIterator = result.iterator();
 
     if (profilerIterator.hasNext()) {
-      final YTDocument profilerDocument = profilerIterator.next();
+      final YTEntityImpl profilerDocument = profilerIterator.next();
       if (profilerDocument == null) {
         message(profilingWasNotSwitchedOn);
       } else {
@@ -1730,39 +1730,39 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     message("\n\nDATABASE PROPERTIES");
 
     if (dbCfg.getProperties() != null) {
-      final List<YTDocument> resultSet = new ArrayList<YTDocument>();
+      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
 
       if (dbCfg.getName() != null) {
-        resultSet.add(new YTDocument().field("NAME", "Name").field("VALUE", dbCfg.getName()));
+        resultSet.add(new YTEntityImpl().field("NAME", "Name").field("VALUE", dbCfg.getName()));
       }
 
-      resultSet.add(new YTDocument().field("NAME", "Version").field("VALUE", dbCfg.getVersion()));
+      resultSet.add(new YTEntityImpl().field("NAME", "Version").field("VALUE", dbCfg.getVersion()));
       resultSet.add(
-          new YTDocument()
+          new YTEntityImpl()
               .field("NAME", "Conflict-Strategy")
               .field("VALUE", dbCfg.getConflictStrategy()));
       resultSet.add(
-          new YTDocument().field("NAME", "Date-Format").field("VALUE", dbCfg.getDateFormat()));
+          new YTEntityImpl().field("NAME", "Date-Format").field("VALUE", dbCfg.getDateFormat()));
       resultSet.add(
-          new YTDocument()
+          new YTEntityImpl()
               .field("NAME", "Datetime-Format")
               .field("VALUE", dbCfg.getDateTimeFormat()));
       resultSet.add(
-          new YTDocument().field("NAME", "Timezone").field("VALUE", dbCfg.getTimeZone().getID()));
+          new YTEntityImpl().field("NAME", "Timezone").field("VALUE", dbCfg.getTimeZone().getID()));
       resultSet.add(
-          new YTDocument().field("NAME", "Locale-Country")
+          new YTEntityImpl().field("NAME", "Locale-Country")
               .field("VALUE", dbCfg.getLocaleCountry()));
       resultSet.add(
-          new YTDocument()
+          new YTEntityImpl()
               .field("NAME", "Locale-Language")
               .field("VALUE", dbCfg.getLocaleLanguage()));
-      resultSet.add(new YTDocument().field("NAME", "Charset").field("VALUE", dbCfg.getCharset()));
+      resultSet.add(new YTEntityImpl().field("NAME", "Charset").field("VALUE", dbCfg.getCharset()));
       resultSet.add(
-          new YTDocument()
+          new YTEntityImpl()
               .field("NAME", "Schema-RID")
               .field("VALUE", dbCfg.getSchemaRecordId(), YTType.LINK));
       resultSet.add(
-          new YTDocument()
+          new YTEntityImpl()
               .field("NAME", "Index-Manager-RID")
               .field("VALUE", dbCfg.getIndexMgrRecordId(), YTType.LINK));
 
@@ -1777,10 +1777,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       if (!dbCfg.getProperties().isEmpty()) {
         message("\n\nDATABASE CUSTOM PROPERTIES:");
 
-        final List<YTDocument> dbResultSet = new ArrayList<YTDocument>();
+        final List<YTEntityImpl> dbResultSet = new ArrayList<YTEntityImpl>();
 
         for (OStorageEntryConfiguration cfg : dbCfg.getProperties()) {
-          dbResultSet.add(new YTDocument().field("NAME", cfg.name).field("VALUE", cfg.value));
+          dbResultSet.add(new YTEntityImpl().field("NAME", cfg.name).field("VALUE", cfg.value));
         }
 
         final OTableFormatter dbFormatter = new OTableFormatter(this);
@@ -1866,11 +1866,11 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     if (cls.properties(currentDatabase).size() > 0) {
       message("\n\nPROPERTIES");
 
-      final List<YTDocument> resultSet = new ArrayList<YTDocument>();
+      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
 
       for (final YTProperty p : cls.properties(currentDatabase)) {
         try {
-          final YTDocument row = new YTDocument();
+          final YTEntityImpl row = new YTEntityImpl();
           resultSet.add(row);
 
           row.field("NAME", p.getName());
@@ -1901,10 +1901,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     if (!indexes.isEmpty()) {
       message("\n\nINDEXES (" + indexes.size() + " altogether)");
 
-      final List<YTDocument> resultSet = new ArrayList<YTDocument>();
+      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
 
       for (final OIndex index : indexes) {
-        final YTDocument row = new YTDocument();
+        final YTEntityImpl row = new YTEntityImpl();
         resultSet.add(row);
 
         row.field("NAME", index.getName());
@@ -1926,11 +1926,11 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     if (cls.getCustomKeys().size() > 0) {
       message("\n\nCUSTOM ATTRIBUTES");
 
-      final List<YTDocument> resultSet = new ArrayList<YTDocument>();
+      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
 
       for (final String k : cls.getCustomKeys()) {
         try {
-          final YTDocument row = new YTDocument();
+          final YTEntityImpl row = new YTEntityImpl();
           resultSet.add(row);
 
           row.field("NAME", k);
@@ -2000,11 +2000,11 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     if (prop.getCustomKeys().size() > 0) {
       message("\n\nCUSTOM ATTRIBUTES");
 
-      final List<YTDocument> resultSet = new ArrayList<YTDocument>();
+      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
 
       for (final String k : prop.getCustomKeys()) {
         try {
-          final YTDocument row = new YTDocument();
+          final YTEntityImpl row = new YTEntityImpl();
           resultSet.add(row);
 
           row.field("NAME", k);
@@ -2025,10 +2025,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     if (!indexes.isEmpty()) {
       message("\n\nINDEXES (" + indexes.size() + " altogether)");
 
-      final List<YTDocument> resultSet = new ArrayList<YTDocument>();
+      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
 
       for (final OIndex index : indexes) {
-        final YTDocument row = new YTDocument();
+        final YTEntityImpl row = new YTEntityImpl();
         resultSet.add(row);
 
         row.field("NAME", index.getName());
@@ -2055,7 +2055,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     if (currentDatabaseName != null) {
       message("\n\nINDEXES");
 
-      final List<YTDocument> resultSet = new ArrayList<>();
+      final List<YTEntityImpl> resultSet = new ArrayList<>();
 
       int totalIndexes = 0;
       long totalRecords = 0;
@@ -2068,7 +2068,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       long totalIndexedRecords = 0;
 
       for (final OIndex index : indexes) {
-        final YTDocument row = new YTDocument();
+        final YTEntityImpl row = new YTEntityImpl();
         resultSet.add(row);
 
         final long indexSize = index.getSize(
@@ -2114,7 +2114,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
       formatter.setColumnAlignment("RECORDS", OTableFormatter.ALIGNMENT.RIGHT);
 
-      final YTDocument footer = new YTDocument();
+      final YTEntityImpl footer = new YTEntityImpl();
       footer.field("NAME", "TOTAL");
       footer.field("RECORDS", totalIndexedRecords);
       formatter.setFooter(footer);
@@ -2140,7 +2140,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     if (currentDatabaseName != null) {
       message("\n\nCLUSTERS (collections)");
 
-      final List<YTDocument> resultSet = new ArrayList<YTDocument>();
+      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
 
       int clusterId;
       long totalElements = 0;
@@ -2151,10 +2151,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       final List<String> clusters = new ArrayList<String>(currentDatabase.getClusterNames());
       Collections.sort(clusters);
 
-      YTDocument dClusters = null;
-      final YTDocument dCfg = getDistributedConfiguration();
+      YTEntityImpl dClusters = null;
+      final YTEntityImpl dCfg = getDistributedConfiguration();
       if (dCfg != null) {
-        final YTDocument dDatabaseCfg = dCfg.field("database");
+        final YTEntityImpl dDatabaseCfg = dCfg.field("database");
         if (dDatabaseCfg != null) {
           dClusters = dDatabaseCfg.field("clusters");
         }
@@ -2164,7 +2164,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
       for (String clusterName : clusters) {
         try {
-          final YTDocument row = new YTDocument();
+          final YTEntityImpl row = new YTEntityImpl();
           resultSet.add(row);
 
           clusterId = currentDatabase.getClusterIdByName(clusterName);
@@ -2192,7 +2192,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
           row.field("COUNT", count);
 
           if (dClusters != null) {
-            YTDocument dClusterCfg = dClusters.field(clusterName);
+            YTEntityImpl dClusterCfg = dClusters.field(clusterName);
             if (dClusterCfg == null) {
               dClusterCfg = dClusters.field("*");
             }
@@ -2236,7 +2236,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
         }
       }
 
-      final YTDocument footer = new YTDocument();
+      final YTEntityImpl footer = new YTEntityImpl();
       footer.field("NAME", "TOTAL");
       footer.field("COUNT", totalElements);
       if (!isRemote) {
@@ -2264,7 +2264,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     if (currentDatabaseName != null) {
       message("\n\nCLASSES");
 
-      final List<YTDocument> resultSet = new ArrayList<YTDocument>();
+      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
 
       long totalElements = 0;
       long count;
@@ -2283,7 +2283,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
       for (YTClass cls : classes) {
         try {
-          final YTDocument row = new YTDocument();
+          final YTEntityImpl row = new YTEntityImpl();
           resultSet.add(row);
 
           final StringBuilder clusters = new StringBuilder(1024);
@@ -2326,7 +2326,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
       formatter.setColumnAlignment("COUNT", OTableFormatter.ALIGNMENT.RIGHT);
 
-      final YTDocument footer = new YTDocument();
+      final YTEntityImpl footer = new YTEntityImpl();
       footer.field("NAME", "TOTAL");
       footer.field("COUNT", totalElements);
 
@@ -2346,7 +2346,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "Console-Command-List-Servers")
   public void listServers() {
 
-    final YTDocument distribCfg = getDistributedConfiguration();
+    final YTEntityImpl distribCfg = getDistributedConfiguration();
     if (distribCfg == null) {
       message("\n\nDistributed configuration is not active, cannot retrieve server list");
       return;
@@ -2354,13 +2354,13 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     final List<YTIdentifiable> servers = new ArrayList<YTIdentifiable>();
 
-    final Collection<YTDocument> members = distribCfg.field("members");
+    final Collection<YTEntityImpl> members = distribCfg.field("members");
 
     if (members != null) {
       message("\n\nCONFIGURED SERVERS");
 
-      for (YTDocument m : members) {
-        final YTDocument server = new YTDocument();
+      for (YTEntityImpl m : members) {
+        final YTEntityImpl server = new YTEntityImpl();
 
         server.field("Name", m.<Object>field("name"));
         server.field("Status", m.<Object>field("status"));
@@ -2408,7 +2408,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     try {
 
       message("\nCluster status:");
-      YTDocument clusterStatus =
+      YTEntityImpl clusterStatus =
           ((YouTrackDBRemote) YouTrackDBInternal.extract(youTrackDB))
               .getClusterStatus(currentDatabaseUserName, currentDatabaseUserPassword);
       out.println(clusterStatus.toJSON("attribSameRow,alwaysFetchEmbedded,fetchPlan:*:0"));
@@ -2748,10 +2748,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   public void properties() {
     message("\nPROPERTIES:");
 
-    final List<YTDocument> resultSet = new ArrayList<YTDocument>();
+    final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
 
     for (Entry<String, String> p : properties.entrySet()) {
-      final YTDocument row = new YTDocument();
+      final YTEntityImpl row = new YTEntityImpl();
       resultSet.add(row);
 
       row.field("NAME", p.getKey());
@@ -2886,10 +2886,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
       message("\nREMOTE SERVER CONFIGURATION");
 
-      final List<YTDocument> resultSet = new ArrayList<YTDocument>();
+      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
 
       for (Entry<String, String> p : values.entrySet()) {
-        final YTDocument row = new YTDocument();
+        final YTEntityImpl row = new YTEntityImpl();
         resultSet.add(row);
 
         row.field("NAME", p.getKey());
@@ -2906,10 +2906,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       // LOCAL STORAGE
       message("\nLOCAL SERVER CONFIGURATION");
 
-      final List<YTDocument> resultSet = new ArrayList<YTDocument>();
+      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
 
       for (YTGlobalConfiguration cfg : YTGlobalConfiguration.values()) {
-        final YTDocument row = new YTDocument();
+        final YTEntityImpl row = new YTEntityImpl();
         resultSet.add(row);
 
         row.field("NAME", cfg.getKey());
@@ -3029,7 +3029,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     message("OK");
 
-    final YTDocument distribCfg = getDistributedConfiguration();
+    final YTEntityImpl distribCfg = getDistributedConfiguration();
     if (distribCfg != null) {
       listServers();
     }
@@ -3240,7 +3240,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     if (currentDatabase.isRemote()) {
       final OStorageRemote stg = ((YTDatabaseSessionRemote) currentDatabase).getStorageRemote();
-      final YTDocument distributedCfg = stg.getClusterConfiguration();
+      final YTEntityImpl distributedCfg = stg.getClusterConfiguration();
       if (distributedCfg != null && !distributedCfg.isEmpty()) {
         message("\n\nDISTRIBUTED CONFIGURATION:\n" + distributedCfg.toJSON("prettyPrint"));
       } else if (iForce) {
@@ -3249,7 +3249,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     }
   }
 
-  protected YTDocument getDistributedConfiguration() {
+  protected YTEntityImpl getDistributedConfiguration() {
     if (currentDatabase != null) {
       final OStorage stg = currentDatabase.getStorage();
       if (stg instanceof OStorageRemote) {
@@ -3469,7 +3469,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   private void dumpRecordDetails() {
     if (currentRecord == null) {
       return;
-    } else if (currentRecord instanceof YTDocument rec) {
+    } else if (currentRecord instanceof YTEntityImpl rec) {
       if (rec.getClassName() != null || rec.getIdentity().isValid()) {
         message(
             String.format(
@@ -3477,7 +3477,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
                 rec.getClassName(), rec.getIdentity().toString(), rec.getVersion()));
       }
 
-      final List<YTDocument> resultSet = new ArrayList<YTDocument>();
+      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
 
       Object value;
       for (String fieldName : rec.getPropertyNames()) {
@@ -3496,7 +3496,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
                   OMultiValue.getMultiValueIterator(value), getMaxMultiValueEntries());
         }
 
-        final YTDocument row = new YTDocument();
+        final YTEntityImpl row = new YTEntityImpl();
         resultSet.add(row);
 
         row.field("NAME", fieldName);

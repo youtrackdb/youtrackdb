@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ public class ConvertToUpdatableResultStepTest extends TestUtilsFixture {
 
   private static final String STRING_PROPERTY = "stringPropertyName";
   private static final String INTEGER_PROPERTY = "integerPropertyName";
-  private final List<YTDocument> documents = new ArrayList<>();
+  private final List<YTEntityImpl> documents = new ArrayList<>();
 
   @Test
   public void shouldConvertUpdatableResult() {
@@ -35,7 +35,7 @@ public class ConvertToUpdatableResultStepTest extends TestUtilsFixture {
             List<YTResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
-                YTDocument document = new YTDocument();
+                YTEntityImpl document = new YTEntityImpl();
                 document.setProperty(STRING_PROPERTY, RandomStringUtils.randomAlphanumeric(10));
                 document.setProperty(INTEGER_PROPERTY, new Random().nextInt());
                 documents.add(document);
@@ -61,14 +61,14 @@ public class ConvertToUpdatableResultStepTest extends TestUtilsFixture {
           .get()
           .getProperty(STRING_PROPERTY)
           .equals(documents.get(counter).getProperty(STRING_PROPERTY))) {
-        Assert.fail("String YTDocument property inside YTResult instance is not preserved");
+        Assert.fail("String YTEntityImpl property inside YTResult instance is not preserved");
       }
       if (!currentItem
           .getEntity()
           .get()
           .getProperty(INTEGER_PROPERTY)
           .equals(documents.get(counter).getProperty(INTEGER_PROPERTY))) {
-        Assert.fail("Integer YTDocument property inside YTResult instance is not preserved");
+        Assert.fail("Integer YTEntityImpl property inside YTResult instance is not preserved");
       }
       counter++;
     }

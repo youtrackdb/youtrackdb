@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.index;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Set;
 
@@ -39,7 +39,7 @@ public class OIndexRemoteOneValue extends OIndexRemote {
       final String algorithm,
       final YTRID iRid,
       final OIndexDefinition iIndexDefinition,
-      final YTDocument iConfiguration,
+      final YTEntityImpl iConfiguration,
       final Set<String> clustersToIndex,
       String database) {
     super(

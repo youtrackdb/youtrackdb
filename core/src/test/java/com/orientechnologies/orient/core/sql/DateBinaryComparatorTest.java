@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -27,7 +27,7 @@ public class DateBinaryComparatorTest extends DBTestBase {
     YTClass testClass = db.getMetadata().getSchema().createClass("Test");
     testClass.createProperty(db, "date", YTType.DATE);
     db.begin();
-    YTDocument document = new YTDocument(testClass.getName());
+    YTEntityImpl document = new YTEntityImpl(testClass.getName());
 
     try {
       document.field("date", new SimpleDateFormat(dateFormat).parse(dateValue));

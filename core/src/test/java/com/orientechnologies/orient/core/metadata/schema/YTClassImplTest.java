@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
 import com.orientechnologies.orient.core.exception.YTSchemaException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -79,7 +79,7 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
 
     db.executeInTx(
         () -> {
-          YTDocument document = new YTDocument("Test3");
+          YTEntityImpl document = new YTEntityImpl("Test3");
           document.field("some", "String");
           db.save(document);
         });
@@ -94,9 +94,9 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
 
     db.executeInTx(
         () -> {
-          YTDocument document = new YTDocument("Test4");
-          ArrayList<YTDocument> list = new ArrayList<YTDocument>();
-          list.add(new YTDocument("Test4"));
+          YTEntityImpl document = new YTEntityImpl("Test4");
+          ArrayList<YTEntityImpl> list = new ArrayList<YTEntityImpl>();
+          list.add(new YTEntityImpl("Test4"));
           document.field("some", list);
           db.save(document);
         });
@@ -111,9 +111,9 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
 
     db.executeInTx(
         () -> {
-          YTDocument document = new YTDocument("Test5");
-          Set<YTDocument> set = new HashSet<YTDocument>();
-          set.add(new YTDocument("Test5"));
+          YTEntityImpl document = new YTEntityImpl("Test5");
+          Set<YTEntityImpl> set = new HashSet<YTEntityImpl>();
+          set.add(new YTEntityImpl("Test5"));
           document.field("somelinkset", set);
           db.save(document);
         });
@@ -128,9 +128,9 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
 
     db.executeInTx(
         () -> {
-          YTDocument document = new YTDocument("Test6");
-          Set<YTDocument> list = new HashSet<YTDocument>();
-          list.add(new YTDocument("Test6"));
+          YTEntityImpl document = new YTEntityImpl("Test6");
+          Set<YTEntityImpl> list = new HashSet<YTEntityImpl>();
+          list.add(new YTEntityImpl("Test6"));
           document.field("someembededset", list, YTType.EMBEDDEDSET);
           db.save(document);
         });
@@ -145,9 +145,9 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
 
     db.executeInTx(
         () -> {
-          YTDocument document = new YTDocument("Test7");
-          List<YTDocument> list = new ArrayList<YTDocument>();
-          list.add(new YTDocument("Test7"));
+          YTEntityImpl document = new YTEntityImpl("Test7");
+          List<YTEntityImpl> list = new ArrayList<YTEntityImpl>();
+          list.add(new YTEntityImpl("Test7"));
           document.field("someembeddedlist", list, YTType.EMBEDDEDLIST);
           db.save(document);
         });
@@ -162,9 +162,9 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
 
     db.executeInTx(
         () -> {
-          YTDocument document = new YTDocument("Test8");
-          Map<String, YTDocument> map = new HashMap<>();
-          map.put("test", new YTDocument("Test8"));
+          YTEntityImpl document = new YTEntityImpl("Test8");
+          Map<String, YTEntityImpl> map = new HashMap<>();
+          map.put("test", new YTEntityImpl("Test8"));
           document.field("someembededmap", map, YTType.EMBEDDEDMAP);
           db.save(document);
         });
@@ -180,9 +180,9 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
 
     db.executeInTx(
         () -> {
-          YTDocument document = new YTDocument("Test9");
-          Map<String, YTDocument> map = new HashMap<String, YTDocument>();
-          map.put("test", new YTDocument("Test8"));
+          YTEntityImpl document = new YTEntityImpl("Test9");
+          Map<String, YTEntityImpl> map = new HashMap<String, YTEntityImpl>();
+          map.put("test", new YTEntityImpl("Test8"));
           document.field("somelinkmap", map, YTType.LINKMAP);
           db.save(document);
         });
@@ -198,7 +198,7 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
     var rid =
         db.computeInTx(
             () -> {
-              YTDocument document = new YTDocument("Test10");
+              YTEntityImpl document = new YTEntityImpl("Test10");
               // TODO add boolan and byte
               document.field("test1", (short) 1);
               document.field("test2", 1);
@@ -217,7 +217,7 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
     oClass.createProperty(db, "test5", YTType.DECIMAL);
     oClass.createProperty(db, "test6", YTType.FLOAT);
 
-    YTDocument doc1 = db.load(rid);
+    YTEntityImpl doc1 = db.load(rid);
     assertEquals(doc1.fieldType("test1"), YTType.INTEGER);
     assertTrue(doc1.field("test1") instanceof Integer);
     assertEquals(doc1.fieldType("test2"), YTType.LONG);
@@ -240,13 +240,13 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
     var rid =
         db.computeInTx(
             () -> {
-              YTDocument document = new YTDocument("Test11");
-              document.field("test1", new ArrayList<YTDocument>(), YTType.EMBEDDEDLIST);
-              document.field("test2", new ArrayList<YTDocument>(), YTType.LINKLIST);
-              document.field("test3", new HashSet<YTDocument>(), YTType.EMBEDDEDSET);
-              document.field("test4", new HashSet<YTDocument>(), YTType.LINKSET);
-              document.field("test5", new HashMap<String, YTDocument>(), YTType.EMBEDDEDMAP);
-              document.field("test6", new HashMap<String, YTDocument>(), YTType.LINKMAP);
+              YTEntityImpl document = new YTEntityImpl("Test11");
+              document.field("test1", new ArrayList<YTEntityImpl>(), YTType.EMBEDDEDLIST);
+              document.field("test2", new ArrayList<YTEntityImpl>(), YTType.LINKLIST);
+              document.field("test3", new HashSet<YTEntityImpl>(), YTType.EMBEDDEDSET);
+              document.field("test4", new HashSet<YTEntityImpl>(), YTType.LINKSET);
+              document.field("test5", new HashMap<String, YTEntityImpl>(), YTType.EMBEDDEDMAP);
+              document.field("test6", new HashMap<String, YTEntityImpl>(), YTType.LINKMAP);
               db.save(document);
               return document.getIdentity();
             });
@@ -258,7 +258,7 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
     oClass.createProperty(db, "test5", YTType.LINKMAP);
     oClass.createProperty(db, "test6", YTType.EMBEDDEDMAP);
 
-    YTDocument doc1 = db.load(rid);
+    YTEntityImpl doc1 = db.load(rid);
     assertEquals(doc1.fieldType("test1"), YTType.LINKLIST);
     assertEquals(doc1.fieldType("test2"), YTType.EMBEDDEDLIST);
     assertEquals(doc1.fieldType("test3"), YTType.LINKSET);
@@ -359,7 +359,7 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
     var rid =
         db.computeInTx(
             () -> {
-              YTDocument document = new YTDocument("Test19");
+              YTEntityImpl document = new YTEntityImpl("Test19");
               // TODO add boolean and byte
               document.field("test1", (short) 1);
               document.field("test2", 1);
@@ -378,7 +378,7 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
     oClass.getProperty("test5").setType(db, YTType.DECIMAL);
     oClass.getProperty("test6").setType(db, YTType.FLOAT);
 
-    YTDocument doc1 = db.load(rid);
+    YTEntityImpl doc1 = db.load(rid);
     assertEquals(doc1.fieldType("test1"), YTType.INTEGER);
     assertTrue(doc1.field("test1") instanceof Integer);
     assertEquals(doc1.fieldType("test2"), YTType.LONG);
@@ -408,7 +408,7 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
     var rid =
         db.computeInTx(
             () -> {
-              YTDocument document = new YTDocument("Test20");
+              YTEntityImpl document = new YTEntityImpl("Test20");
               // TODO add boolan and byte
               document.field("test1", (short) 1);
               document.field("test2", 1);
@@ -427,7 +427,7 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
     oClass.getProperty("test5").setName(db, "test5a");
     oClass.getProperty("test6").setName(db, "test6a");
 
-    YTDocument doc1 = db.load(rid);
+    YTEntityImpl doc1 = db.load(rid);
     assertEquals(doc1.fieldType("test1a"), YTType.SHORT);
     assertTrue(doc1.field("test1a") instanceof Short);
     assertEquals(doc1.fieldType("test2a"), YTType.INTEGER);
@@ -450,14 +450,14 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
     var rid =
         db.computeInTx(
             () -> {
-              final YTDocument document = new YTDocument("Test11bis");
-              document.field("test1", new ArrayList<YTDocument>(), YTType.EMBEDDEDLIST);
-              document.field("test2", new ArrayList<YTDocument>(), YTType.LINKLIST);
+              final YTEntityImpl document = new YTEntityImpl("Test11bis");
+              document.field("test1", new ArrayList<YTEntityImpl>(), YTType.EMBEDDEDLIST);
+              document.field("test2", new ArrayList<YTEntityImpl>(), YTType.LINKLIST);
 
-              document.field("test3", new HashSet<YTDocument>(), YTType.EMBEDDEDSET);
-              document.field("test4", new HashSet<YTDocument>(), YTType.LINKSET);
-              document.field("test5", new HashMap<String, YTDocument>(), YTType.EMBEDDEDMAP);
-              document.field("test6", new HashMap<String, YTDocument>(), YTType.LINKMAP);
+              document.field("test3", new HashSet<YTEntityImpl>(), YTType.EMBEDDEDSET);
+              document.field("test4", new HashSet<YTEntityImpl>(), YTType.LINKSET);
+              document.field("test5", new HashMap<String, YTEntityImpl>(), YTType.EMBEDDEDMAP);
+              document.field("test6", new HashMap<String, YTEntityImpl>(), YTType.LINKMAP);
               db.save(document);
 
               return document.getIdentity();
@@ -471,10 +471,10 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
 
     ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    Future<YTDocument> future =
+    Future<YTEntityImpl> future =
         executor.submit(
             () -> {
-              YTDocument doc1 = db.copy().load(rid);
+              YTEntityImpl doc1 = db.copy().load(rid);
               assertEquals(doc1.fieldType("test1"), YTType.LINKLIST);
               assertEquals(doc1.fieldType("test2"), YTType.EMBEDDEDLIST);
               assertEquals(doc1.fieldType("test3"), YTType.LINKSET);
@@ -537,7 +537,7 @@ public class YTClassImplTest extends BaseMemoryInternalDatabase {
 
     db.executeInTx(
         () -> {
-          YTDocument record = db.newInstance(className);
+          YTEntityImpl record = db.newInstance(className);
           record.field("name", "foo");
           record.save();
         });

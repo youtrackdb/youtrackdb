@@ -4,7 +4,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class TestOrderByIndexPropDesc extends DBTestBase {
   }
 
   private void test(int count) {
-    YTDocument doc;
+    YTEntityImpl doc;
     for (int i = 0; i < count; i++) {
       db.begin();
       doc = db.newInstance();

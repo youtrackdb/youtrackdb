@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.List;
 
 /**
@@ -61,14 +61,14 @@ public class YTSystemUser extends YTUser {
   /**
    * Create the user by reading the source document.
    */
-  public YTSystemUser(YTDatabaseSessionInternal session, final YTDocument iSource) {
+  public YTSystemUser(YTDatabaseSessionInternal session, final YTEntityImpl iSource) {
     super(session, iSource);
   }
 
   /**
    * dbName is the name of the source database and is used for filtering roles.
    */
-  public YTSystemUser(YTDatabaseSessionInternal session, final YTDocument iSource,
+  public YTSystemUser(YTDatabaseSessionInternal session, final YTEntityImpl iSource,
       final String dbName) {
     databaseName = dbName;
     fromStream(session, iSource);
@@ -77,7 +77,7 @@ public class YTSystemUser extends YTUser {
   /**
    * Derived classes can override createRole() to return an extended ORole implementation.
    */
-  protected ORole createRole(YTDatabaseSessionInternal session, final YTDocument roleDoc) {
+  protected ORole createRole(YTDatabaseSessionInternal session, final YTEntityImpl roleDoc) {
     ORole role = null;
 
     // If databaseName is set, then only allow roles with the same databaseName.

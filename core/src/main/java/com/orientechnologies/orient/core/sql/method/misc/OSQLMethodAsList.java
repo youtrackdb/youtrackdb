@@ -19,7 +19,7 @@ package com.orientechnologies.orient.core.sql.method.misc;
 import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -59,7 +59,7 @@ public class OSQLMethodAsList extends OAbstractSQLMethod {
 
     if (ioResult instanceof Collection<?>) {
       return new ArrayList<Object>((Collection<Object>) ioResult);
-    } else if (!(ioResult instanceof YTDocument) && ioResult instanceof Iterable<?>) {
+    } else if (!(ioResult instanceof YTEntityImpl) && ioResult instanceof Iterable<?>) {
       ioResult = ((Iterable<?>) ioResult).iterator();
     }
 

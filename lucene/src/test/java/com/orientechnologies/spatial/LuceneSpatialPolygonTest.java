@@ -18,7 +18,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,12 +57,12 @@ public class LuceneSpatialPolygonTest extends BaseSpatialLuceneTest {
   protected void queryPolygon() {
 
     String query = "select * from Place where location && 'POINT(13.383333 52.516667)'";
-    List<YTDocument> docs = db.query(new OSQLSynchQuery<YTDocument>(query));
+    List<YTEntityImpl> docs = db.query(new OSQLSynchQuery<YTEntityImpl>(query));
 
     Assert.assertEquals(docs.size(), 1);
 
     query = "select * from Place where location && 'POINT(12.5 41.9)'";
-    docs = db.query(new OSQLSynchQuery<YTDocument>(query));
+    docs = db.query(new OSQLSynchQuery<YTEntityImpl>(query));
 
     Assert.assertEquals(docs.size(), 0);
   }
@@ -72,14 +72,14 @@ public class LuceneSpatialPolygonTest extends BaseSpatialLuceneTest {
 
     InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("germany.json");
 
-    YTDocument doc = new YTDocument().fromJSON(systemResourceAsStream);
+    YTEntityImpl doc = new YTEntityImpl().fromJSON(systemResourceAsStream);
 
     Map geometry = doc.field("geometry");
 
     String type = (String) geometry.get("type");
-    YTDocument location = new YTDocument("O" + type);
+    YTEntityImpl location = new YTEntityImpl("O" + type);
     location.field("coordinates", geometry.get("coordinates"));
-    YTDocument germany = new YTDocument("Place");
+    YTEntityImpl germany = new YTEntityImpl("Place");
     germany.field("name", "Germany");
     germany.field("location", location);
 

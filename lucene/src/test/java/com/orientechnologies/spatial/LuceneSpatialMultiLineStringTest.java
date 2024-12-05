@@ -17,7 +17,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import org.junit.Assert;
@@ -248,7 +248,7 @@ public class LuceneSpatialMultiLineStringTest extends BaseSpatialLuceneTest {
 
   protected void testQueryMultiLineString() {
     String query = "select * from Place where location && 'POINT(-157.9159477 21.3433168)' ";
-    List<YTDocument> docs = db.query(new OSQLSynchQuery<YTDocument>(query));
+    List<YTEntityImpl> docs = db.query(new OSQLSynchQuery<YTEntityImpl>(query));
 
     Assert.assertEquals(docs.size(), 1);
   }

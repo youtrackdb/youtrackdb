@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.hook.YTRecordHook;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 
@@ -35,14 +35,14 @@ public class HookRegisterRemoveTest extends DBTestBase {
     db.registerHook(iHookImpl);
 
     db.begin();
-    db.save(new YTDocument().field("test", "test"),
+    db.save(new YTEntityImpl().field("test", "test"),
         db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
     assertEquals(3, integer.get());
     db.unregisterHook(iHookImpl);
 
     db.begin();
-    db.save(new YTDocument(), db.getClusterNameById(db.getDefaultClusterId()));
+    db.save(new YTEntityImpl(), db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
     assertEquals(3, integer.get());

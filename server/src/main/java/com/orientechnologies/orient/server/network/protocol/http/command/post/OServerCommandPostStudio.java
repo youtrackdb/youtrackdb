@@ -26,8 +26,8 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTPropertyImpl;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerStringAbstract;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -305,7 +305,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
         throw new IllegalArgumentException("Record ID not found in request");
       }
 
-      YTDocument doc = new YTDocument(className, new YTRecordId(rid));
+      YTEntityImpl doc = new YTEntityImpl(className, new YTRecordId(rid));
       // BIND ALL CHANGED FIELDS
       for (Entry<String, String> f : fields.entrySet()) {
         final Object oldValue = doc.rawField(f.getKey());
@@ -347,7 +347,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
     } else if ("add".equals(operation)) {
       iRequest.getData().commandInfo = "Studio create document";
 
-      final YTDocument doc = new YTDocument(className);
+      final YTEntityImpl doc = new YTEntityImpl(className);
 
       // BIND ALL CHANGED FIELDS
       for (Entry<String, String> f : fields.entrySet()) {
@@ -369,7 +369,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
         throw new IllegalArgumentException("Record ID not found in request");
       }
 
-      final YTDocument doc = new YTRecordId(rid).getRecord();
+      final YTEntityImpl doc = new YTRecordId(rid).getRecord();
       doc.delete();
       iResponse.send(
           OHttpUtils.STATUS_OK_CODE,

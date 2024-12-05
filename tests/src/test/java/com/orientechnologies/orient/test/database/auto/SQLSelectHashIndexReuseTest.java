@@ -3,7 +3,7 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -137,7 +137,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
       for (int j = 0; j < 10; j++) {
         database.begin();
-        final YTDocument document = new YTDocument("sqlSelectHashIndexReuseTestClass");
+        final YTEntityImpl document = new YTEntityImpl("sqlSelectHashIndexReuseTestClass");
         document.field("prop1", i);
         document.field("prop2", j);
         document.field("prop3", i * 10 + j);
@@ -186,16 +186,16 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 = 2"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final YTDocument document = result.get(0);
+    final YTEntityImpl document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop2").intValue(), 2);
     assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
@@ -209,17 +209,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchHasChainOperatorsEquals() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1.asInteger() = 1 and"
                         + " prop2 = 2"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final YTDocument document = result.get(0);
+    final YTEntityImpl document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop2").intValue(), 2);
     assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 0);
@@ -246,17 +246,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed21 = 0;
     }
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 0; i < 10; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -309,10 +309,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed21 = 0;
     }
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedMapTwo"
                         + " containsKey 'key11'"))
             .execute(database);
@@ -327,7 +327,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     embeddedMap.put("key14", 11);
 
     for (int i = 0; i < 10; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop8", 1);
       document.field("fEmbeddedMapTwo", embeddedMap);
 
@@ -358,9 +358,9 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(compositeIndexUsage21, oldcompositeIndexUsed21);
   }
 
-  private int containsDocument(final List<YTDocument> docList, final YTDocument document) {
+  private int containsDocument(final List<YTEntityImpl> docList, final YTEntityImpl document) {
     int count = 0;
-    for (final YTDocument docItem : docList) {
+    for (final YTEntityImpl docItem : docList) {
       boolean containsAllFields = true;
       for (final String fieldName : document.fieldNames()) {
         if (!document.field(fieldName).equals(docItem.field(fieldName))) {
@@ -382,10 +382,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
     long oldcompositeIndexUsed22 = profiler.getCounter("db.demo.query.compositeIndexUsed.2.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass "
                         + "where prop8 = 1 and fEmbeddedMapTwo containsKey 'key11'"))
             .execute(database);
@@ -399,7 +399,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     Assert.assertEquals(result.size(), 1);
 
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
     document.field("prop8", 1);
     document.field("fEmbeddedMap", embeddedMap);
 
@@ -434,10 +434,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed21 = 0;
     }
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedMapTwo"
                         + " containsValue 22"))
             .execute(database);
@@ -452,7 +452,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 0; i < 10; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop8", i);
       document.field("fEmbeddedMapTwo", embeddedMap);
 
@@ -490,10 +490,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
     long oldcompositeIndexUsed22 = profiler.getCounter("db.demo.query.compositeIndexUsed.2.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass "
                         + "where prop8 = 1 and fEmbeddedMapTwo containsValue 22"))
             .execute(database);
@@ -507,7 +507,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     Assert.assertEquals(result.size(), 1);
 
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
     document.field("prop8", 1);
     document.field("fEmbeddedMap", embeddedMap);
 
@@ -529,10 +529,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
     long oldcompositeIndexUsed22 = profiler.getCounter("db.demo.query.compositeIndexUsed.2.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass "
                         + "where prop8 = 1 and fEmbeddedSetTwo contains 12"))
             .execute(database);
@@ -544,7 +544,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     Assert.assertEquals(result.size(), 1);
 
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
     document.field("prop8", 1);
     document.field("fEmbeddedSet", embeddedSet);
 
@@ -586,10 +586,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed33 = 0;
     }
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass "
                         + "where prop9 = 0 and fEmbeddedSetTwo contains 92 and prop8 > 2"))
             .execute(database);
@@ -602,7 +602,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 3);
 
     for (int i = 0; i < 3; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop8", i * 2 + 4);
       document.field("prop9", 0);
       document.field("fEmbeddedSet", embeddedSet);
@@ -661,10 +661,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed21 = 0;
     }
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedListTwo contains"
                         + " 4"))
             .execute(database);
@@ -677,7 +677,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     embeddedList.add(5);
 
     for (int i = 0; i < 10; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop8", i);
       document.field("fEmbeddedListTwo", embeddedList);
 
@@ -715,10 +715,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
     long oldcompositeIndexUsed22 = profiler.getCounter("db.demo.query.compositeIndexUsed.2.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where"
                         + " prop8 = 1 and fEmbeddedListTwo contains 4"))
             .execute(database);
@@ -730,7 +730,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     embeddedList.add(4);
     embeddedList.add(5);
 
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
     document.field("prop8", 1);
     document.field("fEmbeddedListTwo", embeddedList);
 
@@ -748,10 +748,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
   public void testNoCompositeSearchEquals() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 = 1"))
             .execute(database);
 
@@ -759,7 +759,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 0; i < 10; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop1", i);
       document.field("prop2", 1);
 
@@ -773,16 +773,16 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = ? and prop2 = ?"))
             .execute(database, 1, 2);
 
     Assert.assertEquals(result.size(), 1);
 
-    final YTDocument document = result.get(0);
+    final YTEntityImpl document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop2").intValue(), 2);
     assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
@@ -798,17 +798,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = ?"))
             .execute(database, 1);
 
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 0; i < 10; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -826,10 +826,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
   public void testNoCompositeSearchEqualsWithArgs() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 = ?"))
             .execute(database, 1);
 
@@ -837,7 +837,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 0; i < 10; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop1", i);
       document.field("prop2", 1);
 
@@ -851,17 +851,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 > 2"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 7);
 
     for (int i = 3; i < 10; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -881,10 +881,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 > 7"))
             .execute(database);
 
@@ -892,7 +892,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 8; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
-        final YTDocument document = new YTDocument();
+        final YTEntityImpl document = new YTEntityImpl();
         document.field("prop1", i);
         document.field("prop2", j);
 
@@ -911,10 +911,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchGTOneFieldNoSearch() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 > 7"))
             .execute(database);
 
@@ -922,7 +922,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 8; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
-        final YTDocument document = new YTDocument();
+        final YTEntityImpl document = new YTEntityImpl();
         document.field("prop1", j);
         document.field("prop2", i);
 
@@ -939,17 +939,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = ? and prop2 > ?"))
             .execute(database, 1, 2);
 
     Assert.assertEquals(result.size(), 7);
 
     for (int i = 3; i < 10; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -969,10 +969,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 > ?"))
             .execute(database, 7);
 
@@ -980,7 +980,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 8; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
-        final YTDocument document = new YTDocument();
+        final YTEntityImpl document = new YTEntityImpl();
         document.field("prop1", i);
         document.field("prop2", j);
 
@@ -999,10 +999,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchGTOneFieldNoSearchWithArgs() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 > ?"))
             .execute(database, 7);
 
@@ -1010,7 +1010,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 8; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
-        final YTDocument document = new YTDocument();
+        final YTEntityImpl document = new YTEntityImpl();
         document.field("prop1", j);
         document.field("prop2", i);
 
@@ -1027,10 +1027,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 >="
                         + " 2"))
             .execute(database);
@@ -1038,7 +1038,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 8);
 
     for (int i = 2; i < 10; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -1058,10 +1058,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 >= 7"))
             .execute(database);
 
@@ -1069,7 +1069,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 7; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
-        final YTDocument document = new YTDocument();
+        final YTEntityImpl document = new YTEntityImpl();
         document.field("prop1", i);
         document.field("prop2", j);
 
@@ -1088,10 +1088,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchGTQOneFieldNoSearch() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 >= 7"))
             .execute(database);
 
@@ -1099,7 +1099,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 7; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
-        final YTDocument document = new YTDocument();
+        final YTEntityImpl document = new YTEntityImpl();
         document.field("prop1", j);
         document.field("prop2", i);
 
@@ -1116,10 +1116,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = ? and prop2 >="
                         + " ?"))
             .execute(database, 1, 2);
@@ -1127,7 +1127,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 8);
 
     for (int i = 2; i < 10; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -1147,10 +1147,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 >= ?"))
             .execute(database, 7);
 
@@ -1158,7 +1158,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 7; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
-        final YTDocument document = new YTDocument();
+        final YTEntityImpl document = new YTEntityImpl();
         document.field("prop1", i);
         document.field("prop2", j);
 
@@ -1177,10 +1177,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchGTQOneFieldNoSearchWithArgs() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 >= ?"))
             .execute(database, 7);
 
@@ -1188,7 +1188,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 7; i < 10; i++) {
       for (int j = 0; j < 10; j++) {
-        final YTDocument document = new YTDocument();
+        final YTEntityImpl document = new YTEntityImpl();
         document.field("prop1", j);
         document.field("prop2", i);
 
@@ -1205,10 +1205,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 <="
                         + " 2"))
             .execute(database);
@@ -1216,7 +1216,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 3);
 
     for (int i = 0; i <= 2; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -1236,10 +1236,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 <= 7"))
             .execute(database);
 
@@ -1247,7 +1247,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 0; i <= 7; i++) {
       for (int j = 0; j < 10; j++) {
-        final YTDocument document = new YTDocument();
+        final YTEntityImpl document = new YTEntityImpl();
         document.field("prop1", i);
         document.field("prop2", j);
 
@@ -1266,10 +1266,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchLTQOneFieldNoSearch() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 <= 7"))
             .execute(database);
 
@@ -1277,7 +1277,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 0; i <= 7; i++) {
       for (int j = 0; j < 10; j++) {
-        final YTDocument document = new YTDocument();
+        final YTEntityImpl document = new YTEntityImpl();
         document.field("prop1", j);
         document.field("prop2", i);
 
@@ -1294,10 +1294,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = ? and prop2 <="
                         + " ?"))
             .execute(database, 1, 2);
@@ -1305,7 +1305,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 3);
 
     for (int i = 0; i <= 2; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -1325,10 +1325,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 <= ?"))
             .execute(database, 7);
 
@@ -1336,7 +1336,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 0; i <= 7; i++) {
       for (int j = 0; j < 10; j++) {
-        final YTDocument document = new YTDocument();
+        final YTEntityImpl document = new YTEntityImpl();
         document.field("prop1", i);
         document.field("prop2", j);
 
@@ -1355,10 +1355,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchLTQOneFieldNoSearchWithArgs() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 <= ?"))
             .execute(database, 7);
 
@@ -1366,7 +1366,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 0; i <= 7; i++) {
       for (int j = 0; j < 10; j++) {
-        final YTDocument document = new YTDocument();
+        final YTEntityImpl document = new YTEntityImpl();
         document.field("prop1", j);
         document.field("prop2", i);
 
@@ -1383,17 +1383,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 < 2"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 2);
 
     for (int i = 0; i < 2; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -1413,10 +1413,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 < 7"))
             .execute(database);
 
@@ -1424,7 +1424,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 0; i < 7; i++) {
       for (int j = 0; j < 10; j++) {
-        final YTDocument document = new YTDocument();
+        final YTEntityImpl document = new YTEntityImpl();
         document.field("prop1", i);
         document.field("prop2", j);
 
@@ -1443,10 +1443,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchLTOneFieldNoSearch() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 < 7"))
             .execute(database);
 
@@ -1454,7 +1454,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 0; i < 7; i++) {
       for (int j = 0; j < 10; j++) {
-        final YTDocument document = new YTDocument();
+        final YTEntityImpl document = new YTEntityImpl();
         document.field("prop1", j);
         document.field("prop2", i);
 
@@ -1471,17 +1471,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = ? and prop2 < ?"))
             .execute(database, 1, 2);
 
     Assert.assertEquals(result.size(), 2);
 
     for (int i = 0; i < 2; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -1501,10 +1501,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 < ?"))
             .execute(database, 7);
 
@@ -1512,7 +1512,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 0; i < 7; i++) {
       for (int j = 0; j < 10; j++) {
-        final YTDocument document = new YTDocument();
+        final YTEntityImpl document = new YTEntityImpl();
         document.field("prop1", i);
         document.field("prop2", j);
 
@@ -1531,10 +1531,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchLTOneFieldNoSearchWithArgs() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 < ?"))
             .execute(database, 7);
 
@@ -1542,7 +1542,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 0; i < 7; i++) {
       for (int j = 0; j < 10; j++) {
-        final YTDocument document = new YTDocument();
+        final YTEntityImpl document = new YTEntityImpl();
         document.field("prop1", j);
         document.field("prop2", i);
 
@@ -1559,10 +1559,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2"
                         + " between 1 and 3"))
             .execute(database);
@@ -1570,7 +1570,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 3);
 
     for (int i = 1; i <= 3; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -1590,10 +1590,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 between 1 and 3"))
             .execute(database);
 
@@ -1601,7 +1601,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 1; i <= 3; i++) {
       for (int j = 0; j < 10; j++) {
-        final YTDocument document = new YTDocument();
+        final YTEntityImpl document = new YTEntityImpl();
         document.field("prop1", i);
         document.field("prop2", j);
 
@@ -1620,10 +1620,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchBetweenOneFieldNoSearch() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 between 1 and 3"))
             .execute(database);
 
@@ -1631,7 +1631,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 1; i <= 3; i++) {
       for (int j = 0; j < 10; j++) {
-        final YTDocument document = new YTDocument();
+        final YTEntityImpl document = new YTEntityImpl();
         document.field("prop1", j);
         document.field("prop2", i);
 
@@ -1648,10 +1648,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2"
                         + " between ? and ?"))
             .execute(database, 1, 3);
@@ -1659,7 +1659,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 3);
 
     for (int i = 1; i <= 3; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop1", 1);
       document.field("prop2", i);
 
@@ -1679,10 +1679,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 between ? and ?"))
             .execute(database, 1, 3);
 
@@ -1690,7 +1690,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 1; i <= 3; i++) {
       for (int j = 0; j < 10; j++) {
-        final YTDocument document = new YTDocument();
+        final YTEntityImpl document = new YTEntityImpl();
         document.field("prop1", i);
         document.field("prop2", j);
 
@@ -1709,10 +1709,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
   public void testCompositeSearchBetweenOneFieldNoSearchWithArgs() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 between ? and ?"))
             .execute(database, 1, 3);
 
@@ -1720,7 +1720,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
     for (int i = 1; i <= 3; i++) {
       for (int j = 0; j < 10; j++) {
-        final YTDocument document = new YTDocument();
+        final YTEntityImpl document = new YTEntityImpl();
         document.field("prop1", j);
         document.field("prop2", i);
 
@@ -1736,16 +1736,16 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 = 1"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final YTDocument document = result.get(0);
+    final YTEntityImpl document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop3").intValue(), 1);
     assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
     assertProfileCount(
@@ -1757,16 +1757,16 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 = ?"))
             .execute(database, 1);
 
     Assert.assertEquals(result.size(), 1);
 
-    final YTDocument document = result.get(0);
+    final YTEntityImpl document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop3").intValue(), 1);
     assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
     assertProfileCount(
@@ -1778,17 +1778,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 > 90"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 9);
 
     for (int i = 91; i < 100; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -1803,17 +1803,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 > ?"))
             .execute(database, 90);
 
     Assert.assertEquals(result.size(), 9);
 
     for (int i = 91; i < 100; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -1844,17 +1844,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 >= 90"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 90; i < 100; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -1869,17 +1869,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 >= ?"))
             .execute(database, 90);
 
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 90; i < 100; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -1894,17 +1894,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 <= 10"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 11);
 
     for (int i = 0; i <= 10; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -1919,17 +1919,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 <= ?"))
             .execute(database, 10);
 
     Assert.assertEquals(result.size(), 11);
 
     for (int i = 0; i <= 10; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -1944,17 +1944,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 < 10"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 0; i < 10; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -1969,17 +1969,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 < ?"))
             .execute(database, 10);
 
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 0; i < 10; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -1994,17 +1994,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 between 1 and 10"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 1; i <= 10; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -2019,17 +2019,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 between ? and ?"))
             .execute(database, 1, 10);
 
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 1; i <= 10; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -2044,17 +2044,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 in [0, 5, 10]"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 3);
 
     for (int i = 0; i <= 10; i += 5) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -2069,17 +2069,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 in [?, ?, ?]"))
             .execute(database, 0, 5, 10);
 
     Assert.assertEquals(result.size(), 3);
 
     for (int i = 0; i <= 10; i += 5) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop3", i);
       Assert.assertEquals(containsDocument(result, document), 1);
     }
@@ -2095,17 +2095,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where (prop1 = 1 and prop2 = 1)"
                         + " and prop3 = 11"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final YTDocument document = result.get(0);
+    final YTEntityImpl document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop2").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop3").intValue(), 11);
@@ -2123,17 +2123,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed3 = profiler.getCounter("db.demo.query.compositeIndexUsed.3");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 = 1"
                         + " and prop4 = 1"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final YTDocument document = result.get(0);
+    final YTEntityImpl document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop2").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
@@ -2151,17 +2151,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where (prop1 = 1 and prop2 = 1)"
                         + " and prop5 >= 1"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final YTDocument document = result.get(0);
+    final YTEntityImpl document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop2").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop5").intValue(), 1);
@@ -2179,10 +2179,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop4 >="
                         + " 1"))
             .execute(database);
@@ -2190,7 +2190,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 0; i < 10; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop1", 1);
       document.field("prop2", i);
       document.field("prop4", 1);
@@ -2214,17 +2214,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed3 = profiler.getCounter("db.demo.query.compositeIndexUsed.3");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop4 = 1"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 10);
 
     for (int i = 0; i < 10; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop1", 1);
       document.field("prop2", i);
       document.field("prop4", 1);
@@ -2258,10 +2258,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
       oldcompositeIndexUsed3 = 0;
     }
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop6 <= 1 and prop4 <"
                         + " 1"))
             .execute(database);
@@ -2269,7 +2269,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     Assert.assertEquals(result.size(), 2);
 
     for (int i = 0; i < 2; i++) {
-      final YTDocument document = new YTDocument();
+      final YTEntityImpl document = new YTEntityImpl();
       document.field("prop6", i);
       document.field("prop4", 0);
 
@@ -2303,17 +2303,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 + 1 ="
                         + " 3"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final YTDocument document = result.get(0);
+    final YTEntityImpl document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop2").intValue(), 2);
     assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage);
@@ -2329,17 +2329,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedMap containskey"
                         + " 'key12'"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 10);
 
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
     final Map<String, Integer> embeddedMap = new HashMap<String, Integer>();
 
@@ -2365,17 +2365,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where ( fEmbeddedMap"
                         + " containskey 'key12' ) and ( fEmbeddedMap['key12'] = 12 )"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 10);
 
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
     final Map<String, Integer> embeddedMap = new HashMap<String, Integer>();
 
@@ -2401,17 +2401,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedMap"
                         + " containsvalue 11"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 10);
 
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
     final Map<String, Integer> embeddedMap = new HashMap<String, Integer>();
 
@@ -2437,10 +2437,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedList contains"
                         + " 7"))
             .execute(database);
@@ -2450,7 +2450,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     embeddedList.add(7);
     embeddedList.add(8);
 
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
     document.field("fEmbeddedList", embeddedList);
 
     Assert.assertEquals(containsDocument(result, document), 10);
@@ -2468,17 +2468,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where (prop1 = 1 and prop2  ="
                         + " 2) and (prop4 = 3 or prop4 = 1)"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final YTDocument document = result.get(0);
+    final YTEntityImpl document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop2").intValue(), 2);
     Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
@@ -2494,17 +2494,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
   public void testNotIndexOperatorSecondCase() {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where ( prop1 = 1 and prop2 = 2"
                         + " ) or ( prop4  = 1 and prop6 = 2 )"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final YTDocument document = result.get(0);
+    final YTEntityImpl document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop2").intValue(), 2);
     Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
@@ -2519,10 +2519,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1777 and prop2  ="
                         + " 2777"))
             .execute(database);
@@ -2554,21 +2554,21 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed2 = profiler.getCounter("db.demo.query.compositeIndexUsed.2");
 
     database.begin();
-    final YTDocument docOne = new YTDocument("sqlSelectHashIndexReuseTestChildClass");
+    final YTEntityImpl docOne = new YTEntityImpl("sqlSelectHashIndexReuseTestChildClass");
     docOne.field("prop0", 0);
     docOne.field("prop1", 1);
     docOne.save();
 
-    final YTDocument docTwo = new YTDocument("sqlSelectHashIndexReuseTestChildClass");
+    final YTEntityImpl docTwo = new YTEntityImpl("sqlSelectHashIndexReuseTestChildClass");
     docTwo.field("prop0", 2);
     docTwo.field("prop1", 3);
     docTwo.save();
     database.commit();
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestChildClass where prop0 = 0 and prop1"
                         + " = 1"))
             .execute(database);
@@ -2593,9 +2593,9 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     }
 
     database.begin();
-    YTDocument doc =
+    YTEntityImpl doc =
         database
-            .<YTDocument>newInstance("CountFunctionWithNotUniqueHashIndex")
+            .<YTEntityImpl>newInstance("CountFunctionWithNotUniqueHashIndex")
             .field("a", "a")
             .field("b", "b");
     doc.save();
@@ -2629,19 +2629,19 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     }
 
     database.begin();
-    YTDocument doc =
+    YTEntityImpl doc =
         database
-            .<YTDocument>newInstance("CountFunctionWithUniqueHashIndex")
+            .<YTEntityImpl>newInstance("CountFunctionWithUniqueHashIndex")
             .field("a", "a")
             .field("b", "b");
     doc.save();
     database.commit();
 
-    YTDocument result =
-        (YTDocument)
+    YTEntityImpl result =
+        (YTEntityImpl)
             database
                 .query(
-                    new OSQLSynchQuery<YTDocument>(
+                    new OSQLSynchQuery<YTEntityImpl>(
                         "select count(*) from CountFunctionWithUniqueHashIndex where a = 'a'"))
                 .get(0);
 
@@ -2662,17 +2662,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed3 = profiler.getCounter("db.demo.query.compositeIndexUsed.3");
     long oldcompositeIndexUsed33 = profiler.getCounter("db.demo.query.compositeIndexUsed.3.3");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop4 = 1 and prop1 = 1"
                         + " and prop3 in [13, 113]"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final YTDocument document = result.get(0);
+    final YTEntityImpl document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop3").intValue(), 13);
@@ -2693,17 +2693,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed3 = profiler.getCounter("db.demo.query.compositeIndexUsed.3");
     long oldcompositeIndexUsed33 = profiler.getCounter("db.demo.query.compositeIndexUsed.3.3");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop4 = 1 and prop1 in"
                         + " [1, 2] and prop3 = 13"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final YTDocument document = result.get(0);
+    final YTEntityImpl document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop3").intValue(), 13);
@@ -2726,17 +2726,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed3 = profiler.getCounter("db.demo.query.compositeIndexUsed.3");
     long oldcompositeIndexUsed33 = profiler.getCounter("db.demo.query.compositeIndexUsed.3.3");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop4 = 1 and prop1 in"
                         + " [1, 2] and prop3 in [13, 15]"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 2);
 
-    final YTDocument document = result.get(0);
+    final YTEntityImpl document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertTrue(
@@ -2760,17 +2760,17 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldcompositeIndexUsed3 = profiler.getCounter("db.demo.query.compositeIndexUsed.3");
     long oldcompositeIndexUsed33 = profiler.getCounter("db.demo.query.compositeIndexUsed.3.3");
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop4 in [1, 2] and prop1"
                         + " = 1 and prop3 = 13"))
             .execute(database);
 
     Assert.assertEquals(result.size(), 1);
 
-    final YTDocument document = result.get(0);
+    final YTEntityImpl document = result.get(0);
     Assert.assertEquals(document.<Integer>field("prop4").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop1").intValue(), 1);
     Assert.assertEquals(document.<Integer>field("prop3").intValue(), 13);

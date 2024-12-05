@@ -20,7 +20,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command.get;
 import com.orientechnologies.orient.core.command.script.OScriptManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAuthenticatedDbAbstract;
@@ -43,7 +43,7 @@ public class OServerCommandGetSupportedLanguages extends OServerCommandAuthentic
     try {
       db = getProfiledDatabaseInstance(iRequest);
 
-      YTDocument result = new YTDocument();
+      YTEntityImpl result = new YTEntityImpl();
       Set<String> languages = new HashSet<String>();
 
       OScriptManager scriptManager =

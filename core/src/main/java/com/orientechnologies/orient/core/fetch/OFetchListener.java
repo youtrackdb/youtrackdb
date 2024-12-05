@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.fetch;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTFetchException;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 
 /**
  * Listener interface used while fetching records.
@@ -43,15 +43,15 @@ public interface OFetchListener {
    * @return null if the fetching must stop, otherwise the current field value
    */
   Object fetchLinked(
-      final YTDocument iRoot,
+      final YTEntityImpl iRoot,
       final Object iUserObject,
       final String iFieldName,
-      final YTDocument iLinked,
+      final YTEntityImpl iLinked,
       final OFetchContext iContext)
       throws YTFetchException;
 
   void parseLinked(
-      final YTDocument iRootRecord,
+      final YTEntityImpl iRootRecord,
       final YTIdentifiable iLinked,
       final Object iUserObject,
       final String iFieldName,
@@ -59,7 +59,7 @@ public interface OFetchListener {
       throws YTFetchException;
 
   void parseLinkedCollectionValue(
-      final YTDocument iRootRecord,
+      final YTEntityImpl iRootRecord,
       final YTIdentifiable iLinked,
       final Object iUserObject,
       final String iFieldName,
@@ -67,24 +67,24 @@ public interface OFetchListener {
       throws YTFetchException;
 
   Object fetchLinkedMapEntry(
-      final YTDocument iRoot,
+      final YTEntityImpl iRoot,
       final Object iUserObject,
       final String iFieldName,
       final String iKey,
-      final YTDocument iLinked,
+      final YTEntityImpl iLinked,
       final OFetchContext iContext)
       throws YTFetchException;
 
   Object fetchLinkedCollectionValue(
-      final YTDocument iRoot,
+      final YTEntityImpl iRoot,
       final Object iUserObject,
       final String iFieldName,
-      final YTDocument iLinked,
+      final YTEntityImpl iLinked,
       final OFetchContext iContext)
       throws YTFetchException;
 
   void processStandardField(
-      final YTDocument iRecord,
+      final YTEntityImpl iRecord,
       final Object iFieldValue,
       final String iFieldName,
       final OFetchContext iContext,
@@ -94,7 +94,7 @@ public interface OFetchListener {
       throws YTFetchException;
 
   void skipStandardField(
-      final YTDocument iRecord,
+      final YTEntityImpl iRecord,
       final String iFieldName,
       final OFetchContext iContext,
       final Object iUserObject,

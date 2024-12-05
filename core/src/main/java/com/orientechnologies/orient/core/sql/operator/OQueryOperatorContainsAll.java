@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 import java.util.Collection;
 
@@ -84,11 +84,11 @@ public class OQueryOperatorContainsAll extends OQueryOperatorEqualityNotNulls {
 
     } else if (iLeft instanceof Collection<?>) {
 
-      final Collection<YTDocument> collection = (Collection<YTDocument>) iLeft;
+      final Collection<YTEntityImpl> collection = (Collection<YTEntityImpl>) iLeft;
 
       if (condition != null) {
         // CHECK AGAINST A CONDITION
-        for (final YTDocument o : collection) {
+        for (final YTEntityImpl o : collection) {
           if (condition.evaluate(o, null, iContext) == Boolean.FALSE) {
             return false;
           }
@@ -104,10 +104,10 @@ public class OQueryOperatorContainsAll extends OQueryOperatorEqualityNotNulls {
     } else if (iRight instanceof Collection<?>) {
 
       // CHECK AGAINST A CONDITION
-      final Collection<YTDocument> collection = (Collection<YTDocument>) iRight;
+      final Collection<YTEntityImpl> collection = (Collection<YTEntityImpl>) iRight;
 
       if (condition != null) {
-        for (final YTDocument o : collection) {
+        for (final YTEntityImpl o : collection) {
           if (condition.evaluate(o, null, iContext) == Boolean.FALSE) {
             return false;
           }

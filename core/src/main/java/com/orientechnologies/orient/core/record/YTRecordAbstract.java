@@ -22,8 +22,8 @@ package com.orientechnologies.orient.core.record;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.RecordElement;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.id.ChangeableIdentity;
 import com.orientechnologies.orient.core.id.ChangeableRecordId;
@@ -47,7 +47,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 @SuppressWarnings({"unchecked"})
-public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSerializableStream,
+public abstract class YTRecordAbstract implements YTRecord, RecordElement, OSerializableStream,
     ChangeableIdentity {
 
   public static final String BASE_FORMAT =
@@ -64,7 +64,7 @@ public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSer
   protected transient ORecordSerializer recordFormat;
   protected boolean dirty = true;
   protected boolean contentChanged = true;
-  protected ORecordElement.STATUS status = ORecordElement.STATUS.LOADED;
+  protected RecordElement.STATUS status = RecordElement.STATUS.LOADED;
 
   private transient Set<OIdentityChangeListener> newIdentityChangeListeners = null;
   protected ODirtyManager dirtyManager;
@@ -91,7 +91,7 @@ public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSer
   }
 
   @Override
-  public ORecordElement getOwner() {
+  public RecordElement getOwner() {
     return null;
   }
 
@@ -110,7 +110,7 @@ public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSer
    * Resets the record to be reused. The record is fresh like just created.
    */
   public YTRecordAbstract reset() {
-    status = ORecordElement.STATUS.LOADED;
+    status = RecordElement.STATUS.LOADED;
     recordVersion = 0;
     size = 0;
 
@@ -142,7 +142,7 @@ public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSer
     dirtyManager = null;
     source = iRecordBuffer;
     size = iRecordBuffer != null ? iRecordBuffer.length : 0;
-    status = ORecordElement.STATUS.LOADED;
+    status = RecordElement.STATUS.LOADED;
 
     return this;
   }
@@ -156,7 +156,7 @@ public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSer
     dirtyManager = null;
     source = iRecordBuffer;
     size = iRecordBuffer != null ? iRecordBuffer.length : 0;
-    status = ORecordElement.STATUS.LOADED;
+    status = RecordElement.STATUS.LOADED;
 
     return this;
   }
@@ -292,9 +292,9 @@ public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSer
   }
 
   public void unload() {
-    if (status != ORecordElement.STATUS.NOT_LOADED) {
+    if (status != RecordElement.STATUS.NOT_LOADED) {
       source = null;
-      status = ORecordElement.STATUS.NOT_LOADED;
+      status = RecordElement.STATUS.NOT_LOADED;
       session = null;
       unsetDirty();
     }
@@ -302,7 +302,7 @@ public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSer
 
   @Override
   public boolean isUnloaded() {
-    return status == ORecordElement.STATUS.NOT_LOADED;
+    return status == RecordElement.STATUS.NOT_LOADED;
   }
 
   @Override
@@ -380,7 +380,7 @@ public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSer
     return recordId.compareTo(iOther.getIdentity());
   }
 
-  public ORecordElement.STATUS getInternalStatus() {
+  public RecordElement.STATUS getInternalStatus() {
     return status;
   }
 
@@ -389,7 +389,7 @@ public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSer
     return getSession().exists(recordId);
   }
 
-  public void setInternalStatus(final ORecordElement.STATUS iStatus) {
+  public void setInternalStatus(final RecordElement.STATUS iStatus) {
     this.status = iStatus;
   }
 
@@ -423,7 +423,7 @@ public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSer
     recordId.setClusterId(iRid.getClusterId());
     recordId.setClusterPosition(iRid.getClusterPosition());
     recordVersion = iVersion;
-    status = ORecordElement.STATUS.LOADED;
+    status = RecordElement.STATUS.LOADED;
     source = iBuffer;
     size = iBuffer != null ? iBuffer.length : 0;
     dirtyManager = null;
@@ -453,7 +453,7 @@ public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSer
     recordId.setClusterId(iRid.getClusterId());
     recordId.setClusterPosition(iRid.getClusterPosition());
     recordVersion = iVersion;
-    status = ORecordElement.STATUS.LOADED;
+    status = RecordElement.STATUS.LOADED;
     source = iBuffer;
     size = iBuffer != null ? iBuffer.length : 0;
     dirtyManager = null;
@@ -528,11 +528,11 @@ public abstract class YTRecordAbstract implements YTRecord, ORecordElement, OSer
 
   protected void checkForBinding() {
     assert loadingCounter >= 0;
-    if (loadingCounter > 0 || status == ORecordElement.STATUS.UNMARSHALLING) {
+    if (loadingCounter > 0 || status == RecordElement.STATUS.UNMARSHALLING) {
       return;
     }
 
-    if (status == ORecordElement.STATUS.NOT_LOADED) {
+    if (status == RecordElement.STATUS.NOT_LOADED) {
       if (!getIdentity().isValid()) {
         return;
       }

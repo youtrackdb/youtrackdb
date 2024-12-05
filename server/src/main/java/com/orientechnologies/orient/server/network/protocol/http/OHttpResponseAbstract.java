@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.server.OClientConnection;
@@ -208,7 +208,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final Object newResult;
 
       if (iResult instanceof Map) {
-        YTDocument doc = new YTDocument();
+        YTEntityImpl doc = new YTEntityImpl();
         for (Map.Entry<?, ?> entry : ((Map<?, ?>) iResult).entrySet()) {
           String key = keyFromMapObject(entry.getKey());
           doc.field(key, entry.getValue());
@@ -218,7 +218,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
           && (OMultiValue.getSize(iResult) > 0
           && !((OMultiValue.getFirstValue(iResult) instanceof YTIdentifiable)
           || ((OMultiValue.getFirstValue(iResult) instanceof YTResult))))) {
-        newResult = Collections.singleton(new YTDocument().field("value", iResult)).iterator();
+        newResult = Collections.singleton(new YTEntityImpl().field("value", iResult)).iterator();
       } else if (iResult instanceof YTIdentifiable) {
         // CONVERT SINGLE VALUE IN A COLLECTION
         newResult = Collections.singleton(iResult).iterator();
@@ -227,7 +227,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       } else if (OMultiValue.isMultiValue(iResult)) {
         newResult = OMultiValue.getMultiValueIterator(iResult);
       } else {
-        newResult = Collections.singleton(new YTDocument().field("value", iResult)).iterator();
+        newResult = Collections.singleton(new YTEntityImpl().field("value", iResult)).iterator();
       }
 
       if (newResult == null) {
@@ -342,7 +342,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
                 } else if (r instanceof YTIdentifiable) {
                   try {
                     final YTRecord rec = ((YTIdentifiable) r).getRecord();
-                    if (rec instanceof YTDocument doc) {
+                    if (rec instanceof YTEntityImpl doc) {
                       records.add(doc);
                       Collections.addAll(colNames, doc.fieldNames());
                     }

@@ -43,7 +43,7 @@ import com.orientechnologies.orient.core.db.OExecutionThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.exception.YTQueryParsingException;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
@@ -72,7 +72,7 @@ import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.filter.OFilterOptimizer;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilter;
@@ -279,9 +279,9 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
     return !noCache && request.isUseCache();
   }
 
-  private static YTDocument createIndexEntryAsDocument(
+  private static YTEntityImpl createIndexEntryAsDocument(
       final Object iKey, final YTIdentifiable iValue) {
-    final YTDocument doc = new YTDocument().setOrdered(true);
+    final YTEntityImpl doc = new YTEntityImpl().setOrdered(true);
     doc.field("key", iKey);
     doc.field("rid", iValue);
     ORecordInternal.unsetDirty(doc);
@@ -630,7 +630,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
     {
       return true;
     }
-    if (ORecordInternal.getRecordType(record) != YTDocument.RECORD_TYPE && checkSkipBlob())
+    if (ORecordInternal.getRecordType(record) != YTEntityImpl.RECORD_TYPE && checkSkipBlob())
     // SKIP binary records in case of projection.
     {
       return true;
@@ -792,7 +792,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
     return result;
   }
 
-  private YTDocument applyGroupBy(final YTIdentifiable iRecord, final OCommandContext iContext) {
+  private YTEntityImpl applyGroupBy(final YTIdentifiable iRecord, final OCommandContext iContext) {
     if (!aggregate) {
       return null;
     }
@@ -802,7 +802,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
     if (groupByFields != null && !groupByFields.isEmpty()) {
       if (groupByFields.size() > 1) {
         // MULTI-FIELD GROUP BY
-        final YTDocument doc = iRecord.getRecord();
+        final YTEntityImpl doc = iRecord.getRecord();
         final Object[] fields = new Object[groupByFields.size()];
         for (int i = 0; i < groupByFields.size(); ++i) {
           final String field = groupByFields.get(i);
@@ -819,7 +819,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
           if (field.startsWith("$")) {
             fieldValue = iContext.getVariable(field);
           } else {
-            fieldValue = ((YTDocument) iRecord.getRecord()).field(field);
+            fieldValue = ((YTEntityImpl) iRecord.getRecord()).field(field);
           }
         }
       }
@@ -865,9 +865,9 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
       final List<String> unwindFields,
       final OCommandContext iContext) {
     final List<YTIdentifiable> result = new ArrayList<YTIdentifiable>();
-    YTDocument doc;
-    if (iRecord instanceof YTDocument) {
-      doc = (YTDocument) iRecord;
+    YTEntityImpl doc;
+    if (iRecord instanceof YTEntityImpl) {
+      doc = (YTEntityImpl) iRecord;
     } else {
       doc = iRecord.getRecord();
     }
@@ -881,19 +881,19 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
       Object fieldValue = doc.field(firstField);
       if (fieldValue == null
           || !(fieldValue instanceof Iterable)
-          || fieldValue instanceof YTDocument) {
+          || fieldValue instanceof YTEntityImpl) {
         result.addAll(unwind(doc, nextFields, iContext));
       } else {
         Iterator iterator = ((Iterable) fieldValue).iterator();
         if (!iterator.hasNext()) {
-          YTDocument unwindedDoc = new YTDocument();
+          YTEntityImpl unwindedDoc = new YTEntityImpl();
           doc.copyTo(unwindedDoc);
           unwindedDoc.field(firstField, (Object) null);
           result.addAll(unwind(unwindedDoc, nextFields, iContext));
         } else {
           do {
             Object o = iterator.next();
-            YTDocument unwindedDoc = new YTDocument();
+            YTEntityImpl unwindedDoc = new YTEntityImpl();
             doc.copyTo(unwindedDoc);
             unwindedDoc.field(firstField, o);
             result.addAll(unwind(unwindedDoc, nextFields, iContext));
@@ -1381,7 +1381,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
                 tempResult = new ArrayList<YTIdentifiable>();
               }
               ((Collection<YTIdentifiable>) tempResult)
-                  .add(new YTDocument().field(entry.getKey(), count));
+                  .add(new YTEntityImpl().field(entry.getKey(), count));
               return true;
             }
           }
@@ -2461,7 +2461,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
                 tempResult = new ArrayList<YTIdentifiable>();
               }
               ((Collection<YTIdentifiable>) tempResult)
-                  .add(new YTDocument().field(entry.getKey(), count));
+                  .add(new YTEntityImpl().field(entry.getKey(), count));
               return true;
             }
           }
@@ -2638,7 +2638,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
 
     while (iterator.hasNext()) {
       final ORawPair<Object, YTRID> entryRecord = iterator.next();
-      final YTDocument doc = new YTDocument().setOrdered(true);
+      final YTEntityImpl doc = new YTEntityImpl().setOrdered(true);
       doc.field("key", entryRecord.first);
       doc.field("rid", entryRecord.second);
       ORecordInternal.unsetDirty(doc);
@@ -2767,15 +2767,15 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
             if (fieldValue instanceof Iterable && !(fieldValue instanceof YTIdentifiable)) {
               fieldValue = ((Iterable) fieldValue).iterator();
             }
-            if (fieldValue instanceof YTDocument) {
-              ArrayList<YTDocument> partial = new ArrayList<YTDocument>();
-              partial.add((YTDocument) fieldValue);
+            if (fieldValue instanceof YTEntityImpl) {
+              ArrayList<YTEntityImpl> partial = new ArrayList<YTEntityImpl>();
+              partial.add((YTEntityImpl) fieldValue);
               finalResult.add(partial);
             } else if (fieldValue instanceof Collection<?>
                 || fieldValue.getClass().isArray()
                 || fieldValue instanceof Iterator<?>
                 || fieldValue instanceof YTIdentifiable
-                || fieldValue instanceof ORidBag) {
+                || fieldValue instanceof RidBag) {
               finalResult.add(fieldValue);
             } else if (fieldValue instanceof Map<?, ?>) {
               finalResult.add(((Map<?, YTIdentifiable>) fieldValue).values());
@@ -2955,7 +2955,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
         BreakingForEach.forEach(
             res,
             (rid, breaker) -> {
-              final YTDocument record = createIndexEntryAsDocument(resultKey, rid);
+              final YTEntityImpl record = createIndexEntryAsDocument(resultKey, rid);
               applyGroupBy(record, context);
               if (!handleResult(record, context)) {
                 // LIMIT REACHED
@@ -3014,7 +3014,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
     BreakingForEach.forEach(
         rids,
         (rid, breaker) -> {
-          final YTDocument doc = new YTDocument().setOrdered(true);
+          final YTEntityImpl doc = new YTEntityImpl().setOrdered(true);
           doc.field("key", (Object) null);
           doc.field("rid", rid);
           ORecordInternal.unsetDirty(doc);

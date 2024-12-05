@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.hook.YTDocumentHookAbstract;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,7 +25,7 @@ public class HookChangeValidationTest extends DBTestBase {
     db.registerHook(
         new YTDocumentHookAbstract() {
           @Override
-          public RESULT onRecordBeforeCreate(YTDocument doc) {
+          public RESULT onRecordBeforeCreate(YTEntityImpl doc) {
             doc.removeField("property1");
             doc.removeField("property2");
             doc.removeField("property3");
@@ -33,7 +33,7 @@ public class HookChangeValidationTest extends DBTestBase {
           }
 
           @Override
-          public RESULT onRecordBeforeUpdate(YTDocument doc) {
+          public RESULT onRecordBeforeUpdate(YTEntityImpl doc) {
             return RESULT.RECORD_NOT_CHANGED;
           }
 
@@ -42,7 +42,7 @@ public class HookChangeValidationTest extends DBTestBase {
             return DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE;
           }
         });
-    YTDocument doc = new YTDocument(classA);
+    YTEntityImpl doc = new YTEntityImpl(classA);
     doc.field("property1", "value1-create");
     doc.field("property2", "value2-create");
     doc.field("property3", "value3-create");
@@ -67,12 +67,12 @@ public class HookChangeValidationTest extends DBTestBase {
     db.registerHook(
         new YTDocumentHookAbstract() {
           @Override
-          public RESULT onRecordBeforeCreate(YTDocument doc) {
+          public RESULT onRecordBeforeCreate(YTEntityImpl doc) {
             return RESULT.RECORD_NOT_CHANGED;
           }
 
           @Override
-          public RESULT onRecordBeforeUpdate(YTDocument doc) {
+          public RESULT onRecordBeforeUpdate(YTEntityImpl doc) {
             doc.removeField("property1");
             doc.removeField("property2");
             doc.removeField("property3");
@@ -86,7 +86,7 @@ public class HookChangeValidationTest extends DBTestBase {
         });
 
     db.begin();
-    YTDocument doc = new YTDocument(classA);
+    YTEntityImpl doc = new YTEntityImpl(classA);
     doc.field("property1", "value1-create");
     doc.field("property2", "value2-create");
     doc.field("property3", "value3-create");

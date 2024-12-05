@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Set;
 
 /**
@@ -35,9 +35,9 @@ public interface ODistributedMessageService {
 
   void updateLatency(String metricName, long sentOn);
 
-  YTDocument getLatencies();
+  YTEntityImpl getLatencies();
 
-  YTDocument getMessageStats();
+  YTEntityImpl getMessageStats();
 
   void updateMessageStats(String message);
 

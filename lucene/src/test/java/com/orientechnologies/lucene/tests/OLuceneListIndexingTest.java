@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Arrays;
 import java.util.Collection;
@@ -69,7 +69,7 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     YTSchema schema = db.getMetadata().getSchema();
 
     // Rome
-    YTDocument doc = new YTDocument("City");
+    YTEntityImpl doc = new YTEntityImpl("City");
     doc.field("name", "Rome");
     doc.field("tags", Arrays.asList("Beautiful", "Touristic", "Sunny"));
 
@@ -89,7 +89,7 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     assertThat(doc.<String>field("name")).isEqualTo("Rome");
 
     // London
-    doc = new YTDocument("City");
+    doc = new YTEntityImpl("City");
     doc.field("name", "London");
     doc.field("tags", Arrays.asList("Beautiful", "Touristic", "Sunny"));
 
@@ -140,7 +140,7 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     db.begin();
     YTSchema schema = db.getMetadata().getSchema();
 
-    YTDocument doc = new YTDocument("Person");
+    YTEntityImpl doc = new YTEntityImpl("Person");
     doc.field("name", "Enrico");
     doc.field("tags", Arrays.asList("Funny", "Tall", "Geek"));
 
@@ -157,7 +157,7 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
 
     assertThat(coll).hasSize(3);
 
-    doc = new YTDocument("Person");
+    doc = new YTEntityImpl("Person");
     doc.field("name", "Jared");
     doc.field("tags", Arrays.asList("Funny", "Tall"));
 

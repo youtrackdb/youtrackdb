@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +52,7 @@ public class OUpdateStatementExecutionTest {
 
     db.begin();
     for (int i = 0; i < 10; i++) {
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("number", 4L);
@@ -581,7 +581,7 @@ public class OUpdateStatementExecutionTest {
     clazz.createProperty(db, "theProperty", YTType.EMBEDDEDLIST);
 
     db.begin();
-    YTDocument doc = db.newInstance(className);
+    YTEntityImpl doc = db.newInstance(className);
     List theList = new ArrayList();
     for (int i = 0; i < 10; i++) {
       theList.add("n" + i);
@@ -621,7 +621,7 @@ public class OUpdateStatementExecutionTest {
     clazz.createProperty(db, "theProperty", YTType.EMBEDDEDLIST);
 
     db.begin();
-    YTDocument doc = db.newInstance(className);
+    YTEntityImpl doc = db.newInstance(className);
     List theList = new ArrayList();
     for (int i = 0; i < 10; i++) {
       theList.add("n" + i);
@@ -676,8 +676,8 @@ public class OUpdateStatementExecutionTest {
     clazz.createProperty(db, "theProperty", YTType.EMBEDDED);
 
     db.begin();
-    YTDocument doc = db.newInstance(className);
-    YTDocument emb = new YTDocument();
+    YTEntityImpl doc = db.newInstance(className);
+    YTEntityImpl emb = new YTEntityImpl();
     emb.setProperty("sub", "foo");
     emb.setProperty("aaa", "bar");
     doc.setProperty("theProperty", emb);

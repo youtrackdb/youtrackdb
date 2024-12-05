@@ -20,15 +20,15 @@
 package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.List;
 import javax.annotation.Nonnull;
 
@@ -78,7 +78,7 @@ public interface OTransaction {
 
   List<String> getInvolvedIndexes();
 
-  YTDocument getIndexChanges();
+  YTEntityImpl getIndexChanges();
 
   @Deprecated
   void clearIndexEntries();

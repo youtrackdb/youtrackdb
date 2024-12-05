@@ -26,7 +26,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.List;
 import org.junit.Test;
@@ -96,9 +96,9 @@ public class TxUniqueIndexWithCollationTest extends DBTestBase {
 
     db.command("update user set name='abd' where name='Aby'").close();
 
-    final List<YTDocument> r =
+    final List<YTEntityImpl> r =
         db.query("select * from user where name in ['Abc', 'Abd', 'Abz'] order by name").stream()
-            .map(x -> ((YTDocument) (x.toEntity())))
+            .map(x -> ((YTEntityImpl) (x.toEntity())))
             .toList();
     assertEquals(3, r.size());
     assertEquals("abc", r.get(0).field("name"));

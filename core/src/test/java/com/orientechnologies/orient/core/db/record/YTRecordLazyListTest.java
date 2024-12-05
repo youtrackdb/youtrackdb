@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,14 +47,14 @@ public class YTRecordLazyListTest {
     itemsProp.setLinkedClass(dbSession, itemClass);
 
     dbSession.begin();
-    YTDocument doc1 = new YTDocument(itemClass).field("name", "Doc1");
+    YTEntityImpl doc1 = new YTEntityImpl(itemClass).field("name", "Doc1");
     doc1.save();
-    YTDocument doc2 = new YTDocument(itemClass).field("name", "Doc2");
+    YTEntityImpl doc2 = new YTEntityImpl(itemClass).field("name", "Doc2");
     doc2.save();
-    YTDocument doc3 = new YTDocument(itemClass).field("name", "Doc3");
+    YTEntityImpl doc3 = new YTEntityImpl(itemClass).field("name", "Doc3");
     doc3.save();
 
-    YTDocument mainDoc = new YTDocument(mainClass).field("name", "Main Doc");
+    YTEntityImpl mainDoc = new YTEntityImpl(mainClass).field("name", "Main Doc");
     mainDoc.field("items", Arrays.asList(doc1, doc2, doc3));
     mainDoc.save();
     dbSession.commit();
@@ -62,12 +62,12 @@ public class YTRecordLazyListTest {
     dbSession.begin();
 
     mainDoc = dbSession.bindToSession(mainDoc);
-    Collection<YTDocument> origItems = mainDoc.field("items");
-    Iterator<YTDocument> it = origItems.iterator();
+    Collection<YTEntityImpl> origItems = mainDoc.field("items");
+    Iterator<YTEntityImpl> it = origItems.iterator();
     assertNotNull(it.next());
     assertNotNull(it.next());
 
-    List<YTDocument> items = new ArrayList<YTDocument>(origItems);
+    List<YTEntityImpl> items = new ArrayList<YTEntityImpl>(origItems);
     assertNotNull(items.get(0));
     assertNotNull(items.get(1));
     assertNotNull(items.get(2));

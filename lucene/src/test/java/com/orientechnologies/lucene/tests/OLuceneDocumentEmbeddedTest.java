@@ -20,7 +20,7 @@ package com.orientechnologies.lucene.tests;
 
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
@@ -42,14 +42,14 @@ public class OLuceneDocumentEmbeddedTest extends OLuceneBaseTest {
   @Test
   public void embeddedNoTx() {
 
-    YTDocument doc = new YTDocument("City");
+    YTEntityImpl doc = new YTEntityImpl("City");
 
     doc.field("name", "London");
     db.begin();
     db.save(doc);
     db.commit();
 
-    doc = new YTDocument("City");
+    doc = new YTEntityImpl("City");
     doc.field("name", "Rome");
 
     db.begin();
@@ -65,7 +65,7 @@ public class OLuceneDocumentEmbeddedTest extends OLuceneBaseTest {
   @Test
   public void embeddedTx() {
 
-    YTDocument doc = new YTDocument("City");
+    YTEntityImpl doc = new YTEntityImpl("City");
 
     db.begin();
     doc.field("name", "Berlin");

@@ -20,7 +20,7 @@ import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.cache.local.OWOWCache;
 import com.orientechnologies.orient.core.storage.cluster.OClusterPositionMap;
 import com.orientechnologies.orient.core.storage.cluster.OPaginatedCluster;
@@ -107,9 +107,10 @@ public class SQLCommandsTest extends DocumentDBBaseTest {
     Object result = database.command(new OCommandScript("sql", cmd)).execute(database);
 
     Assert.assertTrue(result instanceof YTIdentifiable);
-    Assert.assertTrue(((YTIdentifiable) result).getRecord() instanceof YTDocument);
+    Assert.assertTrue(((YTIdentifiable) result).getRecord() instanceof YTEntityImpl);
     Assert.assertTrue(
-        database.bindToSession((YTDocument) ((YTIdentifiable) result).getRecord()).field("script"));
+        database.bindToSession((YTEntityImpl) ((YTIdentifiable) result).getRecord())
+            .field("script"));
   }
 
   public void testClusterRename() {

@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -142,7 +142,7 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
 
     final YTClass cls = db.getMetadata().getSchema().getClass(urlParts[2]);
 
-    final YTDocument propertiesDoc = new YTDocument();
+    final YTEntityImpl propertiesDoc = new YTEntityImpl();
     propertiesDoc.fromJSON(iRequest.getContent());
 
     for (String propertyName : propertiesDoc.fieldNames()) {

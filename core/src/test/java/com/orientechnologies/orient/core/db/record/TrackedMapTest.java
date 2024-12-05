@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.OMemoryStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -20,9 +20,9 @@ public class TrackedMapTest extends DBTestBase {
 
   @Test
   public void testPutOne() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
 
-    final OTrackedMap<String> map = new OTrackedMap<String>(doc);
+    final TrackedMap<String> map = new TrackedMap<String>(doc);
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
     map.enableTracking(doc);
@@ -39,9 +39,9 @@ public class TrackedMapTest extends DBTestBase {
 
   @Test
   public void testPutTwo() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
 
-    final OTrackedMap<String> map = new OTrackedMap<String>(doc);
+    final TrackedMap<String> map = new TrackedMap<String>(doc);
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -63,9 +63,9 @@ public class TrackedMapTest extends DBTestBase {
 
   @Test
   public void testPutThree() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
 
-    final OTrackedMap<String> map = new OTrackedMap<String>(doc);
+    final TrackedMap<String> map = new TrackedMap<String>(doc);
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -83,9 +83,9 @@ public class TrackedMapTest extends DBTestBase {
 
   @Test
   public void testPutFour() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
 
-    final OTrackedMap<String> map = new OTrackedMap<String>(doc);
+    final TrackedMap<String> map = new TrackedMap<String>(doc);
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
@@ -104,9 +104,9 @@ public class TrackedMapTest extends DBTestBase {
 
   @Test
   public void testPutFive() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
 
-    final OTrackedMap<String> map = new OTrackedMap<String>(doc);
+    final TrackedMap<String> map = new TrackedMap<String>(doc);
 
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
@@ -120,9 +120,9 @@ public class TrackedMapTest extends DBTestBase {
 
   @Test
   public void testRemoveOne() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
 
-    final OTrackedMap<String> map = new OTrackedMap<String>(doc);
+    final TrackedMap<String> map = new TrackedMap<String>(doc);
 
     map.put("key1", "value1");
 
@@ -142,9 +142,9 @@ public class TrackedMapTest extends DBTestBase {
 
   @Test
   public void testRemoveTwo() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
 
-    final OTrackedMap<String> map = new OTrackedMap<String>(doc);
+    final TrackedMap<String> map = new TrackedMap<String>(doc);
 
     map.put("key1", "value1");
 
@@ -161,9 +161,9 @@ public class TrackedMapTest extends DBTestBase {
 
   @Test
   public void testClearOne() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
 
-    final OTrackedMap<String> trackedMap = new OTrackedMap<String>(doc);
+    final TrackedMap<String> trackedMap = new TrackedMap<String>(doc);
 
     trackedMap.put("key1", "value1");
     trackedMap.put("key2", "value2");
@@ -193,9 +193,9 @@ public class TrackedMapTest extends DBTestBase {
 
   @Test
   public void testClearThree() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
 
-    final OTrackedMap<String> trackedMap = new OTrackedMap<String>(doc);
+    final TrackedMap<String> trackedMap = new TrackedMap<String>(doc);
 
     trackedMap.put("key1", "value1");
     trackedMap.put("key2", "value2");
@@ -211,9 +211,9 @@ public class TrackedMapTest extends DBTestBase {
 
   @Test
   public void testReturnOriginalStateOne() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
 
-    final OTrackedMap<String> trackedMap = new OTrackedMap<String>(doc);
+    final TrackedMap<String> trackedMap = new TrackedMap<String>(doc);
     trackedMap.put("key1", "value1");
     trackedMap.put("key2", "value2");
     trackedMap.put("key3", "value3");
@@ -242,9 +242,9 @@ public class TrackedMapTest extends DBTestBase {
 
   @Test
   public void testReturnOriginalStateTwo() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
 
-    final OTrackedMap<String> trackedMap = new OTrackedMap<String>(doc);
+    final TrackedMap<String> trackedMap = new TrackedMap<String>(doc);
     trackedMap.put("key1", "value1");
     trackedMap.put("key2", "value2");
     trackedMap.put("key3", "value3");
@@ -273,12 +273,12 @@ public class TrackedMapTest extends DBTestBase {
   }
 
   /**
-   * Test that {@link OTrackedMap} is serialised correctly.
+   * Test that {@link TrackedMap} is serialised correctly.
    */
   @Test
   public void testMapSerialization() throws Exception {
 
-    class NotSerializableDocument extends YTDocument {
+    class NotSerializableEntityImpl extends YTEntityImpl {
 
       private static final long serialVersionUID = 1L;
 
@@ -287,8 +287,8 @@ public class TrackedMapTest extends DBTestBase {
       }
     }
 
-    final OTrackedMap<String> beforeSerialization =
-        new OTrackedMap<String>(new NotSerializableDocument());
+    final TrackedMap<String> beforeSerialization =
+        new TrackedMap<String>(new NotSerializableEntityImpl());
     beforeSerialization.put(0, "firstVal");
     beforeSerialization.put(1, "secondVal");
 

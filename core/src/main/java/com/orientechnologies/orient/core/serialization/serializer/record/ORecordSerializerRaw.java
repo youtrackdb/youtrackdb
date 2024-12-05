@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 
 public class ORecordSerializerRaw implements ORecordSerializer {
@@ -47,7 +47,7 @@ public class ORecordSerializerRaw implements ORecordSerializer {
   }
 
   @Override
-  public String[] getFieldNames(YTDatabaseSessionInternal db, YTDocument reference,
+  public String[] getFieldNames(YTDatabaseSessionInternal db, YTEntityImpl reference,
       byte[] iSource) {
     return null;
   }

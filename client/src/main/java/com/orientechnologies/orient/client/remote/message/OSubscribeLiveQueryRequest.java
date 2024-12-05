@@ -6,7 +6,7 @@ import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
@@ -45,7 +45,7 @@ public class OSubscribeLiveQueryRequest implements OBinaryRequest<OSubscribeLive
     ORecordSerializerNetworkV37Client serializer = new ORecordSerializerNetworkV37Client();
     network.writeString(query);
     // params
-    YTDocument parms = new YTDocument();
+    YTEntityImpl parms = new YTEntityImpl();
     parms.field("params", this.params);
 
     byte[] bytes = OMessageHelper.getRecordBytes(database, parms, serializer);
@@ -58,7 +58,7 @@ public class OSubscribeLiveQueryRequest implements OBinaryRequest<OSubscribeLive
       ORecordSerializer serializer)
       throws IOException {
     this.query = channel.readString();
-    YTDocument paramsDoc = new YTDocument();
+    YTEntityImpl paramsDoc = new YTEntityImpl();
     byte[] bytes = channel.readBytes();
     serializer.fromStream(db, bytes, paramsDoc, null);
     this.params = paramsDoc.field("params");

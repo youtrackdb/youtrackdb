@@ -12,7 +12,7 @@ import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.metadata.OMetadata;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
@@ -68,7 +68,7 @@ public class OStorageTestIT {
     schema.createClass("PageBreak");
 
     for (int i = 0; i < 10; i++) {
-      YTDocument document = new YTDocument("PageBreak");
+      YTEntityImpl document = new YTEntityImpl("PageBreak");
       document.field("value", "value");
       document.save();
     }
@@ -134,7 +134,7 @@ public class OStorageTestIT {
     schema.createClass("PageBreak");
 
     for (int i = 0; i < 10; i++) {
-      YTDocument document = new YTDocument("PageBreak");
+      YTEntityImpl document = new YTEntityImpl("PageBreak");
       document.field("value", "value");
       document.save();
     }
@@ -196,7 +196,7 @@ public class OStorageTestIT {
     schema.createClass("PageBreak");
 
     for (int i = 0; i < 10; i++) {
-      YTDocument document = new YTDocument("PageBreak");
+      YTEntityImpl document = new YTEntityImpl("PageBreak");
       document.field("value", "value");
       document.save();
     }
@@ -229,7 +229,7 @@ public class OStorageTestIT {
 
     Thread.sleep(100); // lets wait till event will be propagated
 
-    YTDocument document = new YTDocument("PageBreak");
+    YTEntityImpl document = new YTEntityImpl("PageBreak");
     document.field("value", "value");
 
     document.save();
@@ -260,7 +260,7 @@ public class OStorageTestIT {
     schema.createClass("PageBreak");
 
     for (int i = 0; i < 10; i++) {
-      YTDocument document = new YTDocument("PageBreak");
+      YTEntityImpl document = new YTEntityImpl("PageBreak");
       document.field("value", "value");
       document.save();
     }
@@ -296,7 +296,7 @@ public class OStorageTestIT {
 
     Thread.sleep(100); // lets wait till event will be propagated
 
-    YTDocument document = new YTDocument("PageBreak");
+    YTEntityImpl document = new YTEntityImpl("PageBreak");
     document.field("value", "value");
 
     document.save();

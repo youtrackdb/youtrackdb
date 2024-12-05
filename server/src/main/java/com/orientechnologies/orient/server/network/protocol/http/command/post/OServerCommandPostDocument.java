@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -41,7 +41,7 @@ public class OServerCommandPostDocument extends OServerCommandDocumentAbstract {
 
     YTDatabaseSession db = null;
 
-    YTDocument d;
+    YTEntityImpl d;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);
@@ -49,7 +49,7 @@ public class OServerCommandPostDocument extends OServerCommandDocumentAbstract {
       d =
           db.computeInTx(
               () -> {
-                YTDocument doc = new YTDocument();
+                YTEntityImpl doc = new YTEntityImpl();
                 doc.fromJSON(iRequest.getContent());
                 ORecordInternal.setVersion(doc, 0);
 

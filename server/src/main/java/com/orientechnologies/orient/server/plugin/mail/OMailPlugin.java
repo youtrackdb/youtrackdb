@@ -23,7 +23,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.script.OScriptInjection;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;
@@ -42,7 +42,7 @@ public class OMailPlugin extends OServerPluginAbstract
   private static final String CONFIG_PROFILE_PREFIX = "profile.";
   private static final String CONFIG_MAIL_PREFIX = "mail.";
 
-  private YTDocument configuration;
+  private YTEntityImpl configuration;
 
   private final Map<String, OMailProfile> profiles = new HashMap<String, OMailProfile>();
 
@@ -99,11 +99,11 @@ public class OMailPlugin extends OServerPluginAbstract
   }
 
   @Override
-  public YTDocument getConfig() {
+  public YTEntityImpl getConfig() {
     return configuration;
   }
 
   @Override
-  public void changeConfig(YTDocument document) {
+  public void changeConfig(YTEntityImpl document) {
   }
 }

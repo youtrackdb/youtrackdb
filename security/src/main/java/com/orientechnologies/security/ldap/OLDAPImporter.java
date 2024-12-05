@@ -20,7 +20,7 @@ import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.security.OSecurityAuthenticator;
 import com.orientechnologies.orient.core.security.OSecurityComponent;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
@@ -86,7 +86,7 @@ public class OLDAPImporter implements OSecurityComponent {
   }
 
   // OSecurityComponent
-  public void config(YTDatabaseSessionInternal session, final YTDocument importDoc,
+  public void config(YTDatabaseSessionInternal session, final YTEntityImpl importDoc,
       OSecuritySystem security) {
     try {
       context = security.getContext();
@@ -111,9 +111,9 @@ public class OLDAPImporter implements OSecurityComponent {
       }
 
       if (importDoc.containsField("databases")) {
-        List<YTDocument> list = importDoc.field("databases");
+        List<YTEntityImpl> list = importDoc.field("databases");
 
-        for (YTDocument dbDoc : list) {
+        for (YTEntityImpl dbDoc : list) {
           if (dbDoc.containsField("database")) {
             String dbName = dbDoc.field("database");
 
@@ -130,9 +130,9 @@ public class OLDAPImporter implements OSecurityComponent {
             if (dbDoc.containsField("domains")) {
               final List<DatabaseDomain> dbDomainsList = new ArrayList<DatabaseDomain>();
 
-              final List<YTDocument> dbdList = dbDoc.field("domains");
+              final List<YTEntityImpl> dbdList = dbDoc.field("domains");
 
-              for (YTDocument dbDomainDoc : dbdList) {
+              for (YTEntityImpl dbDomainDoc : dbdList) {
                 String domain = null;
 
                 // "domain" is mandatory.
@@ -150,9 +150,9 @@ public class OLDAPImporter implements OSecurityComponent {
                   if (dbDomainDoc.containsField("servers")) {
                     final List<OLDAPServer> ldapServerList = new ArrayList<OLDAPServer>();
 
-                    final List<YTDocument> ldapServers = dbDomainDoc.field("servers");
+                    final List<YTEntityImpl> ldapServers = dbDomainDoc.field("servers");
 
-                    for (YTDocument ldapServerDoc : ldapServers) {
+                    for (YTEntityImpl ldapServerDoc : ldapServers) {
                       final String url = ldapServerDoc.field("url");
 
                       boolean isAlias = false;
@@ -181,12 +181,12 @@ public class OLDAPImporter implements OSecurityComponent {
                     //
                     final List<User> userList = new ArrayList<User>();
 
-                    final List<YTDocument> userDocList = dbDomainDoc.field("users");
+                    final List<YTEntityImpl> userDocList = dbDomainDoc.field("users");
 
                     // userDocList can be null if only the oldapUserClass is used instead
                     // security.json.
                     if (userDocList != null) {
-                      for (YTDocument userDoc : userDocList) {
+                      for (YTEntityImpl userDoc : userDocList) {
                         if (userDoc.containsField("baseDN") && userDoc.containsField("filter")) {
                           if (userDoc.containsField("roles")) {
                             final String baseDN = userDoc.field("baseDN");
@@ -735,7 +735,7 @@ public class OLDAPImporter implements OSecurityComponent {
   }
 
   /*
-   * private boolean dbUserExists(ODatabase<?> db, String upn) { try { List<YTDocument> list = new OSQLSynchQuery<YTDocument>(
+   * private boolean dbUserExists(ODatabase<?> db, String upn) { try { List<YTEntityImpl> list = new OSQLSynchQuery<YTEntityImpl>(
    * "SELECT FROM OUser WHERE name = ?").run(upn);
    *
    * return !list.isEmpty(); } catch(Exception ex) { OLogManager.instance().debug(this, "dbUserExists() Exception: ", ex); }

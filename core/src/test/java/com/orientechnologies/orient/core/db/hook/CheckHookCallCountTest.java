@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.hook.YTDocumentHookAbstract;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.UUID;
 import org.junit.Test;
@@ -31,7 +31,7 @@ public class CheckHookCallCountTest extends DBTestBase {
 
     String id = UUID.randomUUID().toString();
     db.begin();
-    YTDocument first = new YTDocument(CLASS_NAME);
+    YTEntityImpl first = new YTEntityImpl(CLASS_NAME);
     first.field(FIELD_ID, id);
     first.field(FIELD_STATUS, STATUS);
     db.save(first);
@@ -57,7 +57,7 @@ public class CheckHookCallCountTest extends DBTestBase {
     oClass.createProperty(db, "c", YTType.INTEGER);
 
     db.begin();
-    YTDocument doc = new YTDocument(oClass);
+    YTEntityImpl doc = new YTEntityImpl(oClass);
     doc.field("a", 2);
     doc.field("b", 2);
     doc.save();
@@ -78,12 +78,12 @@ public class CheckHookCallCountTest extends DBTestBase {
           }
 
           @Override
-          public void onRecordAfterCreate(YTDocument iDocument) {
+          public void onRecordAfterCreate(YTEntityImpl iDocument) {
             onRecordAfterRead(iDocument);
           }
 
           @Override
-          public void onRecordAfterRead(YTDocument iDocument) {
+          public void onRecordAfterRead(YTEntityImpl iDocument) {
             String script = "select sum(a, b) as value from " + iDocument.getIdentity();
             try (YTResultSet calculated = database.query(script)) {
               if (calculated.hasNext()) {
@@ -106,7 +106,7 @@ public class CheckHookCallCountTest extends DBTestBase {
     db.rollback();
 
     db.begin();
-    doc = new YTDocument(oClass);
+    doc = new YTEntityImpl(oClass);
     doc.field("a", 3);
     doc.field("b", 3);
     doc.save();
@@ -130,7 +130,7 @@ public class CheckHookCallCountTest extends DBTestBase {
     }
 
     @Override
-    public void onRecordAfterRead(YTDocument iDocument) {
+    public void onRecordAfterRead(YTEntityImpl iDocument) {
       readCount++;
     }
   }

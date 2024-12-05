@@ -23,13 +23,13 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OMap;
+import com.orientechnologies.orient.core.db.record.LinkMap;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,7 +46,7 @@ import java.util.Set;
  */
 public class OFindReferenceHelper {
 
-  public static List<YTDocument> findReferences(final Set<YTRID> iRecordIds,
+  public static List<YTEntityImpl> findReferences(final Set<YTRID> iRecordIds,
       final String classList) {
     final var db = ODatabaseRecordThreadLocal.instance().get();
 
@@ -74,9 +74,9 @@ public class OFindReferenceHelper {
       }
     }
 
-    final List<YTDocument> result = new ArrayList<YTDocument>();
+    final List<YTEntityImpl> result = new ArrayList<YTEntityImpl>();
     for (Entry<YTRID, Set<YTRID>> entry : map.entrySet()) {
-      final YTDocument doc = new YTDocument();
+      final YTEntityImpl doc = new YTEntityImpl();
       result.add(doc);
 
       doc.field("rid", entry.getKey());
@@ -92,10 +92,10 @@ public class OFindReferenceHelper {
       final Map<YTRID, Set<YTRID>> map,
       final String iClusterName) {
     for (YTRecord record : ((YTDatabaseSessionInternal) iDatabase).browseCluster(iClusterName)) {
-      if (record instanceof YTDocument) {
+      if (record instanceof YTEntityImpl) {
         try {
-          for (String fieldName : ((YTDocument) record).fieldNames()) {
-            Object value = ((YTDocument) record).field(fieldName);
+          for (String fieldName : ((YTEntityImpl) record).fieldNames()) {
+            Object value = ((YTEntityImpl) record).field(fieldName);
             checkObject(iSourceRIDs, map, value, record);
           }
         } catch (Exception e) {
@@ -152,8 +152,8 @@ public class OFindReferenceHelper {
       final Map<?, ?> values,
       final YTRecord iRootObject) {
     final Iterator<?> it;
-    if (values instanceof OMap) {
-      it = ((OMap) values).rawIterator();
+    if (values instanceof LinkMap) {
+      it = ((LinkMap) values).rawIterator();
     } else {
       it = values.values().iterator();
     }
@@ -169,9 +169,9 @@ public class OFindReferenceHelper {
       final YTRecord iRootObject) {
     if (iSourceRIDs.contains(value.getIdentity())) {
       map.get(value.getIdentity()).add(iRootObject.getIdentity());
-    } else if (!value.getIdentity().isValid() && value.getRecord() instanceof YTDocument) {
+    } else if (!value.getIdentity().isValid() && value.getRecord() instanceof YTEntityImpl) {
       // embedded document
-      YTDocument doc = value.getRecord();
+      YTEntityImpl doc = value.getRecord();
       for (String fieldName : doc.fieldNames()) {
         Object fieldValue = doc.field(fieldName);
         checkObject(iSourceRIDs, map, fieldValue, iRootObject);

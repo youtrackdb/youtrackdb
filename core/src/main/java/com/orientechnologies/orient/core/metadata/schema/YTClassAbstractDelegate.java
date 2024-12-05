@@ -21,7 +21,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.clusterselection.OClusterSelectionStrategy;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -207,7 +207,7 @@ public abstract class YTClassAbstractDelegate implements YTClass {
   }
 
   @Override
-  public int getClusterForNewInstance(final YTDocument doc) {
+  public int getClusterForNewInstance(final YTEntityImpl doc) {
     return delegate.getClusterForNewInstance(doc);
   }
 
@@ -409,7 +409,7 @@ public abstract class YTClassAbstractDelegate implements YTClass {
       YTDatabaseSession session, final String iName,
       final String iType,
       final OProgressListener iProgressListener,
-      final YTDocument metadata,
+      final YTEntityImpl metadata,
       String algorithm,
       String... fields) {
     return delegate.createIndex(session, iName, iType, iProgressListener, metadata, algorithm,
@@ -421,7 +421,7 @@ public abstract class YTClassAbstractDelegate implements YTClass {
       YTDatabaseSession session, final String iName,
       final String iType,
       final OProgressListener iProgressListener,
-      final YTDocument metadata,
+      final YTEntityImpl metadata,
       String... fields) {
     return delegate.createIndex(session, iName, iType, iProgressListener, metadata, fields);
   }

@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Test;
 
@@ -26,7 +26,7 @@ public class OChainIndexFetchTest extends DBTestBase {
     propr.createIndex(db, INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
-    YTDocument doc = new YTDocument(linkedClass);
+    YTEntityImpl doc = new YTEntityImpl(linkedClass);
     doc.field("id", "referred");
     db.save(doc);
     db.commit();
@@ -34,7 +34,7 @@ public class OChainIndexFetchTest extends DBTestBase {
     db.begin();
 
     doc = db.bindToSession(doc);
-    YTDocument doc1 = new YTDocument(baseClass);
+    YTEntityImpl doc1 = new YTEntityImpl(baseClass);
     doc1.field("ref", doc);
 
     db.save(doc1);

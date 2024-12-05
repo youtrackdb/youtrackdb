@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHook;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.query.OLiveResultListener;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
@@ -259,6 +259,6 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
   }
 
   @Override
-  public void linkdedBySimpleValue(YTDocument doc) {
+  public void linkdedBySimpleValue(YTEntityImpl doc) {
   }
 }

@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.annotation.ODocumentInstance;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.io.Serializable;
 
 /**
@@ -33,24 +33,24 @@ import java.io.Serializable;
 public class ODocumentWrapper implements Serializable {
 
   @ODocumentInstance
-  private YTDocument document;
+  private YTEntityImpl document;
 
   public ODocumentWrapper() {
   }
 
   public ODocumentWrapper(final String iClassName) {
-    this(new YTDocument(iClassName));
+    this(new YTEntityImpl(iClassName));
   }
 
-  public ODocumentWrapper(final YTDocument iDocument) {
+  public ODocumentWrapper(final YTEntityImpl iDocument) {
     document = iDocument;
   }
 
-  public void fromStream(YTDatabaseSessionInternal session, final YTDocument iDocument) {
+  public void fromStream(YTDatabaseSessionInternal session, final YTEntityImpl iDocument) {
     document = iDocument;
   }
 
-  public YTDocument toStream(YTDatabaseSession session) {
+  public YTEntityImpl toStream(YTDatabaseSession session) {
     return getDocument(session);
   }
 
@@ -64,7 +64,7 @@ public class ODocumentWrapper implements Serializable {
     return (RET) this;
   }
 
-  public YTDocument getDocument(YTDatabaseSession session) {
+  public YTEntityImpl getDocument(YTDatabaseSession session) {
     if (document != null && document.isNotBound(session)) {
       document = session.bindToSession(document);
     }
@@ -72,7 +72,7 @@ public class ODocumentWrapper implements Serializable {
     return document;
   }
 
-  public void setDocument(YTDatabaseSessionInternal session, YTDocument document) {
+  public void setDocument(YTDatabaseSessionInternal session, YTEntityImpl document) {
     if (document != null && document.isNotBound(session)) {
       document = session.bindToSession(document);
     }

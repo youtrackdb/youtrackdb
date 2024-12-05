@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.stream.Stream;
@@ -53,8 +53,8 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
     database.begin();
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 1).save();
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     database.commit();
 
@@ -68,7 +68,7 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 3).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 3).save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
     try (Stream<YTRID> stream = index.getInternal().getRids(database, 3)) {
@@ -98,9 +98,9 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
     database.begin();
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    YTDocument document = new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 1);
+    YTEntityImpl document = new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     database.commit();
 
@@ -145,9 +145,9 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
     database.begin();
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    YTDocument document = new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 1);
+    YTEntityImpl document = new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     database.commit();
 
@@ -189,7 +189,7 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
 
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    YTDocument document = new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 1);
+    YTEntityImpl document = new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
     document.field(PROPERTY_NAME, 0);
     document.field(PROPERTY_NAME, 1);
@@ -216,7 +216,7 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
 
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 1).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
     try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
@@ -225,7 +225,7 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
     database.commit();
 
     try (Stream<YTRID> stream = index.getInternal().getRids(database, 2)) {
@@ -243,7 +243,7 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
 
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    YTDocument document = new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 1);
+    YTEntityImpl document = new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
     document.delete();
 
@@ -269,7 +269,7 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
 
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    YTDocument document = new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 1);
+    YTEntityImpl document = new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
 
     document.removeField(PROPERTY_NAME);

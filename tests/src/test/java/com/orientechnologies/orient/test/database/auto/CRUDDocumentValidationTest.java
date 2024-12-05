@@ -22,7 +22,7 @@ import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTValidationException;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.impl.ODocumentComparator;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -37,8 +37,8 @@ import org.testng.annotations.Test;
 @Test
 public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
 
-  private YTDocument record;
-  private YTDocument account;
+  private YTEntityImpl record;
+  private YTEntityImpl account;
 
   @Parameters(value = "remote")
   public CRUDDocumentValidationTest(@Optional Boolean remote) {
@@ -48,7 +48,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
   @Test
   public void openDb() {
     database.begin();
-    account = new YTDocument("Account");
+    account = new YTEntityImpl("Account");
     account.save();
     account.field("id", "1234567890");
     database.commit();
@@ -122,7 +122,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
       expectedExceptions = YTValidationException.class)
   public void validationStrictClass() throws ParseException {
     database.begin();
-    YTDocument doc = new YTDocument("StrictTest");
+    YTEntityImpl doc = new YTEntityImpl("StrictTest");
     doc.field("id", 122112);
     doc.field("antani", "122112");
     doc.save();
@@ -186,7 +186,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testUpdateDocDefined")
   public void validationMandatoryNullableCloseDb() throws ParseException {
-    YTDocument doc = new YTDocument("MyTestClass");
+    YTEntityImpl doc = new YTEntityImpl("MyTestClass");
     doc.field("keyField", "K2");
     doc.field("dateTimeField", (Date) null);
     doc.field("stringField", (String) null);
@@ -210,7 +210,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "validationMandatoryNullableCloseDb")
   public void validationMandatoryNullableNoCloseDb() throws ParseException {
-    YTDocument doc = new YTDocument("MyTestClass");
+    YTEntityImpl doc = new YTEntityImpl("MyTestClass");
     doc.field("keyField", "K3");
     doc.field("dateTimeField", (Date) null);
     doc.field("stringField", (String) null);
@@ -234,7 +234,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
   public void validationDisabledAdDatabaseLevel() throws ParseException {
     database.getMetadata().reload();
     try {
-      YTDocument doc = new YTDocument("MyTestClass");
+      YTEntityImpl doc = new YTEntityImpl("MyTestClass");
       database.begin();
       doc.save();
       database.commit();
@@ -248,7 +248,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.setValidationEnabled(false);
     try {
 
-      YTDocument doc = new YTDocument("MyTestClass");
+      YTEntityImpl doc = new YTEntityImpl("MyTestClass");
       database.begin();
       doc.save();
       database.commit();
@@ -273,8 +273,8 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
   @Test
   public void testNullComparison() {
     // given
-    YTDocument doc1 = new YTDocument().field("testField", (Object) null);
-    YTDocument doc2 = new YTDocument().field("testField", (Object) null);
+    YTEntityImpl doc1 = new YTEntityImpl().field("testField", (Object) null);
+    YTEntityImpl doc2 = new YTEntityImpl().field("testField", (Object) null);
 
     ODocumentComparator comparator =
         new ODocumentComparator(

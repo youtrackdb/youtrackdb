@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import org.testng.Assert;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -87,21 +87,21 @@ public class SQLCreateLinkTest extends DocumentDBBaseTest {
             .command("INSERT INTO POST2 (id, title) VALUES ( 10, 'NoSQL movement' )")
             .next()
             .toEntity();
-    Assert.assertTrue(p1 instanceof YTDocument);
+    Assert.assertTrue(p1 instanceof YTEntityImpl);
     Object p2 =
         database
             .command("INSERT INTO POST2 (id, title) VALUES ( 20, 'New YouTrackDB' )")
             .next()
             .toEntity();
-    Assert.assertTrue(p2 instanceof YTDocument);
+    Assert.assertTrue(p2 instanceof YTEntityImpl);
 
     Object p3 =
         database.command("INSERT INTO POST2 (id, title) VALUES ( 30, '(')").next().toEntity();
-    Assert.assertTrue(p3 instanceof YTDocument);
+    Assert.assertTrue(p3 instanceof YTEntityImpl);
 
     Object p4 =
         database.command("INSERT INTO POST2 (id, title) VALUES ( 40, ')')").next().toEntity();
-    Assert.assertTrue(p4 instanceof YTDocument);
+    Assert.assertTrue(p4 instanceof YTEntityImpl);
     database.commit();
 
     database.command("CREATE CLASS COMMENT2");
@@ -110,31 +110,31 @@ public class SQLCreateLinkTest extends DocumentDBBaseTest {
     database
         .command(
             "INSERT INTO COMMENT2 (id, postId, text) VALUES ( 0, '"
-                + ((YTDocument) p1).getIdentity().toString()
+                + ((YTEntityImpl) p1).getIdentity().toString()
                 + "', 'First' )")
         .close();
     database
         .command(
             "INSERT INTO COMMENT2 (id, postId, text) VALUES ( 1, '"
-                + ((YTDocument) p1).getIdentity().toString()
+                + ((YTEntityImpl) p1).getIdentity().toString()
                 + "', 'Second' )")
         .close();
     database
         .command(
             "INSERT INTO COMMENT2 (id, postId, text) VALUES ( 21, '"
-                + ((YTDocument) p1).getIdentity().toString()
+                + ((YTEntityImpl) p1).getIdentity().toString()
                 + "', 'Another' )")
         .close();
     database
         .command(
             "INSERT INTO COMMENT2 (id, postId, text) VALUES ( 41, '"
-                + ((YTDocument) p2).getIdentity().toString()
+                + ((YTEntityImpl) p2).getIdentity().toString()
                 + "', 'First again' )")
         .close();
     database
         .command(
             "INSERT INTO COMMENT2 (id, postId, text) VALUES ( 82, '"
-                + ((YTDocument) p2).getIdentity().toString()
+                + ((YTEntityImpl) p2).getIdentity().toString()
                 + "', 'Second Again' )")
         .close();
     database.commit();

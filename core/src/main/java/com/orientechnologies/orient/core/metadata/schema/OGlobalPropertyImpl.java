@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.metadata.schema;
 
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 
 public class OGlobalPropertyImpl implements OGlobalProperty {
 
@@ -49,14 +49,14 @@ public class OGlobalPropertyImpl implements OGlobalProperty {
     return type;
   }
 
-  public void fromDocument(final YTDocument document) {
+  public void fromDocument(final YTEntityImpl document) {
     this.name = document.field("name");
     this.type = YTType.valueOf(document.field("type"));
     this.id = document.field("id");
   }
 
-  public YTDocument toDocument() {
-    final YTDocument doc = new YTDocument();
+  public YTEntityImpl toDocument() {
+    final YTEntityImpl doc = new YTEntityImpl();
     doc.field("name", name);
     doc.field("type", type.name());
     doc.field("id", id);

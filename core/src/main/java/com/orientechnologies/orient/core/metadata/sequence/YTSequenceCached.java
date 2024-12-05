@@ -23,7 +23,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import javax.annotation.Nonnull;
 
 /**
@@ -36,7 +36,7 @@ public class YTSequenceCached extends YTSequence {
   private long cacheEnd;
   private volatile boolean firstCache;
 
-  public YTSequenceCached(final YTDocument document) {
+  public YTSequenceCached(final YTEntityImpl document) {
     super(document);
 
     firstCache = true;
@@ -45,7 +45,7 @@ public class YTSequenceCached extends YTSequence {
 
   public YTSequenceCached(YTSequence.CreateParams params, @Nonnull String name) {
     super(params, name);
-    var document = (YTDocument) docRid.getRecord();
+    var document = (YTEntityImpl) docRid.getRecord();
 
     if (params == null) {
       params = new CreateParams().setDefaults();
@@ -55,7 +55,7 @@ public class YTSequenceCached extends YTSequence {
     var currentParams = params;
     db.executeInTx(
         () -> {
-          YTDocument boundDocument;
+          YTEntityImpl boundDocument;
 
           if (document.isNotBound(db)) {
             boundDocument = db.bindToSession(document);
@@ -76,7 +76,7 @@ public class YTSequenceCached extends YTSequence {
 
   @Override
   boolean updateParams(
-      YTDocument document, YTSequence.CreateParams params, boolean executeViaDistributed)
+      YTEntityImpl document, YTSequence.CreateParams params, boolean executeViaDistributed)
       throws YTDatabaseException {
     boolean any = super.updateParams(document, params, executeViaDistributed);
     if (params.cacheSize != null && this.getCacheSize(document) != params.cacheSize) {
@@ -90,7 +90,7 @@ public class YTSequenceCached extends YTSequence {
   }
 
   private void doRecycle(
-      YTDocument document,
+      YTEntityImpl document,
       long start,
       int cacheSize,
       boolean recyclable,
@@ -126,7 +126,7 @@ public class YTSequenceCached extends YTSequence {
         .checkSecurity(
             ORule.ResourceGeneric.CLASS,
             ORole.PERMISSION_UPDATE,
-            this.docRid.<YTDocument>getRecord().getClassName());
+            this.docRid.<YTEntityImpl>getRecord().getClassName());
   }
 
   @Override
@@ -221,16 +221,16 @@ public class YTSequenceCached extends YTSequence {
     return SEQUENCE_TYPE.CACHED;
   }
 
-  private int getCacheSize(YTDocument document) {
+  private int getCacheSize(YTEntityImpl document) {
     return document.getProperty(FIELD_CACHE);
   }
 
-  public final void setCacheSize(YTDocument document, int cacheSize) {
+  public final void setCacheSize(YTEntityImpl document, int cacheSize) {
     document.setProperty(FIELD_CACHE, cacheSize);
   }
 
   private void allocateCache(
-      YTDocument document, int cacheSize, SequenceOrderType orderType, Long limitValue) {
+      YTEntityImpl document, int cacheSize, SequenceOrderType orderType, Long limitValue) {
     long value = getValue(document);
     long newValue;
     if (orderType == SequenceOrderType.ORDER_POSITIVE) {

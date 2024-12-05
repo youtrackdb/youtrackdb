@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.hook.YTRecordHook;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import org.junit.Test;
 
 /**
@@ -26,11 +26,11 @@ public class HookSaveTest extends DBTestBase {
             if (iType != TYPE.BEFORE_CREATE) {
               return RESULT.RECORD_NOT_CHANGED;
             }
-            YTDocument doc = (YTDocument) iRecord;
+            YTEntityImpl doc = (YTEntityImpl) iRecord;
             if (doc.containsField("test")) {
               return RESULT.RECORD_NOT_CHANGED;
             }
-            YTDocument doc1 = new YTDocument("test");
+            YTEntityImpl doc1 = new YTEntityImpl("test");
             doc1.field("test", "value");
             doc.field("testNewLinkedRecord", doc1);
             return RESULT.RECORD_CHANGED;
@@ -44,10 +44,10 @@ public class HookSaveTest extends DBTestBase {
 
     db.getMetadata().getSchema().createClass("test");
     db.begin();
-    YTDocument doc = db.save(new YTDocument("test"));
+    YTEntityImpl doc = db.save(new YTEntityImpl("test"));
     db.commit();
 
-    YTDocument newRef = db.bindToSession(doc).field("testNewLinkedRecord");
+    YTEntityImpl newRef = db.bindToSession(doc).field("testNewLinkedRecord");
     assertNotNull(newRef);
     assertNotNull(newRef.getIdentity().isPersistent());
   }
@@ -65,11 +65,11 @@ public class HookSaveTest extends DBTestBase {
             if (iType != TYPE.BEFORE_CREATE) {
               return RESULT.RECORD_NOT_CHANGED;
             }
-            YTDocument doc = (YTDocument) iRecord;
+            YTEntityImpl doc = (YTEntityImpl) iRecord;
             if (doc.containsField("test")) {
               return RESULT.RECORD_NOT_CHANGED;
             }
-            YTDocument doc1 = new YTDocument("test");
+            YTEntityImpl doc1 = new YTEntityImpl("test");
             doc1.field("test", "value");
             doc.field("testNewLinkedRecord", doc1);
             doc1.field("backLink", doc);
@@ -84,10 +84,10 @@ public class HookSaveTest extends DBTestBase {
 
     db.getMetadata().getSchema().createClass("test");
     db.begin();
-    YTDocument doc = db.save(new YTDocument("test"));
+    YTEntityImpl doc = db.save(new YTEntityImpl("test"));
     db.commit();
 
-    YTDocument newRef = db.bindToSession(doc).field("testNewLinkedRecord");
+    YTEntityImpl newRef = db.bindToSession(doc).field("testNewLinkedRecord");
     assertNotNull(newRef);
     assertNotNull(newRef.getIdentity().isPersistent());
   }

@@ -9,7 +9,7 @@ import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationReq
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
@@ -62,10 +62,10 @@ public class OCommit38Request implements OBinaryRequest<OCommit37Response> {
             request.setContentChanged(ORecordInternal.isContentChanged(txEntry.record));
             break;
           case ORecordOperation.UPDATED:
-            if (YTDocument.RECORD_TYPE == ORecordInternal.getRecordType(txEntry.record)) {
+            if (YTEntityImpl.RECORD_TYPE == ORecordInternal.getRecordType(txEntry.record)) {
               request.setRecordType(ODocumentSerializerDelta.DELTA_RECORD_TYPE);
               ODocumentSerializerDelta delta = ODocumentSerializerDelta.instance();
-              request.setRecord(delta.serializeDelta((YTDocument) txEntry.record));
+              request.setRecord(delta.serializeDelta((YTEntityImpl) txEntry.record));
               request.setContentChanged(ORecordInternal.isContentChanged(txEntry.record));
             } else {
               request.setRecordType(ORecordInternal.getRecordType(txEntry.record));

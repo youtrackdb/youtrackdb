@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.collate.ODefaultCollate;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -119,13 +119,13 @@ public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
   }
 
   @Override
-  public @Nonnull YTDocument toStream(@Nonnull YTDocument document) {
+  public @Nonnull YTEntityImpl toStream(@Nonnull YTEntityImpl document) {
     serializeToStream(document);
     return document;
   }
 
   @Override
-  protected void serializeToStream(YTDocument document) {
+  protected void serializeToStream(YTEntityImpl document) {
     super.serializeToStream(document);
 
     final List<String> keyTypeNames = new ArrayList<>(keyTypes.length);
@@ -149,12 +149,12 @@ public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
   }
 
   @Override
-  public void fromStream(@Nonnull YTDocument document) {
+  public void fromStream(@Nonnull YTEntityImpl document) {
     serializeFromStream(document);
   }
 
   @Override
-  protected void serializeFromStream(YTDocument document) {
+  protected void serializeFromStream(YTEntityImpl document) {
     super.serializeFromStream(document);
 
     final List<String> keyTypeNames = document.field("keyTypes");
@@ -183,7 +183,7 @@ public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
   }
 
   public Object getDocumentValueToIndex(
-      YTDatabaseSessionInternal session, final YTDocument iDocument) {
+      YTDatabaseSessionInternal session, final YTEntityImpl iDocument) {
     throw new YTIndexException("This method is not supported in given index definition.");
   }
 

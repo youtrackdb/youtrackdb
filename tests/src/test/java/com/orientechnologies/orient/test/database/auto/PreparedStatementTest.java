@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
@@ -48,16 +48,16 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
 
   @Test
   public void testUnnamedParamTarget() {
-    Iterable<YTDocument> result =
+    Iterable<YTEntityImpl> result =
         database
-            .command(new OSQLSynchQuery<YTDocument>("select from ?"))
+            .command(new OSQLSynchQuery<YTEntityImpl>("select from ?"))
             .execute(database, "PreparedStatementTest1");
 
     Set<String> expected = new HashSet<String>();
     expected.add("foo1");
     expected.add("foo2");
     boolean found = false;
-    for (YTDocument doc : result) {
+    for (YTEntityImpl doc : result) {
       found = true;
       Assert.assertTrue(expected.contains(doc.field("name")));
     }
@@ -68,15 +68,15 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
   public void testNamedParamTarget() {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("className", "PreparedStatementTest1");
-    Iterable<YTDocument> result =
-        database.command(new OSQLSynchQuery<YTDocument>("select from :className"))
+    Iterable<YTEntityImpl> result =
+        database.command(new OSQLSynchQuery<YTEntityImpl>("select from :className"))
             .execute(database, params);
 
     Set<String> expected = new HashSet<String>();
     expected.add("foo1");
     expected.add("foo2");
     boolean found = false;
-    for (YTDocument doc : result) {
+    for (YTEntityImpl doc : result) {
       found = true;
       Assert.assertTrue(expected.contains(doc.field("name")));
     }
@@ -86,21 +86,21 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
   @Test
   public void testNamedParamTargetRid() {
 
-    Iterable<YTDocument> result =
+    Iterable<YTEntityImpl> result =
         database
-            .command(new OSQLSynchQuery<YTDocument>("select from PreparedStatementTest1 limit 1"))
+            .command(new OSQLSynchQuery<YTEntityImpl>("select from PreparedStatementTest1 limit 1"))
             .execute(database);
 
-    YTDocument record = result.iterator().next();
+    YTEntityImpl record = result.iterator().next();
 
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("inputRid", record.getIdentity());
     result =
-        database.command(new OSQLSynchQuery<YTDocument>("select from :inputRid"))
+        database.command(new OSQLSynchQuery<YTEntityImpl>("select from :inputRid"))
             .execute(database, params);
 
     boolean found = false;
-    for (YTDocument doc : result) {
+    for (YTEntityImpl doc : result) {
       found = true;
       Assert.assertEquals(doc.getIdentity(), record.getIdentity());
       Assert.assertEquals(doc.<Object>field("name"), record.field("name"));
@@ -111,19 +111,19 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
   @Test
   public void testUnnamedParamTargetRid() {
 
-    Iterable<YTDocument> result =
+    Iterable<YTEntityImpl> result =
         database
-            .command(new OSQLSynchQuery<YTDocument>("select from PreparedStatementTest1 limit 1"))
+            .command(new OSQLSynchQuery<YTEntityImpl>("select from PreparedStatementTest1 limit 1"))
             .execute(database);
 
-    YTDocument record = result.iterator().next();
+    YTEntityImpl record = result.iterator().next();
     result =
         database
-            .command(new OSQLSynchQuery<YTDocument>("select from ?"))
+            .command(new OSQLSynchQuery<YTEntityImpl>("select from ?"))
             .execute(database, record.getIdentity());
 
     boolean found = false;
-    for (YTDocument doc : result) {
+    for (YTEntityImpl doc : result) {
       found = true;
       Assert.assertEquals(doc.getIdentity(), record.getIdentity());
       Assert.assertEquals(doc.<Object>field("name"), record.field("name"));
@@ -134,21 +134,21 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
   @Test
   public void testNamedParamTargetDocument() {
 
-    Iterable<YTDocument> result =
+    Iterable<YTEntityImpl> result =
         database
-            .command(new OSQLSynchQuery<YTDocument>("select from PreparedStatementTest1 limit 1"))
+            .command(new OSQLSynchQuery<YTEntityImpl>("select from PreparedStatementTest1 limit 1"))
             .execute(database);
 
-    YTDocument record = result.iterator().next();
+    YTEntityImpl record = result.iterator().next();
 
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("inputRid", record);
     result =
-        database.command(new OSQLSynchQuery<YTDocument>("select from :inputRid"))
+        database.command(new OSQLSynchQuery<YTEntityImpl>("select from :inputRid"))
             .execute(database, params);
 
     boolean found = false;
-    for (YTDocument doc : result) {
+    for (YTEntityImpl doc : result) {
       found = true;
       Assert.assertEquals(doc.getIdentity(), record.getIdentity());
       Assert.assertEquals(doc.<Object>field("name"), record.field("name"));
@@ -159,17 +159,17 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
   @Test
   public void testUnnamedParamTargetDocument() {
 
-    Iterable<YTDocument> result =
+    Iterable<YTEntityImpl> result =
         database
-            .command(new OSQLSynchQuery<YTDocument>("select from PreparedStatementTest1 limit 1"))
+            .command(new OSQLSynchQuery<YTEntityImpl>("select from PreparedStatementTest1 limit 1"))
             .execute(database);
 
-    YTDocument record = result.iterator().next();
-    result = database.command(new OSQLSynchQuery<YTDocument>("select from ?"))
+    YTEntityImpl record = result.iterator().next();
+    result = database.command(new OSQLSynchQuery<YTEntityImpl>("select from ?"))
         .execute(database, record);
 
     boolean found = false;
-    for (YTDocument doc : result) {
+    for (YTEntityImpl doc : result) {
       found = true;
       Assert.assertEquals(doc.getIdentity(), record.getIdentity());
       Assert.assertEquals(doc.<Object>field("name"), record.field("name"));
@@ -209,15 +209,15 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
 
   @Test
   public void testUnnamedParamInArray() {
-    Iterable<YTDocument> result =
+    Iterable<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select from PreparedStatementTest1 where name in [?]"))
             .execute(database, "foo1");
 
     boolean found = false;
-    for (YTDocument doc : result) {
+    for (YTEntityImpl doc : result) {
       found = true;
       Assert.assertEquals(doc.field("name"), "foo1");
     }
@@ -228,15 +228,15 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
   public void testNamedParamInArray() {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "foo1");
-    Iterable<YTDocument> result =
+    Iterable<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select from PreparedStatementTest1 where name in [:name]"))
             .execute(database, params);
 
     boolean found = false;
-    for (YTDocument doc : result) {
+    for (YTEntityImpl doc : result) {
       found = true;
       Assert.assertEquals(doc.field("name"), "foo1");
     }
@@ -245,15 +245,15 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
 
   @Test
   public void testUnnamedParamInArray2() {
-    Iterable<YTDocument> result =
+    Iterable<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select from PreparedStatementTest1 where name in [?, 'antani']"))
             .execute(database, "foo1");
 
     boolean found = false;
-    for (YTDocument doc : result) {
+    for (YTEntityImpl doc : result) {
       found = true;
       Assert.assertEquals(doc.field("name"), "foo1");
     }
@@ -264,15 +264,15 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
   public void testNamedParamInArray2() {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "foo1");
-    Iterable<YTDocument> result =
+    Iterable<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select from PreparedStatementTest1 where name in [:name, 'antani']"))
             .execute(database, params);
 
     boolean found = false;
-    for (YTDocument doc : result) {
+    for (YTEntityImpl doc : result) {
       found = true;
       Assert.assertEquals(doc.field("name"), "foo1");
     }
@@ -335,9 +335,9 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
   public void testSqlInjectionOnTarget() {
 
     try {
-      Iterable<YTDocument> result =
+      Iterable<YTEntityImpl> result =
           database
-              .command(new OSQLSynchQuery<YTDocument>("select from ?"))
+              .command(new OSQLSynchQuery<YTEntityImpl>("select from ?"))
               .execute(database, "PreparedStatementTest1 where name = 'foo'");
       Assert.fail();
     } catch (Exception e) {

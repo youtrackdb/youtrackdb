@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.metadata.security;
 
-public class OPropertyEncryptionNone implements OPropertyEncryption {
+public class PropertyEncryptionNone implements PropertyEncryption {
 
-  private static final OPropertyEncryptionNone inst = new OPropertyEncryptionNone();
+  private static final PropertyEncryptionNone inst = new PropertyEncryptionNone();
 
-  public static OPropertyEncryption instance() {
+  public static PropertyEncryption instance() {
     return inst;
   }
 

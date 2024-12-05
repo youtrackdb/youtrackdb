@@ -17,7 +17,7 @@ import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -84,7 +84,7 @@ public class OCreateIndexStatement extends ODDLStatement {
     List<OCollate> collatesList = calculateCollates(ctx);
     String engine =
         this.engine == null ? null : this.engine.getStringValue().toUpperCase(Locale.ENGLISH);
-    YTDocument metadataDoc = calculateMetadata(ctx);
+    YTEntityImpl metadataDoc = calculateMetadata(ctx);
 
     if (propertyList == null || propertyList.size() == 0) {
       OIndexFactory factory = OIndexes.getFactory(type.getStringValue(), engine);
@@ -171,7 +171,7 @@ public class OCreateIndexStatement extends ODDLStatement {
       String engine,
       YTDatabaseSessionInternal database,
       List<OCollate> collatesList,
-      YTDocument metadataDoc) {
+      YTEntityImpl metadataDoc) {
     OIndex idx;
     if ((keyTypes == null || keyTypes.size() == 0) && collatesList == null) {
 
@@ -261,7 +261,7 @@ public class OCreateIndexStatement extends ODDLStatement {
   /**
    * returns index metadata as an ODocuemnt (as expected by Index API)
    */
-  private YTDocument calculateMetadata(OCommandContext ctx) {
+  private YTEntityImpl calculateMetadata(OCommandContext ctx) {
     if (metadata == null) {
       return null;
     }

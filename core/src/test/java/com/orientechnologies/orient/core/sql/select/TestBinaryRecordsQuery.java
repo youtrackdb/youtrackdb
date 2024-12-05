@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Assert;
@@ -72,7 +72,7 @@ public class TestBinaryRecordsQuery extends DBTestBase {
     db.getMetadata().getSchema().createClass("RecordPointer");
 
     db.begin();
-    YTDocument doc = new YTDocument("RecordPointer");
+    YTEntityImpl doc = new YTEntityImpl("RecordPointer");
     doc.field("ref", db.bindToSession(rec));
     db.save(doc);
     db.commit();
@@ -101,13 +101,13 @@ public class TestBinaryRecordsQuery extends DBTestBase {
     db.getMetadata().getSchema().createClass("RecordPointer");
 
     db.begin();
-    YTDocument doc = new YTDocument("RecordPointer");
+    YTEntityImpl doc = new YTEntityImpl("RecordPointer");
     doc.field("ref", db.bindToSession(rec));
     db.save(doc);
     db.commit();
 
     db.begin();
-    YTDocument doc1 = new YTDocument("RecordPointer");
+    YTEntityImpl doc1 = new YTEntityImpl("RecordPointer");
     doc1.field("ref", db.bindToSession(rec1));
     db.save(doc1);
     db.commit();

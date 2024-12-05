@@ -7,7 +7,7 @@ import static org.junit.Assert.assertFalse;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -132,7 +132,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className2);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className1);
+      YTEntityImpl doc = db.newInstance(className1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -182,7 +182,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className2);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className1);
+      YTEntityImpl doc = db.newInstance(className1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();

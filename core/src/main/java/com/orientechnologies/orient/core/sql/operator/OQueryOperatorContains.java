@@ -31,8 +31,8 @@ import com.orientechnologies.orient.core.index.OIndexDefinitionMultiValue;
 import com.orientechnologies.orient.core.index.OIndexInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemField;
 import java.util.Iterator;
@@ -85,7 +85,7 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
             } else
             // TRANSFORM THE ENTIRE MAP IN A DOCUMENT. PROBABLY HAS BEEN IMPORTED FROM JSON
             {
-              id = new YTDocument((Map) o);
+              id = new YTEntityImpl((Map) o);
             }
 
           } else if (o instanceof Iterable<?>) {
@@ -110,9 +110,9 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
               ((OSQLFilterItemField) iCondition.getLeft()).getFieldChain().getItemName(0);
           if (fieldName != null) {
             Object record = iRecord.getRecord();
-            if (record instanceof YTDocument) {
+            if (record instanceof YTEntityImpl) {
               YTProperty property =
-                  ODocumentInternal.getImmutableSchemaClass(((YTDocument) record))
+                  ODocumentInternal.getImmutableSchemaClass(((YTEntityImpl) record))
                       .getProperty(fieldName);
               if (property != null && property.getType().isMultiValue()) {
                 type = property.getLinkedType();

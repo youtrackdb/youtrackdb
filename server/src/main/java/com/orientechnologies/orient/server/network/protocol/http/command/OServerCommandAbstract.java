@@ -19,14 +19,14 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command;
 
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
-import com.orientechnologies.orient.server.network.protocol.http.YTHttpRequestException;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponseAbstract;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
+import com.orientechnologies.orient.server.network.protocol.http.YTHttpRequestException;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -99,12 +99,12 @@ public abstract class OServerCommandAbstract implements OServerCommand {
       final Object iContent,
       final String iHeaders)
       throws IOException {
-    YTDocument response = new YTDocument();
-    YTDocument error = new YTDocument();
+    YTEntityImpl response = new YTEntityImpl();
+    YTEntityImpl error = new YTEntityImpl();
     error.field("code", iCode);
     error.field("reason", iReason);
     error.field("content", iContent);
-    List<YTDocument> errors = new ArrayList<YTDocument>();
+    List<YTEntityImpl> errors = new ArrayList<YTEntityImpl>();
     errors.add(error);
     response.field("errors", errors);
     iResponse.send(

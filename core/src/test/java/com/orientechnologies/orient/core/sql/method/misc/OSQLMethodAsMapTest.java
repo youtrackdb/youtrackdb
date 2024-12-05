@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.method.misc;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.junit.Before;
@@ -42,8 +42,8 @@ public class OSQLMethodAsMapTest {
 
   public void testODocument() {
     // The expected behavior is to return a map that has the field names mapped
-    // to the field values of the YTDocument.
-    YTDocument doc = new YTDocument();
+    // to the field values of the YTEntityImpl.
+    YTEntityImpl doc = new YTEntityImpl();
     doc.field("f1", 1);
     doc.field("f2", 2);
 

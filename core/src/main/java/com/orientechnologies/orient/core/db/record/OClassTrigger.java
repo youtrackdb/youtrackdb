@@ -32,7 +32,7 @@ import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import java.lang.reflect.Method;
 import javax.script.Bindings;
@@ -73,7 +73,7 @@ public class OClassTrigger {
   public static final String PROP_AFTER_DELETE = ONAFTER_DELETE;
 
   public static YTRecordHook.RESULT onRecordBeforeCreate(
-      final YTDocument iDocument, YTDatabaseSessionInternal database) {
+      final YTEntityImpl iDocument, YTDatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONBEFORE_CREATED, database);
     if (func != null) {
       if (func instanceof OFunction) {
@@ -86,7 +86,7 @@ public class OClassTrigger {
   }
 
   public static void onRecordAfterCreate(
-      final YTDocument iDocument, YTDatabaseSessionInternal database) {
+      final YTEntityImpl iDocument, YTDatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONAFTER_CREATED, database);
     if (func != null) {
       if (func instanceof OFunction) {
@@ -98,7 +98,7 @@ public class OClassTrigger {
   }
 
   public static YTRecordHook.RESULT onRecordBeforeRead(
-      final YTDocument iDocument, YTDatabaseSessionInternal database) {
+      final YTEntityImpl iDocument, YTDatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONBEFORE_READ, database);
     if (func != null) {
       if (func instanceof OFunction) {
@@ -111,7 +111,7 @@ public class OClassTrigger {
   }
 
   public static void onRecordAfterRead(
-      final YTDocument iDocument, YTDatabaseSessionInternal database) {
+      final YTEntityImpl iDocument, YTDatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONAFTER_READ, database);
     if (func != null) {
       if (func instanceof OFunction) {
@@ -123,7 +123,7 @@ public class OClassTrigger {
   }
 
   public static YTRecordHook.RESULT onRecordBeforeUpdate(
-      final YTDocument iDocument, YTDatabaseSessionInternal database) {
+      final YTEntityImpl iDocument, YTDatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONBEFORE_UPDATED, database);
     if (func != null) {
       if (func instanceof OFunction) {
@@ -136,7 +136,7 @@ public class OClassTrigger {
   }
 
   public static void onRecordAfterUpdate(
-      final YTDocument iDocument, YTDatabaseSessionInternal database) {
+      final YTEntityImpl iDocument, YTDatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONAFTER_UPDATED, database);
     if (func != null) {
       if (func instanceof OFunction) {
@@ -148,7 +148,7 @@ public class OClassTrigger {
   }
 
   public static YTRecordHook.RESULT onRecordBeforeDelete(
-      final YTDocument iDocument, YTDatabaseSessionInternal database) {
+      final YTEntityImpl iDocument, YTDatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONBEFORE_DELETE, database);
     if (func != null) {
       if (func instanceof OFunction) {
@@ -161,7 +161,7 @@ public class OClassTrigger {
   }
 
   public static void onRecordAfterDelete(
-      final YTDocument iDocument, YTDatabaseSessionInternal database) {
+      final YTEntityImpl iDocument, YTDatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONAFTER_DELETE, database);
     if (func != null) {
       if (func instanceof OFunction) {
@@ -173,7 +173,7 @@ public class OClassTrigger {
   }
 
   private static Object checkClzAttribute(
-      final YTDocument iDocument, String attr, YTDatabaseSessionInternal database) {
+      final YTEntityImpl iDocument, String attr, YTDatabaseSessionInternal database) {
     final YTImmutableClass clz = ODocumentInternal.getImmutableSchemaClass(database, iDocument);
     if (clz != null && clz.isTriggered()) {
       OFunction func = null;
@@ -197,7 +197,7 @@ public class OClassTrigger {
           if (OStringSerializerHelper.contains(fieldName, YTRID.SEPARATOR)) {
             try {
               try {
-                YTDocument funcDoc = database.load(new YTRecordId(fieldName));
+                YTEntityImpl funcDoc = database.load(new YTRecordId(fieldName));
                 func =
                     database.getMetadata().getFunctionLibrary().getFunction(funcDoc.field("name"));
               } catch (YTRecordNotFoundException rnf) {
@@ -212,8 +212,8 @@ public class OClassTrigger {
         final Object funcProp = iDocument.field(attr);
         if (funcProp != null) {
           final String funcName;
-          if (funcProp instanceof YTDocument) {
-            funcName = ((YTDocument) funcProp).field("name");
+          if (funcProp instanceof YTEntityImpl) {
+            funcName = ((YTEntityImpl) funcProp).field("name");
           } else {
             funcName = funcProp.toString();
           }
@@ -237,7 +237,7 @@ public class OClassTrigger {
     }
     try {
       Class clz = ClassLoader.getSystemClassLoader().loadClass(clzName);
-      Method method = clz.getMethod(methodName, YTDocument.class);
+      Method method = clz.getMethod(methodName, YTEntityImpl.class);
       return new Object[]{clz, method};
     } catch (Exception ex) {
       OLogManager.instance()
@@ -248,7 +248,7 @@ public class OClassTrigger {
   }
 
   private static YTRecordHook.RESULT executeMethod(
-      final YTDocument iDocument, final Object[] clzMethod) {
+      final YTEntityImpl iDocument, final Object[] clzMethod) {
     if (clzMethod[0] instanceof Class clz && clzMethod[1] instanceof Method method) {
       String result = null;
       try {
@@ -266,7 +266,7 @@ public class OClassTrigger {
   }
 
   private static YTRecordHook.RESULT executeFunction(
-      final YTDocument iDocument, final OFunction func, YTDatabaseSessionInternal database) {
+      final YTEntityImpl iDocument, final OFunction func, YTDatabaseSessionInternal database) {
     if (func == null) {
       return YTRecordHook.RESULT.RECORD_NOT_CHANGED;
     }

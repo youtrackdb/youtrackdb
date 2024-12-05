@@ -22,7 +22,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command.post;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -85,7 +85,7 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
 
     iRequest.getData().commandInfo = "Execute multiple requests in one shot";
 
-    YTDocument batch = null;
+    YTEntityImpl batch = null;
     Object lastResult = null;
     try (YTDatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
 
@@ -100,7 +100,7 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
         db.rollback(true);
       }
 
-      batch = new YTDocument();
+      batch = new YTEntityImpl();
       batch.fromJSON(iRequest.getContent());
 
       Boolean tx = batch.field("transaction");
@@ -132,17 +132,17 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
 
         if (type.equals("c")) {
           // CREATE
-          final YTDocument doc = getRecord(operation);
+          final YTEntityImpl doc = getRecord(operation);
           doc.save();
           lastResult = doc;
         } else if (type.equals("u")) {
           // UPDATE
-          final YTDocument doc = getRecord(operation);
+          final YTEntityImpl doc = getRecord(operation);
           doc.save();
           lastResult = doc;
         } else if (type.equals("d")) {
           // DELETE
-          final YTDocument doc = getRecord(operation);
+          final YTEntityImpl doc = getRecord(operation);
           db.delete(doc.getIdentity());
           lastResult = doc.getIdentity();
         } else if (type.equals("cmd")) {
@@ -253,16 +253,16 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
     return false;
   }
 
-  public YTDocument getRecord(Map<Object, Object> operation) {
+  public YTEntityImpl getRecord(Map<Object, Object> operation) {
     Object record = operation.get("record");
 
-    YTDocument doc;
+    YTEntityImpl doc;
     if (record instanceof Map<?, ?>)
     // CONVERT MAP IN DOCUMENT
     {
-      doc = new YTDocument((Map<String, Object>) record);
+      doc = new YTEntityImpl((Map<String, Object>) record);
     } else {
-      doc = (YTDocument) record;
+      doc = (YTEntityImpl) record;
     }
     return doc;
   }

@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
+import com.orientechnologies.orient.core.db.record.RecordElement;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
@@ -82,7 +82,7 @@ public class YTRecordBytes extends YTRecordAbstract implements YTBlob {
     checkForBinding();
 
     source = iRecordBuffer;
-    status = ORecordElement.STATUS.LOADED;
+    status = RecordElement.STATUS.LOADED;
 
     return this;
   }

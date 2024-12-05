@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTQueryParsingException;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHook;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Locale;
 import java.util.Map;
 
@@ -48,7 +48,7 @@ public class OCommandExecutorSQLLiveUnsubscribe extends OCommandExecutorSQLAbstr
     try {
 
       OLiveQueryHook.unsubscribe(Integer.parseInt(unsubscribeToken), getDatabase());
-      YTDocument result = new YTDocument();
+      YTEntityImpl result = new YTEntityImpl();
       result.field("unsubscribed", unsubscribeToken);
       result.field("unsubscribe", true);
       result.field("token", unsubscribeToken);
@@ -64,7 +64,7 @@ public class OCommandExecutorSQLLiveUnsubscribe extends OCommandExecutorSQLAbstr
                   + e.getClass().getName()
                   + " - "
                   + e.getMessage());
-      YTDocument result = new YTDocument();
+      YTEntityImpl result = new YTEntityImpl();
       result.field("error-unsubscribe", unsubscribeToken);
       result.field("error-description", e.getMessage());
       result.field("error-type", e.getClass().getName());
@@ -84,7 +84,7 @@ public class OCommandExecutorSQLLiveUnsubscribe extends OCommandExecutorSQLAbstr
     if (this.unsubscribeToken != null) {
       return executeUnsubscribe();
     }
-    YTDocument result = new YTDocument();
+    YTEntityImpl result = new YTEntityImpl();
     result.field("error-unsubscribe", "no token");
     return result;
   }

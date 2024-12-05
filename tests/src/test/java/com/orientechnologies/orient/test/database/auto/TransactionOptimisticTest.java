@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 import com.orientechnologies.orient.core.tx.YTRollbackException;
 import java.io.IOException;
@@ -225,7 +225,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     database.begin();
     for (int g = 0; g < 1000; g++) {
-      YTDocument doc = new YTDocument("Account");
+      YTEntityImpl doc = new YTEntityImpl("Account");
       doc.fromJSON(json);
       doc.field("nr", g);
 
@@ -248,15 +248,17 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    YTDocument kim = new YTDocument("Profile").field("name", "Kim").field("surname", "Bauer");
-    YTDocument teri = new YTDocument("Profile").field("name", "Teri").field("surname", "Bauer");
-    YTDocument jack = new YTDocument("Profile").field("name", "Jack").field("surname", "Bauer");
+    YTEntityImpl kim = new YTEntityImpl("Profile").field("name", "Kim").field("surname", "Bauer");
+    YTEntityImpl teri = new YTEntityImpl("Profile").field("name", "Teri").field("surname", "Bauer");
+    YTEntityImpl jack = new YTEntityImpl("Profile").field("name", "Jack").field("surname", "Bauer");
 
-    ((HashSet<YTDocument>) jack.field("following", new HashSet<YTDocument>()).field("following"))
+    ((HashSet<YTEntityImpl>) jack.field("following", new HashSet<YTEntityImpl>())
+        .field("following"))
         .add(kim);
-    ((HashSet<YTDocument>) kim.field("following", new HashSet<YTDocument>()).field("following"))
+    ((HashSet<YTEntityImpl>) kim.field("following", new HashSet<YTEntityImpl>()).field("following"))
         .add(teri);
-    ((HashSet<YTDocument>) teri.field("following", new HashSet<YTDocument>()).field("following"))
+    ((HashSet<YTEntityImpl>) teri.field("following", new HashSet<YTEntityImpl>())
+        .field("following"))
         .add(jack);
 
     jack.save();
@@ -266,7 +268,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
     database.close();
     database = acquireSession();
 
-    YTDocument loadedJack = database.load(jack.getIdentity());
+    YTEntityImpl loadedJack = database.load(jack.getIdentity());
     Assert.assertEquals(loadedJack.field("name"), "Jack");
     Collection<YTIdentifiable> jackFollowings = loadedJack.field("following");
     Assert.assertNotNull(jackFollowings);
@@ -314,7 +316,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final YTDocument externalDocOne = new YTDocument("NestedTxClass");
+    final YTEntityImpl externalDocOne = new YTEntityImpl("NestedTxClass");
     externalDocOne.field("v", "val1");
     externalDocOne.save();
 
@@ -323,7 +325,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final YTDocument externalDocTwo = new YTDocument("NestedTxClass");
+    final YTEntityImpl externalDocTwo = new YTEntityImpl("NestedTxClass");
     externalDocTwo.field("v", "val2");
     externalDocTwo.save();
 
@@ -335,7 +337,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
     assertFuture = executorService.submit(assertEmptyRecord);
     assertFuture.get();
 
-    final YTDocument externalDocThree = new YTDocument("NestedTxClass");
+    final YTEntityImpl externalDocThree = new YTEntityImpl("NestedTxClass");
     externalDocThree.field("v", "val3");
     externalDocThree.save();
 
@@ -368,14 +370,14 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       schema.createClass("NestedTxRollbackOne");
     }
 
-    YTDocument brokenDocOne = new YTDocument("NestedTxRollbackOne");
+    YTEntityImpl brokenDocOne = new YTEntityImpl("NestedTxRollbackOne");
     database.begin();
     brokenDocOne.save();
     database.commit();
     try {
       database.begin();
 
-      final YTDocument externalDocOne = new YTDocument("NestedTxRollbackOne");
+      final YTEntityImpl externalDocOne = new YTEntityImpl("NestedTxRollbackOne");
       externalDocOne.field("v", "val1");
       externalDocOne.save();
 
@@ -383,7 +385,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       assertFuture.get();
 
       database.begin();
-      YTDocument externalDocTwo = new YTDocument("NestedTxRollbackOne");
+      YTEntityImpl externalDocTwo = new YTEntityImpl("NestedTxRollbackOne");
       externalDocTwo.field("v", "val2");
       externalDocTwo.save();
 
@@ -399,7 +401,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       assertFuture = executorService.submit(assertEmptyRecord);
       assertFuture.get();
 
-      final YTDocument externalDocThree = new YTDocument("NestedTxRollbackOne");
+      final YTEntityImpl externalDocThree = new YTEntityImpl("NestedTxRollbackOne");
       externalDocThree.field("v", "val3");
 
       database.begin();
@@ -412,7 +414,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
               () -> {
                 try (YTDatabaseSessionInternal db = acquireSession()) {
                   db.executeInTx(() -> {
-                    YTDocument brokenDocTwo = db.load(brokenRid);
+                    YTEntityImpl brokenDocTwo = db.load(brokenRid);
                     brokenDocTwo.field("v", "vstr");
 
                     brokenDocTwo.save();
@@ -438,13 +440,13 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     database.begin();
     try {
-      final YTDocument externalDocOne = new YTDocument("NestedTxRollbackTwo");
+      final YTEntityImpl externalDocOne = new YTEntityImpl("NestedTxRollbackTwo");
       externalDocOne.field("v", "val1");
       externalDocOne.save();
 
       database.begin();
 
-      final YTDocument externalDocTwo = new YTDocument("NestedTxRollbackTwo");
+      final YTEntityImpl externalDocTwo = new YTEntityImpl("NestedTxRollbackTwo");
       externalDocTwo.field("v", "val2");
       externalDocTwo.save();
 

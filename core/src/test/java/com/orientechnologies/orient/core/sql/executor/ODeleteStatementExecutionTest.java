@@ -6,7 +6,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -21,7 +21,7 @@ public class ODeleteStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -60,7 +60,7 @@ public class ODeleteStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className, v);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -85,7 +85,7 @@ public class ODeleteStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className, v);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -123,7 +123,7 @@ public class ODeleteStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       if (i == 4) {
         fourthId = doc.getIdentity();
@@ -163,7 +163,7 @@ public class ODeleteStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();

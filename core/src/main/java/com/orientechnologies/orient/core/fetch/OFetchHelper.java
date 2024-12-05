@@ -23,7 +23,7 @@ import com.orientechnologies.common.collection.OMultiCollectionIterator;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.fetch.json.OJSONFetchContext;
 import com.orientechnologies.orient.core.id.YTRID;
@@ -31,7 +31,7 @@ import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerJSON;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -72,7 +72,7 @@ public class OFetchHelper {
       final OFetchContext context,
       final String format) {
     try {
-      if (rootRecord instanceof YTDocument record) {
+      if (rootRecord instanceof YTEntityImpl record) {
         // SCHEMA AWARE
         final Object2IntOpenHashMap<YTRID> parsedRecords = new Object2IntOpenHashMap<>();
         parsedRecords.defaultReturnValue(-1);
@@ -121,7 +121,7 @@ public class OFetchHelper {
   }
 
   public static void processRecordRidMap(
-      final YTDocument record,
+      final YTEntityImpl record,
       final OFetchPlan iFetchPlan,
       final int iCurrentLevel,
       final int iLevelFromRoot,
@@ -217,7 +217,7 @@ public class OFetchHelper {
     if (fieldValue == null) {
       //noinspection UnnecessaryReturnStatement
       return;
-    } else if (fieldValue instanceof YTDocument) {
+    } else if (fieldValue instanceof YTEntityImpl) {
       fetchDocumentRidMap(
           iFetchPlan,
           fieldValue,
@@ -271,7 +271,7 @@ public class OFetchHelper {
       final OFetchContext iContext) {
     updateRidMap(
         iFetchPlan,
-        (YTDocument) fieldValue,
+        (YTEntityImpl) fieldValue,
         iCurrentLevel,
         iLevelFromRoot,
         iFieldDepthLevel,
@@ -298,7 +298,7 @@ public class OFetchHelper {
 
         updateRidMap(
             iFetchPlan,
-            (YTDocument) d,
+            (YTEntityImpl) d,
             iCurrentLevel,
             iLevelFromRoot,
             iFieldDepthLevel,
@@ -318,8 +318,8 @@ public class OFetchHelper {
       final Object2IntOpenHashMap<YTRID> parsedRecords,
       final String iFieldPathFromRoot,
       final OFetchContext iContext) {
-    if (fieldValue instanceof YTDocument[] linked) {
-      for (YTDocument d : linked)
+    if (fieldValue instanceof YTEntityImpl[] linked) {
+      for (YTEntityImpl d : linked)
       // GO RECURSIVELY
       {
         updateRidMap(
@@ -345,8 +345,8 @@ public class OFetchHelper {
       final Object2IntOpenHashMap<YTRID> parsedRecords,
       final String iFieldPathFromRoot,
       final OFetchContext iContext) {
-    final Map<String, YTDocument> linked = (Map<String, YTDocument>) fieldValue;
-    for (YTDocument d : (linked).values())
+    final Map<String, YTEntityImpl> linked = (Map<String, YTEntityImpl>) fieldValue;
+    for (YTEntityImpl d : (linked).values())
     // GO RECURSIVELY
     {
       updateRidMap(
@@ -363,7 +363,7 @@ public class OFetchHelper {
 
   private static void updateRidMap(
       final OFetchPlan iFetchPlan,
-      final YTDocument fieldValue,
+      final YTEntityImpl fieldValue,
       final int iCurrentLevel,
       final int iLevelFromRoot,
       final int iFieldDepthLevel,
@@ -402,7 +402,7 @@ public class OFetchHelper {
   }
 
   private static void processRecord(
-      final YTDocument record,
+      final YTEntityImpl record,
       final Object userObject,
       final OFetchPlan fetchPlan,
       final int currentLevel,
@@ -468,7 +468,7 @@ public class OFetchHelper {
   }
 
   private static void processFieldTypes(
-      YTDocument record,
+      YTEntityImpl record,
       Object userObject,
       OFetchPlan fetchPlan,
       int currentLevel,
@@ -519,7 +519,7 @@ public class OFetchHelper {
   }
 
   private static void process(
-      final YTDocument record,
+      final YTEntityImpl record,
       final Object userObject,
       final OFetchPlan fetchPlan,
       final int currentLevel,
@@ -621,12 +621,12 @@ public class OFetchHelper {
 
   public static boolean isEmbedded(Object fieldValue) {
     boolean isEmbedded =
-        fieldValue instanceof YTDocument
-            && (((YTDocument) fieldValue).isEmbedded()
-            || !((YTDocument) fieldValue).getIdentity().isPersistent());
+        fieldValue instanceof YTEntityImpl
+            && (((YTEntityImpl) fieldValue).isEmbedded()
+            || !((YTEntityImpl) fieldValue).getIdentity().isPersistent());
 
     // ridbag can contain only edges no embedded documents are allowed.
-    if (fieldValue instanceof ORidBag) {
+    if (fieldValue instanceof RidBag) {
       return false;
     }
     if (!isEmbedded) {
@@ -634,9 +634,9 @@ public class OFetchHelper {
         final Object f = OMultiValue.getFirstValue(fieldValue);
         isEmbedded =
             f != null
-                && (f instanceof YTDocument
-                && (((YTDocument) f).isEmbedded()
-                || !((YTDocument) f).getIdentity().isPersistent()));
+                && (f instanceof YTEntityImpl
+                && (((YTEntityImpl) f).isEmbedded()
+                || !((YTEntityImpl) f).getIdentity().isPersistent()));
       } catch (Exception e) {
         OLogManager.instance().error(OFetchHelper.class, "", e);
         // IGNORE IT
@@ -646,7 +646,7 @@ public class OFetchHelper {
   }
 
   private static void fetch(
-      final YTDocument iRootRecord,
+      final YTEntityImpl iRootRecord,
       final Object iUserObject,
       final OFetchPlan iFetchPlan,
       final Object fieldValue,
@@ -734,7 +734,7 @@ public class OFetchHelper {
 
   @SuppressWarnings("unchecked")
   private static void fetchMap(
-      final YTDocument iRootRecord,
+      final YTEntityImpl iRootRecord,
       final Object iUserObject,
       final OFetchPlan iFetchPlan,
       Object fieldValue,
@@ -760,7 +760,7 @@ public class OFetchHelper {
         } catch (YTRecordNotFoundException ignore) {
         }
         if (r != null) {
-          if (r instanceof YTDocument d) {
+          if (r instanceof YTEntityImpl d) {
             // GO RECURSIVELY
             final int fieldDepthLevel = parsedRecords.getInt(d.getIdentity());
             if (!d.getIdentity().isValid()
@@ -803,7 +803,7 @@ public class OFetchHelper {
   }
 
   private static void fetchArray(
-      final YTDocument rootRecord,
+      final YTEntityImpl rootRecord,
       final Object iUserObject,
       final OFetchPlan iFetchPlan,
       Object fieldValue,
@@ -816,9 +816,9 @@ public class OFetchHelper {
       final OFetchListener iListener,
       final OFetchContext context,
       ORecordSerializerJSON.FormatSettings settings) {
-    if (fieldValue instanceof YTDocument[] linked) {
+    if (fieldValue instanceof YTEntityImpl[] linked) {
       context.onBeforeArray(rootRecord, fieldName, iUserObject, linked);
-      for (final YTDocument document : linked) {
+      for (final YTEntityImpl document : linked) {
         // GO RECURSIVELY
         final int fieldDepthLevel = parsedRecords.getInt(document.getIdentity());
         if (!document.getIdentity().isValid()
@@ -854,7 +854,7 @@ public class OFetchHelper {
 
   @SuppressWarnings("unchecked")
   private static void fetchCollection(
-      final YTDocument iRootRecord,
+      final YTEntityImpl iRootRecord,
       final Object iUserObject,
       final OFetchPlan iFetchPlan,
       final Object fieldValue,
@@ -899,17 +899,17 @@ public class OFetchHelper {
             removeParsedFromMap(parsedRecords, identifiable);
             try {
               identifiable = identifiable.getRecord();
-              if (!(identifiable instanceof YTDocument)) {
+              if (!(identifiable instanceof YTEntityImpl)) {
                 iListener.processStandardField(
                     null, identifiable, fieldName, context, iUserObject, "", null);
               } else {
                 context.onBeforeDocument(
-                    iRootRecord, (YTDocument) identifiable, fieldName, iUserObject);
+                    iRootRecord, (YTEntityImpl) identifiable, fieldName, iUserObject);
                 final Object userObject =
                     iListener.fetchLinkedCollectionValue(
-                        iRootRecord, iUserObject, fieldName, (YTDocument) identifiable, context);
+                        iRootRecord, iUserObject, fieldName, (YTEntityImpl) identifiable, context);
                 processRecord(
-                    (YTDocument) identifiable,
+                    (YTEntityImpl) identifiable,
                     userObject,
                     iFetchPlan,
                     iCurrentLevel,
@@ -921,7 +921,7 @@ public class OFetchHelper {
                     context,
                     getTypesFormat(settings.keepTypes)); // ""
                 context.onAfterDocument(
-                    iRootRecord, (YTDocument) identifiable, fieldName, iUserObject);
+                    iRootRecord, (YTEntityImpl) identifiable, fieldName, iUserObject);
               }
             } catch (YTRecordNotFoundException rnf) {
               iListener.processStandardField(
@@ -980,7 +980,7 @@ public class OFetchHelper {
   }
 
   private static void fetchDocument(
-      final YTDocument iRootRecord,
+      final YTEntityImpl iRootRecord,
       final Object iUserObject,
       final OFetchPlan iFetchPlan,
       final YTIdentifiable fieldValue,
@@ -1005,7 +1005,7 @@ public class OFetchHelper {
     if (!fieldValue.getIdentity().isValid()
         || (fieldDepthLevel > -1 && fieldDepthLevel == iLevelFromRoot)) {
       removeParsedFromMap(parsedRecords, fieldValue);
-      final YTDocument linked;
+      final YTEntityImpl linked;
       try {
         linked = fieldValue.getRecord();
       } catch (YTRecordNotFoundException rnf) {

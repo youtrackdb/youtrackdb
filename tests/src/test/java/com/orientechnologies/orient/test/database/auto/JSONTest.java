@@ -17,14 +17,14 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.record.OTrackedList;
+import com.orientechnologies.orient.core.db.record.TrackedList;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerJSON;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
@@ -64,97 +64,97 @@ public class JSONTest extends DocumentDBBaseTest {
 
   @Test
   public void testAlmostLink() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON("{'title': '#330: Dollar Coins Are Done'}");
   }
 
   @Test
   public void testNullList() {
-    final YTDocument documentSource = new YTDocument();
+    final YTEntityImpl documentSource = new YTEntityImpl();
     documentSource.fromJSON("{\"list\" : [\"string\", null]}");
 
-    final YTDocument documentTarget = new YTDocument();
+    final YTEntityImpl documentTarget = new YTEntityImpl();
     ORecordInternal.unsetDirty(documentTarget);
     documentTarget.fromStream(documentSource.toStream());
 
-    final OTrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
+    final TrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
     Assert.assertEquals(list.get(0), "string");
     Assert.assertNull(list.get(1));
   }
 
   @Test
   public void testBooleanList() {
-    final YTDocument documentSource = new YTDocument();
+    final YTEntityImpl documentSource = new YTEntityImpl();
     documentSource.fromJSON("{\"list\" : [true, false]}");
 
-    final YTDocument documentTarget = new YTDocument();
+    final YTEntityImpl documentTarget = new YTEntityImpl();
     ORecordInternal.unsetDirty(documentTarget);
     documentTarget.fromStream(documentSource.toStream());
 
-    final OTrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
+    final TrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
     Assert.assertEquals(list.get(0), true);
     Assert.assertEquals(list.get(1), false);
   }
 
   @Test
   public void testNumericIntegerList() {
-    final YTDocument documentSource = new YTDocument();
+    final YTEntityImpl documentSource = new YTEntityImpl();
     documentSource.fromJSON("{\"list\" : [17,42]}");
 
-    final YTDocument documentTarget = new YTDocument();
+    final YTEntityImpl documentTarget = new YTEntityImpl();
     ORecordInternal.unsetDirty(documentTarget);
     documentTarget.fromStream(documentSource.toStream());
 
-    final OTrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
+    final TrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
     Assert.assertEquals(list.get(0), 17);
     Assert.assertEquals(list.get(1), 42);
   }
 
   @Test
   public void testNumericLongList() {
-    final YTDocument documentSource = new YTDocument();
+    final YTEntityImpl documentSource = new YTEntityImpl();
     documentSource.fromJSON("{\"list\" : [100000000000,100000000001]}");
 
-    final YTDocument documentTarget = new YTDocument();
+    final YTEntityImpl documentTarget = new YTEntityImpl();
     ORecordInternal.unsetDirty(documentTarget);
     documentTarget.fromStream(documentSource.toStream());
 
-    final OTrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
+    final TrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
     Assert.assertEquals(list.get(0), 100000000000L);
     Assert.assertEquals(list.get(1), 100000000001L);
   }
 
   @Test
   public void testNumericFloatList() {
-    final YTDocument documentSource = new YTDocument();
+    final YTEntityImpl documentSource = new YTEntityImpl();
     documentSource.fromJSON("{\"list\" : [17.3,42.7]}");
 
-    final YTDocument documentTarget = new YTDocument();
+    final YTEntityImpl documentTarget = new YTEntityImpl();
     ORecordInternal.unsetDirty(documentTarget);
     documentTarget.fromStream(documentSource.toStream());
 
-    final OTrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
+    final TrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
     Assert.assertEquals(list.get(0), 17.3);
     Assert.assertEquals(list.get(1), 42.7);
   }
 
   @Test
   public void testNullity() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON(
         "{\"gender\":{\"name\":\"Male\"},\"firstName\":\"Jack\",\"lastName\":\"Williams\",\"phone\":\"561-401-3348\",\"email\":\"0586548571@example.com\",\"address\":{\"street1\":\"Smith"
             + " Ave\","
             + "\"street2\":null,\"city\":\"GORDONSVILLE\",\"state\":\"VA\",\"code\":\"22942\"},\"dob\":\"2011-11-17"
             + " 03:17:04\"}");
     final String json = doc.toJSON();
-    final YTDocument loadedDoc = new YTDocument();
+    final YTEntityImpl loadedDoc = new YTEntityImpl();
     loadedDoc.fromJSON(json);
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
   }
 
   @Test
   public void testNanNoTypes() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     String input =
         "{\"@type\":\"d\",\"@version\":0,\"nan\":null,\"p_infinity\":null,\"n_infinity\":null}";
     doc.field("nan", Double.NaN);
@@ -163,7 +163,7 @@ public class JSONTest extends DocumentDBBaseTest {
     String json = doc.toJSON(FORMAT_WITHOUT_TYPES);
     Assert.assertEquals(json, input);
 
-    doc = new YTDocument();
+    doc = new YTEntityImpl();
     input = "{\"@type\":\"d\",\"@version\":0,\"nan\":null,\"p_infinity\":null,\"n_infinity\":null}";
     doc.field("nan", Float.NaN);
     doc.field("p_infinity", Float.POSITIVE_INFINITY);
@@ -174,39 +174,39 @@ public class JSONTest extends DocumentDBBaseTest {
 
   @Test
   public void testEmbeddedList() {
-    final YTDocument doc = new YTDocument();
-    final List<YTDocument> list = new ArrayList<YTDocument>();
+    final YTEntityImpl doc = new YTEntityImpl();
+    final List<YTEntityImpl> list = new ArrayList<YTEntityImpl>();
     doc.field("embeddedList", list, YTType.EMBEDDEDLIST);
-    list.add(new YTDocument().field("name", "Luca"));
-    list.add(new YTDocument().field("name", "Marcus"));
+    list.add(new YTEntityImpl().field("name", "Luca"));
+    list.add(new YTEntityImpl().field("name", "Marcus"));
 
     final String json = doc.toJSON();
-    final YTDocument loadedDoc = new YTDocument();
+    final YTEntityImpl loadedDoc = new YTEntityImpl();
     loadedDoc.fromJSON(json);
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
     Assert.assertTrue(loadedDoc.containsField("embeddedList"));
     Assert.assertTrue(loadedDoc.field("embeddedList") instanceof List<?>);
     Assert.assertTrue(
-        ((List<YTDocument>) loadedDoc.field("embeddedList")).get(0) instanceof YTDocument);
+        ((List<YTEntityImpl>) loadedDoc.field("embeddedList")).get(0) instanceof YTEntityImpl);
 
-    YTDocument newDoc = ((List<YTDocument>) loadedDoc.field("embeddedList")).get(0);
+    YTEntityImpl newDoc = ((List<YTEntityImpl>) loadedDoc.field("embeddedList")).get(0);
     Assert.assertEquals(newDoc.field("name"), "Luca");
-    newDoc = ((List<YTDocument>) loadedDoc.field("embeddedList")).get(1);
+    newDoc = ((List<YTEntityImpl>) loadedDoc.field("embeddedList")).get(1);
     Assert.assertEquals(newDoc.field("name"), "Marcus");
   }
 
   @Test
   public void testEmbeddedMap() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
 
-    final Map<String, YTDocument> map = new HashMap<String, YTDocument>();
+    final Map<String, YTEntityImpl> map = new HashMap<String, YTEntityImpl>();
     doc.field("map", map);
-    map.put("Luca", new YTDocument().field("name", "Luca"));
-    map.put("Marcus", new YTDocument().field("name", "Marcus"));
-    map.put("Cesare", new YTDocument().field("name", "Cesare"));
+    map.put("Luca", new YTEntityImpl().field("name", "Luca"));
+    map.put("Marcus", new YTEntityImpl().field("name", "Marcus"));
+    map.put("Cesare", new YTEntityImpl().field("name", "Cesare"));
 
     final String json = doc.toJSON();
-    final YTDocument loadedDoc = new YTDocument();
+    final YTEntityImpl loadedDoc = new YTEntityImpl();
     loadedDoc.fromJSON(json);
 
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
@@ -214,53 +214,53 @@ public class JSONTest extends DocumentDBBaseTest {
     Assert.assertTrue(loadedDoc.containsField("map"));
     Assert.assertTrue(loadedDoc.field("map") instanceof Map<?, ?>);
     Assert.assertTrue(
-        ((Map<String, YTDocument>) loadedDoc.field("map")).values().iterator().next()
-            instanceof YTDocument);
+        ((Map<String, YTEntityImpl>) loadedDoc.field("map")).values().iterator().next()
+            instanceof YTEntityImpl);
 
-    YTDocument newDoc = ((Map<String, YTDocument>) loadedDoc.field("map")).get("Luca");
+    YTEntityImpl newDoc = ((Map<String, YTEntityImpl>) loadedDoc.field("map")).get("Luca");
     Assert.assertEquals(newDoc.field("name"), "Luca");
 
-    newDoc = ((Map<String, YTDocument>) loadedDoc.field("map")).get("Marcus");
+    newDoc = ((Map<String, YTEntityImpl>) loadedDoc.field("map")).get("Marcus");
     Assert.assertEquals(newDoc.field("name"), "Marcus");
 
-    newDoc = ((Map<String, YTDocument>) loadedDoc.field("map")).get("Cesare");
+    newDoc = ((Map<String, YTEntityImpl>) loadedDoc.field("map")).get("Cesare");
     Assert.assertEquals(newDoc.field("name"), "Cesare");
   }
 
   @Test
   public void testListToJSON() {
-    final List<YTDocument> list = new ArrayList<YTDocument>();
-    final YTDocument first = new YTDocument().field("name", "Luca");
-    final YTDocument second = new YTDocument().field("name", "Marcus");
+    final List<YTEntityImpl> list = new ArrayList<YTEntityImpl>();
+    final YTEntityImpl first = new YTEntityImpl().field("name", "Luca");
+    final YTEntityImpl second = new YTEntityImpl().field("name", "Marcus");
     list.add(first);
     list.add(second);
 
     final String jsonResult = OJSONWriter.listToJSON(list, null);
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON("{\"result\": " + jsonResult + "}");
-    Collection<YTDocument> result = doc.field("result");
+    Collection<YTEntityImpl> result = doc.field("result");
     Assert.assertTrue(result instanceof Collection);
     Assert.assertEquals(result.size(), 2);
-    for (final YTDocument resultDoc : result) {
+    for (final YTEntityImpl resultDoc : result) {
       Assert.assertTrue(first.hasSameContentOf(resultDoc) || second.hasSameContentOf(resultDoc));
     }
   }
 
   @Test
   public void testEmptyEmbeddedMap() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
 
-    final Map<String, YTDocument> map = new HashMap<String, YTDocument>();
+    final Map<String, YTEntityImpl> map = new HashMap<String, YTEntityImpl>();
     doc.field("embeddedMap", map, YTType.EMBEDDEDMAP);
 
     final String json = doc.toJSON();
-    final YTDocument loadedDoc = new YTDocument();
+    final YTEntityImpl loadedDoc = new YTEntityImpl();
     loadedDoc.fromJSON(json);
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
     Assert.assertTrue(loadedDoc.containsField("embeddedMap"));
     Assert.assertTrue(loadedDoc.field("embeddedMap") instanceof Map<?, ?>);
 
-    final Map<String, YTDocument> loadedMap = loadedDoc.field("embeddedMap");
+    final Map<String, YTEntityImpl> loadedMap = loadedDoc.field("embeddedMap");
     Assert.assertEquals(loadedMap.size(), 0);
   }
 
@@ -270,19 +270,19 @@ public class JSONTest extends DocumentDBBaseTest {
     database.set(
         ATTRIBUTES.DATETIMEFORMAT, OStorageConfiguration.DEFAULT_DATETIME_FORMAT);
     try {
-      YTDocument newDoc = new YTDocument();
+      YTEntityImpl newDoc = new YTEntityImpl();
       newDoc.field("long", 100000000000L);
       newDoc.field("date", new Date());
       newDoc.field("byte", (byte) 12);
-      YTDocument firstLevelDoc = new YTDocument();
+      YTEntityImpl firstLevelDoc = new YTEntityImpl();
       firstLevelDoc.field("long", 200000000000L);
       firstLevelDoc.field("date", new Date());
       firstLevelDoc.field("byte", (byte) 13);
-      YTDocument secondLevelDoc = new YTDocument();
+      YTEntityImpl secondLevelDoc = new YTEntityImpl();
       secondLevelDoc.field("long", 300000000000L);
       secondLevelDoc.field("date", new Date());
       secondLevelDoc.field("byte", (byte) 14);
-      YTDocument thirdLevelDoc = new YTDocument();
+      YTEntityImpl thirdLevelDoc = new YTEntityImpl();
       thirdLevelDoc.field("long", 400000000000L);
       thirdLevelDoc.field("date", new Date());
       thirdLevelDoc.field("byte", (byte) 15);
@@ -291,7 +291,7 @@ public class JSONTest extends DocumentDBBaseTest {
       secondLevelDoc.field("doc", thirdLevelDoc);
 
       final String json = newDoc.toJSON();
-      YTDocument loadedDoc = new YTDocument();
+      YTEntityImpl loadedDoc = new YTEntityImpl();
       loadedDoc.fromJSON(json);
 
       Assert.assertTrue(newDoc.hasSameContentOf(loadedDoc));
@@ -302,9 +302,9 @@ public class JSONTest extends DocumentDBBaseTest {
       Assert.assertTrue(loadedDoc.field("byte") instanceof Byte);
       Assert.assertEquals(
           ((Byte) newDoc.field("byte")).byteValue(), ((Byte) loadedDoc.field("byte")).byteValue());
-      Assert.assertTrue(loadedDoc.field("doc") instanceof YTDocument);
+      Assert.assertTrue(loadedDoc.field("doc") instanceof YTEntityImpl);
 
-      YTDocument firstDoc = loadedDoc.field("doc");
+      YTEntityImpl firstDoc = loadedDoc.field("doc");
       Assert.assertTrue(firstLevelDoc.hasSameContentOf(firstDoc));
       Assert.assertTrue(firstDoc.field("long") instanceof Long);
       Assert.assertEquals(
@@ -315,9 +315,9 @@ public class JSONTest extends DocumentDBBaseTest {
       Assert.assertEquals(
           ((Byte) firstLevelDoc.field("byte")).byteValue(),
           ((Byte) firstDoc.field("byte")).byteValue());
-      Assert.assertTrue(firstDoc.field("doc") instanceof YTDocument);
+      Assert.assertTrue(firstDoc.field("doc") instanceof YTEntityImpl);
 
-      YTDocument secondDoc = firstDoc.field("doc");
+      YTEntityImpl secondDoc = firstDoc.field("doc");
       Assert.assertTrue(secondLevelDoc.hasSameContentOf(secondDoc));
       Assert.assertTrue(secondDoc.field("long") instanceof Long);
       Assert.assertEquals(
@@ -328,9 +328,9 @@ public class JSONTest extends DocumentDBBaseTest {
       Assert.assertEquals(
           ((Byte) secondLevelDoc.field("byte")).byteValue(),
           ((Byte) secondDoc.field("byte")).byteValue());
-      Assert.assertTrue(secondDoc.field("doc") instanceof YTDocument);
+      Assert.assertTrue(secondDoc.field("doc") instanceof YTEntityImpl);
 
-      YTDocument thirdDoc = secondDoc.field("doc");
+      YTEntityImpl thirdDoc = secondDoc.field("doc");
       Assert.assertTrue(thirdLevelDoc.hasSameContentOf(thirdDoc));
       Assert.assertTrue(thirdDoc.field("long") instanceof Long);
       Assert.assertEquals(
@@ -348,7 +348,7 @@ public class JSONTest extends DocumentDBBaseTest {
 
   @Test
   public void testMerge() {
-    YTDocument doc1 = new YTDocument();
+    YTEntityImpl doc1 = new YTEntityImpl();
     final ArrayList<String> list = new ArrayList<String>();
     doc1.field("embeddedList", list, YTType.EMBEDDEDLIST);
     list.add("Luca");
@@ -357,14 +357,14 @@ public class JSONTest extends DocumentDBBaseTest {
     doc1.field("salary", 10000);
     doc1.field("years", 16);
 
-    YTDocument doc2 = new YTDocument();
+    YTEntityImpl doc2 = new YTEntityImpl();
     final ArrayList<String> list2 = new ArrayList<String>();
     doc2.field("embeddedList", list2, YTType.EMBEDDEDLIST);
     list2.add("Luca");
     list2.add("Michael");
     doc2.field("years", 32);
 
-    YTDocument docMerge1 = doc1.copy();
+    YTEntityImpl docMerge1 = doc1.copy();
     docMerge1.merge(doc2, true, true);
 
     Assert.assertTrue(docMerge1.containsField("embeddedList"));
@@ -374,7 +374,7 @@ public class JSONTest extends DocumentDBBaseTest {
     Assert.assertEquals(((Integer) docMerge1.field("salary")).intValue(), 10000);
     Assert.assertEquals(((Integer) docMerge1.field("years")).intValue(), 32);
 
-    YTDocument docMerge2 = doc1.copy();
+    YTEntityImpl docMerge2 = doc1.copy();
     docMerge2.merge(doc2, true, false);
 
     Assert.assertTrue(docMerge2.containsField("embeddedList"));
@@ -384,7 +384,7 @@ public class JSONTest extends DocumentDBBaseTest {
     Assert.assertEquals(((Integer) docMerge2.field("salary")).intValue(), 10000);
     Assert.assertEquals(((Integer) docMerge2.field("years")).intValue(), 32);
 
-    YTDocument docMerge3 = doc1.copy();
+    YTEntityImpl docMerge3 = doc1.copy();
 
     doc2.removeField("years");
     docMerge3.merge(doc2, false, false);
@@ -399,7 +399,7 @@ public class JSONTest extends DocumentDBBaseTest {
 
   @Test
   public void testNestedEmbeddedMap() {
-    YTDocument newDoc = new YTDocument();
+    YTEntityImpl newDoc = new YTEntityImpl();
 
     final Map<String, HashMap<?, ?>> map1 = new HashMap<String, HashMap<?, ?>>();
     newDoc.field("map1", map1, YTType.EMBEDDEDMAP);
@@ -411,40 +411,40 @@ public class JSONTest extends DocumentDBBaseTest {
     map2.put("map3", (HashMap<?, ?>) map3);
 
     String json = newDoc.toJSON();
-    YTDocument loadedDoc = new YTDocument();
+    YTEntityImpl loadedDoc = new YTEntityImpl();
     loadedDoc.fromJSON(json);
 
     Assert.assertTrue(newDoc.hasSameContentOf(loadedDoc));
 
     Assert.assertTrue(loadedDoc.containsField("map1"));
     Assert.assertTrue(loadedDoc.field("map1") instanceof Map<?, ?>);
-    final Map<String, YTDocument> loadedMap1 = loadedDoc.field("map1");
+    final Map<String, YTEntityImpl> loadedMap1 = loadedDoc.field("map1");
     Assert.assertEquals(loadedMap1.size(), 1);
 
     Assert.assertTrue(loadedMap1.containsKey("map2"));
     Assert.assertTrue(loadedMap1.get("map2") instanceof Map<?, ?>);
-    final Map<String, YTDocument> loadedMap2 = (Map<String, YTDocument>) loadedMap1.get("map2");
+    final Map<String, YTEntityImpl> loadedMap2 = (Map<String, YTEntityImpl>) loadedMap1.get("map2");
     Assert.assertEquals(loadedMap2.size(), 1);
 
     Assert.assertTrue(loadedMap2.containsKey("map3"));
     Assert.assertTrue(loadedMap2.get("map3") instanceof Map<?, ?>);
-    final Map<String, YTDocument> loadedMap3 = (Map<String, YTDocument>) loadedMap2.get("map3");
+    final Map<String, YTEntityImpl> loadedMap3 = (Map<String, YTEntityImpl>) loadedMap2.get("map3");
     Assert.assertEquals(loadedMap3.size(), 0);
   }
 
   @Test
   public void testFetchedJson() {
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database
             .command("select * from Profile where name = 'Barack' and surname = 'Obama'")
             .stream()
-            .map((e) -> (YTDocument) e.toEntity())
+            .map((e) -> (YTEntityImpl) e.toEntity())
             .toList();
 
-    for (YTDocument doc : result) {
+    for (YTEntityImpl doc : result) {
       String jsonFull =
           doc.toJSON("type,rid,version,class,keepTypes,attribSameRow,indent:0,fetchPlan:*:-1");
-      YTDocument loadedDoc = new YTDocument();
+      YTEntityImpl loadedDoc = new YTEntityImpl();
       loadedDoc.fromJSON(jsonFull);
 
       Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
@@ -453,7 +453,7 @@ public class JSONTest extends DocumentDBBaseTest {
 
   // Requires JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES
   public void testSpecialChar() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON(
         "{name:{\"%Field\":[\"value1\",\"value2\"],\"%Field2\":{},\"%Field3\":\"value3\"}}");
     database.begin();
@@ -464,10 +464,10 @@ public class JSONTest extends DocumentDBBaseTest {
     doc = database.bindToSession(doc);
 
     Map<String, ?> map = doc.toMap();
-    final YTDocument docToCompare = new YTDocument(database);
+    final YTEntityImpl docToCompare = new YTEntityImpl(database);
     docToCompare.fromMap(map);
 
-    final YTDocument loadedDoc = database.load(doc.getIdentity());
+    final YTEntityImpl loadedDoc = database.load(doc.getIdentity());
 
     Assert.assertTrue(
         docToCompare.hasSameContentOf(loadedDoc));
@@ -475,7 +475,7 @@ public class JSONTest extends DocumentDBBaseTest {
   }
 
   public void testArrayOfArray() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON(
         "{\"@type\": \"d\",\"@class\": \"Track\",\"type\": \"LineString\",\"coordinates\": [ [ 100,"
             + "  0 ],  [ 101, 1 ] ]}");
@@ -487,15 +487,15 @@ public class JSONTest extends DocumentDBBaseTest {
     doc = database.bindToSession(doc);
 
     Map<String, ?> map = doc.toMap();
-    final YTDocument docToCompare = new YTDocument(database);
+    final YTEntityImpl docToCompare = new YTEntityImpl(database);
     docToCompare.fromMap(map);
 
-    final YTDocument loadedDoc = database.load(doc.getIdentity());
+    final YTEntityImpl loadedDoc = database.load(doc.getIdentity());
     Assert.assertTrue(docToCompare.hasSameContentOf(loadedDoc));
   }
 
   public void testLongTypes() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON(
         "{\"@type\": \"d\",\"@class\": \"Track\",\"type\": \"LineString\",\"coordinates\": [ ["
             + " 32874387347347,  0 ],  [ -23736753287327, 1 ] ]}");
@@ -507,17 +507,17 @@ public class JSONTest extends DocumentDBBaseTest {
     database.begin();
     doc = database.bindToSession(doc);
     Map<String, ?> map = doc.toMap();
-    final YTDocument docToCompare = new YTDocument(database);
+    final YTEntityImpl docToCompare = new YTEntityImpl(database);
     docToCompare.fromMap(map);
 
-    final YTDocument loadedDoc = database.load(doc.getIdentity());
+    final YTEntityImpl loadedDoc = database.load(doc.getIdentity());
     Assert.assertTrue(docToCompare.hasSameContentOf(loadedDoc));
     database.commit();
   }
 
   // Requires JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES
   public void testSpecialChars() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON(
         "{Field:{\"Key1\":[\"Value1\",\"Value2\"],\"Key2\":{\"%%dummy%%\":null},\"Key3\":\"Value3\"}}");
     database.begin();
@@ -527,10 +527,10 @@ public class JSONTest extends DocumentDBBaseTest {
     doc = database.bindToSession(doc);
 
     Map<String, ?> map = doc.toMap();
-    final YTDocument docToCompare = new YTDocument(database);
+    final YTEntityImpl docToCompare = new YTEntityImpl(database);
     docToCompare.fromMap(map);
 
-    final YTDocument loadedDoc = database.load(doc.getIdentity());
+    final YTEntityImpl loadedDoc = database.load(doc.getIdentity());
     Assert.assertEquals(docToCompare, loadedDoc);
 
     database.commit();
@@ -539,7 +539,7 @@ public class JSONTest extends DocumentDBBaseTest {
   public void testJsonToStream() {
     final String doc1Json =
         "{Key1:{\"%Field1\":[{},{},{},{},{}],\"%Field2\":false,\"%Field3\":\"Value1\"}}";
-    final YTDocument doc1 = new YTDocument();
+    final YTEntityImpl doc1 = new YTEntityImpl();
     doc1.fromJSON(doc1Json);
     final String doc1String = new String(
         ORecordSerializerSchemaAware2CSV.INSTANCE.toStream(database, doc1));
@@ -547,7 +547,7 @@ public class JSONTest extends DocumentDBBaseTest {
 
     final String doc2Json =
         "{Key1:{\"%Field1\":[{},{},{},{},{}],\"%Field2\":false,\"%Field3\":\"Value1\"}}";
-    final YTDocument doc2 = new YTDocument();
+    final YTEntityImpl doc2 = new YTEntityImpl();
     doc2.fromJSON(doc2Json);
     final String doc2String = new String(
         ORecordSerializerSchemaAware2CSV.INSTANCE.toStream(database, doc2));
@@ -555,19 +555,19 @@ public class JSONTest extends DocumentDBBaseTest {
   }
 
   public void testSameNameCollectionsAndMap() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.field("string", "STRING_VALUE");
-    List<YTDocument> list = new ArrayList<YTDocument>();
+    List<YTEntityImpl> list = new ArrayList<YTEntityImpl>();
     for (int i = 0; i < 1; i++) {
-      final YTDocument doc1 = new YTDocument();
+      final YTEntityImpl doc1 = new YTEntityImpl();
       doc.field("number", i);
       list.add(doc1);
-      Map<String, YTDocument> docMap = new HashMap<String, YTDocument>();
+      Map<String, YTEntityImpl> docMap = new HashMap<String, YTEntityImpl>();
       for (int j = 0; j < 1; j++) {
-        YTDocument doc2 = new YTDocument();
+        YTEntityImpl doc2 = new YTEntityImpl();
         doc2.field("blabla", j);
         docMap.put(String.valueOf(j), doc2);
-        YTDocument doc3 = new YTDocument();
+        YTEntityImpl doc3 = new YTEntityImpl();
         doc3.field("blubli", String.valueOf(i + j));
         doc2.field("out", doc3);
       }
@@ -577,25 +577,25 @@ public class JSONTest extends DocumentDBBaseTest {
     doc.field("out", list);
 
     String json = doc.toJSON();
-    YTDocument newDoc = new YTDocument();
+    YTEntityImpl newDoc = new YTEntityImpl();
     newDoc.fromJSON(json);
 
     Assert.assertEquals(json, newDoc.toJSON());
     Assert.assertTrue(newDoc.hasSameContentOf(doc));
 
-    doc = new YTDocument();
+    doc = new YTEntityImpl();
     doc.field("string", "STRING_VALUE");
-    final Map<String, YTDocument> docMap = new HashMap<String, YTDocument>();
+    final Map<String, YTEntityImpl> docMap = new HashMap<String, YTEntityImpl>();
     for (int i = 0; i < 10; i++) {
-      YTDocument doc1 = new YTDocument();
+      YTEntityImpl doc1 = new YTEntityImpl();
       doc.field("number", i);
       list.add(doc1);
       list = new ArrayList<>();
       for (int j = 0; j < 5; j++) {
-        YTDocument doc2 = new YTDocument();
+        YTEntityImpl doc2 = new YTEntityImpl();
         doc2.field("blabla", j);
         list.add(doc2);
-        YTDocument doc3 = new YTDocument();
+        YTEntityImpl doc3 = new YTEntityImpl();
         doc3.field("blubli", String.valueOf(i + j));
         doc2.field("out", doc3);
       }
@@ -604,22 +604,22 @@ public class JSONTest extends DocumentDBBaseTest {
     }
     doc.field("out", docMap);
     json = doc.toJSON();
-    newDoc = new YTDocument();
+    newDoc = new YTEntityImpl();
     newDoc.fromJSON(json);
     Assert.assertEquals(newDoc.toJSON(), json);
     Assert.assertTrue(newDoc.hasSameContentOf(doc));
   }
 
   public void testSameNameCollectionsAndMap2() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.field("string", "STRING_VALUE");
-    List<YTDocument> list = new ArrayList<YTDocument>();
+    List<YTEntityImpl> list = new ArrayList<YTEntityImpl>();
     for (int i = 0; i < 2; i++) {
-      YTDocument doc1 = new YTDocument();
+      YTEntityImpl doc1 = new YTEntityImpl();
       list.add(doc1);
-      Map<String, YTDocument> docMap = new HashMap<String, YTDocument>();
+      Map<String, YTEntityImpl> docMap = new HashMap<String, YTEntityImpl>();
       for (int j = 0; j < 5; j++) {
-        YTDocument doc2 = new YTDocument();
+        YTEntityImpl doc2 = new YTEntityImpl();
         doc2.field("blabla", j);
         docMap.put(String.valueOf(j), doc2);
       }
@@ -628,20 +628,20 @@ public class JSONTest extends DocumentDBBaseTest {
     }
     doc.field("theList", list);
     String json = doc.toJSON();
-    YTDocument newDoc = new YTDocument();
+    YTEntityImpl newDoc = new YTEntityImpl();
     newDoc.fromJSON(json);
     Assert.assertEquals(newDoc.toJSON(), json);
     Assert.assertTrue(newDoc.hasSameContentOf(doc));
   }
 
   public void testSameNameCollectionsAndMap3() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.field("string", "STRING_VALUE");
-    List<Map<String, YTDocument>> list = new ArrayList<Map<String, YTDocument>>();
+    List<Map<String, YTEntityImpl>> list = new ArrayList<Map<String, YTEntityImpl>>();
     for (int i = 0; i < 2; i++) {
-      Map<String, YTDocument> docMap = new HashMap<String, YTDocument>();
+      Map<String, YTEntityImpl> docMap = new HashMap<String, YTEntityImpl>();
       for (int j = 0; j < 5; j++) {
-        YTDocument doc1 = new YTDocument();
+        YTEntityImpl doc1 = new YTEntityImpl();
         doc1.field("blabla", j);
         docMap.put(String.valueOf(j), doc1);
       }
@@ -650,7 +650,7 @@ public class JSONTest extends DocumentDBBaseTest {
     }
     doc.field("theList", list);
     String json = doc.toJSON();
-    YTDocument newDoc = new YTDocument();
+    YTEntityImpl newDoc = new YTEntityImpl();
     newDoc.fromJSON(json);
     Assert.assertEquals(newDoc.toJSON(), json);
   }
@@ -713,7 +713,7 @@ public class JSONTest extends DocumentDBBaseTest {
   }
 
   public void testSpaces() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     String test =
         "{"
             + "\"embedded\": {"
@@ -727,7 +727,7 @@ public class JSONTest extends DocumentDBBaseTest {
   }
 
   public void testEscaping() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     String s =
         "{\"name\": \"test\", \"nested\": { \"key\": \"value\", \"anotherKey\": 123 }, \"deep\":"
             + " {\"deeper\": { \"k\": \"v\",\"quotes\": \"\\\"\\\",\\\"oops\\\":\\\"123\\\"\","
@@ -742,7 +742,7 @@ public class JSONTest extends DocumentDBBaseTest {
   }
 
   public void testEscapingDoubleQuotes() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     String sb =
         " {\n"
             + "    \"foo\":{\n"
@@ -768,7 +768,7 @@ public class JSONTest extends DocumentDBBaseTest {
   }
 
   public void testEscapingDoubleQuotes2() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     String sb =
         " {\n"
             + "    \"foo\":{\n"
@@ -796,7 +796,7 @@ public class JSONTest extends DocumentDBBaseTest {
   }
 
   public void testEscapingDoubleQuotes3() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     String sb =
         " {\n"
             + "    \"foo\":{\n"
@@ -822,68 +822,68 @@ public class JSONTest extends DocumentDBBaseTest {
   }
 
   public void testEmbeddedQuotes() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     // FROM ISSUE 3151
     doc.fromJSON("{\"mainsnak\":{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}}");
     Assert.assertEquals(doc.field("mainsnak.datavalue.value"), "Sub\\urban");
   }
 
   public void testEmbeddedQuotes2() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON("{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}");
     Assert.assertEquals(doc.field("datavalue.value"), "Sub\\urban");
   }
 
   public void testEmbeddedQuotes2a() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON("{\"datavalue\":\"Sub\\\\urban\"}");
     Assert.assertEquals(doc.field("datavalue"), "Sub\\urban");
   }
 
   public void testEmbeddedQuotes3() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON("{\"mainsnak\":{\"datavalue\":{\"value\":\"Suburban\\\\\"\"}}}");
     Assert.assertEquals(doc.field("mainsnak.datavalue.value"), "Suburban\\\"");
   }
 
   public void testEmbeddedQuotes4() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON("{\"datavalue\":{\"value\":\"Suburban\\\\\"\"}}");
     Assert.assertEquals(doc.field("datavalue.value"), "Suburban\\\"");
   }
 
   public void testEmbeddedQuotes5() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON("{\"datavalue\":\"Suburban\\\\\"\"}");
     Assert.assertEquals(doc.field("datavalue"), "Suburban\\\"");
   }
 
   public void testEmbeddedQuotes6() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON("{\"mainsnak\":{\"datavalue\":{\"value\":\"Suburban\\\\\"}}}");
     Assert.assertEquals(doc.field("mainsnak.datavalue.value"), "Suburban\\");
   }
 
   public void testEmbeddedQuotes7() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON("{\"datavalue\":{\"value\":\"Suburban\\\\\"}}");
     Assert.assertEquals(doc.field("datavalue.value"), "Suburban\\");
   }
 
   public void testEmbeddedQuotes8() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON("{\"datavalue\":\"Suburban\\\\\"}");
     Assert.assertEquals(doc.field("datavalue"), "Suburban\\");
   }
 
   public void testEmpty() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON("{}");
     Assert.assertEquals(doc.fieldNames().length, 0);
   }
 
   public void testInvalidJson() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     try {
       doc.fromJSON("{");
       Assert.fail();
@@ -918,11 +918,11 @@ public class JSONTest extends DocumentDBBaseTest {
   public void testDates() {
     final Date now = new Date(1350518475000L);
 
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     doc.field("date", now);
     final String json = doc.toJSON();
 
-    final YTDocument unmarshalled = new YTDocument();
+    final YTEntityImpl unmarshalled = new YTEntityImpl();
     unmarshalled.fromJSON(json);
     Assert.assertEquals(unmarshalled.field("date"), now);
   }
@@ -930,8 +930,8 @@ public class JSONTest extends DocumentDBBaseTest {
   @Test
   public void shouldDeserializeFieldWithCurlyBraces() {
     final String json = "{\"a\":\"{dd}\",\"bl\":{\"b\":\"c\",\"a\":\"d\"}}";
-    final YTDocument in =
-        (YTDocument)
+    final YTEntityImpl in =
+        (YTEntityImpl)
             ORecordSerializerJSON.INSTANCE.fromString(database,
                 json, database.newInstance(), new String[]{});
     Assert.assertEquals(in.field("a"), "{dd}");
@@ -940,26 +940,26 @@ public class JSONTest extends DocumentDBBaseTest {
 
   @Test
   public void testList() throws Exception {
-    YTDocument documentSource = new YTDocument();
+    YTEntityImpl documentSource = new YTEntityImpl();
     documentSource.fromJSON("{\"list\" : [\"string\", 42]}");
 
-    YTDocument documentTarget = new YTDocument();
+    YTEntityImpl documentTarget = new YTEntityImpl();
     ORecordInternal.unsetDirty(documentTarget);
     documentTarget.fromStream(documentSource.toStream());
 
-    OTrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
+    TrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
     Assert.assertEquals(list.get(0), "string");
     Assert.assertEquals(list.get(1), 42);
   }
 
   @Test
   public void testEmbeddedRIDBagDeserialisationWhenFieldTypeIsProvided() throws Exception {
-    YTDocument documentSource = new YTDocument();
+    YTEntityImpl documentSource = new YTEntityImpl();
     documentSource.fromJSON(
         "{FirstName:\"Student A"
             + " 0\",in_EHasGoodStudents:[#57:0],@fieldTypes:\"in_EHasGoodStudents=g\"}");
 
-    ORidBag bag = documentSource.field("in_EHasGoodStudents");
+    RidBag bag = documentSource.field("in_EHasGoodStudents");
     Assert.assertEquals(bag.size(), 1);
     YTIdentifiable rid = bag.iterator().next();
     Assert.assertEquals(rid.getIdentity().getClusterId(), 57);
@@ -967,7 +967,7 @@ public class JSONTest extends DocumentDBBaseTest {
   }
 
   public void testNestedLinkCreation() {
-    YTDocument jaimeDoc = new YTDocument("NestedLinkCreation");
+    YTEntityImpl jaimeDoc = new YTEntityImpl("NestedLinkCreation");
     jaimeDoc.field("name", "jaime");
 
     database.begin();
@@ -976,7 +976,7 @@ public class JSONTest extends DocumentDBBaseTest {
 
     jaimeDoc = database.bindToSession(jaimeDoc);
     // The link between jaime and cersei is saved properly - the #2263 test case
-    YTDocument cerseiDoc = new YTDocument("NestedLinkCreation");
+    YTEntityImpl cerseiDoc = new YTEntityImpl("NestedLinkCreation");
     cerseiDoc.fromJSON(
         "{\"@type\":\"d\",\"name\":\"cersei\",\"valonqar\":" + jaimeDoc.toJSON() + "}");
     database.begin();
@@ -985,7 +985,7 @@ public class JSONTest extends DocumentDBBaseTest {
 
     jaimeDoc = database.bindToSession(jaimeDoc);
     // The link between jamie and tyrion is not saved properly
-    YTDocument tyrionDoc = new YTDocument("NestedLinkCreation");
+    YTEntityImpl tyrionDoc = new YTEntityImpl("NestedLinkCreation");
     tyrionDoc.fromJSON(
         "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":{\"@type\":\"d\","
             + " \"relationship\":\"brother\",\"contact\":"
@@ -996,22 +996,22 @@ public class JSONTest extends DocumentDBBaseTest {
     tyrionDoc.save();
     database.commit();
 
-    final Map<YTRID, YTDocument> contentMap = new HashMap<YTRID, YTDocument>();
+    final Map<YTRID, YTEntityImpl> contentMap = new HashMap<YTRID, YTEntityImpl>();
 
-    YTDocument jaime = new YTDocument("NestedLinkCreation");
+    YTEntityImpl jaime = new YTEntityImpl("NestedLinkCreation");
     jaime.field("name", "jaime");
 
     contentMap.put(jaimeDoc.getIdentity(), jaime);
 
-    YTDocument cersei = new YTDocument("NestedLinkCreation");
+    YTEntityImpl cersei = new YTEntityImpl("NestedLinkCreation");
     cersei.field("name", "cersei");
     cersei.field("valonqar", jaimeDoc.getIdentity());
     contentMap.put(cerseiDoc.getIdentity(), cersei);
 
-    YTDocument tyrion = new YTDocument("NestedLinkCreation");
+    YTEntityImpl tyrion = new YTEntityImpl("NestedLinkCreation");
     tyrion.field("name", "tyrion");
 
-    YTDocument embeddedDoc = new YTDocument();
+    YTEntityImpl embeddedDoc = new YTEntityImpl();
     embeddedDoc.field("relationship", "brother");
     embeddedDoc.field("contact", jaimeDoc.getIdentity());
     tyrion.field("emergency_contact", embeddedDoc);
@@ -1034,13 +1034,13 @@ public class JSONTest extends DocumentDBBaseTest {
     tyrionTraverse.add(jaimeDoc.getIdentity());
     traverseMap.put(tyrionDoc.getIdentity(), tyrionTraverse);
 
-    for (YTDocument o : database.browseClass("NestedLinkCreation")) {
-      YTDocument content = contentMap.get(o.getIdentity());
+    for (YTEntityImpl o : database.browseClass("NestedLinkCreation")) {
+      YTEntityImpl content = contentMap.get(o.getIdentity());
       Assert.assertTrue(content.hasSameContentOf(o));
 
       List<YTRID> traverse = traverseMap.remove(o.getIdentity());
       for (YTIdentifiable id :
-          new OSQLSynchQuery<YTDocument>("traverse * from " + o.getIdentity().toString())) {
+          new OSQLSynchQuery<YTEntityImpl>("traverse * from " + o.getIdentity().toString())) {
         Assert.assertTrue(traverse.remove(id.getIdentity()));
       }
 
@@ -1051,7 +1051,7 @@ public class JSONTest extends DocumentDBBaseTest {
   }
 
   public void testNestedLinkCreationFieldTypes() {
-    YTDocument jaimeDoc = new YTDocument("NestedLinkCreationFieldTypes");
+    YTEntityImpl jaimeDoc = new YTEntityImpl("NestedLinkCreationFieldTypes");
     jaimeDoc.field("name", "jaime");
 
     database.begin();
@@ -1059,7 +1059,7 @@ public class JSONTest extends DocumentDBBaseTest {
     database.commit();
 
     // The link between jaime and cersei is saved properly - the #2263 test case
-    YTDocument cerseiDoc = new YTDocument("NestedLinkCreationFieldTypes");
+    YTEntityImpl cerseiDoc = new YTEntityImpl("NestedLinkCreationFieldTypes");
     cerseiDoc.fromJSON(
         "{\"@type\":\"d\",\"@fieldTypes\":\"valonqar=x\",\"name\":\"cersei\",\"valonqar\":"
             + jaimeDoc.getIdentity()
@@ -1070,7 +1070,7 @@ public class JSONTest extends DocumentDBBaseTest {
     database.commit();
 
     // The link between jamie and tyrion is not saved properly
-    YTDocument tyrionDoc = new YTDocument("NestedLinkCreationFieldTypes");
+    YTEntityImpl tyrionDoc = new YTEntityImpl("NestedLinkCreationFieldTypes");
     tyrionDoc.fromJSON(
         "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":{\"@type\":\"d\","
             + " \"@fieldTypes\":\"contact=x\",\"relationship\":\"brother\",\"contact\":"
@@ -1081,22 +1081,22 @@ public class JSONTest extends DocumentDBBaseTest {
     tyrionDoc.save();
     database.commit();
 
-    final Map<YTRID, YTDocument> contentMap = new HashMap<YTRID, YTDocument>();
+    final Map<YTRID, YTEntityImpl> contentMap = new HashMap<YTRID, YTEntityImpl>();
 
-    YTDocument jaime = new YTDocument("NestedLinkCreationFieldTypes");
+    YTEntityImpl jaime = new YTEntityImpl("NestedLinkCreationFieldTypes");
     jaime.field("name", "jaime");
 
     contentMap.put(jaimeDoc.getIdentity(), jaime);
 
-    YTDocument cersei = new YTDocument("NestedLinkCreationFieldTypes");
+    YTEntityImpl cersei = new YTEntityImpl("NestedLinkCreationFieldTypes");
     cersei.field("name", "cersei");
     cersei.field("valonqar", jaimeDoc.getIdentity());
     contentMap.put(cerseiDoc.getIdentity(), cersei);
 
-    YTDocument tyrion = new YTDocument("NestedLinkCreationFieldTypes");
+    YTEntityImpl tyrion = new YTEntityImpl("NestedLinkCreationFieldTypes");
     tyrion.field("name", "tyrion");
 
-    YTDocument embeddedDoc = new YTDocument();
+    YTEntityImpl embeddedDoc = new YTEntityImpl();
     embeddedDoc.field("relationship", "brother");
     embeddedDoc.field("contact", jaimeDoc.getIdentity());
     tyrion.field("emergency_contact", embeddedDoc);
@@ -1119,13 +1119,13 @@ public class JSONTest extends DocumentDBBaseTest {
     tyrionTraverse.add(jaimeDoc.getIdentity());
     traverseMap.put(tyrionDoc.getIdentity(), tyrionTraverse);
 
-    for (YTDocument o : database.browseClass("NestedLinkCreationFieldTypes")) {
-      YTDocument content = contentMap.get(o.getIdentity());
+    for (YTEntityImpl o : database.browseClass("NestedLinkCreationFieldTypes")) {
+      YTEntityImpl content = contentMap.get(o.getIdentity());
       Assert.assertTrue(content.hasSameContentOf(o));
 
       List<YTRID> traverse = traverseMap.remove(o.getIdentity());
       for (YTIdentifiable id :
-          new OSQLSynchQuery<YTDocument>("traverse * from " + o.getIdentity().toString())) {
+          new OSQLSynchQuery<YTEntityImpl>("traverse * from " + o.getIdentity().toString())) {
         Assert.assertTrue(traverse.remove(id.getIdentity()));
       }
       Assert.assertTrue(traverse.isEmpty());
@@ -1134,7 +1134,7 @@ public class JSONTest extends DocumentDBBaseTest {
   }
 
   public void testInnerDocCreation() {
-    YTDocument adamDoc = new YTDocument("InnerDocCreation");
+    YTEntityImpl adamDoc = new YTEntityImpl("InnerDocCreation");
     adamDoc.fromJSON("{\"name\":\"adam\"}");
 
     database.begin();
@@ -1143,19 +1143,19 @@ public class JSONTest extends DocumentDBBaseTest {
 
     database.begin();
     adamDoc = database.bindToSession(adamDoc);
-    YTDocument eveDoc = new YTDocument("InnerDocCreation");
+    YTEntityImpl eveDoc = new YTEntityImpl("InnerDocCreation");
     eveDoc.fromJSON("{\"@type\":\"d\",\"name\":\"eve\",\"friends\":[" + adamDoc.toJSON() + "]}");
 
     eveDoc.save();
     database.commit();
 
-    Map<YTRID, YTDocument> contentMap = new HashMap<YTRID, YTDocument>();
-    YTDocument adam = new YTDocument("InnerDocCreation");
+    Map<YTRID, YTEntityImpl> contentMap = new HashMap<YTRID, YTEntityImpl>();
+    YTEntityImpl adam = new YTEntityImpl("InnerDocCreation");
     adam.field("name", "adam");
 
     contentMap.put(adamDoc.getIdentity(), adam);
 
-    YTDocument eve = new YTDocument("InnerDocCreation");
+    YTEntityImpl eve = new YTEntityImpl("InnerDocCreation");
     eve.field("name", "eve");
 
     List<YTRID> friends = new ArrayList<YTRID>();
@@ -1176,15 +1176,15 @@ public class JSONTest extends DocumentDBBaseTest {
 
     traverseMap.put(eveDoc.getIdentity(), eveTraverse);
 
-    for (YTDocument o : database.browseClass("InnerDocCreation")) {
-      YTDocument content = contentMap.get(o.getIdentity());
+    for (YTEntityImpl o : database.browseClass("InnerDocCreation")) {
+      YTEntityImpl content = contentMap.get(o.getIdentity());
       Assert.assertTrue(content.hasSameContentOf(o));
     }
 
-    for (final YTDocument o : database.browseClass("InnerDocCreation")) {
+    for (final YTEntityImpl o : database.browseClass("InnerDocCreation")) {
       final List<YTRID> traverse = traverseMap.remove(o.getIdentity());
       for (final YTIdentifiable id :
-          new OSQLSynchQuery<YTDocument>("traverse * from " + o.getIdentity().toString())) {
+          new OSQLSynchQuery<YTEntityImpl>("traverse * from " + o.getIdentity().toString())) {
         Assert.assertTrue(traverse.remove(id.getIdentity()));
       }
       Assert.assertTrue(traverse.isEmpty());
@@ -1193,14 +1193,14 @@ public class JSONTest extends DocumentDBBaseTest {
   }
 
   public void testInnerDocCreationFieldTypes() {
-    YTDocument adamDoc = new YTDocument("InnerDocCreationFieldTypes");
+    YTEntityImpl adamDoc = new YTEntityImpl("InnerDocCreationFieldTypes");
     adamDoc.fromJSON("{\"name\":\"adam\"}");
 
     database.begin();
     adamDoc.save();
     database.commit();
 
-    YTDocument eveDoc = new YTDocument("InnerDocCreationFieldTypes");
+    YTEntityImpl eveDoc = new YTEntityImpl("InnerDocCreationFieldTypes");
     eveDoc.fromJSON(
         "{\"@type\":\"d\", \"@fieldTypes\" : \"friends=z\", \"name\":\"eve\",\"friends\":["
             + adamDoc.getIdentity()
@@ -1210,13 +1210,13 @@ public class JSONTest extends DocumentDBBaseTest {
     eveDoc.save();
     database.commit();
 
-    Map<YTRID, YTDocument> contentMap = new HashMap<YTRID, YTDocument>();
-    YTDocument adam = new YTDocument("InnerDocCreationFieldTypes");
+    Map<YTRID, YTEntityImpl> contentMap = new HashMap<YTRID, YTEntityImpl>();
+    YTEntityImpl adam = new YTEntityImpl("InnerDocCreationFieldTypes");
     adam.field("name", "adam");
 
     contentMap.put(adamDoc.getIdentity(), adam);
 
-    YTDocument eve = new YTDocument("InnerDocCreationFieldTypes");
+    YTEntityImpl eve = new YTEntityImpl("InnerDocCreationFieldTypes");
     eve.field("name", "eve");
 
     List<YTRID> friends = new ArrayList<YTRID>();
@@ -1237,15 +1237,15 @@ public class JSONTest extends DocumentDBBaseTest {
 
     traverseMap.put(eveDoc.getIdentity(), eveTraverse);
 
-    for (YTDocument o : database.browseClass("InnerDocCreationFieldTypes")) {
-      YTDocument content = contentMap.get(o.getIdentity());
+    for (YTEntityImpl o : database.browseClass("InnerDocCreationFieldTypes")) {
+      YTEntityImpl content = contentMap.get(o.getIdentity());
       Assert.assertTrue(content.hasSameContentOf(o));
     }
 
-    for (YTDocument o : database.browseClass("InnerDocCreationFieldTypes")) {
+    for (YTEntityImpl o : database.browseClass("InnerDocCreationFieldTypes")) {
       List<YTRID> traverse = traverseMap.remove(o.getIdentity());
       for (YTIdentifiable id :
-          new OSQLSynchQuery<YTDocument>("traverse * from " + o.getIdentity().toString())) {
+          new OSQLSynchQuery<YTEntityImpl>("traverse * from " + o.getIdentity().toString())) {
         Assert.assertTrue(traverse.remove(id.getIdentity()));
       }
 
@@ -1265,24 +1265,24 @@ public class JSONTest extends DocumentDBBaseTest {
       database.getMetadata().getSchema().createClass(classNameDocTwo);
     }
     database.begin();
-    final YTDocument eveDoc = new YTDocument(classNameDocOne);
+    final YTEntityImpl eveDoc = new YTEntityImpl(classNameDocOne);
     eveDoc.field("name", "eve");
     eveDoc.save();
 
-    final YTDocument nestedWithTypeD = new YTDocument(classNameDocTwo);
+    final YTEntityImpl nestedWithTypeD = new YTEntityImpl(classNameDocTwo);
     nestedWithTypeD.fromJSON(
         "{\"@type\":\"d\",\"event_name\":\"world cup 2014\",\"admin\":[" + eveDoc.toJSON() + "]}");
     nestedWithTypeD.save();
     database.commit();
     Assert.assertEquals(database.countClass(classNameDocOne), 1);
 
-    final Map<YTRID, YTDocument> contentMap = new HashMap<>();
-    final YTDocument eve = new YTDocument(classNameDocOne);
+    final Map<YTRID, YTEntityImpl> contentMap = new HashMap<>();
+    final YTEntityImpl eve = new YTEntityImpl(classNameDocOne);
     eve.field("name", "eve");
     contentMap.put(eveDoc.getIdentity(), eve);
 
-    for (final YTDocument document : database.browseClass(classNameDocOne)) {
-      final YTDocument content = contentMap.get(document.getIdentity());
+    for (final YTEntityImpl document : database.browseClass(classNameDocOne)) {
+      final YTEntityImpl content = contentMap.get(document.getIdentity());
       Assert.assertTrue(content.hasSameContentOf(document));
     }
   }
@@ -1296,7 +1296,7 @@ public class JSONTest extends DocumentDBBaseTest {
       database.getMetadata().getSchema().createClass("JSONTxDocTwo");
     }
 
-    YTDocument adamDoc = new YTDocument("JSONTxDocOne");
+    YTEntityImpl adamDoc = new YTEntityImpl("JSONTxDocOne");
     adamDoc.field("name", "adam");
 
     database.begin();
@@ -1304,12 +1304,12 @@ public class JSONTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    YTDocument eveDoc = new YTDocument("JSONTxDocOne");
+    YTEntityImpl eveDoc = new YTEntityImpl("JSONTxDocOne");
     eveDoc.field("name", "eve");
     eveDoc.save();
 
     adamDoc = database.bindToSession(adamDoc);
-    final YTDocument nestedWithTypeD = new YTDocument("JSONTxDocTwo");
+    final YTEntityImpl nestedWithTypeD = new YTEntityImpl("JSONTxDocTwo");
     nestedWithTypeD.fromJSON(
         "{\"@type\":\"d\",\"event_name\":\"world cup 2014\",\"admin\":["
             + eveDoc.toJSON()
@@ -1322,23 +1322,23 @@ public class JSONTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(database.countClass("JSONTxDocOne"), 2);
 
-    Map<YTRID, YTDocument> contentMap = new HashMap<>();
-    YTDocument adam = new YTDocument("JSONTxDocOne");
+    Map<YTRID, YTEntityImpl> contentMap = new HashMap<>();
+    YTEntityImpl adam = new YTEntityImpl("JSONTxDocOne");
     adam.field("name", "adam");
     contentMap.put(adamDoc.getIdentity(), adam);
 
-    YTDocument eve = new YTDocument("JSONTxDocOne");
+    YTEntityImpl eve = new YTEntityImpl("JSONTxDocOne");
     eve.field("name", "eve");
     contentMap.put(eveDoc.getIdentity(), eve);
 
-    for (YTDocument o : database.browseClass("JSONTxDocOne")) {
-      YTDocument content = contentMap.get(o.getIdentity());
+    for (YTEntityImpl o : database.browseClass("JSONTxDocOne")) {
+      YTEntityImpl content = contentMap.get(o.getIdentity());
       Assert.assertTrue(content.hasSameContentOf(o));
     }
   }
 
   public void testInvalidLink() {
-    YTDocument nullRefDoc = new YTDocument();
+    YTEntityImpl nullRefDoc = new YTEntityImpl();
     nullRefDoc.fromJSON("{\"name\":\"Luca\", \"ref\":\"#-1:-1\"}");
     // Assert.assertNull(nullRefDoc.rawField("ref"));
 
@@ -1350,7 +1350,7 @@ public class JSONTest extends DocumentDBBaseTest {
   }
 
   public void testOtherJson() {
-    new YTDocument()
+    new YTEntityImpl()
         .fromJSON(
             "{\"Salary\":1500.0,\"Type\":\"Person\",\"Address\":[{\"Zip\":\"JX2"
                 + " MSX\",\"Type\":\"Home\",\"Street1\":\"13 Marge"
@@ -1362,7 +1362,7 @@ public class JSONTest extends DocumentDBBaseTest {
 
   @Test
   public void testScientificNotation() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON("{'number1': -9.2741500e-31, 'number2': 741800E+290}");
 
     final double number1 = doc.field("number1");

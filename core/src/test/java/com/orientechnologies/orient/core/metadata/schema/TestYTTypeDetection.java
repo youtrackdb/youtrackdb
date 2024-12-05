@@ -4,20 +4,20 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.record.LinkList;
+import com.orientechnologies.orient.core.db.record.LinkMap;
+import com.orientechnologies.orient.core.db.record.LinkSet;
+import com.orientechnologies.orient.core.db.record.TrackedList;
+import com.orientechnologies.orient.core.db.record.TrackedMap;
+import com.orientechnologies.orient.core.db.record.TrackedSet;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.OList;
-import com.orientechnologies.orient.core.db.record.OMap;
-import com.orientechnologies.orient.core.db.record.OSet;
-import com.orientechnologies.orient.core.db.record.OTrackedList;
-import com.orientechnologies.orient.core.db.record.OTrackedMap;
-import com.orientechnologies.orient.core.db.record.OTrackedSet;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import java.io.Serializable;
@@ -87,33 +87,33 @@ public class TestYTTypeDetection extends DBTestBase {
 
     assertEquals(YTType.LINK, YTType.getTypeByClass(YTRecord.class));
 
-    assertEquals(YTType.LINK, YTType.getTypeByClass(YTDocument.class));
+    assertEquals(YTType.LINK, YTType.getTypeByClass(YTEntityImpl.class));
 
     assertEquals(YTType.EMBEDDEDLIST, YTType.getTypeByClass(ArrayList.class));
 
     assertEquals(YTType.EMBEDDEDLIST, YTType.getTypeByClass(List.class));
 
-    assertEquals(YTType.EMBEDDEDLIST, YTType.getTypeByClass(OTrackedList.class));
+    assertEquals(YTType.EMBEDDEDLIST, YTType.getTypeByClass(TrackedList.class));
 
     assertEquals(YTType.EMBEDDEDSET, YTType.getTypeByClass(Set.class));
 
     assertEquals(YTType.EMBEDDEDSET, YTType.getTypeByClass(HashSet.class));
 
-    assertEquals(YTType.EMBEDDEDSET, YTType.getTypeByClass(OTrackedSet.class));
+    assertEquals(YTType.EMBEDDEDSET, YTType.getTypeByClass(TrackedSet.class));
 
     assertEquals(YTType.EMBEDDEDMAP, YTType.getTypeByClass(Map.class));
 
     assertEquals(YTType.EMBEDDEDMAP, YTType.getTypeByClass(HashMap.class));
 
-    assertEquals(YTType.EMBEDDEDMAP, YTType.getTypeByClass(OTrackedMap.class));
+    assertEquals(YTType.EMBEDDEDMAP, YTType.getTypeByClass(TrackedMap.class));
 
-    assertEquals(YTType.LINKSET, YTType.getTypeByClass(OSet.class));
+    assertEquals(YTType.LINKSET, YTType.getTypeByClass(LinkSet.class));
 
-    assertEquals(YTType.LINKLIST, YTType.getTypeByClass(OList.class));
+    assertEquals(YTType.LINKLIST, YTType.getTypeByClass(LinkList.class));
 
-    assertEquals(YTType.LINKMAP, YTType.getTypeByClass(OMap.class));
+    assertEquals(YTType.LINKMAP, YTType.getTypeByClass(LinkMap.class));
 
-    assertEquals(YTType.LINKBAG, YTType.getTypeByClass(ORidBag.class));
+    assertEquals(YTType.LINKBAG, YTType.getTypeByClass(RidBag.class));
 
     assertEquals(YTType.CUSTOM, YTType.getTypeByClass(OSerializableStream.class));
 
@@ -159,26 +159,26 @@ public class TestYTTypeDetection extends DBTestBase {
 
     assertEquals(YTType.INTEGER, YTType.getTypeByValue(new BigInteger("20")));
 
-    assertEquals(YTType.LINK, YTType.getTypeByValue(new YTDocument()));
+    assertEquals(YTType.LINK, YTType.getTypeByValue(new YTEntityImpl()));
 
     assertEquals(YTType.LINK, YTType.getTypeByValue(new ChangeableRecordId()));
 
     assertEquals(YTType.EMBEDDEDLIST, YTType.getTypeByValue(new ArrayList<Object>()));
 
     assertEquals(
-        YTType.EMBEDDEDLIST, YTType.getTypeByValue(new OTrackedList<Object>(new YTDocument())));
+        YTType.EMBEDDEDLIST, YTType.getTypeByValue(new TrackedList<Object>(new YTEntityImpl())));
 
     assertEquals(YTType.EMBEDDEDSET, YTType.getTypeByValue(new HashSet<Object>()));
 
     assertEquals(YTType.EMBEDDEDMAP, YTType.getTypeByValue(new HashMap<Object, Object>()));
 
-    assertEquals(YTType.LINKSET, YTType.getTypeByValue(new OSet(new YTDocument())));
+    assertEquals(YTType.LINKSET, YTType.getTypeByValue(new LinkSet(new YTEntityImpl())));
 
-    assertEquals(YTType.LINKLIST, YTType.getTypeByValue(new OList(new YTDocument())));
+    assertEquals(YTType.LINKLIST, YTType.getTypeByValue(new LinkList(new YTEntityImpl())));
 
-    assertEquals(YTType.LINKMAP, YTType.getTypeByValue(new OMap(new YTDocument())));
+    assertEquals(YTType.LINKMAP, YTType.getTypeByValue(new LinkMap(new YTEntityImpl())));
 
-    assertEquals(YTType.LINKBAG, YTType.getTypeByValue(new ORidBag(db)));
+    assertEquals(YTType.LINKBAG, YTType.getTypeByValue(new RidBag(db)));
 
     assertEquals(YTType.CUSTOM, YTType.getTypeByValue(new CustomClass()));
 
@@ -200,7 +200,7 @@ public class TestYTTypeDetection extends DBTestBase {
     assertEquals(YTType.LINKMAP, YTType.getTypeByValue(linkmap));
 
     Map<String, YTRecord> linkmap2 = new HashMap<String, YTRecord>();
-    linkmap2.put("some", new YTDocument());
+    linkmap2.put("some", new YTEntityImpl());
     assertEquals(YTType.LINKMAP, YTType.getTypeByValue(linkmap2));
 
     List<YTRecordId> linkList = new ArrayList<YTRecordId>();
@@ -208,7 +208,7 @@ public class TestYTTypeDetection extends DBTestBase {
     assertEquals(YTType.LINKLIST, YTType.getTypeByValue(linkList));
 
     List<YTRecord> linkList2 = new ArrayList<YTRecord>();
-    linkList2.add(new YTDocument());
+    linkList2.add(new YTEntityImpl());
     assertEquals(YTType.LINKLIST, YTType.getTypeByValue(linkList2));
 
     Set<YTRecordId> linkSet = new HashSet<YTRecordId>();
@@ -216,11 +216,11 @@ public class TestYTTypeDetection extends DBTestBase {
     assertEquals(YTType.LINKSET, YTType.getTypeByValue(linkSet));
 
     Set<YTRecord> linkSet2 = new HashSet<YTRecord>();
-    linkSet2.add(new YTDocument());
+    linkSet2.add(new YTEntityImpl());
     assertEquals(YTType.LINKSET, YTType.getTypeByValue(linkSet2));
 
-    YTDocument document = new YTDocument();
-    ODocumentInternal.addOwner(document, new YTDocument());
+    YTEntityImpl document = new YTEntityImpl();
+    ODocumentInternal.addOwner(document, new YTEntityImpl());
     assertEquals(YTType.EMBEDDED, YTType.getTypeByValue(document));
   }
 
@@ -240,13 +240,13 @@ public class TestYTTypeDetection extends DBTestBase {
   public class DocumentSer implements ODocumentSerializable {
 
     @Override
-    public YTDocument toDocument() {
+    public YTEntityImpl toDocument() {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public void fromDocument(YTDocument document) {
+    public void fromDocument(YTEntityImpl document) {
       // TODO Auto-generated method stub
 
     }

@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.OOrientShutdownListener;
 import com.orientechnologies.orient.core.OOrientStartupListener;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OSBTreeBonsai;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
@@ -46,7 +46,7 @@ public class OSBTreeCollectionManagerRemote
     OOrientStartupListener,
     OOrientShutdownListener {
 
-  private volatile ThreadLocal<Map<UUID, WeakReference<ORidBag>>> pendingCollections =
+  private volatile ThreadLocal<Map<UUID, WeakReference<RidBag>>> pendingCollections =
       new PendingCollectionsThreadLocal();
 
   public OSBTreeCollectionManagerRemote() {
@@ -79,27 +79,27 @@ public class OSBTreeCollectionManagerRemote
   }
 
   @Override
-  public UUID listenForChanges(ORidBag collection) {
+  public UUID listenForChanges(RidBag collection) {
     UUID id = collection.getTemporaryId();
     if (id == null) {
       id = UUID.randomUUID();
     }
 
-    pendingCollections.get().put(id, new WeakReference<ORidBag>(collection));
+    pendingCollections.get().put(id, new WeakReference<RidBag>(collection));
 
     return id;
   }
 
   @Override
   public void updateCollectionPointer(UUID uuid, OBonsaiCollectionPointer pointer) {
-    final WeakReference<ORidBag> reference = pendingCollections.get().get(uuid);
+    final WeakReference<RidBag> reference = pendingCollections.get().get(uuid);
     if (reference == null) {
       OLogManager.instance()
           .warn(this, "Update of collection pointer is received but collection is not registered");
       return;
     }
 
-    final ORidBag collection = reference.get();
+    final RidBag collection = reference.get();
 
     if (collection != null) {
       collection.notifySaved(pointer);
@@ -122,11 +122,11 @@ public class OSBTreeCollectionManagerRemote
   }
 
   private static class PendingCollectionsThreadLocal
-      extends ThreadLocal<Map<UUID, WeakReference<ORidBag>>> {
+      extends ThreadLocal<Map<UUID, WeakReference<RidBag>>> {
 
     @Override
-    protected Map<UUID, WeakReference<ORidBag>> initialValue() {
-      return new HashMap<UUID, WeakReference<ORidBag>>();
+    protected Map<UUID, WeakReference<RidBag>> initialValue() {
+      return new HashMap<UUID, WeakReference<RidBag>>();
     }
   }
 

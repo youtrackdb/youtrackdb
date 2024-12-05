@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.Arrays;
 import java.util.Collection;
@@ -162,7 +162,7 @@ public class YTPropertyMapIndexDefinitionTest extends DBTestBase {
 
   @Test
   public void testGetDocumentValueByKeyToIndex() {
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
     document.field("fOne", mapToTest);
     document.field("fTwo", 10);
@@ -179,7 +179,7 @@ public class YTPropertyMapIndexDefinitionTest extends DBTestBase {
 
   @Test
   public void testGetDocumentValueByValueToIndex() {
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
     document.field("fOne", mapToTest);
     document.field("fTwo", 10);
@@ -218,11 +218,11 @@ public class YTPropertyMapIndexDefinitionTest extends DBTestBase {
             "tesClass", "fOne", YTType.STRING, OPropertyMapIndexDefinition.INDEX_BY.KEY);
 
     database.begin();
-    final YTDocument docToStore = propertyIndexByKey.toStream(new YTDocument());
+    final YTEntityImpl docToStore = propertyIndexByKey.toStream(new YTEntityImpl());
     database.save(docToStore, database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final YTDocument docToLoad = database.load(docToStore.getIdentity());
+    final YTEntityImpl docToLoad = database.load(docToStore.getIdentity());
 
     final OPropertyIndexDefinition result = new OPropertyMapIndexDefinition();
     result.fromStream(docToLoad);
@@ -241,11 +241,11 @@ public class YTPropertyMapIndexDefinitionTest extends DBTestBase {
             "tesClass", "fOne", YTType.INTEGER, OPropertyMapIndexDefinition.INDEX_BY.VALUE);
 
     database.begin();
-    final YTDocument docToStore = propertyIndexByValue.toStream(new YTDocument());
+    final YTEntityImpl docToStore = propertyIndexByValue.toStream(new YTEntityImpl());
     database.save(docToStore, database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final YTDocument docToLoad = database.load(docToStore.getIdentity());
+    final YTEntityImpl docToLoad = database.load(docToStore.getIdentity());
 
     final OPropertyIndexDefinition result = new OPropertyMapIndexDefinition();
     result.fromStream(docToLoad);

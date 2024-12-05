@@ -19,7 +19,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -57,14 +57,14 @@ public class CRUDInheritanceTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testCreate")
   public void queryByBaseType() {
-    final List<YTDocument> result = executeQuery("select from Company where name.length() > 0");
+    final List<YTEntityImpl> result = executeQuery("select from Company where name.length() > 0");
 
     Assert.assertFalse(result.isEmpty());
     Assert.assertEquals(result.size(), TOT_COMPANY_RECORDS);
 
     int companyRecords = 0;
-    YTDocument account;
-    for (YTDocument entries : result) {
+    YTEntityImpl account;
+    for (YTEntityImpl entries : result) {
       account = entries;
 
       if ("Company".equals(account.getClassName())) {
@@ -79,12 +79,12 @@ public class CRUDInheritanceTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "queryByBaseType")
   public void queryPerSuperType() {
-    final List<YTDocument> result = executeQuery("select * from Company where name.length() > 0");
+    final List<YTEntityImpl> result = executeQuery("select * from Company where name.length() > 0");
 
     Assert.assertEquals(result.size(), TOT_COMPANY_RECORDS);
 
     YTEntity account;
-    for (YTDocument entries : result) {
+    for (YTEntityImpl entries : result) {
       account = entries;
       Assert.assertNotSame(account.<String>getProperty("name").length(), 0);
     }
@@ -134,7 +134,7 @@ public class CRUDInheritanceTest extends DocumentDBBaseTest {
     database.save(b);
     database.commit();
 
-    final List<YTDocument> result1 = executeQuery("select from InheritanceTestBaseClass");
+    final List<YTEntityImpl> result1 = executeQuery("select from InheritanceTestBaseClass");
     Assert.assertEquals(2, result1.size());
   }
 

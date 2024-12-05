@@ -18,7 +18,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunction;
 import java.lang.reflect.Array;
@@ -144,7 +144,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 100000; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -169,7 +169,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 100000; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -200,7 +200,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 100000; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -232,7 +232,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 300; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -257,7 +257,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 300; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -282,7 +282,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 30; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -312,7 +312,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 30; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -342,7 +342,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 100000; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i % 100);
       doc.save();
@@ -368,7 +368,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 100; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 10);
       doc.setProperty("surname", "surname" + i % 10);
       doc.save();
@@ -400,7 +400,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 100; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 10);
       doc.setProperty("surname", "surname" + i % 10);
       doc.save();
@@ -434,7 +434,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 300; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -462,7 +462,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 300; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -488,7 +488,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 300; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -519,7 +519,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 7; i++) {
       db.begin();
-      YTDocument doc = new YTDocument(className);
+      YTEntityImpl doc = new YTEntityImpl(className);
       doc.save();
       db.commit();
     }
@@ -547,7 +547,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = new YTDocument(className);
+      YTEntityImpl doc = new YTEntityImpl(className);
       doc.setProperty("name", "name" + (i % 5));
       doc.save();
       db.commit();
@@ -697,7 +697,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("val", i);
       doc.save();
@@ -720,7 +720,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
       doc.setProperty("val", i);
       doc.save();
@@ -754,7 +754,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
       doc.setProperty("val", i);
       doc.save();
@@ -793,7 +793,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
       doc.setProperty("val", i);
       doc.save();
@@ -826,7 +826,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "dd1" : "dd2");
       doc.setProperty("val", i);
       doc.save();
@@ -856,7 +856,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("val", i);
       doc.save(targetClusterName);
       db.commit();
@@ -887,7 +887,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("val", i);
       doc.save(targetClusterName);
       db.commit();
@@ -917,7 +917,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("val", i);
       doc.save(targetClusterName);
       db.commit();
@@ -953,7 +953,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("val", i);
       doc.save(targetClusterName);
       db.commit();
@@ -961,7 +961,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("val", i);
       doc.save(targetClusterName2);
       db.commit();
@@ -995,7 +995,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("val", i);
       doc.save();
       db.commit();
@@ -1116,7 +1116,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromSingleRid3() {
     db.begin();
-    YTDocument document = new YTDocument();
+    YTEntityImpl document = new YTEntityImpl();
     document.save(db.getClusterNameById(0));
     db.commit();
 
@@ -1133,7 +1133,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
   @Test
   public void testFetchFromSingleRid4() {
     db.begin();
-    YTDocument document = new YTDocument();
+    YTEntityImpl document = new YTEntityImpl();
     document.save(db.getClusterNameById(0));
     db.commit();
 
@@ -1156,7 +1156,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -1193,7 +1193,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -1231,7 +1231,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 5; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -1239,7 +1239,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 5; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(classNameExt);
+      YTEntityImpl doc = db.newInstance(classNameExt);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -1277,7 +1277,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -1321,7 +1321,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -1350,7 +1350,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1389,7 +1389,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1429,7 +1429,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1463,7 +1463,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1490,7 +1490,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1521,7 +1521,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1548,7 +1548,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1579,7 +1579,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1609,7 +1609,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1638,7 +1638,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1667,7 +1667,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1696,7 +1696,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1729,7 +1729,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1762,7 +1762,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1797,7 +1797,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
@@ -1831,13 +1831,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     int count = 10;
     for (int i = 0; i < count; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(childClassName);
+      YTEntityImpl doc = db.newInstance(childClassName);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.setProperty("foo", i);
       doc.save();
 
-      YTDocument parent = new YTDocument(parentClassName);
+      YTEntityImpl parent = new YTEntityImpl(parentClassName);
       parent.setProperty("linked", doc);
       parent.save();
       db.commit();
@@ -1868,13 +1868,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     for (int i = 0; i < count; i++) {
       List coll = new ArrayList<>();
       for (int j = 0; j < collSize; j++) {
-        YTDocument doc = db.newInstance(childClassName);
+        YTEntityImpl doc = db.newInstance(childClassName);
         doc.setProperty("name", "name" + i);
         doc.save();
         coll.add(doc);
       }
 
-      YTDocument parent = new YTDocument(parentClassName);
+      YTEntityImpl parent = new YTEntityImpl(parentClassName);
       parent.setProperty("linked", coll);
       parent.save();
     }
@@ -1905,13 +1905,13 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     for (int i = 0; i < count; i++) {
       List coll = new ArrayList<>();
       for (int j = 0; j < collSize; j++) {
-        YTDocument doc = db.newInstance(childClassName);
+        YTEntityImpl doc = db.newInstance(childClassName);
         doc.setProperty("name", "name" + j);
         doc.save();
         coll.add(doc);
       }
 
-      YTDocument parent = new YTDocument(parentClassName);
+      YTEntityImpl parent = new YTEntityImpl(parentClassName);
       parent.setProperty("linked", coll);
       parent.save();
     }
@@ -1944,7 +1944,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 30; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 10);
       doc.setProperty("surname", "surname" + i % 10);
       doc.save();
@@ -1972,7 +1972,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 30; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 10);
       doc.setProperty("surname", "surname" + i % 10);
       doc.save();
@@ -2050,7 +2050,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2082,7 +2082,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2114,7 +2114,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2147,7 +2147,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2229,7 +2229,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("i", i);
       doc.setProperty("iSeq", new int[]{i, 2 * i, 4 * i});
       doc.save();
@@ -2268,7 +2268,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("i", i);
       doc.setProperty("iSeq", new int[]{i, 2 * i, 4 * i});
       doc.save();
@@ -2298,7 +2298,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("i", i);
       List<Integer> iSeq = new ArrayList<>();
       iSeq.add(i);
@@ -2340,7 +2340,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(child1);
+      YTEntityImpl doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -2348,7 +2348,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(child2);
+      YTEntityImpl doc = db.newInstance(child2);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -2382,7 +2382,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(child1);
+      YTEntityImpl doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2391,7 +2391,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(child2);
+      YTEntityImpl doc = db.newInstance(child2);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2426,7 +2426,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(child1);
+      YTEntityImpl doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2435,7 +2435,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(child2);
+      YTEntityImpl doc = db.newInstance(child2);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2471,14 +2471,14 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     childClass2.createIndex(db, child2 + ".name", YTClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     db.begin();
-    YTDocument parentdoc = db.newInstance(parent);
+    YTEntityImpl parentdoc = db.newInstance(parent);
     parentdoc.setProperty("name", "foo");
     parentdoc.save();
     db.commit();
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(child1);
+      YTEntityImpl doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2487,7 +2487,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(child2);
+      YTEntityImpl doc = db.newInstance(child2);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2531,7 +2531,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(child1);
+      YTEntityImpl doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2540,7 +2540,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(child2_1);
+      YTEntityImpl doc = db.newInstance(child2_1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2549,7 +2549,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(child2_2);
+      YTEntityImpl doc = db.newInstance(child2_2);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2589,7 +2589,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(child1);
+      YTEntityImpl doc = db.newInstance(child1);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2598,7 +2598,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(child2);
+      YTEntityImpl doc = db.newInstance(child2);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2607,7 +2607,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(child12);
+      YTEntityImpl doc = db.newInstance(child12);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2644,7 +2644,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2692,7 +2692,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2740,7 +2740,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2789,7 +2789,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2839,7 +2839,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2887,7 +2887,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2935,7 +2935,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -2980,7 +2980,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -3026,7 +3026,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -3070,7 +3070,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -3114,7 +3114,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -3158,7 +3158,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i % 3);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -3198,7 +3198,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -3222,7 +3222,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -3249,7 +3249,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -3274,7 +3274,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    YTDocument doc = db.newInstance(className);
+    YTEntityImpl doc = db.newInstance(className);
     doc.setProperty("name", new String[]{"a", "b", "c", "d"});
     doc.save();
     db.commit();
@@ -3312,7 +3312,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    YTDocument doc = db.newInstance(className);
+    YTEntityImpl doc = db.newInstance(className);
     doc.setProperty("name", new String[]{"a", "b", "c", "d"});
     doc.save();
     db.commit();
@@ -3350,7 +3350,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    YTDocument doc = db.newInstance(className);
+    YTEntityImpl doc = db.newInstance(className);
     doc.setProperty("name", new String[]{"a", "b", "c", "d"});
     doc.save();
     db.commit();
@@ -3391,7 +3391,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    YTDocument doc = db.newInstance(className);
+    YTEntityImpl doc = db.newInstance(className);
     doc.setProperty("name", new String[]{"a", "b", "c", "d"});
     doc.save();
     db.commit();
@@ -4370,7 +4370,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 10; i++) {
       db.begin();
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
       doc.setProperty("val", i);
       doc.save();
@@ -4466,7 +4466,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
               }
             });
     for (int i = 0; i < 3; i++) {
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("type", i % 2 == 0 ? "even" : "odd");
       doc.setProperty("val", i);
       doc.save();
@@ -4500,7 +4500,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      final YTDocument doc = db.newInstance(className);
+      final YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -4525,7 +4525,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      final YTDocument doc = db.newInstance(className);
+      final YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -4551,7 +4551,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
 
     for (int i = 0; i < 10; i++) {
       db.begin();
-      final YTDocument doc = db.newInstance(className);
+      final YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.save();
       db.commit();
@@ -4717,7 +4717,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     String className = "TestExclude";
     db.getMetadata().getSchema().createClass(className);
     db.begin();
-    YTDocument doc = db.newInstance(className);
+    YTEntityImpl doc = db.newInstance(className);
     doc.setProperty("name", "foo");
     doc.setProperty("surname", "bar");
     doc.save();
@@ -4740,7 +4740,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    YTDocument doc = db.newInstance(className);
+    YTEntityImpl doc = db.newInstance(className);
     doc.setProperty("name", "abbb");
     doc.save();
 

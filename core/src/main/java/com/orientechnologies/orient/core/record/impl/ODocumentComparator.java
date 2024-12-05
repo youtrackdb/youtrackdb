@@ -70,8 +70,8 @@ public class ODocumentComparator implements Comparator<YTIdentifiable> {
       final String fieldName = field.getKey();
       final String ordering = field.getValue();
 
-      fieldValue1 = ((YTDocument) iDoc1.getRecord()).field(fieldName);
-      fieldValue2 = ((YTDocument) iDoc2.getRecord()).field(fieldName);
+      fieldValue1 = ((YTEntityImpl) iDoc1.getRecord()).field(fieldName);
+      fieldValue2 = ((YTEntityImpl) iDoc2.getRecord()).field(fieldName);
 
       if (fieldValue1 == null && fieldValue2 == null) {
         continue;

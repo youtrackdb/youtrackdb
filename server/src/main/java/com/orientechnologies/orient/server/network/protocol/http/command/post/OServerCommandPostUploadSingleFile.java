@@ -17,7 +17,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.core.util.ODateHelper;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -171,7 +171,7 @@ public class OServerCommandPostUploadSingleFile extends
         if (fileDocument.contains("$file")) {
           fileDocument = fileDocument.replace("$file", fileRID.toString());
         }
-        YTDocument doc = new YTDocument();
+        YTEntityImpl doc = new YTEntityImpl();
         doc.fromJSON(fileDocument);
         doc.save();
         writer.beginObject("updatedDocument");

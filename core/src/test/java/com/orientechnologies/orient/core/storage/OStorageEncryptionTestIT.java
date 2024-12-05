@@ -16,7 +16,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.File;
@@ -51,7 +51,7 @@ public class OStorageEncryptionTestIT {
         cls.createIndex(session, "EncryptedHash", YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX, "id");
 
         for (int i = 0; i < 10_000; i++) {
-          final YTDocument document = new YTDocument(cls);
+          final YTEntityImpl document = new YTEntityImpl(cls);
           document.setProperty("id", i);
           document.setProperty(
               "value",
@@ -129,7 +129,7 @@ public class OStorageEncryptionTestIT {
         final OIndex treeIndex = indexManager.getIndex(session, "EncryptedTree");
         final OIndex hashIndex = indexManager.getIndex(session, "EncryptedHash");
 
-        for (final YTDocument document : session.browseClass("EncryptedData")) {
+        for (final YTEntityImpl document : session.browseClass("EncryptedData")) {
           final int id = document.getProperty("id");
           final YTRID treeRid;
           try (Stream<YTRID> rids = treeIndex.getInternal().getRids(session, id)) {
@@ -188,7 +188,7 @@ public class OStorageEncryptionTestIT {
         final YTSchema schema = session.getMetadata().getSchema();
         final YTClass cls = schema.createClass("EncryptedData");
 
-        final YTDocument document = new YTDocument(cls);
+        final YTEntityImpl document = new YTEntityImpl(cls);
         document.setProperty("id", 10);
         document.setProperty(
             "value",

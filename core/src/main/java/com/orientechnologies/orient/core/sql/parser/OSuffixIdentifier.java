@@ -13,7 +13,7 @@ import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTContextualRecordId;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
@@ -458,7 +458,7 @@ public class OSuffixIdentifier extends SimpleNode {
 
   public boolean isDefinedFor(YTEntity currentRecord) {
     if (identifier != null) {
-      return ((YTDocument) currentRecord.getRecord()).containsField(identifier.getStringValue());
+      return ((YTEntityImpl) currentRecord.getRecord()).containsField(identifier.getStringValue());
     }
     return true;
   }

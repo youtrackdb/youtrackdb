@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.OServer;
 import java.io.IOException;
@@ -46,7 +46,7 @@ public class ORemoteBasicSecurityTest {
     try (YTDatabaseSession session = youTrackDB.open("test", "admin", "admin")) {
       session.createClass("one");
       session.begin();
-      session.save(new YTDocument("one"));
+      session.save(new YTEntityImpl("one"));
       session.commit();
     }
     youTrackDB.close();
@@ -59,7 +59,7 @@ public class ORemoteBasicSecurityTest {
         YouTrackDBConfig.defaultConfig())) {
       try (YTDatabaseSession writer = writerOrient.open("test", "writer", "writer")) {
         writer.begin();
-        writer.save(new YTDocument("one"));
+        writer.save(new YTEntityImpl("one"));
         writer.commit();
         try (YTResultSet rs = writer.query("select from one")) {
           assertEquals(rs.stream().count(), 2);

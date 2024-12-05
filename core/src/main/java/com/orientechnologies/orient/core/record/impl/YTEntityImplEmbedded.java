@@ -1,29 +1,29 @@
 package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.ORecordInternal;
+import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTVertex;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
-public class YTDocumentEmbedded extends YTDocument {
+public class YTEntityImplEmbedded extends YTEntityImpl {
 
-  public YTDocumentEmbedded() {
+  public YTEntityImplEmbedded() {
     super();
   }
 
-  public YTDocumentEmbedded(String clazz) {
+  public YTEntityImplEmbedded(String clazz) {
     super(clazz);
     checkEmbeddable();
   }
 
-  public YTDocumentEmbedded(String clazz, YTDatabaseSessionInternal session) {
+  public YTEntityImplEmbedded(String clazz, YTDatabaseSessionInternal session) {
     super(session, clazz);
     checkEmbeddable();
   }
 
-  public YTDocumentEmbedded(YTDatabaseSessionInternal session) {
+  public YTEntityImplEmbedded(YTDatabaseSessionInternal session) {
     super(session);
   }
 
@@ -33,10 +33,10 @@ public class YTDocumentEmbedded extends YTDocument {
   }
 
   @Override
-  public YTDocumentEmbedded copy() {
-    var doc = new YTDocumentEmbedded();
+  public YTEntityImplEmbedded copy() {
+    var doc = new YTEntityImplEmbedded();
     ORecordInternal.unsetDirty(doc);
-    var newDoc = (YTDocumentEmbedded) copyTo(doc);
+    var newDoc = (YTEntityImplEmbedded) copyTo(doc);
     newDoc.dirty = true;
     return newDoc;
   }
@@ -84,7 +84,7 @@ public class YTDocumentEmbedded extends YTDocument {
   }
 
   @Override
-  public YTDocument reset() {
+  public YTEntityImpl reset() {
     throw new UnsupportedOperationException("Cannot reset embedded document");
   }
 }

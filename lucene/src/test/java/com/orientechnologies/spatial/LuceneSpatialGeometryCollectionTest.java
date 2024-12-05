@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Arrays;
 import java.util.List;
@@ -37,12 +37,12 @@ public class LuceneSpatialGeometryCollectionTest extends BaseSpatialLuceneTest {
 
   @Test
   public void testGeoCollectionOutsideTx() {
-    YTDocument test1 = new YTDocument("test");
+    YTEntityImpl test1 = new YTEntityImpl("test");
     test1.field("name", "test1");
-    YTDocument geometry = new YTDocument("OGeometryCollection");
-    YTDocument point = new YTDocument("OPoint");
+    YTEntityImpl geometry = new YTEntityImpl("OGeometryCollection");
+    YTEntityImpl point = new YTEntityImpl("OPoint");
     point.field("coordinates", Arrays.asList(1.0, 2.0));
-    YTDocument polygon = new YTDocument("OPolygon");
+    YTEntityImpl polygon = new YTEntityImpl("OPolygon");
     polygon.field(
         "coordinates",
         List.of(
@@ -70,12 +70,12 @@ public class LuceneSpatialGeometryCollectionTest extends BaseSpatialLuceneTest {
   public void testGeoCollectionInsideTransaction() {
     db.begin();
 
-    YTDocument test1 = new YTDocument("test");
+    YTEntityImpl test1 = new YTEntityImpl("test");
     test1.field("name", "test1");
-    YTDocument geometry = new YTDocument("OGeometryCollection");
-    YTDocument point = new YTDocument("OPoint");
+    YTEntityImpl geometry = new YTEntityImpl("OGeometryCollection");
+    YTEntityImpl point = new YTEntityImpl("OPoint");
     point.field("coordinates", Arrays.asList(1.0, 2.0));
-    YTDocument polygon = new YTDocument("OPolygon");
+    YTEntityImpl polygon = new YTEntityImpl("OPolygon");
     polygon.field(
         "coordinates",
         List.of(

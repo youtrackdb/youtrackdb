@@ -30,7 +30,7 @@ import com.orientechnologies.orient.core.metadata.schema.validation.ValidationCo
 import com.orientechnologies.orient.core.metadata.schema.validation.ValidationLinkbagComparable;
 import com.orientechnologies.orient.core.metadata.schema.validation.ValidationMapComparable;
 import com.orientechnologies.orient.core.metadata.schema.validation.ValidationStringComparable;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -213,7 +213,7 @@ public class YTImmutableProperty implements YTProperty {
       String type) {
     T mc;
     try {
-      mc = (T) YTType.convert(session, value, target);
+      mc = YTType.convert(session, value, target);
     } catch (RuntimeException e) {
       OLogManager.instance()
           .error(this, "Error initializing %s value check on property %s", e, type, fullName);
@@ -374,12 +374,12 @@ public class YTImmutableProperty implements YTProperty {
   }
 
   @Override
-  public OIndex createIndex(YTDatabaseSession session, String iType, YTDocument metadata) {
+  public OIndex createIndex(YTDatabaseSession session, String iType, YTEntityImpl metadata) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OIndex createIndex(YTDatabaseSession session, INDEX_TYPE iType, YTDocument metadata) {
+  public OIndex createIndex(YTDatabaseSession session, INDEX_TYPE iType, YTEntityImpl metadata) {
     throw new UnsupportedOperationException();
   }
 

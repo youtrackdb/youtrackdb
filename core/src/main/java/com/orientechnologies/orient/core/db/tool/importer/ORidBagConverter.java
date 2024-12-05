@@ -2,20 +2,20 @@ package com.orientechnologies.orient.core.db.tool.importer;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 
 /**
  *
  */
-public final class ORidBagConverter extends OAbstractCollectionConverter<ORidBag> {
+public final class ORidBagConverter extends OAbstractCollectionConverter<RidBag> {
 
   public ORidBagConverter(OConverterData converterData) {
     super(converterData);
   }
 
   @Override
-  public ORidBag convert(YTDatabaseSessionInternal db, ORidBag value) {
-    final ORidBag result = new ORidBag(db);
+  public RidBag convert(YTDatabaseSessionInternal db, RidBag value) {
+    final RidBag result = new RidBag(db);
     boolean updated = false;
     final ResultCallback callback =
         new ResultCallback() {

@@ -4,7 +4,7 @@ import static com.orientechnologies.orient.enterprise.channel.binary.OChannelBin
 
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -13,12 +13,12 @@ import java.io.IOException;
 
 public class OPushIndexManagerRequest implements OBinaryPushRequest<OBinaryPushResponse> {
 
-  private YTDocument indexManager;
+  private YTEntityImpl indexManager;
 
   public OPushIndexManagerRequest() {
   }
 
-  public OPushIndexManagerRequest(YTDocument indexManager) {
+  public OPushIndexManagerRequest(YTEntityImpl indexManager) {
     this.indexManager = indexManager;
   }
 
@@ -33,7 +33,7 @@ public class OPushIndexManagerRequest implements OBinaryPushRequest<OBinaryPushR
   public void read(YTDatabaseSessionInternal db, OChannelDataInput network) throws IOException {
     byte[] bytes = network.readBytes();
     this.indexManager =
-        (YTDocument) ORecordSerializerNetworkV37Client.INSTANCE.fromStream(db, bytes, null);
+        (YTEntityImpl) ORecordSerializerNetworkV37Client.INSTANCE.fromStream(db, bytes, null);
   }
 
   @Override
@@ -52,7 +52,7 @@ public class OPushIndexManagerRequest implements OBinaryPushRequest<OBinaryPushR
     return REQUEST_PUSH_INDEX_MANAGER;
   }
 
-  public YTDocument getIndexManager() {
+  public YTEntityImpl getIndexManager() {
     return indexManager;
   }
 }

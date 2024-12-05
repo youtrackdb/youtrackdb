@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import static org.junit.Assert.fail;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.ByteArrayInputStream;
@@ -47,19 +47,19 @@ public class ODeleteStatementTest extends DBTestBase {
     db.command("create class Bar").close();
 
     db.begin();
-    final YTDocument doc1 = new YTDocument("Foo").field("k", "key1");
-    final YTDocument doc2 = new YTDocument("Foo").field("k", "key2");
-    final YTDocument doc3 = new YTDocument("Foo").field("k", "key3");
+    final YTEntityImpl doc1 = new YTEntityImpl("Foo").field("k", "key1");
+    final YTEntityImpl doc2 = new YTEntityImpl("Foo").field("k", "key2");
+    final YTEntityImpl doc3 = new YTEntityImpl("Foo").field("k", "key3");
 
     doc1.save();
     doc2.save();
     doc3.save();
 
-    List<YTDocument> list = new ArrayList<YTDocument>();
+    List<YTEntityImpl> list = new ArrayList<YTEntityImpl>();
     list.add(doc1);
     list.add(doc2);
     list.add(doc3);
-    final YTDocument bar = new YTDocument("Bar").field("arr", list);
+    final YTEntityImpl bar = new YTEntityImpl("Bar").field("arr", list);
     bar.save();
     db.commit();
 

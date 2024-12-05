@@ -21,7 +21,7 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
@@ -126,11 +126,11 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
     profiler.startRecording();
     for (int i = 0; i < 10000; i++) {
 
-      final YTDocument doc1 = new YTDocument("IndexInSubclassesTestChild1");
+      final YTEntityImpl doc1 = new YTEntityImpl("IndexInSubclassesTestChild1");
       doc1.field("name", "name" + i);
       doc1.save();
 
-      final YTDocument doc2 = new YTDocument("IndexInSubclassesTestChild2");
+      final YTEntityImpl doc2 = new YTEntityImpl("IndexInSubclassesTestChild2");
       doc2.field("name", "name" + i);
       doc2.save();
       if (i % 100 == 0) {
@@ -139,16 +139,16 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
     }
     database.commit();
 
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database.query(
-            new OSQLSynchQuery<YTDocument>(
+            new OSQLSynchQuery<YTEntityImpl>(
                 "select from IndexInSubclassesTestBase where name > 'name9995' and name <"
                     + " 'name9999' order by name ASC"));
     Assert.assertEquals(result.size(), 6);
     String lastName = result.get(0).field("name");
 
     for (int i = 1; i < result.size(); i++) {
-      YTDocument current = result.get(i);
+      YTEntityImpl current = result.get(i);
       String currentName = current.field("name");
       Assert.assertTrue(lastName.compareTo(currentName) <= 0);
       lastName = currentName;
@@ -160,13 +160,13 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
 
     result =
         database.query(
-            new OSQLSynchQuery<YTDocument>(
+            new OSQLSynchQuery<YTEntityImpl>(
                 "select from IndexInSubclassesTestBase where name > 'name9995' and name <"
                     + " 'name9999' order by name DESC"));
     Assert.assertEquals(result.size(), 6);
     lastName = result.get(0).field("name");
     for (int i = 1; i < result.size(); i++) {
-      YTDocument current = result.get(i);
+      YTEntityImpl current = result.get(i);
       String currentName = current.field("name");
       Assert.assertTrue(lastName.compareTo(currentName) >= 0);
       lastName = currentName;
@@ -193,15 +193,15 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
 
     profiler.startRecording();
     for (int i = 0; i < 10000; i++) {
-      final YTDocument doc0 = new YTDocument("IndexInSubclassesTestBase");
+      final YTEntityImpl doc0 = new YTEntityImpl("IndexInSubclassesTestBase");
       doc0.field("name", "name" + i);
       doc0.save();
 
-      final YTDocument doc1 = new YTDocument("IndexInSubclassesTestChild1");
+      final YTEntityImpl doc1 = new YTEntityImpl("IndexInSubclassesTestChild1");
       doc1.field("name", "name" + i);
       doc1.save();
 
-      final YTDocument doc2 = new YTDocument("IndexInSubclassesTestChild2");
+      final YTEntityImpl doc2 = new YTEntityImpl("IndexInSubclassesTestChild2");
       doc2.field("name", "name" + i);
       doc2.save();
       if (i % 100 == 0) {
@@ -210,15 +210,15 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
     }
     database.commit();
 
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database.query(
-            new OSQLSynchQuery<YTDocument>(
+            new OSQLSynchQuery<YTEntityImpl>(
                 "select from IndexInSubclassesTestBase where name > 'name9995' and name <"
                     + " 'name9999' order by name ASC"));
     Assert.assertEquals(result.size(), 9);
     String lastName = result.get(0).field("name");
     for (int i = 1; i < result.size(); i++) {
-      YTDocument current = result.get(i);
+      YTEntityImpl current = result.get(i);
       String currentName = current.field("name");
       Assert.assertTrue(lastName.compareTo(currentName) <= 0);
       lastName = currentName;
@@ -231,13 +231,13 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
 
     result =
         database.query(
-            new OSQLSynchQuery<YTDocument>(
+            new OSQLSynchQuery<YTEntityImpl>(
                 "select from IndexInSubclassesTestBase where name > 'name9995' and name <"
                     + " 'name9999' order by name DESC"));
     Assert.assertEquals(result.size(), 9);
     lastName = result.get(0).field("name");
     for (int i = 1; i < result.size(); i++) {
-      YTDocument current = result.get(i);
+      YTEntityImpl current = result.get(i);
       String currentName = current.field("name");
       Assert.assertTrue(lastName.compareTo(currentName) >= 0);
       lastName = currentName;
@@ -254,11 +254,11 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
 
     for (int i = 0; i < 10000; i++) {
 
-      final YTDocument doc1 = new YTDocument("IndexInSubclassesTestChild1Fail");
+      final YTEntityImpl doc1 = new YTEntityImpl("IndexInSubclassesTestChild1Fail");
       doc1.field("name", "name" + i);
       doc1.save();
 
-      final YTDocument doc2 = new YTDocument("IndexInSubclassesTestChild2Fail");
+      final YTEntityImpl doc2 = new YTEntityImpl("IndexInSubclassesTestChild2Fail");
       doc2.field("name", "name" + i);
       doc2.save();
       if (i % 100 == 0) {
@@ -302,7 +302,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
   @Test
   public void testIteratorOnSubclassWithoutValues() {
     for (int i = 0; i < 2; i++) {
-      final YTDocument doc1 = new YTDocument("GenericCrash");
+      final YTEntityImpl doc1 = new YTEntityImpl("GenericCrash");
       database.begin();
       doc1.field("name", "foo");
       doc1.save();

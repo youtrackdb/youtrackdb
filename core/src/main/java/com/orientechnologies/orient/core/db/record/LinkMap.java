@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -35,19 +35,19 @@ import java.util.Map;
  * changes. This avoid to call the makeDirty() by hand when the map is changed.
  */
 @SuppressWarnings({"serial"})
-public class OMap extends OTrackedMap<YTIdentifiable> implements OSizeable {
+public class LinkMap extends TrackedMap<YTIdentifiable> implements OSizeable {
 
   private final byte recordType;
   private ORecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE multiValueStatus =
       MULTIVALUE_CONTENT_TYPE.EMPTY;
   private boolean autoConvertToRecord = true;
 
-  public OMap(final ORecordElement iSourceRecord) {
+  public LinkMap(final RecordElement iSourceRecord) {
     super(iSourceRecord);
-    this.recordType = YTDocument.RECORD_TYPE;
+    this.recordType = YTEntityImpl.RECORD_TYPE;
   }
 
-  public OMap(final YTDocument iSourceRecord, final byte iRecordType) {
+  public LinkMap(final YTEntityImpl iSourceRecord, final byte iRecordType) {
     super(iSourceRecord);
     this.recordType = iRecordType;
 
@@ -60,7 +60,7 @@ public class OMap extends OTrackedMap<YTIdentifiable> implements OSizeable {
     }
   }
 
-  public OMap(final YTDocument iSourceRecord, final Map<Object, YTIdentifiable> iOrigin) {
+  public LinkMap(final YTEntityImpl iSourceRecord, final Map<Object, YTIdentifiable> iOrigin) {
     this(iSourceRecord);
     if (iOrigin != null && !iOrigin.isEmpty()) {
       putAll(iOrigin);

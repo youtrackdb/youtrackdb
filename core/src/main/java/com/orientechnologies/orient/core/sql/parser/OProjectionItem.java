@@ -5,13 +5,13 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.OEdgeToVertexIterable;
 import com.orientechnologies.orient.core.record.impl.OEdgeToVertexIterator;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
 import com.orientechnologies.orient.core.sql.executor.YTInternalResultSet;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
@@ -140,9 +140,9 @@ public class OProjectionItem extends SimpleNode {
   }
 
   public static Object convert(Object value, OCommandContext context) {
-    if (value instanceof ORidBag) {
+    if (value instanceof RidBag) {
       List result = new ArrayList();
-      ((ORidBag) value).iterator().forEachRemaining(result::add);
+      ((RidBag) value).iterator().forEachRemaining(result::add);
       return result;
     }
     if (value instanceof OEdgeToVertexIterable) {
@@ -194,7 +194,7 @@ public class OProjectionItem extends SimpleNode {
       result = expression.execute(iCurrentRecord, ctx);
     }
     if (nestedProjection != null) {
-      if (result instanceof YTDocument document && document.isEmpty()) {
+      if (result instanceof YTEntityImpl document && document.isEmpty()) {
         result = ctx.getDatabase().bindToSession(document);
       }
       result = nestedProjection.apply(expression, result, ctx);

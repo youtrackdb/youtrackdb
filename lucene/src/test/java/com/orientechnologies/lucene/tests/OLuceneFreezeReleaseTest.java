@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class OLuceneFreezeReleaseTest extends OLuceneBaseTest {
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE");
 
     db.begin();
-    db.save(new YTDocument("Person").field("name", "John"));
+    db.save(new YTEntityImpl("Person").field("name", "John"));
     db.commit();
 
     YTResultSet results = db.query("select from Person where search_class('John')=true");
@@ -49,7 +49,7 @@ public class OLuceneFreezeReleaseTest extends OLuceneBaseTest {
 
     db.release();
 
-    YTDocument doc = db.newInstance("Person");
+    YTEntityImpl doc = db.newInstance("Person");
     doc.field("name", "John");
 
     db.begin();
@@ -72,7 +72,7 @@ public class OLuceneFreezeReleaseTest extends OLuceneBaseTest {
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE");
 
     db.begin();
-    db.save(new YTDocument("Person").field("name", "John"));
+    db.save(new YTEntityImpl("Person").field("name", "John"));
     db.commit();
 
     YTResultSet results = db.command("select from Person where search_class('John')=true");
@@ -93,7 +93,7 @@ public class OLuceneFreezeReleaseTest extends OLuceneBaseTest {
     db.release();
 
     db.begin();
-    db.save(new YTDocument("Person").field("name", "John"));
+    db.save(new YTEntityImpl("Person").field("name", "John"));
     db.commit();
 
     results = db.command("select from Person where search_class('John')=true");

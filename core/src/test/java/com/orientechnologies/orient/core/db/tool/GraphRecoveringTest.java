@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.storage.impl.local.OStorageRecoverEventListener;
 import java.util.Objects;
@@ -26,17 +26,17 @@ public class GraphRecoveringTest {
     public long repairedVertices = 0;
 
     @Override
-    public void onScannedEdge(YTDocument edge) {
+    public void onScannedEdge(YTEntityImpl edge) {
       scannedEdges++;
     }
 
     @Override
-    public void onRemovedEdge(YTDocument edge) {
+    public void onRemovedEdge(YTEntityImpl edge) {
       removedEdges++;
     }
 
     @Override
-    public void onScannedVertex(YTDocument vertex) {
+    public void onScannedVertex(YTEntityImpl vertex) {
       scannedVertices++;
     }
 
@@ -51,7 +51,7 @@ public class GraphRecoveringTest {
     }
 
     @Override
-    public void onRepairedVertex(YTDocument vertex) {
+    public void onRepairedVertex(YTEntityImpl vertex) {
       repairedVertices++;
     }
   }
@@ -120,7 +120,7 @@ public class GraphRecoveringTest {
                 .map(YTResult::toEntity)
                 .map(YTEntity::toEdge)
                 .toList()) {
-          e.<YTDocument>getRecord().removeField("out");
+          e.<YTEntityImpl>getRecord().removeField("out");
           e.save();
         }
         session.commit();
@@ -159,9 +159,9 @@ public class GraphRecoveringTest {
                 .filter(Objects::nonNull)
                 .map(YTEntity::toVertex)
                 .toList()) {
-          for (String f : v.<YTDocument>getRecord().fieldNames()) {
+          for (String f : v.<YTEntityImpl>getRecord().fieldNames()) {
             if (f.startsWith(YTVertex.DIRECTION_OUT_PREFIX)) {
-              v.<YTDocument>getRecord().removeField(f);
+              v.<YTEntityImpl>getRecord().removeField(f);
               v.save();
             }
           }

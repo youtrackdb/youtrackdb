@@ -34,7 +34,7 @@ import com.orientechnologies.orient.core.index.OPropertyIndexDefinition;
 import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.util.ODateHelper;
 import java.text.ParseException;
@@ -167,12 +167,12 @@ public abstract class YTPropertyImpl implements YTProperty {
   }
 
   @Override
-  public OIndex createIndex(YTDatabaseSession session, INDEX_TYPE iType, YTDocument metadata) {
+  public OIndex createIndex(YTDatabaseSession session, INDEX_TYPE iType, YTEntityImpl metadata) {
     return createIndex(session, iType.name(), metadata);
   }
 
   @Override
-  public OIndex createIndex(YTDatabaseSession session, String iType, YTDocument metadata) {
+  public OIndex createIndex(YTDatabaseSession session, String iType, YTEntityImpl metadata) {
     acquireSchemaReadLock();
     try {
       return owner.createIndex(session,
@@ -665,7 +665,7 @@ public abstract class YTPropertyImpl implements YTProperty {
     }
   }
 
-  public void fromStream(YTDocument document) {
+  public void fromStream(YTEntityImpl document) {
     String name = document.field("name");
     YTType type = null;
     if (document.field("type") != null) {
@@ -723,8 +723,8 @@ public abstract class YTPropertyImpl implements YTProperty {
     }
   }
 
-  public YTDocument toStream() {
-    YTDocument document = new YTDocument();
+  public YTEntityImpl toStream() {
+    YTEntityImpl document = new YTEntityImpl();
     document.field("name", getName());
     document.field("type", getType().id);
     document.field("globalId", globalRef.getId());
@@ -811,8 +811,8 @@ public abstract class YTPropertyImpl implements YTProperty {
     return globalRef.getId();
   }
 
-  public YTDocument toNetworkStream() {
-    YTDocument document = new YTDocument();
+  public YTEntityImpl toNetworkStream() {
+    YTEntityImpl document = new YTEntityImpl();
     document.setTrackingChanges(false);
     document.field("name", getName());
     document.field("type", getType().id);

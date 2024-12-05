@@ -19,7 +19,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.ArrayList;
 import java.util.List;
@@ -143,43 +143,43 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
 
   private void populateDatabase() {
     database.begin();
-    YTDocument car = new YTDocument(CAR);
+    YTEntityImpl car = new YTEntityImpl(CAR);
     car.field("plate", "JINF223S");
 
-    YTDocument johnDoe = new YTDocument(WORKER);
+    YTEntityImpl johnDoe = new YTEntityImpl(WORKER);
     johnDoe.field("name", "John");
     johnDoe.field("surname", "Doe");
     johnDoe.field("car", car);
     johnDoe.save();
 
-    YTDocument janeDoe = new YTDocument(WORKER);
+    YTEntityImpl janeDoe = new YTEntityImpl(WORKER);
     janeDoe.field("name", "Jane");
     janeDoe.field("surname", "Doe");
     janeDoe.save();
 
-    YTDocument chuckNorris = new YTDocument(WORKER);
+    YTEntityImpl chuckNorris = new YTEntityImpl(WORKER);
     chuckNorris.field("name", "Chuck");
     chuckNorris.field("surname", "Norris");
     chuckNorris.save();
 
-    YTDocument jackBauer = new YTDocument(WORKER);
+    YTEntityImpl jackBauer = new YTEntityImpl(WORKER);
     jackBauer.field("name", "Jack");
     jackBauer.field("surname", "Bauer");
     jackBauer.save();
 
-    YTDocument ctu = new YTDocument(WORKPLACE);
+    YTEntityImpl ctu = new YTEntityImpl(WORKPLACE);
     ctu.field("name", "CTU");
     ctu.field("boss", jackBauer);
-    List<YTDocument> workplace1Workers = new ArrayList<YTDocument>();
+    List<YTEntityImpl> workplace1Workers = new ArrayList<YTEntityImpl>();
     workplace1Workers.add(chuckNorris);
     workplace1Workers.add(janeDoe);
     ctu.field("workers", workplace1Workers);
     ctu.save();
 
-    YTDocument fbi = new YTDocument(WORKPLACE);
+    YTEntityImpl fbi = new YTEntityImpl(WORKPLACE);
     fbi.field("name", "FBI");
     fbi.field("boss", chuckNorris);
-    List<YTDocument> workplace2Workers = new ArrayList<YTDocument>();
+    List<YTEntityImpl> workplace2Workers = new ArrayList<YTEntityImpl>();
     workplace2Workers.add(chuckNorris);
     workplace2Workers.add(jackBauer);
     fbi.field("workers", workplace2Workers);

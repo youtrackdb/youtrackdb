@@ -25,9 +25,9 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -119,7 +119,7 @@ public class OCommandExecutorSQLOptimizeDatabase extends OCommandExecutorSQLAbst
       long lastLapBrowsed = 0;
       long lastLapTime = System.currentTimeMillis();
 
-      for (YTDocument doc : db.browseClass("E")) {
+      for (YTEntityImpl doc : db.browseClass("E")) {
         if (Thread.currentThread().isInterrupted()) {
           break;
         }
@@ -130,19 +130,19 @@ public class OCommandExecutorSQLOptimizeDatabase extends OCommandExecutorSQLAbst
           if (doc.fields() == 2) {
             final YTRID edgeIdentity = doc.getIdentity();
 
-            final YTDocument outV = doc.field("out");
-            final YTDocument inV = doc.field("in");
+            final YTEntityImpl outV = doc.field("out");
+            final YTEntityImpl inV = doc.field("in");
 
             // OUTGOING
             final Object outField = outV.field("out_" + doc.getClassName());
-            if (outField instanceof ORidBag) {
-              final Iterator<YTIdentifiable> it = ((ORidBag) outField).iterator();
+            if (outField instanceof RidBag) {
+              final Iterator<YTIdentifiable> it = ((RidBag) outField).iterator();
               while (it.hasNext()) {
                 YTIdentifiable v = it.next();
                 if (edgeIdentity.equals(v)) {
                   // REPLACE EDGE RID WITH IN-VERTEX RID
                   it.remove();
-                  ((ORidBag) outField).add(inV.getIdentity());
+                  ((RidBag) outField).add(inV.getIdentity());
                   break;
                 }
               }
@@ -152,14 +152,14 @@ public class OCommandExecutorSQLOptimizeDatabase extends OCommandExecutorSQLAbst
 
             // INCOMING
             final Object inField = inV.field("in_" + doc.getClassName());
-            if (outField instanceof ORidBag) {
-              final Iterator<YTIdentifiable> it = ((ORidBag) inField).iterator();
+            if (outField instanceof RidBag) {
+              final Iterator<YTIdentifiable> it = ((RidBag) inField).iterator();
               while (it.hasNext()) {
                 YTIdentifiable v = it.next();
                 if (edgeIdentity.equals(v)) {
                   // REPLACE EDGE RID WITH IN-VERTEX RID
                   it.remove();
-                  ((ORidBag) inField).add(outV.getIdentity());
+                  ((RidBag) inField).add(outV.getIdentity());
                   break;
                 }
               }

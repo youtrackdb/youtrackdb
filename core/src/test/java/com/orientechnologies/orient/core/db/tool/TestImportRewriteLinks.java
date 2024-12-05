@@ -14,7 +14,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,22 +42,22 @@ public class TestImportRewriteLinks {
         cls.createIndex(session, EXPORT_IMPORT_INDEX_NAME, INDEX_TYPE.UNIQUE, "key");
 
         session.begin();
-        new YTDocument(EXPORT_IMPORT_CLASS_NAME)
+        new YTEntityImpl(EXPORT_IMPORT_CLASS_NAME)
             .field("key", new YTRecordId(10, 4).toString())
             .field("value", new YTRecordId(10, 3).toString())
             .save();
 
-        new YTDocument(EXPORT_IMPORT_CLASS_NAME)
+        new YTEntityImpl(EXPORT_IMPORT_CLASS_NAME)
             .field("key", new YTRecordId(11, 1).toString())
             .field("value", new YTRecordId(21, 1).toString())
             .save();
 
-        new YTDocument(EXPORT_IMPORT_CLASS_NAME)
+        new YTEntityImpl(EXPORT_IMPORT_CLASS_NAME)
             .field("key", new YTRecordId(31, 1).toString())
             .field("value", new YTRecordId(41, 1).toString())
             .save();
 
-        new YTDocument(EXPORT_IMPORT_CLASS_NAME)
+        new YTEntityImpl(EXPORT_IMPORT_CLASS_NAME)
             .field("key", new YTRecordId(51, 1).toString())
             .field("value", new YTRecordId(61, 1).toString())
             .save();
@@ -65,11 +65,11 @@ public class TestImportRewriteLinks {
 
         final Set<YTRID> brokenRids = new HashSet<>();
 
-        YTDocument doc = new YTDocument();
+        YTEntityImpl doc = new YTEntityImpl();
 
-        YTDocument emb = new YTDocument();
+        YTEntityImpl emb = new YTEntityImpl();
         doc.field("emb", emb, YTType.EMBEDDED);
-        YTDocument emb1 = new YTDocument();
+        YTEntityImpl emb1 = new YTEntityImpl();
         emb.field("emb1", emb1, YTType.EMBEDDED);
         emb1.field("link", new YTRecordId(10, 4));
         emb1.field("brokenLink", new YTRecordId(10, 5));

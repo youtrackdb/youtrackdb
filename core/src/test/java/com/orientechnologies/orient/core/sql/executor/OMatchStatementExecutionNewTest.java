@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -68,7 +68,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     db.executeInTx(
         () -> {
           for (int i = 0; i < nodes; i++) {
-            YTDocument doc = new YTDocument("IndexedVertex");
+            YTEntityImpl doc = new YTEntityImpl("IndexedVertex");
             doc.field("uid", i);
             doc.save();
           }
@@ -292,7 +292,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
       Assert.assertEquals(1, item.getPropertyNames().size());
       YTEntity personId = db.load(item.getProperty("person"));
 
-      YTDocument person = personId.getRecord();
+      YTEntityImpl person = personId.getRecord();
       String name = person.field("name");
       Assert.assertTrue(name.equals("n1") || name.equals("n2"));
     }
@@ -879,7 +879,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     Assert.assertEquals("b", getManagerArrows("p11").field("name"));
   }
 
-  private YTDocument getManager(String personName) {
+  private YTEntityImpl getManager(String personName) {
     String query =
         "select expand(manager) from ("
             + "  match {class:Employee, where: (name = '"
@@ -902,7 +902,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     return item.getEntity().get().getRecord();
   }
 
-  private YTDocument getManagerArrows(String personName) {
+  private YTEntityImpl getManagerArrows(String personName) {
     String query =
         "select expand(manager) from ("
             + "  match {class:Employee, where: (name = '"
@@ -1597,7 +1597,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     YTResult doc = result.next();
     Assert.assertFalse(result.hasNext());
 
-    //    YTDocument doc = result.get(0);
+    //    YTEntityImpl doc = result.get(0);
     //    assertEquals("foo", doc.field("name"));
     //    assertEquals(0, doc.field("uuid"));
     result.close();
@@ -1615,7 +1615,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     Assert.assertTrue(result.hasNext());
     YTResult doc = result.next();
     Assert.assertFalse(result.hasNext());
-    //    YTDocument doc = result.get(0);
+    //    YTEntityImpl doc = result.get(0);
     //    assertEquals("foo", doc.field("name"));
     //    assertEquals(0, doc.field("sub.uuid"));
     result.close();
@@ -1633,7 +1633,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     Assert.assertTrue(result.hasNext());
     YTResult doc = result.next();
     Assert.assertFalse(result.hasNext());
-    //    YTDocument doc = result.get(0);
+    //    YTEntityImpl doc = result.get(0);
     //    assertEquals("foo", doc.field("name"));
     //    assertEquals(0, doc.field("sub[0].uuid"));
 
@@ -1668,7 +1668,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     doc = result.next();
     Assert.assertFalse(result.hasNext());
     result.close();
-    //    YTDocument doc = result.get(0);
+    //    YTEntityImpl doc = result.get(0);
     //    assertEquals("foo", doc.field("name"));
     //    assertEquals(0, doc.field("sub[0].uuid"));
   }
@@ -1704,7 +1704,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     doc = result.next();
     Assert.assertFalse(result.hasNext());
     result.close();
-    //    YTDocument doc = result.get(0);
+    //    YTEntityImpl doc = result.get(0);
     //    assertEquals("foo", doc.field("name"));
     //    assertEquals(0, doc.field("sub[0].uuid"));
   }

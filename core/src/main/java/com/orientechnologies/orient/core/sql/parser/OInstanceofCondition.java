@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.Collections;
@@ -44,7 +44,7 @@ public class OInstanceofCondition extends OBooleanExpression {
       return false;
     }
 
-    if (!(record instanceof YTDocument doc)) {
+    if (!(record instanceof YTEntityImpl doc)) {
       return false;
     }
     YTClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
@@ -69,7 +69,7 @@ public class OInstanceofCondition extends OBooleanExpression {
     }
 
     YTRecord record = currentRecord.getEntity().get().getRecord();
-    if (!(record instanceof YTDocument doc)) {
+    if (!(record instanceof YTEntityImpl doc)) {
       return false;
     }
     YTClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);

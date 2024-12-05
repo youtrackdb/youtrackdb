@@ -20,7 +20,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import java.util.Set;
@@ -71,10 +71,10 @@ public class GEOTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "checkGeoIndexes")
   public void queryCreatePoints() {
-    YTDocument point;
+    YTEntityImpl point;
 
     for (int i = 0; i < 10000; ++i) {
-      point = new YTDocument();
+      point = new YTEntityImpl();
       point.setClassName("MapPoint");
 
       point.field("x", (52.20472d + i / 100d));
@@ -90,18 +90,18 @@ public class GEOTest extends DocumentDBBaseTest {
   public void queryDistance() {
     Assert.assertEquals(database.countClass("MapPoint"), 10000);
 
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select from MapPoint where distance(x, y,52.20472, 0.14056 ) <= 30"))
             .execute(database);
 
     Assert.assertTrue(result.size() != 0);
 
-    for (YTDocument d : result) {
+    for (YTEntityImpl d : result) {
       Assert.assertEquals(d.getClassName(), "MapPoint");
-      Assert.assertEquals(ORecordInternal.getRecordType(d), YTDocument.RECORD_TYPE);
+      Assert.assertEquals(ORecordInternal.getRecordType(d), YTEntityImpl.RECORD_TYPE);
     }
   }
 
@@ -110,8 +110,8 @@ public class GEOTest extends DocumentDBBaseTest {
     Assert.assertEquals(database.countClass("MapPoint"), 10000);
 
     // MAKE THE FIRST RECORD DIRTY TO TEST IF DISTANCE JUMP IT
-    List<YTDocument> result =
-        database.command(new OSQLSynchQuery<YTDocument>("select from MapPoint limit 1"))
+    List<YTEntityImpl> result =
+        database.command(new OSQLSynchQuery<YTEntityImpl>("select from MapPoint limit 1"))
             .execute(database);
     try {
       result.get(0).field("x", "--wrong--");
@@ -128,7 +128,7 @@ public class GEOTest extends DocumentDBBaseTest {
     Assert.assertTrue(result.size() != 0);
 
     Double lastDistance = null;
-    for (YTDocument d : result) {
+    for (YTEntityImpl d : result) {
       if (lastDistance != null && d.field("distance") != null) {
         Assert.assertTrue(((Double) d.field("distance")).compareTo(lastDistance) <= 0);
       }

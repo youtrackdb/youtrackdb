@@ -6,14 +6,14 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
@@ -46,18 +46,18 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryUpdateUpdatedInTxTransaction() {
     db.begin();
-    YTDocument doc = new YTDocument("SomeTx");
+    YTEntityImpl doc = new YTEntityImpl("SomeTx");
     doc.setProperty("name", "Joe");
     YTIdentifiable id = db.save(doc);
     db.commit();
 
     db.begin();
-    YTDocument doc2 = db.load(id.getIdentity());
+    YTEntityImpl doc2 = db.load(id.getIdentity());
     doc2.setProperty("name", "Jane");
     db.save(doc2);
     YTResultSet result = db.command("update SomeTx set name='July' where name = 'Jane' ");
     assertEquals(1L, (long) result.next().getProperty("count"));
-    YTDocument doc3 = db.load(id.getIdentity());
+    YTEntityImpl doc3 = db.load(id.getIdentity());
     assertEquals("July", doc3.getProperty("name"));
     db.rollback();
   }
@@ -66,10 +66,10 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   public void testResetUpdatedInTxTransaction() {
     db.begin();
 
-    YTDocument doc1 = new YTDocument();
+    YTEntityImpl doc1 = new YTEntityImpl();
     doc1.setProperty("name", "Jane");
     db.save(doc1);
-    YTDocument doc2 = new YTDocument("SomeTx");
+    YTEntityImpl doc2 = new YTEntityImpl("SomeTx");
     doc2.setProperty("name", "Jane");
     db.save(doc2);
     YTResultSet result = db.command("update SomeTx set name='July' where name = 'Jane' ");
@@ -81,18 +81,18 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryUpdateCreatedInTxTransaction() throws InterruptedException {
     db.begin();
-    YTDocument doc1 = new YTDocument("SomeTx");
+    YTEntityImpl doc1 = new YTEntityImpl("SomeTx");
     doc1.setProperty("name", "Jane");
     YTIdentifiable id = db.save(doc1);
 
-    YTDocument docx = new YTDocument("SomeTx2");
+    YTEntityImpl docx = new YTEntityImpl("SomeTx2");
     docx.setProperty("name", "Jane");
     db.save(docx);
 
     YTResultSet result = db.command("update SomeTx set name='July' where name = 'Jane' ");
     assertTrue(result.hasNext());
     assertEquals(1L, (long) result.next().getProperty("count"));
-    YTDocument doc2 = db.load(id.getIdentity());
+    YTEntityImpl doc2 = db.load(id.getIdentity());
     assertEquals("July", doc2.getProperty("name"));
     assertFalse(result.hasNext());
     result.close();
@@ -101,13 +101,13 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testRollbackTxTransaction() {
     db.begin();
-    YTDocument doc = new YTDocument("SomeTx");
+    YTEntityImpl doc = new YTEntityImpl("SomeTx");
     doc.setProperty("name", "Jane");
     db.save(doc);
     db.commit();
 
     db.begin();
-    YTDocument doc1 = new YTDocument("SomeTx");
+    YTEntityImpl doc1 = new YTEntityImpl("SomeTx");
     doc1.setProperty("name", "Jane");
     db.save(doc1);
 
@@ -126,13 +126,13 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testRollbackTxCheckStatusTransaction() {
     db.begin();
-    YTDocument doc = new YTDocument("SomeTx");
+    YTEntityImpl doc = new YTEntityImpl("SomeTx");
     doc.setProperty("name", "Jane");
     db.save(doc);
     db.commit();
 
     db.begin();
-    YTDocument doc1 = new YTDocument("SomeTx");
+    YTEntityImpl doc1 = new YTEntityImpl("SomeTx");
     doc1.setProperty("name", "Jane");
     db.save(doc1);
 
@@ -294,18 +294,18 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   public void testGenerateIdCounterTransaction() {
     db.begin();
 
-    YTDocument doc = new YTDocument("SomeTx");
+    YTEntityImpl doc = new YTEntityImpl("SomeTx");
     doc.setProperty("name", "Jane");
     db.save(doc);
 
     db.command("insert into SomeTx set name ='Jane1' ").close();
     db.command("insert into SomeTx set name ='Jane2' ").close();
 
-    YTDocument doc1 = new YTDocument("SomeTx");
+    YTEntityImpl doc1 = new YTEntityImpl("SomeTx");
     doc1.setProperty("name", "Jane3");
     db.save(doc1);
 
-    doc1 = new YTDocument("SomeTx");
+    doc1 = new YTEntityImpl("SomeTx");
     doc1.setProperty("name", "Jane4");
     db.save(doc1);
     db.command("insert into SomeTx set name ='Jane2' ").close();
@@ -352,7 +352,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     YTEntity v1 = db.newEntity("SomeTx");
     YTEntity v2 = db.newEntity("SomeTx");
     db.save(v2);
-    ORidBag ridbag = new ORidBag(db);
+    RidBag ridbag = new RidBag(db);
     ridbag.add(v2.getIdentity());
     v1.setProperty("rids", ridbag);
     db.save(v1);

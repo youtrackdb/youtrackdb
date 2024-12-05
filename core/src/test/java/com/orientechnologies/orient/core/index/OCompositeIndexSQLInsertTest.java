@@ -4,7 +4,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,7 +21,7 @@ public class OCompositeIndexSQLInsertTest extends DBTestBase {
     book.createIndex(db, "books", "unique", "author", "title", "publicationYears");
 
     book.createProperty(db, "nullKey1", YTType.STRING);
-    YTDocument indexOptions = new YTDocument();
+    YTEntityImpl indexOptions = new YTEntityImpl();
     indexOptions.field("ignoreNullValues", true);
     book.createIndex(db,
         "indexignoresnulls", "NOTUNIQUE", null, indexOptions, new String[]{"nullKey1"});

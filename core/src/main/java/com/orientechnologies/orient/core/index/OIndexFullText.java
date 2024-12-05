@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.tx.OTransaction;
@@ -143,8 +143,8 @@ public class OIndexFullText extends OIndexMultiValues {
   }
 
   @Override
-  public YTDocument updateConfiguration(YTDatabaseSessionInternal session) {
-    YTDocument document = super.updateConfiguration(session);
+  public YTEntityImpl updateConfiguration(YTDatabaseSessionInternal session) {
+    YTEntityImpl document = super.updateConfiguration(session);
     document.field(CONFIG_SEPARATOR_CHARS, separatorChars);
     document.field(CONFIG_IGNORE_CHARS, ignoreChars);
     document.field(CONFIG_STOP_WORDS, stopWords);

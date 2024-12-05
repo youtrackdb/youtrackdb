@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.server.network.http;
 
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,10 +42,10 @@ public class HttpBatchTest extends BaseHttpDatabaseTest {
 
     Assert.assertNotNull(response);
 
-    var responseDoc = new YTDocument();
+    var responseDoc = new YTEntityImpl();
     responseDoc.fromJSON(response);
-    YTDocument insertedDocument =
-        ((List<YTDocument>) responseDoc.field("result")).get(0);
+    YTEntityImpl insertedDocument =
+        ((List<YTEntityImpl>) responseDoc.field("result")).get(0);
 
     // TEST UPDATE
     Assert.assertEquals(
@@ -145,7 +145,7 @@ public class HttpBatchTest extends BaseHttpDatabaseTest {
       line = reader.readLine();
     }
     System.out.println(string);
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON(string);
 
     stream.close();

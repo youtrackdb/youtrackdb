@@ -21,8 +21,8 @@ package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Iterator;
 import java.util.List;
 
@@ -49,9 +49,9 @@ public interface OTrackedMultiValue<K, V> {
 
   void replace(OMultiValueChangeEvent<Object, Object> event, Object newValue);
 
-  void enableTracking(ORecordElement parent);
+  void enableTracking(RecordElement parent);
 
-  void disableTracking(ORecordElement document);
+  void disableTracking(RecordElement document);
 
   boolean isModified();
 
@@ -59,7 +59,7 @@ public interface OTrackedMultiValue<K, V> {
 
   OMultiValueChangeTimeLine<Object, Object> getTimeLine();
 
-  static <X> void nestedEnabled(Iterator<X> iterator, ORecordElement parent) {
+  static <X> void nestedEnabled(Iterator<X> iterator, RecordElement parent) {
     while (iterator.hasNext()) {
       X x = iterator.next();
       if (x instanceof OTrackedMultiValue) {
@@ -68,15 +68,15 @@ public interface OTrackedMultiValue<K, V> {
     }
   }
 
-  static <X> void nestedDisable(Iterator<X> iterator, ORecordElement parent) {
+  static <X> void nestedDisable(Iterator<X> iterator, RecordElement parent) {
     while (iterator.hasNext()) {
       X x = iterator.next();
       if (x instanceof OTrackedMultiValue) {
         ((OTrackedMultiValue) x).disableTracking(parent);
-      } else if (x instanceof YTDocument) {
-        if (((YTDocument) x).isEmbedded()) {
-          ODocumentInternal.clearTrackData((YTDocument) x);
-          ORecordInternal.unsetDirty((YTDocument) x);
+      } else if (x instanceof YTEntityImpl) {
+        if (((YTEntityImpl) x).isEmbedded()) {
+          ODocumentInternal.clearTrackData((YTEntityImpl) x);
+          ORecordInternal.unsetDirty((YTEntityImpl) x);
         }
       }
     }
@@ -87,9 +87,9 @@ public interface OTrackedMultiValue<K, V> {
       X x = iterator.next();
       if (x instanceof OTrackedMultiValue) {
         ((OTrackedMultiValue) x).transactionClear();
-      } else if (x instanceof YTDocument) {
-        if (((YTDocument) x).isEmbedded()) {
-          ODocumentInternal.clearTransactionTrackData((YTDocument) x);
+      } else if (x instanceof YTEntityImpl) {
+        if (((YTEntityImpl) x).isEmbedded()) {
+          ODocumentInternal.clearTransactionTrackData((YTEntityImpl) x);
         }
       }
     }

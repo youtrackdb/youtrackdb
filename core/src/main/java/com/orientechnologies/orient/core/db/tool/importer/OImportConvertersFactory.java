@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.db.tool.importer;
 
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import java.util.List;
@@ -29,7 +29,7 @@ public final class OImportConvertersFactory {
       return new OSetConverter(converterData);
     }
 
-    if (value instanceof ORidBag) {
+    if (value instanceof RidBag) {
       return new ORidBagConverter(converterData);
     }
 

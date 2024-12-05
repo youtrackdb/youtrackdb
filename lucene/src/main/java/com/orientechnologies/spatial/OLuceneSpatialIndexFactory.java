@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.index.engine.OBaseIndexEngine;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.spatial.engine.OLuceneSpatialIndexEngineDelegator;
 import com.orientechnologies.spatial.index.OLuceneSpatialIndex;
@@ -106,7 +106,7 @@ public class OLuceneSpatialIndexFactory implements OIndexFactory, ODatabaseLifec
     }
 
     if (metadata == null) {
-      var metadataDoc = new YTDocument();
+      var metadataDoc = new YTEntityImpl();
       metadataDoc.field("analyzer", StandardAnalyzer.class.getName());
       im.setMetadata(metadataDoc);
     }
@@ -171,6 +171,6 @@ public class OLuceneSpatialIndexFactory implements OIndexFactory, ODatabaseLifec
   }
 
   @Override
-  public void onLocalNodeConfigurationRequest(YTDocument iConfiguration) {
+  public void onLocalNodeConfigurationRequest(YTEntityImpl iConfiguration) {
   }
 }

@@ -14,7 +14,7 @@ import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -267,7 +267,7 @@ public class StorageBackupMTIT {
 
             final int num = random.nextInt();
 
-            final YTDocument document = new YTDocument("BackupClass");
+            final YTEntityImpl document = new YTEntityImpl("BackupClass");
             document.field("num", num);
             document.field("data", data);
 

@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
             List<YTResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
-                result.add(new YTResultInternal(ctx.getDatabase(), new YTDocument(className)));
+                result.add(new YTResultInternal(ctx.getDatabase(), new YTEntityImpl(className)));
               }
               done = true;
             }
@@ -64,7 +64,7 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
               for (int i = 0; i < 10; i++) {
                 result.add(
                     new YTResultInternal(ctx.getDatabase(),
-                        new YTDocument(i % 2 == 0 ? parentClass : childClass)));
+                        new YTEntityImpl(i % 2 == 0 ? parentClass : childClass)));
               }
               done = true;
             }
@@ -96,7 +96,7 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
               for (int i = 0; i < 10; i++) {
                 result.add(
                     new YTResultInternal(ctx.getDatabase(),
-                        new YTDocument(i % 2 == 0 ? firstClassName : secondClassName)));
+                        new YTEntityImpl(i % 2 == 0 ? firstClassName : secondClassName)));
               }
               done = true;
             }

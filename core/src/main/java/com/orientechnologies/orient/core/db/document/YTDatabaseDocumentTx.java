@@ -47,8 +47,8 @@ import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.YTEdgeInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -500,13 +500,13 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   }
 
   @Override
-  public ORecordIteratorClass<YTDocument> browseClass(String iClassName) {
+  public ORecordIteratorClass<YTEntityImpl> browseClass(String iClassName) {
     checkOpenness();
     return internal.browseClass(iClassName);
   }
 
   @Override
-  public ORecordIteratorClass<YTDocument> browseClass(String iClassName, boolean iPolymorphic) {
+  public ORecordIteratorClass<YTEntityImpl> browseClass(String iClassName, boolean iPolymorphic) {
     checkOpenness();
     return internal.browseClass(iClassName, iPolymorphic);
   }
@@ -576,7 +576,7 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   }
 
   @Override
-  public YTDocument newInstance() {
+  public YTEntityImpl newInstance() {
     checkOpenness();
     return internal.newInstance();
   }
@@ -693,13 +693,13 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   }
 
   @Override
-  public ORecordIteratorCluster<YTDocument> browseCluster(String iClusterName) {
+  public ORecordIteratorCluster<YTEntityImpl> browseCluster(String iClusterName) {
     checkOpenness();
     return internal.browseCluster(iClusterName);
   }
 
   @Override
-  public ORecordIteratorCluster<YTDocument> browseCluster(
+  public ORecordIteratorCluster<YTEntityImpl> browseCluster(
       String iClusterName,
       long startClusterPosition,
       long endClusterPosition,

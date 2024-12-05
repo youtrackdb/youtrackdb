@@ -22,7 +22,7 @@ import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
 import com.orientechnologies.orient.core.exception.YTSchemaException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -59,7 +59,7 @@ public class AbstractClassTest extends DocumentDBBaseTest {
   public void testCannotCreateInstances() {
     try {
       database.begin();
-      new YTDocument("AbstractPerson").save();
+      new YTEntityImpl("AbstractPerson").save();
       database.begin();
     } catch (YTException e) {
       Throwable cause = e;

@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -13,7 +13,7 @@ import java.util.List;
 import org.junit.Test;
 
 /**
- * Tests that {@link YTDocument} is serializable.
+ * Tests that {@link YTEntityImpl} is serializable.
  *
  * @since 12/20/12
  */
@@ -23,10 +23,10 @@ public class ODocumentSerializationPersistentTest extends BaseMemoryInternalData
     super.beforeTest();
 
     db.begin();
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     doc.setProperty("name", "Artem");
 
-    final YTDocument linkedDoc = new YTDocument();
+    final YTEntityImpl linkedDoc = new YTEntityImpl();
 
     doc.setProperty("country", linkedDoc, YTType.LINK);
     doc.setProperty("numbers", Arrays.asList(0, 1, 2, 3, 4, 5));
@@ -38,23 +38,23 @@ public class ODocumentSerializationPersistentTest extends BaseMemoryInternalData
   @Test(expected = YTDatabaseException.class)
   public void testRidBagInEmbeddedDocument() {
     ODatabaseRecordThreadLocal.instance().set(db);
-    YTDocument doc = new YTDocument();
-    ORidBag rids = new ORidBag(db);
+    YTEntityImpl doc = new YTEntityImpl();
+    RidBag rids = new RidBag(db);
     rids.add(new YTRecordId(2, 3));
     rids.add(new YTRecordId(2, 4));
     rids.add(new YTRecordId(2, 5));
     rids.add(new YTRecordId(2, 6));
-    List<YTDocument> docs = new ArrayList<YTDocument>();
-    YTDocument doc1 = new YTDocument();
+    List<YTEntityImpl> docs = new ArrayList<YTEntityImpl>();
+    YTEntityImpl doc1 = new YTEntityImpl();
     doc1.setProperty("rids", rids);
     docs.add(doc1);
-    YTDocument doc2 = new YTDocument();
+    YTEntityImpl doc2 = new YTEntityImpl();
     doc2.setProperty("text", "text");
     docs.add(doc2);
     doc.setProperty("emb", docs, YTType.EMBEDDEDLIST);
     doc.setProperty("some", "test");
 
     byte[] res = db.getSerializer().toStream(db, doc);
-    db.getSerializer().fromStream(db, res, new YTDocument(), new String[]{});
+    db.getSerializer().fromStream(db, res, new YTEntityImpl(), new String[]{});
   }
 }

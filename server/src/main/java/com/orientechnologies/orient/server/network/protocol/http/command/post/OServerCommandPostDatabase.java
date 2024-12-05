@@ -34,7 +34,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.YTUser;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -192,7 +192,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
 
     json.beginCollection(1, false, "users");
     YTUser user;
-    for (YTDocument doc : db.getMetadata().getSecurity().getAllUsers()) {
+    for (YTEntityImpl doc : db.getMetadata().getSecurity().getAllUsers()) {
       user = new YTUser(db, doc);
       json.beginObject(2, true, null);
       json.writeAttribute(3, false, "name", user.getName(db));
@@ -207,7 +207,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
 
     json.beginCollection(1, true, "roles");
     ORole role;
-    for (YTDocument doc : db.getMetadata().getSecurity().getAllRoles()) {
+    for (YTEntityImpl doc : db.getMetadata().getSecurity().getAllRoles()) {
       role = new ORole(db, doc);
       json.beginObject(2, true, null);
       json.writeAttribute(3, false, "name", role.getName(db));

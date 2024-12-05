@@ -5,7 +5,7 @@ import static org.testng.Assert.assertEquals;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -29,7 +29,7 @@ public class IndexClusterTest extends DocumentDBBaseTest {
     oclass.createIndex(database, className + "index1", YTClass.INDEX_TYPE.NOTUNIQUE, "key");
 
     database.begin();
-    database.<YTDocument>newInstance(className).field("key", "a").field("value", 1).save();
+    database.<YTEntityImpl>newInstance(className).field("key", "a").field("value", 1).save();
     database.commit();
 
     int clId = database.addCluster(className + "secondCluster");
@@ -37,7 +37,7 @@ public class IndexClusterTest extends DocumentDBBaseTest {
 
     database.begin();
     database
-        .<YTDocument>newInstance(className)
+        .<YTEntityImpl>newInstance(className)
         .field("key", "a")
         .field("value", 2)
         .save(className + "secondCluster");

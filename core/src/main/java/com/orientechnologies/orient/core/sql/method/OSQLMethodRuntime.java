@@ -31,12 +31,12 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.OSQLHelper;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemAbstract;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemField;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemVariable;
@@ -128,7 +128,7 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
               runtimeParameters[i] =
                   pred.evaluate(
                       iCurrentRecord instanceof YTRecord ? iCurrentRecord : null,
-                      (YTDocument) iCurrentResult,
+                      (YTEntityImpl) iCurrentResult,
                       iContext);
               // REPLACE ORIGINAL PARAM
               configuredParameters[i] = pred;
@@ -138,7 +138,8 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
                 ((OSQLPredicate) configuredParameters[i])
                     .evaluate(
                         iCurrentRecord.getRecord(),
-                        (iCurrentRecord instanceof YTDocument ? (YTDocument) iCurrentResult : null),
+                        (iCurrentRecord instanceof YTEntityImpl ? (YTEntityImpl) iCurrentResult
+                            : null),
                         iContext);
           } else if (configuredParameters[i] instanceof String) {
             if (configuredParameters[i].toString().startsWith("\"")
@@ -181,7 +182,7 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
   public Object getValue(
       final YTIdentifiable iRecord, Object iCurrentResult, OCommandContext iContext) {
     try {
-      final YTDocument current = iRecord != null ? (YTDocument) iRecord.getRecord() : null;
+      final YTEntityImpl current = iRecord != null ? (YTEntityImpl) iRecord.getRecord() : null;
       return execute(current, current, null, iContext);
     } catch (YTRecordNotFoundException rnf) {
       return null;

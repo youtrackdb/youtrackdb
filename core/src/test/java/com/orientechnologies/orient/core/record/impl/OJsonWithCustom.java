@@ -21,14 +21,14 @@ public class OJsonWithCustom {
   public void testCustomField() {
     boolean old = YTGlobalConfiguration.DB_CUSTOM_SUPPORT.getValueAsBoolean();
     YTGlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(true);
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.field("test", String.class, YTType.CUSTOM);
 
     String json = doc.toJSON();
 
     System.out.println(json);
 
-    YTDocument doc1 = new YTDocument();
+    YTEntityImpl doc1 = new YTEntityImpl();
     doc1.fromJSON(json);
     assertEquals(doc.<String>field("test"), doc1.field("test"));
     YTGlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(old);
@@ -36,14 +36,14 @@ public class OJsonWithCustom {
 
   @Test(expected = YTDatabaseException.class)
   public void testCustomFieldDisabled() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.field("test", String.class, YTType.CUSTOM);
 
     String json = doc.toJSON();
 
     System.out.println(json);
 
-    YTDocument doc1 = new YTDocument();
+    YTEntityImpl doc1 = new YTEntityImpl();
     doc1.fromJSON(json);
     assertEquals(doc.<String>field("test"), doc1.field("test"));
   }
@@ -60,12 +60,12 @@ public class OJsonWithCustom {
           OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
         YTClass klass = db.getMetadata().getSchema().createClass("TestCustom");
         klass.createProperty(db, "test", YTType.CUSTOM);
-        YTDocument doc = new YTDocument("TestCustom");
+        YTEntityImpl doc = new YTEntityImpl("TestCustom");
         doc.field("test", TestCustom.ONE, YTType.CUSTOM);
 
         String json = doc.toJSON();
 
-        YTDocument doc1 = new YTDocument();
+        YTEntityImpl doc1 = new YTEntityImpl();
         doc1.fromJSON(json);
         assertEquals(TestCustom.ONE, TestCustom.valueOf(doc1.field("test")));
       }

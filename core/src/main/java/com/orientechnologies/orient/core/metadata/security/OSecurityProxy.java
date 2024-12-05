@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.metadata.security;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.List;
 import java.util.Set;
 
@@ -47,25 +47,25 @@ public class OSecurityProxy implements OSecurity {
 
   @Override
   public YTIdentifiable allowUser(
-      YTDocument iDocument, ORestrictedOperation iOperationType, String iUserName) {
+      YTEntityImpl iDocument, ORestrictedOperation iOperationType, String iUserName) {
     return security.allowUser(session, iDocument, iOperationType, iUserName);
   }
 
   @Override
   public YTIdentifiable allowRole(
-      YTDocument iDocument, ORestrictedOperation iOperationType, String iRoleName) {
+      YTEntityImpl iDocument, ORestrictedOperation iOperationType, String iRoleName) {
     return security.allowRole(session, iDocument, iOperationType, iRoleName);
   }
 
   @Override
   public YTIdentifiable denyUser(
-      YTDocument iDocument, ORestrictedOperation iOperationType, String iUserName) {
+      YTEntityImpl iDocument, ORestrictedOperation iOperationType, String iUserName) {
     return security.denyUser(session, iDocument, iOperationType, iUserName);
   }
 
   @Override
   public YTIdentifiable denyRole(
-      YTDocument iDocument, ORestrictedOperation iOperationType, String iRoleName) {
+      YTEntityImpl iDocument, ORestrictedOperation iOperationType, String iRoleName) {
     return security.denyRole(session, iDocument, iOperationType, iRoleName);
   }
 
@@ -112,11 +112,11 @@ public class OSecurityProxy implements OSecurity {
     return security.createRole(session, iRoleName, iParent, iAllowMode);
   }
 
-  public List<YTDocument> getAllUsers() {
+  public List<YTEntityImpl> getAllUsers() {
     return security.getAllUsers(session);
   }
 
-  public List<YTDocument> getAllRoles() {
+  public List<YTEntityImpl> getAllRoles() {
     return security.getAllRoles(session);
   }
 

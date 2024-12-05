@@ -23,7 +23,7 @@ import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -224,9 +224,9 @@ public interface OIndex extends Comparable<OIndex> {
   /**
    * Returns the index configuration.
    *
-   * @return An YTDocument object containing all the index properties
+   * @return An YTEntityImpl object containing all the index properties
    */
-  YTDocument getConfiguration(YTDatabaseSessionInternal session);
+  YTEntityImpl getConfiguration(YTDatabaseSessionInternal session);
 
   /**
    * Returns the internal index used.

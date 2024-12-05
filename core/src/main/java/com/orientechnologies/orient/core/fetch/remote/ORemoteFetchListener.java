@@ -22,7 +22,7 @@ import com.orientechnologies.orient.core.fetch.OFetchContext;
 import com.orientechnologies.orient.core.fetch.OFetchListener;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 
 /**
  * Fetch listener for {@class ONetworkBinaryProtocol} class
@@ -41,7 +41,7 @@ public abstract class ORemoteFetchListener implements OFetchListener {
   protected abstract void sendRecord(YTRecordAbstract iLinked);
 
   public void processStandardField(
-      YTDocument iRecord,
+      YTEntityImpl iRecord,
       Object iFieldValue,
       String iFieldName,
       OFetchContext iContext,
@@ -52,7 +52,7 @@ public abstract class ORemoteFetchListener implements OFetchListener {
   }
 
   public void parseLinked(
-      YTDocument iRootRecord,
+      YTEntityImpl iRootRecord,
       YTIdentifiable iLinked,
       Object iUserObject,
       String iFieldName,
@@ -61,7 +61,7 @@ public abstract class ORemoteFetchListener implements OFetchListener {
   }
 
   public void parseLinkedCollectionValue(
-      YTDocument iRootRecord,
+      YTEntityImpl iRootRecord,
       YTIdentifiable iLinked,
       Object iUserObject,
       String iFieldName,
@@ -70,11 +70,11 @@ public abstract class ORemoteFetchListener implements OFetchListener {
   }
 
   public Object fetchLinkedMapEntry(
-      YTDocument iRoot,
+      YTEntityImpl iRoot,
       Object iUserObject,
       String iFieldName,
       String iKey,
-      YTDocument iLinked,
+      YTEntityImpl iLinked,
       OFetchContext iContext)
       throws YTFetchException {
     if (iLinked.getIdentity().isValid()) {
@@ -85,10 +85,10 @@ public abstract class ORemoteFetchListener implements OFetchListener {
   }
 
   public Object fetchLinkedCollectionValue(
-      YTDocument iRoot,
+      YTEntityImpl iRoot,
       Object iUserObject,
       String iFieldName,
-      YTDocument iLinked,
+      YTEntityImpl iLinked,
       OFetchContext iContext)
       throws YTFetchException {
     if (iLinked.getIdentity().isValid()) {
@@ -99,10 +99,10 @@ public abstract class ORemoteFetchListener implements OFetchListener {
   }
 
   public Object fetchLinked(
-      YTDocument iRoot,
+      YTEntityImpl iRoot,
       Object iUserObject,
       String iFieldName,
-      YTDocument iLinked,
+      YTEntityImpl iLinked,
       OFetchContext iContext)
       throws YTFetchException {
     sendRecord(iLinked);
@@ -111,7 +111,7 @@ public abstract class ORemoteFetchListener implements OFetchListener {
 
   @Override
   public void skipStandardField(
-      YTDocument iRecord,
+      YTEntityImpl iRecord,
       String iFieldName,
       OFetchContext iContext,
       Object iUserObject,

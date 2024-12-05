@@ -23,11 +23,11 @@ import com.orientechnologies.orient.client.remote.message.OUpdateRecordResponse;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
+import com.orientechnologies.orient.core.db.record.RecordElement;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
@@ -89,7 +89,7 @@ public class OConnectionExecutorTransactionTest {
     OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
 
     List<ORecordOperation> operations = new ArrayList<>();
-    YTDocument rec = new YTDocument();
+    YTEntityImpl rec = new YTEntityImpl();
     ORecordInternal.setIdentity(rec, new YTRecordId(3, -2));
     operations.add(new ORecordOperation(rec, ORecordOperation.CREATED));
     assertFalse(database.getTransaction().isActive());
@@ -109,7 +109,7 @@ public class OConnectionExecutorTransactionTest {
     OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
 
     List<ORecordOperation> operations = new ArrayList<>();
-    YTDocument rec = new YTDocument();
+    YTEntityImpl rec = new YTEntityImpl();
     ORecordInternal.setIdentity(rec, new YTRecordId(3, -2));
     operations.add(new ORecordOperation(rec, ORecordOperation.CREATED));
 
@@ -135,9 +135,9 @@ public class OConnectionExecutorTransactionTest {
     OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
 
     List<ORecordOperation> operations = new ArrayList<>();
-    YTDocument rec = new YTDocument();
+    YTEntityImpl rec = new YTEntityImpl();
     ORecordInternal.setIdentity(rec, new YTRecordId(3, -2));
-    rec.setInternalStatus(ORecordElement.STATUS.LOADED);
+    rec.setInternalStatus(RecordElement.STATUS.LOADED);
     operations.add(new ORecordOperation(rec, ORecordOperation.CREATED));
     assertFalse(database.getTransaction().isActive());
 
@@ -147,8 +147,8 @@ public class OConnectionExecutorTransactionTest {
     assertTrue(database.getTransaction().isActive());
     assertTrue(response instanceof OBeginTransactionResponse);
 
-    YTDocument record1 = new YTDocument(new YTRecordId(3, -3));
-    record1.setInternalStatus(ORecordElement.STATUS.LOADED);
+    YTEntityImpl record1 = new YTEntityImpl(new YTRecordId(3, -3));
+    record1.setInternalStatus(RecordElement.STATUS.LOADED);
     operations.add(new ORecordOperation(record1, ORecordOperation.CREATED));
 
     OCommit37Request commit = new OCommit37Request(database, 10, true, true, operations,
@@ -165,9 +165,9 @@ public class OConnectionExecutorTransactionTest {
     OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
 
     List<ORecordOperation> operations = new ArrayList<>();
-    YTDocument rec = new YTDocument();
+    YTEntityImpl rec = new YTEntityImpl();
     ORecordInternal.setIdentity(rec, new YTRecordId(3, -2));
-    rec.setInternalStatus(ORecordElement.STATUS.LOADED);
+    rec.setInternalStatus(RecordElement.STATUS.LOADED);
     operations.add(new ORecordOperation(rec, ORecordOperation.CREATED));
 
     assertFalse(database.getTransaction().isActive());
@@ -178,8 +178,8 @@ public class OConnectionExecutorTransactionTest {
     assertTrue(database.getTransaction().isActive());
     assertTrue(response instanceof OBeginTransactionResponse);
 
-    YTDocument record1 = new YTDocument(new YTRecordId(3, -3));
-    record1.setInternalStatus(ORecordElement.STATUS.LOADED);
+    YTEntityImpl record1 = new YTEntityImpl(new YTRecordId(3, -3));
+    record1.setInternalStatus(RecordElement.STATUS.LOADED);
     operations.add(new ORecordOperation(record1, ORecordOperation.CREATED));
 
     ORebeginTransactionRequest rebegin =
@@ -196,9 +196,9 @@ public class OConnectionExecutorTransactionTest {
     OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
 
     List<ORecordOperation> operations = new ArrayList<>();
-    YTDocument rec = new YTDocument();
+    YTEntityImpl rec = new YTEntityImpl();
     ORecordInternal.setIdentity(rec, new YTRecordId(3, -2));
-    rec.setInternalStatus(ORecordElement.STATUS.LOADED);
+    rec.setInternalStatus(RecordElement.STATUS.LOADED);
     operations.add(new ORecordOperation(rec, ORecordOperation.CREATED));
 
     assertFalse(database.getTransaction().isActive());
@@ -209,8 +209,8 @@ public class OConnectionExecutorTransactionTest {
     assertTrue(database.getTransaction().isActive());
     assertTrue(response instanceof OBeginTransactionResponse);
 
-    YTDocument record1 = new YTDocument(new YTRecordId(3, -3));
-    record1.setInternalStatus(ORecordElement.STATUS.LOADED);
+    YTEntityImpl record1 = new YTEntityImpl(new YTRecordId(3, -3));
+    record1.setInternalStatus(RecordElement.STATUS.LOADED);
     operations.add(new ORecordOperation(record1, ORecordOperation.CREATED));
 
     ORebeginTransactionRequest rebegin =
@@ -220,8 +220,8 @@ public class OConnectionExecutorTransactionTest {
     assertTrue(database.getTransaction().isActive());
     assertEquals(2, database.getTransaction().getEntryCount());
 
-    YTDocument record2 = new YTDocument(new YTRecordId(3, -4));
-    record2.setInternalStatus(ORecordElement.STATUS.LOADED);
+    YTEntityImpl record2 = new YTEntityImpl(new YTRecordId(3, -4));
+    record2.setInternalStatus(RecordElement.STATUS.LOADED);
     operations.add(new ORecordOperation(record2, ORecordOperation.CREATED));
 
     OCommit37Request commit = new OCommit37Request(database, 10, true, true, operations,
@@ -238,7 +238,7 @@ public class OConnectionExecutorTransactionTest {
     OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
 
     List<ORecordOperation> operations = new ArrayList<>();
-    YTDocument rec = new YTDocument("test");
+    YTEntityImpl rec = new YTEntityImpl("test");
     operations.add(new ORecordOperation(rec, ORecordOperation.CREATED));
     assertFalse(database.getTransaction().isActive());
 
@@ -264,13 +264,13 @@ public class OConnectionExecutorTransactionTest {
   public void testBeginChangeFetchTransaction() {
 
     database.begin();
-    database.save(new YTDocument("test"));
+    database.save(new YTEntityImpl("test"));
     database.commit();
 
     OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
 
     List<ORecordOperation> operations = new ArrayList<>();
-    YTDocument rec = new YTDocument("test");
+    YTEntityImpl rec = new YTEntityImpl("test");
     operations.add(new ORecordOperation(rec, ORecordOperation.CREATED));
     assertFalse(database.getTransaction().isActive());
 
@@ -304,7 +304,7 @@ public class OConnectionExecutorTransactionTest {
     OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
 
     List<ORecordOperation> operations = new ArrayList<>();
-    YTDocument rec = new YTDocument("test");
+    YTEntityImpl rec = new YTEntityImpl("test");
     operations.add(new ORecordOperation(rec, ORecordOperation.CREATED));
     assertFalse(database.getTransaction().isActive());
 
@@ -323,7 +323,7 @@ public class OConnectionExecutorTransactionTest {
   public void testEmptyBeginCommitTransaction() {
 
     database.begin();
-    YTDocument rec = database.save(new YTDocument("test").field("name", "foo"));
+    YTEntityImpl rec = database.save(new YTEntityImpl("test").field("name", "foo"));
     database.commit();
 
     OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
@@ -335,7 +335,7 @@ public class OConnectionExecutorTransactionTest {
 
     OCreateRecordRequest createRecordRequest =
         new OCreateRecordRequest(
-            new YTDocument("test"), new YTRecordId(-1, -1), YTDocument.RECORD_TYPE);
+            new YTEntityImpl("test"), new YTRecordId(-1, -1), YTEntityImpl.RECORD_TYPE);
     OBinaryResponse createResponse = createRecordRequest.execute(executor);
     assertTrue(createResponse instanceof OCreateRecordResponse);
 
@@ -343,7 +343,7 @@ public class OConnectionExecutorTransactionTest {
     rec.setProperty("name", "bar");
     OUpdateRecordRequest updateRecordRequest =
         new OUpdateRecordRequest(
-            (YTRecordId) rec.getIdentity(), rec, rec.getVersion(), true, YTDocument.RECORD_TYPE);
+            (YTRecordId) rec.getIdentity(), rec, rec.getVersion(), true, YTEntityImpl.RECORD_TYPE);
     OBinaryResponse updateResponse = updateRecordRequest.execute(executor);
     assertTrue(updateResponse instanceof OUpdateRecordResponse);
 

@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.OOrientStartupListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
@@ -329,7 +329,7 @@ public final class OSBTreeCollectionManagerShared
    * Change UUID to null to prevent its serialization to disk.
    */
   @Override
-  public UUID listenForChanges(ORidBag collection) {
+  public UUID listenForChanges(RidBag collection) {
     UUID ownerUUID = collection.getTemporaryId();
     if (ownerUUID != null) {
       final OBonsaiCollectionPointer pointer = collection.getPointer();

@@ -23,8 +23,8 @@ import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OList;
-import com.orientechnologies.orient.core.db.record.OSet;
+import com.orientechnologies.orient.core.db.record.LinkList;
+import com.orientechnologies.orient.core.db.record.LinkSet;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
@@ -32,7 +32,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.ArrayList;
@@ -226,8 +226,8 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
       cmd = "select from " + destClassName + " where " + destField + " = ";
     }
 
-    List<YTDocument> result;
-    YTDocument target;
+    List<YTEntityImpl> result;
+    YTEntityImpl target;
     Object oldValue;
     long total = 0;
 
@@ -255,11 +255,11 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
 
     try {
       // BROWSE ALL THE RECORDS OF THE SOURCE CLASS
-      for (YTDocument doc : db.browseClass(sourceClass.getName())) {
+      for (YTEntityImpl doc : db.browseClass(sourceClass.getName())) {
         value = doc.field(sourceField);
 
         if (value != null) {
-          if (value instanceof YTDocument || value instanceof YTRID) {
+          if (value instanceof YTEntityImpl || value instanceof YTRID) {
             // ALREADY CONVERTED
           } else if (value instanceof Collection<?>) {
             // TODO
@@ -275,7 +275,7 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
               }
             }
 
-            result = database.command(new OSQLSynchQuery<YTDocument>(cmd + value))
+            result = database.command(new OSQLSynchQuery<YTEntityImpl>(cmd + value))
                 .execute(database);
 
             if (result == null || result.size() == 0) {
@@ -303,26 +303,26 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
                   multipleRelationship = true;
                 }
 
-                Collection<YTDocument> coll;
+                Collection<YTEntityImpl> coll;
                 if (oldValue instanceof Collection) {
                   // ADD IT IN THE EXISTENT COLLECTION
-                  coll = (Collection<YTDocument>) oldValue;
+                  coll = (Collection<YTEntityImpl>) oldValue;
                   target.setDirty();
                 } else {
                   // CREATE A NEW COLLECTION FOR BOTH
-                  coll = new ArrayList<YTDocument>(2);
+                  coll = new ArrayList<YTEntityImpl>(2);
                   target.field(linkName, coll);
-                  coll.add((YTDocument) oldValue);
+                  coll.add((YTEntityImpl) oldValue);
                 }
                 coll.add(doc);
               } else {
                 if (linkType != null) {
                   if (linkType == YTType.LINKSET) {
-                    value = new OSet(target);
+                    value = new LinkSet(target);
                     ((Set<YTIdentifiable>) value).add(doc);
                   } else if (linkType == YTType.LINKLIST) {
-                    value = new OList(target);
-                    ((OList) value).add(doc);
+                    value = new LinkList(target);
+                    ((LinkList) value).add(doc);
                   } else
                   // IGNORE THE TYPE, SET IT AS LINK
                   {

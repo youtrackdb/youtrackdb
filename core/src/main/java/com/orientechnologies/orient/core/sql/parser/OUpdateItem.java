@@ -3,10 +3,10 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OList;
-import com.orientechnologies.orient.core.db.record.OSet;
+import com.orientechnologies.orient.core.db.record.LinkList;
+import com.orientechnologies.orient.core.db.record.LinkSet;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
@@ -306,21 +306,21 @@ public class OUpdateItem extends SimpleNode {
               .map(item -> convertToType(item, linkedClass, ctx))
               .collect(Collectors.toSet());
         }
-        if (type == YTType.LINKSET && !(value instanceof OSet)) {
+        if (type == YTType.LINKSET && !(value instanceof LinkSet)) {
           var db = ctx.getDatabase();
           return ((Collection<?>) value)
               .stream()
               .map(item -> YTType.convert(db, item, YTIdentifiable.class))
               .collect(Collectors.toSet());
-        } else if (type == YTType.LINKLIST && !(value instanceof OList)) {
+        } else if (type == YTType.LINKLIST && !(value instanceof LinkList)) {
           var db = ctx.getDatabase();
           return ((Collection<?>) value)
               .stream()
               .map(item -> YTType.convert(db, item, YTIdentifiable.class))
               .collect(Collectors.toList());
-        } else if (type == YTType.LINKBAG && !(value instanceof ORidBag)) {
+        } else if (type == YTType.LINKBAG && !(value instanceof RidBag)) {
           var db = ctx.getDatabase();
-          var bag = new ORidBag(db);
+          var bag = new RidBag(db);
 
           ((Collection<?>) value)
               .stream()

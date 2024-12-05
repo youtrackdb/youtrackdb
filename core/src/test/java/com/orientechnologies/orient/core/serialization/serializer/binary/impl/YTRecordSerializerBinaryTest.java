@@ -22,7 +22,7 @@ import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerBinary;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OVarIntSerializer;
@@ -90,7 +90,7 @@ public class YTRecordSerializerBinaryTest {
   @Test
   public void testGetTypedPropertyOfTypeAny() {
     db.begin();
-    YTDocument doc = new YTDocument("TestClass");
+    YTEntityImpl doc = new YTEntityImpl("TestClass");
     Integer setValue = 15;
     doc.setProperty("TestPropAny", setValue);
     db.save(doc);
@@ -107,7 +107,7 @@ public class YTRecordSerializerBinaryTest {
 
   @Test
   public void testGetTypedFiledSimple() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     Integer setValue = 16;
     doc.setProperty("TestField", setValue);
     byte[] serializedDoc = serializer.toStream((YTDatabaseSessionInternal) db, doc);
@@ -139,8 +139,8 @@ public class YTRecordSerializerBinaryTest {
   @Test
   public void testGetFieldNamesFromEmbedded() {
     db.begin();
-    YTDocument root = new YTDocument();
-    YTDocument embedded = new YTDocument("TestClass");
+    YTEntityImpl root = new YTEntityImpl();
+    YTEntityImpl embedded = new YTEntityImpl("TestClass");
     Integer setValue = 17;
     embedded.setProperty("TestField", setValue);
     embedded.setProperty("TestField2", "TestValue");
@@ -167,8 +167,8 @@ public class YTRecordSerializerBinaryTest {
   @Test
   public void testGetTypedFieldEmbedded() {
     db.begin();
-    YTDocument root = new YTDocument();
-    YTDocument embedded = new YTDocument("TestClass");
+    YTEntityImpl root = new YTEntityImpl();
+    YTEntityImpl embedded = new YTEntityImpl("TestClass");
     Integer setValue = 17;
     embedded.setProperty("TestField", setValue);
 
@@ -212,8 +212,8 @@ public class YTRecordSerializerBinaryTest {
   @Test
   public void testGetTypedFieldFromEmbedded() {
     db.begin();
-    YTDocument root = new YTDocument();
-    YTDocument embedded = new YTDocument("TestClass");
+    YTEntityImpl root = new YTEntityImpl();
+    YTEntityImpl embedded = new YTEntityImpl("TestClass");
     Integer setValue = 17;
     embedded.setProperty("TestField", setValue);
 
@@ -239,9 +239,9 @@ public class YTRecordSerializerBinaryTest {
   @Test
   public void testGetTypedEmbeddedFromEmbedded() {
     db.begin();
-    YTDocument root = new YTDocument("TestClass");
-    YTDocument embedded = new YTDocument("TestClass");
-    YTDocument embeddedLevel2 = new YTDocument("TestClass");
+    YTEntityImpl root = new YTEntityImpl("TestClass");
+    YTEntityImpl embedded = new YTEntityImpl("TestClass");
+    YTEntityImpl embeddedLevel2 = new YTEntityImpl("TestClass");
     Integer setValue = 17;
     embeddedLevel2.setProperty("InnerTestFields", setValue);
     embedded.setProperty("TestEmbedded", embeddedLevel2);
@@ -264,8 +264,8 @@ public class YTRecordSerializerBinaryTest {
 
   @Test
   public void testGetFieldFromEmbeddedList() {
-    YTDocument root = new YTDocument();
-    YTDocument embeddedListElement = new YTDocument();
+    YTEntityImpl root = new YTEntityImpl();
+    YTEntityImpl embeddedListElement = new YTEntityImpl();
     Integer setValue = 19;
     Integer setValue2 = 21;
     embeddedListElement.field("InnerTestFields", setValue);
@@ -294,11 +294,11 @@ public class YTRecordSerializerBinaryTest {
 
   @Test
   public void testGetFieldFromEmbeddedMap() {
-    YTDocument root = new YTDocument();
+    YTEntityImpl root = new YTEntityImpl();
     Integer setValue = 23;
     Integer setValue2 = 27;
     Map<String, Object> map = new HashMap<>();
-    YTDocument embeddedListElement = new YTDocument();
+    YTEntityImpl embeddedListElement = new YTEntityImpl();
     embeddedListElement.field("InnerTestFields", setValue);
     map.put("first", embeddedListElement);
     map.put("second", setValue2);

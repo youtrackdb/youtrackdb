@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.OMemoryStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -18,11 +18,11 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testAddNotificationOne() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
     trackedList.enableTracking(doc);
     OMultiValueChangeEvent<Object, Object> event =
         new OMultiValueChangeEvent<Object, Object>(
@@ -36,11 +36,11 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testAddNotificationTwo() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
 
@@ -58,11 +58,11 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testAddNotificationThree() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
     doc.setProperty("tracked", trackedList);
     trackedList.add("value1");
     Assert.assertTrue(doc.isDirty());
@@ -70,11 +70,11 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testAddNotificationFour() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
 
@@ -91,11 +91,11 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testAddAllNotificationOne() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
     final List<String> valuesToAdd = new ArrayList<String>();
     valuesToAdd.add("value1");
     valuesToAdd.add("value3");
@@ -120,11 +120,11 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testAddAllNotificationTwo() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
     doc.setProperty("tracked", trackedList);
     final List<String> valuesToAdd = new ArrayList<String>();
     valuesToAdd.add("value1");
@@ -137,11 +137,11 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testAddAllNotificationThree() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
     final List<String> valuesToAdd = new ArrayList<String>();
     valuesToAdd.add("value1");
     valuesToAdd.add("value3");
@@ -161,11 +161,11 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testAddIndexNotificationOne() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
 
@@ -185,11 +185,11 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testAddIndexNotificationTwo() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
     doc.setProperty("aa", trackedList);
     trackedList.add("value1");
     trackedList.add("value2");
@@ -202,11 +202,11 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testSetNotificationOne() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
     trackedList.add("value3");
@@ -225,11 +225,11 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testSetNotificationTwo() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
     doc.setProperty("tracked", trackedList);
     trackedList.add("value1");
     trackedList.add("value2");
@@ -244,11 +244,11 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testRemoveNotificationOne() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
     trackedList.add("value3");
@@ -266,11 +266,11 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testRemoveNotificationTwo() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
     doc.setProperty("tracked", trackedList);
     trackedList.add("value1");
     trackedList.add("value2");
@@ -285,11 +285,11 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testRemoveNotificationFour() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
     trackedList.add("value3");
@@ -305,11 +305,11 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testRemoveIndexOne() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
     trackedList.add("value3");
@@ -329,11 +329,11 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testClearOne() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
     trackedList.add("value3");
@@ -361,11 +361,11 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testClearTwo() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
     doc.setProperty("tracked", trackedList);
     trackedList.add("value1");
     trackedList.add("value2");
@@ -380,9 +380,9 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testReturnOriginalStateOne() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
     trackedList.add("value3");
@@ -414,9 +414,9 @@ public class TrackedListTest extends DBTestBase {
 
   @Test
   public void testReturnOriginalStateTwo() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
 
-    final OTrackedList<String> trackedList = new OTrackedList<String>(doc);
+    final TrackedList<String> trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
     trackedList.add("value3");
@@ -444,12 +444,12 @@ public class TrackedListTest extends DBTestBase {
   }
 
   /**
-   * Test that {@link OTrackedList} is serialised correctly.
+   * Test that {@link TrackedList} is serialised correctly.
    */
   @Test
   public void testSerialization() throws Exception {
 
-    class NotSerializableDocument extends YTDocument {
+    class NotSerializableEntityImpl extends YTEntityImpl {
 
       private static final long serialVersionUID = 1L;
 
@@ -458,8 +458,8 @@ public class TrackedListTest extends DBTestBase {
       }
     }
 
-    final OTrackedList<String> beforeSerialization =
-        new OTrackedList<String>(new NotSerializableDocument());
+    final TrackedList<String> beforeSerialization =
+        new TrackedList<String>(new NotSerializableEntityImpl());
     beforeSerialization.add("firstVal");
     beforeSerialization.add("secondVal");
 

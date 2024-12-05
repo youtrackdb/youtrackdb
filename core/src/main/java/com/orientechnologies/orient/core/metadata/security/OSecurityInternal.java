@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.OSecurityRole.ALLOW_MODES;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,38 +22,39 @@ public interface OSecurityInternal {
   @Deprecated
   YTIdentifiable allowUser(
       YTDatabaseSession session,
-      YTDocument iDocument,
+      YTEntityImpl iDocument,
       ORestrictedOperation iOperationType,
       String iUserName);
 
   @Deprecated
   YTIdentifiable allowRole(
       YTDatabaseSession session,
-      YTDocument iDocument,
+      YTEntityImpl iDocument,
       ORestrictedOperation iOperationType,
       String iRoleName);
 
   @Deprecated
   YTIdentifiable denyUser(
       YTDatabaseSessionInternal session,
-      YTDocument iDocument,
+      YTEntityImpl iDocument,
       ORestrictedOperation iOperationType,
       String iUserName);
 
   @Deprecated
   YTIdentifiable denyRole(
       YTDatabaseSessionInternal session,
-      YTDocument iDocument,
+      YTEntityImpl iDocument,
       ORestrictedOperation iOperationType,
       String iRoleName);
 
   @Deprecated
   YTIdentifiable allowIdentity(
-      YTDatabaseSession session, YTDocument iDocument, String iAllowFieldName, YTIdentifiable iId);
+      YTDatabaseSession session, YTEntityImpl iDocument, String iAllowFieldName,
+      YTIdentifiable iId);
 
   @Deprecated
   YTIdentifiable disallowIdentity(
-      YTDatabaseSessionInternal session, YTDocument iDocument, String iAllowFieldName,
+      YTDatabaseSessionInternal session, YTEntityImpl iDocument, String iAllowFieldName,
       YTIdentifiable iId);
 
   YTUser authenticate(YTDatabaseSessionInternal session, String iUsername, String iUserPassword);
@@ -83,9 +84,9 @@ public interface OSecurityInternal {
 
   ORole getRole(YTDatabaseSession session, YTIdentifiable iRoleRid);
 
-  List<YTDocument> getAllUsers(YTDatabaseSession session);
+  List<YTEntityImpl> getAllUsers(YTDatabaseSession session);
 
-  List<YTDocument> getAllRoles(YTDatabaseSession session);
+  List<YTEntityImpl> getAllRoles(YTDatabaseSession session);
 
   Map<String, OSecurityPolicy> getSecurityPolicies(YTDatabaseSession session, OSecurityRole role);
 
@@ -164,7 +165,7 @@ public interface OSecurityInternal {
    * @return the list of the properties that are hidden (ie. not allowed to be read) on current
    * document for current session
    */
-  Set<String> getFilteredProperties(YTDatabaseSessionInternal session, YTDocument document);
+  Set<String> getFilteredProperties(YTDatabaseSessionInternal session, YTEntityImpl document);
 
   /**
    * For property-level security
@@ -174,7 +175,7 @@ public interface OSecurityInternal {
    * @param propertyName the property to check for write access
    * @return
    */
-  boolean isAllowedWrite(YTDatabaseSessionInternal session, YTDocument document,
+  boolean isAllowedWrite(YTDatabaseSessionInternal session, YTEntityImpl document,
       String propertyName);
 
   boolean canCreate(YTDatabaseSessionInternal session, YTRecord record);

@@ -32,9 +32,9 @@ import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
-import com.orientechnologies.orient.core.metadata.security.OPropertyEncryption;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.metadata.security.PropertyEncryption;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OBinaryField;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializer;
@@ -125,7 +125,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
       }
     }
 
-    final YTDocument doc = iRecord.getRecord();
+    final YTEntityImpl doc = iRecord.getRecord();
 
     if (preLoadedFieldsArray == null
         && preLoadedFields != null
@@ -166,8 +166,8 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
       return null;
     }
 
-    final YTDocument rec = iRecord.getRecord();
-    OPropertyEncryption encryption = ODocumentInternal.getPropertyEncryption(rec);
+    final YTEntityImpl rec = iRecord.getRecord();
+    PropertyEncryption encryption = ODocumentInternal.getPropertyEncryption(rec);
     BytesContainer serialized = new BytesContainer(rec.toStream());
     byte version = serialized.bytes[serialized.offset++];
     ODocumentSerializer serializer = ORecordSerializerBinary.INSTANCE.getSerializer(version);
@@ -263,7 +263,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
     }
     FieldChain chain = getFieldChain();
     try {
-      YTDocument lastDoc = ((YTIdentifiable) doc).getRecord();
+      YTEntityImpl lastDoc = ((YTIdentifiable) doc).getRecord();
       for (int i = 0; i < chain.getItemCount() - 1; i++) {
         Object nextDoc = lastDoc.field(chain.getItemName(i));
         if (!(nextDoc instanceof YTIdentifiable)) {

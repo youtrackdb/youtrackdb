@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
@@ -132,9 +132,9 @@ public class TraverseTest extends DocumentDBBaseTest {
   }
 
   public void traverseSQLAllFromActorNoWhere() {
-    List<YTDocument> result1 =
+    List<YTEntityImpl> result1 =
         database
-            .command(new OSQLSynchQuery<YTDocument>("traverse * from " + tomCruise.getIdentity()))
+            .command(new OSQLSynchQuery<YTEntityImpl>("traverse * from " + tomCruise.getIdentity()))
             .execute(database);
     Assert.assertEquals(result1.size(), totalElements);
   }
@@ -147,10 +147,10 @@ public class TraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseSQLOutFromActor1Depth() {
-    List<YTDocument> result1 =
+    List<YTEntityImpl> result1 =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "traverse out_ from " + tomCruise.getIdentity() + " while $depth <= 1"))
             .execute(database);
 
@@ -159,24 +159,24 @@ public class TraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseSQLMoviesOnly() {
-    List<YTDocument> result1 =
+    List<YTEntityImpl> result1 =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select from ( traverse any() from Movie ) where @class = 'Movie'"))
             .execute(database);
     Assert.assertTrue(result1.size() > 0);
-    for (YTDocument d : result1) {
+    for (YTEntityImpl d : result1) {
       Assert.assertEquals(d.getClassName(), "Movie");
     }
   }
 
   @Test
   public void traverseSQLPerClassFields() {
-    List<YTDocument> result1 =
+    List<YTEntityImpl> result1 =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select from ( traverse out() from "
                         + tomCruise.getIdentity()
                         + ") where @class = 'Movie'"))
@@ -200,49 +200,49 @@ public class TraverseTest extends DocumentDBBaseTest {
             .toList();
     Assert.assertTrue(result1.isEmpty());
 
-    List<YTDocument> result2 =
+    List<YTEntityImpl> result2 =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select from ( traverse * from "
                         + tomCruise.getIdentity()
                         + " while $depth <= 2 ) where @class = 'Movie'"))
             .execute(database);
     Assert.assertTrue(result2.size() > 0);
-    for (YTDocument d : result2) {
+    for (YTEntityImpl d : result2) {
       Assert.assertEquals(d.getClassName(), "Movie");
     }
 
-    List<YTDocument> result3 =
+    List<YTEntityImpl> result3 =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select from ( traverse * from "
                         + tomCruise.getIdentity()
                         + " ) where @class = 'Movie'"))
             .execute(database);
     Assert.assertTrue(result3.size() > 0);
     Assert.assertTrue(result3.size() > result2.size());
-    for (YTDocument d : result3) {
+    for (YTEntityImpl d : result3) {
       Assert.assertEquals(d.getClassName(), "Movie");
     }
   }
 
   @Test
   public void traverseSelect() {
-    List<YTDocument> result1 =
+    List<YTEntityImpl> result1 =
         database
-            .command(new OSQLSynchQuery<YTDocument>("traverse * from ( select from Movie )"))
+            .command(new OSQLSynchQuery<YTEntityImpl>("traverse * from ( select from Movie )"))
             .execute(database);
     Assert.assertEquals(result1.size(), totalElements);
   }
 
   @Test
   public void traverseSQLSelectAndTraverseNested() {
-    List<YTDocument> result1 =
+    List<YTEntityImpl> result1 =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "traverse * from ( select from ( traverse * from "
                         + tomCruise.getIdentity()
                         + " while $depth <= 2 ) where @class = 'Movie' )"))
@@ -252,10 +252,10 @@ public class TraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseAPISelectAndTraverseNested() {
-    List<YTDocument> result1 =
+    List<YTEntityImpl> result1 =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "traverse * from ( select from ( traverse * from "
                         + tomCruise.getIdentity()
                         + " while $depth <= 2 ) where @class = 'Movie' )"))
@@ -265,10 +265,10 @@ public class TraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseAPISelectAndTraverseNestedDepthFirst() {
-    List<YTDocument> result1 =
+    List<YTEntityImpl> result1 =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "traverse * from ( select from ( traverse * from "
                         + tomCruise.getIdentity()
                         + " while $depth <= 2 strategy depth_first ) where @class = 'Movie' )"))
@@ -278,10 +278,10 @@ public class TraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseAPISelectAndTraverseNestedBreadthFirst() {
-    List<YTDocument> result1 =
+    List<YTEntityImpl> result1 =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "traverse * from ( select from ( traverse * from "
                         + tomCruise.getIdentity()
                         + " while $depth <= 2 strategy breadth_first ) where @class = 'Movie' )"))
@@ -293,7 +293,7 @@ public class TraverseTest extends DocumentDBBaseTest {
   public void traverseSQLIterating() {
     int cycles = 0;
     for (YTIdentifiable id :
-        new OSQLSynchQuery<YTDocument>("traverse * from Movie while $depth < 2")) {
+        new OSQLSynchQuery<YTEntityImpl>("traverse * from Movie while $depth < 2")) {
       cycles++;
     }
     Assert.assertTrue(cycles > 0);
@@ -309,7 +309,8 @@ public class TraverseTest extends DocumentDBBaseTest {
                 new OCommandPredicate() {
                   @Override
                   public Object evaluate(
-                      YTIdentifiable iRecord, YTDocument iCurrentResult, OCommandContext iContext) {
+                      YTIdentifiable iRecord, YTEntityImpl iCurrentResult,
+                      OCommandContext iContext) {
                     return ((Integer) iContext.getVariable("depth")) <= 2;
                   }
                 })) {
@@ -337,7 +338,8 @@ public class TraverseTest extends DocumentDBBaseTest {
   public void traverseSelectIterable() {
     int cycles = 0;
     for (YTIdentifiable id :
-        new OSQLSynchQuery<YTDocument>("select from ( traverse * from Movie while $depth < 2 )")) {
+        new OSQLSynchQuery<YTEntityImpl>(
+            "select from ( traverse * from Movie while $depth < 2 )")) {
       cycles++;
     }
     Assert.assertTrue(cycles > 0);
@@ -345,26 +347,26 @@ public class TraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseSelectNoInfluence() {
-    List<YTDocument> result1 =
+    List<YTEntityImpl> result1 =
         database
-            .command(new OSQLSynchQuery<YTDocument>("traverse any() from Movie while $depth < 2"))
+            .command(new OSQLSynchQuery<YTEntityImpl>("traverse any() from Movie while $depth < 2"))
             .execute(database);
-    List<YTDocument> result2 =
+    List<YTEntityImpl> result2 =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select from ( traverse any() from Movie while $depth < 2 )"))
             .execute(database);
-    List<YTDocument> result3 =
+    List<YTEntityImpl> result3 =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select from ( traverse any() from Movie while $depth < 2 ) where true"))
             .execute(database);
-    List<YTDocument> result4 =
+    List<YTEntityImpl> result4 =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select from ( traverse any() from Movie while $depth < 2 and ( true = true ) )"
                         + " where true"))
             .execute(database);
@@ -376,9 +378,9 @@ public class TraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseNoConditionLimit1() {
-    List<YTDocument> result1 =
+    List<YTEntityImpl> result1 =
         database
-            .command(new OSQLSynchQuery<YTDocument>("traverse any() from Movie limit 1"))
+            .command(new OSQLSynchQuery<YTEntityImpl>("traverse any() from Movie limit 1"))
             .execute(database);
 
     Assert.assertEquals(result1.size(), 1);
@@ -387,17 +389,17 @@ public class TraverseTest extends DocumentDBBaseTest {
   @Test
   public void traverseAndFilterByAttributeThatContainsDotInValue() {
     // issue #4952
-    List<YTDocument> result1 =
+    List<YTEntityImpl> result1 =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select from ( traverse out_married, in[attributeWithDotValue = 'a.b']  from "
                         + tomCruise.getIdentity()
                         + ")"))
             .execute(database);
     Assert.assertTrue(result1.size() > 0);
     boolean found = false;
-    for (YTDocument doc : result1) {
+    for (YTEntityImpl doc : result1) {
       String name = doc.field("name");
       if ("Nicole Kidman".equals(name)) {
         found = true;
@@ -412,17 +414,17 @@ public class TraverseTest extends DocumentDBBaseTest {
     // issue #5225
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("param1", "a.b");
-    List<YTDocument> result1 =
+    List<YTEntityImpl> result1 =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select from (traverse out_married, in[attributeWithDotValue = :param1]  from "
                         + tomCruise.getIdentity()
                         + ")"))
             .execute(database, params);
     Assert.assertTrue(result1.size() > 0);
     boolean found = false;
-    for (YTDocument doc : result1) {
+    for (YTEntityImpl doc : result1) {
       String name = doc.field("name");
       if ("Nicole Kidman".equals(name)) {
         found = true;
@@ -434,7 +436,7 @@ public class TraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseAndCheckDepthInSelect() {
-    List<YTDocument> result1 =
+    List<YTEntityImpl> result1 =
         executeQuery(
             "select *, $depth as d from ( traverse out_married  from "
                 + tomCruise.getIdentity()
@@ -443,7 +445,7 @@ public class TraverseTest extends DocumentDBBaseTest {
 
     boolean found = false;
     int i = 0;
-    for (YTDocument doc : result1) {
+    for (YTEntityImpl doc : result1) {
       Integer depth = doc.field("d");
       Assert.assertEquals(depth, i++);
     }
@@ -457,7 +459,7 @@ public class TraverseTest extends DocumentDBBaseTest {
       String q = "traverse in('married')  from " + nicoleKidman.getIdentity();
       YTDatabaseSessionInternal db = database.copy();
       ODatabaseRecordThreadLocal.instance().set(db);
-      List<Object> result1 = db.command(new OSQLSynchQuery<YTDocument>(q)).execute(database);
+      List<Object> result1 = db.command(new OSQLSynchQuery<YTEntityImpl>(q)).execute(database);
       Assert.assertEquals(result1.size(), 2);
       boolean found = false;
       Integer i = 0;

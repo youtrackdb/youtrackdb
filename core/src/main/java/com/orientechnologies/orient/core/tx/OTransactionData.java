@@ -7,10 +7,10 @@ import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkDistributed;
 import java.io.ByteArrayInputStream;
@@ -88,17 +88,17 @@ public class OTransactionData {
                       break;
                     }
                     case ORecordOperation.UPDATED: {
-                      if (x.getRecordType() == YTDocument.RECORD_TYPE) {
+                      if (x.getRecordType() == YTEntityImpl.RECORD_TYPE) {
                         try {
                           record = database.load(x.getId());
                         } catch (YTRecordNotFoundException rnf) {
-                          record = new YTDocument();
+                          record = new YTEntityImpl();
                         }
 
-                        ((YTDocument) record).deserializeFields();
-                        ODocumentInternal.clearTransactionTrackData((YTDocument) record);
+                        ((YTEntityImpl) record).deserializeFields();
+                        ODocumentInternal.clearTransactionTrackData((YTEntityImpl) record);
                         ODocumentSerializerDelta.instance()
-                            .deserializeDelta(database, x.getRecord().get(), (YTDocument) record);
+                            .deserializeDelta(database, x.getRecord().get(), (YTEntityImpl) record);
                         /// Got record with empty deltas, at this level we mark the record dirty
                         // anyway.
                         record.setDirty();

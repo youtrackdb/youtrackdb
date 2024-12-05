@@ -21,7 +21,7 @@ package com.orientechnologies.lucene.test;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,7 +37,7 @@ public class LuceneInheritanceQueryTest extends BaseLuceneTest {
   @Test
   public void testQuery() {
     createSchema(db);
-    YTDocument doc = new YTDocument("C2");
+    YTEntityImpl doc = new YTEntityImpl("C2");
     doc.field("name", "abc");
     db.begin();
     db.save(doc);

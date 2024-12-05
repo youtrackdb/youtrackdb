@@ -40,7 +40,7 @@ import com.orientechnologies.orient.core.index.iterator.OIndexCursorStream;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import com.orientechnologies.orient.core.storage.cache.OReadCache;
@@ -95,7 +95,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
     }
   }
 
-  public static OIndexMetadata loadMetadataFromDoc(final YTDocument config) {
+  public static OIndexMetadata loadMetadataFromDoc(final YTEntityImpl config) {
     return loadMetadataInternal(
         config,
         config.field(OIndexInternal.CONFIG_TYPE),
@@ -104,13 +104,13 @@ public abstract class OIndexAbstract implements OIndexInternal {
   }
 
   public static OIndexMetadata loadMetadataInternal(
-      final YTDocument config,
+      final YTEntityImpl config,
       final String type,
       final String algorithm,
       final String valueContainerAlgorithm) {
     final String indexName = config.field(OIndexInternal.CONFIG_NAME);
 
-    final YTDocument indexDefinitionDoc = config.field(OIndexInternal.INDEX_DEFINITION);
+    final YTEntityImpl indexDefinitionDoc = config.field(OIndexInternal.INDEX_DEFINITION);
     OIndexDefinition loadedIndexDefinition = null;
     if (indexDefinitionDoc != null) {
       try {
@@ -260,7 +260,8 @@ public abstract class OIndexAbstract implements OIndexInternal {
     }
   }
 
-  public boolean loadFromConfiguration(YTDatabaseSessionInternal session, final YTDocument config) {
+  public boolean loadFromConfiguration(YTDatabaseSessionInternal session,
+      final YTEntityImpl config) {
     acquireExclusiveLock();
     try {
       clustersToIndex.clear();
@@ -321,7 +322,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
   }
 
   @Override
-  public OIndexMetadata loadMetadata(final YTDocument config) {
+  public OIndexMetadata loadMetadata(final YTEntityImpl config) {
     return loadMetadataInternal(
         config, im.getType(), im.getAlgorithm(), im.getValueContainerAlgorithm());
   }
@@ -737,15 +738,16 @@ public abstract class OIndexAbstract implements OIndexInternal {
     return im.getVersion();
   }
 
-  public YTDocument updateConfiguration(YTDatabaseSessionInternal session) {
-    YTDocument document = new YTDocument(session);
+  public YTEntityImpl updateConfiguration(YTDatabaseSessionInternal session) {
+    YTEntityImpl document = new YTEntityImpl(session);
     document.field(OIndexInternal.CONFIG_TYPE, im.getType());
     document.field(OIndexInternal.CONFIG_NAME, im.getName());
     document.field(OIndexInternal.INDEX_VERSION, im.getVersion());
 
     if (im.getIndexDefinition() != null) {
 
-      final YTDocument indexDefDocument = im.getIndexDefinition().toStream(new YTDocument(session));
+      final YTEntityImpl indexDefDocument = im.getIndexDefinition()
+          .toStream(new YTEntityImpl(session));
       if (!indexDefDocument.hasOwners()) {
         ODocumentInternal.addOwner(indexDefDocument, document);
       }
@@ -763,7 +765,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
     document.field(VALUE_CONTAINER_ALGORITHM, im.getValueContainerAlgorithm());
 
     if (im.getMetadata() != null) {
-      var imDoc = new YTDocument();
+      var imDoc = new YTEntityImpl();
       imDoc.fromMap(im.getMetadata());
       document.field(OIndexInternal.METADATA, imDoc, YTType.EMBEDDED);
     }
@@ -788,7 +790,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
     return changes.getEntriesAsList();
   }
 
-  public YTDocument getConfiguration(YTDatabaseSessionInternal session) {
+  public YTEntityImpl getConfiguration(YTDatabaseSessionInternal session) {
     return updateConfiguration(session);
   }
 
@@ -953,7 +955,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
         throw new YTCommandExecutionException("The index rebuild has been interrupted");
       }
 
-      if (record instanceof YTDocument doc) {
+      if (record instanceof YTEntityImpl doc) {
         OClassIndexManager.reIndex(session, doc, this);
         ++stat[1];
       }

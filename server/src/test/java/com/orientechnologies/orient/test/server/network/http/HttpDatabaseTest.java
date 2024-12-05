@@ -2,7 +2,7 @@ package com.orientechnologies.orient.test.server.network.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -42,7 +42,7 @@ public class HttpDatabaseTest extends BaseHttpTest {
   @Test
   public void testCreateAndGetDatabase() throws IOException {
 
-    YTDocument pass = new YTDocument();
+    YTEntityImpl pass = new YTEntityImpl();
     pass.setProperty("adminPassword", "admin");
     Assert.assertEquals(
         200,
@@ -70,7 +70,7 @@ public class HttpDatabaseTest extends BaseHttpTest {
 
   @Test
   public void testCreateQueryAndDropDatabase() throws Exception {
-    YTDocument pass = new YTDocument();
+    YTEntityImpl pass = new YTEntityImpl();
     pass.setProperty("adminPassword", "admin");
     Assert.assertEquals(
         200,

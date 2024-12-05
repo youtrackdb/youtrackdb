@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.io.File;
@@ -54,10 +54,10 @@ public class LuceneSpatialDropTest {
 
     db = dbPool.acquire();
     // @maggiolo00 Remove the next three lines and the test will not fail anymore
-    OSQLSynchQuery<YTDocument> query =
-        new OSQLSynchQuery<YTDocument>(
+    OSQLSynchQuery<YTEntityImpl> query =
+        new OSQLSynchQuery<YTEntityImpl>(
             "select from test where [latitude,longitude] WITHIN [[50.0,8.0],[51.0,9.0]]");
-    List<YTDocument> result = db.command(query).execute(db);
+    List<YTEntityImpl> result = db.command(query).execute(db);
     Assert.assertEquals(insertcount, result.size());
     db.close();
     dbPool.close();
@@ -72,7 +72,7 @@ public class LuceneSpatialDropTest {
 
   private void fillDb(YTDatabaseSession db, int count) {
     for (int i = 0; i < count; i++) {
-      YTDocument doc = new YTDocument("test");
+      YTEntityImpl doc = new YTEntityImpl("test");
       doc.field("name", "TestInsert" + i);
       doc.field("latitude", 50.0 + (i * 0.000001));
       doc.field("longitude", 8.0 + (i * 0.000001));

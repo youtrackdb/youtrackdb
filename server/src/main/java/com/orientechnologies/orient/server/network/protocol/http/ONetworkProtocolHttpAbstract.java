@@ -32,7 +32,7 @@ import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import com.orientechnologies.orient.core.metadata.security.YTUser;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
@@ -549,14 +549,14 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
       writeLine(iHeaders);
     }
 
-    YTDocument response = new YTDocument();
-    YTDocument error = new YTDocument();
+    YTEntityImpl response = new YTEntityImpl();
+    YTEntityImpl error = new YTEntityImpl();
 
     error.field("code", iCode);
     error.field("reason", iCode);
     error.field("content", iContent);
 
-    List<YTDocument> errors = new ArrayList<YTDocument>();
+    List<YTEntityImpl> errors = new ArrayList<YTEntityImpl>();
     errors.add(error);
 
     response.field("errors", errors);

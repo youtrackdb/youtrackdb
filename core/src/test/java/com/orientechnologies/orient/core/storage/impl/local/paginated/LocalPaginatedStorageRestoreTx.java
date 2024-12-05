@@ -12,7 +12,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -283,7 +283,7 @@ public class LocalPaginatedStorageRestoreTx {
           try {
             db.begin();
 
-            YTDocument docOne = new YTDocument(classOne);
+            YTEntityImpl docOne = new YTEntityImpl(classOne);
             docOne.field("intProp", random.nextInt());
 
             byte[] stringData = new byte[256];
@@ -300,10 +300,10 @@ public class LocalPaginatedStorageRestoreTx {
 
             docOne.save();
 
-            YTDocument docTwo = null;
+            YTEntityImpl docTwo = null;
 
             if (random.nextBoolean()) {
-              docTwo = new YTDocument(classTwo);
+              docTwo = new YTEntityImpl(classTwo);
 
               List<String> stringList = new ArrayList<String>();
 
@@ -344,7 +344,7 @@ public class LocalPaginatedStorageRestoreTx {
             }
 
             if (!secondDocs.isEmpty() && (random.nextDouble() <= 0.2)) {
-              YTDocument conflictDocTwo = new YTDocument();
+              YTEntityImpl conflictDocTwo = new YTEntityImpl();
               ORecordInternal.setIdentity(conflictDocTwo, new YTRecordId(secondDocs.get(0)));
               conflictDocTwo.setDirty();
               conflictDocTwo.save();

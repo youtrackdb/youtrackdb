@@ -6,11 +6,11 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.BaseMemoryInternalDatabase;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OSBTreeBonsai;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import java.util.Collections;
@@ -30,8 +30,8 @@ public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
   @Test
   public void testDeleteRidbagTx() throws InterruptedException {
 
-    YTDocument doc = new YTDocument();
-    ORidBag bag = new ORidBag(db);
+    YTEntityImpl doc = new YTEntityImpl();
+    RidBag bag = new RidBag(db);
     int size =
         YTGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger() * 2;
     for (int i = 0; i < size; i++) {

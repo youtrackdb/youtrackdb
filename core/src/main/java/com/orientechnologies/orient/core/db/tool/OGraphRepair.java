@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.OMetadata;
@@ -17,7 +17,7 @@ import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTVertexInternal;
 import com.orientechnologies.orient.core.storage.impl.local.OStorageRecoverEventListener;
 import java.util.Collection;
@@ -138,7 +138,7 @@ public class OGraphRepair {
             long parsedEdges = 0L;
             final long beginTime = System.currentTimeMillis();
 
-            for (YTDocument edge : db.browseClass(edgeClass.getName())) {
+            for (YTEntityImpl edge : db.browseClass(edgeClass.getName())) {
               if (!edge.isEdge()) {
                 continue;
               }
@@ -182,7 +182,7 @@ public class OGraphRepair {
               if (out == null) {
                 outVertexMissing = true;
               } else {
-                YTDocument outVertex;
+                YTEntityImpl outVertex;
                 try {
                   outVertex = out.getRecord();
                 } catch (YTRecordNotFoundException e) {
@@ -199,8 +199,8 @@ public class OGraphRepair {
                   final Object outEdges = outVertex.field(outFieldName);
                   if (outEdges == null) {
                     outVertexMissing = true;
-                  } else if (outEdges instanceof ORidBag) {
-                    if (!((ORidBag) outEdges).contains(edgeId)) {
+                  } else if (outEdges instanceof RidBag) {
+                    if (!((RidBag) outEdges).contains(edgeId)) {
                       outVertexMissing = true;
                     }
                   } else if (outEdges instanceof Collection) {
@@ -226,7 +226,7 @@ public class OGraphRepair {
                 inVertexMissing = true;
               } else {
 
-                YTDocument inVertex;
+                YTEntityImpl inVertex;
                 try {
                   inVertex = in.getRecord();
                 } catch (YTRecordNotFoundException e) {
@@ -243,8 +243,8 @@ public class OGraphRepair {
                   final Object inEdges = inVertex.field(inFieldName);
                   if (inEdges == null) {
                     inVertexMissing = true;
-                  } else if (inEdges instanceof ORidBag) {
-                    if (!((ORidBag) inEdges).contains(edgeId)) {
+                  } else if (inEdges instanceof RidBag) {
+                    if (!((RidBag) inEdges).contains(edgeId)) {
                       inVertexMissing = true;
                     }
                   } else if (inEdges instanceof Collection) {
@@ -322,7 +322,7 @@ public class OGraphRepair {
             long[] parsedVertices = new long[]{0L};
             final long beginTime = System.currentTimeMillis();
 
-            for (YTDocument vertex : db.browseClass(vertexClass.getName())) {
+            for (YTEntityImpl vertex : db.browseClass(vertexClass.getName())) {
               parsedVertices[0]++;
               if (skipVertices > 0 && parsedVertices[0] <= skipVertices) {
                 continue;
@@ -415,7 +415,7 @@ public class OGraphRepair {
                       }
                     }
 
-                  } else if (fieldValue instanceof ORidBag ridbag) {
+                  } else if (fieldValue instanceof RidBag ridbag) {
                     // In case of ridbags force save for trigger eventual conversions
                     if (ridbag.size() == 0) {
                       vertex.removeField(fieldName);
@@ -514,7 +514,7 @@ public class OGraphRepair {
     {
       broken = true;
     } else {
-      YTDocument record = null;
+      YTEntityImpl record = null;
       try {
         record = edgeRID.getIdentity().getRecord();
       } catch (YTRecordNotFoundException e) {
@@ -559,8 +559,8 @@ public class OGraphRepair {
                   broken = true;
                 }
 
-              } else if (inverseEdgeContainer instanceof ORidBag) {
-                if (!((ORidBag) inverseEdgeContainer).contains(vertex))
+              } else if (inverseEdgeContainer instanceof RidBag) {
+                if (!((RidBag) inverseEdgeContainer).contains(vertex))
                 // NOT IN RIDBAG
                 {
                   broken = true;

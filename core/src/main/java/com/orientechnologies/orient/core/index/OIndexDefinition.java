@@ -21,9 +21,9 @@ package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.List;
 import javax.annotation.Nonnull;
 
@@ -118,14 +118,14 @@ public interface OIndexDefinition extends OIndexCallback {
    * @return Document that contains internal index state.
    */
   @Nonnull
-  YTDocument toStream(@Nonnull YTDocument document);
+  YTEntityImpl toStream(@Nonnull YTEntityImpl document);
 
   /**
    * Deserialize internal index state from document.
    *
    * @param document Serialized index presentation.
    */
-  void fromStream(@Nonnull YTDocument document);
+  void fromStream(@Nonnull YTEntityImpl document);
 
   String toCreateIndexDDL(String indexName, String indexType, String engine);
 

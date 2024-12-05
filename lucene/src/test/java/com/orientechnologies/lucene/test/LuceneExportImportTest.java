@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -52,7 +52,7 @@ public class LuceneExportImportTest extends BaseLuceneTest {
     oClass.createProperty(db, "name", YTType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
 
-    YTDocument doc = new YTDocument("City");
+    YTEntityImpl doc = new YTEntityImpl("City");
     doc.field("name", "Rome");
 
     db.begin();

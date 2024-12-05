@@ -17,7 +17,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.List;
 import org.locationtech.jts.geom.Geometry;
@@ -49,7 +49,7 @@ public class OMultiPolygonShapeBuilder extends OPolygonShapeBuilder {
   }
 
   @Override
-  public JtsGeometry fromDoc(YTDocument document) {
+  public JtsGeometry fromDoc(YTEntityImpl document) {
     validate(document);
     List<List<List<List<Number>>>> coordinates = document.field("coordinates");
 
@@ -63,9 +63,9 @@ public class OMultiPolygonShapeBuilder extends OPolygonShapeBuilder {
   }
 
   @Override
-  public YTDocument toDoc(JtsGeometry shape) {
+  public YTEntityImpl toDoc(JtsGeometry shape) {
 
-    YTDocument doc = new YTDocument(getName());
+    YTEntityImpl doc = new YTEntityImpl(getName());
     MultiPolygon multiPolygon = (MultiPolygon) shape.getGeom();
     List<List<List<List<Double>>>> polyCoordinates = new ArrayList<List<List<List<Double>>>>();
     int n = multiPolygon.getNumGeometries();

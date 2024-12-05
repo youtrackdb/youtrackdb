@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTSequenceException;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence.SEQUENCE_TYPE;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Locale;
@@ -56,7 +56,7 @@ public class OSequenceLibraryImpl {
           YTResult res = result.next();
 
           final YTSequence sequence =
-              OSequenceHelper.createSequence((YTDocument) res.getEntity().get());
+              OSequenceHelper.createSequence((YTEntityImpl) res.getEntity().get());
           sequences.put(sequence.getName().toUpperCase(Locale.ENGLISH), sequence);
         }
       }
@@ -124,7 +124,7 @@ public class OSequenceLibraryImpl {
   }
 
   public void onSequenceCreated(
-      final YTDatabaseSessionInternal database, final YTDocument iDocument) {
+      final YTDatabaseSessionInternal database, final YTEntityImpl iDocument) {
     init(database);
 
     String name = YTSequence.getSequenceName(iDocument);
@@ -147,7 +147,7 @@ public class OSequenceLibraryImpl {
   }
 
   public void onSequenceDropped(
-      final YTDatabaseSessionInternal database, final YTDocument iDocument) {
+      final YTDatabaseSessionInternal database, final YTEntityImpl iDocument) {
     String name = YTSequence.getSequenceName(iDocument);
     if (name == null) {
       return;

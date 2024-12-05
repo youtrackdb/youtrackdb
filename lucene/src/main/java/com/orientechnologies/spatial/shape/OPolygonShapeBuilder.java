@@ -18,7 +18,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -58,7 +58,7 @@ public class OPolygonShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  public JtsGeometry fromDoc(YTDocument document) {
+  public JtsGeometry fromDoc(YTEntityImpl document) {
     validate(document);
     List<List<List<Number>>> coordinates = document.field("coordinates");
 
@@ -99,9 +99,9 @@ public class OPolygonShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  public YTDocument toDoc(JtsGeometry shape) {
+  public YTEntityImpl toDoc(JtsGeometry shape) {
 
-    YTDocument doc = new YTDocument(getName());
+    YTEntityImpl doc = new YTEntityImpl(getName());
     Polygon polygon = (Polygon) shape.getGeom();
     List<List<List<Double>>> polyCoordinates = coordinatesFromPolygon(polygon);
     doc.field(COORDINATES, polyCoordinates);
@@ -109,12 +109,12 @@ public class OPolygonShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  protected YTDocument toDoc(JtsGeometry shape, Geometry geometry) {
+  protected YTEntityImpl toDoc(JtsGeometry shape, Geometry geometry) {
     if (geometry == null || Double.isNaN(geometry.getCoordinate().getZ())) {
       return toDoc(shape);
     }
 
-    YTDocument doc = new YTDocument(getName() + "Z");
+    YTEntityImpl doc = new YTEntityImpl(getName() + "Z");
     Polygon polygon = (Polygon) shape.getGeom();
     List<List<List<Double>>> polyCoordinates = coordinatesFromPolygonZ(geometry);
     doc.field(COORDINATES, polyCoordinates);
@@ -142,7 +142,7 @@ public class OPolygonShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  public String asText(YTDocument document) {
+  public String asText(YTEntityImpl document) {
     if (document.getClassName().equals("OPolygonZ")) {
       List<List<List<Double>>> coordinates = document.getProperty("coordinates");
 

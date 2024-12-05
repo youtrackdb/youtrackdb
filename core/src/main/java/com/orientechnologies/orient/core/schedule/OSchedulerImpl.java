@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
@@ -113,8 +113,8 @@ public class OSchedulerImpl {
 
   public void load(YTDatabaseSessionInternal database) {
     if (database.getMetadata().getSchema().existsClass(OScheduledEvent.CLASS_NAME)) {
-      final Iterable<YTDocument> result = database.browseClass(OScheduledEvent.CLASS_NAME);
-      for (YTDocument d : result) {
+      final Iterable<YTEntityImpl> result = database.browseClass(OScheduledEvent.CLASS_NAME);
+      for (YTEntityImpl d : result) {
         scheduleEvent(database, new OScheduledEvent(d, database));
       }
     }
@@ -156,7 +156,7 @@ public class OSchedulerImpl {
         true);
   }
 
-  public void initScheduleRecord(YTDatabaseSessionInternal session, YTDocument doc) {
+  public void initScheduleRecord(YTDatabaseSessionInternal session, YTEntityImpl doc) {
     String name = doc.field(OScheduledEvent.PROP_NAME);
     final OScheduledEvent event = getEvent(name);
     if (event != null && event.getDocument(session) != doc) {
@@ -166,7 +166,7 @@ public class OSchedulerImpl {
     doc.field(OScheduledEvent.PROP_STATUS, OScheduler.STATUS.STOPPED.name());
   }
 
-  public void preHandleUpdateScheduleInTx(YTDatabaseSessionInternal session, YTDocument doc) {
+  public void preHandleUpdateScheduleInTx(YTDatabaseSessionInternal session, YTEntityImpl doc) {
     try {
       final String schedulerName = doc.field(OScheduledEvent.PROP_NAME);
       OScheduledEvent event = getEvent(schedulerName);
@@ -199,7 +199,7 @@ public class OSchedulerImpl {
   }
 
   public void postHandleUpdateScheduleAfterTxCommit(YTDatabaseSessionInternal session,
-      YTDocument doc) {
+      YTEntityImpl doc) {
     try {
       var tx = session.getTransaction();
       @SuppressWarnings("unchecked")

@@ -18,12 +18,11 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Before;
@@ -53,7 +52,7 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
 
     int size = 1000;
     for (int i = 0; i < size; i++) {
-      YTDocument city = new YTDocument("City");
+      YTEntityImpl city = new YTEntityImpl("City");
       city.field("name", "Rome " + i);
 
       db.begin();

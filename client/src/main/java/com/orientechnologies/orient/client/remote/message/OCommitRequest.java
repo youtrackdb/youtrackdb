@@ -25,7 +25,7 @@ import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -39,7 +39,7 @@ public final class OCommitRequest implements OBinaryRequest<OCommitResponse> {
   private long txId;
   private boolean usingLong;
   private List<ORecordOperationRequest> operations;
-  private YTDocument indexChanges;
+  private YTEntityImpl indexChanges;
 
   public OCommitRequest() {
   }
@@ -80,7 +80,7 @@ public final class OCommitRequest implements OBinaryRequest<OCommitResponse> {
       }
     } while (hasEntry == 1);
 
-    indexChanges = new YTDocument(channel.readBytes());
+    indexChanges = new YTEntityImpl(channel.readBytes());
   }
 
   @Override
@@ -93,7 +93,7 @@ public final class OCommitRequest implements OBinaryRequest<OCommitResponse> {
     return "Transaction commit";
   }
 
-  public YTDocument getIndexChanges() {
+  public YTEntityImpl getIndexChanges() {
     return indexChanges;
   }
 

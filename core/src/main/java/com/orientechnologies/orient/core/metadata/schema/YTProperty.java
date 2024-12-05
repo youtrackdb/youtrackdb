@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collection;
 import java.util.Set;
 
@@ -210,7 +210,7 @@ public interface YTProperty extends Comparable<YTProperty> {
    * {@link YTClass#createIndex(YTDatabaseSession, String,
    * YTClass.INDEX_TYPE, String...)}.
    */
-  OIndex createIndex(YTDatabaseSession session, String iType, YTDocument metadata);
+  OIndex createIndex(YTDatabaseSession session, String iType, YTEntityImpl metadata);
 
   /**
    * Creates an index on this property. Indexes speed up queries but slow down insert and update
@@ -229,7 +229,7 @@ public interface YTProperty extends Comparable<YTProperty> {
    * {@link YTClass#createIndex(YTDatabaseSession, String,
    * YTClass.INDEX_TYPE, String...)}.
    */
-  OIndex createIndex(YTDatabaseSession session, INDEX_TYPE iType, YTDocument metadata);
+  OIndex createIndex(YTDatabaseSession session, INDEX_TYPE iType, YTEntityImpl metadata);
 
   /**
    * Remove the index on property

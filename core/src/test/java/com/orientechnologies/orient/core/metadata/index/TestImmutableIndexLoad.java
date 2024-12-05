@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import org.junit.Test;
 
@@ -47,13 +47,13 @@ public class TestImmutableIndexLoad {
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     db.begin();
-    YTDocument doc = new YTDocument("One");
+    YTEntityImpl doc = new YTEntityImpl("One");
     doc.setProperty("one", "a");
     db.save(doc);
     db.commit();
     try {
       db.begin();
-      YTDocument doc1 = new YTDocument("One");
+      YTEntityImpl doc1 = new YTEntityImpl("One");
       doc1.setProperty("one", "a");
       db.save(doc1);
       db.commit();

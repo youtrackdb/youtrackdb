@@ -5,10 +5,10 @@ import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.OList;
+import com.orientechnologies.orient.core.db.record.LinkList;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.ChangeableRecordId;
@@ -18,9 +18,9 @@ import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ODirection;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.YTVertex;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,7 +36,7 @@ import org.apache.commons.collections4.IterableUtils;
 public interface YTVertexInternal extends YTVertex, YTEntityInternal {
 
   @Nonnull
-  YTDocument getBaseDocument();
+  YTEntityImpl getBaseDocument();
 
   @Override
   default Set<String> getPropertyNames() {
@@ -358,15 +358,15 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
         } else if (fieldValue instanceof Collection<?> coll) {
           // CREATE LAZY Iterable AGAINST COLLECTION FIELD
           iterables.add(new OEdgeIterator(this, coll, coll.iterator(), connection, labels, -1));
-        } else if (fieldValue instanceof ORidBag) {
+        } else if (fieldValue instanceof RidBag) {
           iterables.add(
               new OEdgeIterator(
                   this,
                   fieldValue,
-                  ((ORidBag) fieldValue).iterator(),
+                  ((RidBag) fieldValue).iterator(),
                   connection,
                   labels,
-                  ((ORidBag) fieldValue).size()));
+                  ((RidBag) fieldValue).size()));
         }
       }
     }
@@ -501,7 +501,7 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
   }
 
   private static void replaceLinks(
-      final YTDocument vertex,
+      final YTEntityImpl vertex,
       final String fieldName,
       final YTIdentifiable iVertexToRemove,
       final YTIdentifiable newVertex) {
@@ -527,7 +527,7 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
         vertex.setPropertyInternal(fieldName, newVertex);
       }
 
-    } else if (fieldValue instanceof ORidBag bag) {
+    } else if (fieldValue instanceof RidBag bag) {
       // COLLECTION OF RECORDS: REMOVE THE ENTRY
       boolean found = false;
       final Iterator<YTIdentifiable> it = bag.iterator();
@@ -569,7 +569,7 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
   @Override
   default YTRID moveTo(final String className, final String clusterName) {
 
-    final YTDocument baseDoc = getBaseDocument();
+    final YTEntityImpl baseDoc = getBaseDocument();
     var db = baseDoc.getSession();
     if (!db.getTransaction().isActive()) {
       throw new YTDatabaseException("This operation is allowed only inside a transaction");
@@ -624,7 +624,7 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
       final String inFieldName = getEdgeLinkFieldName(ODirection.IN, schemaType, true);
 
       // link to itself
-      YTDocument inRecord;
+      YTEntityImpl inRecord;
       if (inVLink.equals(oldIdentity)) {
         inRecord = doc;
       } else {
@@ -657,7 +657,7 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
 
       final String outFieldName = getEdgeLinkFieldName(ODirection.OUT, schemaType, true);
 
-      YTDocument outRecord;
+      YTEntityImpl outRecord;
       if (outVLink.equals(oldIdentity)) {
         outRecord = doc;
       } else {
@@ -681,7 +681,7 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
   }
 
   private static void detachRidbags(YTRecord oldRecord) {
-    YTDocument oldDoc = (YTDocument) oldRecord;
+    YTEntityImpl oldDoc = (YTEntityImpl) oldRecord;
     for (String field : oldDoc.getPropertyNamesInternal()) {
       if (field.equalsIgnoreCase(YTEdgeInternal.DIRECTION_OUT)
           || field.equalsIgnoreCase(YTEdgeInternal.DIRECTION_IN)
@@ -690,7 +690,7 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
           || field.startsWith("OUT_")
           || field.startsWith("IN_")) {
         Object val = oldDoc.rawField(field);
-        if (val instanceof ORidBag) {
+        if (val instanceof RidBag) {
           oldDoc.removePropertyInternal(field);
         }
       }
@@ -712,8 +712,8 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
   }
 
   private static void copyRidBags(YTDatabaseSessionInternal db, YTRecord oldRecord,
-      YTDocument newDoc) {
-    YTDocument oldDoc = (YTDocument) oldRecord;
+      YTEntityImpl newDoc) {
+    YTEntityImpl oldDoc = (YTEntityImpl) oldRecord;
     for (String field : oldDoc.getPropertyNamesInternal()) {
       if (field.equalsIgnoreCase(YTEdgeInternal.DIRECTION_OUT)
           || field.equalsIgnoreCase(YTEdgeInternal.DIRECTION_IN)
@@ -722,9 +722,9 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
           || field.startsWith("OUT_")
           || field.startsWith("IN_")) {
         Object val = oldDoc.rawField(field);
-        if (val instanceof ORidBag bag) {
+        if (val instanceof RidBag bag) {
           if (!bag.isEmbedded()) {
-            ORidBag newBag = new ORidBag(db);
+            RidBag newBag = new RidBag(db);
             for (YTIdentifiable identifiable : bag) {
               newBag.add(identifiable);
             }
@@ -777,7 +777,7 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
    * updates old and new vertices connected to an edge after out/in update on the edge itself
    */
   static void changeVertexEdgePointers(
-      YTDocument edge,
+      YTEntityImpl edge,
       YTIdentifiable prevInVertex,
       YTIdentifiable currentInVertex,
       YTIdentifiable prevOutVertex,
@@ -795,21 +795,21 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
   }
 
   private static void changeVertexEdgePointersOneDirection(
-      YTDocument edge,
+      YTEntityImpl edge,
       YTIdentifiable prevInVertex,
       YTIdentifiable currentInVertex,
       String edgeClass,
       ODirection direction) {
     if (prevInVertex != null) {
       var inFieldName = YTVertex.getEdgeLinkFieldName(direction, edgeClass);
-      var prevRecord = prevInVertex.<YTDocument>getRecord();
+      var prevRecord = prevInVertex.<YTEntityImpl>getRecord();
 
       var prevLink = prevRecord.getPropertyInternal(inFieldName);
       if (prevLink != null) {
         removeVertexLink(prevRecord, inFieldName, prevLink, edgeClass, edge);
       }
 
-      var currentRecord = currentInVertex.<YTDocument>getRecord();
+      var currentRecord = currentInVertex.<YTEntityImpl>getRecord();
       createLink(currentRecord, edge, inFieldName);
 
       prevRecord.save();
@@ -848,8 +848,8 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
       YTIdentifiable identifiable) {
     if (link instanceof Collection) {
       ((Collection<?>) link).remove(identifiable);
-    } else if (link instanceof ORidBag) {
-      ((ORidBag) link).remove(identifiable);
+    } else if (link instanceof RidBag) {
+      ((RidBag) link).remove(identifiable);
     } else if (link instanceof YTIdentifiable && link.equals(vertex)) {
       vertex.removePropertyInternal(fieldName);
     } else {
@@ -862,7 +862,7 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
    * Creates a link between a vertices and a Graph Element.
    */
   static void createLink(
-      final YTDocument fromVertex, final YTIdentifiable to, final String fieldName) {
+      final YTEntityImpl fromVertex, final YTIdentifiable to, final String fieldName) {
     final Object out;
     YTType outType = fromVertex.fieldType(fieldName);
     Object found = fromVertex.getPropertyInternal(fieldName);
@@ -879,12 +879,12 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
       if (propType == YTType.LINKLIST
           || (prop != null
           && "true".equalsIgnoreCase(prop.getCustom("ordered")))) { // TODO constant
-        var coll = new OList(fromVertex);
+        var coll = new LinkList(fromVertex);
         coll.add(to);
         out = coll;
         outType = YTType.LINKLIST;
       } else if (propType == null || propType == YTType.LINKBAG) {
-        final ORidBag bag = new ORidBag(fromVertex.getSession());
+        final RidBag bag = new RidBag(fromVertex.getSession());
         bag.add(to);
         out = bag;
         outType = YTType.LINKBAG;
@@ -907,23 +907,23 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
       }
 
       if (prop != null && "true".equalsIgnoreCase(prop.getCustom("ordered"))) { // TODO constant
-        var coll = new OList(fromVertex);
+        var coll = new LinkList(fromVertex);
         coll.add(foundId);
         coll.add(to);
         out = coll;
         outType = YTType.LINKLIST;
       } else {
-        final ORidBag bag = new ORidBag(fromVertex.getSession());
+        final RidBag bag = new RidBag(fromVertex.getSession());
         bag.add(foundId);
         bag.add(to);
         out = bag;
         outType = YTType.LINKBAG;
       }
-    } else if (found instanceof ORidBag) {
+    } else if (found instanceof RidBag) {
       // ADD THE LINK TO THE COLLECTION
       out = null;
 
-      ((ORidBag) found).add(to.getRecord());
+      ((RidBag) found).add(to.getRecord());
 
     } else if (found instanceof Collection<?>) {
       // USE THE FOUND COLLECTION
@@ -943,7 +943,7 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
     }
   }
 
-  private static void removeLinkFromEdge(YTDocument vertex, YTEdge edge, ODirection direction) {
+  private static void removeLinkFromEdge(YTEntityImpl vertex, YTEdge edge, ODirection direction) {
     var schemaType = edge.getSchemaType();
     assert schemaType.isPresent();
 
@@ -955,7 +955,7 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
   }
 
   private static void removeLinkFromEdge(
-      YTDocument vertex, YTEdge edge, String edgeField, YTIdentifiable edgeId,
+      YTEntityImpl vertex, YTEdge edge, String edgeField, YTIdentifiable edgeId,
       ODirection direction) {
     Object edgeProp = vertex.getPropertyInternal(edgeField);
     YTRID oppositeVertexId = null;
@@ -980,11 +980,11 @@ public interface YTVertexInternal extends YTVertex, YTEntityInternal {
   }
 
   private static void removeEdgeLinkFromProperty(
-      YTDocument vertex, YTEdge edge, String edgeField, YTIdentifiable edgeId, Object edgeProp) {
+      YTEntityImpl vertex, YTEdge edge, String edgeField, YTIdentifiable edgeId, Object edgeProp) {
     if (edgeProp instanceof Collection) {
       ((Collection<?>) edgeProp).remove(edgeId);
-    } else if (edgeProp instanceof ORidBag) {
-      ((ORidBag) edgeProp).remove(edgeId);
+    } else if (edgeProp instanceof RidBag) {
+      ((RidBag) edgeProp).remove(edgeId);
     } else //noinspection deprecation
       if (edgeProp instanceof YTIdentifiable
           && ((YTIdentifiable) edgeProp).getIdentity() != null

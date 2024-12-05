@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.index.OPropertyMapIndexDefinition.INDEX_BY;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,7 +34,7 @@ public abstract class YTViewImpl extends YTClassImpl implements YTView {
   }
 
   @Override
-  public void fromStream(YTDocument document) {
+  public void fromStream(YTEntityImpl document) {
     super.fromStream(document);
     String query = document.getProperty("query");
     this.cfg = new OViewConfig(getName(), query);
@@ -102,8 +102,8 @@ public abstract class YTViewImpl extends YTClassImpl implements YTView {
   }
 
   @Override
-  public YTDocument toStream() {
-    YTDocument result = super.toStream();
+  public YTEntityImpl toStream() {
+    YTEntityImpl result = super.toStream();
     result.setProperty("query", cfg.getQuery());
     result.setProperty("updatable", cfg.isUpdatable());
 
@@ -142,8 +142,8 @@ public abstract class YTViewImpl extends YTClassImpl implements YTView {
   }
 
   @Override
-  public YTDocument toNetworkStream() {
-    YTDocument result = super.toNetworkStream();
+  public YTEntityImpl toNetworkStream() {
+    YTEntityImpl result = super.toNetworkStream();
     result.setProperty("query", cfg.getQuery());
     result.setProperty("updatable", cfg.isUpdatable());
     List<Map<String, Object>> indexes = new ArrayList<>();

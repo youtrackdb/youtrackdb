@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
@@ -76,7 +76,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
 
     for (int i = 0; i < 30; i++) {
       database.begin();
-      new YTDocument("Address").save();
+      new YTEntityImpl("Address").save();
       database.commit();
     }
     List<Long> positions = getValidPositions(addressId);
@@ -405,7 +405,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     database.commit();
     Assert.assertNotNull(result);
 
-    YTDocument record = result.getRecord();
+    YTEntityImpl record = result.getRecord();
 
     record = database.bindToSession(record);
     Assert.assertEquals(record.<Object>field("id"), 3232);
@@ -434,8 +434,8 @@ public class SQLInsertTest extends DocumentDBBaseTest {
         database.query(new OSQLSynchQuery<YTIdentifiable>("select from UserCopy"));
     Assert.assertEquals(result.size(), 2);
     for (YTIdentifiable r : result) {
-      Assert.assertEquals(((YTDocument) r.getRecord()).getClassName(), "UserCopy");
-      Assert.assertNotSame(((YTDocument) r.getRecord()).field("name"), "admin");
+      Assert.assertEquals(((YTEntityImpl) r.getRecord()).getClassName(), "UserCopy");
+      Assert.assertNotSame(((YTEntityImpl) r.getRecord()).field("name"), "admin");
     }
   }
 
@@ -457,7 +457,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     }
 
     // RETURN with $current.
-    YTDocument doc =
+    YTEntityImpl doc =
         database
             .command(new OCommandSQL("INSERT INTO Actor2 SET FirstName=\"FFFF\" RETURN $current"))
             .execute(database);
@@ -488,8 +488,8 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                 + "]";
         List res3 = database.command(new OCommandSQL(sql)).execute(database);
         Assert.assertEquals(res3.size(), 2);
-        Assert.assertTrue(((List<?>) res3).get(0) instanceof YTDocument);
-        final YTDocument res3doc = (YTDocument) res3.get(0);
+        Assert.assertTrue(((List<?>) res3).get(0) instanceof YTEntityImpl);
+        final YTEntityImpl res3doc = (YTEntityImpl) res3.get(0);
         Assert.assertTrue(res3doc.containsField("result"));
         Assert.assertTrue(
             "FFFF".equalsIgnoreCase(res3doc.field("result"))
@@ -517,7 +517,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
               + "return $var2";
       try (var resSql3ResultSet = database.command(sql3)) {
         var res_sql3 = resSql3ResultSet.next().<YTIdentifiable>getProperty("$var2");
-        final YTDocument sql3doc = res_sql3.getRecord();
+        final YTEntityImpl sql3doc = res_sql3.getRecord();
         Assert.assertEquals(sql3doc.<Object>field("Bingo"), 1);
         Assert.assertEquals(sql3doc.field("Name"), "Bingo owner");
       }
@@ -573,8 +573,8 @@ public class SQLInsertTest extends DocumentDBBaseTest {
 
     Set addr = doc.getProperty("embeddedSetWithLinkedClass");
     for (Object o : addr) {
-      Assert.assertTrue(o instanceof YTDocument);
-      Assert.assertEquals(((YTDocument) o).getClassName(), "TestConvertLinkedClass");
+      Assert.assertTrue(o instanceof YTEntityImpl);
+      Assert.assertEquals(((YTEntityImpl) o).getClassName(), "TestConvertLinkedClass");
     }
   }
 
@@ -630,8 +630,8 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     List addr = doc.getProperty("embeddedListWithLinkedClass");
     for (Object o : addr) {
       database.begin();
-      Assert.assertTrue(o instanceof YTDocument);
-      Assert.assertEquals(((YTDocument) o).getClassName(), "TestConvertLinkedClass");
+      Assert.assertTrue(o instanceof YTEntityImpl);
+      Assert.assertEquals(((YTEntityImpl) o).getClassName(), "TestConvertLinkedClass");
       database.commit();
     }
   }
@@ -685,8 +685,8 @@ public class SQLInsertTest extends DocumentDBBaseTest {
 
     Map addr = doc.getProperty("embeddedMapWithLinkedClass");
     for (Object o : addr.values()) {
-      Assert.assertTrue(o instanceof YTDocument);
-      Assert.assertEquals(((YTDocument) o).getClassName(), "TestConvertLinkedClass");
+      Assert.assertTrue(o instanceof YTEntityImpl);
+      Assert.assertEquals(((YTEntityImpl) o).getClassName(), "TestConvertLinkedClass");
     }
   }
 
@@ -707,7 +707,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     database.commit();
 
     doc = database.bindToSession(doc);
-    Assert.assertTrue(doc.getProperty("embeddedNoLinkedClass") instanceof YTDocument);
+    Assert.assertTrue(doc.getProperty("embeddedNoLinkedClass") instanceof YTEntityImpl);
   }
 
   @Test
@@ -766,9 +766,9 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     database.commit();
 
     doc = database.bindToSession(doc);
-    Assert.assertTrue(doc.getProperty("embeddedWithLinkedClass") instanceof YTDocument);
+    Assert.assertTrue(doc.getProperty("embeddedWithLinkedClass") instanceof YTEntityImpl);
     Assert.assertEquals(
-        ((YTDocument) doc.getProperty("embeddedWithLinkedClass")).getClassName(),
+        ((YTEntityImpl) doc.getProperty("embeddedWithLinkedClass")).getClassName(),
         "TestConvertLinkedClass");
   }
 
@@ -798,7 +798,8 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     doc = database.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("like") instanceof YTIdentifiable);
     Assert.assertEquals(
-        ((YTDocument) doc.getProperty("like")).getClassName(), "EmbeddedWithRecordAttributes_Like");
+        ((YTEntityImpl) doc.getProperty("like")).getClassName(),
+        "EmbeddedWithRecordAttributes_Like");
     Assert.assertEquals(((YTEntity) doc.getProperty("like")).<Object>getProperty("count"), 0);
   }
 
@@ -829,7 +830,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     doc = database.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("like") instanceof YTIdentifiable);
     Assert.assertEquals(
-        ((YTDocument) doc.getProperty("like")).getClassName(),
+        ((YTEntityImpl) doc.getProperty("like")).getClassName(),
         "EmbeddedWithRecordAttributes2_Like");
     Assert.assertEquals(((YTEntity) doc.getProperty("like")).<Object>getProperty("count"), 0);
   }

@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.server.network.http;
 
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.List;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -36,10 +36,10 @@ public class HttpFunctionTest extends BaseHttpDatabaseTest {
 
     Assert.assertNotNull(response);
 
-    var responseDoc = new YTDocument();
+    var responseDoc = new YTEntityImpl();
     responseDoc.fromJSON(response);
-    YTDocument result =
-        ((List<YTDocument>) responseDoc.field("result")).get(0);
+    YTEntityImpl result =
+        ((List<YTEntityImpl>) responseDoc.field("result")).get(0);
 
     Assert.assertEquals(result.field("value"), "Hello Jay Miner");
   }

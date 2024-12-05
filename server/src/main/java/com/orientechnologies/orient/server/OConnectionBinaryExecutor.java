@@ -173,7 +173,7 @@ import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
@@ -361,8 +361,8 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeDistributedStatus(ODistributedStatusRequest request) {
-    final YTDocument req = request.getStatus();
-    YTDocument clusterConfig = new YTDocument();
+    final YTEntityImpl req = request.getStatus();
+    YTEntityImpl clusterConfig = new YTEntityImpl();
 
     final String operation = req.field("operation");
     if (operation == null) {
@@ -465,7 +465,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         if (!fetchPlanString.isEmpty()) {
           // BUILD THE SERVER SIDE RECORD TO ACCES TO THE FETCH
           // PLAN
-          if (record instanceof YTDocument doc) {
+          if (record instanceof YTEntityImpl doc) {
             final OFetchPlan fetchPlan = OFetchHelper.buildFetchPlan(fetchPlanString);
 
             final OFetchListener listener =
@@ -502,9 +502,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     final YTRecord record = request.getContent();
     ORecordInternal.setIdentity(record, request.getRid());
     ORecordInternal.setVersion(record, 0);
-    if (record instanceof YTDocument) {
+    if (record instanceof YTEntityImpl) {
       // Force conversion of value to class for trigger default values.
-      ODocumentInternal.autoConvertValueToClass(connection.getDatabase(), (YTDocument) record);
+      ODocumentInternal.autoConvertValueToClass(connection.getDatabase(), (YTEntityImpl) record);
     }
     connection.getDatabase().save(record);
 
@@ -536,7 +536,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     ORecordInternal.setContentChanged(newRecord, request.isUpdateContent());
     ORecordInternal.getDirtyManager(newRecord).clearForSave();
     YTRecord currentRecord = null;
-    if (newRecord instanceof YTDocument) {
+    if (newRecord instanceof YTEntityImpl) {
       try {
         currentRecord = database.load(request.getRid());
       } catch (YTRecordNotFoundException e) {
@@ -552,9 +552,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         throw new YTRecordNotFoundException(request.getRid());
       }
 
-      ((YTDocument) currentRecord).merge((YTDocument) newRecord, false, false);
+      ((YTEntityImpl) currentRecord).merge((YTEntityImpl) newRecord, false, false);
       if (request.isUpdateContent()) {
-        ((YTDocument) currentRecord).setDirty();
+        ((YTEntityImpl) currentRecord).setDirty();
       }
     } else {
       currentRecord = newRecord;
@@ -1163,7 +1163,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     final OServerPlugin plugin = server.getPlugin("cluster");
     byte[] distriConf = null;
-    YTDocument distributedCfg;
+    YTEntityImpl distributedCfg;
     if (plugin instanceof ODistributedServerManager) {
       distributedCfg = ((ODistributedServerManager) plugin).getClusterConfiguration();
 
@@ -1303,8 +1303,8 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     var db = connection.getDatabase();
     final byte[] stream;
     String name = connection.getData().getSerializationImpl();
-    if (ORecordInternal.getRecordType(iRecord) == YTDocument.RECORD_TYPE) {
-      ((YTDocument) iRecord).deserializeFields();
+    if (ORecordInternal.getRecordType(iRecord) == YTEntityImpl.RECORD_TYPE) {
+      ((YTEntityImpl) iRecord).deserializeFields();
       ORecordSerializer ser = ORecordSerializerFactory.instance().getFormat(name);
       stream = ser.toStream(db, iRecord);
     } else {

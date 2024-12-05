@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTInternalResultSet;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
@@ -81,7 +81,7 @@ public abstract class OIndexRemote implements OIndex {
   private final YTRID rid;
   protected OIndexDefinition indexDefinition;
   protected String name;
-  protected YTDocument configuration;
+  protected YTEntityImpl configuration;
   protected Set<String> clustersToIndex;
 
   public OIndexRemote(
@@ -90,7 +90,7 @@ public abstract class OIndexRemote implements OIndex {
       final String algorithm,
       final YTRID iRid,
       final OIndexDefinition iIndexDefinition,
-      final YTDocument iConfiguration,
+      final YTEntityImpl iConfiguration,
       final Set<String> clustersToIndex,
       String database) {
     this.name = iName;
@@ -301,13 +301,13 @@ public abstract class OIndexRemote implements OIndex {
     return algorithm;
   }
 
-  public YTDocument getConfiguration(YTDatabaseSessionInternal session) {
+  public YTEntityImpl getConfiguration(YTDatabaseSessionInternal session) {
     return configuration;
   }
 
   @Override
   public Map<String, ?> getMetadata() {
-    var embedded = configuration.<YTDocument>field("metadata", YTType.EMBEDDED);
+    var embedded = configuration.<YTEntityImpl>field("metadata", YTType.EMBEDDED);
     var map = embedded.toMap();
 
     map.remove("@rid");
@@ -338,7 +338,7 @@ public abstract class OIndexRemote implements OIndex {
     return new YTType[0];
   }
 
-  public Collection<YTDocument> getEntries(final Collection<?> iKeys) {
+  public Collection<YTEntityImpl> getEntries(final Collection<?> iKeys) {
     final StringBuilder params = new StringBuilder(128);
     if (!iKeys.isEmpty()) {
       params.append("?");
@@ -350,7 +350,7 @@ public abstract class OIndexRemote implements OIndex {
     try (YTResultSet rs =
         getDatabase()
             .indexQuery(name, String.format(QUERY_GET_ENTRIES, name, params), iKeys.toArray())) {
-      return rs.stream().map((res) -> (YTDocument) res.toEntity()).collect(Collectors.toList());
+      return rs.stream().map((res) -> (YTEntityImpl) res.toEntity()).collect(Collectors.toList());
     }
   }
 

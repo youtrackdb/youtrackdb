@@ -24,9 +24,9 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.types.OModifiableInteger;
 import com.orientechnologies.common.util.OArrays;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
 import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.exception.YTSchemaException;
@@ -37,7 +37,7 @@ import com.orientechnologies.orient.core.metadata.OMetadataDefault;
 import com.orientechnologies.orient.core.metadata.schema.clusterselection.OClusterSelectionFactory;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
@@ -397,7 +397,7 @@ public abstract class OSchemaShared implements OCloseable {
             identity = new YTRecordId(
                 database.getStorageInfo().getConfiguration().getSchemaRecordId());
 
-            YTDocument document = database.load(identity);
+            YTEntityImpl document = database.load(identity);
             fromStream(database, document);
             forceSnapshot(database);
           });
@@ -593,9 +593,9 @@ public abstract class OSchemaShared implements OCloseable {
   }
 
   /**
-   * Binds YTDocument to POJO.
+   * Binds YTEntityImpl to POJO.
    */
-  public void fromStream(YTDatabaseSessionInternal session, YTDocument document) {
+  public void fromStream(YTDatabaseSessionInternal session, YTEntityImpl document) {
     lock.writeLock().lock();
     modificationCounter.increment();
     try {
@@ -620,11 +620,11 @@ public abstract class OSchemaShared implements OCloseable {
 
       properties.clear();
       propertiesByNameType.clear();
-      List<YTDocument> globalProperties = document.field("globalProperties");
+      List<YTEntityImpl> globalProperties = document.field("globalProperties");
       boolean hasGlobalProperties = false;
       if (globalProperties != null) {
         hasGlobalProperties = true;
-        for (YTDocument oDocument : globalProperties) {
+        for (YTEntityImpl oDocument : globalProperties) {
           OGlobalPropertyImpl prop = new OGlobalPropertyImpl();
           prop.fromDocument(oDocument);
           ensurePropertiesSize(prop.getId());
@@ -638,8 +638,8 @@ public abstract class OSchemaShared implements OCloseable {
       final Map<String, YTClass> newClasses = new HashMap<String, YTClass>();
       final Map<String, YTView> newViews = new HashMap<String, YTView>();
 
-      Collection<YTDocument> storedClasses = document.field("classes");
-      for (YTDocument c : storedClasses) {
+      Collection<YTEntityImpl> storedClasses = document.field("classes");
+      for (YTEntityImpl c : storedClasses) {
         String name = c.field("name");
 
         YTClassImpl cls;
@@ -669,7 +669,7 @@ public abstract class OSchemaShared implements OCloseable {
       List<YTClass> superClasses;
       YTClass superClass;
 
-      for (YTDocument c : storedClasses) {
+      for (YTEntityImpl c : storedClasses) {
         superClassNames = c.field("superClasses");
         legacySuperClassName = c.field("superClass");
         if (superClassNames == null) {
@@ -709,9 +709,9 @@ public abstract class OSchemaShared implements OCloseable {
       // VIEWS
 
       clustersToViews.clear();
-      Collection<YTDocument> storedViews = document.field("views");
+      Collection<YTEntityImpl> storedViews = document.field("views");
       if (storedViews != null) {
-        for (YTDocument v : storedViews) {
+        for (YTEntityImpl v : storedViews) {
 
           String name = v.field("name");
 
@@ -759,14 +759,14 @@ public abstract class OSchemaShared implements OCloseable {
 
   protected abstract YTViewImpl createViewInstance(String name);
 
-  public YTDocument toNetworkStream() {
+  public YTEntityImpl toNetworkStream() {
     lock.readLock().lock();
     try {
-      YTDocument document = new YTDocument();
+      YTEntityImpl document = new YTEntityImpl();
       document.setTrackingChanges(false);
       document.field("schemaVersion", CURRENT_VERSION_NUMBER);
 
-      Set<YTDocument> cc = new HashSet<YTDocument>();
+      Set<YTEntityImpl> cc = new HashSet<YTEntityImpl>();
       for (YTClass c : classes.values()) {
         cc.add(((YTClassImpl) c).toNetworkStream());
       }
@@ -774,14 +774,14 @@ public abstract class OSchemaShared implements OCloseable {
       document.field("classes", cc, YTType.EMBEDDEDSET);
 
       // TODO: this should trigger a netowork protocol version change
-      Set<YTDocument> vv = new HashSet<YTDocument>();
+      Set<YTEntityImpl> vv = new HashSet<YTEntityImpl>();
       for (YTView v : views.values()) {
         vv.add(((YTViewImpl) v).toNetworkStream());
       }
 
       document.field("views", vv, YTType.EMBEDDEDSET);
 
-      List<YTDocument> globalProperties = new ArrayList<YTDocument>();
+      List<YTEntityImpl> globalProperties = new ArrayList<YTEntityImpl>();
       for (OGlobalProperty globalProperty : properties) {
         if (globalProperty != null) {
           globalProperties.add(((OGlobalPropertyImpl) globalProperty).toDocument());
@@ -796,12 +796,12 @@ public abstract class OSchemaShared implements OCloseable {
   }
 
   /**
-   * Binds POJO to YTDocument.
+   * Binds POJO to YTEntityImpl.
    */
-  public YTDocument toStream(@Nonnull YTDatabaseSessionInternal db) {
+  public YTEntityImpl toStream(@Nonnull YTDatabaseSessionInternal db) {
     lock.readLock().lock();
     try {
-      YTDocument document = db.load(identity);
+      YTEntityImpl document = db.load(identity);
       document.field("schemaVersion", CURRENT_VERSION_NUMBER);
 
       // This steps is needed because in classes there are duplicate due to aliases
@@ -810,7 +810,7 @@ public abstract class OSchemaShared implements OCloseable {
         realClases.add(((YTClassImpl) c));
       }
 
-      Set<YTDocument> classesDocuments = new HashSet<YTDocument>();
+      Set<YTEntityImpl> classesDocuments = new HashSet<YTEntityImpl>();
       for (YTClassImpl c : realClases) {
         classesDocuments.add(c.toStream());
       }
@@ -822,13 +822,13 @@ public abstract class OSchemaShared implements OCloseable {
         realViews.add(((YTViewImpl) v));
       }
 
-      Set<YTDocument> viewsDocuments = new HashSet<YTDocument>();
+      Set<YTEntityImpl> viewsDocuments = new HashSet<YTEntityImpl>();
       for (YTClassImpl c : realViews) {
         viewsDocuments.add(c.toStream());
       }
       document.field("views", viewsDocuments, YTType.EMBEDDEDSET);
 
-      List<YTDocument> globalProperties = new ArrayList<YTDocument>();
+      List<YTEntityImpl> globalProperties = new ArrayList<YTEntityImpl>();
       for (OGlobalProperty globalProperty : properties) {
         if (globalProperty != null) {
           globalProperties.add(((OGlobalPropertyImpl) globalProperty).toDocument());
@@ -892,7 +892,7 @@ public abstract class OSchemaShared implements OCloseable {
       }
       database.executeInTx(
           () -> {
-            YTDocument document = database.load(identity);
+            YTEntityImpl document = database.load(identity);
             fromStream(database, document);
           });
       return this;
@@ -904,9 +904,9 @@ public abstract class OSchemaShared implements OCloseable {
   public void create(final YTDatabaseSessionInternal database) {
     lock.writeLock().lock();
     try {
-      YTDocument document =
+      YTEntityImpl document =
           database.computeInTx(
-              () -> database.save(new YTDocument(), OMetadataDefault.CLUSTER_INTERNAL_NAME));
+              () -> database.save(new YTEntityImpl(), OMetadataDefault.CLUSTER_INTERNAL_NAME));
       this.identity = document.getIdentity();
       database.getStorage().setSchemaRecordId(document.getIdentity().toString());
       snapshot = new YTImmutableSchema(this, database);
@@ -988,7 +988,7 @@ public abstract class OSchemaShared implements OCloseable {
     OScenarioThreadLocal.executeAsDistributed(
         () -> {
           database.executeInTx(() -> {
-            YTDocument document = toStream(database);
+            YTEntityImpl document = toStream(database);
             database.save(document, OMetadataDefault.CLUSTER_INTERNAL_NAME);
           });
           return null;

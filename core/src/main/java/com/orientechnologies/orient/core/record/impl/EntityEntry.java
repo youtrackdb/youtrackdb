@@ -26,9 +26,9 @@ import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 
 /**
- * Document entry. Used by YTDocument.
+ * Document entry. Used by YTEntityImpl.
  */
-public class ODocumentEntry {
+public class EntityEntry {
 
   public Object value;
   public Object original;
@@ -43,7 +43,7 @@ public class ODocumentEntry {
   private Object onLoadValue;
   private boolean hasOnLoadValue = false;
 
-  public ODocumentEntry() {
+  public EntityEntry() {
   }
 
   public boolean isChanged() {
@@ -69,8 +69,8 @@ public class ODocumentEntry {
   }
 
   @SuppressWarnings({"CloneDoesntDeclareCloneNotSupportedException", "MethodDoesntCallSuperMethod"})
-  protected ODocumentEntry clone() {
-    final ODocumentEntry entry = new ODocumentEntry();
+  protected EntityEntry clone() {
+    final EntityEntry entry = new EntityEntry();
     entry.type = type;
     entry.property = property;
     entry.value = value;
@@ -112,11 +112,11 @@ public class ODocumentEntry {
     }
   }
 
-  public void replaceListener(YTDocument document) {
+  public void replaceListener(YTEntityImpl document) {
     enableTracking(document);
   }
 
-  public boolean enableTracking(YTDocument document) {
+  public boolean enableTracking(YTEntityImpl document) {
     //noinspection rawtypes
     if (value instanceof OTrackedMultiValue trackedMultiValue) {
       trackedMultiValue.enableTracking(document);
@@ -126,7 +126,7 @@ public class ODocumentEntry {
     }
   }
 
-  public void disableTracking(YTDocument document, Object fieldValue) {
+  public void disableTracking(YTEntityImpl document, Object fieldValue) {
     //noinspection rawtypes
     if (fieldValue instanceof OTrackedMultiValue trackedMultiValue) {
       trackedMultiValue.disableTracking(document);
@@ -138,7 +138,7 @@ public class ODocumentEntry {
     if (value instanceof OTrackedMultiValue trackedMultiValue) {
       return trackedMultiValue.isModified();
     }
-    if (value instanceof YTDocument document && document.isEmbedded()) {
+    if (value instanceof YTEntityImpl document && document.isEmbedded()) {
       return document.isDirty();
     }
     return false;
@@ -149,7 +149,7 @@ public class ODocumentEntry {
     if (value instanceof OTrackedMultiValue trackedMultiValue) {
       return trackedMultiValue.isTransactionModified();
     }
-    if (value instanceof YTDocument document && document.isEmbedded()) {
+    if (value instanceof YTEntityImpl document && document.isEmbedded()) {
       return document.isDirty();
     }
     return false;

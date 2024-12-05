@@ -129,7 +129,7 @@ import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.security.OTokenException;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.ORecordVersionHelper;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.security.OCredentialInterceptor;
 import com.orientechnologies.orient.core.security.OSecurityManager;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
@@ -200,7 +200,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   private final ORemoteURLs serverURLs;
   private final Map<String, OCluster> clusterMap = new ConcurrentHashMap<String, OCluster>();
   private final ExecutorService asynchExecutor;
-  private final YTDocument clusterConfiguration = new YTDocument();
+  private final YTEntityImpl clusterConfiguration = new YTEntityImpl();
   private final AtomicInteger users = new AtomicInteger(0);
   private final YTContextConfiguration clientConfiguration;
   private final int connectionRetry;
@@ -1563,7 +1563,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     throw new UnsupportedOperationException("getVersion");
   }
 
-  public YTDocument getClusterConfiguration() {
+  public YTEntityImpl getClusterConfiguration() {
     return clusterConfiguration;
   }
 
@@ -2244,14 +2244,14 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public OBinaryPushResponse executeUpdateSchema(OPushSchemaRequest request) {
-    YTDocument schema = request.getSchema();
+    YTEntityImpl schema = request.getSchema();
     ORecordInternal.setIdentity(schema, new YTRecordId(configuration.getSchemaRecordId()));
     YTDatabaseSessionRemote.updateSchema(this, schema);
     return null;
   }
 
   public OBinaryPushResponse executeUpdateIndexManager(OPushIndexManagerRequest request) {
-    YTDocument indexManager = request.getIndexManager();
+    YTEntityImpl indexManager = request.getIndexManager();
     ORecordInternal.setIdentity(indexManager, new YTRecordId(configuration.getIndexMgrRecordId()));
     YTDatabaseSessionRemote.updateIndexManager(this, indexManager);
     return null;

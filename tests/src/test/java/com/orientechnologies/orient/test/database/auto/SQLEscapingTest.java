@@ -39,11 +39,11 @@ public class SQLEscapingTest extends DocumentDBBaseTest {
   // \"\\u005C\\u005C\" = \"\\u005C\\u005C\"")).execute();
   //    Assert.assertEquals(result.size(), result0.size());
   //
-  //    YTDocument document0 = database.command(new OCommandSQL("insert into Thing set value =
+  //    YTEntityImpl document0 = database.command(new OCommandSQL("insert into Thing set value =
   // \"\\u005C\\u005C\"")).execute();
   //    Assert.assertEquals("\\", document0.field("value"));
   //
-  //    YTDocument document1 = database.command(new OCommandSQL("insert into Thing set value =
+  //    YTEntityImpl document1 = database.command(new OCommandSQL("insert into Thing set value =
   // \"\\\\\"")).execute();
   //    Assert.assertEquals("\\", document1.field("value"));
   //
@@ -52,7 +52,7 @@ public class SQLEscapingTest extends DocumentDBBaseTest {
   //    Assert.assertEquals(result.size(), list1.size());
   //
   //    try {
-  //      YTDocument document2 = database.command(new OCommandSQL("insert into Thing set value =
+  //      YTEntityImpl document2 = database.command(new OCommandSQL("insert into Thing set value =
   // \"\\\"")).execute();
   //      Assert.assertTrue(false);
   //    } catch (Exception e) {

@@ -1,19 +1,19 @@
 package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Set;
 
-public class OPropertyAccess {
+public class PropertyAccess {
 
   private final Set<String> filtered;
 
-  public OPropertyAccess(YTDatabaseSessionInternal session, YTDocument document,
+  public PropertyAccess(YTDatabaseSessionInternal session, YTEntityImpl document,
       OSecurityInternal security) {
     filtered = security.getFilteredProperties(session, document);
   }
 
-  public OPropertyAccess(Set<String> filtered) {
+  public PropertyAccess(Set<String> filtered) {
     this.filtered = filtered;
   }
 

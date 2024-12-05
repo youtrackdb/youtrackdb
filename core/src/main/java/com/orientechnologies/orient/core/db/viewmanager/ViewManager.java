@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.schema.YTView;
 import com.orientechnologies.orient.core.metadata.schema.YTViewImpl;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.parser.OProjection;
@@ -414,7 +414,7 @@ public class ViewManager {
       newRow.setProperty("@view", viewName);
     }
     db.save(newRow, clusterName);
-    OClassIndexManager.addIndexesEntries(db, (YTDocument) newRow, indexes);
+    OClassIndexManager.addIndexesEntries(db, (YTEntityImpl) newRow, indexes);
     db.commit();
   }
 
@@ -537,7 +537,8 @@ public class ViewManager {
   }
 
   public void recordAdded(
-      YTImmutableClass clazz, YTDocument doc, YTDatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
+      YTImmutableClass clazz, YTEntityImpl doc,
+      YTDatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
     if (viewsExist) {
       lastChangePerClass.put(
           clazz.getName().toLowerCase(Locale.ENGLISH), System.currentTimeMillis());
@@ -545,7 +546,8 @@ public class ViewManager {
   }
 
   public void recordUpdated(
-      YTImmutableClass clazz, YTDocument doc, YTDatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
+      YTImmutableClass clazz, YTEntityImpl doc,
+      YTDatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
     if (viewsExist) {
       lastChangePerClass.put(
           clazz.getName().toLowerCase(Locale.ENGLISH), System.currentTimeMillis());
@@ -553,7 +555,8 @@ public class ViewManager {
   }
 
   public void recordDeleted(
-      YTImmutableClass clazz, YTDocument doc, YTDatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
+      YTImmutableClass clazz, YTEntityImpl doc,
+      YTDatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
     if (viewsExist) {
       lastChangePerClass.put(
           clazz.getName().toLowerCase(Locale.ENGLISH), System.currentTimeMillis());

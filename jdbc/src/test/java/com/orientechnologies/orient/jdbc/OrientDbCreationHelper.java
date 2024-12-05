@@ -22,7 +22,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -42,7 +42,7 @@ public class OrientDbCreationHelper {
 
     db.begin();
     for (int i = 1; i <= documents; i++) {
-      YTDocument doc = new YTDocument();
+      YTEntityImpl doc = new YTEntityImpl();
       doc.setClassName("Item");
       doc = createItem(i, doc);
       ((YTDatabaseSessionInternal) db).save(doc, "Item");
@@ -55,7 +55,7 @@ public class OrientDbCreationHelper {
     db.commit();
   }
 
-  public static YTDocument createItem(int id, YTDocument doc) {
+  public static YTEntityImpl createItem(int id, YTEntityImpl doc) {
     String itemKey = Integer.valueOf(id).toString();
 
     doc.setClassName("Item");
@@ -96,8 +96,8 @@ public class OrientDbCreationHelper {
       throws IOException {
     int articleSerial = 0;
     for (int a = 1; a <= totAuthors; ++a) {
-      YTDocument author = new YTDocument("Author");
-      List<YTDocument> articles = new ArrayList<>(totArticles);
+      YTEntityImpl author = new YTEntityImpl("Author");
+      List<YTEntityImpl> articles = new ArrayList<>(totArticles);
       author.field("articles", articles);
 
       author.field("uuid", a, YTType.DOUBLE);
@@ -105,7 +105,7 @@ public class OrientDbCreationHelper {
       author.field("rating", new Random().nextDouble());
 
       for (int i = 1; i <= totArticles; ++i) {
-        YTDocument article = new YTDocument("Article");
+        YTEntityImpl article = new YTEntityImpl("Article");
 
         Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         Date time = instance.getTime();
@@ -123,10 +123,10 @@ public class OrientDbCreationHelper {
     }
   }
 
-  public static YTDocument createArticleWithAttachmentSplitted(YTDatabaseSession db)
+  public static YTEntityImpl createArticleWithAttachmentSplitted(YTDatabaseSession db)
       throws IOException {
 
-    YTDocument article = new YTDocument("Article");
+    YTEntityImpl article = new YTEntityImpl("Article");
     Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
     Date time = instance.getTime();

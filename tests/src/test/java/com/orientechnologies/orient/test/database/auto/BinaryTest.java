@@ -19,7 +19,7 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
@@ -38,7 +38,7 @@ public class BinaryTest extends DocumentDBBaseTest {
   @Test
   public void testMixedCreateEmbedded() {
     database.begin();
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.field("binary", "Binary data".getBytes());
 
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
@@ -71,7 +71,7 @@ public class BinaryTest extends DocumentDBBaseTest {
   public void testMixedCreateExternal() {
     database.begin();
 
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.field("binary", new YTRecordBytes(database, "Binary data".getBytes()));
 
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
@@ -82,7 +82,7 @@ public class BinaryTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testMixedCreateExternal")
   public void testMixedReadExternal() {
-    YTDocument doc = rid.getRecord();
+    YTEntityImpl doc = rid.getRecord();
     Assert.assertEquals("Binary data",
         new String(((YTRecordAbstract) doc.field("binary")).toStream()));
   }

@@ -38,7 +38,7 @@ import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilter;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
@@ -87,7 +87,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
   protected static final String KEYWORD_FROM_2FIND = " " + KEYWORD_FROM + " ";
   protected static final String KEYWORD_LET_2FIND = " " + KEYWORD_LET + " ";
 
-  protected OSQLAsynchQuery<YTDocument> request;
+  protected OSQLAsynchQuery<YTEntityImpl> request;
   protected OSQLTarget parsedTarget;
   protected OSQLFilter compiledFilter;
   protected Map<String, Object> let = null;
@@ -152,13 +152,13 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
     init(textRequest);
 
     if (iRequest instanceof OSQLSynchQuery) {
-      request = (OSQLSynchQuery<YTDocument>) iRequest;
+      request = (OSQLSynchQuery<YTEntityImpl>) iRequest;
     } else {
       if (iRequest instanceof OSQLAsynchQuery) {
-        request = (OSQLAsynchQuery<YTDocument>) iRequest;
+        request = (OSQLAsynchQuery<YTEntityImpl>) iRequest;
       } else {
         // BUILD A QUERY OBJECT FROM THE COMMAND REQUEST
-        request = new OSQLSynchQuery<YTDocument>(textRequest.getText());
+        request = new OSQLSynchQuery<YTEntityImpl>(textRequest.getText());
         if (textRequest.getResultListener() != null) {
           request.setResultListener(textRequest.getResultListener());
         }
@@ -269,7 +269,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
 
   protected Object getResultInstance() {
     if (request instanceof OSQLSynchQuery) {
-      return ((OSQLSynchQuery<YTDocument>) request).getResult();
+      return ((OSQLSynchQuery<YTEntityImpl>) request).getResult();
     }
 
     return request.getResultListener().getResult();
@@ -285,7 +285,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
             if (!(d instanceof YTIdentifiable))
             // NON-DOCUMENT AS RESULT, COMES FROM EXPAND? CREATE A DOCUMENT AT THE FLY
             {
-              d = new YTDocument().field("value", d);
+              d = new YTEntityImpl().field("value", d);
             } else {
               d = ((YTIdentifiable) d).getRecord();
             }
@@ -451,7 +451,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
   }
 
   protected boolean filter(final YTRecord iRecord, final OCommandContext iContext) {
-    if (iRecord instanceof YTDocument recordSchemaAware) {
+    if (iRecord instanceof YTEntityImpl recordSchemaAware) {
       // CHECK THE TARGET CLASS
       Map<String, String> targetClasses = parsedTarget.getTargetClasses();
       // check only classes that specified in query will go to result set
@@ -519,7 +519,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
           } else {
             if (letValue instanceof String) {
               OSQLPredicate pred = new OSQLPredicate(getContext(), ((String) letValue).trim());
-              varValue = pred.evaluate(iRecord, (YTDocument) iRecord, context);
+              varValue = pred.evaluate(iRecord, (YTEntityImpl) iRecord, context);
             } else {
               varValue = letValue;
             }
@@ -745,7 +745,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
         compiledFilter == null ? null : compiledFilter.getRootCondition();
     if (compiledFilter == null || rootCondition == null) {
       if (request instanceof OSQLSynchQuery) {
-        beginRange = ((OSQLSynchQuery<YTDocument>) request).getNextPageRID();
+        beginRange = ((OSQLSynchQuery<YTEntityImpl>) request).getNextPageRID();
       } else {
         beginRange = null;
       }
@@ -756,7 +756,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
       final YTRID nextPageRid;
 
       if (request instanceof OSQLSynchQuery) {
-        nextPageRid = ((OSQLSynchQuery<YTDocument>) request).getNextPageRID();
+        nextPageRid = ((OSQLSynchQuery<YTEntityImpl>) request).getNextPageRID();
       } else {
         nextPageRid = null;
       }
@@ -786,7 +786,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
     this.target = target;
   }
 
-  public void setRequest(final OSQLAsynchQuery<YTDocument> request) {
+  public void setRequest(final OSQLAsynchQuery<YTEntityImpl> request) {
     this.request = request;
   }
 

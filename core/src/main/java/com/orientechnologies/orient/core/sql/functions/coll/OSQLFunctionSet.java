@@ -23,7 +23,7 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -64,7 +64,7 @@ public class OSQLFunctionSet extends OSQLFunctionMultiValueAbstract<Set<Object>>
           context = new HashSet<Object>();
         }
 
-        if (value instanceof YTDocument) {
+        if (value instanceof YTEntityImpl) {
           context.add(value);
         } else {
           OMultiValue.add(context, value);

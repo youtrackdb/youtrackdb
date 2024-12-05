@@ -21,7 +21,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializer;
 import com.orientechnologies.orient.core.sql.OIndexSearchResult;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
@@ -48,7 +48,7 @@ public class OLuceneWithinOperator extends OQueryTargetOperator {
   @Override
   public Object evaluateRecord(
       YTIdentifiable iRecord,
-      YTDocument iCurrentResult,
+      YTEntityImpl iCurrentResult,
       OSQLFilterCondition iCondition,
       Object iLeft,
       Object iRight,

@@ -23,8 +23,8 @@ import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTSerializationException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.record.impl.YTDocumentEmbedded;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.orient.core.record.impl.YTEntityImplEmbedded;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
@@ -48,7 +48,7 @@ public class OStringSerializerEmbedded implements OStringSerializer {
       return null;
     }
 
-    final YTDocument instance = new YTDocumentEmbedded();
+    final YTEntityImpl instance = new YTEntityImplEmbedded();
     ORecordSerializerSchemaAware2CSV.INSTANCE.fromStream(db,
         iStream.getBytes(StandardCharsets.UTF_8), instance, null);
 
@@ -76,7 +76,7 @@ public class OStringSerializerEmbedded implements OStringSerializer {
       try {
         final ODocumentSerializable documentSerializable =
             (ODocumentSerializable) clazz.newInstance();
-        final YTDocument docClone = new YTDocumentEmbedded();
+        final YTEntityImpl docClone = new YTEntityImplEmbedded();
         instance.copyTo(docClone);
         docClone.removeField(ODocumentSerializable.CLASS_NAME);
         documentSerializable.fromDocument(docClone);

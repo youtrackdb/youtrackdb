@@ -3,9 +3,9 @@ package com.orientechnologies.orient.core.serialization.serializer.record.binary
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
-import com.orientechnologies.orient.core.record.impl.ODocumentEntry;
+import com.orientechnologies.orient.core.record.impl.EntityEntry;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collection;
 import java.util.Map;
 
@@ -33,7 +33,7 @@ public class ORecordSerializerNetworkDistributed extends ORecordSerializerNetwor
     OVarIntSerializer.write(bytes, link.getIdentity().getClusterPosition());
   }
 
-  protected Collection<Map.Entry<String, ODocumentEntry>> fetchEntries(YTDocument document) {
+  protected Collection<Map.Entry<String, EntityEntry>> fetchEntries(YTEntityImpl document) {
     return ODocumentInternal.rawEntries(document);
   }
 }

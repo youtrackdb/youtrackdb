@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTVertexInternal;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionRuntime;
 import java.util.ArrayList;
@@ -117,7 +117,7 @@ public class OCommandExecutorSQLCreateVertex extends OCommandExecutorSQLSetAware
   }
 
   /**
-   * Execute the command and return the YTDocument object created.
+   * Execute the command and return the YTEntityImpl object created.
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (clazz == null) {
@@ -142,7 +142,7 @@ public class OCommandExecutorSQLCreateVertex extends OCommandExecutorSQLSetAware
     OSQLHelper.bindParameters(vertex.getRecord(), fields, new OCommandParameters(iArgs), context);
 
     if (content != null) {
-      ((YTDocument) vertex.getRecord()).merge(content, true, false);
+      ((YTEntityImpl) vertex.getRecord()).merge(content, true, false);
     }
 
     if (clusterName != null) {

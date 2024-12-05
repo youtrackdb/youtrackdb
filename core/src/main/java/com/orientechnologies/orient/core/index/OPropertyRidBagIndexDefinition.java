@@ -21,11 +21,11 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,13 +71,13 @@ public class OPropertyRidBagIndexDefinition extends OPropertyIndexDefinition
   }
 
   @Override
-  public Object getDocumentValueToIndex(YTDatabaseSessionInternal session, YTDocument iDocument) {
+  public Object getDocumentValueToIndex(YTDatabaseSessionInternal session, YTEntityImpl iDocument) {
     return createValue(session, iDocument.<Object>field(field));
   }
 
   @Override
   public Object createValue(YTDatabaseSessionInternal session, final List<?> params) {
-    if (!(params.get(0) instanceof ORidBag ridBag)) {
+    if (!(params.get(0) instanceof RidBag ridBag)) {
       return null;
     }
     final List<Object> values = new ArrayList<>();
@@ -90,7 +90,7 @@ public class OPropertyRidBagIndexDefinition extends OPropertyIndexDefinition
 
   @Override
   public Object createValue(YTDatabaseSessionInternal session, final Object... params) {
-    if (!(params[0] instanceof ORidBag ridBag)) {
+    if (!(params[0] instanceof RidBag ridBag)) {
       return null;
     }
     final List<Object> values = new ArrayList<>();

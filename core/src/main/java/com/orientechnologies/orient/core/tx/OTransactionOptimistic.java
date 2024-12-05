@@ -51,7 +51,7 @@ import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODirtyManager;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.schedule.OScheduledEvent;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.OStorageProxy;
@@ -198,14 +198,14 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       for (ORecordOperation entry : recordOperations.values()) {
         if (entry.type == ORecordOperation.CREATED) {
           if (entry.record != null) {
-            if (entry.record instanceof YTDocument) {
+            if (entry.record instanceof YTEntityImpl) {
               if (iPolymorphic) {
                 if (iClass.isSuperClassOf(
-                    ODocumentInternal.getImmutableSchemaClass(((YTDocument) entry.record)))) {
+                    ODocumentInternal.getImmutableSchemaClass(((YTEntityImpl) entry.record)))) {
                   result.add(entry);
                 }
               } else {
-                if (iClass.getName().equals(((YTDocument) entry.record).getClassName())) {
+                if (iClass.getName().equals(((YTEntityImpl) entry.record).getClassName())) {
                   result.add(entry);
                 }
               }
@@ -267,13 +267,13 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     return list;
   }
 
-  public YTDocument getIndexChanges() {
+  public YTEntityImpl getIndexChanges() {
 
-    final YTDocument result = new YTDocument().setAllowChainedAccess(false)
+    final YTEntityImpl result = new YTEntityImpl().setAllowChainedAccess(false)
         .setTrackingChanges(false);
 
     for (Entry<String, OTransactionIndexChanges> indexEntry : indexEntries.entrySet()) {
-      final YTDocument indexDoc = new YTDocument().setTrackingChanges(false);
+      final YTEntityImpl indexDoc = new YTEntityImpl().setTrackingChanges(false);
       ODocumentInternal.addOwner(indexDoc, result);
 
       result.field(indexEntry.getKey(), indexDoc, YTType.EMBEDDED);
@@ -282,7 +282,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
         indexDoc.field("clear", Boolean.TRUE);
       }
 
-      final List<YTDocument> entries = new ArrayList<>();
+      final List<YTEntityImpl> entries = new ArrayList<>();
       indexDoc.field("entries", entries, YTType.EMBEDDEDLIST);
 
       // STORE INDEX ENTRIES
@@ -554,8 +554,8 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
                       + " was registered in dirty manager, such case may lead to data corruption");
             }
 
-            if (rec instanceof YTDocument) {
-              ODocumentInternal.convertAllMultiValuesToTrackedVersions((YTDocument) rec);
+            if (rec instanceof YTEntityImpl) {
+              ODocumentInternal.convertAllMultiValuesToTrackedVersions((YTEntityImpl) rec);
             }
             if (rec == passedRecord) {
               addRecord(rec, ORecordOperation.CREATED, clusterName);
@@ -582,8 +582,8 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
                       + " was registered in dirty manager, such case may lead to data corruption");
             }
 
-            if (rec instanceof YTDocument) {
-              ODocumentInternal.convertAllMultiValuesToTrackedVersions((YTDocument) rec);
+            if (rec instanceof YTEntityImpl) {
+              ODocumentInternal.convertAllMultiValuesToTrackedVersions((YTEntityImpl) rec);
             }
             if (rec == passedRecord) {
               final byte operation =
@@ -729,8 +729,8 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
         }
 
         // RESET TRACKING
-        if (record instanceof YTDocument && ((YTDocument) record).isTrackingChanges()) {
-          ODocumentInternal.clearTrackData(((YTDocument) record));
+        if (record instanceof YTEntityImpl && ((YTEntityImpl) record).isTrackingChanges()) {
+          ODocumentInternal.clearTrackData(((YTEntityImpl) record));
         }
       } catch (final Exception e) {
         switch (status) {
@@ -807,7 +807,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       var record = txEntry.record;
 
       if (!record.isUnloaded()) {
-        if (record instanceof YTDocument document) {
+        if (record instanceof YTEntityImpl document) {
           ODocumentInternal.clearTransactionTrackData(document);
         }
 
@@ -928,11 +928,11 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     }
   }
 
-  private YTDocument serializeIndexChangeEntry(
-      OTransactionIndexChangesPerKey entry, final YTDocument indexDoc) {
+  private YTEntityImpl serializeIndexChangeEntry(
+      OTransactionIndexChangesPerKey entry, final YTEntityImpl indexDoc) {
     // SERIALIZE KEY
 
-    YTDocument keyContainer = new YTDocument();
+    YTEntityImpl keyContainer = new YTEntityImpl();
     keyContainer.setTrackingChanges(false);
 
     if (entry.key != null) {
@@ -950,13 +950,13 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       keyContainer = null;
     }
 
-    final List<YTDocument> operations = new ArrayList<>();
+    final List<YTEntityImpl> operations = new ArrayList<>();
 
     // SERIALIZE VALUES
     if (!entry.isEmpty()) {
       for (OTransactionIndexEntry e : entry.getEntriesAsList()) {
 
-        final YTDocument changeDoc = new YTDocument().setAllowChainedAccess(false);
+        final YTEntityImpl changeDoc = new YTEntityImpl().setAllowChainedAccess(false);
         ODocumentInternal.addOwner(changeDoc, indexDoc);
 
         // SERIALIZE OPERATION
@@ -976,7 +976,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
         operations.add(changeDoc);
       }
     }
-    YTDocument res = new YTDocument();
+    YTEntityImpl res = new YTEntityImpl();
     res.setTrackingChanges(false);
     ODocumentInternal.addOwner(res, indexDoc);
     return res.setAllowChainedAccess(false)
@@ -1223,13 +1223,13 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   }
 
   protected void resolveTracking(final ORecordOperation change) {
-    if (!(change.record instanceof YTDocument rec)) {
+    if (!(change.record instanceof YTEntityImpl rec)) {
       return;
     }
 
     switch (change.type) {
       case ORecordOperation.CREATED: {
-        final YTDocument doc = (YTDocument) change.record;
+        final YTEntityImpl doc = (YTEntityImpl) change.record;
         OLiveQueryHook.addOp(doc, ORecordOperation.CREATED, database);
         OLiveQueryHookV2.addOp(database, doc, ORecordOperation.CREATED);
         final YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
@@ -1252,7 +1252,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       break;
       case ORecordOperation.UPDATED: {
         final YTIdentifiable updateRecord = change.record;
-        YTDocument updateDoc = (YTDocument) updateRecord;
+        YTEntityImpl updateDoc = (YTEntityImpl) updateRecord;
         OLiveQueryHook.addOp(updateDoc, ORecordOperation.UPDATED, database);
         OLiveQueryHookV2.addOp(database, updateDoc, ORecordOperation.UPDATED);
         final YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(updateDoc);
@@ -1265,7 +1265,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       }
       break;
       case ORecordOperation.DELETED: {
-        final YTDocument doc = (YTDocument) change.record;
+        final YTEntityImpl doc = (YTEntityImpl) change.record;
         final YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
         if (clazz != null) {
           OClassIndexManager.processIndexOnDelete(database, rec);

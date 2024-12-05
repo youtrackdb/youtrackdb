@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandPredicate;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTQueryParsingException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Locale;
 import javax.annotation.Nonnull;
 
@@ -103,7 +103,7 @@ public class OSQLFilter extends OSQLPredicate implements OCommandPredicate {
   }
 
   public Object evaluate(
-      final YTIdentifiable iRecord, final YTDocument iCurrentResult,
+      final YTIdentifiable iRecord, final YTEntityImpl iCurrentResult,
       final OCommandContext iContext) {
     if (rootCondition == null) {
       return true;

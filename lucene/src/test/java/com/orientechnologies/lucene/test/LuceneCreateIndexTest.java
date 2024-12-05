@@ -18,8 +18,7 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -50,7 +49,7 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
                 + "\"}")
         .close();
 
-    YTDocument doc = new YTDocument("Song");
+    YTEntityImpl doc = new YTEntityImpl("Song");
 
     doc.field("title", "Local");
     doc.field("author", "Local");

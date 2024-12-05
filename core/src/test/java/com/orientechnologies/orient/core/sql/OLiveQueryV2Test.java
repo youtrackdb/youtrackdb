@@ -32,7 +32,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.ArrayList;
@@ -219,7 +219,7 @@ public class OLiveQueryV2Test {
       schema.createClass("test", oRestricted);
 
       int liveMatch = 2;
-      List<YTDocument> query =
+      List<YTEntityImpl> query =
           db.query(new OSQLSynchQuery("select from OUSer where name = 'reader'"));
 
       final YTIdentifiable reader = query.iterator().next().getIdentity();

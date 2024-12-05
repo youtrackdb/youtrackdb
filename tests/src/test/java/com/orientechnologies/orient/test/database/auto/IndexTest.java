@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.executor.FetchFromIndexStep;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStep;
@@ -127,12 +127,12 @@ public class IndexTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testDuplicatedIndexOnUnique")
   public void testUseOfIndex() {
-    final List<YTDocument> result = executeQuery("select * from Profile where nick = 'Jay'");
+    final List<YTEntityImpl> result = executeQuery("select * from Profile where nick = 'Jay'");
 
     Assert.assertFalse(result.isEmpty());
 
     YTEntity record;
-    for (YTDocument entries : result) {
+    for (YTEntityImpl entries : result) {
       record = entries;
       Assert.assertTrue(record.<String>getProperty("name").equalsIgnoreCase("Jay"));
     }
@@ -142,7 +142,7 @@ public class IndexTest extends DocumentDBBaseTest {
   public void testIndexEntries() {
     checkEmbeddedDB();
 
-    List<YTDocument> result = executeQuery("select * from Profile where nick is not null");
+    List<YTEntityImpl> result = executeQuery("select * from Profile where nick is not null");
 
     OIndex idx =
         database.getMetadata().getIndexManagerInternal().getIndex(database, "Profile.nick");
@@ -154,7 +154,7 @@ public class IndexTest extends DocumentDBBaseTest {
   public void testIndexSize() {
     checkEmbeddedDB();
 
-    List<YTDocument> result = executeQuery("select * from Profile where nick is not null");
+    List<YTEntityImpl> result = executeQuery("select * from Profile where nick is not null");
 
     int profileSize = result.size();
 
@@ -427,16 +427,16 @@ public class IndexTest extends DocumentDBBaseTest {
         database.getMetadata().getSchema().getClass("Profile").getProperty("nick")
             .isIndexed(database));
 
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database
-            .command(new OSQLSynchQuery<YTDocument>("SELECT FROM Profile WHERE nick = 'Jay'"))
+            .command(new OSQLSynchQuery<YTEntityImpl>("SELECT FROM Profile WHERE nick = 'Jay'"))
             .execute(database);
     Assert.assertEquals(result.size(), 2);
 
     result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "SELECT FROM Profile WHERE nick = 'Jay' AND name = 'Jay'"))
             .execute(database);
     Assert.assertEquals(result.size(), 1);
@@ -444,7 +444,7 @@ public class IndexTest extends DocumentDBBaseTest {
     result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "SELECT FROM Profile WHERE nick = 'Jay' AND name = 'Nick'"))
             .execute(database);
     Assert.assertEquals(result.size(), 1);
@@ -496,13 +496,13 @@ public class IndexTest extends DocumentDBBaseTest {
         .getProperty("account")
         .createIndex(database, INDEX_TYPE.NOTUNIQUE);
 
-    final List<YTDocument> result = executeQuery("select * from Account limit 1");
+    final List<YTEntityImpl> result = executeQuery("select * from Account limit 1");
     final OIndex idx =
         database.getMetadata().getIndexManagerInternal().getIndex(database, "Whiz.account");
 
     for (int i = 0; i < 5; i++) {
       database.begin();
-      final YTDocument whiz = new YTDocument("Whiz");
+      final YTEntityImpl whiz = new YTEntityImpl("Whiz");
 
       whiz.field("id", i);
       whiz.field("text", "This is a test");
@@ -514,26 +514,26 @@ public class IndexTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(idx.getInternal().size(database), 5);
 
-    final List<YTDocument> indexedResult =
+    final List<YTEntityImpl> indexedResult =
         executeQuery("select * from Whiz where account = ?", result.get(0).getIdentity());
     Assert.assertEquals(indexedResult.size(), 5);
 
     database.begin();
-    for (final YTDocument resDoc : indexedResult) {
+    for (final YTEntityImpl resDoc : indexedResult) {
       database.bindToSession(resDoc).delete();
     }
 
-    YTEntity whiz = new YTDocument("Whiz");
+    YTEntity whiz = new YTEntityImpl("Whiz");
     whiz.setProperty("id", 100);
     whiz.setProperty("text", "This is a test!");
-    whiz.setProperty("account", new YTDocument("Company").field("id", 9999));
+    whiz.setProperty("account", new YTEntityImpl("Company").field("id", 9999));
     whiz.save();
     database.commit();
 
     database.begin();
     whiz = database.bindToSession(whiz);
-    Assert.assertTrue(((YTDocument) whiz.getProperty("account")).getIdentity().isValid());
-    ((YTDocument) whiz.getProperty("account")).delete();
+    Assert.assertTrue(((YTEntityImpl) whiz.getProperty("account")).getIdentity().isValid());
+    ((YTEntityImpl) whiz.getProperty("account")).delete();
     whiz.delete();
     database.commit();
   }
@@ -552,10 +552,10 @@ public class IndexTest extends DocumentDBBaseTest {
         testLinkClass.createProperty(db, "testBoolean", YTType.BOOLEAN);
         testLinkClass.createProperty(db, "testString", YTType.STRING);
       }
-      YTDocument testClassDocument = db.newInstance("TestClass");
+      YTEntityImpl testClassDocument = db.newInstance("TestClass");
       db.begin();
       testClassDocument.field("name", "Test Class 1");
-      YTDocument testLinkClassDocument = new YTDocument("TestLinkClass");
+      YTEntityImpl testLinkClassDocument = new YTEntityImpl("TestLinkClass");
       testLinkClassDocument.field("testString", "Test Link Class 1");
       testLinkClassDocument.field("testBoolean", true);
       testClassDocument.field("testLink", testLinkClassDocument);
@@ -564,9 +564,9 @@ public class IndexTest extends DocumentDBBaseTest {
       // THIS WILL THROW A java.lang.ClassCastException:
       // com.orientechnologies.orient.core.id.YTRecordId cannot be cast to
       // java.lang.Boolean
-      List<YTDocument> result =
+      List<YTEntityImpl> result =
           db.query(
-              new OSQLSynchQuery<YTDocument>(
+              new OSQLSynchQuery<YTEntityImpl>(
                   "select from TestClass where testLink.testBoolean = true"));
       Assert.assertEquals(result.size(), 1);
       // THIS WILL THROW A java.lang.ClassCastException:
@@ -574,7 +574,7 @@ public class IndexTest extends DocumentDBBaseTest {
       // java.lang.String
       result =
           db.query(
-              new OSQLSynchQuery<YTDocument>(
+              new OSQLSynchQuery<YTEntityImpl>(
                   "select from TestClass where testLink.testString = 'Test Link Class 1'"));
       Assert.assertEquals(result.size(), 1);
     }
@@ -584,9 +584,9 @@ public class IndexTest extends DocumentDBBaseTest {
   public void testLinkedIndexedPropertyInTx() {
     try (YTDatabaseSessionInternal db = acquireSession()) {
       db.begin();
-      YTDocument testClassDocument = db.newInstance("TestClass");
+      YTEntityImpl testClassDocument = db.newInstance("TestClass");
       testClassDocument.field("name", "Test Class 2");
-      YTDocument testLinkClassDocument = new YTDocument("TestLinkClass");
+      YTEntityImpl testLinkClassDocument = new YTEntityImpl("TestLinkClass");
       testLinkClassDocument.field("testString", "Test Link Class 2");
       testLinkClassDocument.field("testBoolean", true);
       testClassDocument.field("testLink", testLinkClassDocument);
@@ -596,9 +596,9 @@ public class IndexTest extends DocumentDBBaseTest {
       // THIS WILL THROW A java.lang.ClassCastException:
       // com.orientechnologies.orient.core.id.YTRecordId cannot be cast to
       // java.lang.Boolean
-      List<YTDocument> result =
+      List<YTEntityImpl> result =
           db.query(
-              new OSQLSynchQuery<YTDocument>(
+              new OSQLSynchQuery<YTEntityImpl>(
                   "select from TestClass where testLink.testBoolean = true"));
       Assert.assertEquals(result.size(), 2);
       // THIS WILL THROW A java.lang.ClassCastException:
@@ -606,7 +606,7 @@ public class IndexTest extends DocumentDBBaseTest {
       // java.lang.String
       result =
           db.query(
-              new OSQLSynchQuery<YTDocument>(
+              new OSQLSynchQuery<YTEntityImpl>(
                   "select from TestClass where testLink.testString = 'Test Link Class 2'"));
       Assert.assertEquals(result.size(), 1);
     }
@@ -641,11 +641,11 @@ public class IndexTest extends DocumentDBBaseTest {
       final int chunkSize = 10;
 
       for (int pass = 0; pass < passCount; pass++) {
-        List<YTDocument> recordsToDelete = new ArrayList<>();
+        List<YTEntityImpl> recordsToDelete = new ArrayList<>();
         db.begin();
         for (int i = 0; i < chunkSize; i++) {
-          YTDocument d =
-              new YTDocument("MyFruit")
+          YTEntityImpl d =
+              new YTEntityImpl("MyFruit")
                   .field("name", "ABC" + pass + 'K' + i)
                   .field("color", "FOO" + pass);
           d.save();
@@ -667,7 +667,7 @@ public class IndexTest extends DocumentDBBaseTest {
 
         // do delete
         db.begin();
-        for (final YTDocument recordToDelete : recordsToDelete) {
+        for (final YTEntityImpl recordToDelete : recordsToDelete) {
           db.delete(db.bindToSession(recordToDelete));
         }
         db.commit();
@@ -688,7 +688,7 @@ public class IndexTest extends DocumentDBBaseTest {
   public void testIndexParamsAutoConversion() {
     checkEmbeddedDB();
 
-    final YTDocument doc;
+    final YTEntityImpl doc;
     final YTRecordId result;
     try (YTDatabaseSessionInternal db = acquireSession()) {
       if (!db.getMetadata().getSchema().existsClass("IndexTestTerm")) {
@@ -699,11 +699,11 @@ public class IndexTest extends DocumentDBBaseTest {
             "idxTerm",
             INDEX_TYPE.UNIQUE.toString(),
             null,
-            new YTDocument().fields("ignoreNullValues", true), new String[]{"label"});
+            new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"label"});
       }
 
       db.begin();
-      doc = new YTDocument("IndexTestTerm");
+      doc = new YTEntityImpl("IndexTestTerm");
       doc.field("label", "42");
       doc.save();
       db.commit();
@@ -735,11 +735,11 @@ public class IndexTest extends DocumentDBBaseTest {
           "idxTransactionUniqueIndexTest",
           INDEX_TYPE.UNIQUE.toString(),
           null,
-          new YTDocument().fields("ignoreNullValues", true), new String[]{"label"});
+          new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"label"});
     }
 
     db.begin();
-    YTDocument docOne = new YTDocument("TransactionUniqueIndexTest");
+    YTEntityImpl docOne = new YTEntityImpl("TransactionUniqueIndexTest");
     docOne.field("label", "A");
     docOne.save();
     db.commit();
@@ -750,7 +750,7 @@ public class IndexTest extends DocumentDBBaseTest {
 
     db.begin();
     try {
-      YTDocument docTwo = new YTDocument("TransactionUniqueIndexTest");
+      YTEntityImpl docTwo = new YTEntityImpl("TransactionUniqueIndexTest");
       docTwo.field("label", "A");
       docTwo.save();
 
@@ -777,7 +777,7 @@ public class IndexTest extends DocumentDBBaseTest {
           "idxTransactionUniqueIndexTest",
           INDEX_TYPE.UNIQUE.toString(),
           null,
-          new YTDocument().fields("ignoreNullValues", true), new String[]{"label"});
+          new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"label"});
     }
 
     final OIndex index =
@@ -787,11 +787,11 @@ public class IndexTest extends DocumentDBBaseTest {
     db.begin();
 
     try {
-      YTDocument docOne = new YTDocument("TransactionUniqueIndexTest");
+      YTEntityImpl docOne = new YTEntityImpl("TransactionUniqueIndexTest");
       docOne.field("label", "B");
       docOne.save();
 
-      YTDocument docTwo = new YTDocument("TransactionUniqueIndexTest");
+      YTEntityImpl docTwo = new YTEntityImpl("TransactionUniqueIndexTest");
       docTwo.field("label", "B");
       docTwo.save();
 
@@ -817,7 +817,7 @@ public class IndexTest extends DocumentDBBaseTest {
     }
 
     db.begin();
-    YTDocument docOne = new YTDocument("TransactionUniqueIndexWithDotTest");
+    YTEntityImpl docOne = new YTEntityImpl("TransactionUniqueIndexWithDotTest");
     docOne.field("label", "A");
     docOne.save();
     db.commit();
@@ -831,7 +831,7 @@ public class IndexTest extends DocumentDBBaseTest {
     long countClassBefore = db.countClass("TransactionUniqueIndexWithDotTest");
     db.begin();
     try {
-      YTDocument docTwo = new YTDocument("TransactionUniqueIndexWithDotTest");
+      YTEntityImpl docTwo = new YTEntityImpl("TransactionUniqueIndexWithDotTest");
       docTwo.field("label", "A");
       docTwo.save();
 
@@ -841,7 +841,7 @@ public class IndexTest extends DocumentDBBaseTest {
     }
 
     Assert.assertEquals(
-        ((List<YTDocument>)
+        ((List<YTEntityImpl>)
             db.command(new OCommandSQL("select from TransactionUniqueIndexWithDotTest"))
                 .execute(db))
             .size(),
@@ -871,11 +871,11 @@ public class IndexTest extends DocumentDBBaseTest {
 
     db.begin();
     try {
-      YTDocument docOne = new YTDocument("TransactionUniqueIndexWithDotTest");
+      YTEntityImpl docOne = new YTEntityImpl("TransactionUniqueIndexWithDotTest");
       docOne.field("label", "B");
       docOne.save();
 
-      YTDocument docTwo = new YTDocument("TransactionUniqueIndexWithDotTest");
+      YTEntityImpl docTwo = new YTEntityImpl("TransactionUniqueIndexWithDotTest");
       docTwo.field("label", "B");
       docTwo.save();
 
@@ -936,11 +936,11 @@ public class IndexTest extends DocumentDBBaseTest {
       }
 
       db.begin();
-      YTDocument childClassDocument = db.newInstance("ChildTestClass");
+      YTEntityImpl childClassDocument = db.newInstance("ChildTestClass");
       childClassDocument.field("testParentProperty", 10L);
       childClassDocument.save();
 
-      YTDocument anotherChildClassDocument = db.newInstance("AnotherChildTestClass");
+      YTEntityImpl anotherChildClassDocument = db.newInstance("AnotherChildTestClass");
       anotherChildClassDocument.field("testParentProperty", 11L);
       anotherChildClassDocument.save();
       db.commit();
@@ -986,7 +986,7 @@ public class IndexTest extends DocumentDBBaseTest {
       final Integer key = (int) Math.log(i);
 
       database.begin();
-      final YTDocument doc = new YTDocument("IndexNotUniqueIndexKeySize");
+      final YTEntityImpl doc = new YTEntityImpl("IndexNotUniqueIndexKeySize");
       doc.field("value", key);
       doc.save();
       database.commit();
@@ -1014,7 +1014,7 @@ public class IndexTest extends DocumentDBBaseTest {
       final Integer key = (int) Math.log(i);
 
       database.begin();
-      final YTDocument doc = new YTDocument("IndexNotUniqueIndexSize");
+      final YTEntityImpl doc = new YTEntityImpl("IndexNotUniqueIndexSize");
       doc.field("value", key);
       doc.save();
       database.commit();
@@ -1110,17 +1110,17 @@ public class IndexTest extends DocumentDBBaseTest {
     classTwo.createIndex(database, "CompoundSQLIndexTestIndex", INDEX_TYPE.UNIQUE, "address");
 
     database.begin();
-    YTDocument docOne = new YTDocument("CompoundSQLIndexTest1");
+    YTEntityImpl docOne = new YTEntityImpl("CompoundSQLIndexTest1");
     docOne.field("city", "Montreal");
 
     docOne.save();
 
-    YTDocument docTwo = new YTDocument("CompoundSQLIndexTest2");
+    YTEntityImpl docTwo = new YTEntityImpl("CompoundSQLIndexTest2");
     docTwo.field("address", docOne);
     docTwo.save();
     database.commit();
 
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         executeQuery(
             "select from CompoundSQLIndexTest2 where address in (select from"
                 + " CompoundSQLIndexTest1 where city='Montreal')");
@@ -1143,19 +1143,19 @@ public class IndexTest extends DocumentDBBaseTest {
 
     for (int i = 0; i < 30; i++) {
       database.begin();
-      final YTDocument document = new YTDocument("IndexWithLimitAndOffsetClass");
+      final YTEntityImpl document = new YTEntityImpl("IndexWithLimitAndOffsetClass");
       document.field("val", i / 10);
       document.field("index", i);
       document.save();
       database.commit();
     }
 
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         executeQuery("select from IndexWithLimitAndOffsetClass where val = 1 offset 5 limit 2");
     Assert.assertEquals(result.size(), 2);
 
     for (int i = 0; i < 2; i++) {
-      final YTDocument document = result.get(i);
+      final YTEntityImpl document = result.get(i);
       Assert.assertEquals(document.<Object>field("val"), 1);
       Assert.assertEquals(document.<Object>field("index"), 15 + i);
     }
@@ -1166,7 +1166,7 @@ public class IndexTest extends DocumentDBBaseTest {
     final YTClass clazz = schema.createClass("NullIndexKeysSupport", 1, (YTClass[]) null);
     clazz.createProperty(database, "nullField", YTType.STRING);
 
-    YTDocument metadata = new YTDocument();
+    YTEntityImpl metadata = new YTEntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
@@ -1177,18 +1177,18 @@ public class IndexTest extends DocumentDBBaseTest {
     for (int i = 0; i < 20; i++) {
       database.begin();
       if (i % 5 == 0) {
-        YTDocument document = new YTDocument("NullIndexKeysSupport");
+        YTEntityImpl document = new YTEntityImpl("NullIndexKeysSupport");
         document.field("nullField", (Object) null);
         document.save();
       } else {
-        YTDocument document = new YTDocument("NullIndexKeysSupport");
+        YTEntityImpl document = new YTEntityImpl("NullIndexKeysSupport");
         document.field("nullField", "val" + i);
         document.save();
       }
       database.commit();
     }
 
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         executeQuery("select from NullIndexKeysSupport where nullField = 'val3'");
     Assert.assertEquals(result.size(), 1);
 
@@ -1198,11 +1198,11 @@ public class IndexTest extends DocumentDBBaseTest {
     result = executeQuery("select from NullIndexKeysSupport where nullField is null");
 
     Assert.assertEquals(result.size(), 4);
-    for (YTDocument document : result) {
+    for (YTEntityImpl document : result) {
       Assert.assertNull(document.field("nullField"));
     }
 
-    final YTDocument explain = database.command(new OCommandSQL("explain " + query))
+    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
     Assert.assertTrue(
         explain.<Set<String>>field("involvedIndexes").contains("NullIndexKeysSupportIndex"));
@@ -1213,7 +1213,7 @@ public class IndexTest extends DocumentDBBaseTest {
     final YTClass clazz = schema.createClass("NullHashIndexKeysSupport", 1, (YTClass[]) null);
     clazz.createProperty(database, "nullField", YTType.STRING);
 
-    YTDocument metadata = new YTDocument();
+    YTEntityImpl metadata = new YTEntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
@@ -1224,20 +1224,20 @@ public class IndexTest extends DocumentDBBaseTest {
     for (int i = 0; i < 20; i++) {
       database.begin();
       if (i % 5 == 0) {
-        YTDocument document = new YTDocument("NullHashIndexKeysSupport");
+        YTEntityImpl document = new YTEntityImpl("NullHashIndexKeysSupport");
         document.field("nullField", (Object) null);
         document.save();
       } else {
-        YTDocument document = new YTDocument("NullHashIndexKeysSupport");
+        YTEntityImpl document = new YTEntityImpl("NullHashIndexKeysSupport");
         document.field("nullField", "val" + i);
         document.save();
       }
       database.commit();
     }
 
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database.query(
-            new OSQLSynchQuery<YTDocument>(
+            new OSQLSynchQuery<YTEntityImpl>(
                 "select from NullHashIndexKeysSupport where nullField = 'val3'"));
     Assert.assertEquals(result.size(), 1);
 
@@ -1246,15 +1246,15 @@ public class IndexTest extends DocumentDBBaseTest {
     final String query = "select from NullHashIndexKeysSupport where nullField is null";
     result =
         database.query(
-            new OSQLSynchQuery<YTDocument>(
+            new OSQLSynchQuery<YTEntityImpl>(
                 "select from NullHashIndexKeysSupport where nullField is null"));
 
     Assert.assertEquals(result.size(), 4);
-    for (YTDocument document : result) {
+    for (YTEntityImpl document : result) {
       Assert.assertNull(document.field("nullField"));
     }
 
-    final YTDocument explain = database.command(new OCommandSQL("explain " + query))
+    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
     Assert.assertTrue(
         explain.<Set<String>>field("involvedIndexes").contains("NullHashIndexKeysSupportIndex"));
@@ -1265,7 +1265,7 @@ public class IndexTest extends DocumentDBBaseTest {
     final YTClass clazz = schema.createClass("NullIndexKeysSupportInTx", 1, (YTClass[]) null);
     clazz.createProperty(database, "nullField", YTType.STRING);
 
-    YTDocument metadata = new YTDocument();
+    YTEntityImpl metadata = new YTEntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
@@ -1278,11 +1278,11 @@ public class IndexTest extends DocumentDBBaseTest {
 
     for (int i = 0; i < 20; i++) {
       if (i % 5 == 0) {
-        YTDocument document = new YTDocument("NullIndexKeysSupportInTx");
+        YTEntityImpl document = new YTEntityImpl("NullIndexKeysSupportInTx");
         document.field("nullField", (Object) null);
         document.save();
       } else {
-        YTDocument document = new YTDocument("NullIndexKeysSupportInTx");
+        YTEntityImpl document = new YTEntityImpl("NullIndexKeysSupportInTx");
         document.field("nullField", "val" + i);
         document.save();
       }
@@ -1290,9 +1290,9 @@ public class IndexTest extends DocumentDBBaseTest {
 
     database.commit();
 
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database.query(
-            new OSQLSynchQuery<YTDocument>(
+            new OSQLSynchQuery<YTEntityImpl>(
                 "select from NullIndexKeysSupportInTx where nullField = 'val3'"));
     Assert.assertEquals(result.size(), 1);
 
@@ -1301,15 +1301,15 @@ public class IndexTest extends DocumentDBBaseTest {
     final String query = "select from NullIndexKeysSupportInTx where nullField is null";
     result =
         database.query(
-            new OSQLSynchQuery<YTDocument>(
+            new OSQLSynchQuery<YTEntityImpl>(
                 "select from NullIndexKeysSupportInTx where nullField is null"));
 
     Assert.assertEquals(result.size(), 4);
-    for (YTDocument document : result) {
+    for (YTEntityImpl document : result) {
       Assert.assertNull(document.field("nullField"));
     }
 
-    final YTDocument explain = database.command(new OCommandSQL("explain " + query))
+    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
     Assert.assertTrue(
         explain.<Set<String>>field("involvedIndexes").contains("NullIndexKeysSupportInTxIndex"));
@@ -1324,7 +1324,7 @@ public class IndexTest extends DocumentDBBaseTest {
     final YTClass clazz = schema.createClass("NullIndexKeysSupportInMiddleTx", 1, (YTClass[]) null);
     clazz.createProperty(database, "nullField", YTType.STRING);
 
-    YTDocument metadata = new YTDocument();
+    YTEntityImpl metadata = new YTEntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
@@ -1337,19 +1337,19 @@ public class IndexTest extends DocumentDBBaseTest {
 
     for (int i = 0; i < 20; i++) {
       if (i % 5 == 0) {
-        YTDocument document = new YTDocument("NullIndexKeysSupportInMiddleTx");
+        YTEntityImpl document = new YTEntityImpl("NullIndexKeysSupportInMiddleTx");
         document.field("nullField", (Object) null);
         document.save();
       } else {
-        YTDocument document = new YTDocument("NullIndexKeysSupportInMiddleTx");
+        YTEntityImpl document = new YTEntityImpl("NullIndexKeysSupportInMiddleTx");
         document.field("nullField", "val" + i);
         document.save();
       }
     }
 
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database.query(
-            new OSQLSynchQuery<YTDocument>(
+            new OSQLSynchQuery<YTEntityImpl>(
                 "select from NullIndexKeysSupportInMiddleTx where nullField = 'val3'"));
     Assert.assertEquals(result.size(), 1);
 
@@ -1358,15 +1358,15 @@ public class IndexTest extends DocumentDBBaseTest {
     final String query = "select from NullIndexKeysSupportInMiddleTx where nullField is null";
     result =
         database.query(
-            new OSQLSynchQuery<YTDocument>(
+            new OSQLSynchQuery<YTEntityImpl>(
                 "select from NullIndexKeysSupportInMiddleTx where nullField is null"));
 
     Assert.assertEquals(result.size(), 4);
-    for (YTDocument document : result) {
+    for (YTEntityImpl document : result) {
       Assert.assertNull(document.field("nullField"));
     }
 
-    final YTDocument explain = database.command(new OCommandSQL("explain " + query))
+    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
     Assert.assertTrue(
         explain
@@ -1389,18 +1389,18 @@ public class IndexTest extends DocumentDBBaseTest {
     schema.createClass("TestCreateIndexAbstractClassChildTwo", abstractClass);
 
     database.begin();
-    YTDocument docOne = new YTDocument("TestCreateIndexAbstractClassChildOne");
+    YTEntityImpl docOne = new YTEntityImpl("TestCreateIndexAbstractClassChildOne");
     docOne.field("value", "val1");
     docOne.save();
 
-    YTDocument docTwo = new YTDocument("TestCreateIndexAbstractClassChildTwo");
+    YTEntityImpl docTwo = new YTEntityImpl("TestCreateIndexAbstractClassChildTwo");
     docTwo.field("value", "val2");
     docTwo.save();
     database.commit();
 
     final String queryOne = "select from TestCreateIndexAbstractClass where value = 'val1'";
 
-    List<YTDocument> resultOne = executeQuery(queryOne);
+    List<YTEntityImpl> resultOne = executeQuery(queryOne);
     Assert.assertEquals(resultOne.size(), 1);
     Assert.assertEquals(resultOne.get(0).getIdentity(), docOne.getIdentity());
 
@@ -1413,7 +1413,7 @@ public class IndexTest extends DocumentDBBaseTest {
 
       final String queryTwo = "select from TestCreateIndexAbstractClass where value = 'val2'";
 
-      List<YTDocument> resultTwo = executeQuery(queryTwo);
+      List<YTEntityImpl> resultTwo = executeQuery(queryTwo);
       Assert.assertEquals(resultTwo.size(), 1);
       Assert.assertEquals(resultTwo.get(0).getIdentity(), docTwo.getIdentity());
 
@@ -1445,7 +1445,7 @@ public class IndexTest extends DocumentDBBaseTest {
     for (int i = 0; i < 10; i++) {
       for (int j = 0; j < 100; j++) {
         database.begin();
-        YTDocument document = new YTDocument("ValuesContainerIsRemovedIfIndexIsRemovedClass");
+        YTEntityImpl document = new YTEntityImpl("ValuesContainerIsRemovedIfIndexIsRemovedClass");
         document.field("val", "value" + i);
         document.save();
         database.commit();
@@ -1548,11 +1548,11 @@ public class IndexTest extends DocumentDBBaseTest {
             "EmptyNotUniqueIndexTestIndex", INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "prop");
 
     database.begin();
-    YTDocument document = new YTDocument("EmptyNotUniqueIndexTest");
+    YTEntityImpl document = new YTEntityImpl("EmptyNotUniqueIndexTest");
     document.field("prop", "keyOne");
     document.save();
 
-    document = new YTDocument("EmptyNotUniqueIndexTest");
+    document = new YTEntityImpl("EmptyNotUniqueIndexTest");
     document.field("prop", "keyTwo");
     document.save();
     database.commit();
@@ -1589,7 +1589,7 @@ public class IndexTest extends DocumentDBBaseTest {
     database.command("CREATE VERTEX NullIterationTest SET name = 'Olivier'").close();
     database.commit();
 
-    YTDocument metadata = new YTDocument();
+    YTEntityImpl metadata = new YTEntityImpl();
     metadata.field("ignoreNullValues", false);
 
     testNullIteration.createIndex(database,
@@ -1613,13 +1613,13 @@ public class IndexTest extends DocumentDBBaseTest {
 
     // generates stubs for index
     database.begin();
-    YTDocument doc1 = new YTDocument();
+    YTEntityImpl doc1 = new YTEntityImpl();
     doc1.save(database.getClusterNameById(database.getDefaultClusterId()));
-    YTDocument doc2 = new YTDocument();
+    YTEntityImpl doc2 = new YTEntityImpl();
     doc2.save(database.getClusterNameById(database.getDefaultClusterId()));
-    YTDocument doc3 = new YTDocument();
+    YTEntityImpl doc3 = new YTEntityImpl();
     doc3.save(database.getClusterNameById(database.getDefaultClusterId()));
-    YTDocument doc4 = new YTDocument();
+    YTEntityImpl doc4 = new YTEntityImpl();
     doc4.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
@@ -1636,7 +1636,7 @@ public class IndexTest extends DocumentDBBaseTest {
     clazz.createProperty(database, "reg", YTType.LONG);
     clazz.createProperty(database, "no", YTType.INTEGER);
 
-    final YTDocument mt = new YTDocument().field("ignoreNullValues", false);
+    final YTEntityImpl mt = new YTEntityImpl().field("ignoreNullValues", false);
     clazz.createIndex(database,
         "MultikeyWithoutFieldIndex",
         INDEX_TYPE.UNIQUE.toString(),
@@ -1644,7 +1644,7 @@ public class IndexTest extends DocumentDBBaseTest {
         mt, new String[]{"state", "users", "time", "reg", "no"});
 
     database.begin();
-    YTDocument document = new YTDocument("TestMultikeyWithoutField");
+    YTEntityImpl document = new YTEntityImpl("TestMultikeyWithoutField");
     document.field("state", (byte) 1);
 
     Set<YTRID> users = new HashSet<>();
@@ -1833,13 +1833,13 @@ public class IndexTest extends DocumentDBBaseTest {
 
     // generates stubs for index
     database.begin();
-    YTDocument doc1 = new YTDocument();
+    YTEntityImpl doc1 = new YTEntityImpl();
     doc1.save(database.getClusterNameById(database.getDefaultClusterId()));
-    YTDocument doc2 = new YTDocument();
+    YTEntityImpl doc2 = new YTEntityImpl();
     doc2.save(database.getClusterNameById(database.getDefaultClusterId()));
-    YTDocument doc3 = new YTDocument();
+    YTEntityImpl doc3 = new YTEntityImpl();
     doc3.save(database.getClusterNameById(database.getDefaultClusterId()));
-    YTDocument doc4 = new YTDocument();
+    YTEntityImpl doc4 = new YTEntityImpl();
     doc4.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
@@ -1861,10 +1861,10 @@ public class IndexTest extends DocumentDBBaseTest {
         "MultikeyWithoutFieldIndexNoNullSupport",
         INDEX_TYPE.UNIQUE.toString(),
         null,
-        new YTDocument().fields("ignoreNullValues", true),
+        new YTEntityImpl().fields("ignoreNullValues", true),
         new String[]{"state", "users", "time", "reg", "no"});
 
-    YTDocument document = new YTDocument("TestMultikeyWithoutFieldNoNullSupport");
+    YTEntityImpl document = new YTEntityImpl("TestMultikeyWithoutFieldNoNullSupport");
     document.field("state", (byte) 1);
 
     Set<YTRID> users = new HashSet<>();
@@ -2047,11 +2047,11 @@ public class IndexTest extends DocumentDBBaseTest {
         "field");
 
     database.begin();
-    YTDocument docOne = new YTDocument("NullValuesCountSBTreeUnique");
+    YTEntityImpl docOne = new YTEntityImpl("NullValuesCountSBTreeUnique");
     docOne.field("field", 1);
     docOne.save();
 
-    YTDocument docTwo = new YTDocument("NullValuesCountSBTreeUnique");
+    YTEntityImpl docTwo = new YTEntityImpl("NullValuesCountSBTreeUnique");
     docTwo.field("field", (Integer) null);
     docTwo.save();
     database.commit();
@@ -2080,11 +2080,11 @@ public class IndexTest extends DocumentDBBaseTest {
         "NullValuesCountSBTreeNotUniqueOneIndex", INDEX_TYPE.NOTUNIQUE, "field");
 
     database.begin();
-    YTDocument docOne = new YTDocument("NullValuesCountSBTreeNotUniqueOne");
+    YTEntityImpl docOne = new YTEntityImpl("NullValuesCountSBTreeNotUniqueOne");
     docOne.field("field", 1);
     docOne.save();
 
-    YTDocument docTwo = new YTDocument("NullValuesCountSBTreeNotUniqueOne");
+    YTEntityImpl docTwo = new YTEntityImpl("NullValuesCountSBTreeNotUniqueOne");
     docTwo.field("field", (Integer) null);
     docTwo.save();
     database.commit();
@@ -2113,11 +2113,11 @@ public class IndexTest extends DocumentDBBaseTest {
         "NullValuesCountSBTreeNotUniqueTwoIndex", INDEX_TYPE.NOTUNIQUE, "field");
 
     database.begin();
-    YTDocument docOne = new YTDocument("NullValuesCountSBTreeNotUniqueTwo");
+    YTEntityImpl docOne = new YTEntityImpl("NullValuesCountSBTreeNotUniqueTwo");
     docOne.field("field", (Integer) null);
     docOne.save();
 
-    YTDocument docTwo = new YTDocument("NullValuesCountSBTreeNotUniqueTwo");
+    YTEntityImpl docTwo = new YTEntityImpl("NullValuesCountSBTreeNotUniqueTwo");
     docTwo.field("field", (Integer) null);
     docTwo.save();
     database.commit();
@@ -2146,11 +2146,11 @@ public class IndexTest extends DocumentDBBaseTest {
         "NullValuesCountHashUniqueIndex", INDEX_TYPE.UNIQUE_HASH_INDEX, "field");
 
     database.begin();
-    YTDocument docOne = new YTDocument("NullValuesCountHashUnique");
+    YTEntityImpl docOne = new YTEntityImpl("NullValuesCountHashUnique");
     docOne.field("field", 1);
     docOne.save();
 
-    YTDocument docTwo = new YTDocument("NullValuesCountHashUnique");
+    YTEntityImpl docTwo = new YTEntityImpl("NullValuesCountHashUnique");
     docTwo.field("field", (Integer) null);
     docTwo.save();
     database.commit();
@@ -2178,11 +2178,11 @@ public class IndexTest extends DocumentDBBaseTest {
         "NullValuesCountHashNotUniqueOneIndex", INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "field");
 
     database.begin();
-    YTDocument docOne = new YTDocument("NullValuesCountHashNotUniqueOne");
+    YTEntityImpl docOne = new YTEntityImpl("NullValuesCountHashNotUniqueOne");
     docOne.field("field", 1);
     docOne.save();
 
-    YTDocument docTwo = new YTDocument("NullValuesCountHashNotUniqueOne");
+    YTEntityImpl docTwo = new YTEntityImpl("NullValuesCountHashNotUniqueOne");
     docTwo.field("field", (Integer) null);
     docTwo.save();
     database.commit();
@@ -2211,11 +2211,11 @@ public class IndexTest extends DocumentDBBaseTest {
         "NullValuesCountHashNotUniqueTwoIndex", INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "field");
 
     database.begin();
-    YTDocument docOne = new YTDocument("NullValuesCountHashNotUniqueTwo");
+    YTEntityImpl docOne = new YTEntityImpl("NullValuesCountHashNotUniqueTwo");
     docOne.field("field", (Integer) null);
     docOne.save();
 
-    YTDocument docTwo = new YTDocument("NullValuesCountHashNotUniqueTwo");
+    YTEntityImpl docTwo = new YTEntityImpl("NullValuesCountHashNotUniqueTwo");
     docTwo.field("field", (Integer) null);
     docTwo.save();
     database.commit();

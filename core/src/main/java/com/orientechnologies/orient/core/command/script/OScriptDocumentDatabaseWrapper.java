@@ -36,7 +36,7 @@ import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLQuery;
@@ -111,7 +111,7 @@ public class OScriptDocumentDatabaseWrapper {
     return database.exists();
   }
 
-  public YTDocument newInstance() {
+  public YTEntityImpl newInstance() {
     return database.newInstance();
   }
 
@@ -123,7 +123,7 @@ public class OScriptDocumentDatabaseWrapper {
     return database.newInstance(iClassName);
   }
 
-  public ORecordIteratorClass<YTDocument> browseClass(String iClassName) {
+  public ORecordIteratorClass<YTEntityImpl> browseClass(String iClassName) {
     return database.browseClass(iClassName);
   }
 
@@ -131,7 +131,7 @@ public class OScriptDocumentDatabaseWrapper {
     return database.getStatus();
   }
 
-  public ORecordIteratorClass<YTDocument> browseClass(String iClassName, boolean iPolymorphic) {
+  public ORecordIteratorClass<YTEntityImpl> browseClass(String iClassName, boolean iPolymorphic) {
     return database.browseClass(iClassName, iPolymorphic);
   }
 
@@ -151,7 +151,7 @@ public class OScriptDocumentDatabaseWrapper {
     return database.getURL();
   }
 
-  public ORecordIteratorCluster<YTDocument> browseCluster(String iClusterName) {
+  public ORecordIteratorCluster<YTEntityImpl> browseCluster(String iClusterName) {
     return database.browseCluster(iClusterName);
   }
 
@@ -163,16 +163,16 @@ public class OScriptDocumentDatabaseWrapper {
     return database.open(iUserName, iUserPassword);
   }
 
-  public YTDocument save(final Map<String, Object> iObject) {
-    return database.save(new YTDocument().fields(iObject));
+  public YTEntityImpl save(final Map<String, Object> iObject) {
+    return database.save(new YTEntityImpl().fields(iObject));
   }
 
-  public YTDocument save(final String iString) {
-    // return database.save((YTRecord) new YTDocument().fromJSON(iString));
-    return database.save(new YTDocument().fromJSON(iString, true));
+  public YTEntityImpl save(final String iString) {
+    // return database.save((YTRecord) new YTEntityImpl().fromJSON(iString));
+    return database.save(new YTEntityImpl().fromJSON(iString, true));
   }
 
-  public YTDocument save(YTRecord iRecord) {
+  public YTEntityImpl save(YTRecord iRecord) {
     return database.save(iRecord);
   }
 
@@ -285,7 +285,7 @@ public class OScriptDocumentDatabaseWrapper {
     return database.setProperty(iName, iValue);
   }
 
-  public YTDocument save(YTRecord iRecord, String iClusterName) {
+  public YTEntityImpl save(YTRecord iRecord, String iClusterName) {
     return database.save(iRecord, iClusterName);
   }
 
@@ -321,7 +321,7 @@ public class OScriptDocumentDatabaseWrapper {
     return database.getSize();
   }
 
-  public void delete(YTDocument iRecord) {
+  public void delete(YTEntityImpl iRecord) {
     database.delete(iRecord);
   }
 

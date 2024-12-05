@@ -15,7 +15,7 @@ import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -144,7 +144,7 @@ public class MultipleDBTest extends DocumentDBBaseTest {
               long start = System.currentTimeMillis();
               for (int j = 0; j < operations_write; j++) {
 
-                YTDocument dummy = new YTDocument("DummyObject");
+                YTEntityImpl dummy = new YTEntityImpl("DummyObject");
                 dummy.field("name", "name" + j);
 
                 db.begin();

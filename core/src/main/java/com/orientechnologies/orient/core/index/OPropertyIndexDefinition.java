@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.collate.ODefaultCollate;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLCreateIndex;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.Collections;
@@ -70,7 +70,7 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
   }
 
   public Object getDocumentValueToIndex(
-      YTDatabaseSessionInternal session, final YTDocument iDocument) {
+      YTDatabaseSessionInternal session, final YTEntityImpl iDocument) {
     if (YTType.LINK.equals(keyType)) {
       final YTIdentifiable identifiable = iDocument.field(field);
       if (identifiable != null) {
@@ -152,17 +152,17 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
     return new YTType[]{keyType};
   }
 
-  public void fromStream(@Nonnull YTDocument document) {
+  public void fromStream(@Nonnull YTEntityImpl document) {
     serializeFromStream(document);
   }
 
   @Override
-  public final @Nonnull YTDocument toStream(@Nonnull YTDocument document) {
+  public final @Nonnull YTEntityImpl toStream(@Nonnull YTEntityImpl document) {
     serializeToStream(document);
     return document;
   }
 
-  protected void serializeToStream(YTDocument document) {
+  protected void serializeToStream(YTEntityImpl document) {
     super.serializeToStream(document);
 
     document.setPropertyInternal("className", className);
@@ -172,7 +172,7 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
     document.setPropertyInternal("nullValuesIgnored", isNullValuesIgnored());
   }
 
-  protected void serializeFromStream(YTDocument document) {
+  protected void serializeFromStream(YTEntityImpl document) {
     super.serializeFromStream(document);
 
     className = document.field("className");

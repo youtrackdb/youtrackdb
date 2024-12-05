@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -157,7 +157,7 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
         final List<YTRID> ridsToDelete = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
           session.begin();
-          final YTDocument document = new YTDocument(childCls);
+          final YTEntityImpl document = new YTEntityImpl(childCls);
           document.save();
           session.commit();
 
@@ -170,14 +170,14 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
           session.commit();
         }
 
-        final YTDocument rootDocument = new YTDocument(rootCls);
-        final ArrayList<YTDocument> documents = new ArrayList<>();
+        final YTEntityImpl rootDocument = new YTEntityImpl(rootCls);
+        final ArrayList<YTEntityImpl> documents = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
           session.begin();
-          final YTDocument embeddedDocument = new YTDocument();
+          final YTEntityImpl embeddedDocument = new YTEntityImpl();
 
-          final YTDocument doc = new YTDocument(childCls);
+          final YTEntityImpl doc = new YTEntityImpl(childCls);
           doc.save();
           session.commit();
 
@@ -203,12 +203,12 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
             new ODatabaseImport(session, exportPath.getPath(), System.out::println);
         databaseImport.run();
 
-        final Iterator<YTDocument> classIterator = session.browseClass("RootClass");
-        final YTDocument rootDocument = classIterator.next();
+        final Iterator<YTEntityImpl> classIterator = session.browseClass("RootClass");
+        final YTEntityImpl rootDocument = classIterator.next();
 
-        final List<YTDocument> documents = rootDocument.field("embeddedList");
+        final List<YTEntityImpl> documents = rootDocument.field("embeddedList");
         for (int i = 0; i < 10; i++) {
-          final YTDocument embeddedDocument = documents.get(i);
+          final YTEntityImpl embeddedDocument = documents.get(i);
 
           embeddedDocument.setLazyLoad(false);
           final YTRecordId link = embeddedDocument.getProperty("link");

@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.metadata.security.auth.OTokenAuthInfo;
 import com.orientechnologies.orient.core.metadata.security.auth.OUserPasswordAuthInfo;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.security.OParsedToken;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
 import com.orientechnologies.orient.core.security.OTokenSign;
@@ -19,7 +19,7 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
   private OTokenSign tokenSign;
 
   @Override
-  public void config(YTDatabaseSessionInternal session, YTDocument jsonConfig,
+  public void config(YTDatabaseSessionInternal session, YTEntityImpl jsonConfig,
       OSecuritySystem security) {
     super.config(session, jsonConfig, security);
     tokenSign = security.getTokenSign();

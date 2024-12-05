@@ -2,7 +2,7 @@ package com.orientechnologies.orient.test.server.network.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -108,7 +108,7 @@ public class HttpGraphTest extends BaseHttpDatabaseTest {
     Assert.assertEquals(200, response.getCode());
 
     final String payload =
-        new YTDocument().field("command", "select from E").field("mode", "graph").toJSON();
+        new YTEntityImpl().field("command", "select from E").field("mode", "graph").toJSON();
     response =
         post("command/" + getDatabaseName() + "/sql/").payload(payload, CONTENT.JSON).getResponse();
 

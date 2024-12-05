@@ -9,12 +9,12 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODirtyManager;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,8 +43,8 @@ public class OMessageHelperTest {
     int id = db.getClusterIdByName("V");
     try {
       MockChannel channel = new MockChannel();
-      YTDocument doc = new YTDocument();
-      ORidBag bags = new ORidBag(db);
+      YTEntityImpl doc = new YTEntityImpl();
+      RidBag bags = new RidBag(db);
       bags.add(new YTRecordId(id, 0));
       doc.field("bag", bags);
 
@@ -56,13 +56,13 @@ public class OMessageHelperTest {
           channel, doc, ORecordSerializerNetworkFactory.INSTANCE.current());
       channel.close();
 
-      YTDocument newDoc =
-          (YTDocument)
+      YTEntityImpl newDoc =
+          (YTEntityImpl)
               OMessageHelper.readIdentifiable(db,
                   channel, ORecordSerializerNetworkFactory.INSTANCE.current());
 
       assertThat(newDoc.getClassName()).isEqualTo("Test");
-      assertThat((ORidBag) newDoc.field("bag")).hasSize(1);
+      assertThat((RidBag) newDoc.field("bag")).hasSize(1);
 
       ODirtyManager dirtyManager = ORecordInternal.getDirtyManager(newDoc);
       assertThat(dirtyManager.getNewRecords()).isNull();

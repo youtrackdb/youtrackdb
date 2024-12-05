@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexCandidate;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder;
@@ -65,7 +65,7 @@ public class OOrBlock extends OBooleanExpression {
     } else if (currentRecord instanceof YTIdentifiable) {
       return evaluate((YTIdentifiable) currentRecord, ctx);
     } else if (currentRecord instanceof Map) {
-      YTDocument doc = new YTDocument();
+      YTEntityImpl doc = new YTEntityImpl();
       doc.fromMap((Map<String, Object>) currentRecord);
       return evaluate(doc, ctx);
     }

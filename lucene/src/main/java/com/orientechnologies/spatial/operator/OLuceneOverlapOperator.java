@@ -18,7 +18,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializer;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 import com.orientechnologies.spatial.collections.OSpatialCompositeKey;
@@ -58,13 +58,13 @@ public class OLuceneOverlapOperator extends OLuceneSpatialOperator {
   @Override
   public Object evaluateRecord(
       YTIdentifiable iRecord,
-      YTDocument iCurrentResult,
+      YTEntityImpl iCurrentResult,
       OSQLFilterCondition iCondition,
       Object iLeft,
       Object iRight,
       OCommandContext iContext,
       final ODocumentSerializer serializer) {
-    Shape shape = factory.fromDoc((YTDocument) iLeft);
+    Shape shape = factory.fromDoc((YTEntityImpl) iLeft);
 
     // TODO { 'shape' : { 'type' : 'LineString' , 'coordinates' : [[1,2],[4,6]]} }
     // TODO is not translated in map but in array[ { 'type' : 'LineString' , 'coordinates' :

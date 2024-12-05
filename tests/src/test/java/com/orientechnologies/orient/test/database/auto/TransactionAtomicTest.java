@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.exception.YTTransactionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     YTDatabaseSessionInternal db1 = acquireSession();
     YTDatabaseSessionInternal db2 = acquireSession();
 
-    YTDocument record1 = new YTDocument();
+    YTEntityImpl record1 = new YTEntityImpl();
 
     db2.begin();
     record1
@@ -58,7 +58,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     // RE-READ THE RECORD
     db2.activateOnCurrentThread();
     db2.begin();
-    YTDocument record2 = db2.load(record1.getIdentity());
+    YTEntityImpl record2 = db2.load(record1.getIdentity());
 
     record2.field("value", "This is the second version").save();
     db2.commit();
@@ -82,7 +82,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
   @Test
   public void testMVCC() throws IOException {
 
-    YTDocument doc = new YTDocument("Account");
+    YTEntityImpl doc = new YTEntityImpl("Account");
     database.begin();
     doc.field("version", 0);
     doc.save();
@@ -104,7 +104,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
 
   @Test
   public void testTransactionPreListenerRollback() throws IOException {
-    YTDocument record1 = new YTDocument();
+    YTEntityImpl record1 = new YTEntityImpl();
 
     database.begin();
     record1
@@ -204,10 +204,12 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     try {
       database.begin();
 
-      YTDocument apple = new YTDocument("Fruit").field("name", "Apple").field("color", "Red");
-      YTDocument orange = new YTDocument("Fruit").field("name", "Orange").field("color", "Orange");
-      YTDocument banana = new YTDocument("Fruit").field("name", "Banana").field("color", "Yellow");
-      YTDocument kumquat = new YTDocument("Fruit").field("name", "Kumquat")
+      YTEntityImpl apple = new YTEntityImpl("Fruit").field("name", "Apple").field("color", "Red");
+      YTEntityImpl orange = new YTEntityImpl("Fruit").field("name", "Orange")
+          .field("color", "Orange");
+      YTEntityImpl banana = new YTEntityImpl("Fruit").field("name", "Banana")
+          .field("color", "Yellow");
+      YTEntityImpl kumquat = new YTEntityImpl("Fruit").field("name", "Kumquat")
           .field("color", "Orange");
 
       apple.save();

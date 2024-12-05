@@ -27,8 +27,8 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.record.RecordElement;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.exception.YTQueryParsingException;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
@@ -38,7 +38,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.query.OQueryRuntimeValueMulti;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OBinaryField;
@@ -83,7 +83,7 @@ public class OSQLFilterCondition {
 
   public Object evaluate(
       final YTIdentifiable iCurrentRecord,
-      final YTDocument iCurrentResult,
+      final YTEntityImpl iCurrentResult,
       final OCommandContext iContext) {
     var db = iContext.getDatabase();
     boolean binaryEvaluation =
@@ -412,7 +412,7 @@ public class OSQLFilterCondition {
 
   protected Object evaluate(
       YTIdentifiable iCurrentRecord,
-      final YTDocument iCurrentResult,
+      final YTEntityImpl iCurrentResult,
       final Object iValue,
       final OCommandContext iContext,
       final boolean binaryEvaluation) {
@@ -428,7 +428,7 @@ public class OSQLFilterCondition {
       if (iCurrentRecord != null) {
         iCurrentRecord = iCurrentRecord.getRecord();
         if (((YTRecordAbstract) iCurrentRecord).getInternalStatus()
-            == ORecordElement.STATUS.NOT_LOADED) {
+            == RecordElement.STATUS.NOT_LOADED) {
           var db = iContext.getDatabase();
           iCurrentRecord = db.bindToSession(iCurrentRecord);
         }
@@ -440,7 +440,7 @@ public class OSQLFilterCondition {
     if (binaryEvaluation
         && iValue instanceof OSQLFilterItemField
         && iCurrentRecord != null
-        && !((YTDocument) iCurrentRecord).isDirty()
+        && !((YTEntityImpl) iCurrentRecord).isDirty()
         && !iCurrentRecord.getIdentity().isTemporary()) {
       final OBinaryField bField = ((OSQLFilterItemField) iValue).getBinaryField(iCurrentRecord);
       if (bField != null) {

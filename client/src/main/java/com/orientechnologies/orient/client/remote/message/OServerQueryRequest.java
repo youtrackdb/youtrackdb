@@ -25,7 +25,7 @@ import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -61,7 +61,7 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
     namedParams = false;
     this.serializer = serializer;
     this.operationType = operationType;
-    YTDocument parms = new YTDocument();
+    YTEntityImpl parms = new YTEntityImpl();
     parms.field("params", this.params);
 
     paramsBytes = OMessageHelper.getRecordBytes(null, parms, serializer);
@@ -76,7 +76,7 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
     this.language = language;
     this.statement = iCommand;
     this.params = namedParams;
-    YTDocument parms = new YTDocument();
+    YTEntityImpl parms = new YTEntityImpl();
     parms.field("params", this.params);
 
     paramsBytes = OMessageHelper.getRecordBytes(null, parms, serializer);
@@ -149,7 +149,7 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
   public Map<String, Object> getParams() {
     if (params == null && this.paramsBytes != null) {
       // params
-      YTDocument paramsDoc = new YTDocument();
+      YTEntityImpl paramsDoc = new YTEntityImpl();
       paramsDoc.setTrackingChanges(false);
       serializer.fromStream(null, this.paramsBytes, paramsDoc, null);
       this.params = paramsDoc.field("params");

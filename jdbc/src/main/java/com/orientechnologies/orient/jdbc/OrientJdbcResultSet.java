@@ -15,14 +15,14 @@ package com.orientechnologies.orient.jdbc;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OList;
+import com.orientechnologies.orient.core.db.record.LinkList;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
@@ -420,7 +420,7 @@ public class OrientJdbcResultSet implements ResultSet {
       if (value instanceof YTBlob) {
         lastReadWasNull = false;
         return new OrientBlob((YTBlob) value);
-      } else if (value instanceof OList list) {
+      } else if (value instanceof LinkList list) {
         // check if all the list items are instances of YTRecordBytes
         ListIterator<YTIdentifiable> iterator = list.listIterator();
 
@@ -1241,7 +1241,7 @@ public class OrientJdbcResultSet implements ResultSet {
   }
 
   public boolean isWrapperFor(Class<?> iface) throws SQLException {
-    return YTDocument.class.isAssignableFrom(iface);
+    return YTEntityImpl.class.isAssignableFrom(iface);
   }
 
   public <T> T unwrap(Class<T> iface) throws SQLException {

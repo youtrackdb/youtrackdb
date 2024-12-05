@@ -99,7 +99,7 @@ public class OCommandExecutorSQLCreateFunction extends OCommandExecutorSQLAbstra
   }
 
   /**
-   * Execute the command and return the YTDocument object created.
+   * Execute the command and return the YTEntityImpl object created.
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (name == null) {

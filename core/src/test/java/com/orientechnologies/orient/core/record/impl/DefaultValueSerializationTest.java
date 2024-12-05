@@ -20,10 +20,10 @@ public class DefaultValueSerializationTest extends DBTestBase {
     YTProperty prop = classA.createProperty(db, "name", YTType.STRING);
     prop.setDefaultValue(db, "uuid()");
 
-    YTDocument doc = new YTDocument("ClassC");
+    YTEntityImpl doc = new YTEntityImpl("ClassC");
 
     byte[] val = doc.toStream();
-    YTDocument doc1 = new YTDocument();
+    YTEntityImpl doc1 = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc1);
     doc1.fromStream(val);
     doc1.deserializeFields();

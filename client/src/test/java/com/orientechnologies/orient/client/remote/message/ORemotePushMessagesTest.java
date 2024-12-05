@@ -13,7 +13,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ public class ORemotePushMessagesTest extends DBTestBase {
     var session = (YTDatabaseSessionInternal) youTrackDB.open("test", "admin", "admin");
 
     session.begin();
-    YTDocument schema =
+    YTEntityImpl schema =
         session.getSharedContext().getSchema().toStream(session).copy();
     session.commit();
 
@@ -74,7 +74,7 @@ public class ORemotePushMessagesTest extends DBTestBase {
           "create database test memory users (admin identified by 'admin' role admin)");
       try (YTDatabaseSession session = youTrackDB.open("test", "admin", "admin")) {
         session.begin();
-        YTDocument schema =
+        YTEntityImpl schema =
             ((YTDatabaseSessionInternal) session).getSharedContext().getIndexManager()
                 .toStream((YTDatabaseSessionInternal) session);
 

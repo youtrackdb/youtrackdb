@@ -4,7 +4,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -57,7 +57,7 @@ public class YTPropertyIndexDefinitionTest extends DBTestBase {
 
   @Test
   public void testGetDocumentValueToIndex() {
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
     document.field("fOne", "15");
     document.field("fTwo", 10);
@@ -88,11 +88,11 @@ public class YTPropertyIndexDefinitionTest extends DBTestBase {
     propertyIndex = new OPropertyIndexDefinition("tesClass", "fOne", YTType.INTEGER);
 
     database.begin();
-    final YTDocument docToStore = propertyIndex.toStream(new YTDocument());
+    final YTEntityImpl docToStore = propertyIndex.toStream(new YTEntityImpl());
     database.save(docToStore, database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final YTDocument docToLoad = database.load(docToStore.getIdentity());
+    final YTEntityImpl docToLoad = database.load(docToStore.getIdentity());
 
     final OPropertyIndexDefinition result = new OPropertyIndexDefinition();
     result.fromStream(docToLoad);
@@ -103,7 +103,7 @@ public class YTPropertyIndexDefinitionTest extends DBTestBase {
 
   @Test
   public void testIndexReload() {
-    final YTDocument docToStore = propertyIndex.toStream(new YTDocument());
+    final YTEntityImpl docToStore = propertyIndex.toStream(new YTEntityImpl());
 
     final OPropertyIndexDefinition result = new OPropertyIndexDefinition();
     result.fromStream(docToStore);

@@ -37,7 +37,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper.ODbRelatedCall;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
@@ -775,10 +775,10 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
             recordsCounter++;
 
             databaseOne.activateOnCurrentThread();
-            @SuppressWarnings("ObjectAllocationInLoop") final YTDocument doc1 = new YTDocument();
+            @SuppressWarnings("ObjectAllocationInLoop") final YTEntityImpl doc1 = new YTEntityImpl();
             databaseTwo.activateOnCurrentThread();
 
-            @SuppressWarnings("ObjectAllocationInLoop") final YTDocument doc2 = new YTDocument();
+            @SuppressWarnings("ObjectAllocationInLoop") final YTEntityImpl doc2 = new YTEntityImpl();
 
             final long position = physicalPosition.clusterPosition;
             rid1.setClusterPosition(position);
@@ -869,7 +869,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
                         ++differences;
 
                       } else {
-                        if (buffer1.recordType == YTDocument.RECORD_TYPE) {
+                        if (buffer1.recordType == YTEntityImpl.RECORD_TYPE) {
                           // DOCUMENT: TRY TO INSTANTIATE AND COMPARE
 
                           makeDbCall(
@@ -939,10 +939,10 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
                                       + " <-> "
                                       + buffer2.buffer.length);
 
-                              if (buffer1.recordType == YTDocument.RECORD_TYPE) {
+                              if (buffer1.recordType == YTEntityImpl.RECORD_TYPE) {
                                 listener.onMessage("\n--- REC1: " + rec1);
                               }
-                              if (buffer2.recordType == YTDocument.RECORD_TYPE) {
+                              if (buffer2.recordType == YTEntityImpl.RECORD_TYPE) {
                                 listener.onMessage("\n--- REC2: " + rec2);
                               }
                               listener.onMessage("\n");
@@ -1049,10 +1049,10 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
     this.autoDetectExportImportMap = autoDetectExportImportMap;
   }
 
-  private static void convertSchemaDoc(final YTDocument document) {
+  private static void convertSchemaDoc(final YTEntityImpl document) {
     if (document.field("classes") != null) {
       document.setFieldType("classes", YTType.EMBEDDEDSET);
-      for (YTDocument classDoc : document.<Set<YTDocument>>field("classes")) {
+      for (YTEntityImpl classDoc : document.<Set<YTEntityImpl>>field("classes")) {
         classDoc.setFieldType("properties", YTType.EMBEDDEDSET);
       }
     }

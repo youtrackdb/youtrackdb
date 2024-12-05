@@ -8,7 +8,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.document.YTDatabaseSessionAbstract;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializationDebug;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerBinary;
@@ -35,7 +35,7 @@ public class YTRecordSerializerBinaryDebugTest extends DBTestBase {
   @Test
   public void testSimpleDocumentDebug() {
 
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.field("test", "test");
     doc.field("anInt", 2);
     doc.field("anDouble", 2D);
@@ -64,7 +64,7 @@ public class YTRecordSerializerBinaryDebugTest extends DBTestBase {
     YTClass clazz = db.getMetadata().getSchema().createClass("some");
     clazz.createProperty(db, "testP", YTType.STRING);
     clazz.createProperty(db, "theInt", YTType.INTEGER);
-    YTDocument doc = new YTDocument("some");
+    YTEntityImpl doc = new YTEntityImpl("some");
     doc.field("testP", "test");
     doc.field("theInt", 2);
     doc.field("anDouble", 2D);
@@ -90,7 +90,7 @@ public class YTRecordSerializerBinaryDebugTest extends DBTestBase {
 
   @Test
   public void testSimpleBrokenDocumentDebug() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.field("test", "test");
     doc.field("anInt", 2);
     doc.field("anDouble", 2D);
@@ -124,7 +124,7 @@ public class YTRecordSerializerBinaryDebugTest extends DBTestBase {
     YTClass clazz = db.getMetadata().getSchema().createClass("some");
     clazz.createProperty(db, "testP", YTType.STRING);
     clazz.createProperty(db, "theInt", YTType.INTEGER);
-    YTDocument doc = new YTDocument("some");
+    YTEntityImpl doc = new YTEntityImpl("some");
     doc.field("testP", "test");
     doc.field("theInt", 2);
     doc.field("anDouble", 2D);

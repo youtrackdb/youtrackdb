@@ -19,7 +19,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey;
@@ -74,8 +74,8 @@ public class OLuceneSpatialIndex extends OLuceneIndexNotUnique {
   @Override
   protected Object encodeKey(Object key) {
 
-    if (key instanceof YTDocument) {
-      Shape shape = shapeFactory.fromDoc((YTDocument) key);
+    if (key instanceof YTEntityImpl) {
+      Shape shape = shapeFactory.fromDoc((YTEntityImpl) key);
       return shapeFactory.toGeometry(shape);
     }
     return key;

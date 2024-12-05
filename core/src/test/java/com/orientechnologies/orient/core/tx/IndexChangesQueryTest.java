@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -57,11 +57,11 @@ public class IndexChangesQueryTest {
     final OIndex index =
         database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX_NAME);
 
-    YTDocument doc = new YTDocument(CLASS_NAME);
+    YTEntityImpl doc = new YTEntityImpl(CLASS_NAME);
     doc.field(FIELD_NAME, 1);
     doc.save();
 
-    YTDocument doc1 = new YTDocument(CLASS_NAME);
+    YTEntityImpl doc1 = new YTEntityImpl(CLASS_NAME);
     doc1.field(FIELD_NAME, 2);
     doc1.save();
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX_NAME));
@@ -86,15 +86,15 @@ public class IndexChangesQueryTest {
   public void testClearAndPut() {
     database.begin();
 
-    YTDocument doc1 = new YTDocument(CLASS_NAME);
+    YTEntityImpl doc1 = new YTEntityImpl(CLASS_NAME);
     doc1.field(FIELD_NAME, 1);
     doc1.save();
 
-    YTDocument doc2 = new YTDocument(CLASS_NAME);
+    YTEntityImpl doc2 = new YTEntityImpl(CLASS_NAME);
     doc2.field(FIELD_NAME, 1);
     doc2.save();
 
-    YTDocument doc3 = new YTDocument(CLASS_NAME);
+    YTEntityImpl doc3 = new YTEntityImpl(CLASS_NAME);
     doc3.field(FIELD_NAME, 2);
     doc3.save();
 
@@ -117,11 +117,11 @@ public class IndexChangesQueryTest {
     doc2.delete();
     doc3.delete();
 
-    doc3 = new YTDocument(CLASS_NAME);
+    doc3 = new YTEntityImpl(CLASS_NAME);
     doc3.field(FIELD_NAME, 1);
     doc3.save();
 
-    YTDocument doc = new YTDocument(CLASS_NAME);
+    YTEntityImpl doc = new YTEntityImpl(CLASS_NAME);
     doc.field(FIELD_NAME, 2);
     doc.save();
 

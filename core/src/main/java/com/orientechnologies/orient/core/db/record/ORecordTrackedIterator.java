@@ -27,10 +27,10 @@ import java.util.Iterator;
  */
 public class ORecordTrackedIterator implements Iterator<YTIdentifiable> {
 
-  private final ORecordElement sourceRecord;
+  private final RecordElement sourceRecord;
   private final Iterator<?> underlying;
 
-  public ORecordTrackedIterator(final ORecordElement iSourceRecord, final Iterator<?> iIterator) {
+  public ORecordTrackedIterator(final RecordElement iSourceRecord, final Iterator<?> iIterator) {
     this.sourceRecord = iSourceRecord;
     this.underlying = iIterator;
   }

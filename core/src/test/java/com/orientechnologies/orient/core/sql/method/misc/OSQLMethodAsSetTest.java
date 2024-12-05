@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.method.misc;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -99,8 +99,8 @@ public class OSQLMethodAsSetTest extends DBTestBase {
   @Test
   public void testODocument() {
     // The expected behavior is to return a set with only the single
-    // YTDocument in it.
-    YTDocument doc = new YTDocument();
+    // YTEntityImpl in it.
+    YTEntityImpl doc = new YTEntityImpl();
     doc.field("f1", 1);
     doc.field("f2", 2);
 

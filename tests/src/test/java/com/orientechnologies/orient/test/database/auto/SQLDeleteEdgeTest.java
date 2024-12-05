@@ -2,7 +2,7 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
@@ -34,7 +34,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.commit();
 
     List<YTIdentifiable> result =
-        database.query(new OSQLSynchQuery<YTDocument>("select from testFromToV"));
+        database.query(new OSQLSynchQuery<YTEntityImpl>("select from testFromToV"));
 
     database.begin();
     database
@@ -88,7 +88,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.commit();
 
     List<YTIdentifiable> result =
-        database.query(new OSQLSynchQuery<YTDocument>("select from testFromV"));
+        database.query(new OSQLSynchQuery<YTEntityImpl>("select from testFromV"));
 
     database.begin();
     database
@@ -143,7 +143,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.commit();
 
     List<YTIdentifiable> result =
-        database.query(new OSQLSynchQuery<YTDocument>("select from testToV"));
+        database.query(new OSQLSynchQuery<YTEntityImpl>("select from testToV"));
 
     database.begin();
     database

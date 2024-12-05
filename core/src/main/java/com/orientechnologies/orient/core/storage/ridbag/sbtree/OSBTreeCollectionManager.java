@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.core.storage.ridbag.sbtree;
 
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OSBTreeBonsai;
 import java.io.IOException;
@@ -42,7 +42,7 @@ public interface OSBTreeCollectionManager {
 
   void delete(OBonsaiCollectionPointer collectionPointer);
 
-  UUID listenForChanges(ORidBag collection);
+  UUID listenForChanges(RidBag collection);
 
   void updateCollectionPointer(UUID uuid, OBonsaiCollectionPointer pointer);
 

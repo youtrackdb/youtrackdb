@@ -19,7 +19,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.List;
 import org.locationtech.jts.geom.Geometry;
@@ -59,7 +59,7 @@ public class OPointShapeBuilder extends OShapeBuilder<Point> {
   }
 
   @Override
-  public Point fromDoc(YTDocument document) {
+  public Point fromDoc(YTEntityImpl document) {
     validate(document);
     List<Number> coordinates = document.field(COORDINATES);
     if (coordinates.size() == 2) {
@@ -74,9 +74,9 @@ public class OPointShapeBuilder extends OShapeBuilder<Point> {
   }
 
   @Override
-  public YTDocument toDoc(final Point shape) {
+  public YTEntityImpl toDoc(final Point shape) {
 
-    YTDocument doc = new YTDocument(NAME);
+    YTEntityImpl doc = new YTEntityImpl(NAME);
     doc.field(
         COORDINATES,
         new ArrayList<Double>() {
@@ -89,12 +89,12 @@ public class OPointShapeBuilder extends OShapeBuilder<Point> {
   }
 
   @Override
-  protected YTDocument toDoc(Point parsed, Geometry geometry) {
+  protected YTEntityImpl toDoc(Point parsed, Geometry geometry) {
     if (geometry == null || Double.isNaN(geometry.getCoordinate().getZ())) {
       return toDoc(parsed);
     }
 
-    YTDocument doc = new YTDocument(NAME + "Z");
+    YTEntityImpl doc = new YTEntityImpl(NAME + "Z");
     doc.field(
         COORDINATES,
         new ArrayList<Double>() {
@@ -108,7 +108,7 @@ public class OPointShapeBuilder extends OShapeBuilder<Point> {
   }
 
   @Override
-  public String asText(YTDocument document) {
+  public String asText(YTEntityImpl document) {
     if (document.getClassName().equals("OPointZ")) {
       List<Double> coordinates = document.getProperty("coordinates");
       return "POINT Z ("

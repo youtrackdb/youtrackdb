@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.exception.YTConfigurationException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import java.io.File;
@@ -106,7 +106,7 @@ public class AutomaticBackupTest {
 
     database.createClass("TestBackup");
     database.begin();
-    new YTDocument("TestBackup").field("name", DBNAME).save();
+    new YTEntityImpl("TestBackup").field("name", DBNAME).save();
     database.commit();
   }
 
@@ -131,7 +131,7 @@ public class AutomaticBackupTest {
     String jsonConfig =
         OIOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
 
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON(jsonConfig);
 
     doc.field("enabled", true);
@@ -180,7 +180,7 @@ public class AutomaticBackupTest {
     String jsonConfig =
         OIOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
 
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON(jsonConfig);
 
     doc.field("enabled", true);
@@ -263,7 +263,7 @@ public class AutomaticBackupTest {
     String jsonConfig =
         OIOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
 
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON(jsonConfig);
 
     doc.field("enabled", false);

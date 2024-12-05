@@ -31,7 +31,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTRetryQueryException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -60,7 +60,7 @@ public class OFunction extends ODocumentWrapper {
    *
    * @param iDocument Document to assign
    */
-  public OFunction(final YTDocument iDocument) {
+  public OFunction(final YTEntityImpl iDocument) {
     super(iDocument);
   }
 

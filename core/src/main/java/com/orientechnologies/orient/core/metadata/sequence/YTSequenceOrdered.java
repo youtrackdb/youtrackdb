@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.metadata.sequence;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 
 /**
  * @see YTSequenceCached
@@ -30,7 +30,7 @@ import com.orientechnologies.orient.core.record.impl.YTDocument;
  */
 public class YTSequenceOrdered extends YTSequence {
 
-  public YTSequenceOrdered(final YTDocument document) {
+  public YTSequenceOrdered(final YTEntityImpl document) {
     super(document);
   }
 

@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OMap;
+import com.orientechnologies.orient.core.db.record.LinkMap;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OCluster;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
@@ -177,8 +177,8 @@ public class FindReferencesStep extends AbstractExecutionStep {
       final YTRecord iRootObject,
       String prefix) {
     final Iterator<?> it;
-    if (values instanceof OMap) {
-      it = ((OMap) values).rawIterator();
+    if (values instanceof LinkMap) {
+      it = ((LinkMap) values).rawIterator();
     } else {
       it = values.values().iterator();
     }
@@ -197,9 +197,9 @@ public class FindReferencesStep extends AbstractExecutionStep {
     List<String> result = new ArrayList<>();
     if (iSourceRIDs.contains(value.getIdentity())) {
       result.add(prefix);
-    } else if (!value.getIdentity().isValid() && value.getRecord() instanceof YTDocument) {
+    } else if (!value.getIdentity().isValid() && value.getRecord() instanceof YTEntityImpl) {
       // embedded document
-      YTDocument doc = value.getRecord();
+      YTEntityImpl doc = value.getRecord();
       for (String fieldName : doc.fieldNames()) {
         Object fieldValue = doc.field(fieldName);
         result.addAll(checkObject(iSourceRIDs, fieldValue, iRootObject, prefix + "." + fieldName));

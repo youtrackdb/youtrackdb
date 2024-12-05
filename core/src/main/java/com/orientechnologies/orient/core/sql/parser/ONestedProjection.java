@@ -5,7 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
@@ -308,9 +308,9 @@ public class ONestedProjection extends SimpleNode {
   }
 
   private Object convert(Object value) {
-    if (value instanceof ORidBag) {
+    if (value instanceof RidBag) {
       List result = new ArrayList();
-      ((ORidBag) value).forEach(x -> result.add(x));
+      ((RidBag) value).forEach(x -> result.add(x));
       return result;
     }
     return value;

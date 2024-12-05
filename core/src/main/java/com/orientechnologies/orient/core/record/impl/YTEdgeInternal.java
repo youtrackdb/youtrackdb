@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 public interface YTEdgeInternal extends YTEdge, YTEntityInternal {
 
   @Nullable
-  YTDocument getBaseDocument();
+  YTEntityImpl getBaseDocument();
 
   @Override
   default Set<String> getPropertyNames() {

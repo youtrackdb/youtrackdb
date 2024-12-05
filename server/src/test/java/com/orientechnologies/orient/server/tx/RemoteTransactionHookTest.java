@@ -10,7 +10,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.hook.YTDocumentHookAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerHookConfiguration;
@@ -78,7 +78,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
     db.registerHook(calls);
 
     db.begin();
-    YTDocument doc = new YTDocument("SomeTx");
+    YTEntityImpl doc = new YTEntityImpl("SomeTx");
     doc.setProperty("name", "some");
     db.save(doc);
     db.command("insert into SomeTx set name='aa' ").close();
@@ -106,7 +106,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
     database.registerHook(calls);
     database.createClassIfNotExist("SomeTx");
     database.begin();
-    YTDocument doc = new YTDocument("SomeTx");
+    YTEntityImpl doc = new YTEntityImpl("SomeTx");
     doc.setProperty("name", "some");
     database.save(doc);
     database.command("insert into SomeTx set name='aa' ").close();
@@ -132,7 +132,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
   public void testCalledInTxServer() {
     db.begin();
     CountCallHookServer calls = CountCallHookServer.instance;
-    YTDocument doc = new YTDocument("SomeTx");
+    YTEntityImpl doc = new YTEntityImpl("SomeTx");
     doc.setProperty("name", "some");
     db.save(doc);
     db.command("insert into SomeTx set name='aa' ").close();
@@ -178,35 +178,35 @@ public class RemoteTransactionHookTest extends DBTestBase {
     }
 
     @Override
-    public RESULT onRecordBeforeCreate(YTDocument iDocument) {
+    public RESULT onRecordBeforeCreate(YTEntityImpl iDocument) {
       beforeCreate++;
       return RESULT.RECORD_NOT_CHANGED;
     }
 
     @Override
-    public void onRecordAfterCreate(YTDocument iDocument) {
+    public void onRecordAfterCreate(YTEntityImpl iDocument) {
       afterCreate++;
     }
 
     @Override
-    public RESULT onRecordBeforeUpdate(YTDocument iDocument) {
+    public RESULT onRecordBeforeUpdate(YTEntityImpl iDocument) {
       beforeUpdate++;
       return RESULT.RECORD_NOT_CHANGED;
     }
 
     @Override
-    public void onRecordAfterUpdate(YTDocument iDocument) {
+    public void onRecordAfterUpdate(YTEntityImpl iDocument) {
       afterUpdate++;
     }
 
     @Override
-    public RESULT onRecordBeforeDelete(YTDocument iDocument) {
+    public RESULT onRecordBeforeDelete(YTEntityImpl iDocument) {
       beforeDelete++;
       return RESULT.RECORD_NOT_CHANGED;
     }
 
     @Override
-    public void onRecordAfterDelete(YTDocument iDocument) {
+    public void onRecordAfterDelete(YTEntityImpl iDocument) {
       afterDelete++;
     }
 

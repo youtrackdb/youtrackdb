@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.db.record.impl;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -21,8 +21,8 @@ public class DirtyManagerReferenceCleanTest extends DBTestBase {
   @Test
   public void testReferDeletedDocument() {
     db.begin();
-    YTDocument doc = new YTDocument();
-    YTDocument doc1 = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
+    YTEntityImpl doc1 = new YTEntityImpl();
     doc1.field("aa", "aa");
     doc.field("ref", doc1);
     doc.field("bb");

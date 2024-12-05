@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.util.ODateHelper;
@@ -44,12 +44,12 @@ public class DateTest extends DocumentDBBaseTest {
 
     database.createClass("Order");
     database.begin();
-    YTDocument doc1 = new YTDocument("Order");
+    YTEntityImpl doc1 = new YTEntityImpl("Order");
     doc1.field("context", "test");
     doc1.field("date", new Date());
     doc1.save();
 
-    YTDocument doc2 = new YTDocument("Order");
+    YTEntityImpl doc2 = new YTEntityImpl("Order");
     doc2.field("context", "test");
     doc2.field("date", System.currentTimeMillis());
     doc2.save();
@@ -75,7 +75,7 @@ public class DateTest extends DocumentDBBaseTest {
         database.getStorage().getConfiguration().getDateFormatInstance().format(begin);
 
     database.begin();
-    YTDocument doc = new YTDocument("Order");
+    YTEntityImpl doc = new YTEntityImpl("Order");
     doc.field("context", "testPrecision");
     doc.field("date", ODateHelper.now(), YTType.DATETIME);
     doc.save();
@@ -93,7 +93,7 @@ public class DateTest extends DocumentDBBaseTest {
 
   @Test
   public void testDateTypes() throws ParseException {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.field("context", "test");
     doc.field("date", System.currentTimeMillis(), YTType.DATE);
 

@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -121,20 +121,20 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
 
     db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
 
-    YTDocument rome = newCity("Rome", 12.5, 41.9);
+    YTEntityImpl rome = newCity("Rome", 12.5, 41.9);
 
     db.begin();
     db.save(rome);
     db.commit();
   }
 
-  protected YTDocument newCity(String name, final Double longitude, final Double latitude) {
-    YTDocument city =
-        new YTDocument("City")
+  protected YTEntityImpl newCity(String name, final Double longitude, final Double latitude) {
+    YTEntityImpl city =
+        new YTEntityImpl("City")
             .field("name", name)
             .field(
                 "location",
-                new YTDocument("OPoint")
+                new YTEntityImpl("OPoint")
                     .field(
                         "coordinates",
                         new ArrayList<Double>() {
@@ -175,8 +175,8 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
         OIOUtils.readStreamAsString(
             getClass().getClassLoader().getResourceAsStream("automatic-backup.json"));
 
-    YTDocument doc =
-        new YTDocument();
+    YTEntityImpl doc =
+        new YTEntityImpl();
     doc.fromJSON(jsonConfig);
     doc.field("enabled", true)
         .field("targetFileName", "${DBNAME}.json")

@@ -39,7 +39,7 @@ import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.security.OSecurityManager;
 import java.util.List;
 import java.util.Map;
@@ -136,7 +136,7 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
   @Override
   public YTIdentifiable allowUser(
       YTDatabaseSession session,
-      YTDocument iDocument,
+      YTEntityImpl iDocument,
       ORestrictedOperation iOperationType,
       String iUserName) {
     return delegate.allowUser(session, iDocument, iOperationType, iUserName);
@@ -145,7 +145,7 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
   @Override
   public YTIdentifiable allowRole(
       YTDatabaseSession session,
-      YTDocument iDocument,
+      YTEntityImpl iDocument,
       ORestrictedOperation iOperationType,
       String iRoleName) {
     return delegate.allowRole(session, iDocument, iOperationType, iRoleName);
@@ -154,7 +154,7 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
   @Override
   public YTIdentifiable denyUser(
       YTDatabaseSessionInternal session,
-      YTDocument iDocument,
+      YTEntityImpl iDocument,
       ORestrictedOperation iOperationType,
       String iUserName) {
     return delegate.denyUser(session, iDocument, iOperationType, iUserName);
@@ -163,7 +163,7 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
   @Override
   public YTIdentifiable denyRole(
       YTDatabaseSessionInternal session,
-      YTDocument iDocument,
+      YTEntityImpl iDocument,
       ORestrictedOperation iOperationType,
       String iRoleName) {
     return delegate.denyRole(session, iDocument, iOperationType, iRoleName);
@@ -171,13 +171,14 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
 
   @Override
   public YTIdentifiable allowIdentity(
-      YTDatabaseSession session, YTDocument iDocument, String iAllowFieldName, YTIdentifiable iId) {
+      YTDatabaseSession session, YTEntityImpl iDocument, String iAllowFieldName,
+      YTIdentifiable iId) {
     return delegate.allowIdentity(session, iDocument, iAllowFieldName, iId);
   }
 
   @Override
   public YTIdentifiable disallowIdentity(
-      YTDatabaseSessionInternal session, YTDocument iDocument, String iAllowFieldName,
+      YTDatabaseSessionInternal session, YTEntityImpl iDocument, String iAllowFieldName,
       YTIdentifiable iId) {
     return delegate.disallowIdentity(session, iDocument, iAllowFieldName, iId);
   }
@@ -241,11 +242,11 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
     return delegate.createRole(session, iRoleName, iParent, iAllowMode);
   }
 
-  public List<YTDocument> getAllUsers(YTDatabaseSession session) {
+  public List<YTEntityImpl> getAllUsers(YTDatabaseSession session) {
     return delegate.getAllUsers(session);
   }
 
-  public List<YTDocument> getAllRoles(YTDatabaseSession session) {
+  public List<YTEntityImpl> getAllRoles(YTDatabaseSession session) {
     return delegate.getAllRoles(session);
   }
 
@@ -320,12 +321,13 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
   }
 
   @Override
-  public Set<String> getFilteredProperties(YTDatabaseSessionInternal session, YTDocument document) {
+  public Set<String> getFilteredProperties(YTDatabaseSessionInternal session,
+      YTEntityImpl document) {
     return delegate.getFilteredProperties(session, document);
   }
 
   @Override
-  public boolean isAllowedWrite(YTDatabaseSessionInternal session, YTDocument document,
+  public boolean isAllowedWrite(YTDatabaseSessionInternal session, YTEntityImpl document,
       String propertyName) {
     return delegate.isAllowedWrite(session, document, propertyName);
   }

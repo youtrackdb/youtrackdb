@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import java.util.Collection;
@@ -60,7 +60,7 @@ public class OLuceneInsertDeleteTest extends OLuceneBaseTest {
     db.getMetadata().reload();
     YTSchema schema = db.getMetadata().getSchema();
 
-    YTDocument doc = new YTDocument("City");
+    YTEntityImpl doc = new YTEntityImpl("City");
     doc.field("name", "Rome");
 
     db.begin();

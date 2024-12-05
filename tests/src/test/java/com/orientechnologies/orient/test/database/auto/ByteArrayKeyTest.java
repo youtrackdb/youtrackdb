@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -54,7 +54,7 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
         };
 
     database.begin();
-    YTDocument doc1 = new YTDocument("ByteArrayKeyTest");
+    YTEntityImpl doc1 = new YTEntityImpl("ByteArrayKeyTest");
     doc1.field("byteArrayKey", key1);
     doc1.save();
 
@@ -64,7 +64,7 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
             9,
             0, 2
         };
-    YTDocument doc2 = new YTDocument("ByteArrayKeyTest");
+    YTEntityImpl doc2 = new YTEntityImpl("ByteArrayKeyTest");
     doc2.field("byteArrayKey", key2);
     doc2.save();
     database.commit();
@@ -86,12 +86,12 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
     byte[] key2 = new byte[]{4, 5, 6};
 
     database.begin();
-    YTDocument doc1 = new YTDocument("CompositeByteArrayKeyTest");
+    YTEntityImpl doc1 = new YTEntityImpl("CompositeByteArrayKeyTest");
     doc1.field("byteArrayKey", key1);
     doc1.field("intKey", 1);
     doc1.save();
 
-    YTDocument doc2 = new YTDocument("CompositeByteArrayKeyTest");
+    YTEntityImpl doc2 = new YTEntityImpl("CompositeByteArrayKeyTest");
     doc2.field("byteArrayKey", key2);
     doc2.field("intKey", 2);
     doc2.save();
@@ -117,12 +117,12 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
     byte[] key2 = new byte[]{10, 11, 12};
 
     database.begin();
-    YTDocument doc1 = new YTDocument("CompositeByteArrayKeyTest");
+    YTEntityImpl doc1 = new YTEntityImpl("CompositeByteArrayKeyTest");
     doc1.field("byteArrayKey", key1);
     doc1.field("intKey", 1);
     doc1.save();
 
-    YTDocument doc2 = new YTDocument("CompositeByteArrayKeyTest");
+    YTEntityImpl doc2 = new YTEntityImpl("CompositeByteArrayKeyTest");
     doc2.field("byteArrayKey", key2);
     doc2.field("intKey", 2);
     doc2.save();

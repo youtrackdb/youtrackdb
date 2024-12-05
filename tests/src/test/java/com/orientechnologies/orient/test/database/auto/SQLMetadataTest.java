@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.exception.YTQueryParsingException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import org.testng.Assert;
@@ -36,9 +36,10 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
 
   @Test
   public void querySchemaClasses() {
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database
-            .command(new OSQLSynchQuery<YTDocument>("select expand(classes) from metadata:schema"))
+            .command(
+                new OSQLSynchQuery<YTEntityImpl>("select expand(classes) from metadata:schema"))
             .execute(database);
 
     Assert.assertTrue(result.size() != 0);
@@ -46,10 +47,10 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
 
   @Test
   public void querySchemaProperties() {
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "select expand(properties) from (select expand(classes) from metadata:schema)"
                         + " where name = 'OUser'"))
             .execute(database);
@@ -59,10 +60,11 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
 
   @Test
   public void queryIndexes() {
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTDocument>("select expand(indexes) from metadata:indexmanager"))
+                new OSQLSynchQuery<YTEntityImpl>(
+                    "select expand(indexes) from metadata:indexmanager"))
             .execute(database);
 
     Assert.assertTrue(result.size() != 0);
@@ -72,7 +74,7 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
   public void queryMetadataNotSupported() {
     try {
       database
-          .command(new OSQLSynchQuery<YTDocument>("select expand(indexes) from metadata:blaaa"))
+          .command(new OSQLSynchQuery<YTEntityImpl>("select expand(indexes) from metadata:blaaa"))
           .execute(database);
       Assert.fail();
     } catch (YTQueryParsingException e) {

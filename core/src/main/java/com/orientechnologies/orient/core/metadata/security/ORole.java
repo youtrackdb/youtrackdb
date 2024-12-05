@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.security.ORule.ResourceGeneric;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.io.Serial;
 import java.util.HashMap;
@@ -113,7 +113,7 @@ public class ORole extends OIdentity implements OSecurityRole {
   /**
    * Create the role by reading the source document.
    */
-  public ORole(YTDatabaseSession session, final YTDocument iSource) {
+  public ORole(YTDatabaseSession session, final YTEntityImpl iSource) {
     fromStream((YTDatabaseSessionInternal) session, iSource);
   }
 
@@ -166,7 +166,7 @@ public class ORole extends OIdentity implements OSecurityRole {
   }
 
   @Override
-  public void fromStream(YTDatabaseSessionInternal session, final YTDocument iSource) {
+  public void fromStream(YTDatabaseSessionInternal session, final YTEntityImpl iSource) {
     if (getDocument(session) != null) {
       return;
     }
@@ -198,9 +198,9 @@ public class ORole extends OIdentity implements OSecurityRole {
     if (loadedRules instanceof Map) {
       loadOldVersionOfRules((Map<String, Number>) loadedRules);
     } else {
-      final Set<YTDocument> storedRules = (Set<YTDocument>) loadedRules;
+      final Set<YTEntityImpl> storedRules = (Set<YTEntityImpl>) loadedRules;
       if (storedRules != null) {
-        for (YTDocument ruleDoc : storedRules) {
+        for (YTEntityImpl ruleDoc : storedRules) {
           final ORule.ResourceGeneric resourceGeneric =
               ORule.ResourceGeneric.valueOf(ruleDoc.field("resourceGeneric"));
           if (resourceGeneric == null) {

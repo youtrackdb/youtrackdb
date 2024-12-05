@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.hook.YTRecordHook;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.config.OServerHookConfiguration;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -132,7 +132,7 @@ public class OConfigurableHooksManager implements ODatabaseLifecycleListener {
   }
 
   @Override
-  public void onLocalNodeConfigurationRequest(YTDocument iConfiguration) {
+  public void onLocalNodeConfigurationRequest(YTEntityImpl iConfiguration) {
   }
 
   public String getName() {

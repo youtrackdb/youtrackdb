@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexDefinitionMultiValue;
 import com.orientechnologies.orient.core.index.OIndexInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OSQLHelper;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemField;
@@ -77,8 +77,8 @@ public class OQueryOperatorIs extends OQueryOperatorEquality {
   }
 
   protected boolean evaluateDefined(final YTIdentifiable iRecord, final String iFieldName) {
-    if (iRecord instanceof YTDocument) {
-      return ((YTDocument) iRecord).containsField(iFieldName);
+    if (iRecord instanceof YTEntityImpl) {
+      return ((YTEntityImpl) iRecord).containsField(iFieldName);
     }
     return false;
   }

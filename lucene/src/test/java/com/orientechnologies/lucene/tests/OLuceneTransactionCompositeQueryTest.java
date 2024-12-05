@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import java.util.Collection;
@@ -54,7 +54,7 @@ public class OLuceneTransactionCompositeQueryTest extends OLuceneBaseTest {
   @Test
   public void testRollback() {
 
-    YTDocument doc = new YTDocument("Foo");
+    YTEntityImpl doc = new YTEntityImpl("Foo");
     doc.field("name", "Test");
     doc.field("bar", "abc");
     db.begin();
@@ -77,7 +77,7 @@ public class OLuceneTransactionCompositeQueryTest extends OLuceneBaseTest {
   public void txRemoveTest() {
     db.begin();
 
-    YTDocument doc = new YTDocument("Foo");
+    YTEntityImpl doc = new YTEntityImpl("Foo");
     doc.field("name", "Test");
     doc.field("bar", "abc");
 
@@ -132,7 +132,7 @@ public class OLuceneTransactionCompositeQueryTest extends OLuceneBaseTest {
     db.begin();
     Assert.assertEquals(index.getInternal().size(db), 0);
 
-    YTDocument doc = new YTDocument("Foo");
+    YTEntityImpl doc = new YTEntityImpl("Foo");
     doc.field("name", "Test");
     doc.field("bar", "abc");
 
@@ -200,11 +200,11 @@ public class OLuceneTransactionCompositeQueryTest extends OLuceneBaseTest {
     db.begin();
     Assert.assertEquals(index.getInternal().size(db), 0);
 
-    YTDocument doc = new YTDocument("Foo");
+    YTEntityImpl doc = new YTEntityImpl("Foo");
     doc.field("name", "Test");
     doc.field("bar", "abc");
 
-    YTDocument doc1 = new YTDocument("Foo");
+    YTEntityImpl doc1 = new YTEntityImpl("Foo");
     doc1.field("name", "Test");
     doc1.field("bar", "abc");
 

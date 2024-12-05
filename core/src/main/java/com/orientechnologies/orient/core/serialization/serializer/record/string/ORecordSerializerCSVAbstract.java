@@ -27,15 +27,15 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OList;
-import com.orientechnologies.orient.core.db.record.OMap;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.db.record.OSet;
-import com.orientechnologies.orient.core.db.record.OTrackedList;
-import com.orientechnologies.orient.core.db.record.OTrackedMap;
-import com.orientechnologies.orient.core.db.record.OTrackedSet;
+import com.orientechnologies.orient.core.db.record.LinkList;
+import com.orientechnologies.orient.core.db.record.LinkMap;
+import com.orientechnologies.orient.core.db.record.LinkSet;
+import com.orientechnologies.orient.core.db.record.RecordElement;
+import com.orientechnologies.orient.core.db.record.TrackedList;
+import com.orientechnologies.orient.core.db.record.TrackedMap;
+import com.orientechnologies.orient.core.db.record.TrackedSet;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.YTRID;
@@ -45,7 +45,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.string.OStringBuilderSerializable;
@@ -71,7 +71,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
    * @return
    */
   private static YTIdentifiable linkToStream(
-      final StringBuilder buffer, final YTDocument iParentRecord, Object iLinked) {
+      final StringBuilder buffer, final YTEntityImpl iParentRecord, Object iLinked) {
     if (iLinked == null)
     // NULL REFERENCE
     {
@@ -141,7 +141,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
       case EMBEDDEDLIST:
       case EMBEDDEDSET:
         return embeddedCollectionFromStream(db,
-            (YTDocument) iSourceRecord, iType, iLinkedClass, iLinkedType, iValue);
+            (YTEntityImpl) iSourceRecord, iType, iLinkedClass, iLinkedType, iValue);
 
       case LINKSET:
       case LINKLIST: {
@@ -156,9 +156,9 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
                 : iValue;
 
         if (iType == YTType.LINKLIST) {
-          return unserializeList(db, (YTDocument) iSourceRecord, value);
+          return unserializeList(db, (YTEntityImpl) iSourceRecord, value);
         } else {
-          return unserializeSet(db, (YTDocument) iSourceRecord, value);
+          return unserializeSet(db, (YTEntityImpl) iSourceRecord, value);
         }
       }
 
@@ -170,8 +170,8 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
         // REMOVE BEGIN & END MAP CHARACTERS
         String value = iValue.substring(1, iValue.length() - 1);
 
-        @SuppressWarnings("rawtypes") final Map map = new OMap((YTDocument) iSourceRecord,
-            YTDocument.RECORD_TYPE);
+        @SuppressWarnings("rawtypes") final Map map = new LinkMap((YTEntityImpl) iSourceRecord,
+            YTEntityImpl.RECORD_TYPE);
 
         if (value.length() == 0) {
           return map;
@@ -192,7 +192,8 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
                 mapValue = mapValue.substring(1);
               }
               map.put(
-                  fieldTypeFromStream(db, (YTDocument) iSourceRecord, YTType.STRING, entry.get(0)),
+                  fieldTypeFromStream(db, (YTEntityImpl) iSourceRecord, YTType.STRING,
+                      entry.get(0)),
                   new YTRecordId(mapValue));
             }
           }
@@ -201,7 +202,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
       }
 
       case EMBEDDEDMAP:
-        return embeddedMapFromStream(db, (YTDocument) iSourceRecord, iLinkedType, iValue, iName);
+        return embeddedMapFromStream(db, (YTEntityImpl) iSourceRecord, iLinkedType, iValue, iName);
 
       case LINK:
         if (iValue.length() > 1) {
@@ -240,8 +241,8 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
           final String value = iValue.substring(1, iValue.length() - 1);
 
           final Object embeddedObject = OStringSerializerEmbedded.INSTANCE.fromStream(db, value);
-          if (embeddedObject instanceof YTDocument) {
-            ODocumentInternal.addOwner((YTDocument) embeddedObject, iSourceRecord);
+          if (embeddedObject instanceof YTEntityImpl) {
+            ODocumentInternal.addOwner((YTEntityImpl) embeddedObject, iSourceRecord);
           }
 
           // RECORD
@@ -254,14 +255,14 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
             iValue.charAt(0) == OStringSerializerHelper.BAG_BEGIN
                 ? iValue.substring(1, iValue.length() - 1)
                 : iValue;
-        return ORidBag.fromStream(db, value);
+        return RidBag.fromStream(db, value);
       default:
-        return fieldTypeFromStream(db, (YTDocument) iSourceRecord, iType, iValue);
+        return fieldTypeFromStream(db, (YTEntityImpl) iSourceRecord, iType, iValue);
     }
   }
 
   public Map<String, Object> embeddedMapFromStream(
-      YTDatabaseSessionInternal db, final YTDocument iSourceDocument,
+      YTDatabaseSessionInternal db, final YTEntityImpl iSourceDocument,
       final YTType iLinkedType,
       final String iValue,
       final String iName) {
@@ -275,9 +276,9 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
     @SuppressWarnings("rawtypes")
     Map map;
     if (iLinkedType == YTType.LINK || iLinkedType == YTType.EMBEDDED) {
-      map = new OMap(iSourceDocument, YTDocument.RECORD_TYPE);
+      map = new LinkMap(iSourceDocument, YTEntityImpl.RECORD_TYPE);
     } else {
-      map = new OTrackedMap<Object>(iSourceDocument);
+      map = new TrackedMap<Object>(iSourceDocument);
     }
 
     if (value.length() == 0) {
@@ -310,9 +311,9 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
                     || iSourceDocument.fieldType(iName) != YTType.EMBEDDEDMAP)
                     && isConvertToLinkedMap(map, linkedType)) {
                   // CONVERT IT TO A LAZY MAP
-                  map = new OMap(iSourceDocument, YTDocument.RECORD_TYPE);
-                } else if (map instanceof OMap && linkedType != YTType.LINK) {
-                  map = new OTrackedMap<Object>(iSourceDocument, map, null);
+                  map = new LinkMap(iSourceDocument, YTEntityImpl.RECORD_TYPE);
+                } else if (map instanceof LinkMap && linkedType != YTType.LINK) {
+                  map = new TrackedMap<Object>(iSourceDocument, map, null);
                 }
               } else {
                 linkedType = YTType.EMBEDDED;
@@ -327,8 +328,8 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
 
             mapValueObject = fieldTypeFromStream(db, iSourceDocument, linkedType, mapValue);
 
-            if (mapValueObject != null && mapValueObject instanceof YTDocument) {
-              ODocumentInternal.addOwner((YTDocument) mapValueObject, iSourceDocument);
+            if (mapValueObject != null && mapValueObject instanceof YTEntityImpl) {
+              ODocumentInternal.addOwner((YTEntityImpl) mapValueObject, iSourceDocument);
             }
           } else {
             mapValueObject = null;
@@ -360,7 +361,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
   }
 
   public void fieldToStream(
-      final YTDocument iRecord,
+      final YTEntityImpl iRecord,
       final StringBuilder iOutput,
       final YTType iType,
       final YTClass iLinkedClass,
@@ -384,8 +385,8 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
         }
 
         if (!((YTIdentifiable) iValue).getIdentity().isValid()
-            && iValue instanceof YTDocument
-            && ((YTDocument) iValue).isEmbedded()) {
+            && iValue instanceof YTEntityImpl
+            && ((YTEntityImpl) iValue).isEmbedded()) {
           // WRONG: IT'S EMBEDDED!
           fieldToStream(
               iRecord,
@@ -413,7 +414,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
 
       case LINKLIST: {
         iOutput.append(OStringSerializerHelper.LIST_BEGIN);
-        final OList coll;
+        final LinkList coll;
         final Iterator<YTIdentifiable> it;
         if (iValue instanceof OMultiCollectionIterator<?>) {
           final OMultiCollectionIterator<YTIdentifiable> iterator =
@@ -421,9 +422,9 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
           iterator.reset();
           it = iterator;
           coll = null;
-        } else if (!(iValue instanceof OList)) {
+        } else if (!(iValue instanceof LinkList)) {
           // FIRST TIME: CONVERT THE ENTIRE COLLECTION
-          coll = new OList(iRecord);
+          coll = new LinkList(iRecord);
 
           if (iValue.getClass().isArray()) {
             Iterable<Object> iterab = OMultiValue.getMultiValueIterable(iValue);
@@ -439,7 +440,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
           it = coll.rawIterator();
         } else {
           // LAZY LIST
-          coll = (OList) iValue;
+          coll = (LinkList) iValue;
           it = coll.rawIterator();
         }
 
@@ -477,8 +478,8 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
         if (!(iValue instanceof OStringBuilderSerializable coll)) {
           final Collection<YTIdentifiable> coll;
           // FIRST TIME: CONVERT THE ENTIRE COLLECTION
-          if (!(iValue instanceof OSet)) {
-            final OSet set = new OSet(iRecord);
+          if (!(iValue instanceof LinkSet)) {
+            final LinkSet set = new LinkSet(iRecord);
             set.addAll((Collection<YTIdentifiable>) iValue);
             iRecord.field(iName, set);
             coll = set;
@@ -524,7 +525,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
         }
 
         if (invalidMap) {
-          final OMap newMap = new OMap(iRecord, YTDocument.RECORD_TYPE);
+          final LinkMap newMap = new LinkMap(iRecord, YTEntityImpl.RECORD_TYPE);
 
           // REPLACE ALL CHANGED ITEMS
           for (Map.Entry<Object, Object> entry : map.entrySet()) {
@@ -548,7 +549,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
           toString((YTRecord) iValue, iOutput, null, true);
           iOutput.append(OStringSerializerHelper.EMBEDDED_END);
         } else if (iValue instanceof ODocumentSerializable) {
-          final YTDocument doc = ((ODocumentSerializable) iValue).toDocument();
+          final YTEntityImpl doc = ((ODocumentSerializable) iValue).toDocument();
           doc.field(ODocumentSerializable.CLASS_NAME, iValue.getClass().getName());
 
           iOutput.append(OStringSerializerHelper.EMBEDDED_BEGIN);
@@ -593,7 +594,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
 
       case LINKBAG: {
         iOutput.append(OStringSerializerHelper.BAG_BEGIN);
-        ((ORidBag) iValue).toStream(iOutput);
+        ((RidBag) iValue).toStream(iOutput);
         iOutput.append(OStringSerializerHelper.BAG_END);
         break;
       }
@@ -624,14 +625,14 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
           fieldTypeToString(iOutput, YTType.STRING, o.getKey());
           iOutput.append(OStringSerializerHelper.ENTRY_SEPARATOR);
 
-          if (o.getValue() instanceof YTDocument
-              && ((YTDocument) o.getValue()).getIdentity().isValid()) {
+          if (o.getValue() instanceof YTEntityImpl
+              && ((YTEntityImpl) o.getValue()).getIdentity().isValid()) {
             fieldTypeToString(iOutput, YTType.LINK, o.getValue());
           } else if (o.getValue() instanceof YTRecord
               || o.getValue() instanceof ODocumentSerializable) {
-            final YTDocument record;
-            if (o.getValue() instanceof YTDocument) {
-              record = (YTDocument) o.getValue();
+            final YTEntityImpl record;
+            if (o.getValue() instanceof YTEntityImpl) {
+              record = (YTEntityImpl) o.getValue();
             } else if (o.getValue() instanceof ODocumentSerializable) {
               record = ((ODocumentSerializable) o.getValue()).toDocument();
               record.field(ODocumentSerializable.CLASS_NAME, o.getValue().getClass().getName());
@@ -668,7 +669,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
   }
 
   public Object embeddedCollectionFromStream(
-      YTDatabaseSessionInternal db, final YTDocument iDocument,
+      YTDatabaseSessionInternal db, final YTEntityImpl iDocument,
       final YTType iType,
       YTClass iLinkedClass,
       final YTType iLinkedType,
@@ -703,8 +704,8 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
     } else {
       coll =
           iType == YTType.EMBEDDEDLIST
-              ? new OTrackedList<Object>(iDocument)
-              : new OTrackedSet<Object>(iDocument);
+              ? new TrackedList<Object>(iDocument)
+              : new TrackedSet<Object>(iDocument);
     }
 
     if (value.length() == 0) {
@@ -734,7 +735,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
           iLinkedClass = OStringSerializerHelper.getRecordClassName(item, iLinkedClass);
 
           if (iLinkedClass != null) {
-            YTDocument doc = new YTDocument();
+            YTEntityImpl doc = new YTEntityImpl();
             objectToAdd = fromString(db, item, doc, null);
             ODocumentInternal.fillClassNameIfNeeded(doc, iLinkedClass.getName());
           } else
@@ -769,9 +770,9 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
       }
 
       if (objectToAdd != null
-          && objectToAdd instanceof YTDocument
-          && coll instanceof ORecordElement) {
-        ODocumentInternal.addOwner((YTDocument) objectToAdd, (ORecordElement) coll);
+          && objectToAdd instanceof YTEntityImpl
+          && coll instanceof RecordElement) {
+        ODocumentInternal.addOwner((YTEntityImpl) objectToAdd, (RecordElement) coll);
       }
 
       ((Collection<Object>) coll).add(objectToAdd);
@@ -807,7 +808,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
       }
 
       YTIdentifiable id = null;
-      YTDocument doc = null;
+      YTEntityImpl doc = null;
 
       final YTClass linkedClass;
       if (!(o instanceof YTIdentifiable)) {
@@ -829,8 +830,8 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
           }
         }
 
-        if (id instanceof YTDocument) {
-          doc = (YTDocument) id;
+        if (id instanceof YTEntityImpl) {
+          doc = (YTEntityImpl) id;
 
           if (doc.hasOwners()) {
             linkedType = YTType.EMBEDDED;
@@ -877,7 +878,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
   }
 
   protected boolean isConvertToLinkedMap(Map<?, ?> map, final YTType linkedType) {
-    boolean convert = (linkedType == YTType.LINK && !(map instanceof OMap));
+    boolean convert = (linkedType == YTType.LINK && !(map instanceof LinkMap));
     if (convert) {
       for (Object value : map.values()) {
         if (!(value instanceof YTIdentifiable)) {
@@ -901,9 +902,9 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
     iOutput.append(OStringSerializerHelper.SET_END);
   }
 
-  private OList unserializeList(YTDatabaseSessionInternal db, final YTDocument iSourceRecord,
+  private LinkList unserializeList(YTDatabaseSessionInternal db, final YTEntityImpl iSourceRecord,
       final String value) {
-    final OList coll = new OList(iSourceRecord);
+    final LinkList coll = new LinkList(iSourceRecord);
     final List<String> items =
         OStringSerializerHelper.smartSplit(value, OStringSerializerHelper.RECORD_SEPARATOR);
     for (String item : items) {
@@ -914,8 +915,8 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
           coll.add(new YTRecordId(item));
         } else {
           final YTRecord doc = fromString(db, item);
-          if (doc instanceof YTDocument) {
-            ODocumentInternal.addOwner((YTDocument) doc, iSourceRecord);
+          if (doc instanceof YTEntityImpl) {
+            ODocumentInternal.addOwner((YTEntityImpl) doc, iSourceRecord);
           }
 
           coll.add(doc);
@@ -925,9 +926,9 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
     return coll;
   }
 
-  private OSet unserializeSet(YTDatabaseSessionInternal db, final YTDocument iSourceRecord,
+  private LinkSet unserializeSet(YTDatabaseSessionInternal db, final YTEntityImpl iSourceRecord,
       final String value) {
-    final OSet coll = new OSet(iSourceRecord);
+    final LinkSet coll = new LinkSet(iSourceRecord);
     final List<String> items =
         OStringSerializerHelper.smartSplit(value, OStringSerializerHelper.RECORD_SEPARATOR);
     for (String item : items) {
@@ -938,8 +939,8 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
           coll.add(new YTRecordId(item));
         } else {
           final YTRecord doc = fromString(db, item);
-          if (doc instanceof YTDocument) {
-            ODocumentInternal.addOwner((YTDocument) doc, iSourceRecord);
+          if (doc instanceof YTEntityImpl) {
+            ODocumentInternal.addOwner((YTEntityImpl) doc, iSourceRecord);
           }
 
           coll.add(doc);

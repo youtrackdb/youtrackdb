@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.HashMap;
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,8 +16,8 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class OCommandExecutorSQLCreateEdgeTest extends DBTestBase {
 
-  private YTDocument owner1;
-  private YTDocument owner2;
+  private YTEntityImpl owner1;
+  private YTEntityImpl owner2;
 
   public void beforeTest() throws Exception {
     super.beforeTest();
@@ -27,10 +27,10 @@ public class OCommandExecutorSQLCreateEdgeTest extends DBTestBase {
     schema.createClass("link", schema.getClass("E"));
 
     db.begin();
-    owner1 = new YTDocument("Owner");
+    owner1 = new YTEntityImpl("Owner");
     owner1.field("id", 1);
     owner1.save();
-    owner2 = new YTDocument("Owner");
+    owner2 = new YTEntityImpl("Owner");
     owner2.field("id", 2);
     owner2.save();
     db.commit();
@@ -101,7 +101,7 @@ public class OCommandExecutorSQLCreateEdgeTest extends DBTestBase {
     YTResultSet list = db.query("select from owner where testbatch = true and id = 0");
 
     YTResult res = list.next();
-    Assert.assertEquals(((ORidBag) res.getProperty("in_link")).size(), 19);
+    Assert.assertEquals(((RidBag) res.getProperty("in_link")).size(), 19);
     Assert.assertFalse(list.hasNext());
   }
 

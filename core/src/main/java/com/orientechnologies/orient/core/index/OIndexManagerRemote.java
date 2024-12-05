@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.metadata.OMetadata;
 import com.orientechnologies.orient.core.metadata.OMetadataDefault;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sharding.auto.OAutoShardingIndexFactory;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLCreateIndex;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
@@ -86,7 +86,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
 
         database.executeInTx(
             () -> {
-              YTDocument document = database.load(id);
+              YTEntityImpl document = database.load(id);
               fromStream(document);
             });
       } finally {
@@ -104,7 +104,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
 
       database.executeInTx(
           () -> {
-            YTDocument document = database.load(id);
+            YTEntityImpl document = database.load(id);
             fromStream(document);
           });
     } finally {
@@ -184,7 +184,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     return new ODictionary<>(idx);
   }
 
-  public YTDocument getConfiguration(YTDatabaseSessionInternal session) {
+  public YTEntityImpl getConfiguration(YTDatabaseSessionInternal session) {
     acquireSharedLock();
 
     try {
@@ -439,7 +439,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
       final OIndexDefinition iIndexDefinition,
       final int[] iClusterIdsToIndex,
       final OProgressListener progressListener,
-      YTDocument metadata,
+      YTEntityImpl metadata,
       String engine) {
 
     String createIndexDDL;
@@ -484,7 +484,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
       OIndexDefinition indexDefinition,
       int[] clusterIdsToIndex,
       OProgressListener progressListener,
-      YTDocument metadata) {
+      YTEntityImpl metadata) {
     return createIndex(
         database,
         iName,
@@ -511,7 +511,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     }
   }
 
-  public YTDocument toStream(YTDatabaseSessionInternal session) {
+  public YTEntityImpl toStream(YTDatabaseSessionInternal session) {
     throw new UnsupportedOperationException("Remote index cannot be streamed");
   }
 
@@ -547,7 +547,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
       Set<String> clustersToIndex,
       OIndexDefinition indexDefinition,
       YTRID identity,
-      YTDocument configuration) {
+      YTEntityImpl configuration) {
     if (isMultiValueIndex) {
       return new OIndexRemoteMultiValue(
           name,
@@ -571,14 +571,14 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
         storage.getName());
   }
 
-  protected void fromStream(YTDocument document) {
+  protected void fromStream(YTEntityImpl document) {
     acquireExclusiveLock();
     try {
       clearMetadata();
 
-      final Collection<YTDocument> idxs = document.field(CONFIG_INDEXES);
+      final Collection<YTEntityImpl> idxs = document.field(CONFIG_INDEXES);
       if (idxs != null) {
-        for (YTDocument d : idxs) {
+        for (YTEntityImpl d : idxs) {
           d.setLazyLoad(false);
           try {
             final boolean isMultiValue =
@@ -637,7 +637,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     }
   }
 
-  public void update(YTDocument indexManager) {
+  public void update(YTEntityImpl indexManager) {
     if (!skipPush.get()) {
       realAcquireExclusiveLock();
       try {
@@ -652,7 +652,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     return storage;
   }
 
-  public YTDocument getDocument(YTDatabaseSessionInternal session) {
+  public YTEntityImpl getDocument(YTDatabaseSessionInternal session) {
     return null;
   }
 

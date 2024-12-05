@@ -21,7 +21,7 @@ import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
 import com.orientechnologies.orient.core.hook.YTRecordHookAbstract;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -48,9 +48,9 @@ public class HookTxTest extends DocumentDBBaseTest {
     @Override
     @Test(enabled = false)
     public RESULT onRecordBeforeCreate(YTRecord iRecord) {
-      if (iRecord instanceof YTDocument
-          && ((YTDocument) iRecord).getClassName() != null
-          && ((YTDocument) iRecord).getClassName().equals("Profile")) {
+      if (iRecord instanceof YTEntityImpl
+          && ((YTEntityImpl) iRecord).getClassName() != null
+          && ((YTEntityImpl) iRecord).getClassName().equals("Profile")) {
         callbackCount += RECORD_BEFORE_CREATE;
       }
       return RESULT.RECORD_NOT_CHANGED;
@@ -59,9 +59,9 @@ public class HookTxTest extends DocumentDBBaseTest {
     @Override
     @Test(enabled = false)
     public void onRecordAfterCreate(YTRecord iRecord) {
-      if (iRecord instanceof YTDocument
-          && ((YTDocument) iRecord).getClassName() != null
-          && ((YTDocument) iRecord).getClassName().equals("Profile")) {
+      if (iRecord instanceof YTEntityImpl
+          && ((YTEntityImpl) iRecord).getClassName() != null
+          && ((YTEntityImpl) iRecord).getClassName().equals("Profile")) {
         callbackCount += RECORD_AFTER_CREATE;
       }
     }
@@ -69,9 +69,9 @@ public class HookTxTest extends DocumentDBBaseTest {
     @Override
     @Test(enabled = false)
     public RESULT onRecordBeforeRead(YTRecord iRecord) {
-      if (iRecord instanceof YTDocument
-          && ((YTDocument) iRecord).getClassName() != null
-          && ((YTDocument) iRecord).getClassName().equals("Profile")) {
+      if (iRecord instanceof YTEntityImpl
+          && ((YTEntityImpl) iRecord).getClassName() != null
+          && ((YTEntityImpl) iRecord).getClassName().equals("Profile")) {
         callbackCount += RECORD_BEFORE_READ;
       }
       return RESULT.RECORD_NOT_CHANGED;
@@ -80,9 +80,9 @@ public class HookTxTest extends DocumentDBBaseTest {
     @Override
     @Test(enabled = false)
     public void onRecordAfterRead(YTRecord iRecord) {
-      if (iRecord instanceof YTDocument
-          && ((YTDocument) iRecord).getClassName() != null
-          && ((YTDocument) iRecord).getClassName().equals("Profile")) {
+      if (iRecord instanceof YTEntityImpl
+          && ((YTEntityImpl) iRecord).getClassName() != null
+          && ((YTEntityImpl) iRecord).getClassName().equals("Profile")) {
         callbackCount += RECORD_AFTER_READ;
       }
     }
@@ -90,9 +90,9 @@ public class HookTxTest extends DocumentDBBaseTest {
     @Override
     @Test(enabled = false)
     public RESULT onRecordBeforeUpdate(YTRecord iRecord) {
-      if (iRecord instanceof YTDocument
-          && ((YTDocument) iRecord).getClassName() != null
-          && ((YTDocument) iRecord).getClassName().equals("Profile")) {
+      if (iRecord instanceof YTEntityImpl
+          && ((YTEntityImpl) iRecord).getClassName() != null
+          && ((YTEntityImpl) iRecord).getClassName().equals("Profile")) {
         callbackCount += RECORD_BEFORE_UPDATE;
       }
       return RESULT.RECORD_NOT_CHANGED;
@@ -101,9 +101,9 @@ public class HookTxTest extends DocumentDBBaseTest {
     @Override
     @Test(enabled = false)
     public void onRecordAfterUpdate(YTRecord iRecord) {
-      if (iRecord instanceof YTDocument
-          && ((YTDocument) iRecord).getClassName() != null
-          && ((YTDocument) iRecord).getClassName().equals("Profile")) {
+      if (iRecord instanceof YTEntityImpl
+          && ((YTEntityImpl) iRecord).getClassName() != null
+          && ((YTEntityImpl) iRecord).getClassName().equals("Profile")) {
         callbackCount += RECORD_AFTER_UPDATE;
       }
     }
@@ -111,9 +111,9 @@ public class HookTxTest extends DocumentDBBaseTest {
     @Override
     @Test(enabled = false)
     public RESULT onRecordBeforeDelete(YTRecord iRecord) {
-      if (iRecord instanceof YTDocument
-          && ((YTDocument) iRecord).getClassName() != null
-          && ((YTDocument) iRecord).getClassName().equals("Profile")) {
+      if (iRecord instanceof YTEntityImpl
+          && ((YTEntityImpl) iRecord).getClassName() != null
+          && ((YTEntityImpl) iRecord).getClassName().equals("Profile")) {
         callbackCount += RECORD_BEFORE_DELETE;
       }
       return RESULT.RECORD_NOT_CHANGED;
@@ -122,9 +122,9 @@ public class HookTxTest extends DocumentDBBaseTest {
     @Override
     @Test(enabled = false)
     public void onRecordAfterDelete(YTRecord iRecord) {
-      if (iRecord instanceof YTDocument
-          && ((YTDocument) iRecord).getClassName() != null
-          && ((YTDocument) iRecord).getClassName().equals("Profile")) {
+      if (iRecord instanceof YTEntityImpl
+          && ((YTEntityImpl) iRecord).getClassName() != null
+          && ((YTEntityImpl) iRecord).getClassName().equals("Profile")) {
         callbackCount += RECORD_AFTER_DELETE;
       }
     }

@@ -1,7 +1,7 @@
 package com.orientechnologies.spatial.functions;
 
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.spatial.BaseSpatialLuceneTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,7 +31,8 @@ public class OSTAsTextFunctionTest extends BaseSpatialLuceneTest {
       OSTAsTextFunction func2 = new OSTAsTextFunction();
 
       for (String value : values) {
-        YTDocument item = (YTDocument) func.execute(null, null, null, new Object[]{value}, null);
+        YTEntityImpl item = (YTEntityImpl) func.execute(null, null, null, new Object[]{value},
+            null);
 
         String result = (String) func2.execute(null, null, null, new Object[]{item}, null);
 

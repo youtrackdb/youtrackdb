@@ -3,7 +3,7 @@ package com.orientechnologies.orient.server.network;
 import static org.junit.Assert.assertNotEquals;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
 import org.junit.Test;
 
@@ -32,10 +32,10 @@ public class RemoteSequenceTest extends BaseServerMemoryDatabase {
     database.reload();
 
     database.begin();
-    YTDocument doc = new YTDocument("CV1");
+    YTEntityImpl doc = new YTEntityImpl("CV1");
     doc.field("testID", 1);
     database.save(doc);
-    YTDocument doc1 = new YTDocument("CV1");
+    YTEntityImpl doc1 = new YTEntityImpl("CV1");
     doc1.field("testID", 1);
     database.save(doc1);
     assertNotEquals(doc1.field("uniqueID"), doc.field("uniqueID"));

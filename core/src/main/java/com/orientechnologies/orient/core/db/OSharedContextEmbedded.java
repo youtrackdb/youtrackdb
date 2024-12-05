@@ -3,20 +3,20 @@ package com.orientechnologies.orient.core.db;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.viewmanager.ViewManager;
 import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.index.OIndexFactory;
 import com.orientechnologies.orient.core.index.OIndexManagerShared;
 import com.orientechnologies.orient.core.index.OIndexes;
+import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.metadata.OMetadataDefault;
 import com.orientechnologies.orient.core.metadata.function.OFunctionLibraryImpl;
-import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchemaEmbedded;
+import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibraryImpl;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHook;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHookV2;
-import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.schedule.OSchedulerImpl;
 import com.orientechnologies.orient.core.sql.executor.OQueryStats;
 import com.orientechnologies.orient.core.sql.parser.OExecutionPlanCache;
@@ -198,7 +198,7 @@ public class OSharedContextEmbedded extends OSharedContext {
               String id = storage.getConfiguration().getProperty(propertyName);
               if (id != null) {
                 YTRecordId recordId = new YTRecordId(id);
-                YTDocument config = session.load(recordId);
+                YTEntityImpl config = session.load(recordId);
                 ORecordInternal.setIdentity(config, new YTRecordId(-1, -1));
                 return config.toMap();
               } else {

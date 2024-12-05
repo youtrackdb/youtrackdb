@@ -4,7 +4,7 @@ import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintU
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Assert;
@@ -23,7 +23,7 @@ public class OFindReferencesStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(name2);
 
     db.begin();
-    YTDocument linked = new YTDocument(name);
+    YTEntityImpl linked = new YTEntityImpl(name);
     linked.field("foo", "bar");
     linked.save();
     db.commit();
@@ -33,7 +33,7 @@ public class OFindReferencesStatementExecutionTest extends DBTestBase {
     for (int i = 0; i < 10; i++) {
       db.begin();
       linked = db.bindToSession(linked);
-      YTDocument doc = new YTDocument(name2);
+      YTEntityImpl doc = new YTEntityImpl(name2);
       doc.field("counter", i);
       if (i % 2 == 0) {
         doc.field("link", linked);

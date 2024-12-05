@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.common.profiler;
 
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -56,8 +56,8 @@ public class OProfilerEntry {
     lastExecution = System.currentTimeMillis();
   }
 
-  public YTDocument toDocument() {
-    final YTDocument doc = new YTDocument();
+  public YTEntityImpl toDocument() {
+    final YTEntityImpl doc = new YTEntityImpl();
     doc.field("entries", entries);
     doc.field("last", last);
     doc.field("min", min);

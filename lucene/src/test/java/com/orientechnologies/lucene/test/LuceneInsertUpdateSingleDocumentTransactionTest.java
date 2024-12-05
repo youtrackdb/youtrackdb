@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -54,12 +54,12 @@ public class LuceneInsertUpdateSingleDocumentTransactionTest extends BaseLuceneT
   public void testInsertUpdateTransactionWithIndex() {
 
     db.close();
-    db = (YTDatabaseSessionInternal) openDatabase();
+    db = openDatabase();
     YTSchema schema = db.getMetadata().getSchema();
     db.begin();
-    YTDocument doc = new YTDocument("City");
+    YTEntityImpl doc = new YTEntityImpl("City");
     doc.field("name", "");
-    YTDocument doc1 = new YTDocument("City");
+    YTEntityImpl doc1 = new YTEntityImpl("City");
     doc1.field("name", "");
     doc = db.save(doc);
     doc1 = db.save(doc1);

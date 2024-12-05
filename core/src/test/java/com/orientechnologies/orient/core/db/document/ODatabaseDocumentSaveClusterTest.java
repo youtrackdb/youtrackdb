@@ -4,7 +4,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.YTSchemaException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,7 +18,7 @@ public class ODatabaseDocumentSaveClusterTest extends DBTestBase {
     db.getMetadata().getSchema().createClass("test");
     db.addCluster("test_one");
 
-    db.save(new YTDocument("test"), "test_one");
+    db.save(new YTEntityImpl("test"), "test_one");
   }
 
   @Test(expected = YTSchemaException.class)
@@ -36,7 +36,7 @@ public class ODatabaseDocumentSaveClusterTest extends DBTestBase {
     int res = db.addCluster("test_one");
     clazz.addCluster(db, "test_one");
 
-    YTRecord saved = db.computeInTx(() -> db.save(new YTDocument("test"), "test_one"));
+    YTRecord saved = db.computeInTx(() -> db.save(new YTEntityImpl("test"), "test_one"));
     Assert.assertEquals(saved.getIdentity().getClusterId(), res);
   }
 
@@ -46,7 +46,7 @@ public class ODatabaseDocumentSaveClusterTest extends DBTestBase {
     int res = db.addCluster("test_one");
     clazz.addCluster(db, "test_one");
 
-    YTRecord saved = db.computeInTx(() -> db.save(new YTDocument("test"), "test_one"));
+    YTRecord saved = db.computeInTx(() -> db.save(new YTEntityImpl("test"), "test_one"));
     Assert.assertEquals(saved.getIdentity().getClusterId(), res);
     db.getMetadata().getSchema().dropClass(clazz.getName());
     Assert.assertFalse(db.existsCluster("test_one"));

@@ -22,7 +22,7 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializer;
 import com.orientechnologies.orient.core.sql.OIndexSearchResult;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
@@ -50,7 +50,7 @@ public class OLuceneNearOperator extends OQueryTargetOperator {
   @Override
   public Object evaluateRecord(
       YTIdentifiable iRecord,
-      YTDocument iCurrentResult,
+      YTEntityImpl iCurrentResult,
       OSQLFilterCondition iCondition,
       Object iLeft,
       Object iRight,
@@ -99,15 +99,15 @@ public class OLuceneNearOperator extends OQueryTargetOperator {
     Object spatial = iContext.getVariable("spatial");
     if (spatial != null) {
       if (spatial instanceof Number) {
-        distance = ((Double) YTType.convert(iContext.getDatabase(), spatial,
-            Double.class)).doubleValue();
+        distance = YTType.convert(iContext.getDatabase(), spatial,
+            Double.class).doubleValue();
       } else if (spatial instanceof Map) {
         Map<String, Object> params = (Map<String, Object>) spatial;
 
         Object dst = params.get("maxDistance");
         if (dst != null && dst instanceof Number) {
-          distance = ((Double) YTType.convert(iContext.getDatabase(), dst,
-              Double.class)).doubleValue();
+          distance = YTType.convert(iContext.getDatabase(), dst,
+              Double.class).doubleValue();
         }
       }
     }

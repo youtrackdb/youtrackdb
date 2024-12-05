@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.script.YTCommandScriptException;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequestWrapper;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -76,7 +76,7 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
       if (args.length == 0 && iRequest.getContent() != null && !iRequest.getContent().isEmpty()) {
         // PARSE PARAMETERS FROM CONTENT PAYLOAD
         try {
-          final YTDocument params = new YTDocument();
+          final YTEntityImpl params = new YTEntityImpl();
           params.fromJSON(iRequest.getContent());
           functionResult = f.executeInContext(context, params.toMap());
         } catch (Exception e) {

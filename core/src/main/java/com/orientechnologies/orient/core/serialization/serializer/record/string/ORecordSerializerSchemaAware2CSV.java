@@ -24,9 +24,9 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OMap;
-import com.orientechnologies.orient.core.db.record.OSet;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.LinkMap;
+import com.orientechnologies.orient.core.db.record.LinkSet;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
@@ -34,8 +34,8 @@ import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -98,7 +98,7 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
     }
 
     // UNMARSHALL THE CLASS NAME
-    final YTDocument record = (YTDocument) iRecord;
+    final YTEntityImpl record = (YTEntityImpl) iRecord;
 
     int pos;
     final YTDatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().getIfDefined();
@@ -106,7 +106,8 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
     pos = iContent.indexOf(OStringSerializerHelper.CLASS_SEPARATOR);
     if (pos > -1 && (pos < posFirstValue || posFirstValue == -1)) {
       if ((record.getIdentity().getClusterId() < 0 || database == null)) {
-        ODocumentInternal.fillClassNameIfNeeded(((YTDocument) iRecord), iContent.substring(0, pos));
+        ODocumentInternal.fillClassNameIfNeeded(((YTEntityImpl) iRecord),
+            iContent.substring(0, pos));
       }
       iContent = iContent.substring(pos + 1);
     } else {
@@ -280,7 +281,7 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
           final Object value =
               fieldFromStream(db, iRecord, type, linkedClass, linkedType, fieldName, fieldValue);
           if ("@class".equals(fieldName)) {
-            ODocumentInternal.fillClassNameIfNeeded(((YTDocument) iRecord), value.toString());
+            ODocumentInternal.fillClassNameIfNeeded(((YTEntityImpl) iRecord), value.toString());
           } else {
             record.field(fieldName, value, type);
           }
@@ -313,8 +314,8 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
     }
 
     // Fix of nasty IBM JDK bug. In case of very depth recursive graph serialization
-    // YTDocument#_source property may be initialized incorrectly.
-    final YTDocument recordSchemaAware = (YTDocument) iRecord;
+    // YTEntityImpl#_source property may be initialized incorrectly.
+    final YTEntityImpl recordSchemaAware = (YTEntityImpl) iRecord;
     if (recordSchemaAware.fields() > 0) {
       return null;
     }
@@ -323,7 +324,7 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
   }
 
   public byte[] writeClassOnly(YTRecord iSource) {
-    final YTDocument record = (YTDocument) iSource;
+    final YTEntityImpl record = (YTEntityImpl) iSource;
     StringBuilder iOutput = new StringBuilder();
     if (ODocumentInternal.getImmutableSchemaClass(record) != null) {
       iOutput.append(ODocumentInternal.getImmutableSchemaClass(record).getStreamableName());
@@ -342,7 +343,7 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
       throw new YTSerializationException("Expected a record but was null");
     }
 
-    if (!(iRecord instanceof YTDocument record)) {
+    if (!(iRecord instanceof YTEntityImpl record)) {
       throw new YTSerializationException(
           "Cannot marshall a record of type " + iRecord.getClass().getSimpleName());
     }
@@ -400,7 +401,7 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
             if (type == null)
             // DETERMINE THE FIELD TYPE
             {
-              if (fieldValue instanceof YTDocument && ((YTDocument) fieldValue).hasOwners()) {
+              if (fieldValue instanceof YTEntityImpl && ((YTEntityImpl) fieldValue).hasOwners()) {
                 type = YTType.EMBEDDED;
               } else {
                 type = YTType.LINK;
@@ -430,7 +431,7 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
             type = YTType.DOUBLE;
           } else if (fieldValue instanceof BigDecimal) {
             type = YTType.DECIMAL;
-          } else if (fieldValue instanceof ORidBag) {
+          } else if (fieldValue instanceof RidBag) {
             type = YTType.LINKBAG;
           }
 
@@ -460,8 +461,8 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
                       type = YTType.LINKLIST;
                     }
                   } else if (ODatabaseRecordThreadLocal.instance().isDefined()
-                      && (firstValue instanceof YTDocument
-                      && !((YTDocument) firstValue).isEmbedded())
+                      && (firstValue instanceof YTEntityImpl
+                      && !((YTEntityImpl) firstValue).isEmbedded())
                       && (firstValue instanceof YTRecord)) {
                     linkedClass =
                         getLinkInfo(
@@ -480,8 +481,8 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
                     }
                   } else {
                     // EMBEDDED COLLECTION
-                    if (firstValue instanceof YTDocument
-                        && ((((YTDocument) firstValue).hasOwners())
+                    if (firstValue instanceof YTEntityImpl
+                        && ((((YTEntityImpl) firstValue).hasOwners())
                         || type == YTType.EMBEDDEDSET
                         || type == YTType.EMBEDDEDLIST
                         || type == YTType.EMBEDDEDMAP)) {
@@ -499,7 +500,7 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
                     }
 
                     if (type == null) {
-                      if (fieldValue instanceof OSet) {
+                      if (fieldValue instanceof LinkSet) {
                         type = YTType.LINKSET;
                       } else if (fieldValue instanceof Set<?>) {
                         type = YTType.EMBEDDEDSET;
@@ -517,12 +518,12 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
             final int size = OMultiValue.getSize(fieldValue);
 
             Boolean autoConvertLinks = null;
-            if (fieldValue instanceof OMap) {
-              autoConvertLinks = ((OMap) fieldValue).isAutoConvertToRecord();
+            if (fieldValue instanceof LinkMap) {
+              autoConvertLinks = ((LinkMap) fieldValue).isAutoConvertToRecord();
               if (autoConvertLinks)
               // DISABLE AUTO CONVERT
               {
-                ((OMap) fieldValue).setAutoConvertToRecord(false);
+                ((LinkMap) fieldValue).setAutoConvertToRecord(false);
               }
             }
 
@@ -531,7 +532,8 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
 
               if (firstValue != null) {
                 if (ODatabaseRecordThreadLocal.instance().isDefined()
-                    && (firstValue instanceof YTDocument && !((YTDocument) firstValue).isEmbedded())
+                    && (firstValue instanceof YTEntityImpl
+                    && !((YTEntityImpl) firstValue).isEmbedded())
                     && (firstValue instanceof YTRecord)) {
                   linkedClass =
                       getLinkInfo(
@@ -547,10 +549,10 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
               type = YTType.EMBEDDEDMAP;
             }
 
-            if (fieldValue instanceof OMap && autoConvertLinks)
+            if (fieldValue instanceof LinkMap && autoConvertLinks)
             // REPLACE PREVIOUS SETTINGS
             {
-              ((OMap) fieldValue).setAutoConvertToRecord(true);
+              ((LinkMap) fieldValue).setAutoConvertToRecord(true);
             }
           }
         }
@@ -615,8 +617,8 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
   }
 
   private String getClassName(final Object iValue) {
-    if (iValue instanceof YTDocument) {
-      return ((YTDocument) iValue).getClassName();
+    if (iValue instanceof YTEntityImpl) {
+      return ((YTEntityImpl) iValue).getClassName();
     }
 
     return iValue != null ? iValue.getClass().getSimpleName() : null;

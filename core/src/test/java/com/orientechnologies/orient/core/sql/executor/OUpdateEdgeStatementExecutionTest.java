@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -69,7 +69,7 @@ public class OUpdateEdgeStatementExecutionTest extends DBTestBase {
     Assert.assertTrue(edges.hasNext());
     YTResult edge = edges.next();
     Assert.assertFalse(edges.hasNext());
-    Assert.assertEquals(((YTDocument) edge.toEntity().getRecord()).getClassName(), "E1");
+    Assert.assertEquals(((YTEntityImpl) edge.toEntity().getRecord()).getClassName(), "E1");
     edges.close();
 
     db.begin();

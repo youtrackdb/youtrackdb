@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSharedContext;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.YTDatabaseSessionEmbedded;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.util.ArrayList;
@@ -37,17 +37,17 @@ public class ORecreateIndexesTask implements Runnable {
       newDb.init(null, ctx);
       newDb.internalOpen("admin", "nopass", false);
 
-      final Collection<YTDocument> indexesToRebuild;
+      final Collection<YTEntityImpl> indexesToRebuild;
       indexManager.acquireExclusiveLock();
       try {
-        final Collection<YTDocument> knownIndexes =
+        final Collection<YTEntityImpl> knownIndexes =
             indexManager.getDocument(newDb).field(OIndexManagerShared.CONFIG_INDEXES);
         if (knownIndexes == null) {
           OLogManager.instance().warn(this, "List of indexes is empty");
           indexesToRebuild = Collections.emptyList();
         } else {
           indexesToRebuild = new ArrayList<>();
-          for (YTDocument index : knownIndexes) {
+          for (YTEntityImpl index : knownIndexes) {
             indexesToRebuild.add(index.copy()); // make copies to safely iterate them later
           }
         }
@@ -71,10 +71,10 @@ public class ORecreateIndexesTask implements Runnable {
   }
 
   private void recreateIndexes(
-      Collection<YTDocument> indexesToRebuild, YTDatabaseSessionEmbedded db) {
+      Collection<YTEntityImpl> indexesToRebuild, YTDatabaseSessionEmbedded db) {
     ok = 0;
     errors = 0;
-    for (YTDocument index : indexesToRebuild) {
+    for (YTEntityImpl index : indexesToRebuild) {
       try {
         recreateIndex(index, db);
       } catch (RuntimeException e) {
@@ -91,7 +91,7 @@ public class ORecreateIndexesTask implements Runnable {
         .info(this, "%d indexes were restored successfully, %d errors", ok, errors);
   }
 
-  private void recreateIndex(YTDocument indexDocument, YTDatabaseSessionEmbedded db) {
+  private void recreateIndex(YTEntityImpl indexDocument, YTDatabaseSessionEmbedded db) {
     final OIndexInternal index = createIndex(indexDocument);
     final OIndexMetadata indexMetadata = index.loadMetadata(indexDocument);
     final OIndexDefinition indexDefinition = indexMetadata.getIndexDefinition();
@@ -144,7 +144,7 @@ public class ORecreateIndexesTask implements Runnable {
   }
 
   private void rebuildNonDurableAutomaticIndex(
-      YTDatabaseSessionInternal session, YTDocument indexDocument,
+      YTDatabaseSessionInternal session, YTEntityImpl indexDocument,
       OIndexInternal index,
       OIndexMetadata indexMetadata,
       OIndexDefinition indexDefinition) {
@@ -189,7 +189,7 @@ public class ORecreateIndexesTask implements Runnable {
   }
 
   private void addIndexAsIs(
-      YTDocument indexDocument, OIndexInternal index, YTDatabaseSessionEmbedded database) {
+      YTEntityImpl indexDocument, OIndexInternal index, YTDatabaseSessionEmbedded database) {
     if (index.loadFromConfiguration(database, indexDocument)) {
       indexManager.addIndexInternal(database, index);
 
@@ -207,7 +207,7 @@ public class ORecreateIndexesTask implements Runnable {
     }
   }
 
-  private OIndexInternal createIndex(YTDocument idx) {
+  private OIndexInternal createIndex(YTEntityImpl idx) {
     final String indexType = idx.field(OIndexInternal.CONFIG_TYPE);
 
     if (indexType == null) {

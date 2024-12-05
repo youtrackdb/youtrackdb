@@ -20,11 +20,11 @@
 package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.OSimpleMultiValueTracker;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -37,10 +37,10 @@ import java.util.Map;
  * avoid to call the makeDirty() by hand when the map is changed.
  */
 @SuppressWarnings("serial")
-public class OTrackedMap<T> extends LinkedHashMap<Object, T>
-    implements ORecordElement, OTrackedMultiValue<Object, T>, Serializable {
+public class TrackedMap<T> extends LinkedHashMap<Object, T>
+    implements RecordElement, OTrackedMultiValue<Object, T>, Serializable {
 
-  protected final ORecordElement sourceRecord;
+  protected final RecordElement sourceRecord;
   protected Class<?> genericClass;
   private final boolean embeddedCollection;
   private boolean dirty = false;
@@ -48,8 +48,8 @@ public class OTrackedMap<T> extends LinkedHashMap<Object, T>
 
   private final OSimpleMultiValueTracker<Object, T> tracker = new OSimpleMultiValueTracker<>(this);
 
-  public OTrackedMap(
-      final ORecordElement iRecord, final Map<Object, T> iOrigin, final Class<?> cls) {
+  public TrackedMap(
+      final RecordElement iRecord, final Map<Object, T> iOrigin, final Class<?> cls) {
     this(iRecord);
     genericClass = cls;
     if (iOrigin != null && !iOrigin.isEmpty()) {
@@ -57,13 +57,13 @@ public class OTrackedMap<T> extends LinkedHashMap<Object, T>
     }
   }
 
-  public OTrackedMap(final ORecordElement iSourceRecord) {
+  public TrackedMap(final RecordElement iSourceRecord) {
     this.sourceRecord = iSourceRecord;
-    embeddedCollection = this.getClass().equals(OTrackedMap.class);
+    embeddedCollection = this.getClass().equals(TrackedMap.class);
   }
 
   @Override
-  public ORecordElement getOwner() {
+  public RecordElement getOwner() {
     return sourceRecord;
   }
 
@@ -84,8 +84,8 @@ public class OTrackedMap<T> extends LinkedHashMap<Object, T>
       return oldValue;
     }
 
-    if (oldValue instanceof YTDocument) {
-      ODocumentInternal.removeOwner((YTDocument) oldValue, this);
+    if (oldValue instanceof YTEntityImpl) {
+      ODocumentInternal.removeOwner((YTEntityImpl) oldValue, this);
     }
 
     addOwnerToEmbeddedDoc(value);
@@ -114,12 +114,12 @@ public class OTrackedMap<T> extends LinkedHashMap<Object, T>
   }
 
   private void addOwnerToEmbeddedDoc(T e) {
-    if (embeddedCollection && e instanceof YTDocument && !((YTDocument) e).getIdentity()
+    if (embeddedCollection && e instanceof YTEntityImpl && !((YTEntityImpl) e).getIdentity()
         .isValid()) {
-      ODocumentInternal.addOwner((YTDocument) e, this);
+      ODocumentInternal.addOwner((YTEntityImpl) e, this);
     }
-    if (e instanceof YTDocument) {
-      ORecordInternal.track(sourceRecord, (YTDocument) e);
+    if (e instanceof YTEntityImpl) {
+      ORecordInternal.track(sourceRecord, (YTEntityImpl) e);
     }
   }
 
@@ -151,7 +151,7 @@ public class OTrackedMap<T> extends LinkedHashMap<Object, T>
   }
 
   @SuppressWarnings({"unchecked"})
-  public OTrackedMap<T> setDirty() {
+  public TrackedMap<T> setDirty() {
     if (sourceRecord != null) {
       if (!(sourceRecord instanceof YTRecordAbstract)
           || !((YTRecordAbstract) sourceRecord).isDirty()) {
@@ -222,8 +222,8 @@ public class OTrackedMap<T> extends LinkedHashMap<Object, T>
   }
 
   private void updateEvent(Object key, T oldValue, T newValue) {
-    if (oldValue instanceof YTDocument) {
-      ODocumentInternal.removeOwner((YTDocument) oldValue, this);
+    if (oldValue instanceof YTEntityImpl) {
+      ODocumentInternal.removeOwner((YTEntityImpl) oldValue, this);
     }
 
     addOwnerToEmbeddedDoc(newValue);
@@ -236,8 +236,8 @@ public class OTrackedMap<T> extends LinkedHashMap<Object, T>
   }
 
   private void removeEvent(Object iKey, T removed) {
-    if (removed instanceof YTDocument) {
-      ODocumentInternal.removeOwner((YTDocument) removed, this);
+    if (removed instanceof YTEntityImpl) {
+      ODocumentInternal.removeOwner((YTEntityImpl) removed, this);
     }
     if (tracker.isEnabled()) {
       tracker.remove(iKey, removed);
@@ -246,14 +246,14 @@ public class OTrackedMap<T> extends LinkedHashMap<Object, T>
     }
   }
 
-  public void enableTracking(ORecordElement parent) {
+  public void enableTracking(RecordElement parent) {
     if (!tracker.isEnabled()) {
       tracker.enable();
       OTrackedMultiValue.nestedEnabled(this.values().iterator(), this);
     }
   }
 
-  public void disableTracking(ORecordElement document) {
+  public void disableTracking(RecordElement document) {
     if (tracker.isEnabled()) {
       this.tracker.disable();
       OTrackedMultiValue.nestedDisable(this.values().iterator(), this);

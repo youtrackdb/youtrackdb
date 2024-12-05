@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.IOException;
@@ -55,7 +55,7 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
   @Test
   public void testRollback() {
 
-    YTDocument doc = new YTDocument("c1");
+    YTEntityImpl doc = new YTEntityImpl("c1");
     doc.field("p1", "abc");
     db.begin();
     db.save(doc);
@@ -77,7 +77,7 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
   public void txRemoveTest() {
     db.begin();
 
-    YTDocument doc = new YTDocument("c1");
+    YTEntityImpl doc = new YTEntityImpl("c1");
     doc.field("p1", "abc");
 
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
@@ -102,7 +102,7 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
     }
     assertThat(index.getInternal().size(db)).isEqualTo(1);
 
-    doc = new YTDocument("c1");
+    doc = new YTEntityImpl("c1");
     doc.field("p1", "abc");
 
     //noinspection OptionalGetWithoutIsPresent
@@ -150,7 +150,7 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
     db.begin();
     Assert.assertEquals(index.getInternal().size(db), 0);
 
-    YTDocument doc = new YTDocument("c1");
+    YTEntityImpl doc = new YTEntityImpl("c1");
     doc.field("p1", "update");
 
     db.save(doc);
@@ -230,10 +230,10 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
     db.begin();
     Assert.assertEquals(index.getInternal().size(db), 0);
 
-    YTDocument doc = new YTDocument("c1");
+    YTEntityImpl doc = new YTEntityImpl("c1");
     doc.field("p1", "abc");
 
-    YTDocument doc1 = new YTDocument("c1");
+    YTEntityImpl doc1 = new YTEntityImpl("c1");
     doc1.field("p1", "abc");
 
     db.save(doc1);

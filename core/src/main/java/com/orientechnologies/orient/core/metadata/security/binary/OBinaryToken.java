@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.metadata.security.OToken;
 import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.metadata.security.jwt.OBinaryTokenPayload;
 import com.orientechnologies.orient.core.metadata.security.jwt.OTokenHeader;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 
 public class OBinaryToken implements OToken {
 
@@ -46,7 +46,7 @@ public class OBinaryToken implements OToken {
   public YTUser getUser(YTDatabaseSessionInternal db) {
     if (this.payload.getUserRid() != null) {
       try {
-        YTDocument result = db.load(new YTRecordId(this.payload.getUserRid()));
+        YTEntityImpl result = db.load(new YTRecordId(this.payload.getUserRid()));
         if (result.getClassName().equals(YTUser.CLASS_NAME)) {
           return new YTUser(db, result);
         }

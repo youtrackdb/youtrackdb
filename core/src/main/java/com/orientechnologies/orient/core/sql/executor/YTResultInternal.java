@@ -16,7 +16,7 @@ import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTEntityInternal;
 import java.io.Serializable;
 import java.util.Collection;
@@ -365,7 +365,7 @@ public class YTResultInternal implements YTResult {
     if (isEntity()) {
       return getEntity().get();
     }
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     for (String s : getPropertyNames()) {
       if (s == null) {
         continue;

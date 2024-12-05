@@ -17,7 +17,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
@@ -88,9 +88,9 @@ public class OMessageHelper {
     if (session != null) {
       dbSerializerName = (iRecord.getSession()).getSerializer().toString();
     }
-    if (ORecordInternal.getRecordType(iRecord) == YTDocument.RECORD_TYPE
+    if (ORecordInternal.getRecordType(iRecord) == YTEntityImpl.RECORD_TYPE
         && (dbSerializerName == null || !dbSerializerName.equals(serializer.toString()))) {
-      ((YTDocument) iRecord).deserializeFields();
+      ((YTEntityImpl) iRecord).deserializeFields();
       stream = serializer.toStream(session, iRecord);
     } else {
       stream = iRecord.toStream();
@@ -471,7 +471,7 @@ public class OMessageHelper {
   }
 
   private static void writeDocument(
-      YTDatabaseSessionInternal session, OChannelDataOutput channel, YTDocument doc,
+      YTDatabaseSessionInternal session, OChannelDataOutput channel, YTEntityImpl doc,
       ORecordSerializer serializer) throws IOException {
     writeIdentifiable(session, channel, doc, serializer);
   }

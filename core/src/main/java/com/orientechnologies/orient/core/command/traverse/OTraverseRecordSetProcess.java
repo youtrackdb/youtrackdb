@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.command.traverse;
 
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -45,7 +45,7 @@ public class OTraverseRecordSetProcess extends OTraverseAbstractProcess<Iterator
       index++;
 
       final YTRecord rec = record.getRecord();
-      if (rec instanceof YTDocument doc) {
+      if (rec instanceof YTEntityImpl doc) {
         if (!doc.getIdentity().isPersistent() && doc.fields() == 1) {
           // EXTRACT THE FIELD CONTEXT
           Object fieldvalue = doc.field(doc.fieldNames()[0]);
@@ -56,7 +56,7 @@ public class OTraverseRecordSetProcess extends OTraverseAbstractProcess<Iterator
                     new OTraverseRecordSetProcess(
                         command, ((Collection<YTIdentifiable>) fieldvalue).iterator(), path));
 
-          } else if (fieldvalue instanceof YTDocument) {
+          } else if (fieldvalue instanceof YTEntityImpl) {
             command.getContext().push(new OTraverseRecordProcess(command, rec, path));
           }
         } else {

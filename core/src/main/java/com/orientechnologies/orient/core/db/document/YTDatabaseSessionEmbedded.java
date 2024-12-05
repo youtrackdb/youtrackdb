@@ -62,8 +62,6 @@ import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTSchemaProxy;
 import com.orientechnologies.orient.core.metadata.schema.YTView;
-import com.orientechnologies.orient.core.metadata.security.OPropertyAccess;
-import com.orientechnologies.orient.core.metadata.security.OPropertyEncryptionNone;
 import com.orientechnologies.orient.core.metadata.security.ORestrictedAccessHook;
 import com.orientechnologies.orient.core.metadata.security.ORestrictedOperation;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -71,6 +69,8 @@ import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
 import com.orientechnologies.orient.core.metadata.security.OToken;
+import com.orientechnologies.orient.core.metadata.security.PropertyAccess;
+import com.orientechnologies.orient.core.metadata.security.PropertyEncryptionNone;
 import com.orientechnologies.orient.core.metadata.security.YTImmutableUser;
 import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.YTUser;
@@ -85,8 +85,8 @@ import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.record.impl.YTEdgeDocument;
+import com.orientechnologies.orient.core.record.impl.YTEdgeEntityImpl;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTVertexInternal;
 import com.orientechnologies.orient.core.schedule.OScheduledEvent;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -931,7 +931,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
 
     YTRecordHook.RESULT triggerChanged = null;
     boolean changed = false;
-    if (id instanceof YTDocument doc) {
+    if (id instanceof YTEntityImpl doc) {
 
       if (!getSharedContext().getSecurity().canCreate(this, doc)) {
         throw new YTSecurityException(
@@ -960,7 +960,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
         if (clazz.isFunction()) {
           OFunctionLibraryImpl.validateFunctionRecord(doc);
         }
-        ODocumentInternal.setPropertyEncryption(doc, OPropertyEncryptionNone.instance());
+        ODocumentInternal.setPropertyEncryption(doc, PropertyEncryptionNone.instance());
       }
     }
 
@@ -968,16 +968,16 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     if (changed
         || res == YTRecordHook.RESULT.RECORD_CHANGED
         || triggerChanged == YTRecordHook.RESULT.RECORD_CHANGED) {
-      if (id instanceof YTDocument) {
-        ((YTDocument) id).validate();
+      if (id instanceof YTEntityImpl) {
+        ((YTEntityImpl) id).validate();
       }
       return id;
     } else {
       if (res == YTRecordHook.RESULT.RECORD_REPLACED
           || triggerChanged == YTRecordHook.RESULT.RECORD_REPLACED) {
         YTRecord replaced = OHookReplacedRecordThreadLocal.INSTANCE.get();
-        if (replaced instanceof YTDocument) {
-          ((YTDocument) replaced).validate();
+        if (replaced instanceof YTEntityImpl) {
+          ((YTEntityImpl) replaced).validate();
         }
         return replaced;
       }
@@ -991,7 +991,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
 
     YTRecordHook.RESULT triggerChanged = null;
     boolean changed = false;
-    if (id instanceof YTDocument doc) {
+    if (id instanceof YTEntityImpl doc) {
       YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null) {
         if (clazz.isScheduler()) {
@@ -1022,22 +1022,22 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
                   + doc.getIdentity()
                   + ": the resource has restricted access due to security policies");
         }
-        ODocumentInternal.setPropertyEncryption(doc, OPropertyEncryptionNone.instance());
+        ODocumentInternal.setPropertyEncryption(doc, PropertyEncryptionNone.instance());
       }
     }
     YTRecordHook.RESULT res = callbackHooks(YTRecordHook.TYPE.BEFORE_UPDATE, id);
     if (res == YTRecordHook.RESULT.RECORD_CHANGED
         || triggerChanged == YTRecordHook.RESULT.RECORD_CHANGED) {
-      if (id instanceof YTDocument) {
-        ((YTDocument) id).validate();
+      if (id instanceof YTEntityImpl) {
+        ((YTEntityImpl) id).validate();
       }
       return id;
     } else {
       if (res == YTRecordHook.RESULT.RECORD_REPLACED
           || triggerChanged == YTRecordHook.RESULT.RECORD_REPLACED) {
         YTRecord replaced = OHookReplacedRecordThreadLocal.INSTANCE.get();
-        if (replaced instanceof YTDocument) {
-          ((YTDocument) replaced).validate();
+        if (replaced instanceof YTEntityImpl) {
+          ((YTEntityImpl) replaced).validate();
         }
         return replaced;
       }
@@ -1074,17 +1074,17 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
         YTVertexInternal.deleteLinks(((YTEntity) record).toVertex());
       } else {
         if (((YTEntity) record).isEdge()) {
-          YTEdgeDocument.deleteLinks(((YTEntity) record).toEdge());
+          YTEdgeEntityImpl.deleteLinks(((YTEntity) record).toEdge());
         }
       }
     }
 
     // CHECK ACCESS ON SCHEMA CLASS NAME (IF ANY)
-    if (record instanceof YTDocument && ((YTDocument) record).getClassName() != null) {
+    if (record instanceof YTEntityImpl && ((YTEntityImpl) record).getClassName() != null) {
       checkSecurity(
           ORule.ResourceGeneric.CLASS,
           ORole.PERMISSION_DELETE,
-          ((YTDocument) record).getClassName());
+          ((YTEntityImpl) record).getClassName());
     }
 
     try {
@@ -1092,13 +1092,13 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     } catch (YTException e) {
       throw e;
     } catch (Exception e) {
-      if (record instanceof YTDocument) {
+      if (record instanceof YTEntityImpl) {
         throw YTException.wrapException(
             new YTDatabaseException(
                 "Error on deleting record "
                     + record.getIdentity()
                     + " of class '"
-                    + ((YTDocument) record).getClassName()
+                    + ((YTEntityImpl) record).getClassName()
                     + "'"),
             e);
       } else {
@@ -1111,7 +1111,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   @Override
   public void beforeDeleteOperations(YTIdentifiable id, String iClusterName) {
     checkSecurity(ORole.PERMISSION_DELETE, id, iClusterName);
-    if (id instanceof YTDocument doc) {
+    if (id instanceof YTEntityImpl doc) {
       YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null) {
         if (clazz.isTriggered()) {
@@ -1138,7 +1138,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   }
 
   public void afterCreateOperations(final YTIdentifiable id) {
-    if (id instanceof YTDocument doc) {
+    if (id instanceof YTEntityImpl doc) {
       final YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
 
       if (clazz != null) {
@@ -1162,10 +1162,10 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   }
 
   public void afterUpdateOperations(final YTIdentifiable id) {
-    if (id instanceof YTDocument doc) {
+    if (id instanceof YTEntityImpl doc) {
       YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null) {
-        OClassIndexManager.checkIndexesAfterUpdate((YTDocument) id, this);
+        OClassIndexManager.checkIndexesAfterUpdate((YTEntityImpl) id, this);
 
         if (clazz.isOuser() || clazz.isOrole() || clazz.isSecurityPolicy()) {
           sharedContext.getSecurity().incrementVersion(this);
@@ -1182,7 +1182,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   }
 
   public void afterDeleteOperations(final YTIdentifiable id) {
-    if (id instanceof YTDocument doc) {
+    if (id instanceof YTEntityImpl doc) {
       YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null) {
         OClassIndexManager.checkIndexesAfterDelete(doc, this);
@@ -1211,7 +1211,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
 
   @Override
   public void afterReadOperations(YTIdentifiable identifiable) {
-    if (identifiable instanceof YTDocument doc) {
+    if (identifiable instanceof YTEntityImpl doc) {
       YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null) {
         if (clazz.isTriggered()) {
@@ -1224,7 +1224,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
 
   @Override
   public boolean beforeReadOperations(YTIdentifiable identifiable) {
-    if (identifiable instanceof YTDocument doc) {
+    if (identifiable instanceof YTEntityImpl doc) {
       YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null) {
         if (clazz.isTriggered()) {
@@ -1249,8 +1249,8 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
         }
 
         ODocumentInternal.setPropertyAccess(
-            doc, new OPropertyAccess(this, doc, getSharedContext().getSecurity()));
-        ODocumentInternal.setPropertyEncryption(doc, OPropertyEncryptionNone.instance());
+            doc, new PropertyAccess(this, doc, getSharedContext().getSecurity()));
+        ODocumentInternal.setPropertyEncryption(doc, PropertyEncryptionNone.instance());
       }
     }
     return callbackHooks(YTRecordHook.TYPE.BEFORE_READ, identifiable) == YTRecordHook.RESULT.SKIP;
@@ -1262,7 +1262,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
       if (operation.type == ORecordOperation.CREATED) {
         var record = operation.record;
 
-        if (record instanceof YTDocument doc) {
+        if (record instanceof YTEntityImpl doc) {
           YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
 
           if (clazz != null) {
@@ -1280,7 +1280,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
       } else if (operation.type == ORecordOperation.UPDATED) {
         var record = operation.record;
 
-        if (record instanceof YTDocument doc) {
+        if (record instanceof YTEntityImpl doc) {
           YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
           if (clazz != null) {
             if (clazz.isFunction()) {
@@ -1315,8 +1315,8 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     if (clusterId == YTRID.CLUSTER_ID_INVALID) {
       // COMPUTE THE CLUSTER ID
       YTClass schemaClass = null;
-      if (record instanceof YTDocument) {
-        schemaClass = ODocumentInternal.getImmutableSchemaClass(this, (YTDocument) record);
+      if (record instanceof YTEntityImpl) {
+        schemaClass = ODocumentInternal.getImmutableSchemaClass(this, (YTEntityImpl) record);
       }
       if (schemaClass != null) {
         // FIND THE RIGHT CLUSTER AS CONFIGURED IN CLASS
@@ -1326,7 +1326,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
                   + schemaClass.getName()
                   + "' and cannot be saved");
         }
-        clusterId = schemaClass.getClusterForNewInstance((YTDocument) record);
+        clusterId = schemaClass.getClusterForNewInstance((YTEntityImpl) record);
         return getClusterNameById(clusterId);
       } else {
         return getClusterNameById(storage.getDefaultClusterId());

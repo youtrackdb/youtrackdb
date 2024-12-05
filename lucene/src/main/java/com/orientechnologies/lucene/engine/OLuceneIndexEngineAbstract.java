@@ -43,7 +43,7 @@ import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValuesTransformer;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.disk.OLocalPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -267,10 +267,10 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
       final TopDocs topDocs =
           searcher.search(new TermQuery(new Term("_CLASS", "JSON_METADATA")), 1);
       if (topDocs.totalHits == 0) {
-        var metaDoc = new YTDocument();
+        var metaDoc = new YTEntityImpl();
         metaDoc.fromMap(metadata);
         String metaAsJson = metaDoc.toJSON();
-        String defAsJson = indexDefinition.toStream(new YTDocument()).toJSON();
+        String defAsJson = indexDefinition.toStream(new YTEntityImpl()).toJSON();
 
         Document lMetaDoc = new Document();
         lMetaDoc.add(new StringField("_META_JSON", metaAsJson, Field.Store.YES));

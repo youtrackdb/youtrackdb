@@ -13,7 +13,7 @@ import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges.OPERATION;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
@@ -65,7 +65,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
         ORecordInternal.unsetDirty(record);
       }
       if (operation.getType() == ORecordOperation.UPDATED
-          && operation.getRecordType() == YTDocument.RECORD_TYPE) {
+          && operation.getRecordType() == YTEntityImpl.RECORD_TYPE) {
         record.incrementLoading();
         try {
           record.setup(db);
@@ -73,7 +73,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
           record.fromStream(operation.getOriginal());
           ODocumentSerializerDelta deltaSerializer = ODocumentSerializerDelta.instance();
           deltaSerializer.deserializeDelta(db, operation.getRecord(),
-              (YTDocument) record);
+              (YTEntityImpl) record);
         } finally {
           record.decrementLoading();
         }

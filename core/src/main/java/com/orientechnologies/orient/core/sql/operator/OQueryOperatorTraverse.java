@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.query.OQueryRuntimeValueMulti;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemFieldAny;
 import java.util.Arrays;
@@ -107,7 +107,7 @@ public class OQueryOperatorTraverse extends OQueryOperatorEqualityNotNulls {
       iTarget = ((YTIdentifiable) iTarget).getRecord();
     }
 
-    if (iTarget instanceof YTDocument target) {
+    if (iTarget instanceof YTEntityImpl target) {
 
       iEvaluatedRecords.add(target.getIdentity());
 

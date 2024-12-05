@@ -38,7 +38,7 @@ import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
 import java.util.ArrayList;
@@ -96,7 +96,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
           final int newPos =
               OStringSerializerHelper.getEmbedded(parserText, parserGetCurrentPosition(), -1, q);
 
-          query = database.command(new OSQLAsynchQuery<YTDocument>(q.toString(), this));
+          query = database.command(new OSQLAsynchQuery<YTEntityImpl>(q.toString(), this));
 
           parserSetCurrentPosition(newPos);
 
@@ -113,7 +113,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
                   : "";
           query =
               database.command(
-                  new OSQLAsynchQuery<YTDocument>(
+                  new OSQLAsynchQuery<YTEntityImpl>(
                       "select from `" + clazz.getName() + "`" + where, this));
           break;
 
@@ -168,7 +168,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
         if (limit > -1) {
           queryString.append(" LIMIT ").append(limit);
         }
-        query = database.command(new OSQLAsynchQuery<YTDocument>(queryString.toString(), this));
+        query = database.command(new OSQLAsynchQuery<YTEntityImpl>(queryString.toString(), this));
       }
     } finally {
       textRequest.setText(originalQuery);
@@ -178,7 +178,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
   }
 
   /**
-   * Execute the command and return the YTDocument object created.
+   * Execute the command and return the YTEntityImpl object created.
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (rid == null && query == null) {
@@ -233,7 +233,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
   public boolean result(YTDatabaseSessionInternal querySession, final Object iRecord) {
     final YTIdentifiable id = (YTIdentifiable) iRecord;
     if (id.getIdentity().isValid()) {
-      final YTDocument record = id.getRecord();
+      final YTEntityImpl record = id.getRecord();
       YTDatabaseSessionInternal db = getDatabase();
 
       final YTVertex v = toVertex(record);

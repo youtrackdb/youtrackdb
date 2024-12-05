@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OProxedResource;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collection;
 import java.util.Set;
 
@@ -70,7 +70,7 @@ public class OIndexManagerProxy extends OProxedResource<OIndexManagerAbstract>
       final OIndexDefinition indexDefinition,
       final int[] clusterIdsToIndex,
       final OProgressListener progressListener,
-      final YTDocument metadata) {
+      final YTEntityImpl metadata) {
     return delegate.createIndex(
         database, iName, iType, indexDefinition, clusterIdsToIndex, progressListener, metadata);
   }
@@ -82,7 +82,7 @@ public class OIndexManagerProxy extends OProxedResource<OIndexManagerAbstract>
       final OIndexDefinition iIndexDefinition,
       final int[] iClusterIdsToIndex,
       final OProgressListener progressListener,
-      final YTDocument metadata,
+      final YTEntityImpl metadata,
       final String algorithm) {
     return delegate.createIndex(
         database,
@@ -95,7 +95,7 @@ public class OIndexManagerProxy extends OProxedResource<OIndexManagerAbstract>
         algorithm);
   }
 
-  public YTDocument getConfiguration(YTDatabaseSession session) {
+  public YTEntityImpl getConfiguration(YTDatabaseSession session) {
     return delegate.getConfiguration((YTDatabaseSessionInternal) session);
   }
 

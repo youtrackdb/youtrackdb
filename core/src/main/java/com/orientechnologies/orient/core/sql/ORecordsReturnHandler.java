@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,20 +50,20 @@ public abstract class ORecordsReturnHandler implements OReturnHandler {
     return results;
   }
 
-  protected void storeResult(final YTDocument result) {
-    final YTDocument processedResult = preprocess(result);
+  protected void storeResult(final YTEntityImpl result) {
+    final YTEntityImpl processedResult = preprocess(result);
 
     results.add(evaluateExpression(processedResult));
   }
 
-  protected abstract YTDocument preprocess(final YTDocument result);
+  protected abstract YTEntityImpl preprocess(final YTEntityImpl result);
 
-  private Object evaluateExpression(final YTDocument record) {
+  private Object evaluateExpression(final YTEntityImpl record) {
     if (returnExpression == null) {
       return record;
     } else {
       final Object itemResult;
-      final YTDocument wrappingDoc;
+      final YTEntityImpl wrappingDoc;
       context.setVariable("current", record);
 
       itemResult =
@@ -73,7 +73,7 @@ public abstract class ORecordsReturnHandler implements OReturnHandler {
       }
 
       // WRAP WITH ODOCUMENT TO BE TRANSFERRED THROUGH BINARY DRIVER
-      return new YTDocument("value", itemResult);
+      return new YTEntityImpl("value", itemResult);
     }
   }
 }

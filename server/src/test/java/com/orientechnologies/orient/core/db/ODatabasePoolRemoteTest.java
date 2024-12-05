@@ -6,7 +6,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import org.junit.After;
@@ -49,7 +49,7 @@ public class ODatabasePoolRemoteTest {
     YTDatabaseSessionInternal db = (YTDatabaseSessionInternal) pool.acquire();
     db.createClass("Test");
     db.begin();
-    db.save(new YTDocument("Test"));
+    db.save(new YTEntityImpl("Test"));
     db.close();
     db = (YTDatabaseSessionInternal) pool.acquire();
     assertEquals(0, db.countClass("Test"));

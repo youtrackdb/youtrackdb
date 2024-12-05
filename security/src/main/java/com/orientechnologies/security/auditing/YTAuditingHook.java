@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.security.OAuditingOperation;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
 import java.util.ArrayList;
@@ -51,8 +51,8 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
       new HashMap<String, OAuditingClassConfig>(20);
   private final OAuditingLoggingThread auditingThread;
 
-  private final Map<YTDatabaseSession, List<YTDocument>> operations = new ConcurrentHashMap<>();
-  private volatile LinkedBlockingQueue<YTDocument> auditingQueue;
+  private final Map<YTDatabaseSession, List<YTEntityImpl>> operations = new ConcurrentHashMap<>();
+  private volatile LinkedBlockingQueue<YTEntityImpl> auditingQueue;
   private final Set<OAuditingCommandConfig> commands = new HashSet<OAuditingCommandConfig>();
   private boolean onGlobalCreate;
   private boolean onGlobalRead;
@@ -60,14 +60,14 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
   private boolean onGlobalDelete;
   private OAuditingClassConfig defaultConfig = new OAuditingClassConfig();
   private OAuditingSchemaConfig schemaConfig;
-  private YTDocument iConfiguration;
+  private YTEntityImpl iConfiguration;
 
   private static class OAuditingCommandConfig {
 
     public String regex;
     public String message;
 
-    public OAuditingCommandConfig(final YTDocument cfg) {
+    public OAuditingCommandConfig(final YTEntityImpl cfg) {
       regex = cfg.field("regex");
       message = cfg.field("message");
     }
@@ -89,7 +89,7 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
     public OAuditingClassConfig() {
     }
 
-    public OAuditingClassConfig(final YTDocument cfg) {
+    public OAuditingClassConfig(final YTEntityImpl cfg) {
       if (cfg.containsField("polymorphic")) {
         polymorphic = cfg.field("polymorphic");
       }
@@ -140,7 +140,7 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
     private boolean onDropClassEnabled = false;
     private final String onDropClassMessage;
 
-    public OAuditingSchemaConfig(final YTDocument cfg) {
+    public OAuditingSchemaConfig(final YTEntityImpl cfg) {
       if (cfg.containsField("onCreateClassEnabled")) {
         onCreateClassEnabled = cfg.field("onCreateClassEnabled");
       }
@@ -179,23 +179,23 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
 
   /// / YTAuditingHook
   public YTAuditingHook(final String iConfiguration) {
-    this(new YTDocument().fromJSON(iConfiguration, "noMap"), null);
+    this(new YTEntityImpl().fromJSON(iConfiguration, "noMap"), null);
   }
 
   public YTAuditingHook(final String iConfiguration, final OSecuritySystem system) {
-    this(new YTDocument().fromJSON(iConfiguration, "noMap"), system);
+    this(new YTEntityImpl().fromJSON(iConfiguration, "noMap"), system);
   }
 
-  public YTAuditingHook(final YTDocument iConfiguration) {
+  public YTAuditingHook(final YTEntityImpl iConfiguration) {
     this(iConfiguration, null);
   }
 
-  public YTAuditingHook(final YTDocument iConfiguration, final OSecuritySystem system) {
+  public YTAuditingHook(final YTEntityImpl iConfiguration, final OSecuritySystem system) {
     this.iConfiguration = iConfiguration;
 
     onGlobalCreate = onGlobalRead = onGlobalUpdate = onGlobalDelete = false;
 
-    final YTDocument classesCfg = iConfiguration.field("classes");
+    final YTEntityImpl classesCfg = iConfiguration.field("classes");
     if (classesCfg != null) {
       for (String c : classesCfg.fieldNames()) {
         final OAuditingClassConfig cfg = new OAuditingClassConfig(classesCfg.field(c));
@@ -220,21 +220,21 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
       }
     }
 
-    final Iterable<YTDocument> commandCfg = iConfiguration.field("commands");
+    final Iterable<YTEntityImpl> commandCfg = iConfiguration.field("commands");
 
     if (commandCfg != null) {
 
-      for (YTDocument cfg : commandCfg) {
+      for (YTEntityImpl cfg : commandCfg) {
         commands.add(new OAuditingCommandConfig(cfg));
       }
     }
 
-    final YTDocument schemaCfgDoc = iConfiguration.field("schema");
+    final YTEntityImpl schemaCfgDoc = iConfiguration.field("schema");
     if (schemaCfgDoc != null) {
       schemaConfig = new OAuditingSchemaConfig(schemaCfgDoc);
     }
 
-    auditingQueue = new LinkedBlockingQueue<YTDocument>();
+    auditingQueue = new LinkedBlockingQueue<YTEntityImpl>();
     auditingThread =
         new OAuditingLoggingThread(
             ODatabaseRecordThreadLocal.instance().get().getName(),
@@ -246,7 +246,7 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
   }
 
   public YTAuditingHook(final OSecuritySystem server) {
-    auditingQueue = new LinkedBlockingQueue<YTDocument>();
+    auditingQueue = new LinkedBlockingQueue<YTEntityImpl>();
     auditingThread =
         new OAuditingLoggingThread(
             OSystemDatabase.SYSTEM_DB_NAME, auditingQueue, server.getContext(), server);
@@ -289,13 +289,13 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
   @Override
   public void onAfterTxCommit(YTDatabaseSession iDatabase) {
 
-    List<YTDocument> oDocuments = null;
+    List<YTEntityImpl> oDocuments = null;
 
     synchronized (operations) {
       oDocuments = operations.remove(iDatabase);
     }
     if (oDocuments != null) {
-      for (YTDocument oDocument : oDocuments) {
+      for (YTEntityImpl oDocument : oDocuments) {
         auditingQueue.offer(oDocument);
       }
     }
@@ -321,7 +321,7 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
     return false;
   }
 
-  public YTDocument getConfiguration() {
+  public YTEntityImpl getConfiguration() {
     return iConfiguration;
   }
 
@@ -346,7 +346,7 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
   @Override
   public void onRecordAfterUpdate(final YTRecord iRecord) {
 
-    if (iRecord instanceof YTDocument doc) {
+    if (iRecord instanceof YTEntityImpl doc) {
       YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(db, doc);
 
@@ -386,7 +386,7 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
       if (command.matches(cfg.regex)) {
         final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
 
-        final YTDocument doc =
+        final YTEntityImpl doc =
             createLogDocument(db
                 , OAuditingOperation.COMMAND,
                 db.getName(),
@@ -430,7 +430,7 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
       return;
     }
 
-    YTDocument changes = null;
+    YTEntityImpl changes = null;
     String note = null;
 
     switch (operation) {
@@ -450,11 +450,11 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
         }
         note = cfg.onUpdateMessage;
 
-        if (iRecord instanceof YTDocument doc && cfg.onUpdateChanges) {
-          changes = new YTDocument();
+        if (iRecord instanceof YTEntityImpl doc && cfg.onUpdateChanges) {
+          changes = new YTEntityImpl();
 
           for (String f : doc.getDirtyFields()) {
-            YTDocument fieldChanges = new YTDocument();
+            YTEntityImpl fieldChanges = new YTEntityImpl();
             fieldChanges.field("from", doc.getOriginalValue(f));
             fieldChanges.field("to", (Object) doc.rawField(f));
             changes.field(f, fieldChanges, YTType.EMBEDDED);
@@ -473,7 +473,7 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
 
     final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
 
-    final YTDocument doc =
+    final YTEntityImpl doc =
         createLogDocument(db, operation, db.getName(), db.getUser(), formatNote(iRecord, note));
     doc.field("record", iRecord.getIdentity());
     if (changes != null) {
@@ -482,9 +482,9 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
 
     if (db.getTransaction().isActive()) {
       synchronized (operations) {
-        List<YTDocument> oDocuments = operations.get(db);
+        List<YTEntityImpl> oDocuments = operations.get(db);
         if (oDocuments == null) {
-          oDocuments = new ArrayList<YTDocument>();
+          oDocuments = new ArrayList<YTEntityImpl>();
           operations.put(db, oDocuments);
         }
         oDocuments.add(doc);
@@ -508,9 +508,9 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
               @Override
               public Object resolve(final String iVariable) {
                 if (iVariable.startsWith("field.")) {
-                  if (iRecord instanceof YTDocument) {
+                  if (iRecord instanceof YTEntityImpl) {
                     final String fieldName = iVariable.substring("field.".length());
-                    return ((YTDocument) iRecord).field(fieldName);
+                    return ((YTEntityImpl) iRecord).field(fieldName);
                   }
                 }
                 return null;
@@ -521,8 +521,8 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
   private OAuditingClassConfig getAuditConfiguration(final YTRecord iRecord) {
     OAuditingClassConfig cfg = null;
 
-    if (iRecord instanceof YTDocument) {
-      YTClass cls = ((YTDocument) iRecord).getSchemaClass();
+    if (iRecord instanceof YTEntityImpl) {
+      YTClass cls = ((YTEntityImpl) iRecord).getSchemaClass();
       if (cls != null) {
 
         if (cls.getName().equals(ODefaultAuditing.AUDITING_LOG_CLASSNAME))
@@ -623,7 +623,7 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
 
     final YTSecurityUser user = db.getUser();
 
-    final YTDocument doc = createLogDocument(db, operation, db.getName(), user, note);
+    final YTEntityImpl doc = createLogDocument(db, operation, db.getName(), user, note);
 
     auditingQueue.offer(doc);
   }
@@ -652,14 +652,14 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
     }
   }
 
-  private static YTDocument createLogDocument(
+  private static YTEntityImpl createLogDocument(
       YTDatabaseSessionInternal session, final OAuditingOperation operation,
       final String dbName,
       YTSecurityUser user,
       final String message) {
-    YTDocument doc = null;
+    YTEntityImpl doc = null;
 
-    doc = new YTDocument();
+    doc = new YTEntityImpl();
     doc.field("date", System.currentTimeMillis());
     doc.field("operation", operation.getByte());
 

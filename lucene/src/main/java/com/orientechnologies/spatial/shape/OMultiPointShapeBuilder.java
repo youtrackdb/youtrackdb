@@ -17,7 +17,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,7 +38,7 @@ public class OMultiPointShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  public JtsGeometry fromDoc(YTDocument document) {
+  public JtsGeometry fromDoc(YTEntityImpl document) {
     validate(document);
     List<List<Number>> coordinates = document.field(COORDINATES);
     Coordinate[] coords = new Coordinate[coordinates.size()];
@@ -59,10 +59,10 @@ public class OMultiPointShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  public YTDocument toDoc(final JtsGeometry shape) {
+  public YTEntityImpl toDoc(final JtsGeometry shape) {
     final MultiPoint geom = (MultiPoint) shape.getGeom();
 
-    YTDocument doc = new YTDocument(getName());
+    YTEntityImpl doc = new YTEntityImpl(getName());
     doc.field(
         COORDINATES,
         new ArrayList<List<Double>>() {

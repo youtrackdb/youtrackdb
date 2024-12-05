@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -65,7 +65,7 @@ public class OServerCommandPutIndex extends OServerCommandDocumentAbstract {
           throw new IllegalArgumentException("Index's entry value is null");
         }
 
-        var doc = new YTDocument();
+        var doc = new YTEntityImpl();
         doc.fromJSON(iRequest.getContent());
         record = doc;
       }

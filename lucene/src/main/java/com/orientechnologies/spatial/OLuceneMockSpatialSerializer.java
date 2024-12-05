@@ -14,14 +14,14 @@
 package com.orientechnologies.spatial;
 
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALChanges;
 import java.nio.ByteBuffer;
 
 /**
  *
  */
-public class OLuceneMockSpatialSerializer implements OBinarySerializer<YTDocument> {
+public class OLuceneMockSpatialSerializer implements OBinarySerializer<YTEntityImpl> {
 
   protected static OLuceneMockSpatialSerializer INSTANCE = new OLuceneMockSpatialSerializer();
 
@@ -29,7 +29,7 @@ public class OLuceneMockSpatialSerializer implements OBinarySerializer<YTDocumen
   }
 
   @Override
-  public int getObjectSize(YTDocument object, Object... hints) {
+  public int getObjectSize(YTEntityImpl object, Object... hints) {
     return 0;
   }
 
@@ -39,11 +39,11 @@ public class OLuceneMockSpatialSerializer implements OBinarySerializer<YTDocumen
   }
 
   @Override
-  public void serialize(YTDocument object, byte[] stream, int startPosition, Object... hints) {
+  public void serialize(YTEntityImpl object, byte[] stream, int startPosition, Object... hints) {
   }
 
   @Override
-  public YTDocument deserialize(byte[] stream, int startPosition) {
+  public YTEntityImpl deserialize(byte[] stream, int startPosition) {
     return null;
   }
 
@@ -64,11 +64,11 @@ public class OLuceneMockSpatialSerializer implements OBinarySerializer<YTDocumen
 
   @Override
   public void serializeNativeObject(
-      YTDocument object, byte[] stream, int startPosition, Object... hints) {
+      YTEntityImpl object, byte[] stream, int startPosition, Object... hints) {
   }
 
   @Override
-  public YTDocument deserializeNativeObject(byte[] stream, int startPosition) {
+  public YTEntityImpl deserializeNativeObject(byte[] stream, int startPosition) {
     return null;
   }
 
@@ -78,21 +78,21 @@ public class OLuceneMockSpatialSerializer implements OBinarySerializer<YTDocumen
   }
 
   @Override
-  public YTDocument preprocess(YTDocument value, Object... hints) {
+  public YTEntityImpl preprocess(YTEntityImpl value, Object... hints) {
     return null;
   }
 
   @Override
-  public void serializeInByteBufferObject(YTDocument object, ByteBuffer buffer, Object... hints) {
+  public void serializeInByteBufferObject(YTEntityImpl object, ByteBuffer buffer, Object... hints) {
   }
 
   @Override
-  public YTDocument deserializeFromByteBufferObject(ByteBuffer buffer) {
+  public YTEntityImpl deserializeFromByteBufferObject(ByteBuffer buffer) {
     return null;
   }
 
   @Override
-  public YTDocument deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
+  public YTEntityImpl deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
     return null;
   }
 
@@ -107,7 +107,7 @@ public class OLuceneMockSpatialSerializer implements OBinarySerializer<YTDocumen
   }
 
   @Override
-  public YTDocument deserializeFromByteBufferObject(
+  public YTEntityImpl deserializeFromByteBufferObject(
       ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return null;
   }

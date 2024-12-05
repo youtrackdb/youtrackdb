@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.distributed;
 
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class OModifiableDistributedConfiguration extends ODistributedConfiguration {
 
-  public OModifiableDistributedConfiguration(final YTDocument iConfiguration) {
+  public OModifiableDistributedConfiguration(final YTEntityImpl iConfiguration) {
     super(iConfiguration);
   }
 
@@ -46,9 +46,9 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
    */
   public void setServerRole(final String iServerName, final ROLES role) {
     synchronized (configuration) {
-      YTDocument servers = configuration.field(SERVERS);
+      YTEntityImpl servers = configuration.field(SERVERS);
       if (servers == null) {
-        servers = new YTDocument();
+        servers = new YTEntityImpl();
         configuration.field(SERVERS, servers, YTType.EMBEDDED);
       }
 
@@ -109,8 +109,8 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
     }
 
     synchronized (configuration) {
-      final YTDocument clusters = configuration.field(CLUSTERS);
-      YTDocument cluster = clusters.field(iClusterName);
+      final YTEntityImpl clusters = configuration.field(CLUSTERS);
+      YTEntityImpl cluster = clusters.field(iClusterName);
 
       if (cluster == null)
       // CREATE IT
@@ -262,8 +262,8 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
     configuration.field(VERSION, oldVersion.intValue() + 1);
   }
 
-  private List<String> initClusterServers(final YTDocument cluster) {
-    final YTDocument any = getClusterConfiguration(ALL_WILDCARD);
+  private List<String> initClusterServers(final YTEntityImpl cluster) {
+    final YTEntityImpl any = getClusterConfiguration(ALL_WILDCARD);
 
     // COPY THE SERVER LIST FROM ALL_WILDCARD
     final List<String> anyServers = any.field(SERVERS);
@@ -273,18 +273,18 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
     return servers;
   }
 
-  private YTDocument createCluster(final String iClusterName) {
+  private YTEntityImpl createCluster(final String iClusterName) {
     // CREATE IT
-    final YTDocument clusters = configuration.field(CLUSTERS);
+    final YTEntityImpl clusters = configuration.field(CLUSTERS);
 
-    YTDocument cluster = clusters.field(iClusterName);
+    YTEntityImpl cluster = clusters.field(iClusterName);
     if (cluster != null)
     // ALREADY EXISTS
     {
       return clusters;
     }
 
-    cluster = new YTDocument();
+    cluster = new YTEntityImpl();
     ODocumentInternal.addOwner(cluster, clusters);
     clusters.field(iClusterName, cluster, YTType.EMBEDDED);
 
@@ -293,7 +293,7 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
     return cluster;
   }
 
-  public void override(final YTDocument newCfg) {
+  public void override(final YTEntityImpl newCfg) {
     newCfg.copyTo(configuration);
     incrementVersion();
   }

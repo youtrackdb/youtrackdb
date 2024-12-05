@@ -21,7 +21,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.functions.OIndexableSQLFunction;
@@ -98,7 +98,7 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
     queryParams.put(SpatialQueryBuilderAbstract.GEO_FILTER, operator());
     Object shape;
     if (args[1].getValue() instanceof OJson json) {
-      YTDocument doc = new YTDocument();
+      YTEntityImpl doc = new YTEntityImpl();
       doc.fromJSON(json.toString());
       shape = doc.toMap();
     } else {

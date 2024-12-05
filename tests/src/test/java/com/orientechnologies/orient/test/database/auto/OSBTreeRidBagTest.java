@@ -21,9 +21,9 @@ import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.engine.memory.OEngineMemory;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.cache.local.OWOWCache;
 import com.orientechnologies.orient.core.storage.disk.OLocalPaginatedStorage;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManagerShared;
@@ -110,8 +110,8 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
     final int clusterIdOne = database.addCluster("clusterOne");
 
-    YTDocument docClusterOne = new YTDocument();
-    ORidBag ridBagClusterOne = new ORidBag(database);
+    YTEntityImpl docClusterOne = new YTEntityImpl();
+    RidBag ridBagClusterOne = new RidBag(database);
     docClusterOne.field("ridBag", ridBagClusterOne);
 
     database.begin();
@@ -136,16 +136,16 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
   public void testIteratorOverAfterRemove() {
     database.begin();
-    YTDocument scuti =
-        new YTDocument()
+    YTEntityImpl scuti =
+        new YTEntityImpl()
             .field("name", "UY Scuti");
     scuti.save(database.getClusterNameById(database.getDefaultClusterId()));
-    YTDocument cygni =
-        new YTDocument()
+    YTEntityImpl cygni =
+        new YTEntityImpl()
             .field("name", "NML Cygni");
     cygni.save(database.getClusterNameById(database.getDefaultClusterId()));
-    YTDocument scorpii =
-        new YTDocument()
+    YTEntityImpl scorpii =
+        new YTEntityImpl()
             .field("name", "AH Scorpii");
     scorpii.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
@@ -154,14 +154,14 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     cygni = database.bindToSession(cygni);
     scorpii = database.bindToSession(scorpii);
 
-    HashSet<YTDocument> expectedResult = new HashSet<YTDocument>(Arrays.asList(scuti, scorpii));
+    HashSet<YTEntityImpl> expectedResult = new HashSet<YTEntityImpl>(Arrays.asList(scuti, scorpii));
 
-    ORidBag bag = new ORidBag(database);
+    RidBag bag = new RidBag(database);
     bag.add(scuti);
     bag.add(cygni);
     bag.add(scorpii);
 
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.field("ridBag", bag);
 
     database.begin();
@@ -172,7 +172,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     bag = doc.field("ridBag");
     bag.remove(cygni);
 
-    Set<YTDocument> result = new HashSet<YTDocument>();
+    Set<YTEntityImpl> result = new HashSet<YTEntityImpl>();
     for (YTIdentifiable identifiable : bag) {
       result.add(identifiable.getRecord());
     }
@@ -186,21 +186,21 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(5);
 
     database.begin();
-    YTDocument doc_1 = new YTDocument();
+    YTEntityImpl doc_1 = new YTEntityImpl();
     doc_1.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTDocument doc_2 = new YTDocument();
+    YTEntityImpl doc_2 = new YTEntityImpl();
     doc_2.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTDocument doc_3 = new YTDocument();
+    YTEntityImpl doc_3 = new YTEntityImpl();
     doc_3.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTDocument doc_4 = new YTDocument();
+    YTEntityImpl doc_4 = new YTEntityImpl();
     doc_4.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
 
-    ORidBag bag = new ORidBag(database);
+    RidBag bag = new RidBag(database);
     bag.add(doc_1);
     bag.add(doc_2);
     bag.add(doc_3);
@@ -212,10 +212,10 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
     database.begin();
     doc = database.bindToSession(doc);
-    YTDocument doc_5 = new YTDocument();
+    YTEntityImpl doc_5 = new YTEntityImpl();
     doc_5.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTDocument doc_6 = new YTDocument();
+    YTEntityImpl doc_6 = new YTEntityImpl();
     doc_6.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     bag = doc.field("ridBag");
@@ -259,12 +259,12 @@ public class OSBTreeRidBagTest extends ORidBagTest {
         YTGlobalConfiguration.SBTREEBOSAI_FREE_SPACE_REUSE_TRIGGER.getValueAsFloat();
     YTGlobalConfiguration.SBTREEBOSAI_FREE_SPACE_REUSE_TRIGGER.setValue(Float.MIN_VALUE);
 
-    YTDocument realDoc = new YTDocument();
-    ORidBag realDocRidBag = new ORidBag(database);
+    YTEntityImpl realDoc = new YTEntityImpl();
+    RidBag realDocRidBag = new RidBag(database);
     realDoc.field("ridBag", realDocRidBag);
 
     for (int i = 0; i < 10; i++) {
-      YTDocument docToAdd = new YTDocument();
+      YTEntityImpl docToAdd = new YTEntityImpl();
       realDocRidBag.add(docToAdd);
     }
 
@@ -276,7 +276,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
     final int clusterId = database.addCluster("ridBagDeleteTest");
 
-    YTDocument testDocument = crateTestDeleteDoc(realDoc);
+    YTEntityImpl testDocument = crateTestDeleteDoc(realDoc);
     database.freeze();
     database.release();
 
@@ -312,13 +312,13 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     Assert.assertEquals(testRidBagFile.length(), testRidBagSize);
 
     realDoc = database.load(realDoc.getIdentity());
-    ORidBag ridBag = realDoc.field("ridBag");
+    RidBag ridBag = realDoc.field("ridBag");
     Assert.assertEquals(ridBag.size(), 10);
   }
 
-  private YTDocument crateTestDeleteDoc(YTDocument realDoc) {
-    YTDocument testDocument = new YTDocument();
-    ORidBag highLevelRidBag = new ORidBag(database);
+  private YTEntityImpl crateTestDeleteDoc(YTEntityImpl realDoc) {
+    YTEntityImpl testDocument = new YTEntityImpl();
+    RidBag highLevelRidBag = new RidBag(database);
     testDocument.field("ridBag", highLevelRidBag);
     realDoc = database.bindToSession(realDoc);
     testDocument.field("realDoc", realDoc);

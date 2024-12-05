@@ -18,7 +18,7 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.common.concur.YTNeedRetryException;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.concurrent.atomic.AtomicLong;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
@@ -65,11 +65,11 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
             try {
               db.begin();
 
-              YTDocument vDoc1 = db.load(rid1);
+              YTEntityImpl vDoc1 = db.load(rid1);
               vDoc1.field(threadName, vDoc1.field(threadName) + ";" + i);
               vDoc1.save();
 
-              YTDocument vDoc2 = db.load(rid2);
+              YTEntityImpl vDoc2 = db.load(rid2);
               vDoc2.field(threadName, vDoc2.field(threadName) + ";" + i);
               vDoc2.save();
 
@@ -151,7 +151,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
     YTDatabaseSessionInternal database = acquireSession();
 
-    YTDocument doc1 = database.newInstance();
+    YTEntityImpl doc1 = database.newInstance();
     doc1.field("INIT", "ok");
     database.begin();
     database.save(doc1);
@@ -159,7 +159,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
     YTRID rid1 = doc1.getIdentity();
 
-    YTDocument doc2 = database.newInstance();
+    YTEntityImpl doc2 = database.newInstance();
     doc2.field("INIT", "ok");
 
     database.begin();
@@ -222,7 +222,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
     counter.set(0);
 
     YTDatabaseSessionInternal database = acquireSession();
-    YTDocument doc1 = database.newInstance();
+    YTEntityImpl doc1 = database.newInstance();
     doc1.field("total", 0);
 
     database.begin();

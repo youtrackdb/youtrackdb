@@ -31,7 +31,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.query.OQueryAbstract;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.OMemoryStream;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import java.util.ArrayList;
@@ -151,7 +151,7 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
       return Collections.emptyMap();
     }
 
-    final YTDocument param = new YTDocument();
+    final YTEntityImpl param = new YTEntityImpl();
 
     YTImmutableSchema schema =
         ODatabaseRecordThreadLocal.instance().get().getMetadata().getImmutableSchemaSnapshot();
@@ -177,7 +177,7 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
       return OCommonConst.EMPTY_BYTE_ARRAY;
     }
 
-    final YTDocument param = new YTDocument();
+    final YTEntityImpl param = new YTEntityImpl();
     param.field("params", convertToRIDsIfPossible(params));
     return param.toStream();
   }

@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Iterator;
 import java.util.List;
 
@@ -67,7 +67,7 @@ public class ODatabaseRepair extends ODatabaseTool {
     for (String clusterName : database.getClusterNames()) {
       for (YTRecord rec : database.browseCluster(clusterName)) {
         try {
-          if (rec instanceof YTDocument doc) {
+          if (rec instanceof YTEntityImpl doc) {
             boolean changed = false;
 
             for (String fieldName : doc.fieldNames()) {

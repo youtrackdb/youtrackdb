@@ -17,7 +17,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.spatial.shape.legacy.OPointLegecyBuilder;
@@ -35,11 +35,11 @@ public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
   @Test
   public void geomFromTextLineStringTest() {
 
-    YTDocument point = lineStringDoc();
+    YTEntityImpl point = lineStringDoc();
     checkFromText(point, "select ST_GeomFromText('" + LINESTRINGWKT + "') as geom");
   }
 
-  protected void checkFromText(YTDocument source, String query) {
+  protected void checkFromText(YTEntityImpl source, String query) {
 
     YTResultSet docs = db.command(query);
 
@@ -64,21 +64,21 @@ public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
   @Test
   public void geomFromTextMultiLineStringTest() {
 
-    YTDocument point = multiLineString();
+    YTEntityImpl point = multiLineString();
     checkFromText(point, "select ST_GeomFromText('" + MULTILINESTRINGWKT + "') as geom");
   }
 
   @Test
   public void geomFromTextPointTest() {
 
-    YTDocument point = point();
+    YTEntityImpl point = point();
     checkFromText(point, "select ST_GeomFromText('" + POINTWKT + "') as geom");
   }
 
   @Test
   public void geomFromTextMultiPointTest() {
 
-    YTDocument point = multiPoint();
+    YTEntityImpl point = multiPoint();
     checkFromText(point, "select ST_GeomFromText('" + MULTIPOINTWKT + "') as geom");
   }
 
@@ -86,20 +86,20 @@ public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
   @Test
   @Ignore
   public void geomFromTextRectangleTest() {
-    YTDocument polygon = rectangle();
+    YTEntityImpl polygon = rectangle();
     // RECTANGLE
     checkFromText(polygon, "select ST_GeomFromText('" + RECTANGLEWKT + "') as geom");
   }
 
   @Test
   public void geomFromTextPolygonTest() {
-    YTDocument polygon = polygon();
+    YTEntityImpl polygon = polygon();
     checkFromText(polygon, "select ST_GeomFromText('" + POLYGONWKT + "') as geom");
   }
 
   @Test
   public void geomFromTextMultiPolygonTest() throws IOException {
-    YTDocument polygon = loadMultiPolygon();
+    YTEntityImpl polygon = loadMultiPolygon();
 
     checkFromText(polygon, "select ST_GeomFromText('" + MULTIPOLYGONWKT + "') as geom");
   }
@@ -110,7 +110,7 @@ public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
         geometryCollection(), "select ST_GeomFromText('" + GEOMETRYCOLLECTION + "') as geom");
   }
 
-  protected void checkFromCollectionText(YTDocument source, String query) {
+  protected void checkFromCollectionText(YTEntityImpl source, String query) {
 
     YTResultSet docs = db.command(query);
 
@@ -123,12 +123,12 @@ public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
 
     Assert.assertEquals(source.getClassName(), geom.getSchemaType().get().getName());
 
-    List<YTDocument> sourceCollection = source.getProperty("geometries");
-    List<YTDocument> targetCollection = source.getProperty("geometries");
+    List<YTEntityImpl> sourceCollection = source.getProperty("geometries");
+    List<YTEntityImpl> targetCollection = source.getProperty("geometries");
     Assert.assertEquals(sourceCollection.size(), targetCollection.size());
 
     int i = 0;
-    for (YTDocument entries : sourceCollection) {
+    for (YTEntityImpl entries : sourceCollection) {
       assertGeometry(entries, targetCollection.get(i));
       i++;
     }

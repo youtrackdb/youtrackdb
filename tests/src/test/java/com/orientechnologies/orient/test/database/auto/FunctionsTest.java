@@ -17,7 +17,7 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class FunctionsTest extends DocumentDBBaseTest {
             .execute(database);
 
     database.begin();
-    final YTDocument record = result.getRecord();
+    final YTEntityImpl record = result.getRecord();
     final List<String> parameters = record.field("parameters");
 
     Assert.assertNotNull(parameters);
@@ -77,7 +77,7 @@ public class FunctionsTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    YTDocument func = f.getRecord();
+    YTEntityImpl func = f.getRecord();
     func.field("code", "return 2;");
     func.save();
     database.commit();

@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerCSVAbstract;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -98,7 +98,7 @@ public class OServerCommandPostImportRecords extends OServerCommandDocumentAbstr
               break;
             }
 
-            final YTDocument doc = new YTDocument(cls);
+            final YTEntityImpl doc = new YTEntityImpl(cls);
             final String row = parsedRow.trim();
             final List<String> cells = OStringSerializerHelper.smartSplit(row, CSV_SEPARATOR);
 

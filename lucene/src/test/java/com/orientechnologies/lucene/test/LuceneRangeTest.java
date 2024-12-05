@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Arrays;
 import java.util.List;
@@ -47,7 +47,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
     for (int i = 0; i < 10; i++) {
       db.begin();
       db.save(
-          new YTDocument("Person")
+          new YTEntityImpl("Person")
               .field("name", names.get(i))
               .field("surname", "Reese")
               // from today back one day a time

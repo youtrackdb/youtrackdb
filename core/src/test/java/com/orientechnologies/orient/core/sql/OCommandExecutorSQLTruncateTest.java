@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import org.junit.Test;
@@ -17,12 +17,12 @@ public class OCommandExecutorSQLTruncateTest extends DBTestBase {
     db.getMetadata().getSchema().createClass("ab", vcl);
 
     db.begin();
-    YTDocument doc = new YTDocument("A");
+    YTEntityImpl doc = new YTEntityImpl("A");
     db.save(doc);
     db.commit();
 
     db.begin();
-    doc = new YTDocument("ab");
+    doc = new YTEntityImpl("ab");
     db.save(doc);
     db.commit();
 
@@ -35,7 +35,7 @@ public class OCommandExecutorSQLTruncateTest extends DBTestBase {
     db.getMetadata().getSchema().createClass("A");
 
     db.begin();
-    YTDocument doc = new YTDocument("A");
+    YTEntityImpl doc = new YTEntityImpl("A");
     db.save(doc);
     db.commit();
 
@@ -55,12 +55,12 @@ public class OCommandExecutorSQLTruncateTest extends DBTestBase {
     db.getMetadata().getSchema().createClass("ab", vcl);
 
     db.begin();
-    YTDocument doc = new YTDocument("A");
+    YTEntityImpl doc = new YTEntityImpl("A");
     db.save(doc);
     db.commit();
 
     db.begin();
-    doc = new YTDocument("ab");
+    doc = new YTEntityImpl("ab");
     db.save(doc);
     db.commit();
 

@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,7 +30,7 @@ public abstract class YTPropertyRidBagAbstractIndexDefinition extends DBTestBase
 
   @Test
   public void testCreateValueSingleParameter() {
-    ORidBag ridBag = new ORidBag(db);
+    RidBag ridBag = new RidBag(db);
 
     ridBag.add(new YTRecordId("#1:12"));
     ridBag.add(new YTRecordId("#1:23"));
@@ -50,7 +50,7 @@ public abstract class YTPropertyRidBagAbstractIndexDefinition extends DBTestBase
 
   @Test
   public void testCreateValueTwoParameters() {
-    ORidBag ridBag = new ORidBag(db);
+    RidBag ridBag = new RidBag(db);
 
     ridBag.add(new YTRecordId("#1:12"));
     ridBag.add(new YTRecordId("#1:23"));
@@ -75,7 +75,7 @@ public abstract class YTPropertyRidBagAbstractIndexDefinition extends DBTestBase
 
   @Test
   public void testCreateValueSingleParameterArrayParams() {
-    ORidBag ridBag = new ORidBag(db);
+    RidBag ridBag = new RidBag(db);
 
     ridBag.add(new YTRecordId("#1:12"));
     ridBag.add(new YTRecordId("#1:23"));
@@ -96,7 +96,7 @@ public abstract class YTPropertyRidBagAbstractIndexDefinition extends DBTestBase
 
   @Test
   public void testCreateValueTwoParametersArrayParams() {
-    ORidBag ridBag = new ORidBag(db);
+    RidBag ridBag = new RidBag(db);
 
     ridBag.add(new YTRecordId("#1:12"));
     ridBag.add(new YTRecordId("#1:23"));
@@ -121,12 +121,12 @@ public abstract class YTPropertyRidBagAbstractIndexDefinition extends DBTestBase
 
   @Test
   public void testGetDocumentValueToIndex() {
-    ORidBag ridBag = new ORidBag(db);
+    RidBag ridBag = new RidBag(db);
 
     ridBag.add(new YTRecordId("#1:12"));
     ridBag.add(new YTRecordId("#1:23"));
 
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
 
     document.field("fOne", ridBag);
     document.field("fTwo", 10);
@@ -456,5 +456,5 @@ public abstract class YTPropertyRidBagAbstractIndexDefinition extends DBTestBase
     Assert.assertEquals(keysToRemove, removedKeys);
   }
 
-  abstract void assertEmbedded(ORidBag ridBag);
+  abstract void assertEmbedded(RidBag ridBag);
 }

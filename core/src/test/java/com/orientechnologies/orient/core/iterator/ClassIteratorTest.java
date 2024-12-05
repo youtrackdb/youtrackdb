@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.schema.clusterselection.ODefaultClusterSelectionStrategy;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Assert;
@@ -21,7 +21,7 @@ public class ClassIteratorTest extends DBTestBase {
   private void createPerson(final String iClassName, final String first) {
     // Create Person document
     db.begin();
-    final YTDocument personDoc = db.newInstance(iClassName);
+    final YTEntityImpl personDoc = db.newInstance(iClassName);
     personDoc.field("First", first);
     personDoc.save();
     db.commit();
@@ -70,15 +70,15 @@ public class ClassIteratorTest extends DBTestBase {
     }
 
     // Use descending class iterator.
-    final ORecordIteratorClass<YTDocument> personIter =
-        new ORecordIteratorClassDescendentOrder<YTDocument>(db, db, "Person", true);
+    final ORecordIteratorClass<YTEntityImpl> personIter =
+        new ORecordIteratorClassDescendentOrder<YTEntityImpl>(db, db, "Person", true);
 
     personIter.setRange(null, null); // open range
 
     int docNum = 0;
     // Explicit iterator loop.
     while (personIter.hasNext()) {
-      final YTDocument personDoc = personIter.next();
+      final YTEntityImpl personDoc = personIter.next();
       Assert.assertTrue(names.contains(personDoc.field("First")));
       Assert.assertTrue(names.remove(personDoc.field("First")));
       System.out.printf("Doc %d: %s\n", docNum++, personDoc);
@@ -95,13 +95,13 @@ public class ClassIteratorTest extends DBTestBase {
       createPerson("PersonMultipleClusters", name);
     }
 
-    final ORecordIteratorClass<YTDocument> personIter =
-        new ORecordIteratorClass<YTDocument>(db, "PersonMultipleClusters", true);
+    final ORecordIteratorClass<YTEntityImpl> personIter =
+        new ORecordIteratorClass<YTEntityImpl>(db, "PersonMultipleClusters", true);
 
     int docNum = 0;
 
     while (personIter.hasNext()) {
-      final YTDocument personDoc = personIter.next();
+      final YTEntityImpl personDoc = personIter.next();
       Assert.assertTrue(names.contains(personDoc.field("First")));
       Assert.assertTrue(names.remove(personDoc.field("First")));
       System.out.printf("Doc %d: %s\n", docNum++, personDoc);

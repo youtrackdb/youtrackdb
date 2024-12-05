@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.OMemoryStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -20,11 +20,11 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testAddOne() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedSet<String> trackedSet = new OTrackedSet<String>(doc);
+    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
     trackedSet.enableTracking(doc);
     OMultiValueChangeEvent<Object, Object> event =
         new OMultiValueChangeEvent<Object, Object>(
@@ -37,11 +37,11 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testAddTwo() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedSet<String> trackedSet = new OTrackedSet<String>(doc);
+    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
     doc.setProperty("tracked", trackedSet);
     trackedSet.add("value1");
     Assert.assertTrue(doc.isDirty());
@@ -49,11 +49,11 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testAddThree() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedSet<String> trackedSet = new OTrackedSet<String>(doc);
+    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
     trackedSet.enableTracking(doc);
     trackedSet.addInternal("value1");
 
@@ -63,11 +63,11 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testAddFour() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedSet<String> trackedSet = new OTrackedSet<String>(doc);
+    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
 
     trackedSet.add("value1");
 
@@ -84,11 +84,11 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testRemoveNotificationOne() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedSet<String> trackedSet = new OTrackedSet<String>(doc);
+    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
     trackedSet.add("value1");
     trackedSet.add("value2");
     trackedSet.add("value3");
@@ -108,11 +108,11 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testRemoveNotificationTwo() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedSet<String> trackedSet = new OTrackedSet<String>(doc);
+    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
     doc.setProperty("tracked", trackedSet);
     trackedSet.add("value1");
     trackedSet.add("value2");
@@ -127,11 +127,11 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testRemoveNotificationFour() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedSet<String> trackedSet = new OTrackedSet<String>(doc);
+    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
     trackedSet.add("value1");
     trackedSet.add("value2");
     trackedSet.add("value3");
@@ -147,11 +147,11 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testClearOne() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedSet<String> trackedSet = new OTrackedSet<String>(doc);
+    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
     trackedSet.add("value1");
     trackedSet.add("value2");
     trackedSet.add("value3");
@@ -180,11 +180,11 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testClearThree() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final OTrackedSet<String> trackedSet = new OTrackedSet<String>(doc);
+    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
     trackedSet.add("value1");
     trackedSet.add("value2");
     trackedSet.add("value3");
@@ -199,9 +199,9 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testReturnOriginalState() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
 
-    final OTrackedSet<String> trackedSet = new OTrackedSet<String>(doc);
+    final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
     trackedSet.add("value1");
     trackedSet.add("value2");
     trackedSet.add("value3");
@@ -226,12 +226,12 @@ public class TrackedSetTest extends DBTestBase {
   }
 
   /**
-   * Test that {@link OTrackedSet} is serialised correctly.
+   * Test that {@link TrackedSet} is serialised correctly.
    */
   @Test
   public void testSetSerialization() throws Exception {
 
-    class NotSerializableDocument extends YTDocument {
+    class NotSerializableEntityImpl extends YTEntityImpl {
 
       private static final long serialVersionUID = 1L;
 
@@ -240,8 +240,8 @@ public class TrackedSetTest extends DBTestBase {
       }
     }
 
-    final OTrackedSet<String> beforeSerialization =
-        new OTrackedSet<String>(new NotSerializableDocument());
+    final TrackedSet<String> beforeSerialization =
+        new TrackedSet<String>(new NotSerializableEntityImpl());
     beforeSerialization.add("firstVal");
     beforeSerialization.add("secondVal");
 
@@ -260,8 +260,8 @@ public class TrackedSetTest extends DBTestBase {
 
   @Test
   public void testStackOverflowOnRecursion() {
-    final YTDocument doc = new YTDocument();
-    final OTrackedSet<YTDocument> trackedSet = new OTrackedSet<>(doc);
+    final YTEntityImpl doc = new YTEntityImpl();
+    final TrackedSet<YTEntityImpl> trackedSet = new TrackedSet<>(doc);
     trackedSet.add(doc);
   }
 }

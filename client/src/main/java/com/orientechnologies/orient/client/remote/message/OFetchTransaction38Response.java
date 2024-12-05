@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
@@ -55,12 +55,12 @@ public class OFetchTransaction38Response implements OBinaryResponse {
       request.setOldId(oldID != null ? oldID : txEntry.getRID());
       request.setRecordType(ORecordInternal.getRecordType(txEntry.record));
       if (txEntry.type == ORecordOperation.UPDATED
-          && txEntry.record instanceof YTDocument doc) {
+          && txEntry.record instanceof YTEntityImpl doc) {
         var result =
             database.getStorage()
                 .readRecord(database, (YTRecordId) doc.getIdentity(), false, false, null);
 
-        YTDocument docFromPersistence = new YTDocument(doc.getIdentity());
+        YTEntityImpl docFromPersistence = new YTEntityImpl(doc.getIdentity());
         docFromPersistence.fromStream(result.buffer);
         request.setOriginal(
             ORecordSerializerNetworkV37Client.INSTANCE.toStream(session, docFromPersistence));

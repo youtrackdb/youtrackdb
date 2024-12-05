@@ -20,13 +20,13 @@
 package com.orientechnologies.orient.core.iterator;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Arrays;
 
 /**
@@ -113,9 +113,9 @@ public class ORecordIteratorClass<REC extends YTRecord> extends ORecordIteratorC
 
   @Override
   protected boolean include(final YTRecord record) {
-    return record instanceof YTDocument
+    return record instanceof YTEntityImpl
         && targetClass.isSuperClassOf(
-        ODocumentInternal.getImmutableSchemaClass(((YTDocument) record)));
+        ODocumentInternal.getImmutableSchemaClass(((YTEntityImpl) record)));
   }
 
   public YTClass getTargetClass() {

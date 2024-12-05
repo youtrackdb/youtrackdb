@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTVertexInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Collection;
@@ -48,7 +48,7 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
    *
    * @param record the edge record
    */
-  private void handleUpdateEdge(YTDocument record) {
+  private void handleUpdateEdge(YTEntityImpl record) {
     Object currentOut = record.field("out");
     Object currentIn = record.field("in");
 
@@ -103,7 +103,7 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
       return true;
     }
     try {
-      YTDocument record = ((YTIdentifiable) iRecord).getRecord();
+      YTEntityImpl record = ((YTIdentifiable) iRecord).getRecord();
       return (!ODocumentInternal.getImmutableSchemaClass(record)
           .isSubClassOf(YTClass.VERTEX_CLASS_NAME));
     } catch (YTRecordNotFoundException rnf) {

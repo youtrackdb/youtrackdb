@@ -16,7 +16,7 @@ package com.orientechnologies.spatial;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import org.junit.Assert;
@@ -51,10 +51,10 @@ public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
     db.command("CREATE INDEX Place.l_lon ON Place(latitude,longitude) SPATIAL ENGINE LUCENE")
         .close();
 
-    YTDocument rome = newCity("Rome", 12.5, 41.9);
-    YTDocument london = newCity("London", -0.1275, 51.507222);
+    YTEntityImpl rome = newCity("Rome", 12.5, 41.9);
+    YTEntityImpl london = newCity("London", -0.1275, 51.507222);
 
-    YTDocument rome1 = new YTDocument("Place");
+    YTEntityImpl rome1 = new YTEntityImpl("Place");
     rome1.field("name", "Rome");
     rome1.field("latitude", 41.9);
     rome1.field("longitude", 12.5);
@@ -119,8 +119,9 @@ public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
 //    Assert.assertEquals(1, old.size());
   }
 
-  protected static YTDocument newCity(String name, final Double longitude, final Double latitude) {
-    YTDocument location = new YTDocument("OPoint");
+  protected static YTEntityImpl newCity(String name, final Double longitude,
+      final Double latitude) {
+    YTEntityImpl location = new YTEntityImpl("OPoint");
     location.field(
         "coordinates",
         new ArrayList<Double>() {
@@ -130,7 +131,7 @@ public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
           }
         });
 
-    YTDocument city = new YTDocument("City");
+    YTEntityImpl city = new YTEntityImpl("City");
     city.field("name", name);
     city.field("location", location);
     return city;

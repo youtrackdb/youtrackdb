@@ -24,7 +24,7 @@ import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collection;
 import java.util.Set;
 
@@ -51,7 +51,7 @@ public interface OIndexManagerAbstract extends OCloseable {
       OIndexDefinition indexDefinition,
       final int[] clusterIdsToIndex,
       final OProgressListener progressListener,
-      YTDocument metadata);
+      YTEntityImpl metadata);
 
   OIndex createIndex(
       YTDatabaseSessionInternal database,
@@ -60,7 +60,7 @@ public interface OIndexManagerAbstract extends OCloseable {
       OIndexDefinition indexDefinition,
       final int[] clusterIdsToIndex,
       final OProgressListener progressListener,
-      YTDocument metadata,
+      YTEntityImpl metadata,
       String algorithm);
 
   void waitTillIndexRestore();
@@ -82,7 +82,7 @@ public interface OIndexManagerAbstract extends OCloseable {
 
   void getClassRawIndexes(String name, Collection<OIndex> indexes2);
 
-  YTDocument getConfiguration(YTDatabaseSessionInternal session);
+  YTEntityImpl getConfiguration(YTDatabaseSessionInternal session);
 
   String getDefaultClusterName();
 
@@ -119,9 +119,9 @@ public interface OIndexManagerAbstract extends OCloseable {
 
   boolean existsIndex(String iName);
 
-  YTDocument getDocument(YTDatabaseSessionInternal session);
+  YTEntityImpl getDocument(YTDatabaseSessionInternal session);
 
-  YTDocument toStream(YTDatabaseSessionInternal session);
+  YTEntityImpl toStream(YTDatabaseSessionInternal session);
 
   OIndex getRawIndex(String indexName);
 

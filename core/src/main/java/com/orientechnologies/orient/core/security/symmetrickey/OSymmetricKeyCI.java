@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.security.symmetrickey;
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.YTSecurityException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.security.OCredentialInterceptor;
 
 /**
@@ -70,10 +70,10 @@ public class OSymmetricKeyCI implements OCredentialInterceptor {
     String keystoreFile = YTGlobalConfiguration.CLIENT_CI_KEYSTORE_FILE.getValueAsString();
     String keystorePassword = YTGlobalConfiguration.CLIENT_CI_KEYSTORE_PASSWORD.getValueAsString();
 
-    YTDocument jsonDoc = null;
+    YTEntityImpl jsonDoc = null;
 
     try {
-      jsonDoc = new YTDocument().fromJSON(password, "noMap");
+      jsonDoc = new YTEntityImpl().fromJSON(password, "noMap");
     } catch (Exception ex) {
       throw YTException.wrapException(
           new YTSecurityException("OSymmetricKeyCI.intercept() Exception: " + ex.getMessage()), ex);
@@ -113,7 +113,7 @@ public class OSymmetricKeyCI implements OCredentialInterceptor {
         key = OSymmetricKey.fromFile(algorithm, jsonDoc.field("keyFile"));
         key.setDefaultCipherTransform(transform);
       } else if (jsonDoc.containsField("keyStore")) {
-        YTDocument ksDoc = jsonDoc.field("keyStore");
+        YTEntityImpl ksDoc = jsonDoc.field("keyStore");
 
         if (ksDoc.containsField("file")) {
           keystoreFile = ksDoc.field("file");

@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Test;
 
@@ -18,7 +18,7 @@ public class TestNullFieldQuery extends DBTestBase {
   public void testQueryNullValue() {
     db.getMetadata().getSchema().createClass("Test");
     db.begin();
-    YTDocument doc = new YTDocument("Test");
+    YTEntityImpl doc = new YTEntityImpl("Test");
     doc.field("name", (Object) null);
     db.save(doc);
     db.commit();
@@ -33,7 +33,7 @@ public class TestNullFieldQuery extends DBTestBase {
     clazz.createProperty(db, "name", YTType.ANY);
 
     db.begin();
-    YTDocument doc = new YTDocument("Test");
+    YTEntityImpl doc = new YTEntityImpl("Test");
     doc.field("name", (Object) null);
     db.save(doc);
     db.commit();

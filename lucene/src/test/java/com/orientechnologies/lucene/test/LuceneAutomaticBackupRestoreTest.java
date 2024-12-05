@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -123,7 +123,7 @@ public class LuceneAutomaticBackupRestoreTest {
     db.command("create property City.name string");
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
 
-    YTDocument doc = new YTDocument("City");
+    YTEntityImpl doc = new YTEntityImpl("City");
     doc.field("name", "Rome");
 
     db.begin();
@@ -169,7 +169,7 @@ public class LuceneAutomaticBackupRestoreTest {
         OIOUtils.readStreamAsString(
             getClass().getClassLoader().getResourceAsStream("automatic-backup.json"));
 
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON(jsonConfig);
 
     doc.field("enabled", true);

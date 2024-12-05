@@ -17,7 +17,7 @@ import com.orientechnologies.orient.core.metadata.security.binary.OBinaryTokenSe
 import com.orientechnologies.orient.core.metadata.security.jwt.OJwtPayload;
 import com.orientechnologies.orient.core.metadata.security.jwt.OTokenHeader;
 import com.orientechnologies.orient.core.metadata.security.jwt.OrientJwtHeader;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.security.OParsedToken;
 import com.orientechnologies.orient.core.security.OTokenSign;
 import com.orientechnologies.orient.core.security.OTokenSignImpl;
@@ -383,7 +383,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
   }
 
   protected OrientJwtHeader deserializeWebHeader(final byte[] decodedHeader) {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON(new String(decodedHeader, StandardCharsets.UTF_8));
     final OrientJwtHeader header = new OrientJwtHeader();
     header.setType(doc.field("typ"));
@@ -396,7 +396,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
     if (!"YouTrackDB".equals(type)) {
       throw new YTSystemException("Payload class not registered:" + type);
     }
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     doc.fromJSON(new String(decodedPayload, StandardCharsets.UTF_8));
     final OrientJwtPayload payload = new OrientJwtPayload();
     payload.setUserName(doc.field("username"));
@@ -419,7 +419,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
       throw new IllegalArgumentException("Token header is null");
     }
 
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     doc.field("typ", header.getType());
     doc.field("alg", header.getAlgorithm());
     doc.field("kid", header.getKeyId());
@@ -431,7 +431,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
       throw new IllegalArgumentException("Token payload is null");
     }
 
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     doc.field("username", payload.getUserName());
     doc.field("iss", payload.getIssuer());
     doc.field("exp", payload.getExpiry());

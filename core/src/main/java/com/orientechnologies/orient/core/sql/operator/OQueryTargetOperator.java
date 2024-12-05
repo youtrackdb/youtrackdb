@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.sql.operator;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializer;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 
@@ -43,7 +43,7 @@ public abstract class OQueryTargetOperator extends OQueryOperator {
   @Override
   public Object evaluateRecord(
       final YTIdentifiable iRecord,
-      YTDocument iCurrentResult,
+      YTEntityImpl iCurrentResult,
       final OSQLFilterCondition iCondition,
       final Object iLeft,
       final Object iRight,

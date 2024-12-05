@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Test;
@@ -20,10 +20,10 @@ public class YTRecordLazySetPersistentTest extends DBTestBase {
     db.activateOnCurrentThread();
     db.begin();
     {
-      YTDocument doc1 = new YTDocument();
-      doc1.field("linkset", new HashSet<YTDocument>());
-      Set<YTDocument> linkset = doc1.field("linkset");
-      YTDocument doc2 = new YTDocument();
+      YTEntityImpl doc1 = new YTEntityImpl();
+      doc1.field("linkset", new HashSet<YTEntityImpl>());
+      Set<YTEntityImpl> linkset = doc1.field("linkset");
+      YTEntityImpl doc2 = new YTEntityImpl();
       doc2.save(db.getClusterNameById(db.getDefaultClusterId()));
       orid2 = doc2.getIdentity();
       linkset.add(doc2);
@@ -35,13 +35,13 @@ public class YTRecordLazySetPersistentTest extends DBTestBase {
 
     db.begin();
     {
-      YTDocument doc1 = db.load(orid1);
+      YTEntityImpl doc1 = db.load(orid1);
       assertNotNull(doc1);
       Set<YTIdentifiable> linkset = doc1.field("linkset");
       assertNotNull(linkset);
       assertEquals(1, linkset.size());
 
-      YTDocument doc2 = db.load(orid2);
+      YTEntityImpl doc2 = db.load(orid2);
       assertNotNull(doc2);
 
       assertEquals(orid2, linkset.iterator().next().getIdentity());
@@ -61,10 +61,10 @@ public class YTRecordLazySetPersistentTest extends DBTestBase {
     db.activateOnCurrentThread();
     db.begin();
     {
-      YTDocument doc1 = new YTDocument();
+      YTEntityImpl doc1 = new YTEntityImpl();
       doc1.field("linkset", new HashSet<YTIdentifiable>());
       Set<YTIdentifiable> linkset = doc1.field("linkset");
-      YTDocument doc2 = new YTDocument();
+      YTEntityImpl doc2 = new YTEntityImpl();
       doc2.save(db.getClusterNameById(db.getDefaultClusterId()));
       orid2 = doc2.getIdentity();
       linkset.add(doc2);
@@ -76,14 +76,14 @@ public class YTRecordLazySetPersistentTest extends DBTestBase {
 
     db.begin();
     {
-      YTDocument doc1 = db.load(orid1);
+      YTEntityImpl doc1 = db.load(orid1);
       assertNotNull(doc1);
       Set<YTIdentifiable> linkset = doc1.field("linkset");
 
       assertNotNull(linkset);
       assertEquals(1, linkset.size());
 
-      YTDocument doc2 = db.load(orid2);
+      YTEntityImpl doc2 = db.load(orid2);
       assertNotNull(doc2);
 
       assertEquals(orid2, linkset.iterator().next().getIdentity());

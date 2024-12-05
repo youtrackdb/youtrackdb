@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +48,7 @@ public class OLuceneCreateJavaApiTest extends OLuceneBaseTest {
 
     YTClass song = schema.getClass("Song");
 
-    YTDocument meta = new YTDocument().field("analyzer", StandardAnalyzer.class.getName());
+    YTEntityImpl meta = new YTEntityImpl().field("analyzer", StandardAnalyzer.class.getName());
     OIndex lucene =
         song.createIndex(db,
             "Song.title",

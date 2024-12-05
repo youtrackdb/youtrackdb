@@ -94,7 +94,7 @@ public class OrientJdbcPreparedStatement extends OrientJdbcStatement implements 
       oResultSet = rs;
     } else {
       try {
-        //        sql = new OSQLSynchQuery<YTDocument>(mayCleanForSpark(sql));
+        //        sql = new OSQLSynchQuery<YTEntityImpl>(mayCleanForSpark(sql));
         oResultSet = database.query(sql, params.values().toArray());
 
       } catch (YTQueryParsingException e) {

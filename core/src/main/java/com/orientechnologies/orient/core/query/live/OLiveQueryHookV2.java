@@ -27,11 +27,11 @@ import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
-import com.orientechnologies.orient.core.record.impl.ODocumentEntry;
+import com.orientechnologies.orient.core.record.impl.EntityEntry;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.LiveQueryListenerImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
@@ -57,9 +57,9 @@ public class OLiveQueryHookV2 {
     public YTResult before;
     public YTResult after;
     public byte type;
-    protected YTDocument originalDoc;
+    protected YTEntityImpl originalDoc;
 
-    OLiveQueryOp(YTDocument originalDoc, YTResult before, YTResult after, byte type) {
+    OLiveQueryOp(YTEntityImpl originalDoc, YTResult before, YTResult after, byte type) {
       this.originalDoc = originalDoc;
       this.type = type;
       this.before = before;
@@ -203,7 +203,7 @@ public class OLiveQueryHookV2 {
     }
   }
 
-  public static void addOp(YTDatabaseSessionInternal database, YTDocument iDocument, byte iType) {
+  public static void addOp(YTDatabaseSessionInternal database, YTEntityImpl iDocument, byte iType) {
     OLiveQueryOps ops = getOpsReference(database);
     if (!ops.hasListeners()) {
       return;
@@ -270,7 +270,7 @@ public class OLiveQueryHookV2 {
     return result;
   }
 
-  private static OLiveQueryOp prevousUpdate(List<OLiveQueryOp> list, YTDocument doc) {
+  private static OLiveQueryOp prevousUpdate(List<OLiveQueryOp> list, YTEntityImpl doc) {
     for (OLiveQueryOp oLiveQueryOp : list) {
       if (oLiveQueryOp.originalDoc == doc) {
         return oLiveQueryOp;
@@ -280,7 +280,8 @@ public class OLiveQueryHookV2 {
   }
 
   public static YTResultInternal calculateBefore(
-      @Nonnull YTDatabaseSessionInternal db, YTDocument iDocument, Set<String> projectionsToLoad) {
+      @Nonnull YTDatabaseSessionInternal db, YTEntityImpl iDocument,
+      Set<String> projectionsToLoad) {
     YTResultInternal result = new YTResultInternal(db);
     for (String prop : iDocument.getPropertyNamesInternal()) {
       if (projectionsToLoad == null || projectionsToLoad.contains(prop)) {
@@ -290,15 +291,15 @@ public class OLiveQueryHookV2 {
     result.setProperty("@rid", iDocument.getIdentity());
     result.setProperty("@class", iDocument.getClassName());
     result.setProperty("@version", iDocument.getVersion());
-    for (Map.Entry<String, ODocumentEntry> rawEntry : ODocumentInternal.rawEntries(iDocument)) {
-      ODocumentEntry entry = rawEntry.getValue();
+    for (Map.Entry<String, EntityEntry> rawEntry : ODocumentInternal.rawEntries(iDocument)) {
+      EntityEntry entry = rawEntry.getValue();
       if (entry.isChanged()) {
         result.setProperty(
             rawEntry.getKey(), convert(iDocument.getOriginalValue(rawEntry.getKey())));
       } else if (entry.isTrackedModified()) {
-        if (entry.value instanceof YTDocument && ((YTDocument) entry.value).isEmbedded()) {
+        if (entry.value instanceof YTEntityImpl && ((YTEntityImpl) entry.value).isEmbedded()) {
           result.setProperty(rawEntry.getKey(),
-              calculateBefore(db, (YTDocument) entry.value, null));
+              calculateBefore(db, (YTEntityImpl) entry.value, null));
         }
       }
     }
@@ -306,16 +307,16 @@ public class OLiveQueryHookV2 {
   }
 
   private static Object convert(Object originalValue) {
-    if (originalValue instanceof ORidBag) {
+    if (originalValue instanceof RidBag) {
       Set result = new LinkedHashSet<>();
-      ((ORidBag) originalValue).forEach(result::add);
+      ((RidBag) originalValue).forEach(result::add);
       return result;
     }
     return originalValue;
   }
 
   private static YTResultInternal calculateAfter(
-      YTDatabaseSessionInternal db, YTDocument iDocument, Set<String> projectionsToLoad) {
+      YTDatabaseSessionInternal db, YTEntityImpl iDocument, Set<String> projectionsToLoad) {
     YTResultInternal result = new YTResultInternal(db);
     for (String prop : iDocument.getPropertyNamesInternal()) {
       if (projectionsToLoad == null || projectionsToLoad.contains(prop)) {
@@ -330,9 +331,9 @@ public class OLiveQueryHookV2 {
 
   public static Object unboxRidbags(Object value) {
     // TODO move it to some helper class
-    if (value instanceof ORidBag) {
-      List<YTIdentifiable> result = new ArrayList<>(((ORidBag) value).size());
-      for (YTIdentifiable oIdentifiable : (ORidBag) value) {
+    if (value instanceof RidBag) {
+      List<YTIdentifiable> result = new ArrayList<>(((RidBag) value).size());
+      for (YTIdentifiable oIdentifiable : (RidBag) value) {
         result.add(oIdentifiable);
       }
       return result;

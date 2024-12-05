@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.command.OServerCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
@@ -48,7 +48,7 @@ public class OServerStatement extends SimpleNode {
   }
 
   public Object execute(
-      OSQLAsynchQuery<YTDocument> request,
+      OSQLAsynchQuery<YTEntityImpl> request,
       OServerCommandContext context,
       OProgressListener progressListener) {
     throw new UnsupportedOperationException("Unsupported command: " + getClass().getSimpleName());

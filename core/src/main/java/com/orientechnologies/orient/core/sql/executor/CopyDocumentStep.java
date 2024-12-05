@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
 /**
@@ -27,15 +27,15 @@ public class CopyDocumentStep extends AbstractExecutionStep {
   }
 
   private static YTResult mapResult(YTResult result, OCommandContext ctx) {
-    YTDocument resultDoc;
+    YTEntityImpl resultDoc;
     if (result.isEntity()) {
-      var docToCopy = (YTDocument) result.toEntity();
+      var docToCopy = (YTEntityImpl) result.toEntity();
       resultDoc = docToCopy.copy();
       resultDoc.getIdentity().reset();
       resultDoc.setClassName(null);
       resultDoc.setDirty();
     } else {
-      resultDoc = (YTDocument) result.toEntity();
+      resultDoc = (YTEntityImpl) result.toEntity();
     }
     return new YTUpdatableResult(ctx.getDatabase(), resultDoc);
   }

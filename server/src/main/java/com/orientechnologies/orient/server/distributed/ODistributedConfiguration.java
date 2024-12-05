@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.distributed;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.exception.YTConfigurationException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Immutable Distributed configuration. It uses an YTDocument object to store the configuration.
+ * Immutable Distributed configuration. It uses an YTEntityImpl object to store the configuration.
  * Every changes must be done by obtaining a modifiable verson of the object through the method
  * `modify()`.
  */
@@ -64,7 +64,7 @@ public class ODistributedConfiguration {
   protected static final String EXECUTION_MODE = "executionMode";
   protected static final String EXECUTION_MODE_SYNCHRONOUS = "synchronous";
 
-  protected final YTDocument configuration;
+  protected final YTEntityImpl configuration;
   protected static final List<String> DEFAULT_CLUSTER_NAME =
       Collections.singletonList(ALL_WILDCARD);
   private static final ThreadLocal<Integer> overwriteWriteQuorum = new ThreadLocal<Integer>();
@@ -79,7 +79,7 @@ public class ODistributedConfiguration {
     STATIC
   }
 
-  public ODistributedConfiguration(final YTDocument iConfiguration) {
+  public ODistributedConfiguration(final YTEntityImpl iConfiguration) {
     configuration = iConfiguration;
     configuration.setTrackingChanges(false);
   }
@@ -425,7 +425,7 @@ public class ODistributedConfiguration {
 
       final ROLES defRole = getDefaultServerRole();
 
-      final YTDocument servers = configuration.field(SERVERS);
+      final YTEntityImpl servers = configuration.field(SERVERS);
       if (servers != null) {
         for (Iterator<String> it = masters.iterator(); it.hasNext(); ) {
           final String server = it.next();
@@ -506,10 +506,11 @@ public class ODistributedConfiguration {
   public String getClusterOwner(final String iClusterName) {
     String owner;
 
-    final YTDocument clusters = getConfiguredClusters();
+    final YTEntityImpl clusters = getConfiguredClusters();
 
     // GET THE CLUSTER CFG
-    final YTDocument cfg = iClusterName != null ? (YTDocument) clusters.field(iClusterName) : null;
+    final YTEntityImpl cfg =
+        iClusterName != null ? (YTEntityImpl) clusters.field(iClusterName) : null;
 
     if (cfg != null) {
       owner = cfg.field(OWNER);
@@ -545,10 +546,10 @@ public class ODistributedConfiguration {
 
     String owner = null;
 
-    final YTDocument clusters = getConfiguredClusters();
+    final YTEntityImpl clusters = getConfiguredClusters();
 
     // GET THE CLUSTER CFG
-    final YTDocument cfg = clusters.field(iClusterName);
+    final YTEntityImpl cfg = clusters.field(iClusterName);
     if (cfg != null) {
       owner = cfg.field(OWNER);
     }
@@ -571,7 +572,7 @@ public class ODistributedConfiguration {
    * Returns the array of configured clusters
    */
   public String[] getClusterNames() {
-    final YTDocument clusters = configuration.field(CLUSTERS);
+    final YTEntityImpl clusters = configuration.field(CLUSTERS);
     return clusters.fieldNames();
   }
 
@@ -580,7 +581,7 @@ public class ODistributedConfiguration {
    */
   public ROLES getDefaultServerRole() {
 
-    final YTDocument servers = configuration.field(SERVERS);
+    final YTEntityImpl servers = configuration.field(SERVERS);
     if (servers == null)
     // DEFAULT: MASTER
     {
@@ -602,7 +603,7 @@ public class ODistributedConfiguration {
    */
   public ROLES getServerRole(final String iServerName) {
 
-    final YTDocument servers = configuration.field(SERVERS);
+    final YTEntityImpl servers = configuration.field(SERVERS);
     if (servers == null)
     // DEFAULT: MASTER
     {
@@ -628,7 +629,7 @@ public class ODistributedConfiguration {
    */
   public Set<String> getRegisteredServers() {
 
-    final YTDocument servers = configuration.field(SERVERS);
+    final YTEntityImpl servers = configuration.field(SERVERS);
     final Set<String> result = new HashSet<String>();
     if (servers != null) {
       Collections.addAll(result, servers.fieldNames());
@@ -636,7 +637,7 @@ public class ODistributedConfiguration {
     return result;
   }
 
-  public YTDocument getDocument() {
+  public YTEntityImpl getDocument() {
     return configuration;
   }
 
@@ -645,7 +646,7 @@ public class ODistributedConfiguration {
    */
   public Set<String> getDataCenters() {
 
-    final YTDocument dcs = configuration.field(DCS);
+    final YTEntityImpl dcs = configuration.field(DCS);
     if (dcs == null) {
       return Collections.EMPTY_SET;
     }
@@ -662,7 +663,7 @@ public class ODistributedConfiguration {
    */
   public int getDataCenterWriteQuorum(final String dataCenter) {
 
-    final YTDocument dc = getDataCenterConfiguration(dataCenter);
+    final YTEntityImpl dc = getDataCenterConfiguration(dataCenter);
 
     Object wq = dc.field(WRITE_QUORUM);
     if (wq instanceof String) {
@@ -683,7 +684,7 @@ public class ODistributedConfiguration {
    */
   public boolean isSharded() {
 
-    final YTDocument allCluster = getClusterConfiguration(ALL_WILDCARD);
+    final YTEntityImpl allCluster = getClusterConfiguration(ALL_WILDCARD);
     if (allCluster != null) {
       final List<String> allServers = allCluster.field(SERVERS);
       if (allServers != null && !allServers.isEmpty()) {
@@ -707,7 +708,7 @@ public class ODistributedConfiguration {
    */
   public List<String> getDataCenterServers(final String dataCenter) {
 
-    final YTDocument dc = getDataCenterConfiguration(dataCenter);
+    final YTEntityImpl dc = getDataCenterConfiguration(dataCenter);
 
     final List<String> servers = dc.field(SERVERS);
     if (servers == null || servers.isEmpty()) {
@@ -727,10 +728,10 @@ public class ODistributedConfiguration {
    */
   public String getDataCenterOfServer(final String server) {
 
-    final YTDocument dcs = configuration.field(DCS);
+    final YTEntityImpl dcs = configuration.field(DCS);
     if (dcs != null) {
       for (String dc : dcs.fieldNames()) {
-        final YTDocument dcConfig = dcs.field(dc);
+        final YTEntityImpl dcConfig = dcs.field(dc);
         if (dcConfig != null) {
           final List<String> dcServers = dcConfig.field("servers");
           if (dcServers != null && !dcServers.isEmpty()) {
@@ -805,8 +806,8 @@ public class ODistributedConfiguration {
     }
   }
 
-  private YTDocument getConfiguredClusters() {
-    final YTDocument clusters = configuration.field(CLUSTERS);
+  private YTEntityImpl getConfiguredClusters() {
+    final YTEntityImpl clusters = configuration.field(CLUSTERS);
     if (clusters == null) {
       throw new YTConfigurationException(
           "Cannot find '" + CLUSTERS + "' in distributed database configuration");
@@ -823,17 +824,17 @@ public class ODistributedConfiguration {
    * Gets the document representing the cluster configuration.
    *
    * @param iClusterName Cluster name, or null for *
-   * @return Always a YTDocument
+   * @return Always a YTEntityImpl
    * @throws YTConfigurationException in case "clusters" field is not found in configuration
    */
-  protected YTDocument getClusterConfiguration(String iClusterName) {
-    final YTDocument clusters = getConfiguredClusters();
+  protected YTEntityImpl getClusterConfiguration(String iClusterName) {
+    final YTEntityImpl clusters = getConfiguredClusters();
 
     if (iClusterName == null) {
       iClusterName = ALL_WILDCARD;
     }
 
-    final YTDocument cfg;
+    final YTEntityImpl cfg;
     if (!clusters.containsField(iClusterName))
     // NO CLUSTER IN CFG: GET THE DEFAULT ONE
     {
@@ -845,7 +846,7 @@ public class ODistributedConfiguration {
     }
 
     if (cfg == null) {
-      return new YTDocument();
+      return new YTEntityImpl();
     }
 
     return cfg;
@@ -855,11 +856,11 @@ public class ODistributedConfiguration {
    * Gets the document representing the dc configuration.
    *
    * @param dataCenter Data center name
-   * @return Always a YTDocument
+   * @return Always a YTEntityImpl
    * @throws YTConfigurationException if the data center configuration is not found
    */
-  private YTDocument getDataCenterConfiguration(final String dataCenter) {
-    final YTDocument dcs = configuration.field(DCS);
+  private YTEntityImpl getDataCenterConfiguration(final String dataCenter) {
+    final YTEntityImpl dcs = configuration.field(DCS);
     if (dcs != null) {
       return dcs.field(dataCenter);
     }

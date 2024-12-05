@@ -10,7 +10,7 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -87,11 +87,11 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
 
   private static boolean matchesClass(YTRecord record, String className) {
     YTRecord doc = record.getRecord();
-    if (!(doc instanceof YTDocument)) {
+    if (!(doc instanceof YTEntityImpl)) {
       return false;
     }
 
-    YTClass schema = ODocumentInternal.getImmutableSchemaClass(((YTDocument) doc));
+    YTClass schema = ODocumentInternal.getImmutableSchemaClass(((YTEntityImpl) doc));
     if (schema == null) {
       return className == null;
     } else if (schema.getName().equals(className)) {

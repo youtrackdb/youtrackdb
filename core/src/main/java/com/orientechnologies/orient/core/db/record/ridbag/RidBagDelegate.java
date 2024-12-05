@@ -21,20 +21,20 @@
 package com.orientechnologies.orient.core.db.record.ridbag;
 
 import com.orientechnologies.common.util.OSizeable;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
+import com.orientechnologies.orient.core.db.record.RecordElement;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.record.impl.OSimpleMultiValueTracker;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.Change;
 import java.util.Collection;
 import java.util.NavigableMap;
 import java.util.UUID;
 
-public interface ORidBagDelegate
+public interface RidBagDelegate
     extends Iterable<YTIdentifiable>,
     OSizeable,
     OTrackedMultiValue<YTIdentifiable, YTIdentifiable>,
-    ORecordElement {
+    RecordElement {
 
   void addAll(Collection<YTIdentifiable> values);
 
@@ -72,9 +72,9 @@ public interface ORidBagDelegate
    */
   boolean contains(YTIdentifiable identifiable);
 
-  void setOwner(ORecordElement owner);
+  void setOwner(RecordElement owner);
 
-  ORecordElement getOwner();
+  RecordElement getOwner();
 
   String toString();
 

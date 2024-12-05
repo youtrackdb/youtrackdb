@@ -18,7 +18,7 @@ import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
@@ -77,11 +77,11 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
             byte type = operation.getRecordType();
             if (type == ODocumentSerializerDelta.DELTA_RECORD_TYPE) {
               int version = operation.getVersion();
-              YTDocument updated;
+              YTEntityImpl updated;
               try {
                 updated = database.load(rid);
               } catch (YTRecordNotFoundException rnf) {
-                updated = new YTDocument();
+                updated = new YTEntityImpl();
               }
 
               updated.deserializeFields();
@@ -139,10 +139,10 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
         final boolean contentChanged = ORecordInternal.isContentChanged(record);
 
         final YTRecordAbstract loadedRecord = record.getIdentity().copy().getRecord();
-        if (ORecordInternal.getRecordType(loadedRecord) == YTDocument.RECORD_TYPE
+        if (ORecordInternal.getRecordType(loadedRecord) == YTEntityImpl.RECORD_TYPE
             && ORecordInternal.getRecordType(loadedRecord)
             == ORecordInternal.getRecordType(record)) {
-          ((YTDocument) loadedRecord).merge((YTDocument) record, false, false);
+          ((YTEntityImpl) loadedRecord).merge((YTEntityImpl) record, false, false);
 
           loadedRecord.setDirty();
           ORecordInternal.setContentChanged(loadedRecord, contentChanged);
@@ -187,9 +187,9 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
       for (ORecordOperation recordOperation : createdRecords.values()) {
         var record = recordOperation.record;
         unmarshallRecord(record);
-        if (record instanceof YTDocument) {
+        if (record instanceof YTEntityImpl) {
           // Force conversion of value to class for trigger default values.
-          ODocumentInternal.autoConvertValueToClass(getDatabase(), (YTDocument) record);
+          ODocumentInternal.autoConvertValueToClass(getDatabase(), (YTEntityImpl) record);
         }
       }
       for (YTRecord record : updatedRecords.values()) {
@@ -208,8 +208,8 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
    * Unmarshalls collections. This prevent temporary RIDs remains stored as are.
    */
   protected void unmarshallRecord(final YTRecord iRecord) {
-    if (iRecord instanceof YTDocument) {
-      ((YTDocument) iRecord).deserializeFields();
+    if (iRecord instanceof YTEntityImpl) {
+      ((YTEntityImpl) iRecord).deserializeFields();
     }
   }
 
@@ -342,25 +342,25 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
       } else {
         switch (iStatus) {
           case ORecordOperation.CREATED:
-            if (record instanceof YTDocument) {
-              OClassIndexManager.checkIndexesAfterCreate((YTDocument) record, getDatabase());
+            if (record instanceof YTEntityImpl) {
+              OClassIndexManager.checkIndexesAfterCreate((YTEntityImpl) record, getDatabase());
             }
             break;
           case ORecordOperation.UPDATED:
-            if (record instanceof YTDocument) {
-              OClassIndexManager.checkIndexesAfterUpdate((YTDocument) record, getDatabase());
+            if (record instanceof YTEntityImpl) {
+              OClassIndexManager.checkIndexesAfterUpdate((YTEntityImpl) record, getDatabase());
             }
             break;
           case ORecordOperation.DELETED:
-            if (record instanceof YTDocument) {
-              OClassIndexManager.checkIndexesAfterDelete((YTDocument) record, getDatabase());
+            if (record instanceof YTEntityImpl) {
+              OClassIndexManager.checkIndexesAfterDelete((YTEntityImpl) record, getDatabase());
             }
             break;
         }
       }
       // RESET TRACKING
-      if (record instanceof YTDocument && ((YTDocument) record).isTrackingChanges()) {
-        ODocumentInternal.clearTrackData(((YTDocument) record));
+      if (record instanceof YTEntityImpl && ((YTEntityImpl) record).isTrackingChanges()) {
+        ODocumentInternal.clearTrackData(((YTEntityImpl) record));
       }
 
     } catch (Exception e) {

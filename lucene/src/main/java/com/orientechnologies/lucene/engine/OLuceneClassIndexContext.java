@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +15,7 @@ public class OLuceneClassIndexContext {
   protected final OIndexDefinition definition;
   protected final String name;
   protected final boolean automatic;
-  protected final YTDocument metadata;
+  protected final YTEntityImpl metadata;
   protected final Map<String, Boolean> fieldsToStore = new HashMap<String, Boolean>();
   protected final YTClass indexClass;
 
@@ -24,7 +24,7 @@ public class OLuceneClassIndexContext {
       OIndexDefinition definition,
       String name,
       boolean automatic,
-      YTDocument metadata) {
+      YTEntityImpl metadata) {
     this.definition = definition;
     this.name = name;
     this.automatic = automatic;

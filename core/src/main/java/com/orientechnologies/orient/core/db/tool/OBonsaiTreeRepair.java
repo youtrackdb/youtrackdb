@@ -3,13 +3,13 @@ package com.orientechnologies.orient.core.db.tool;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.OMetadata;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTVertexInternal;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -37,7 +37,7 @@ public class OBonsaiTreeRepair {
       message(outputListener, countEdges + " will be processed.");
       long counter = 0;
 
-      for (YTDocument edge : db.browseClass(edgeClass.getName())) {
+      for (YTEntityImpl edge : db.browseClass(edgeClass.getName())) {
         try {
           final String label;
           if (edge.field("label") != null) {
@@ -60,8 +60,8 @@ public class OBonsaiTreeRepair {
           final String outVertexName =
               YTVertexInternal.getEdgeLinkFieldName(ODirection.OUT, label, true);
 
-          final YTDocument inVertex = inId.getRecord();
-          final YTDocument outVertex = outId.getRecord();
+          final YTEntityImpl inVertex = inId.getRecord();
+          final YTEntityImpl outVertex = outId.getRecord();
 
           Set<YTRID> inVertexes = processedVertexes.get(inVertexName);
           if (inVertexes == null) {
@@ -74,23 +74,23 @@ public class OBonsaiTreeRepair {
             processedVertexes.put(outVertexName, outVertexes);
           }
 
-          if (inVertex.field(inVertexName) instanceof ORidBag) {
+          if (inVertex.field(inVertexName) instanceof RidBag) {
             if (inVertexes.add(inVertex.getIdentity())) {
-              inVertex.field(inVertexName, new ORidBag(db));
+              inVertex.field(inVertexName, new RidBag(db));
             }
 
-            final ORidBag inRidBag = inVertex.field(inVertexName);
+            final RidBag inRidBag = inVertex.field(inVertexName);
             inRidBag.add(edge.getIdentity());
 
             inVertex.save();
           }
 
-          if (outVertex.field(outVertexName) instanceof ORidBag) {
+          if (outVertex.field(outVertexName) instanceof RidBag) {
             if (outVertexes.add(outVertex.getIdentity())) {
-              outVertex.field(outVertexName, new ORidBag(db));
+              outVertex.field(outVertexName, new RidBag(db));
             }
 
-            final ORidBag outRidBag = outVertex.field(outVertexName);
+            final RidBag outRidBag = outVertex.field(outVertexName);
             outRidBag.add(edge.getIdentity());
 
             outVertex.save();

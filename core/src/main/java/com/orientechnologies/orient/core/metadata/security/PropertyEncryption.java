@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.metadata.security;
 
-public interface OPropertyEncryption {
+public interface PropertyEncryption {
 
   boolean isEncrypted(String name);
 

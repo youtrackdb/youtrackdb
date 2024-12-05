@@ -49,7 +49,7 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.OSerializationThreadLocal;
@@ -981,9 +981,9 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
       dbSerializerName = (iRecord.getSession()).getSerializer().toString();
     }
     String name = connection.getData().getSerializationImpl();
-    if (ORecordInternal.getRecordType(iRecord) == YTDocument.RECORD_TYPE
+    if (ORecordInternal.getRecordType(iRecord) == YTEntityImpl.RECORD_TYPE
         && (dbSerializerName == null || !dbSerializerName.equals(name))) {
-      ((YTDocument) iRecord).deserializeFields();
+      ((YTEntityImpl) iRecord).deserializeFields();
       ORecordSerializer ser = ORecordSerializerFactory.instance().getFormat(name);
       stream = ser.toStream(connection.getDatabase(), iRecord);
     } else {

@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.db.YTLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.YTLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import javax.annotation.Nonnull;
 
@@ -64,9 +64,9 @@ public class OLiveQuery<T> extends OSQLSynchQuery<T> {
       BackwardYTLiveQueryResultListener listener = new BackwardYTLiveQueryResultListener();
       YTLiveQueryMonitor monitor = database.live(getText(), listener, iArgs);
       listener.token = monitor.getMonitorId();
-      YTDocument doc = new YTDocument();
+      YTEntityImpl doc = new YTEntityImpl();
       doc.setProperty("token", listener.token);
-      OLegacyResultSet<YTDocument> result = new OBasicLegacyResultSet<>();
+      OLegacyResultSet<YTEntityImpl> result = new OBasicLegacyResultSet<>();
       result.add(doc);
       return (RET) result;
     }

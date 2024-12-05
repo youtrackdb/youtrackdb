@@ -6,15 +6,15 @@ import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
 import com.orientechnologies.orient.core.metadata.schema.YTView;
 import com.orientechnologies.orient.core.record.YTEntity;
 
-public class YTViewDocument extends YTDocument {
+public class YTViewEntityImpl extends YTEntityImpl {
 
   private final YTView view;
 
-  public YTViewDocument(YTDatabaseSessionInternal database, int cluster) {
+  public YTViewEntityImpl(YTDatabaseSessionInternal database, int cluster) {
     view = database.getViewFromCluster(cluster);
   }
 
-  public YTViewDocument(YTDatabaseSessionInternal database, YTRID rid) {
+  public YTViewEntityImpl(YTDatabaseSessionInternal database, YTRID rid) {
     super(database, rid);
     view = database.getViewFromCluster(rid.getClusterId());
   }

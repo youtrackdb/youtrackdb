@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
 import org.junit.Assert;
@@ -124,22 +124,22 @@ public class UniqueIndexTest extends DBTestBase {
         .createIndex(db, YTClass.INDEX_TYPE.UNIQUE);
 
     db.begin();
-    YTDocument john = new YTDocument("User");
+    YTEntityImpl john = new YTEntityImpl("User");
     john.field("MailAddress", "john@doe.com");
     db.save(john);
     db.commit();
 
     db.begin();
-    YTDocument jane = new YTDocument("User");
+    YTEntityImpl jane = new YTEntityImpl("User");
     jane.field("MailAddress", "jane@doe.com");
-    YTDocument id = jane;
+    YTEntityImpl id = jane;
     jane.save();
     db.save(jane);
     db.commit();
 
     try {
       db.begin();
-      YTDocument toUp = db.load(id.getIdentity());
+      YTEntityImpl toUp = db.load(id.getIdentity());
       toUp.field("MailAddress", "john@doe.com");
       db.save(toUp);
       db.commit();
@@ -147,7 +147,7 @@ public class UniqueIndexTest extends DBTestBase {
     } catch (YTRecordDuplicatedException ex) {
       // ignore
     }
-    YTDocument fromDb = db.load(id.getIdentity());
+    YTEntityImpl fromDb = db.load(id.getIdentity());
     Assert.assertEquals(fromDb.field("MailAddress"), "jane@doe.com");
   }
 
@@ -159,7 +159,7 @@ public class UniqueIndexTest extends DBTestBase {
         .createIndex(db, YTClass.INDEX_TYPE.UNIQUE);
 
     db.begin();
-    YTDocument jane = new YTDocument("User");
+    YTEntityImpl jane = new YTEntityImpl("User");
     jane.field("MailAddress", "jane@doe.com");
     jane.save();
     db.commit();
@@ -169,7 +169,7 @@ public class UniqueIndexTest extends DBTestBase {
     reOpen("admin", "adminpwd");
 
     db.begin();
-    YTDocument joneJane = db.load(rid);
+    YTEntityImpl joneJane = db.load(rid);
 
     joneJane.field("MailAddress", "john@doe.com");
     joneJane.field("@version", -1);
@@ -181,7 +181,7 @@ public class UniqueIndexTest extends DBTestBase {
 
     try {
       db.begin();
-      YTDocument toUp = new YTDocument("User");
+      YTEntityImpl toUp = new YTEntityImpl("User");
       toUp.field("MailAddress", "john@doe.com");
 
       db.save(toUp);

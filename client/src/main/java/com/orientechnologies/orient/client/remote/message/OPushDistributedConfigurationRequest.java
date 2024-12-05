@@ -2,7 +2,7 @@ package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
@@ -16,7 +16,7 @@ import java.util.List;
 public class OPushDistributedConfigurationRequest
     implements OBinaryPushRequest<OBinaryPushResponse> {
 
-  public YTDocument configuration;
+  public YTEntityImpl configuration;
   private List<String> hosts;
 
   public OPushDistributedConfigurationRequest(List<String> hosts) {

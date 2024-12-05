@@ -4,7 +4,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
@@ -30,7 +30,7 @@ public class OTruncateClusterStatementExecutionTest extends DBTestBase {
     clazz.createIndex(db, "TruncateClusterIndex", YTClass.INDEX_TYPE.UNIQUE, "value");
 
     db.begin();
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
     document.field("value", "val");
 
     document.save(clusterName);

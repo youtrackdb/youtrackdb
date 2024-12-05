@@ -47,7 +47,7 @@ public class OrientJdbcStatement implements Statement {
   protected final Properties info;
   //   protected OCommandSQL               sql;
   protected String sql;
-  //  protected       List<YTDocument>      documents;
+  //  protected       List<YTEntityImpl>      documents;
   protected boolean closed;
   protected YTResultSet oResultSet;
   protected OrientJdbcResultSet resultSet;

@@ -9,7 +9,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,14 +49,14 @@ public class TransactionChangesDetectionTest {
   public void testTransactionChangeTrackingCompleted() {
     database.begin();
     final OTransactionOptimistic currentTx = (OTransactionOptimistic) database.getTransaction();
-    database.save(new YTDocument("test"));
+    database.save(new YTEntityImpl("test"));
     assertTrue(currentTx.isChanged());
     assertFalse(currentTx.isStartedOnServer());
     assertEquals(1, currentTx.getEntryCount());
     assertEquals(OTransaction.TXSTATUS.BEGUN, currentTx.getStatus());
 
     currentTx.resetChangesTracking();
-    database.save(new YTDocument("test"));
+    database.save(new YTEntityImpl("test"));
     assertTrue(currentTx.isChanged());
     assertTrue(currentTx.isStartedOnServer());
     assertEquals(2, currentTx.getEntryCount());
@@ -69,7 +69,7 @@ public class TransactionChangesDetectionTest {
   public void testTransactionChangeTrackingRolledBack() {
     database.begin();
     final OTransactionOptimistic currentTx = (OTransactionOptimistic) database.getTransaction();
-    database.save(new YTDocument("test"));
+    database.save(new YTEntityImpl("test"));
     assertTrue(currentTx.isChanged());
     assertFalse(currentTx.isStartedOnServer());
     assertEquals(1, currentTx.getEntryCount());
@@ -82,7 +82,7 @@ public class TransactionChangesDetectionTest {
   public void testTransactionChangeTrackingAfterRollback() {
     database.begin();
     final OTransactionOptimistic initialTx = (OTransactionOptimistic) database.getTransaction();
-    database.save(new YTDocument("test"));
+    database.save(new YTEntityImpl("test"));
     assertEquals(1, initialTx.getTxStartCounter());
     database.rollback();
     assertEquals(OTransaction.TXSTATUS.ROLLED_BACK, initialTx.getStatus());
@@ -92,7 +92,7 @@ public class TransactionChangesDetectionTest {
     assertTrue(database.getTransaction() instanceof OTransactionOptimistic);
     final OTransactionOptimistic currentTx = (OTransactionOptimistic) database.getTransaction();
     assertEquals(1, currentTx.getTxStartCounter());
-    database.save(new YTDocument("test"));
+    database.save(new YTEntityImpl("test"));
     assertTrue(currentTx.isChanged());
     assertFalse(currentTx.isStartedOnServer());
     assertEquals(1, currentTx.getEntryCount());
@@ -103,7 +103,7 @@ public class TransactionChangesDetectionTest {
   public void testTransactionTxStartCounterCommits() {
     database.begin();
     final OTransactionOptimistic currentTx = (OTransactionOptimistic) database.getTransaction();
-    database.save(new YTDocument("test"));
+    database.save(new YTEntityImpl("test"));
     assertEquals(1, currentTx.getTxStartCounter());
     assertEquals(1, currentTx.getEntryCount());
 
@@ -111,7 +111,7 @@ public class TransactionChangesDetectionTest {
     assertEquals(2, currentTx.getTxStartCounter());
     database.commit();
     assertEquals(1, currentTx.getTxStartCounter());
-    database.save(new YTDocument("test"));
+    database.save(new YTEntityImpl("test"));
     database.commit();
     assertEquals(0, currentTx.getTxStartCounter());
   }

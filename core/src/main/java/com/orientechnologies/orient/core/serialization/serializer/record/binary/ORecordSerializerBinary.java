@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTRecordFlat;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
@@ -91,7 +91,7 @@ public class ORecordSerializerBinary implements ORecordSerializer {
       return iRecord;
     }
     if (iRecord == null) {
-      iRecord = new YTDocument();
+      iRecord = new YTEntityImpl();
     } else if (iRecord instanceof YTBlob) {
       iRecord.fromStream(iSource);
       return iRecord;
@@ -104,10 +104,10 @@ public class ORecordSerializerBinary implements ORecordSerializer {
 
     try {
       if (iFields != null && iFields.length > 0) {
-        serializerByVersion[iSource[0]].deserializePartial(db, (YTDocument) iRecord, container,
+        serializerByVersion[iSource[0]].deserializePartial(db, (YTEntityImpl) iRecord, container,
             iFields);
       } else {
-        serializerByVersion[iSource[0]].deserialize(db, (YTDocument) iRecord, container);
+        serializerByVersion[iSource[0]].deserialize(db, (YTEntityImpl) iRecord, container);
       }
     } catch (RuntimeException e) {
       OLogManager.instance()
@@ -128,7 +128,7 @@ public class ORecordSerializerBinary implements ORecordSerializer {
     } else if (record instanceof YTRecordFlat) {
       return record.toStream();
     } else {
-      YTDocument documentToSerialize = (YTDocument) record;
+      YTEntityImpl documentToSerialize = (YTEntityImpl) record;
 
       final BytesContainer container = new BytesContainer();
 
@@ -144,7 +144,7 @@ public class ORecordSerializerBinary implements ORecordSerializer {
   }
 
   @Override
-  public String[] getFieldNames(YTDatabaseSessionInternal db, YTDocument reference,
+  public String[] getFieldNames(YTDatabaseSessionInternal db, YTEntityImpl reference,
       final byte[] iSource) {
     if (iSource == null || iSource.length == 0) {
       return new String[0];

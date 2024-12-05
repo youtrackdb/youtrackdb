@@ -11,17 +11,17 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class YTVertexDocument extends YTDocument implements YTVertexInternal {
+public class YTVertexEntityImpl extends YTEntityImpl implements YTVertexInternal {
 
-  public YTVertexDocument() {
+  public YTVertexEntityImpl() {
     super();
   }
 
-  public YTVertexDocument(YTDatabaseSessionInternal database, YTRID rid) {
+  public YTVertexEntityImpl(YTDatabaseSessionInternal database, YTRID rid) {
     super(database, rid);
   }
 
-  public YTVertexDocument(YTDatabaseSessionInternal session, String klass) {
+  public YTVertexEntityImpl(YTDatabaseSessionInternal session, String klass) {
     super(session, klass);
     if (!getImmutableSchemaClass().isVertexType()) {
       throw new IllegalArgumentException(getClassName() + " is not a vertex class");
@@ -94,10 +94,10 @@ public class YTVertexDocument extends YTDocument implements YTVertexInternal {
   }
 
   @Override
-  public YTVertexDocument copy() {
+  public YTVertexEntityImpl copy() {
     checkForBinding();
 
-    var newDoc = new YTVertexDocument();
+    var newDoc = new YTVertexEntityImpl();
     ORecordInternal.unsetDirty(newDoc);
     copyTo(newDoc);
     newDoc.dirty = true;
@@ -107,7 +107,7 @@ public class YTVertexDocument extends YTDocument implements YTVertexInternal {
 
   @Override
   @Nonnull
-  public YTDocument getBaseDocument() {
+  public YTEntityImpl getBaseDocument() {
     return this;
   }
 }

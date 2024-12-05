@@ -26,12 +26,12 @@ import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.id.YTImmutableRecordId;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.util.ODateHelper;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -76,7 +76,7 @@ public class OTableFormatter {
   protected String nullValue = "";
   private boolean leftBorder = true;
   private boolean rightBorder = true;
-  private YTDocument footer;
+  private YTEntityImpl footer;
 
   public interface OTableOutput {
 
@@ -109,8 +109,8 @@ public class OTableFormatter {
       resultSet.sort(
           (Comparator<Object>)
               (o1, o2) -> {
-                final YTDocument doc1 = ((YTIdentifiable) o1).getRecord();
-                final YTDocument doc2 = ((YTIdentifiable) o2).getRecord();
+                final YTEntityImpl doc1 = ((YTIdentifiable) o1).getRecord();
+                final YTEntityImpl doc2 = ((YTIdentifiable) o2).getRecord();
                 final Object value1 = doc1.field(columnSorting.getKey());
                 final Object value2 = doc2.field(columnSorting.getKey());
                 final boolean ascending = columnSorting.getValue();
@@ -196,8 +196,8 @@ public class OTableFormatter {
     // FORMAT THE LINE DYNAMICALLY
     List<String> vargs = new ArrayList<String>();
     try {
-      if (iRecord instanceof YTDocument) {
-        ((YTDocument) iRecord).setLazyLoad(false);
+      if (iRecord instanceof YTEntityImpl) {
+        ((YTEntityImpl) iRecord).setLazyLoad(false);
       }
 
       final StringBuilder format = new StringBuilder(maxWidthSize);
@@ -293,14 +293,14 @@ public class OTableFormatter {
     // RID
     {
       value = iRecord.getIdentity().toString();
-    } else if (iRecord instanceof YTDocument) {
-      value = ((YTDocument) iRecord).getProperty(iColumnName);
+    } else if (iRecord instanceof YTEntityImpl) {
+      value = ((YTEntityImpl) iRecord).getProperty(iColumnName);
     } else if (iRecord instanceof YTBlob) {
       value = "<binary> (size=" + ((YTRecordAbstract) iRecord).toStream().length + " bytes)";
     } else if (iRecord instanceof YTIdentifiable) {
       final YTRecord rec = iRecord.getRecord();
-      if (rec instanceof YTDocument) {
-        value = ((YTDocument) rec).getProperty(iColumnName);
+      if (rec instanceof YTEntityImpl) {
+        value = ((YTEntityImpl) rec).getProperty(iColumnName);
       } else if (rec instanceof YTBlob) {
         value = "<binary> (size=" + ((YTRecordAbstract) rec).toStream().length + " bytes)";
       }
@@ -349,7 +349,7 @@ public class OTableFormatter {
     return value.toString();
   }
 
-  public void setFooter(final YTDocument footer) {
+  public void setFooter(final YTEntityImpl footer) {
     this.footer = footer;
   }
 
@@ -358,8 +358,8 @@ public class OTableFormatter {
       value =
           getPrettyFieldMultiValue(
               ((OMultiCollectionIterator<?>) value).iterator(), multiValueMaxEntries);
-    } else if (value instanceof ORidBag) {
-      value = getPrettyFieldMultiValue(((ORidBag) value).iterator(), multiValueMaxEntries);
+    } else if (value instanceof RidBag) {
+      value = getPrettyFieldMultiValue(((RidBag) value).iterator(), multiValueMaxEntries);
     } else if (value instanceof Iterator) {
       value = getPrettyFieldMultiValue((Iterator<?>) value, multiValueMaxEntries);
     } else if (value instanceof Collection<?>) {
@@ -542,7 +542,7 @@ public class OTableFormatter {
         columns.put(c, getColumnSize(fetched, rec, c, columns.get(c)));
       }
 
-      if (rec instanceof YTDocument doc) {
+      if (rec instanceof YTEntityImpl doc) {
         doc.setLazyLoad(false);
         // PARSE ALL THE DOCUMENT'S FIELDS
         for (String fieldName : doc.getPropertyNames()) {

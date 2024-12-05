@@ -6,7 +6,7 @@ import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -15,12 +15,12 @@ import java.io.IOException;
 
 public class OPushSchemaRequest implements OBinaryPushRequest<OBinaryPushResponse> {
 
-  private YTDocument schema;
+  private YTEntityImpl schema;
 
   public OPushSchemaRequest() {
   }
 
-  public OPushSchemaRequest(YTDocument schema) {
+  public OPushSchemaRequest(YTEntityImpl schema) {
     this.schema = schema;
   }
 
@@ -39,7 +39,7 @@ public class OPushSchemaRequest implements OBinaryPushRequest<OBinaryPushRespons
   @Override
   public void read(YTDatabaseSessionInternal db, OChannelDataInput network) throws IOException {
     byte[] bytes = network.readBytes();
-    this.schema = (YTDocument) ORecordSerializerNetworkV37Client.INSTANCE.fromStream(db, bytes,
+    this.schema = (YTEntityImpl) ORecordSerializerNetworkV37Client.INSTANCE.fromStream(db, bytes,
         null);
   }
 
@@ -59,7 +59,7 @@ public class OPushSchemaRequest implements OBinaryPushRequest<OBinaryPushRespons
     return REQUEST_PUSH_SCHEMA;
   }
 
-  public YTDocument getSchema() {
+  public YTEntityImpl getSchema() {
     return schema;
   }
 }

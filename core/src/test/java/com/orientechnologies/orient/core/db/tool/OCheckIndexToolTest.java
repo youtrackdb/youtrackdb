@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.db.tool;
 import com.orientechnologies.BaseMemoryInternalDatabase;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,7 +20,7 @@ public class OCheckIndexToolTest extends BaseMemoryInternalDatabase {
     db.command("create index Foo.name on Foo (name) NOTUNIQUE").close();
 
     db.begin();
-    YTDocument doc = db.newInstance("Foo");
+    YTEntityImpl doc = db.newInstance("Foo");
     doc.field("name", "a");
     doc.save();
     db.commit();

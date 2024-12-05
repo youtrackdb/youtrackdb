@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -124,8 +124,8 @@ public class YTResultBinary implements YTResult {
   public Set<String> getPropertyNames() {
     final BytesContainer container = new BytesContainer(bytes);
     container.skip(offset);
-    // TODO: use something more correct that new YTDocument
-    String[] fields = serializer.getFieldNames(new YTDocument(), container, id == null);
+    // TODO: use something more correct that new YTEntityImpl
+    String[] fields = serializer.getFieldNames(new YTEntityImpl(), container, id == null);
     return new HashSet<>(Arrays.asList(fields));
   }
 
@@ -201,8 +201,8 @@ public class YTResultBinary implements YTResult {
         "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
   }
 
-  private YTDocument toDocument() {
-    YTDocument doc = new YTDocument();
+  private YTEntityImpl toDocument() {
+    YTEntityImpl doc = new YTEntityImpl();
     BytesContainer bytes = new BytesContainer(this.bytes);
     bytes.skip(offset);
 

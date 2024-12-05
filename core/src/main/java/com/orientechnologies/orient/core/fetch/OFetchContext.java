@@ -19,54 +19,56 @@ package com.orientechnologies.orient.core.fetch;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTFetchException;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 
 /**
  *
  */
 public interface OFetchContext {
 
-  void onBeforeFetch(final YTDocument iRootRecord) throws YTFetchException;
+  void onBeforeFetch(final YTEntityImpl iRootRecord) throws YTFetchException;
 
-  void onAfterFetch(final YTDocument iRootRecord) throws YTFetchException;
+  void onAfterFetch(final YTEntityImpl iRootRecord) throws YTFetchException;
 
   void onBeforeArray(
-      final YTDocument iRootRecord,
+      final YTEntityImpl iRootRecord,
       final String iFieldName,
       final Object iUserObject,
       final YTIdentifiable[] iArray)
       throws YTFetchException;
 
-  void onAfterArray(final YTDocument iRootRecord, final String iFieldName, final Object iUserObject)
+  void onAfterArray(final YTEntityImpl iRootRecord, final String iFieldName,
+      final Object iUserObject)
       throws YTFetchException;
 
   void onBeforeCollection(
-      final YTDocument iRootRecord,
+      final YTEntityImpl iRootRecord,
       final String iFieldName,
       final Object iUserObject,
       final Iterable<?> iterable)
       throws YTFetchException;
 
   void onAfterCollection(
-      final YTDocument iRootRecord, final String iFieldName, final Object iUserObject)
+      final YTEntityImpl iRootRecord, final String iFieldName, final Object iUserObject)
       throws YTFetchException;
 
-  void onBeforeMap(final YTDocument iRootRecord, final String iFieldName, final Object iUserObject)
+  void onBeforeMap(final YTEntityImpl iRootRecord, final String iFieldName,
+      final Object iUserObject)
       throws YTFetchException;
 
-  void onAfterMap(final YTDocument iRootRecord, final String iFieldName, final Object iUserObject)
+  void onAfterMap(final YTEntityImpl iRootRecord, final String iFieldName, final Object iUserObject)
       throws YTFetchException;
 
   void onBeforeDocument(
-      final YTDocument iRecord,
-      final YTDocument iDocument,
+      final YTEntityImpl iRecord,
+      final YTEntityImpl iDocument,
       final String iFieldName,
       final Object iUserObject)
       throws YTFetchException;
 
   void onAfterDocument(
-      final YTDocument iRootRecord,
-      final YTDocument iDocument,
+      final YTEntityImpl iRootRecord,
+      final YTEntityImpl iDocument,
       final String iFieldName,
       final Object iUserObject)
       throws YTFetchException;

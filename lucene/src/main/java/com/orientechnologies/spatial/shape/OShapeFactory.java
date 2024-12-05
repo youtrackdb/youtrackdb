@@ -15,7 +15,7 @@ package com.orientechnologies.spatial.shape;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,7 +66,7 @@ public class OShapeFactory extends OComplexShapeBuilder {
   }
 
   @Override
-  public Shape fromDoc(YTDocument document) {
+  public Shape fromDoc(YTEntityImpl document) {
     OShapeBuilder oShapeBuilder = factories.get(document.getClassName());
     if (oShapeBuilder != null) {
       return oShapeBuilder.fromDoc(document);
@@ -85,12 +85,12 @@ public class OShapeFactory extends OComplexShapeBuilder {
         e.printStackTrace();
       }
     }
-    if (obj instanceof YTDocument) {
-      return fromDoc((YTDocument) obj);
+    if (obj instanceof YTEntityImpl) {
+      return fromDoc((YTEntityImpl) obj);
     }
     if (obj instanceof YTResult) {
       YTEntity entity = ((YTResult) obj).toEntity();
-      return fromDoc((YTDocument) entity);
+      return fromDoc((YTEntityImpl) entity);
     }
     if (obj instanceof Map) {
       Map map = (Map) ((Map) obj).get("shape");
@@ -103,7 +103,7 @@ public class OShapeFactory extends OComplexShapeBuilder {
   }
 
   @Override
-  public String asText(YTDocument document) {
+  public String asText(YTEntityImpl document) {
     String className = document.getClassName();
     OShapeBuilder oShapeBuilder = factories.get(className);
     if (oShapeBuilder != null) {
@@ -124,10 +124,10 @@ public class OShapeFactory extends OComplexShapeBuilder {
 
     if (obj instanceof YTResult) {
       YTEntity entity = ((YTResult) obj).toEntity();
-      return asText((YTDocument) entity);
+      return asText((YTEntityImpl) entity);
     }
-    if (obj instanceof YTDocument) {
-      return asText((YTDocument) obj);
+    if (obj instanceof YTEntityImpl) {
+      return asText((YTEntityImpl) obj);
     }
     if (obj instanceof Map) {
       Map map = (Map) ((Map) obj).get("shape");
@@ -141,8 +141,8 @@ public class OShapeFactory extends OComplexShapeBuilder {
 
   public byte[] asBinary(Object obj) {
 
-    if (obj instanceof YTDocument) {
-      Shape shape = fromDoc((YTDocument) obj);
+    if (obj instanceof YTEntityImpl) {
+      Shape shape = fromDoc((YTEntityImpl) obj);
       return asBinary(shape);
     }
     if (obj instanceof Map) {
@@ -158,10 +158,10 @@ public class OShapeFactory extends OComplexShapeBuilder {
   }
 
   @Override
-  public YTDocument toDoc(Shape shape) {
+  public YTEntityImpl toDoc(Shape shape) {
 
     // TODO REFACTOR
-    YTDocument doc = null;
+    YTEntityImpl doc = null;
     if (Point.class.isAssignableFrom(shape.getClass())) {
       doc = factories.get(OPointShapeBuilder.NAME).toDoc(shape);
     } else if (Rectangle.class.isAssignableFrom(shape.getClass())) {
@@ -188,7 +188,7 @@ public class OShapeFactory extends OComplexShapeBuilder {
   }
 
   @Override
-  protected YTDocument toDoc(Shape shape, Geometry geometry) {
+  protected YTEntityImpl toDoc(Shape shape, Geometry geometry) {
     if (Point.class.isAssignableFrom(shape.getClass())) {
       return factories.get(OPointShapeBuilder.NAME).toDoc(shape, geometry);
     } else if (geometry != null && "LineString".equals(geometry.getClass().getSimpleName())) {
@@ -231,7 +231,7 @@ public class OShapeFactory extends OComplexShapeBuilder {
     }
   }
 
-  public YTDocument toDoc(Geometry geometry) {
+  public YTEntityImpl toDoc(Geometry geometry) {
     if (geometry instanceof org.locationtech.jts.geom.Point point) {
       Point point1 = context().makePoint(point.getX(), point.getY());
       return toDoc(point1);

@@ -18,7 +18,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.List;
 import org.locationtech.spatial4j.shape.Point;
@@ -50,7 +50,7 @@ public class ORectangleShapeBuilder extends OShapeBuilder<Rectangle> {
   }
 
   @Override
-  public Rectangle fromDoc(YTDocument document) {
+  public Rectangle fromDoc(YTEntityImpl document) {
     validate(document);
     List<Number> coordinates = document.field(COORDINATES);
 
@@ -65,9 +65,9 @@ public class ORectangleShapeBuilder extends OShapeBuilder<Rectangle> {
   }
 
   @Override
-  public YTDocument toDoc(final Rectangle shape) {
+  public YTEntityImpl toDoc(final Rectangle shape) {
 
-    YTDocument doc = new YTDocument(NAME);
+    YTEntityImpl doc = new YTEntityImpl(NAME);
 
     doc.field(
         COORDINATES,

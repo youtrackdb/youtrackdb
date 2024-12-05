@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
 import com.orientechnologies.orient.core.db.OSystemDatabase;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -52,7 +52,7 @@ public class OServerCommandGetListDatabases extends OServerCommandAuthenticatedS
 
     iRequest.getData().commandInfo = "Server status";
 
-    final YTDocument result = new YTDocument();
+    final YTEntityImpl result = new YTEntityImpl();
 
     // We copy the returned set so that we can modify it, and we use a LinkedHashSet to preserve the
     // ordering.

@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.metadata.security.OSecurity;
 import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
 import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.YTUser;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
@@ -82,7 +82,7 @@ public class SecurityTest extends DocumentDBBaseTest {
 
     try {
       database.begin();
-      new YTDocument().save("internal");
+      new YTEntityImpl().save("internal");
       database.commit();
 
       Assert.fail();
@@ -101,7 +101,7 @@ public class SecurityTest extends DocumentDBBaseTest {
       database.createClassIfNotExist("Profile");
 
       database.begin();
-      new YTDocument("Profile")
+      new YTEntityImpl("Profile")
           .fields(
               "nick",
               "error",

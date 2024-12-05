@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.parser.OStringParser;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import java.util.List;
 import org.testng.Assert;
@@ -93,10 +93,10 @@ public class StringsTest {
   }
 
   public void testDocumentSelfReference() {
-    YTDocument document = new YTDocument();
+    YTEntityImpl document = new YTEntityImpl();
     document.field("selfref", document);
 
-    YTDocument docTwo = new YTDocument();
+    YTEntityImpl docTwo = new YTEntityImpl();
     docTwo.field("ref", document);
     document.field("ref", docTwo);
 

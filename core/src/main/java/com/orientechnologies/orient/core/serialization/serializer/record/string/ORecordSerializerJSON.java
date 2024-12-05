@@ -29,12 +29,12 @@ import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OList;
-import com.orientechnologies.orient.core.db.record.OSet;
-import com.orientechnologies.orient.core.db.record.OTrackedList;
-import com.orientechnologies.orient.core.db.record.OTrackedSet;
+import com.orientechnologies.orient.core.db.record.LinkList;
+import com.orientechnologies.orient.core.db.record.LinkSet;
+import com.orientechnologies.orient.core.db.record.TrackedList;
+import com.orientechnologies.orient.core.db.record.TrackedSet;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.fetch.OFetchHelper;
@@ -54,8 +54,8 @@ import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.record.impl.YTDocumentEmbedded;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.orient.core.record.impl.YTEntityImplEmbedded;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.util.ODateHelper;
@@ -287,7 +287,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
         final String fieldValueAsString = OIOUtils.getStringContent(fieldValue);
 
         if (fieldName.equals(OFieldTypesString.ATTRIBUTE_FIELD_TYPES)
-            && record instanceof YTDocument) {
+            && record instanceof YTEntityImpl) {
           fieldTypes = OFieldTypesString.loadFieldTypesV0(fieldTypes, fieldValueAsString);
         } else {
           if (fieldName.equals(ODocumentHelper.ATTRIBUTE_TYPE)) {
@@ -305,7 +305,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
           } else {
             if (needReload
                 && fieldName.equals(ODocumentHelper.ATTRIBUTE_RID)
-                && record instanceof YTDocument) {
+                && record instanceof YTEntityImpl) {
               if (fieldValue != null && !fieldValue.isEmpty()) {
                 try {
                   record =
@@ -319,9 +319,9 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
               }
             } else {
               if (fieldName.equals(ODocumentHelper.ATTRIBUTE_CLASS)
-                  && record instanceof YTDocument) {
+                  && record instanceof YTEntityImpl) {
                 className = "null".equals(fieldValueAsString) ? null : fieldValueAsString;
-                ODocumentInternal.fillClassNameIfNeeded(((YTDocument) record), className);
+                ODocumentInternal.fillClassNameIfNeeded(((YTEntityImpl) record), className);
               }
             }
           }
@@ -329,7 +329,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
       }
 
       if (record == null) {
-        record = new YTDocument();
+        record = new YTEntityImpl();
         ORecordInternal.unsetDirty(record);
       }
 
@@ -344,7 +344,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
         }
         if (className != null) {
           // Trigger the default value
-          ((YTDocument) record).setClassName(className);
+          ((YTEntityImpl) record).setClassName(className);
         }
       } catch (Exception e) {
         if (record.getIdentity().isValid()) {
@@ -383,9 +383,9 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
           if (fieldName.equals(ODocumentHelper.ATTRIBUTE_TYPE)) {
           } else {
             if (fieldName.equals(OFieldTypesString.ATTRIBUTE_FIELD_TYPES)
-                && record instanceof YTDocument) {
+                && record instanceof YTEntityImpl) {
             } else {
-              if (fieldName.equals("value") && !(record instanceof YTDocument)) {
+              if (fieldName.equals("value") && !(record instanceof YTEntityImpl)) {
                 // RECORD VALUE(S)
                 if ("null".equals(fieldValue)) {
                   record.fromStream(OCommonConst.EMPTY_BYTE_ARRAY);
@@ -408,14 +408,14 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
                   }
                 }
               } else {
-                if (record instanceof YTDocument doc) {
+                if (record instanceof YTEntityImpl doc) {
 
                   // DETERMINE THE TYPE FROM THE SCHEMA
                   YTType type = determineType(doc, fieldName);
 
                   final Object v;
                   if (OStringSerializerHelper.SKIPPED_VALUE.equals(fieldValue)) {
-                    v = new ORidBag(db);
+                    v = new RidBag(db);
                   } else {
                     v =
                         getValueV0(db,
@@ -456,10 +456,10 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
                           return;
                         }
                       } else {
-                        if (v instanceof YTDocument && type != null && type.isLink()) {
-                          String className1 = ((YTDocument) v).getClassName();
+                        if (v instanceof YTEntityImpl && type != null && type.isLink()) {
+                          String className1 = ((YTEntityImpl) v).getClassName();
                           if (className1 != null && !className1.isEmpty()) {
-                            ((YTDocument) v).save();
+                            ((YTEntityImpl) v).save();
                           }
                         }
                       }
@@ -470,13 +470,13 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
                     type = OFieldTypesString.getType(fieldValue, fieldTypes.get(fieldName));
                   }
 
-                  if (v instanceof OTrackedSet<?>) {
-                    if (v instanceof OSet || OMultiValue.getFirstValue(
+                  if (v instanceof TrackedSet<?>) {
+                    if (v instanceof LinkSet || OMultiValue.getFirstValue(
                         v) instanceof YTIdentifiable) {
                       type = YTType.LINKSET;
                     }
                   } else {
-                    if (v instanceof OTrackedList<?>) {
+                    if (v instanceof TrackedList<?>) {
                       if (OMultiValue.getFirstValue(v) instanceof YTIdentifiable) {
                         type = YTType.LINKLIST;
                       }
@@ -506,7 +506,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
       OJSONFetchContext context = new OJSONFetchContext(json, settings);
       context.writeSignature(json, iRecord);
 
-      if (iRecord instanceof YTDocument) {
+      if (iRecord instanceof YTEntityImpl) {
         final OFetchPlan fp = OFetchHelper.buildFetchPlan(settings.fetchPlan);
 
         OFetchHelper.fetch(iRecord, null, fp, new OJSONFetchListener(), context, iFormat);
@@ -556,7 +556,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
       final OJSONFetchContext context = new OJSONFetchContext(json, settings);
       context.writeSignature(json, record);
 
-      if (record instanceof YTDocument) {
+      if (record instanceof YTEntityImpl) {
         final OFetchPlan fp = OFetchHelper.buildFetchPlan(settings.fetchPlan);
 
         OFetchHelper.fetch(record, null, fp, new OJSONFetchListener(), context, format);
@@ -595,7 +595,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
     return NAME;
   }
 
-  private YTType determineType(YTDocument doc, String fieldName) {
+  private YTType determineType(YTEntityImpl doc, String fieldName) {
     YTType type = null;
     final YTClass cls = ODocumentInternal.getImmutableSchemaClass(doc);
     if (cls != null) {
@@ -608,7 +608,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
   }
 
   private Object getValueV0(
-      YTDatabaseSessionInternal db, final YTDocument iRecord,
+      YTDatabaseSessionInternal db, final YTEntityImpl iRecord,
       String iFieldName,
       String iFieldValue,
       String iFieldValueAsString,
@@ -717,7 +717,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
           if (pos > -1)
           // CREATE DOCUMENT
           {
-            return new YTDocument(
+            return new YTEntityImpl(
                 iFieldValueAsString.substring(1, pos),
                 new YTRecordId(iFieldValueAsString.substring(pos + 1)));
           } else {
@@ -725,7 +725,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
             return new YTRecordId(iFieldValueAsString);
           }
         case EMBEDDED:
-          return fromString(db, iFieldValueAsString, new YTDocumentEmbedded(), null);
+          return fromString(db, iFieldValueAsString, new YTEntityImplEmbedded(), null);
         case DATE:
           if (iFieldValueAsString == null || iFieldValueAsString.isEmpty()) {
             return null;
@@ -801,7 +801,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
    * OBJECT OR MAP. CHECK THE TYPE ATTRIBUTE TO KNOW IT.
    */
   private Object getValueAsObjectOrMapV0(
-      YTDatabaseSessionInternal db, YTDocument iRecord,
+      YTDatabaseSessionInternal db, YTEntityImpl iRecord,
       String iFieldValue,
       YTType iType,
       YTType iLinkedType,
@@ -813,7 +813,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
 
     if (fields.length == 0) {
       if (iNoMap) {
-        YTDocument res = new YTDocument();
+        YTEntityImpl res = new YTEntityImpl();
         ODocumentInternal.addOwner(res, iRecord);
         return res;
       } else {
@@ -830,7 +830,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
   }
 
   private Object getObjectValuesAsMapV0(
-      YTDatabaseSessionInternal db, YTDocument iRecord,
+      YTDatabaseSessionInternal db, YTEntityImpl iRecord,
       String iFieldValue,
       YTType iLinkedType,
       Map<String, Character> iFieldTypes,
@@ -868,13 +868,14 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
   }
 
   private Object getObjectValuesAsRecordV0(
-      YTDatabaseSessionInternal db, YTDocument iRecord, String iFieldValue, YTType iType,
+      YTDatabaseSessionInternal db, YTEntityImpl iRecord, String iFieldValue, YTType iType,
       String iOptions, String[] fields) {
     YTRID rid = new YTRecordId(OIOUtils.getStringContent(getFieldValue("@rid", fields)));
     boolean shouldReload = rid.isTemporary();
 
-    final YTDocument recordInternal =
-        (YTDocument) fromString(db, iFieldValue, new YTDocument(), null, iOptions, shouldReload);
+    final YTEntityImpl recordInternal =
+        (YTEntityImpl) fromString(db, iFieldValue, new YTEntityImpl(), null, iOptions,
+            shouldReload);
 
     if (shouldBeDeserializedAsEmbedded(recordInternal, iType)) {
       ODocumentInternal.addOwner(recordInternal, iRecord);
@@ -882,7 +883,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
       YTDatabaseSession database = ODatabaseRecordThreadLocal.instance().getIfDefined();
 
       if (rid.isPersistent() && database != null) {
-        YTDocument documentToMerge = database.load(rid);
+        YTEntityImpl documentToMerge = database.load(rid);
         documentToMerge.merge(recordInternal, false, false);
         return documentToMerge;
       }
@@ -891,7 +892,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
   }
 
   private Object getValueAsCollectionV0(
-      YTDatabaseSessionInternal db, YTDocument iRecord,
+      YTDatabaseSessionInternal db, YTEntityImpl iRecord,
       String iFieldValue,
       YTType iType,
       YTType iLinkedType,
@@ -902,7 +903,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
     iFieldValue = iFieldValue.substring(1, iFieldValue.length() - 1);
 
     if (iType == YTType.LINKBAG) {
-      final ORidBag bag = new ORidBag(db);
+      final RidBag bag = new RidBag(db);
 
       parseRidBagV0(db,
           iRecord,
@@ -921,7 +922,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
     } else {
       if (iType == YTType.LINKSET) {
         return getValueAsLinkedCollectionV0(db,
-            new OSet(iRecord),
+            new LinkSet(iRecord),
             iRecord,
             iFieldValue,
             iType,
@@ -931,7 +932,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
       } else {
         if (iType == YTType.LINKLIST) {
           return getValueAsLinkedCollectionV0(db,
-              new OList(iRecord),
+              new LinkList(iRecord),
               iRecord,
               iFieldValue,
               iType,
@@ -941,7 +942,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
         } else {
           if (iType == YTType.EMBEDDEDSET) {
             return getValueAsEmbeddedCollectionV0(db,
-                new OTrackedSet<>(iRecord),
+                new TrackedSet<>(iRecord),
                 iRecord,
                 iFieldValue,
                 iType,
@@ -950,7 +951,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
                 iNoMap, iOptions);
           } else {
             return getValueAsEmbeddedCollectionV0(db,
-                new OTrackedList<>(iRecord),
+                new TrackedList<>(iRecord),
                 iRecord,
                 iFieldValue,
                 iType,
@@ -965,7 +966,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
 
   private Object getValueAsLinkedCollectionV0(
       YTDatabaseSessionInternal db, final Collection<YTIdentifiable> collection,
-      YTDocument iRecord,
+      YTEntityImpl iRecord,
       String iFieldValue,
       YTType iType,
       YTType iLinkedType,
@@ -992,7 +993,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
 
   private Object getValueAsEmbeddedCollectionV0(
       YTDatabaseSessionInternal db, final Collection<Object> collection,
-      YTDocument iRecord,
+      YTEntityImpl iRecord,
       String iFieldValue,
       YTType iType,
       YTType iLinkedType,
@@ -1017,7 +1018,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
   }
 
   private void parseRidBagV0(
-      YTDatabaseSessionInternal db, YTDocument iRecord,
+      YTDatabaseSessionInternal db, YTEntityImpl iRecord,
       String iFieldValue,
       YTType iType,
       Map<String, Character> iFieldTypes,
@@ -1053,7 +1054,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
 
           // TODO: redundant in some cases, owner is already added by getValueV0 in some cases
           if (shouldBeDeserializedAsEmbedded(collectionItem, iType)) {
-            ODocumentInternal.addOwner((YTDocument) collectionItem, iRecord);
+            ODocumentInternal.addOwner((YTEntityImpl) collectionItem, iRecord);
           }
           if (collectionItem != null) {
             visitor.visitItem(collectionItem);
@@ -1064,7 +1065,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
   }
 
   private void parseCollectionV0(
-      YTDatabaseSessionInternal db, YTDocument iRecord,
+      YTDatabaseSessionInternal db, YTEntityImpl iRecord,
       String iFieldValue,
       YTType iType,
       YTType iLinkedType,
@@ -1092,7 +1093,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
 
         // TODO redundant in some cases, owner is already added by getValueV0 in some cases
         if (shouldBeDeserializedAsEmbedded(collectionItem, iType)) {
-          ODocumentInternal.addOwner((YTDocument) collectionItem, iRecord);
+          ODocumentInternal.addOwner((YTEntityImpl) collectionItem, iRecord);
         }
 
         visitor.visitItem(collectionItem);
@@ -1101,9 +1102,9 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
   }
 
   private boolean shouldBeDeserializedAsEmbedded(Object record, YTType iType) {
-    return record instanceof YTDocument
-        && !((YTDocument) record).getIdentity().isTemporary()
-        && !((YTDocument) record).getIdentity().isPersistent()
+    return record instanceof YTEntityImpl
+        && !((YTEntityImpl) record).getIdentity().isTemporary()
+        && !((YTEntityImpl) record).getIdentity().isPersistent()
         && (iType == null || !iType.isLink());
   }
 

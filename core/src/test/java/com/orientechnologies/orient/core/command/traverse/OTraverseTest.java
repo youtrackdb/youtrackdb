@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.command.traverse;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,13 +15,13 @@ import org.junit.Test;
  */
 public class OTraverseTest extends DBTestBase {
 
-  private YTDocument rootDocument;
+  private YTEntityImpl rootDocument;
   private OTraverse traverse;
 
   public void beforeTest() throws Exception {
     super.beforeTest();
 
-    rootDocument = new YTDocument();
+    rootDocument = new YTEntityImpl();
     traverse = new OTraverse(db);
     traverse.target(rootDocument).fields("*");
   }
@@ -29,41 +29,41 @@ public class OTraverseTest extends DBTestBase {
   @Test
   public void testDepthTraverse() {
 
-    final YTDocument aa = new YTDocument();
-    final YTDocument ab = new YTDocument();
-    final YTDocument ba = new YTDocument();
-    final YTDocument bb = new YTDocument();
-    final YTDocument a = new YTDocument();
+    final YTEntityImpl aa = new YTEntityImpl();
+    final YTEntityImpl ab = new YTEntityImpl();
+    final YTEntityImpl ba = new YTEntityImpl();
+    final YTEntityImpl bb = new YTEntityImpl();
+    final YTEntityImpl a = new YTEntityImpl();
     a.setProperty("aa", aa, YTType.LINK);
     a.setProperty("ab", ab, YTType.LINK);
-    final YTDocument b = new YTDocument();
+    final YTEntityImpl b = new YTEntityImpl();
     b.setProperty("ba", ba, YTType.LINK);
     b.setProperty("bb", bb, YTType.LINK);
 
     rootDocument.setProperty("a", a, YTType.LINK);
     rootDocument.setProperty("b", b, YTType.LINK);
 
-    final YTDocument c1 = new YTDocument();
-    final YTDocument c1a = new YTDocument();
+    final YTEntityImpl c1 = new YTEntityImpl();
+    final YTEntityImpl c1a = new YTEntityImpl();
     c1.setProperty("c1a", c1a, YTType.LINK);
-    final YTDocument c1b = new YTDocument();
+    final YTEntityImpl c1b = new YTEntityImpl();
     c1.setProperty("c1b", c1b, YTType.LINK);
-    final YTDocument c2 = new YTDocument();
-    final YTDocument c2a = new YTDocument();
+    final YTEntityImpl c2 = new YTEntityImpl();
+    final YTEntityImpl c2a = new YTEntityImpl();
     c2.setProperty("c2a", c2a, YTType.LINK);
-    final YTDocument c2b = new YTDocument();
+    final YTEntityImpl c2b = new YTEntityImpl();
     c2.setProperty("c2b", c2b, YTType.LINK);
-    final YTDocument c3 = new YTDocument();
-    final YTDocument c3a = new YTDocument();
+    final YTEntityImpl c3 = new YTEntityImpl();
+    final YTEntityImpl c3a = new YTEntityImpl();
     c3.setProperty("c3a", c3a, YTType.LINK);
-    final YTDocument c3b = new YTDocument();
+    final YTEntityImpl c3b = new YTEntityImpl();
     c3.setProperty("c3b", c3b, YTType.LINK);
     rootDocument.setProperty("c", new ArrayList<>(Arrays.asList(c1, c2, c3)), YTType.LINKLIST);
 
     db.executeInTx(() -> rootDocument.save(db.getClusterNameById(db.getDefaultClusterId())));
 
     rootDocument = db.bindToSession(rootDocument);
-    final List<YTDocument> expectedResult =
+    final List<YTEntityImpl> expectedResult =
         Arrays.asList(
             rootDocument,
             db.bindToSession(a),
@@ -91,41 +91,41 @@ public class OTraverseTest extends DBTestBase {
   public void testBreadthTraverse() throws Exception {
     traverse.setStrategy(OTraverse.STRATEGY.BREADTH_FIRST);
 
-    final YTDocument aa = new YTDocument();
-    final YTDocument ab = new YTDocument();
-    final YTDocument ba = new YTDocument();
-    final YTDocument bb = new YTDocument();
-    final YTDocument a = new YTDocument();
+    final YTEntityImpl aa = new YTEntityImpl();
+    final YTEntityImpl ab = new YTEntityImpl();
+    final YTEntityImpl ba = new YTEntityImpl();
+    final YTEntityImpl bb = new YTEntityImpl();
+    final YTEntityImpl a = new YTEntityImpl();
     a.setProperty("aa", aa, YTType.LINK);
     a.setProperty("ab", ab, YTType.LINK);
-    final YTDocument b = new YTDocument();
+    final YTEntityImpl b = new YTEntityImpl();
     b.setProperty("ba", ba, YTType.LINK);
     b.setProperty("bb", bb, YTType.LINK);
 
     rootDocument.setProperty("a", a, YTType.LINK);
     rootDocument.setProperty("b", b, YTType.LINK);
 
-    final YTDocument c1 = new YTDocument();
-    final YTDocument c1a = new YTDocument();
+    final YTEntityImpl c1 = new YTEntityImpl();
+    final YTEntityImpl c1a = new YTEntityImpl();
     c1.setProperty("c1a", c1a, YTType.LINK);
-    final YTDocument c1b = new YTDocument();
+    final YTEntityImpl c1b = new YTEntityImpl();
     c1.setProperty("c1b", c1b, YTType.LINK);
-    final YTDocument c2 = new YTDocument();
-    final YTDocument c2a = new YTDocument();
+    final YTEntityImpl c2 = new YTEntityImpl();
+    final YTEntityImpl c2a = new YTEntityImpl();
     c2.setProperty("c2a", c2a, YTType.LINK);
-    final YTDocument c2b = new YTDocument();
+    final YTEntityImpl c2b = new YTEntityImpl();
     c2.setProperty("c2b", c2b, YTType.LINK);
-    final YTDocument c3 = new YTDocument();
-    final YTDocument c3a = new YTDocument();
+    final YTEntityImpl c3 = new YTEntityImpl();
+    final YTEntityImpl c3a = new YTEntityImpl();
     c3.setProperty("c3a", c3a, YTType.LINK);
-    final YTDocument c3b = new YTDocument();
+    final YTEntityImpl c3b = new YTEntityImpl();
     c3.setProperty("c3b", c3b, YTType.LINK);
     rootDocument.setProperty("c", new ArrayList<>(Arrays.asList(c1, c2, c3)), YTType.LINKLIST);
 
     db.executeInTx(() -> rootDocument.save(db.getClusterNameById(db.getDefaultClusterId())));
 
     rootDocument = db.bindToSession(rootDocument);
-    final List<YTDocument> expectedResult =
+    final List<YTEntityImpl> expectedResult =
         Arrays.asList(
             rootDocument,
             db.bindToSession(a),
@@ -149,7 +149,7 @@ public class OTraverseTest extends DBTestBase {
     compareTraverseResults(expectedResult, results);
   }
 
-  private void compareTraverseResults(List<YTDocument> expectedResult,
+  private void compareTraverseResults(List<YTEntityImpl> expectedResult,
       List<YTIdentifiable> results) {
     boolean equality = results.size() == expectedResult.size();
     for (int i = 0; i < expectedResult.size() && equality; i++) {

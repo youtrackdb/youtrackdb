@@ -19,7 +19,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.List;
@@ -38,7 +38,7 @@ public class OSystemDBImporter extends Thread {
     return enabled;
   }
 
-  public OSystemDBImporter(final YouTrackDBInternal context, final YTDocument jsonConfig) {
+  public OSystemDBImporter(final YouTrackDBInternal context, final YTEntityImpl jsonConfig) {
     super(YouTrackDBManager.instance().getThreadGroup(), "YouTrackDB Auditing Log Importer Thread");
 
     this.context = context;
@@ -125,7 +125,7 @@ public class OSystemDBImporter extends Thread {
         while (result.hasNext()) {
           YTResult doc = result.next();
           try {
-            YTEntity copy = new YTDocument();
+            YTEntity copy = new YTEntityImpl();
 
             if (doc.hasProperty("date")) {
               copy.setProperty("date", doc.getProperty("date"), YTType.DATETIME);
@@ -151,7 +151,7 @@ public class OSystemDBImporter extends Thread {
               // Convert user RID to username.
               if (doc.hasProperty("user")) {
                 // doc.field("user") will throw an exception if the user's YTRID is not found.
-                YTDocument userDoc = doc.getProperty("user");
+                YTEntityImpl userDoc = doc.getProperty("user");
                 final String username = userDoc.field("name");
 
                 if (username != null) {

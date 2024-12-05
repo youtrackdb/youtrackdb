@@ -4,7 +4,7 @@ import com.orientechnologies.lucene.collections.OLuceneResultSet;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.functions.OIndexableSQLFunction;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 import com.orientechnologies.orient.core.sql.parser.OBinaryCompareOperator;
@@ -75,16 +75,16 @@ public abstract class OLuceneSearchFunctionTemplate extends OSQLFunctionAbstract
 
   protected Map<String, ?> getMetadata(OExpression metadata, OCommandContext ctx) {
     final Object md = metadata.execute((YTIdentifiable) null, ctx);
-    if (md instanceof YTDocument document) {
+    if (md instanceof YTEntityImpl document) {
       return document.toMap();
     } else if (md instanceof Map map) {
       return map;
     } else if (md instanceof String) {
-      var doc = new YTDocument();
+      var doc = new YTEntityImpl();
       doc.fromJSON((String) md);
       return doc.toMap();
     } else {
-      var doc = new YTDocument();
+      var doc = new YTEntityImpl();
       doc.fromJSON(metadata.toString());
       return doc.toMap();
     }

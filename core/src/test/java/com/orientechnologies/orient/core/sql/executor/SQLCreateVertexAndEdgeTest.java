@@ -21,7 +21,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -100,7 +100,7 @@ public class SQLCreateVertexAndEdgeTest extends DBTestBase {
             "create edge from " + v1.getIdentity() + " to " + v4.getIdentity() + " set weight = 3");
     db.commit();
 
-    YTDocument e3 = edges.next().getIdentity().get().getRecord();
+    YTEntityImpl e3 = edges.next().getIdentity().get().getRecord();
     Assert.assertEquals(e3.getClassName(), "E");
     Assert.assertEquals(e3.field("out"), v1);
     Assert.assertEquals(e3.field("in"), v4);
@@ -115,7 +115,7 @@ public class SQLCreateVertexAndEdgeTest extends DBTestBase {
                 + v3.getIdentity()
                 + " set weight = 10");
     db.commit();
-    YTDocument e4 = edges.next().getIdentity().get().getRecord();
+    YTEntityImpl e4 = edges.next().getIdentity().get().getRecord();
     Assert.assertEquals(e4.getClassName(), "E1");
     Assert.assertEquals(e4.field("out"), v2);
     Assert.assertEquals(e4.field("in"), v3);
@@ -130,7 +130,7 @@ public class SQLCreateVertexAndEdgeTest extends DBTestBase {
                 + v5.getIdentity()
                 + " set weight = 17");
     db.commit();
-    YTDocument e5 = edges.next().getIdentity().get().getRecord();
+    YTEntityImpl e5 = edges.next().getIdentity().get().getRecord();
     Assert.assertEquals(e5.getClassName(), "E1");
     Assert.assertEquals(e5.getIdentity().getClusterId(), eclusterId);
   }

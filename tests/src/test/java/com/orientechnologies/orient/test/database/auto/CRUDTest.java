@@ -19,17 +19,17 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.orient.core.db.record.OList;
-import com.orientechnologies.orient.core.db.record.OSet;
-import com.orientechnologies.orient.core.db.record.OTrackedList;
-import com.orientechnologies.orient.core.db.record.OTrackedMap;
-import com.orientechnologies.orient.core.db.record.OTrackedSet;
+import com.orientechnologies.orient.core.db.record.LinkList;
+import com.orientechnologies.orient.core.db.record.LinkSet;
+import com.orientechnologies.orient.core.db.record.TrackedList;
+import com.orientechnologies.orient.core.db.record.TrackedMap;
+import com.orientechnologies.orient.core.db.record.TrackedSet;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import java.io.ByteArrayOutputStream;
@@ -165,7 +165,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    YTDocument loadedRecord = database.load(id);
+    YTEntityImpl loadedRecord = database.load(id);
     Assert.assertEquals(loadedRecord.getProperty("text"), "test");
     Assert.assertEquals(loadedRecord.<Integer>getProperty("numberSimple"), 12345);
     Assert.assertEquals(loadedRecord.<Double>getProperty("doubleSimple"), 12.34d);
@@ -425,9 +425,9 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    List<YTDocument> agendas = executeQuery("SELECT FROM " + rid);
+    List<YTEntityImpl> agendas = executeQuery("SELECT FROM " + rid);
 
-    YTDocument testLoadedEntity = agendas.get(0);
+    YTEntityImpl testLoadedEntity = agendas.get(0);
 
     checkCollectionImplementations(testLoadedEntity);
 
@@ -469,7 +469,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    List<YTDocument> agendas = executeQuery("SELECT FROM " + rid);
+    List<YTEntityImpl> agendas = executeQuery("SELECT FROM " + rid);
     var testLoadedEntity = agendas.get(0);
 
     checkCollectionImplementations(testLoadedEntity);
@@ -507,7 +507,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    List<YTDocument> agendas = executeQuery("SELECT FROM " + rid);
+    List<YTEntityImpl> agendas = executeQuery("SELECT FROM " + rid);
     var testLoadedEntity = agendas.get(0);
     checkCollectionImplementations(testLoadedEntity);
 
@@ -522,10 +522,10 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.rollback();
   }
 
-  protected static void checkCollectionImplementations(YTDocument doc) {
+  protected static void checkCollectionImplementations(YTEntityImpl doc) {
     Object collectionObj = doc.field("list");
     boolean validImplementation =
-        (collectionObj instanceof OTrackedList<?>) || (doc.field("list") instanceof OList);
+        (collectionObj instanceof TrackedList<?>) || (doc.field("list") instanceof LinkList);
     if (!validImplementation) {
       Assert.fail(
           "Document list implementation "
@@ -534,7 +534,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     }
     collectionObj = doc.field("set");
     validImplementation =
-        (collectionObj instanceof OTrackedSet<?>) || (collectionObj instanceof OSet);
+        (collectionObj instanceof TrackedSet<?>) || (collectionObj instanceof LinkSet);
     if (!validImplementation) {
       Assert.fail(
           "Document set implementation "
@@ -542,7 +542,7 @@ public class CRUDTest extends DocumentDBBaseTest {
               + " not compatible with current Object Database management");
     }
     collectionObj = doc.field("children");
-    validImplementation = collectionObj instanceof OTrackedMap<?>;
+    validImplementation = collectionObj instanceof TrackedMap<?>;
     if (!validImplementation) {
       Assert.fail(
           "Document map implementation "
@@ -610,7 +610,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "readAndBrowseDescendingAndCheckHoleUtilization")
   public void mapEnumAndInternalObjects() {
-    database.executeInTxBatches((Iterator<YTDocument>) database.browseClass("OUser"),
+    database.executeInTxBatches((Iterator<YTEntityImpl>) database.browseClass("OUser"),
         ((session, document) -> {
           document.save();
         }));
@@ -654,7 +654,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    List<YTDocument> cresult = executeQuery("select * from Child");
+    List<YTEntityImpl> cresult = executeQuery("select * from Child");
 
     Assert.assertFalse(cresult.isEmpty());
 
@@ -750,7 +750,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    List<YTDocument> agendas = executeQuery("SELECT FROM " + rid);
+    List<YTEntityImpl> agendas = executeQuery("SELECT FROM " + rid);
     YTEntity agenda = agendas.get(0);
     //noinspection unused,StatementWithEmptyBody
     for (var e : agenda.<List<YTEntity>>getProperty("events")) {
@@ -783,7 +783,7 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "listObjectsIterationTest")
   public void mapObjectsListEmbeddedTest() {
     database.begin();
-    List<YTDocument> cresult = executeQuery("select * from Child");
+    List<YTEntityImpl> cresult = executeQuery("select * from Child");
 
     int childSize = cresult.size();
 
@@ -884,7 +884,7 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "mapObjectsListEmbeddedTest")
   public void mapObjectsSetEmbeddedTest() {
     database.begin();
-    List<YTDocument> cresult = executeQuery("select * from Child");
+    List<YTEntityImpl> cresult = executeQuery("select * from Child");
 
     int childSize = cresult.size();
 
@@ -949,7 +949,7 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "mapObjectsSetEmbeddedTest")
   public void mapObjectsMapEmbeddedTest() {
     database.begin();
-    List<YTDocument> cresult = executeQuery("select * from Child");
+    List<YTEntityImpl> cresult = executeQuery("select * from Child");
 
     int childSize = cresult.size();
 
@@ -1049,7 +1049,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    List<YTDocument> cresult = executeQuery("select * from Child");
+    List<YTEntityImpl> cresult = executeQuery("select * from Child");
 
     Assert.assertFalse(cresult.isEmpty());
 
@@ -1133,7 +1133,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    List<YTDocument> cresult = executeQuery("select * from Child");
+    List<YTEntityImpl> cresult = executeQuery("select * from Child");
     Assert.assertFalse(cresult.isEmpty());
 
     YTRID rid = p.getIdentity();
@@ -2117,12 +2117,12 @@ public class CRUDTest extends DocumentDBBaseTest {
     YTEntity p = database.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Dean Winchester");
 
-    YTDocument testEmbeddedDocument = new YTDocument();
+    YTEntityImpl testEmbeddedDocument = new YTEntityImpl();
     testEmbeddedDocument.field("testEmbeddedField", "testEmbeddedValue");
 
     p.setProperty("embeddedDocument", testEmbeddedDocument);
 
-    YTDocument testDocument = new YTDocument();
+    YTEntityImpl testDocument = new YTEntityImpl();
     testDocument.field("testField", "testValue");
 
     database.begin();
@@ -2167,12 +2167,12 @@ public class CRUDTest extends DocumentDBBaseTest {
       Assert.fail();
       OLogManager.instance().error(this, "Error reading byte[]", ioe);
     }
-    Assert.assertTrue(loaded.getElementProperty("document") instanceof YTDocument);
+    Assert.assertTrue(loaded.getElementProperty("document") instanceof YTEntityImpl);
     Assert.assertEquals(
         loaded.getElementProperty("document").getProperty("testField"), "testValue");
     Assert.assertTrue(loaded.getElementProperty("document").getIdentity().isPersistent());
 
-    Assert.assertTrue(loaded.getElementProperty("embeddedDocument") instanceof YTDocument);
+    Assert.assertTrue(loaded.getElementProperty("embeddedDocument") instanceof YTEntityImpl);
     Assert.assertEquals(
         loaded.getElementProperty("embeddedDocument").getProperty("testEmbeddedField"),
         "testEmbeddedValue");
@@ -2329,7 +2329,7 @@ public class CRUDTest extends DocumentDBBaseTest {
   public void update() {
     int[] i = new int[]{0};
 
-    database.executeInTxBatches((Iterator<YTDocument>) database.browseClass("Account"),
+    database.executeInTxBatches((Iterator<YTEntityImpl>) database.browseClass("Account"),
         (session, a) -> {
           if (i[0] % 2 == 0) {
             var addresses = a.<List<YTIdentifiable>>getProperty("addresses");
@@ -2443,7 +2443,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     for (YTEntity obj : database.browseClass("Profile")) {
       var followersList = obj.<Set<YTIdentifiable>>getProperty("followers");
-      Assert.assertTrue(followersList == null || followersList instanceof OSet);
+      Assert.assertTrue(followersList == null || followersList instanceof LinkSet);
       if (obj.<String>getProperty("nick").equals("Neo")) {
         Assert.assertEquals(obj.<Set<YTIdentifiable>>getProperty("followers").size(), 2);
         Assert.assertEquals(
@@ -2464,12 +2464,12 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "checkLazyLoadingOff")
   public void queryPerFloat() {
     database.begin();
-    final List<YTDocument> result = executeQuery("select * from Account where salary = 500.10");
+    final List<YTEntityImpl> result = executeQuery("select * from Account where salary = 500.10");
 
     Assert.assertFalse(result.isEmpty());
 
     YTEntity account;
-    for (YTDocument entries : result) {
+    for (YTEntityImpl entries : result) {
       account = entries;
       Assert.assertEquals(account.<Float>getProperty("salary"), 500.10f);
     }
@@ -2479,13 +2479,13 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "checkLazyLoadingOff")
   public void queryCross3Levels() {
     database.begin();
-    final List<YTDocument> result =
+    final List<YTEntityImpl> result =
         executeQuery("select from Profile where location.city.country.name = 'Spain'");
 
     Assert.assertFalse(result.isEmpty());
 
     YTEntity profile;
-    for (YTDocument entries : result) {
+    for (YTEntityImpl entries : result) {
       profile = entries;
       Assert.assertEquals(
           profile
@@ -2507,7 +2507,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     startRecordNumber = database.countClass("Account");
 
     // DELETE ALL THE RECORD IN THE CLASS
-    database.forEachInTx((Iterator<YTDocument>) database.browseClass("Account"),
+    database.forEachInTx((Iterator<YTEntityImpl>) database.browseClass("Account"),
         ((session, document) -> {
           session.delete(document);
           return false;
@@ -2519,7 +2519,7 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test
   public void commandWithPositionalParameters() {
     database.begin();
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         executeQuery("select from Profile where name = ? and surname = ?", "Barack", "Obama");
 
     Assert.assertFalse(result.isEmpty());
@@ -2529,7 +2529,7 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test
   public void queryWithPositionalParameters() {
     database.begin();
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         executeQuery("select from Profile where name = ? and surname = ?", "Barack", "Obama");
 
     Assert.assertFalse(result.isEmpty());
@@ -2540,7 +2540,7 @@ public class CRUDTest extends DocumentDBBaseTest {
   public void queryWithRidAsParameters() {
     database.begin();
     YTEntity profile = database.browseClass("Profile").next();
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         executeQuery("select from Profile where @rid = ?", profile.getIdentity());
 
     Assert.assertEquals(result.size(), 1);
@@ -2551,7 +2551,7 @@ public class CRUDTest extends DocumentDBBaseTest {
   public void queryWithRidStringAsParameters() {
     database.begin();
     YTEntity profile = database.browseClass("Profile").next();
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         executeQuery("select from Profile where @rid = ?", profile.getIdentity());
 
     Assert.assertEquals(result.size(), 1);
@@ -2567,7 +2567,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     params.put("surname", "Obama");
 
     database.begin();
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         executeQuery("select from Profile where name = :name and surname = :surname", params);
     Assert.assertFalse(result.isEmpty());
     database.commit();
@@ -2633,8 +2633,8 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     parent = database.save(parent);
 
-    List<YTDocument> presult = executeQuery("select from Parent");
-    List<YTDocument> cresult = executeQuery("select from EmbeddedChild");
+    List<YTEntityImpl> presult = executeQuery("select from Parent");
+    List<YTEntityImpl> cresult = executeQuery("select from EmbeddedChild");
     Assert.assertEquals(presult.size(), 1);
     Assert.assertEquals(cresult.size(), 0);
 
@@ -2689,9 +2689,9 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test
   public void queryById() {
     database.begin();
-    List<YTDocument> result1 = executeQuery("select from Profile limit 1");
+    List<YTEntityImpl> result1 = executeQuery("select from Profile limit 1");
 
-    List<YTDocument> result2 =
+    List<YTEntityImpl> result2 =
         executeQuery("select from Profile where @rid = ?", result1.get(0).getIdentity());
 
     Assert.assertFalse(result2.isEmpty());
@@ -2705,7 +2705,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    List<YTDocument> result1 = executeQuery("select from Profile where nick = 'foo'");
+    List<YTEntityImpl> result1 = executeQuery("select from Profile where nick = 'foo'");
 
     Assert.assertEquals(result1.size(), 1);
     Assert.assertEquals(result1.get(0).getClassName(), "Profile");

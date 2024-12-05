@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.metadata.schema.validation;
 
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 
 public class ValidationLinkbagComparable implements Comparable<Object> {
 
@@ -12,6 +12,6 @@ public class ValidationLinkbagComparable implements Comparable<Object> {
 
   @Override
   public int compareTo(Object o) {
-    return size - ((ORidBag) o).size();
+    return size - ((RidBag) o).size();
   }
 }

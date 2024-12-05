@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OJson;
 
@@ -28,18 +28,18 @@ public class UpdateMergeStep extends AbstractExecutionStep {
 
   private YTResult mapResult(YTResult result, OCommandContext ctx) {
     if (result instanceof YTResultInternal) {
-      if (!(result.getEntity().orElse(null) instanceof YTDocument)) {
+      if (!(result.getEntity().orElse(null) instanceof YTEntityImpl)) {
         ((YTResultInternal) result).setIdentifiable(result.toEntity().getRecord());
       }
-      if (!(result.getEntity().orElse(null) instanceof YTDocument)) {
+      if (!(result.getEntity().orElse(null) instanceof YTEntityImpl)) {
         return result;
       }
-      handleMerge((YTDocument) result.getEntity().orElse(null), ctx);
+      handleMerge((YTEntityImpl) result.getEntity().orElse(null), ctx);
     }
     return result;
   }
 
-  private void handleMerge(YTDocument record, OCommandContext ctx) {
+  private void handleMerge(YTEntityImpl record, OCommandContext ctx) {
     record.merge(json.toDocument(record, ctx), true, false);
   }
 

@@ -18,7 +18,7 @@ package com.orientechnologies.orient.core.sql.method.misc;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,8 +47,8 @@ public class OSQLMethodKeys extends OAbstractSQLMethod {
     if (ioResult instanceof Map) {
       return ((Map<?, ?>) ioResult).keySet();
     }
-    if (ioResult instanceof YTDocument) {
-      return Arrays.asList(((YTDocument) ioResult).fieldNames());
+    if (ioResult instanceof YTEntityImpl) {
+      return Arrays.asList(((YTEntityImpl) ioResult).fieldNames());
     }
     if (ioResult instanceof YTResult res) {
       return res.getPropertyNames();

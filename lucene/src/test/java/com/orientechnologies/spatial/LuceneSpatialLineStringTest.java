@@ -18,7 +18,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
 
     db.command("CREATE INDEX Place.location ON Place(location) SPATIAL ENGINE LUCENE").close();
 
-    YTDocument linestring1 = new YTDocument("Place");
+    YTEntityImpl linestring1 = new YTEntityImpl("Place");
     linestring1.field("name", "LineString1");
     linestring1.field(
         "location",
@@ -61,7 +61,7 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
               }
             }));
 
-    YTDocument linestring2 = new YTDocument("Place");
+    YTEntityImpl linestring2 = new YTEntityImpl("Place");
     linestring2.field("name", "LineString2");
     linestring2.field(
         "location",
@@ -87,8 +87,8 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
     db.commit();
   }
 
-  public YTDocument createLineString(List<List<Double>> coordinates) {
-    YTDocument location = new YTDocument("OLineString");
+  public YTEntityImpl createLineString(List<List<Double>> coordinates) {
+    YTEntityImpl location = new YTEntityImpl("OLineString");
     location.field("coordinates", coordinates);
     return location;
   }
@@ -108,7 +108,7 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
     Assert.assertEquals(1, docs.size());
 
     query = "select * from Place where location && 'LINESTRING(1 2, 4 6)' ";
-    docs = db.query(new OSQLSynchQuery<YTDocument>(query));
+    docs = db.query(new OSQLSynchQuery<YTEntityImpl>(query));
 
     Assert.assertEquals(1, docs.size());
 

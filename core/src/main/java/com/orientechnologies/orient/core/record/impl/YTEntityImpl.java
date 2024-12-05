@@ -32,18 +32,18 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.YTDatabaseSessionAbstract;
-import com.orientechnologies.orient.core.db.record.OList;
-import com.orientechnologies.orient.core.db.record.OMap;
+import com.orientechnologies.orient.core.db.record.LinkList;
+import com.orientechnologies.orient.core.db.record.LinkMap;
+import com.orientechnologies.orient.core.db.record.LinkSet;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.db.record.OSet;
-import com.orientechnologies.orient.core.db.record.OTrackedList;
-import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
-import com.orientechnologies.orient.core.db.record.OTrackedSet;
+import com.orientechnologies.orient.core.db.record.RecordElement;
+import com.orientechnologies.orient.core.db.record.TrackedList;
+import com.orientechnologies.orient.core.db.record.TrackedMap;
+import com.orientechnologies.orient.core.db.record.TrackedSet;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTQueryParsingException;
@@ -66,9 +66,9 @@ import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.OIdentity;
-import com.orientechnologies.orient.core.metadata.security.OPropertyAccess;
-import com.orientechnologies.orient.core.metadata.security.OPropertyEncryption;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
+import com.orientechnologies.orient.core.metadata.security.PropertyAccess;
+import com.orientechnologies.orient.core.metadata.security.PropertyEncryption;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 import com.orientechnologies.orient.core.record.YTEdge;
@@ -114,7 +114,7 @@ import javax.annotation.Nullable;
  * using the reset() before to re-use.
  */
 @SuppressWarnings({"unchecked"})
-public class YTDocument extends YTRecordAbstract
+public class YTEntityImpl extends YTRecordAbstract
     implements Iterable<Entry<String, Object>>,
     YTRecordSchemaAware,
     YTEntityInternal {
@@ -123,37 +123,37 @@ public class YTDocument extends YTRecordAbstract
   private static final String[] EMPTY_STRINGS = new String[]{};
   private int fieldSize;
 
-  protected Map<String, ODocumentEntry> fields;
+  protected Map<String, EntityEntry> fields;
 
   private boolean trackingChanges = true;
   protected boolean ordered = true;
   private boolean lazyLoad = true;
   private boolean allowChainedAccess = true;
-  protected transient WeakReference<ORecordElement> owner = null;
+  protected transient WeakReference<RecordElement> owner = null;
 
   protected YTImmutableSchema schema;
   private String className;
   private YTImmutableClass immutableClazz;
   private int immutableSchemaVersion = 1;
-  OPropertyAccess propertyAccess;
-  OPropertyEncryption propertyEncryption;
+  PropertyAccess propertyAccess;
+  PropertyEncryption propertyEncryption;
 
   /**
    * Internal constructor used on unmarshalling.
    */
-  public YTDocument() {
+  public YTEntityImpl() {
     setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
   }
 
   /**
    * Internal constructor used on unmarshalling.
    */
-  public YTDocument(YTDatabaseSessionInternal database) {
+  public YTEntityImpl(YTDatabaseSessionInternal database) {
     assert database == null || database.assertIfNotActive();
     setup(database);
   }
 
-  public YTDocument(YTDatabaseSession database, YTRID rid) {
+  public YTEntityImpl(YTDatabaseSession database, YTRID rid) {
     setup((YTDatabaseSessionInternal) database);
     this.recordId = (YTRecordId) rid.copy();
   }
@@ -165,7 +165,7 @@ public class YTDocument extends YTRecordAbstract
    * @param iSource Raw stream
    */
   @Deprecated
-  public YTDocument(final byte[] iSource) {
+  public YTEntityImpl(final byte[] iSource) {
     source = iSource;
     setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
   }
@@ -176,7 +176,7 @@ public class YTDocument extends YTRecordAbstract
    *
    * @param iSource Raw stream as InputStream
    */
-  public YTDocument(final InputStream iSource) throws IOException {
+  public YTEntityImpl(final InputStream iSource) throws IOException {
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
     OIOUtils.copyStream(iSource, out);
     source = out.toByteArray();
@@ -189,7 +189,7 @@ public class YTDocument extends YTRecordAbstract
    *
    * @param iRID Record Id
    */
-  public YTDocument(final YTRID iRID) {
+  public YTEntityImpl(final YTRID iRID) {
     setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
     recordId = (YTRecordId) iRID.copy();
     status = STATUS.NOT_LOADED;
@@ -204,7 +204,7 @@ public class YTDocument extends YTRecordAbstract
    * @param iClassName Class name
    * @param iRID       Record Id
    */
-  public YTDocument(final String iClassName, final YTRID iRID) {
+  public YTEntityImpl(final String iClassName, final YTRID iRID) {
     this(iClassName);
     recordId = (YTRecordId) iRID.copy();
 
@@ -232,12 +232,12 @@ public class YTDocument extends YTRecordAbstract
    *
    * @param iClassName Class name
    */
-  public YTDocument(final String iClassName) {
+  public YTEntityImpl(final String iClassName) {
     setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
     setClassName(iClassName);
   }
 
-  public YTDocument(final String iClassName, YTDatabaseSessionInternal session) {
+  public YTEntityImpl(final String iClassName, YTDatabaseSessionInternal session) {
     assert session == null || session.assertIfNotActive();
     setup(session);
     setClassName(iClassName);
@@ -250,7 +250,7 @@ public class YTDocument extends YTRecordAbstract
    * @param session    the session the instance will be attached to
    * @param iClassName Class name
    */
-  public YTDocument(YTDatabaseSessionInternal session, final String iClassName) {
+  public YTEntityImpl(YTDatabaseSessionInternal session, final String iClassName) {
     assert session == null || session.assertIfNotActive();
     setup(session);
     setClassName(iClassName);
@@ -263,7 +263,7 @@ public class YTDocument extends YTRecordAbstract
    *
    * @param iClass YTClass instance
    */
-  public YTDocument(final YTClass iClass) {
+  public YTEntityImpl(final YTClass iClass) {
     this(iClass != null ? iClass.getName() : null);
   }
 
@@ -272,7 +272,7 @@ public class YTDocument extends YTRecordAbstract
    *
    * @param iFields Array of field pairs
    */
-  public YTDocument(final Object[] iFields) {
+  public YTEntityImpl(final Object[] iFields) {
     this(YTEntity.DEFAULT_CLASS_NAME);
 
     setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
@@ -289,7 +289,7 @@ public class YTDocument extends YTRecordAbstract
    *
    * @param iFieldMap Map of Object/Object
    */
-  public YTDocument(final Map<?, Object> iFieldMap) {
+  public YTEntityImpl(final Map<?, Object> iFieldMap) {
     setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
     if (iFieldMap != null && !iFieldMap.isEmpty()) {
       for (Entry<?, Object> entry : iFieldMap.entrySet()) {
@@ -301,7 +301,7 @@ public class YTDocument extends YTRecordAbstract
   /**
    * Fills a document passing the field names/values pair, where the first pair is mandatory.
    */
-  public YTDocument(final String iFieldName, final Object iFieldValue, final Object... iFields) {
+  public YTEntityImpl(final String iFieldName, final Object iFieldValue, final Object... iFields) {
     this(iFields);
     field(iFieldName, iFieldValue);
   }
@@ -407,7 +407,7 @@ public class YTDocument extends YTRecordAbstract
     checkForBinding();
 
     var session = getSessionIfDefined();
-    if (status == ORecordElement.STATUS.LOADED
+    if (status == RecordElement.STATUS.LOADED
         && source != null
         && session != null
         && !session.isClosed()) {
@@ -438,13 +438,13 @@ public class YTDocument extends YTRecordAbstract
 
     Set<String> fields = new LinkedHashSet<>();
     if (propertyAccess != null && propertyAccess.hasFilters()) {
-      for (Map.Entry<String, ODocumentEntry> entry : this.fields.entrySet()) {
+      for (Map.Entry<String, EntityEntry> entry : this.fields.entrySet()) {
         if (entry.getValue().exists() && propertyAccess.isReadable(entry.getKey())) {
           fields.add(entry.getKey());
         }
       }
     } else {
-      for (Map.Entry<String, ODocumentEntry> entry : this.fields.entrySet()) {
+      for (Map.Entry<String, EntityEntry> entry : this.fields.entrySet()) {
         if (entry.getValue().exists()) {
           fields.add(entry.getKey());
         }
@@ -504,7 +504,7 @@ public class YTDocument extends YTRecordAbstract
         if (trackingChanges) {
           ORecordInternal.setDirtyManager((YTRecord) value, this.getDirtyManager());
         }
-        ODocumentEntry entry = fields.get(name);
+        EntityEntry entry = fields.get(name);
         entry.disableTracking(this, entry.value);
         entry.value = value;
         entry.enableTracking(this);
@@ -528,7 +528,7 @@ public class YTDocument extends YTRecordAbstract
     var field = fields.get(name);
     if (field != null) {
       RET onLoadValue = (RET) field.getOnLoadValue(getSession());
-      if (onLoadValue instanceof ORidBag) {
+      if (onLoadValue instanceof RidBag) {
         throw new IllegalArgumentException(
             "getPropertyOnLoadValue(name) is not designed to work with Edge properties");
       }
@@ -597,7 +597,7 @@ public class YTDocument extends YTRecordAbstract
     }
 
     if (!(result instanceof YTIdentifiable identifiable)
-        || (result instanceof YTDocument document && document.isEmbedded())) {
+        || (result instanceof YTEntityImpl document && document.isEmbedded())) {
       throw new IllegalArgumentException("Requested property " + name + " is not a link.");
     }
 
@@ -699,12 +699,12 @@ public class YTDocument extends YTRecordAbstract
 
     checkForFields();
 
-    ODocumentEntry entry = fields.get(name);
+    EntityEntry entry = fields.get(name);
     final boolean knownProperty;
     final Object oldValue;
     final YTType oldType;
     if (entry == null) {
-      entry = new ODocumentEntry();
+      entry = new EntityEntry();
       fieldSize++;
       fields.put(name, entry);
       entry.markCreated();
@@ -742,7 +742,7 @@ public class YTDocument extends YTRecordAbstract
         try {
           if (value.equals(oldValue)) {
             if (fieldType == oldType) {
-              if (!(value instanceof ORecordElement))
+              if (!(value instanceof RecordElement))
               // SAME BUT NOT TRACKABLE: SET THE RECORD AS DIRTY TO BE SURE IT'S SAVED
               {
                 setDirty();
@@ -765,11 +765,11 @@ public class YTDocument extends YTRecordAbstract
     }
 
     if (oldValue instanceof
-        ORidBag ridBag) {
+        RidBag ridBag) {
       ridBag.setOwner(null);
     } else {
-      if (oldValue instanceof YTDocument) {
-        ((YTDocument) oldValue).removeOwner(this);
+      if (oldValue instanceof YTEntityImpl) {
+        ((YTEntityImpl) oldValue).removeOwner(this);
       }
     }
 
@@ -778,9 +778,9 @@ public class YTDocument extends YTRecordAbstract
     }
 
     if (value != null) {
-      if (value instanceof YTDocument) {
+      if (value instanceof YTEntityImpl) {
         if (YTType.EMBEDDED.equals(fieldType)) {
-          final YTDocument embeddedDocument = (YTDocument) value;
+          final YTEntityImpl embeddedDocument = (YTEntityImpl) value;
           ODocumentInternal.addOwner(embeddedDocument, this);
         }
       }
@@ -788,7 +788,7 @@ public class YTDocument extends YTRecordAbstract
         track((YTIdentifiable) value);
       }
 
-      if (value instanceof ORidBag ridBag) {
+      if (value instanceof RidBag ridBag) {
         ridBag.setOwner(
             null); // in order to avoid IllegalStateException when ridBag changes the owner
         ridBag.setOwner(this);
@@ -849,7 +849,7 @@ public class YTDocument extends YTRecordAbstract
       }
     }
 
-    final ODocumentEntry entry = fields.get(name);
+    final EntityEntry entry = fields.get(name);
     if (entry == null) {
       return null;
     }
@@ -872,26 +872,27 @@ public class YTDocument extends YTRecordAbstract
     if (oldValue instanceof YTIdentifiable) {
       unTrack((YTIdentifiable) oldValue);
     }
-    if (oldValue instanceof ORidBag) {
-      ((ORidBag) oldValue).setOwner(null);
+    if (oldValue instanceof RidBag) {
+      ((RidBag) oldValue).setOwner(null);
     }
 
     setDirty();
     return (RET) oldValue;
   }
 
-  private static void validateFieldsSecurity(YTDatabaseSessionInternal internal, YTDocument iRecord)
+  private static void validateFieldsSecurity(YTDatabaseSessionInternal internal,
+      YTEntityImpl iRecord)
       throws YTValidationException {
     if (internal == null) {
       return;
     }
 
     iRecord.checkForBinding();
-    iRecord = (YTDocument) iRecord.getRecord();
+    iRecord = (YTEntityImpl) iRecord.getRecord();
 
     OSecurityInternal security = internal.getSharedContext().getSecurity();
-    for (Entry<String, ODocumentEntry> mapEntry : iRecord.fields.entrySet()) {
-      ODocumentEntry entry = mapEntry.getValue();
+    for (Entry<String, EntityEntry> mapEntry : iRecord.fields.entrySet()) {
+      EntityEntry entry = mapEntry.getValue();
       if (entry != null && (entry.isTxChanged() || entry.isTxTrackedModified())) {
         if (!security.isAllowedWrite(internal, iRecord, mapEntry.getKey())) {
           throw new YTSecurityException(
@@ -905,14 +906,14 @@ public class YTDocument extends YTRecordAbstract
   }
 
   private static void validateField(
-      YTDatabaseSessionInternal session, YTImmutableSchema schema, YTDocument iRecord,
+      YTDatabaseSessionInternal session, YTImmutableSchema schema, YTEntityImpl iRecord,
       YTImmutableProperty p)
       throws YTValidationException {
     iRecord.checkForBinding();
-    iRecord = (YTDocument) iRecord.getRecord();
+    iRecord = (YTEntityImpl) iRecord.getRecord();
 
     final Object fieldValue;
-    ODocumentEntry entry = iRecord.fields.get(p.getName());
+    EntityEntry entry = iRecord.fields.get(p.getName());
     if (entry != null && entry.exists()) {
       // AVOID CONVERSIONS: FASTER!
       fieldValue = entry.value;
@@ -990,7 +991,7 @@ public class YTDocument extends YTRecordAbstract
           break;
 
         case LINKBAG:
-          if (!(fieldValue instanceof ORidBag)) {
+          if (!(fieldValue instanceof RidBag)) {
             throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
@@ -1189,7 +1190,7 @@ public class YTDocument extends YTRecordAbstract
       YTImmutableSchema schema,
       final YTProperty property,
       Iterable<Object> values,
-      ODocumentEntry value) {
+      EntityEntry value) {
     if (property.getLinkedClass() != null) {
       if (value.getTimeLine() != null) {
         List<OMultiValueChangeEvent<Object, Object>> event =
@@ -1311,7 +1312,7 @@ public class YTDocument extends YTRecordAbstract
         }
 
         final YTRecord embeddedRecord = embedded.getRecord();
-        if (embeddedRecord instanceof YTDocument doc) {
+        if (embeddedRecord instanceof YTEntityImpl doc) {
           final YTClass embeddedClass = p.getLinkedClass();
           if (doc.isVertex()) {
             throw new YTValidationException(
@@ -1343,7 +1344,7 @@ public class YTDocument extends YTRecordAbstract
         final YTClass embeddedClass = p.getLinkedClass();
         if (embeddedClass != null) {
 
-          if (!(embeddedRecord instanceof YTDocument doc)) {
+          if (!(embeddedRecord instanceof YTEntityImpl doc)) {
             throw new YTValidationException(
                 "The field '"
                     + p.getFullName()
@@ -1394,22 +1395,22 @@ public class YTDocument extends YTRecordAbstract
   }
 
   /**
-   * Copies the current instance to a new one. Hasn't been choose the clone() to let YTDocument
+   * Copies the current instance to a new one. Hasn't been choose the clone() to let YTEntityImpl
    * return type. Once copied the new instance has the same identity and values but all the internal
    * structure are totally independent by the source.
    */
-  public YTDocument copy() {
+  public YTEntityImpl copy() {
     checkForBinding();
 
-    var doc = new YTDocument();
+    var doc = new YTEntityImpl();
     ORecordInternal.unsetDirty(doc);
-    var newDoc = (YTDocument) copyTo(doc);
+    var newDoc = (YTEntityImpl) copyTo(doc);
     newDoc.dirty = true;
 
     return newDoc;
   }
 
-  public YTDocument copy(YTDatabaseSessionInternal session) {
+  public YTEntityImpl copy(YTDatabaseSessionInternal session) {
     var newDoc = copy();
     newDoc.setup(session);
 
@@ -1429,7 +1430,7 @@ public class YTDocument extends YTRecordAbstract
 
     checkForFields();
 
-    YTDocument destination = (YTDocument) iDestination;
+    YTEntityImpl destination = (YTEntityImpl) iDestination;
 
     super.copyTo(iDestination);
 
@@ -1445,9 +1446,9 @@ public class YTDocument extends YTRecordAbstract
     if (fields != null) {
       destination.fields =
           fields instanceof LinkedHashMap ? new LinkedHashMap<>() : new HashMap<>();
-      for (Entry<String, ODocumentEntry> entry : fields.entrySet()) {
+      for (Entry<String, EntityEntry> entry : fields.entrySet()) {
         var originalEntry = entry.getValue();
-        ODocumentEntry docEntry = originalEntry.clone();
+        EntityEntry docEntry = originalEntry.clone();
         destination.fields.put(entry.getKey(), docEntry);
         docEntry.value = ODocumentHelper.cloneValue(getSession(), destination,
             entry.getValue().value);
@@ -1471,7 +1472,7 @@ public class YTDocument extends YTRecordAbstract
     return destination;
   }
 
-  public boolean hasSameContentOf(final YTDocument iOther) {
+  public boolean hasSameContentOf(final YTEntityImpl iOther) {
     iOther.checkForBinding();
     checkForBinding();
 
@@ -1539,7 +1540,7 @@ public class YTDocument extends YTRecordAbstract
   }
 
   /**
-   * Fills the YTDocument directly with the string representation of the document itself. Use it for
+   * Fills the YTEntityImpl directly with the string representation of the document itself. Use it for
    * faster insertion but pay attention to respect the YouTrackDB record format.
    *
    * <p><code> record.reset();<br> record.setClassName("Account");<br>
@@ -1581,7 +1582,7 @@ public class YTDocument extends YTRecordAbstract
 
     checkForFields();
     final List<Object> res = new ArrayList<>(fields.size());
-    for (Map.Entry<String, ODocumentEntry> entry : fields.entrySet()) {
+    for (Map.Entry<String, EntityEntry> entry : fields.entrySet()) {
       if (entry.getValue().exists()
           && (propertyAccess == null || propertyAccess.isReadable(entry.getKey()))) {
         res.add(entry.getValue().value);
@@ -1679,7 +1680,7 @@ public class YTDocument extends YTRecordAbstract
           ORecordInternal.setDirtyManager((YTRecord) value, this.getDirtyManager());
         }
         if (!iFieldName.contains(".")) {
-          ODocumentEntry entry = fields.get(iFieldName);
+          EntityEntry entry = fields.get(iFieldName);
           entry.disableTracking(this, entry.value);
           entry.value = value;
           entry.enableTracking(this);
@@ -1791,14 +1792,14 @@ public class YTDocument extends YTRecordAbstract
    * @return The Record instance itself giving a "fluent interface". Useful to call multiple methods
    * in chain.
    */
-  public YTDocument field(final String iFieldName, Object iPropertyValue) {
+  public YTEntityImpl field(final String iFieldName, Object iPropertyValue) {
     return field(iFieldName, iPropertyValue, OCommonConst.EMPTY_TYPES_ARRAY);
   }
 
   /**
    * Fills a document passing the field names/values.
    */
-  public YTDocument fields(
+  public YTEntityImpl fields(
       final String iFieldName, final Object iFieldValue, final Object... iFields) {
     checkForBinding();
 
@@ -1822,7 +1823,7 @@ public class YTDocument extends YTRecordAbstract
    * @see #fromMap(Map)
    */
   @Deprecated
-  public YTDocument fields(final Map<String, Object> iMap) {
+  public YTEntityImpl fields(final Map<String, Object> iMap) {
     fromMap(iMap);
     return this;
   }
@@ -1857,7 +1858,7 @@ public class YTDocument extends YTRecordAbstract
     }
   }
 
-  public final YTDocument fromJSON(final String iSource, final String iOptions) {
+  public final YTEntityImpl fromJSON(final String iSource, final String iOptions) {
     return super.fromJSON(iSource, iOptions);
   }
 
@@ -1878,7 +1879,7 @@ public class YTDocument extends YTRecordAbstract
    * in chain. If the updated document is another document (using the dot (.) notation) then the
    * document returned is the changed one or NULL if no document has been found in chain
    */
-  public YTDocument field(String iFieldName, Object iPropertyValue, YTType... iFieldType) {
+  public YTEntityImpl field(String iFieldName, Object iPropertyValue, YTType... iFieldType) {
     checkForBinding();
 
     if (iFieldName == null) {
@@ -1926,10 +1927,10 @@ public class YTDocument extends YTRecordAbstract
       if (subObject != null) {
         final String subFieldName =
             lastIsArray ? iFieldName.substring(lastSep) : iFieldName.substring(lastSep + 1);
-        if (subObject instanceof YTDocument) {
+        if (subObject instanceof YTEntityImpl) {
           // SUB-DOCUMENT
-          ((YTDocument) subObject).field(subFieldName, iPropertyValue);
-          return (YTDocument) (((YTDocument) subObject).isEmbedded() ? this : subObject);
+          ((YTEntityImpl) subObject).field(subFieldName, iPropertyValue);
+          return (YTEntityImpl) (((YTEntityImpl) subObject).isEmbedded() ? this : subObject);
         } else {
           if (subObject instanceof Map<?, ?>) {
             // KEY/VALUE
@@ -1963,16 +1964,16 @@ public class YTDocument extends YTRecordAbstract
               } else {
                 // APPLY CHANGE TO ALL THE ITEM IN SUB-COLLECTION
                 for (Object subObjectItem : OMultiValue.getMultiValueIterable(subObject)) {
-                  if (subObjectItem instanceof YTDocument) {
+                  if (subObjectItem instanceof YTEntityImpl) {
                     // SUB-DOCUMENT, CHECK IF IT'S NOT LINKED
-                    if (!((YTDocument) subObjectItem).isEmbedded()) {
+                    if (!((YTEntityImpl) subObjectItem).isEmbedded()) {
                       throw new IllegalArgumentException(
                           "Property '"
                               + iFieldName
                               + "' points to linked collection of items. You can only change"
                               + " embedded documents in this way");
                     }
-                    ((YTDocument) subObjectItem).field(subFieldName, iPropertyValue);
+                    ((YTEntityImpl) subObjectItem).field(subFieldName, iPropertyValue);
                   } else {
                     if (subObjectItem instanceof Map<?, ?>) {
                       // KEY/VALUE
@@ -1999,12 +2000,12 @@ public class YTDocument extends YTRecordAbstract
 
     checkForFields();
 
-    ODocumentEntry entry = fields.get(iFieldName);
+    EntityEntry entry = fields.get(iFieldName);
     final boolean knownProperty;
     final Object oldValue;
     final YTType oldType;
     if (entry == null) {
-      entry = new ODocumentEntry();
+      entry = new EntityEntry();
       fieldSize++;
       fields.put(iFieldName, entry);
       entry.markCreated();
@@ -2042,7 +2043,7 @@ public class YTDocument extends YTRecordAbstract
         try {
           if (iPropertyValue.equals(oldValue)) {
             if (fieldType == oldType) {
-              if (!(iPropertyValue instanceof ORecordElement))
+              if (!(iPropertyValue instanceof RecordElement))
               // SAME BUT NOT TRACKABLE: SET THE RECORD AS DIRTY TO BE SURE IT'S SAVED
               {
                 setDirty();
@@ -2070,12 +2071,12 @@ public class YTDocument extends YTRecordAbstract
       }
     }
 
-    if (oldValue instanceof ORidBag ridBag) {
+    if (oldValue instanceof RidBag ridBag) {
       ridBag.setOwner(null);
       ridBag.setRecordAndField(recordId, iFieldName);
     } else {
-      if (oldValue instanceof YTDocument) {
-        ((YTDocument) oldValue).removeOwner(this);
+      if (oldValue instanceof YTEntityImpl) {
+        ((YTEntityImpl) oldValue).removeOwner(this);
       }
     }
 
@@ -2084,13 +2085,13 @@ public class YTDocument extends YTRecordAbstract
     }
 
     if (iPropertyValue != null) {
-      if (iPropertyValue instanceof YTDocument) {
+      if (iPropertyValue instanceof YTEntityImpl) {
         if (YTType.EMBEDDED.equals(fieldType)) {
-          final YTDocument embeddedDocument = (YTDocument) iPropertyValue;
+          final YTEntityImpl embeddedDocument = (YTEntityImpl) iPropertyValue;
           ODocumentInternal.addOwner(embeddedDocument, this);
         } else {
           if (YTType.LINK.equals(fieldType)) {
-            final YTDocument embeddedDocument = (YTDocument) iPropertyValue;
+            final YTEntityImpl embeddedDocument = (YTEntityImpl) iPropertyValue;
             ODocumentInternal.removeOwner(embeddedDocument, this);
           }
         }
@@ -2099,10 +2100,10 @@ public class YTDocument extends YTRecordAbstract
         track((YTIdentifiable) iPropertyValue);
       }
 
-      if (iPropertyValue instanceof ORidBag ridBag) {
+      if (iPropertyValue instanceof RidBag ridBag) {
         ridBag.setOwner(
             null); // in order to avoid IllegalStateException when ridBag changes the owner
-        // (YTDocument.merge)
+        // (YTEntityImpl.merge)
         ridBag.setOwner(this);
         ridBag.setRecordAndField(recordId, iFieldName);
       }
@@ -2159,7 +2160,7 @@ public class YTDocument extends YTRecordAbstract
       }
     }
 
-    final ODocumentEntry entry = fields.get(iFieldName);
+    final EntityEntry entry = fields.get(iFieldName);
     if (entry == null) {
       return null;
     }
@@ -2182,8 +2183,8 @@ public class YTDocument extends YTRecordAbstract
     if (oldValue instanceof YTIdentifiable) {
       unTrack((YTIdentifiable) oldValue);
     }
-    if (oldValue instanceof ORidBag) {
-      ((ORidBag) oldValue).setOwner(null);
+    if (oldValue instanceof RidBag) {
+      ((RidBag) oldValue).setOwner(null);
     }
     setDirty();
     return oldValue;
@@ -2193,7 +2194,7 @@ public class YTDocument extends YTRecordAbstract
    * Merge current document with the document passed as parameter. If the field already exists then
    * the conflicts are managed based on the value of the parameter 'iUpdateOnlyMode'.
    *
-   * @param iOther                              Other YTDocument instance to merge
+   * @param iOther                              Other YTEntityImpl instance to merge
    * @param iUpdateOnlyMode                     if true, the other document properties will always
    *                                            be added or overwritten. If false, the missed
    *                                            properties in the "other" document will be removed
@@ -2201,8 +2202,8 @@ public class YTDocument extends YTRecordAbstract
    * @param iMergeSingleItemsOfMultiValueFields If true, merges single items of multi field fields
    *                                            (collections, maps, arrays, etc)
    */
-  public YTDocument merge(
-      final YTDocument iOther,
+  public YTEntityImpl merge(
+      final YTEntityImpl iOther,
       boolean iUpdateOnlyMode,
       boolean iMergeSingleItemsOfMultiValueFields) {
     iOther.checkForBinding();
@@ -2216,7 +2217,7 @@ public class YTDocument extends YTRecordAbstract
     }
 
     return mergeMap(
-        ((YTDocument) iOther.getRecord()).fields,
+        ((YTEntityImpl) iOther.getRecord()).fields,
         iUpdateOnlyMode,
         iMergeSingleItemsOfMultiValueFields);
   }
@@ -2241,7 +2242,7 @@ public class YTDocument extends YTRecordAbstract
     }
 
     final Set<String> dirtyFields = new HashSet<>();
-    for (Entry<String, ODocumentEntry> entry : fields.entrySet()) {
+    for (Entry<String, EntityEntry> entry : fields.entrySet()) {
       if (entry.getValue().isChanged() || entry.getValue().isTrackedModified()) {
         dirtyFields.add(entry.getKey());
       }
@@ -2258,7 +2259,7 @@ public class YTDocument extends YTRecordAbstract
     checkForBinding();
 
     if (fields != null) {
-      ODocumentEntry entry = fields.get(iFieldName);
+      EntityEntry entry = fields.get(iFieldName);
       if (entry != null) {
         return entry.original;
       }
@@ -2269,7 +2270,7 @@ public class YTDocument extends YTRecordAbstract
   public OMultiValueChangeTimeLine<Object, Object> getCollectionTimeLine(final String iFieldName) {
     checkForBinding();
 
-    ODocumentEntry entry = fields != null ? fields.get(iFieldName) : null;
+    EntityEntry entry = fields != null ? fields.get(iFieldName) : null;
     return entry != null ? entry.getTimeLine() : null;
   }
 
@@ -2286,9 +2287,9 @@ public class YTDocument extends YTRecordAbstract
       return OEmptyMapEntryIterator.INSTANCE;
     }
 
-    final Iterator<Entry<String, ODocumentEntry>> iterator = fields.entrySet().iterator();
+    final Iterator<Entry<String, EntityEntry>> iterator = fields.entrySet().iterator();
     return new Iterator<>() {
-      private Entry<String, ODocumentEntry> current;
+      private Entry<String, EntityEntry> current;
       private boolean read = true;
 
       @Override
@@ -2314,7 +2315,7 @@ public class YTDocument extends YTRecordAbstract
         }
         final Entry<String, Object> toRet =
             new Entry<>() {
-              private final Entry<String, ODocumentEntry> intern = current;
+              private final Entry<String, EntityEntry> intern = current;
 
               @Override
               public Object setValue(Object value) {
@@ -2366,7 +2367,7 @@ public class YTDocument extends YTRecordAbstract
         }
         fieldSize--;
 
-        entry.disableTracking(YTDocument.this, entry.value);
+        entry.disableTracking(YTEntityImpl.this, entry.value);
       }
     };
   }
@@ -2395,7 +2396,7 @@ public class YTDocument extends YTRecordAbstract
 
     if (checkForFields(propertyName)
         && (propertyAccess == null || propertyAccess.isReadable(propertyName))) {
-      ODocumentEntry entry = fields.get(propertyName);
+      EntityEntry entry = fields.get(propertyName);
       return entry != null && entry.exists();
     } else {
       return false;
@@ -2410,7 +2411,7 @@ public class YTDocument extends YTRecordAbstract
   }
 
   @Override
-  public ORecordElement getOwner() {
+  public RecordElement getOwner() {
     if (owner == null) {
       return null;
     }
@@ -2418,12 +2419,12 @@ public class YTDocument extends YTRecordAbstract
   }
 
   @Deprecated
-  public Iterable<ORecordElement> getOwners() {
+  public Iterable<RecordElement> getOwners() {
     if (owner == null || owner.get() == null) {
       return Collections.emptyList();
     }
 
-    final List<ORecordElement> result = new ArrayList<>();
+    final List<RecordElement> result = new ArrayList<>();
     result.add(owner.get());
     return result;
   }
@@ -2474,7 +2475,7 @@ public class YTDocument extends YTRecordAbstract
   }
 
   @Override
-  public final YTDocument fromStream(final byte[] iRecordBuffer) {
+  public final YTEntityImpl fromStream(final byte[] iRecordBuffer) {
     if (dirty) {
       throw new YTDatabaseException("Cannot call fromStream() on dirty records");
     }
@@ -2498,7 +2499,8 @@ public class YTDocument extends YTRecordAbstract
   }
 
   @Override
-  protected final YTDocument fromStream(final byte[] iRecordBuffer, YTDatabaseSessionInternal db) {
+  protected final YTEntityImpl fromStream(final byte[] iRecordBuffer,
+      YTDatabaseSessionInternal db) {
     if (dirty) {
       throw new YTDatabaseException("Cannot call fromStream() on dirty records");
     }
@@ -2529,7 +2531,7 @@ public class YTDocument extends YTRecordAbstract
     checkForBinding();
     checkForFields(iFieldName);
 
-    ODocumentEntry entry = fields.get(iFieldName);
+    EntityEntry entry = fields.get(iFieldName);
     if (entry != null) {
       if (propertyAccess == null || propertyAccess.isReadable(iFieldName)) {
         return entry.type;
@@ -2543,7 +2545,7 @@ public class YTDocument extends YTRecordAbstract
 
   @Override
   public void unload() {
-    if (status == ORecordElement.STATUS.NOT_LOADED) {
+    if (status == RecordElement.STATUS.NOT_LOADED) {
       return;
     }
 
@@ -2576,11 +2578,11 @@ public class YTDocument extends YTRecordAbstract
   }
 
   /**
-   * Resets the record values and class type to being reused. It's like you create a YTDocument from
+   * Resets the record values and class type to being reused. It's like you create a YTEntityImpl from
    * scratch.
    */
   @Override
-  public YTDocument reset() {
+  public YTEntityImpl reset() {
     checkForBinding();
 
     var db = ODatabaseRecordThreadLocal.instance().getIfDefined();
@@ -2613,10 +2615,10 @@ public class YTDocument extends YTRecordAbstract
     }
 
     if (fields != null) {
-      final Iterator<Entry<String, ODocumentEntry>> vals = fields.entrySet().iterator();
+      final Iterator<Entry<String, EntityEntry>> vals = fields.entrySet().iterator();
       while (vals.hasNext()) {
-        final Entry<String, ODocumentEntry> next = vals.next();
-        final ODocumentEntry val = next.getValue();
+        final Entry<String, EntityEntry> next = vals.next();
+        final EntityEntry val = next.getValue();
         if (val.isCreated()) {
           vals.remove();
         } else {
@@ -2627,14 +2629,14 @@ public class YTDocument extends YTRecordAbstract
     }
   }
 
-  public YTDocument undo(final String field) {
+  public YTEntityImpl undo(final String field) {
     if (!trackingChanges) {
       throw new YTConfigurationException(
           "Cannot undo the document because tracking of changes is disabled");
     }
 
     if (fields != null) {
-      final ODocumentEntry value = fields.get(field);
+      final EntityEntry value = fields.get(field);
       if (value != null) {
         if (value.isCreated()) {
           fields.remove(field);
@@ -2671,15 +2673,15 @@ public class YTDocument extends YTRecordAbstract
    * @param iTrackingChanges True to enable it, otherwise false
    * @return this
    */
-  public YTDocument setTrackingChanges(final boolean iTrackingChanges) {
+  public YTEntityImpl setTrackingChanges(final boolean iTrackingChanges) {
     checkForBinding();
 
     this.trackingChanges = iTrackingChanges;
     if (!iTrackingChanges && fields != null) {
       // FREE RESOURCES
-      Iterator<Entry<String, ODocumentEntry>> iter = fields.entrySet().iterator();
+      Iterator<Entry<String, EntityEntry>> iter = fields.entrySet().iterator();
       while (iter.hasNext()) {
-        Entry<String, ODocumentEntry> cur = iter.next();
+        Entry<String, EntityEntry> cur = iter.next();
         if (!cur.getValue().exists()) {
           iter.remove();
         } else {
@@ -2696,7 +2698,7 @@ public class YTDocument extends YTRecordAbstract
   protected void clearTrackData() {
     if (fields != null) {
       // FREE RESOURCES
-      for (Entry<String, ODocumentEntry> cur : fields.entrySet()) {
+      for (Entry<String, EntityEntry> cur : fields.entrySet()) {
         if (cur.getValue().exists()) {
           cur.getValue().clear();
           cur.getValue().enableTracking(this);
@@ -2710,9 +2712,9 @@ public class YTDocument extends YTRecordAbstract
   void clearTransactionTrackData() {
     if (fields != null) {
       // FREE RESOURCES
-      Iterator<Entry<String, ODocumentEntry>> iter = fields.entrySet().iterator();
+      Iterator<Entry<String, EntityEntry>> iter = fields.entrySet().iterator();
       while (iter.hasNext()) {
-        Entry<String, ODocumentEntry> cur = iter.next();
+        Entry<String, EntityEntry> cur = iter.next();
         if (cur.getValue().exists()) {
           cur.getValue().transactionClear();
         } else {
@@ -2726,7 +2728,7 @@ public class YTDocument extends YTRecordAbstract
     return ordered;
   }
 
-  public YTDocument setOrdered(final boolean iOrdered) {
+  public YTEntityImpl setOrdered(final boolean iOrdered) {
     checkForBinding();
 
     this.ordered = iOrdered;
@@ -2779,7 +2781,7 @@ public class YTDocument extends YTRecordAbstract
    * @param iFieldName Field name
    * @param iFieldType Type to set between YTType enumeration values
    */
-  public YTDocument setFieldType(final String iFieldName, final YTType iFieldType) {
+  public YTEntityImpl setFieldType(final String iFieldName, final YTType iFieldType) {
     checkForBinding();
 
     checkForFields(iFieldName);
@@ -2796,14 +2798,14 @@ public class YTDocument extends YTRecordAbstract
         }
       }
       // SET THE FORCED TYPE
-      ODocumentEntry entry = getOrCreate(iFieldName);
+      EntityEntry entry = getOrCreate(iFieldName);
       if (entry.type != iFieldType) {
         field(iFieldName, field(iFieldName), iFieldType);
       }
     } else {
       if (fields != null) {
         // REMOVE THE FIELD TYPE
-        ODocumentEntry entry = fields.get(iFieldName);
+        EntityEntry entry = fields.get(iFieldName);
         if (entry != null)
         // EMPTY: OPTIMIZE IT BY REMOVING THE ENTIRE MAP
         {
@@ -2876,11 +2878,11 @@ public class YTDocument extends YTRecordAbstract
       }
     }
 
-    status = ORecordElement.STATUS.UNMARSHALLING;
+    status = RecordElement.STATUS.UNMARSHALLING;
     try {
       recordFormat.fromStream(getSession(), source, this, iFields);
     } finally {
-      status = ORecordElement.STATUS.LOADED;
+      status = RecordElement.STATUS.LOADED;
     }
 
     if (iFields != null && iFields.length > 0) {
@@ -2918,7 +2920,7 @@ public class YTDocument extends YTRecordAbstract
    * Change the behavior of field() methods allowing access to the sub documents with dot notation
    * ('.'). Default is true. Set it to false if you allow to store properties with the dot.
    */
-  public YTDocument setAllowChainedAccess(final boolean allowChainedAccess) {
+  public YTEntityImpl setAllowChainedAccess(final boolean allowChainedAccess) {
     checkForBinding();
 
     this.allowChainedAccess = allowChainedAccess;
@@ -3072,7 +3074,7 @@ public class YTDocument extends YTRecordAbstract
       }
 
       boolean first = true;
-      for (Entry<String, ODocumentEntry> f : fields.entrySet()) {
+      for (Entry<String, EntityEntry> f : fields.entrySet()) {
         if (propertyAccess != null && !propertyAccess.isReadable(f.getKey())) {
           continue;
         }
@@ -3093,8 +3095,8 @@ public class YTDocument extends YTRecordAbstract
               if (record.getIdentity().isValid()) {
                 record.getIdentity().toString(buffer);
               } else {
-                if (record instanceof YTDocument) {
-                  buffer.append(((YTDocument) record).toString(inspected));
+                if (record instanceof YTEntityImpl) {
+                  buffer.append(((YTEntityImpl) record).toString(inspected));
                 } else {
                   buffer.append(record);
                 }
@@ -3125,22 +3127,22 @@ public class YTDocument extends YTRecordAbstract
     }
   }
 
-  private YTDocument mergeMap(
-      final Map<String, ODocumentEntry> iOther,
+  private YTEntityImpl mergeMap(
+      final Map<String, EntityEntry> iOther,
       final boolean iUpdateOnlyMode,
       boolean iMergeSingleItemsOfMultiValueFields) {
     checkForFields();
     source = null;
 
-    for (Entry<String, ODocumentEntry> entry : iOther.entrySet()) {
+    for (Entry<String, EntityEntry> entry : iOther.entrySet()) {
       String f = entry.getKey();
-      ODocumentEntry docEntry = entry.getValue();
+      EntityEntry docEntry = entry.getValue();
       if (!docEntry.exists()) {
         continue;
       }
       final Object otherValue = docEntry.value;
 
-      ODocumentEntry curValue = fields.get(f);
+      EntityEntry curValue = fields.get(f);
 
       if (curValue != null && curValue.exists()) {
         final Object value = curValue.value;
@@ -3152,7 +3154,7 @@ public class YTDocument extends YTRecordAbstract
             map.putAll(otherMap);
             continue;
           } else {
-            if (OMultiValue.isMultiValue(value) && !(value instanceof ORidBag)) {
+            if (OMultiValue.isMultiValue(value) && !(value instanceof RidBag)) {
               for (Object item : OMultiValue.getMultiValueIterable(otherValue)) {
                 if (!OMultiValue.contains(value, item)) {
                   OMultiValue.add(value, item);
@@ -3163,9 +3165,9 @@ public class YTDocument extends YTRecordAbstract
           }
         }
         boolean bagsMerged = false;
-        if (value instanceof ORidBag && otherValue instanceof ORidBag) {
+        if (value instanceof RidBag && otherValue instanceof RidBag) {
           bagsMerged =
-              ((ORidBag) value).tryMerge((ORidBag) otherValue, iMergeSingleItemsOfMultiValueFields);
+              ((RidBag) value).tryMerge((RidBag) otherValue, iMergeSingleItemsOfMultiValueFields);
         }
 
         if (!bagsMerged && (value != null && !value.equals(otherValue))
@@ -3294,13 +3296,13 @@ public class YTDocument extends YTRecordAbstract
       fields = ordered ? new LinkedHashMap<>() : new HashMap<>();
     }
 
-    ODocumentEntry entry = getOrCreate(iFieldName);
+    EntityEntry entry = getOrCreate(iFieldName);
     entry.disableTracking(this, entry.value);
     entry.value = iFieldValue;
     entry.type = iFieldType;
     entry.enableTracking(this);
-    if (iFieldValue instanceof ORidBag) {
-      ((ORidBag) iFieldValue).setRecordAndField(recordId, iFieldName);
+    if (iFieldValue instanceof RidBag) {
+      ((RidBag) iFieldValue).setRecordAndField(recordId, iFieldName);
     }
     if (iFieldValue instanceof YTIdentifiable
         && !((YTIdentifiable) iFieldValue).getIdentity().isPersistent()) {
@@ -3308,10 +3310,10 @@ public class YTDocument extends YTRecordAbstract
     }
   }
 
-  private ODocumentEntry getOrCreate(String key) {
-    ODocumentEntry entry = fields.get(key);
+  private EntityEntry getOrCreate(String key) {
+    EntityEntry entry = fields.get(key);
     if (entry == null) {
-      entry = new ODocumentEntry();
+      entry = new EntityEntry();
       fieldSize++;
       fields.put(key, entry);
     }
@@ -3340,7 +3342,7 @@ public class YTDocument extends YTRecordAbstract
         if (fields == null) {
           continue;
         }
-        final ODocumentEntry entry = fields.get(prop.getName());
+        final EntityEntry entry = fields.get(prop.getName());
         if (entry == null) {
           continue;
         }
@@ -3353,9 +3355,9 @@ public class YTDocument extends YTRecordAbstract
         }
         try {
           if (type == YTType.LINKBAG
-              && !(entry.value instanceof ORidBag)
+              && !(entry.value instanceof RidBag)
               && entry.value instanceof Collection) {
-            ORidBag newValue = new ORidBag(session);
+            RidBag newValue = new RidBag(session);
             newValue.setRecordAndField(recordId, prop.getName());
             for (Object o : ((Collection<Object>) entry.value)) {
               if (!(o instanceof YTIdentifiable)) {
@@ -3368,7 +3370,7 @@ public class YTDocument extends YTRecordAbstract
           if (type == YTType.LINKMAP) {
             if (entry.value instanceof Map) {
               Map<String, Object> map = (Map<String, Object>) entry.value;
-              var newMap = new OMap(this);
+              var newMap = new LinkMap(this);
               boolean changed = false;
               for (Entry<String, Object> stringObjectEntry : map.entrySet()) {
                 Object val = stringObjectEntry.getValue();
@@ -3392,7 +3394,7 @@ public class YTDocument extends YTRecordAbstract
           }
 
           if (type == YTType.EMBEDDEDLIST) {
-            OTrackedList<Object> list = new OTrackedList<>(this);
+            TrackedList<Object> list = new TrackedList<>(this);
             Collection<Object> values = (Collection<Object>) value;
             for (Object object : values) {
               list.add(YTType.convert(session, object, linkedType.getDefaultJavaType()));
@@ -3401,7 +3403,7 @@ public class YTDocument extends YTRecordAbstract
             replaceListenerOnAutoconvert(entry);
           } else {
             if (type == YTType.EMBEDDEDMAP) {
-              Map<Object, Object> map = new OTrackedMap<>(this);
+              Map<Object, Object> map = new TrackedMap<>(this);
               Map<Object, Object> values = (Map<Object, Object>) value;
               for (Entry<Object, Object> object : values.entrySet()) {
                 map.put(
@@ -3412,7 +3414,7 @@ public class YTDocument extends YTRecordAbstract
               replaceListenerOnAutoconvert(entry);
             } else {
               if (type == YTType.EMBEDDEDSET) {
-                Set<Object> set = new OTrackedSet<>(this);
+                Set<Object> set = new TrackedSet<>(this);
                 Collection<Object> values = (Collection<Object>) value;
                 for (Object object : values) {
                   set.add(YTType.convert(session, object, linkedType.getDefaultJavaType()));
@@ -3433,7 +3435,7 @@ public class YTDocument extends YTRecordAbstract
   }
 
   private void convertToEmbeddedType(YTProperty prop) {
-    final ODocumentEntry entry = fields.get(prop.getName());
+    final EntityEntry entry = fields.get(prop.getName());
     YTClass linkedClass = prop.getLinkedClass();
     if (entry == null || linkedClass == null) {
       return;
@@ -3446,10 +3448,10 @@ public class YTDocument extends YTRecordAbstract
       return;
     }
     try {
-      if (value instanceof YTDocument) {
-        YTClass docClass = ((YTDocument) value).getImmutableSchemaClass();
+      if (value instanceof YTEntityImpl) {
+        YTClass docClass = ((YTEntityImpl) value).getImmutableSchemaClass();
         if (docClass == null) {
-          ((YTDocument) value).setClass(linkedClass);
+          ((YTEntityImpl) value).setClass(linkedClass);
         } else {
           if (!docClass.isSubClassOf(linkedClass)) {
             throw new YTValidationException(
@@ -3462,7 +3464,7 @@ public class YTDocument extends YTRecordAbstract
       } else {
         if (value instanceof Map) {
           entry.disableTracking(this, value);
-          YTDocument newValue = new YTDocument(linkedClass);
+          YTEntityImpl newValue = new YTEntityImpl(linkedClass);
           //noinspection rawtypes
           newValue.fromMap((Map) value);
           entry.value = newValue;
@@ -3481,7 +3483,7 @@ public class YTDocument extends YTRecordAbstract
     }
   }
 
-  private void replaceListenerOnAutoconvert(final ODocumentEntry entry) {
+  private void replaceListenerOnAutoconvert(final EntityEntry entry) {
     entry.replaceListener(this);
   }
 
@@ -3496,7 +3498,7 @@ public class YTDocument extends YTRecordAbstract
   /**
    * Internal.
    */
-  protected void addOwner(final ORecordElement iOwner) {
+  protected void addOwner(final RecordElement iOwner) {
     checkForBinding();
 
     if (iOwner == null) {
@@ -3515,7 +3517,7 @@ public class YTDocument extends YTRecordAbstract
     this.owner = new WeakReference<>(iOwner);
   }
 
-  void removeOwner(final ORecordElement iRecordElement) {
+  void removeOwner(final RecordElement iRecordElement) {
     if (owner != null && owner.get() == iRecordElement) {
       assert !recordId.isPersistent();
       owner = null;
@@ -3530,18 +3532,18 @@ public class YTDocument extends YTRecordAbstract
     }
 
     var session = getSession();
-    for (Map.Entry<String, ODocumentEntry> fieldEntry : fields.entrySet()) {
-      ODocumentEntry entry = fieldEntry.getValue();
+    for (Map.Entry<String, EntityEntry> fieldEntry : fields.entrySet()) {
+      EntityEntry entry = fieldEntry.getValue();
       final Object fieldValue = entry.value;
-      if (fieldValue instanceof ORidBag) {
+      if (fieldValue instanceof RidBag) {
         if (isEmbedded()) {
           throw new YTDatabaseException("RidBag are supported only at document root");
         }
-        ((ORidBag) fieldValue).checkAndConvert();
+        ((RidBag) fieldValue).checkAndConvert();
       }
       if (!(fieldValue instanceof Collection<?>)
           && !(fieldValue instanceof Map<?, ?>)
-          && !(fieldValue instanceof YTDocument)) {
+          && !(fieldValue instanceof YTEntityImpl)) {
         continue;
       }
       if (entry.enableTracking(this)) {
@@ -3553,8 +3555,8 @@ public class YTDocument extends YTRecordAbstract
         continue;
       }
 
-      if (fieldValue instanceof YTDocument && ((YTDocument) fieldValue).isEmbedded()) {
-        ((YTDocument) fieldValue).convertAllMultiValuesToTrackedVersions();
+      if (fieldValue instanceof YTEntityImpl && ((YTEntityImpl) fieldValue).isEmbedded()) {
+        ((YTEntityImpl) fieldValue).convertAllMultiValuesToTrackedVersions();
         continue;
       }
 
@@ -3570,47 +3572,47 @@ public class YTDocument extends YTRecordAbstract
         fieldType = YTType.getTypeByValue(fieldValue);
       }
 
-      ORecordElement newValue = null;
+      RecordElement newValue = null;
       switch (fieldType) {
         case EMBEDDEDLIST:
           if (fieldValue instanceof List<?>) {
-            newValue = new OTrackedList<>(this);
+            newValue = new TrackedList<>(this);
             fillTrackedCollection(
                 (Collection<Object>) newValue, newValue, (Collection<Object>) fieldValue);
           }
           break;
         case EMBEDDEDSET:
           if (fieldValue instanceof Set<?>) {
-            newValue = new OTrackedSet<>(this);
+            newValue = new TrackedSet<>(this);
             fillTrackedCollection(
                 (Collection<Object>) newValue, newValue, (Collection<Object>) fieldValue);
           }
           break;
         case EMBEDDEDMAP:
           if (fieldValue instanceof Map<?, ?>) {
-            newValue = new OTrackedMap<>(this);
+            newValue = new TrackedMap<>(this);
             fillTrackedMap(
                 (Map<Object, Object>) newValue, newValue, (Map<Object, Object>) fieldValue);
           }
           break;
         case LINKLIST:
           if (fieldValue instanceof List<?>) {
-            newValue = new OList(this, (Collection<YTIdentifiable>) fieldValue);
+            newValue = new LinkList(this, (Collection<YTIdentifiable>) fieldValue);
           }
           break;
         case LINKSET:
           if (fieldValue instanceof Set<?>) {
-            newValue = new OSet(this, (Collection<YTIdentifiable>) fieldValue);
+            newValue = new LinkSet(this, (Collection<YTIdentifiable>) fieldValue);
           }
           break;
         case LINKMAP:
           if (fieldValue instanceof Map<?, ?>) {
-            newValue = new OMap(this, (Map<Object, YTIdentifiable>) fieldValue);
+            newValue = new LinkMap(this, (Map<Object, YTIdentifiable>) fieldValue);
           }
           break;
         case LINKBAG:
           if (fieldValue instanceof Collection<?>) {
-            ORidBag bag = new ORidBag(session);
+            RidBag bag = new RidBag(session);
             bag.setOwner(this);
             bag.setRecordAndField(recordId, fieldEntry.getKey());
             bag.addAll((Collection<YTIdentifiable>) fieldValue);
@@ -3626,15 +3628,15 @@ public class YTDocument extends YTRecordAbstract
         entry.value = newValue;
         if (fieldType == YTType.LINKSET || fieldType == YTType.LINKLIST) {
           for (YTIdentifiable rec : (Collection<YTIdentifiable>) newValue) {
-            if (rec instanceof YTDocument) {
-              ((YTDocument) rec).convertAllMultiValuesToTrackedVersions();
+            if (rec instanceof YTEntityImpl) {
+              ((YTEntityImpl) rec).convertAllMultiValuesToTrackedVersions();
             }
           }
         } else {
           if (fieldType == YTType.LINKMAP) {
             for (YTIdentifiable rec : (Collection<YTIdentifiable>) ((Map<?, ?>) newValue).values()) {
-              if (rec instanceof YTDocument) {
-                ((YTDocument) rec).convertAllMultiValuesToTrackedVersions();
+              if (rec instanceof YTEntityImpl) {
+                ((YTEntityImpl) rec).convertAllMultiValuesToTrackedVersions();
               }
             }
           }
@@ -3652,18 +3654,18 @@ public class YTDocument extends YTRecordAbstract
       if (event.getChangeType() == OMultiValueChangeEvent.OChangeType.ADD
           && !(value instanceof OTrackedMultiValue)) {
         if (value instanceof List) {
-          var newCollection = new OTrackedList<>(this);
+          var newCollection = new TrackedList<>(this);
           fillTrackedCollection(newCollection, newCollection, (Collection<Object>) value);
           origin.replace(event, newCollection);
         } else {
           if (value instanceof Set) {
-            var newCollection = new OTrackedSet<>(this);
+            var newCollection = new TrackedSet<>(this);
             fillTrackedCollection(newCollection, newCollection, (Collection<Object>) value);
             origin.replace(event, newCollection);
 
           } else {
             if (value instanceof Map) {
-              OTrackedMap<Object> newMap = new OTrackedMap<>(this);
+              TrackedMap<Object> newMap = new TrackedMap<>(this);
               fillTrackedMap(newMap, newMap, (Map<Object, Object>) value);
               origin.replace(event, newMap);
             }
@@ -3674,30 +3676,30 @@ public class YTDocument extends YTRecordAbstract
   }
 
   private void fillTrackedCollection(
-      Collection<Object> dest, ORecordElement parent, Collection<Object> source) {
+      Collection<Object> dest, RecordElement parent, Collection<Object> source) {
     for (Object cur : source) {
-      if (cur instanceof YTDocument) {
-        ((YTDocument) cur).addOwner((ORecordElement) dest);
-        ((YTDocument) cur).convertAllMultiValuesToTrackedVersions();
-        ((YTDocument) cur).clearTrackData();
+      if (cur instanceof YTEntityImpl) {
+        ((YTEntityImpl) cur).addOwner((RecordElement) dest);
+        ((YTEntityImpl) cur).convertAllMultiValuesToTrackedVersions();
+        ((YTEntityImpl) cur).clearTrackData();
       } else {
         if (cur instanceof List) {
           @SuppressWarnings("rawtypes")
-          OTrackedList newList = new OTrackedList<>(parent);
+          TrackedList newList = new TrackedList<>(parent);
           fillTrackedCollection(newList, newList, (Collection<Object>) cur);
           cur = newList;
         } else {
           if (cur instanceof Set) {
-            OTrackedSet<Object> newSet = new OTrackedSet<>(parent);
+            TrackedSet<Object> newSet = new TrackedSet<>(parent);
             fillTrackedCollection(newSet, newSet, (Collection<Object>) cur);
             cur = newSet;
           } else {
             if (cur instanceof Map) {
-              OTrackedMap<Object> newMap = new OTrackedMap<>(parent);
+              TrackedMap<Object> newMap = new TrackedMap<>(parent);
               fillTrackedMap(newMap, newMap, (Map<Object, Object>) cur);
               cur = newMap;
             } else {
-              if (cur instanceof ORidBag) {
+              if (cur instanceof RidBag) {
                 throw new YTDatabaseException("RidBag are supported only at document root");
               }
             }
@@ -3709,29 +3711,29 @@ public class YTDocument extends YTRecordAbstract
   }
 
   private void fillTrackedMap(
-      Map<Object, Object> dest, ORecordElement parent, Map<Object, Object> source) {
+      Map<Object, Object> dest, RecordElement parent, Map<Object, Object> source) {
     for (Entry<Object, Object> cur : source.entrySet()) {
       Object value = cur.getValue();
-      if (value instanceof YTDocument) {
-        ((YTDocument) value).convertAllMultiValuesToTrackedVersions();
-        ((YTDocument) value).clearTrackData();
+      if (value instanceof YTEntityImpl) {
+        ((YTEntityImpl) value).convertAllMultiValuesToTrackedVersions();
+        ((YTEntityImpl) value).clearTrackData();
       } else {
         if (cur.getValue() instanceof List) {
-          OTrackedList<Object> newList = new OTrackedList<>(parent);
+          TrackedList<Object> newList = new TrackedList<>(parent);
           fillTrackedCollection(newList, newList, (Collection<Object>) value);
           value = newList;
         } else {
           if (value instanceof Set) {
-            OTrackedSet<Object> newSet = new OTrackedSet<>(parent);
+            TrackedSet<Object> newSet = new TrackedSet<>(parent);
             fillTrackedCollection(newSet, newSet, (Collection<Object>) value);
             value = newSet;
           } else {
             if (value instanceof Map) {
-              OTrackedMap<Object> newMap = new OTrackedMap<>(parent);
+              TrackedMap<Object> newMap = new TrackedMap<>(parent);
               fillTrackedMap(newMap, newMap, (Map<Object, Object>) value);
               value = newMap;
             } else {
-              if (value instanceof ORidBag) {
+              if (value instanceof RidBag) {
                 throw new YTDatabaseException("RidBag are supported only at document root");
               }
             }
@@ -3758,7 +3760,7 @@ public class YTDocument extends YTRecordAbstract
     if (source != null) {
       checkForBinding();
 
-      if (status == ORecordElement.STATUS.LOADED) {
+      if (status == RecordElement.STATUS.LOADED) {
         return deserializeFields(iFields);
       }
     }
@@ -3771,7 +3773,7 @@ public class YTDocument extends YTRecordAbstract
 
     if (checkForFields(property)) {
       if (propertyAccess == null || propertyAccess.isReadable(property)) {
-        ODocumentEntry entry = fields.get(property);
+        EntityEntry entry = fields.get(property);
         if (entry != null) {
           return entry.value;
         } else {
@@ -3805,7 +3807,7 @@ public class YTDocument extends YTRecordAbstract
     if (fields != null) {
       var processedRecords = Collections.newSetFromMap(new IdentityHashMap<>());
 
-      for (ODocumentEntry entry : fields.values()) {
+      for (EntityEntry entry : fields.values()) {
         if (entry.value instanceof YTRecordAbstract recordAbstract) {
           if (processedRecords.add(recordAbstract)) {
             recordAbstract.setup(db);
@@ -3862,14 +3864,14 @@ public class YTDocument extends YTRecordAbstract
     }
   }
 
-  Set<Entry<String, ODocumentEntry>> getRawEntries() {
+  Set<Entry<String, EntityEntry>> getRawEntries() {
     checkForBinding();
 
     checkForFields();
     return fields == null ? new HashSet<>() : fields.entrySet();
   }
 
-  List<Entry<String, ODocumentEntry>> getFilteredEntries() {
+  List<Entry<String, EntityEntry>> getFilteredEntries() {
     checkForBinding();
     checkForFields();
 
@@ -3943,7 +3945,7 @@ public class YTDocument extends YTRecordAbstract
     var session = getSession();
 
     for (YTProperty prop : clazz.properties(session)) {
-      ODocumentEntry entry = fields != null ? fields.get(prop.getName()) : null;
+      EntityEntry entry = fields != null ? fields.get(prop.getName()) : null;
       if (entry != null && entry.exists()) {
         if (entry.type == null || entry.type != prop.getType()) {
           boolean preChanged = entry.isChanged();
@@ -3975,7 +3977,7 @@ public class YTDocument extends YTRecordAbstract
     }
   }
 
-  private YTType deriveFieldType(String iFieldName, ODocumentEntry entry, YTType[] iFieldType) {
+  private YTType deriveFieldType(String iFieldName, EntityEntry entry, YTType[] iFieldType) {
     YTType fieldType;
 
     if (iFieldType != null && iFieldType.length == 1) {
@@ -4005,7 +4007,7 @@ public class YTDocument extends YTRecordAbstract
       return;
     }
 
-    for (final Map.Entry<String, ODocumentEntry> field : fields.entrySet()) {
+    for (final Map.Entry<String, EntityEntry> field : fields.entrySet()) {
       var docEntry = field.getValue();
 
       var value = docEntry.value;
@@ -4018,7 +4020,7 @@ public class YTDocument extends YTRecordAbstract
       return;
     }
 
-    for (final Map.Entry<String, ODocumentEntry> field : fields.entrySet()) {
+    for (final Map.Entry<String, EntityEntry> field : fields.entrySet()) {
       field.getValue().enableTracking(this);
     }
   }

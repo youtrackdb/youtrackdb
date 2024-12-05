@@ -20,7 +20,7 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
 import java.util.Date;
 import java.util.Map;
@@ -33,13 +33,13 @@ import java.util.Map;
 public class OScheduledEventBuilder extends ODocumentWrapper {
 
   public OScheduledEventBuilder() {
-    super(new YTDocument(OScheduledEvent.CLASS_NAME));
+    super(new YTEntityImpl(OScheduledEvent.CLASS_NAME));
   }
 
   /**
    * Creates a scheduled event object from a configuration.
    */
-  public OScheduledEventBuilder(final YTDocument doc) {
+  public OScheduledEventBuilder(final YTEntityImpl doc) {
     super(doc);
   }
 

@@ -12,7 +12,7 @@ import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OBonsaiBucketPointer;
@@ -48,7 +48,7 @@ public class ORemoteTransactionMessagesTest extends DBTestBase {
   public void testBeginTransactionWriteRead() throws IOException {
 
     List<ORecordOperation> operations = new ArrayList<>();
-    operations.add(new ORecordOperation(new YTDocument(), ORecordOperation.CREATED));
+    operations.add(new ORecordOperation(new YTEntityImpl(), ORecordOperation.CREATED));
     Map<String, OTransactionIndexChanges> changes = new HashMap<>();
     OTransactionIndexChanges change = new OTransactionIndexChanges();
     change.cleared = false;
@@ -88,7 +88,7 @@ public class ORemoteTransactionMessagesTest extends DBTestBase {
   @Test
   public void testFullCommitTransactionWriteRead() throws IOException {
     List<ORecordOperation> operations = new ArrayList<>();
-    operations.add(new ORecordOperation(new YTDocument(), ORecordOperation.CREATED));
+    operations.add(new ORecordOperation(new YTEntityImpl(), ORecordOperation.CREATED));
     Map<String, OTransactionIndexChanges> changes = new HashMap<>();
     OTransactionIndexChanges change = new OTransactionIndexChanges();
     change.cleared = false;
@@ -180,11 +180,11 @@ public class ORemoteTransactionMessagesTest extends DBTestBase {
   public void testTransactionFetchResponseWriteRead() throws IOException {
 
     List<ORecordOperation> operations = new ArrayList<>();
-    operations.add(new ORecordOperation(new YTDocument(), ORecordOperation.CREATED));
-    var docOne = new YTDocument();
+    operations.add(new ORecordOperation(new YTEntityImpl(), ORecordOperation.CREATED));
+    var docOne = new YTEntityImpl();
     ORecordInternal.setIdentity(docOne, new YTRecordId(10, 2));
 
-    var docTwo = new YTDocument();
+    var docTwo = new YTEntityImpl();
     ORecordInternal.setIdentity(docTwo, new YTRecordId(10, 1));
 
     operations.add(
@@ -239,11 +239,11 @@ public class ORemoteTransactionMessagesTest extends DBTestBase {
   public void testTransactionFetchResponse38WriteRead() throws IOException {
 
     List<ORecordOperation> operations = new ArrayList<>();
-    operations.add(new ORecordOperation(new YTDocument(), ORecordOperation.CREATED));
+    operations.add(new ORecordOperation(new YTEntityImpl(), ORecordOperation.CREATED));
     operations.add(
-        new ORecordOperation(new YTDocument(new YTRecordId(10, 2)), ORecordOperation.UPDATED));
+        new ORecordOperation(new YTEntityImpl(new YTRecordId(10, 2)), ORecordOperation.UPDATED));
     operations.add(
-        new ORecordOperation(new YTDocument(new YTRecordId(10, 1)), ORecordOperation.DELETED));
+        new ORecordOperation(new YTEntityImpl(new YTRecordId(10, 1)), ORecordOperation.DELETED));
     Map<String, OTransactionIndexChanges> changes = new HashMap<>();
     OTransactionIndexChanges change = new OTransactionIndexChanges();
     change.cleared = false;

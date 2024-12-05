@@ -30,8 +30,8 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexDefinitionMultiValue;
 import com.orientechnologies.orient.core.index.OIndexInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OSQLHelper;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItem;
@@ -87,7 +87,7 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
       if (inParams instanceof OLegacyResultSet) { // manage IN (subquery)
         Set newInParams = new HashSet();
         for (Object o : inParams) {
-          if (o instanceof YTDocument doc && doc.getIdentity().getClusterId() < -1) {
+          if (o instanceof YTEntityImpl doc && doc.getIdentity().getClusterId() < -1) {
             String[] fieldNames = doc.fieldNames();
             if (fieldNames.length == 1) {
               newInParams.add(doc.field(fieldNames[0]));

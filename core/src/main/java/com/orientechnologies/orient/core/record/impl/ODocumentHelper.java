@@ -29,14 +29,14 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OList;
-import com.orientechnologies.orient.core.db.record.OMap;
-import com.orientechnologies.orient.core.db.record.OSet;
-import com.orientechnologies.orient.core.db.record.OTrackedList;
-import com.orientechnologies.orient.core.db.record.OTrackedMap;
-import com.orientechnologies.orient.core.db.record.OTrackedSet;
+import com.orientechnologies.orient.core.db.record.LinkList;
+import com.orientechnologies.orient.core.db.record.LinkMap;
+import com.orientechnologies.orient.core.db.record.LinkSet;
+import com.orientechnologies.orient.core.db.record.TrackedList;
+import com.orientechnologies.orient.core.db.record.TrackedMap;
+import com.orientechnologies.orient.core.db.record.TrackedSet;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTQueryParsingException;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
@@ -127,7 +127,7 @@ public class ODocumentHelper {
 
   @SuppressWarnings("unchecked")
   public static <RET> RET convertField(
-      YTDatabaseSessionInternal session, final YTDocument iDocument,
+      YTDatabaseSessionInternal session, final YTEntityImpl iDocument,
       final String iFieldName,
       YTType type,
       Class<?> iFieldType,
@@ -167,9 +167,9 @@ public class ODocumentHelper {
         // CONVERT IT TO SET
         final Collection<?> newValue;
         if (type.isLink()) {
-          newValue = new OSet(iDocument);
+          newValue = new LinkSet(iDocument);
         } else {
-          newValue = new OTrackedSet<>(iDocument);
+          newValue = new TrackedSet<>(iDocument);
         }
         if (iValue instanceof Collection<?>) {
           ((Collection<Object>) newValue).addAll((Collection<Object>) iValue);
@@ -199,9 +199,9 @@ public class ODocumentHelper {
         final Collection<?> newValue;
 
         if (type.isLink()) {
-          newValue = new OList(iDocument);
+          newValue = new LinkList(iDocument);
         } else {
-          newValue = new OTrackedList<Object>(iDocument);
+          newValue = new TrackedList<Object>(iDocument);
         }
 
         if (iValue instanceof Collection) {
@@ -386,12 +386,13 @@ public class ODocumentHelper {
           if (indexParts.size() == 1 && indexCondition.size() == 1 && indexRanges.size() == 1)
           // SINGLE VALUE
           {
-            value = ((YTDocument) record).field(indexAsString);
+            value = ((YTEntityImpl) record).field(indexAsString);
           } else if (indexParts.size() > 1) {
             // MULTI VALUE
             final Object[] values = new Object[indexParts.size()];
             for (int i = 0; i < indexParts.size(); ++i) {
-              values[i] = ((YTDocument) record).field(OIOUtils.getStringContent(indexParts.get(i)));
+              values[i] = ((YTEntityImpl) record).field(
+                  OIOUtils.getStringContent(indexParts.get(i)));
             }
             value = values;
           } else if (indexRanges.size() > 1) {
@@ -400,7 +401,7 @@ public class ODocumentHelper {
             String from = indexRanges.get(0);
             String to = indexRanges.get(1);
 
-            final YTDocument doc = (YTDocument) record;
+            final YTEntityImpl doc = (YTEntityImpl) record;
 
             final String[] fieldNames = doc.fieldNames();
             final int rangeFrom = from != null && !from.isEmpty() ? Integer.parseInt(from) : 0;
@@ -579,7 +580,7 @@ public class ODocumentHelper {
                   values.add(v);
                 }
               } else if (v instanceof Map) {
-                YTDocument doc = new YTDocument();
+                YTEntityImpl doc = new YTEntityImpl();
                 doc.fromMap((Map<String, ? extends Object>) v);
                 Object result = pred.evaluate(doc, doc, iContext);
                 if (Boolean.TRUE.equals(result)) {
@@ -794,7 +795,7 @@ public class ODocumentHelper {
         return null;
       }
 
-      if (rec instanceof YTDocument doc) {
+      if (rec instanceof YTEntityImpl doc) {
 
         Object fieldValue = doc.field(iConditionFieldName);
 
@@ -848,7 +849,7 @@ public class ODocumentHelper {
 
       if (pos > -1) {
         final String restFieldName = iName.substring(pos + 1);
-        if (value instanceof YTDocument) {
+        if (value instanceof YTEntityImpl) {
           return getFieldValue(session, value, restFieldName);
         } else if (value instanceof Map<?, ?>) {
           return getMapEntry(session, (Map<String, ?>) value, restFieldName);
@@ -882,7 +883,7 @@ public class ODocumentHelper {
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_VERSION)) {
           return iCurrent.getRecord().getVersion();
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_CLASS)) {
-          return ((YTDocument) iCurrent.getRecord()).getClassName();
+          return ((YTEntityImpl) iCurrent.getRecord()).getClassName();
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_TYPE)) {
           return YouTrackDBManager.instance()
               .getRecordFactoryManager()
@@ -891,7 +892,7 @@ public class ODocumentHelper {
           final byte[] stream = ((YTRecordAbstract) iCurrent.getRecord()).toStream();
           return stream != null ? stream.length : 0;
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_FIELDS)) {
-          return ((YTDocument) iCurrent.getRecord()).fieldNames();
+          return ((YTEntityImpl) iCurrent.getRecord()).fieldNames();
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_RAW)) {
           return new String(((YTRecordAbstract) iCurrent.getRecord()).toStream());
         }
@@ -902,7 +903,7 @@ public class ODocumentHelper {
     }
 
     try {
-      final YTDocument doc = iCurrent.getRecord();
+      final YTEntityImpl doc = iCurrent.getRecord();
       return doc.accessProperty(iFieldName);
     } catch (YTRecordNotFoundException rnf) {
       return null;
@@ -930,7 +931,7 @@ public class ODocumentHelper {
     } else if (function.startsWith("TRIM(")) {
       result = currentValue.toString().trim();
     } else if (function.startsWith("TOJSON(")) {
-      result = currentValue instanceof YTDocument ? ((YTDocument) currentValue).toJSON() : null;
+      result = currentValue instanceof YTEntityImpl ? ((YTEntityImpl) currentValue).toJSON() : null;
     } else if (function.startsWith("KEYS(")) {
       result = currentValue instanceof Map<?, ?> ? ((Map<?, ?>) currentValue).keySet() : null;
     } else if (function.startsWith("VALUES(")) {
@@ -1049,50 +1050,50 @@ public class ODocumentHelper {
 
   @SuppressWarnings("unchecked")
   public static Object cloneValue(YTDatabaseSessionInternal db,
-      YTDocument iCloned, final Object fieldValue) {
+      YTEntityImpl iCloned, final Object fieldValue) {
 
     if (fieldValue != null) {
-      if (fieldValue instanceof YTDocument && ((YTDocument) fieldValue).isEmbedded()) {
+      if (fieldValue instanceof YTEntityImpl && ((YTEntityImpl) fieldValue).isEmbedded()) {
         // EMBEDDED DOCUMENT
-        return ((YTDocument) fieldValue).copy();
-      } else if (fieldValue instanceof ORidBag) {
-        ORidBag newBag = ((ORidBag) fieldValue).copy(db);
+        return ((YTEntityImpl) fieldValue).copy();
+      } else if (fieldValue instanceof RidBag) {
+        RidBag newBag = ((RidBag) fieldValue).copy(db);
         newBag.setOwner(null);
         newBag.setOwner(iCloned);
         return newBag;
 
-      } else if (fieldValue instanceof OList) {
-        return ((OList) fieldValue).copy(iCloned);
+      } else if (fieldValue instanceof LinkList) {
+        return ((LinkList) fieldValue).copy(iCloned);
 
-      } else if (fieldValue instanceof OTrackedList<?>) {
-        final OTrackedList<Object> newList = new OTrackedList<Object>(iCloned);
-        newList.addAll((OTrackedList<Object>) fieldValue);
+      } else if (fieldValue instanceof TrackedList<?>) {
+        final TrackedList<Object> newList = new TrackedList<Object>(iCloned);
+        newList.addAll((TrackedList<Object>) fieldValue);
         return newList;
 
       } else if (fieldValue instanceof List<?>) {
         return new ArrayList<>((List<Object>) fieldValue);
         // SETS
-      } else if (fieldValue instanceof OSet) {
-        final OSet newList = new OSet(iCloned);
-        newList.addAll((OSet) fieldValue);
+      } else if (fieldValue instanceof LinkSet) {
+        final LinkSet newList = new LinkSet(iCloned);
+        newList.addAll((LinkSet) fieldValue);
         return newList;
 
-      } else if (fieldValue instanceof OTrackedSet<?>) {
-        final OTrackedSet<Object> newList = new OTrackedSet<Object>(iCloned);
-        newList.addAll((OTrackedSet<Object>) fieldValue);
+      } else if (fieldValue instanceof TrackedSet<?>) {
+        final TrackedSet<Object> newList = new TrackedSet<Object>(iCloned);
+        newList.addAll((TrackedSet<Object>) fieldValue);
         return newList;
 
       } else if (fieldValue instanceof Set<?>) {
         return new HashSet<Object>((Set<Object>) fieldValue);
         // MAPS
-      } else if (fieldValue instanceof OMap) {
-        final OMap newMap = new OMap(iCloned, ((OMap) fieldValue).getRecordType());
-        newMap.putAll((OMap) fieldValue);
+      } else if (fieldValue instanceof LinkMap) {
+        final LinkMap newMap = new LinkMap(iCloned, ((LinkMap) fieldValue).getRecordType());
+        newMap.putAll((LinkMap) fieldValue);
         return newMap;
 
-      } else if (fieldValue instanceof OTrackedMap) {
-        final OTrackedMap<Object> newMap = new OTrackedMap<Object>(iCloned);
-        newMap.putAll((OTrackedMap<Object>) fieldValue);
+      } else if (fieldValue instanceof TrackedMap) {
+        final TrackedMap<Object> newMap = new TrackedMap<Object>(iCloned);
+        newMap.putAll((TrackedMap<Object>) fieldValue);
         return newMap;
 
       } else if (fieldValue instanceof Map<?, ?>) {
@@ -1115,7 +1116,7 @@ public class ODocumentHelper {
       final Object iOther,
       final YTDatabaseSessionInternal iOtherDb,
       RIDMapper ridMapper) {
-    if (iCurrent instanceof YTDocument current) {
+    if (iCurrent instanceof YTEntityImpl current) {
       if (iOther instanceof YTRID) {
         if (!current.isDirty()) {
           YTRID id;
@@ -1132,12 +1133,12 @@ public class ODocumentHelper {
 
           return id.equals(iOther);
         } else {
-          final YTDocument otherDoc = iOtherDb.load((YTRID) iOther);
+          final YTEntityImpl otherDoc = iOtherDb.load((YTRID) iOther);
           return ODocumentHelper.hasSameContentOf(current, iMyDb, otherDoc, iOtherDb, ridMapper);
         }
       } else {
         return ODocumentHelper.hasSameContentOf(
-            current, iMyDb, (YTDocument) iOther, iOtherDb, ridMapper);
+            current, iMyDb, (YTEntityImpl) iOther, iOtherDb, ridMapper);
       }
     } else {
       return compareScalarValues(iCurrent, iMyDb, iOther, iOtherDb, ridMapper);
@@ -1145,37 +1146,37 @@ public class ODocumentHelper {
   }
 
   /**
-   * Makes a deep comparison field by field to check if the passed YTDocument instance is identical
+   * Makes a deep comparison field by field to check if the passed YTEntityImpl instance is identical
    * as identity and content to the current one. Instead equals() just checks if the RID are the
    * same.
    *
-   * @param iOther YTDocument instance
+   * @param iOther YTEntityImpl instance
    * @return true if the two document are identical, otherwise false
    * @see #equals(Object)
    */
   @SuppressWarnings("unchecked")
   public static boolean hasSameContentOf(
-      final YTDocument iCurrent,
+      final YTEntityImpl iCurrent,
       final YTDatabaseSessionInternal iMyDb,
-      final YTDocument iOther,
+      final YTEntityImpl iOther,
       final YTDatabaseSessionInternal iOtherDb,
       RIDMapper ridMapper) {
     return hasSameContentOf(iCurrent, iMyDb, iOther, iOtherDb, ridMapper, true);
   }
 
   /**
-   * Makes a deep comparison field by field to check if the passed YTDocument instance is identical
+   * Makes a deep comparison field by field to check if the passed YTEntityImpl instance is identical
    * in the content to the current one. Instead equals() just checks if the RID are the same.
    *
-   * @param iOther YTDocument instance
+   * @param iOther YTEntityImpl instance
    * @return true if the two document are identical, otherwise false
    * @see #equals(Object)
    */
   @SuppressWarnings("unchecked")
   public static boolean hasSameContentOf(
-      final YTDocument iCurrent,
+      final YTEntityImpl iCurrent,
       final YTDatabaseSessionInternal iMyDb,
-      final YTDocument iOther,
+      final YTEntityImpl iOther,
       final YTDatabaseSessionInternal iOtherDb,
       RIDMapper ridMapper,
       final boolean iCheckAlsoIdentity) {
@@ -1254,9 +1255,9 @@ public class ODocumentHelper {
             ridMapper)) {
           return false;
         }
-      } else if (myFieldValue instanceof ORidBag && otherFieldValue instanceof ORidBag) {
+      } else if (myFieldValue instanceof RidBag && otherFieldValue instanceof RidBag) {
         if (!compareBags(
-            iMyDb, (ORidBag) myFieldValue, iOtherDb, (ORidBag) otherFieldValue, ridMapper)) {
+            iMyDb, (RidBag) myFieldValue, iOtherDb, (RidBag) otherFieldValue, ridMapper)) {
           return false;
         }
       } else if (myFieldValue instanceof Map && otherFieldValue instanceof Map) {
@@ -1268,9 +1269,10 @@ public class ODocumentHelper {
             ridMapper)) {
           return false;
         }
-      } else if (myFieldValue instanceof YTDocument && otherFieldValue instanceof YTDocument) {
+      } else if (myFieldValue instanceof YTEntityImpl && otherFieldValue instanceof YTEntityImpl) {
         if (!hasSameContentOf(
-            (YTDocument) myFieldValue, iMyDb, (YTDocument) otherFieldValue, iOtherDb, ridMapper)) {
+            (YTEntityImpl) myFieldValue, iMyDb, (YTEntityImpl) otherFieldValue, iOtherDb,
+            ridMapper)) {
           return false;
         }
       } else {
@@ -1343,20 +1345,20 @@ public class ODocumentHelper {
         return false;
       }
 
-      if (myEntry.getValue() instanceof YTDocument) {
+      if (myEntry.getValue() instanceof YTEntityImpl) {
         if (!hasSameContentOf(
             makeDbCall(
                 iMyDb,
-                new ODbRelatedCall<YTDocument>() {
-                  public YTDocument call(YTDatabaseSessionInternal database) {
-                    return (YTDocument) myEntry.getValue();
+                new ODbRelatedCall<YTEntityImpl>() {
+                  public YTEntityImpl call(YTDatabaseSessionInternal database) {
+                    return (YTEntityImpl) myEntry.getValue();
                   }
                 }),
             iMyDb,
             makeDbCall(
                 iOtherDb,
-                new ODbRelatedCall<YTDocument>() {
-                  public YTDocument call(YTDatabaseSessionInternal database) {
+                new ODbRelatedCall<YTEntityImpl>() {
+                  public YTEntityImpl call(YTDatabaseSessionInternal database) {
                     return ((YTIdentifiable) otherMap.get(myEntry.getKey())).getRecord();
                   }
                 }),
@@ -1550,12 +1552,12 @@ public class ODocumentHelper {
 
   public static boolean compareBags(
       YTDatabaseSessionInternal iMyDb,
-      ORidBag myFieldValue,
+      RidBag myFieldValue,
       YTDatabaseSessionInternal iOtherDb,
-      ORidBag otherFieldValue,
+      RidBag otherFieldValue,
       RIDMapper ridMapper) {
-    final ORidBag myBag = myFieldValue;
-    final ORidBag otherBag = otherFieldValue;
+    final RidBag myBag = myFieldValue;
+    final RidBag otherBag = otherFieldValue;
 
     final YTDatabaseSessionInternal currentDb = ODatabaseRecordThreadLocal.instance()
         .getIfDefined();
@@ -1695,9 +1697,9 @@ public class ODocumentHelper {
         if (first == null && second != null) {
           return false;
         }
-        if (first instanceof YTDocument && second instanceof YTDocument) {
+        if (first instanceof YTEntityImpl && second instanceof YTEntityImpl) {
           return hasSameContentOf(
-              (YTDocument) first, iMyDb, (YTDocument) second, iOtherDb, ridMapper);
+              (YTEntityImpl) first, iMyDb, (YTEntityImpl) second, iOtherDb, ridMapper);
         }
 
         if (first != null && !first.equals(second)) {

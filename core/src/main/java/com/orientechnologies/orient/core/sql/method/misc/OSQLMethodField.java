@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,7 +60,7 @@ public class OSQLMethodField extends OAbstractSQLMethod {
       if (ioResult instanceof YTResult) {
         ioResult = ((YTResult) ioResult).toEntity();
       }
-      if (ioResult instanceof Iterable && !(ioResult instanceof YTDocument)) {
+      if (ioResult instanceof Iterable && !(ioResult instanceof YTEntityImpl)) {
         ioResult = ((Iterable) ioResult).iterator();
       }
       if (ioResult instanceof String) {

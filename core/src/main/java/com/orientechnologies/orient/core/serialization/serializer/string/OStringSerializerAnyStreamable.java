@@ -23,7 +23,7 @@ import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTSerializationException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import java.util.Base64;
 
@@ -49,7 +49,7 @@ public class OStringSerializerAnyStreamable implements OStringSerializer {
     int propertyPos = iStream.indexOf(':');
     int pos = iStream.indexOf(OStringSerializerEmbedded.SEPARATOR);
     if (pos < 0 || propertyPos > -1 && pos > propertyPos) {
-      instance = new YTDocument();
+      instance = new YTEntityImpl();
       pos = -1;
     } else {
       final String className = iStream.substring(0, pos);

@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.clusterselection.OClusterSelectionStrategy;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -171,7 +171,7 @@ public interface YTClass extends Comparable<YTClass> {
 
   boolean existsProperty(String iPropertyName);
 
-  int getClusterForNewInstance(YTDocument doc);
+  int getClusterForNewInstance(YTEntityImpl doc);
 
   int getDefaultClusterId();
 
@@ -358,7 +358,7 @@ public interface YTClass extends Comparable<YTClass> {
       YTDatabaseSession session, String iName,
       String iType,
       OProgressListener iProgressListener,
-      YTDocument metadata,
+      YTEntityImpl metadata,
       String algorithm,
       String... fields);
 
@@ -379,7 +379,7 @@ public interface YTClass extends Comparable<YTClass> {
       YTDatabaseSession session, String iName,
       String iType,
       OProgressListener iProgressListener,
-      YTDocument metadata,
+      YTEntityImpl metadata,
       String... fields);
 
   /**

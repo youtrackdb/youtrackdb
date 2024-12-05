@@ -36,7 +36,7 @@ import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHook;
 import com.orientechnologies.orient.core.query.live.OLiveQueryListener;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.query.OLegacyResultSet;
 import com.orientechnologies.orient.core.sql.query.OLiveResultListener;
 import java.util.Map;
@@ -85,7 +85,7 @@ public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
         getContext().beginExecution(timeoutMs, timeoutStrategy);
       }
 
-      YTDocument result = new YTDocument();
+      YTEntityImpl result = new YTEntityImpl();
       result.field("token", token); // TODO change this name...?
 
       ((OLegacyResultSet) getResult(querySession)).add(result);
@@ -158,7 +158,7 @@ public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
       execDb.checkSecurity(
           ORule.ResourceGeneric.CLASS,
           ORole.PERMISSION_READ,
-          ((YTDocument) value.getRecord()).getClassName());
+          ((YTEntityImpl) value.getRecord()).getClassName());
     } catch (YTSecurityException ignore) {
       return false;
     }
@@ -173,18 +173,18 @@ public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
     if (this.compiledFilter == null || this.compiledFilter.getRootCondition() == null) {
       return true;
     }
-    if (!(value instanceof YTDocument)) {
+    if (!(value instanceof YTEntityImpl)) {
       value = value.getRecord();
     }
     return !(Boolean.FALSE.equals(
-        compiledFilter.evaluate(value, (YTDocument) value, getContext())));
+        compiledFilter.evaluate(value, (YTEntityImpl) value, getContext())));
   }
 
   private boolean matchesTarget(YTIdentifiable value) {
-    if (!(value instanceof YTDocument)) {
+    if (!(value instanceof YTEntityImpl)) {
       return false;
     }
-    final String className = ((YTDocument) value).getClassName();
+    final String className = ((YTEntityImpl) value).getClassName();
     if (className == null) {
       return false;
     }

@@ -112,7 +112,7 @@ import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.index.OCompositeKeySerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.sharding.auto.OAutoShardingIndexEngine;
@@ -2274,8 +2274,8 @@ public abstract class OAbstractPaginatedStorage
 
         if (recordOperation.type == ORecordOperation.CREATED
             || recordOperation.type == ORecordOperation.UPDATED) {
-          if (record instanceof YTDocument) {
-            ((YTDocument) record).validate();
+          if (record instanceof YTEntityImpl) {
+            ((YTEntityImpl) record).validate();
           }
         }
 
@@ -2292,13 +2292,13 @@ public abstract class OAbstractPaginatedStorage
 
           if (record.isDirty()
               && clusterId == YTRID.CLUSTER_ID_INVALID
-              && record instanceof YTDocument) {
+              && record instanceof YTEntityImpl) {
             // TRY TO FIX CLUSTER ID TO THE DEFAULT CLUSTER ID DEFINED IN SCHEMA CLASS
 
             final YTImmutableClass class_ =
-                ODocumentInternal.getImmutableSchemaClass(((YTDocument) record));
+                ODocumentInternal.getImmutableSchemaClass(((YTEntityImpl) record));
             if (class_ != null) {
-              clusterId = class_.getClusterForNewInstance((YTDocument) record);
+              clusterId = class_.getClusterForNewInstance((YTEntityImpl) record);
               clusterOverrides.put(recordOperation, clusterId);
             }
           }
@@ -5463,7 +5463,7 @@ public abstract class OAbstractPaginatedStorage
           break;
         }
         case ORecordOperation.DELETED: {
-          if (rec instanceof YTDocument doc) {
+          if (rec instanceof YTEntityImpl doc) {
             doc.incrementLoading();
             try {
               ORidBagDeleter.deleteAllRidBags(doc);
@@ -5482,9 +5482,9 @@ public abstract class OAbstractPaginatedStorage
     }
 
     // RESET TRACKING
-    if (rec instanceof YTDocument && ((YTDocument) rec).isTrackingChanges()) {
-      ODocumentInternal.clearTrackData(((YTDocument) rec));
-      ODocumentInternal.clearTransactionTrackData(((YTDocument) rec));
+    if (rec instanceof YTEntityImpl && ((YTEntityImpl) rec).isTrackingChanges()) {
+      ODocumentInternal.clearTrackData(((YTEntityImpl) rec));
+      ODocumentInternal.clearTransactionTrackData(((YTEntityImpl) rec));
     }
     ORecordInternal.unsetDirty(rec);
   }

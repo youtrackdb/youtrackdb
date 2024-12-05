@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.List;
 import java.util.Set;
 
@@ -46,7 +46,7 @@ public interface OSecurity {
   /**
    * Record level security: allows a user to access to a record.
    *
-   * @param iDocument      YTDocument instance to give access
+   * @param iDocument      YTEntityImpl instance to give access
    * @param iOperationType Operation type to use based on the permission to allow:
    *                       <ul>
    *                         <li>ALLOW_ALL, to provide full access (RUD)
@@ -59,13 +59,13 @@ public interface OSecurity {
    */
   @Deprecated
   YTIdentifiable allowUser(
-      final YTDocument iDocument, final ORestrictedOperation iOperationType,
+      final YTEntityImpl iDocument, final ORestrictedOperation iOperationType,
       final String iUserName);
 
   /**
    * Record level security: allows a role to access to a record.
    *
-   * @param iDocument      YTDocument instance to give access
+   * @param iDocument      YTEntityImpl instance to give access
    * @param iOperationType Operation type to use based on the permission to allow:
    *                       <ul>
    *                         <li>ALLOW_ALL, to provide full access (RUD)
@@ -78,13 +78,13 @@ public interface OSecurity {
    */
   @Deprecated
   YTIdentifiable allowRole(
-      final YTDocument iDocument, final ORestrictedOperation iOperationType,
+      final YTEntityImpl iDocument, final ORestrictedOperation iOperationType,
       final String iRoleName);
 
   /**
    * Record level security: deny a user to access to a record.
    *
-   * @param iDocument      YTDocument instance to give access
+   * @param iDocument      YTEntityImpl instance to give access
    * @param iOperationType Operation type to use based on the permission to deny:
    *                       <ul>
    *                         <li>ALLOW_ALL, to provide full access (RUD)
@@ -97,13 +97,13 @@ public interface OSecurity {
    */
   @Deprecated
   YTIdentifiable denyUser(
-      final YTDocument iDocument, final ORestrictedOperation iOperationType,
+      final YTEntityImpl iDocument, final ORestrictedOperation iOperationType,
       final String iUserName);
 
   /**
    * Record level security: deny a role to access to a record.
    *
-   * @param iDocument      YTDocument instance to give access
+   * @param iDocument      YTEntityImpl instance to give access
    * @param iOperationType Operation type to use based on the permission to deny:
    *                       <ul>
    *                         <li>ALLOW_ALL, to provide full access (RUD)
@@ -116,7 +116,7 @@ public interface OSecurity {
    */
   @Deprecated
   YTIdentifiable denyRole(
-      final YTDocument iDocument, final ORestrictedOperation iOperationType,
+      final YTEntityImpl iDocument, final ORestrictedOperation iOperationType,
       final String iRoleName);
 
   @Deprecated
@@ -145,7 +145,7 @@ public interface OSecurity {
 
   boolean dropRole(String iRoleName);
 
-  List<YTDocument> getAllUsers();
+  List<YTEntityImpl> getAllUsers();
 
-  List<YTDocument> getAllRoles();
+  List<YTEntityImpl> getAllRoles();
 }

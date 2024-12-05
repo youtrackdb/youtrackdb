@@ -23,7 +23,7 @@ package com.orientechnologies.orient.core.db.record;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class DocumentTest extends DBTestBase {
 
   @Test
   public void testFromMapNotSaved() {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     doc.field("name", "Jay");
     doc.field("surname", "Miner");
     Map<String, Object> map = doc.toMap();
@@ -44,7 +44,7 @@ public class DocumentTest extends DBTestBase {
 
   @Test
   public void testFromMapWithClass() {
-    final YTDocument doc = new YTDocument("OUser");
+    final YTEntityImpl doc = new YTEntityImpl("OUser");
     doc.field("name", "Jay");
     doc.field("surname", "Miner");
     Map<String, Object> map = doc.toMap();
@@ -58,7 +58,7 @@ public class DocumentTest extends DBTestBase {
   @Test
   public void testFromMapWithClassAndRid() {
     db.begin();
-    final YTDocument doc = new YTDocument("V");
+    final YTEntityImpl doc = new YTEntityImpl("V");
     doc.field("name", "Jay");
     doc.field("surname", "Miner");
     doc.save();
@@ -75,7 +75,7 @@ public class DocumentTest extends DBTestBase {
 
   @Test
   public void testConversionOnTypeSet() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
 
     doc.field("some", 3);
     doc.setFieldType("some", YTType.STRING);
@@ -85,7 +85,7 @@ public class DocumentTest extends DBTestBase {
 
   @Test
   public void testEval() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
 
     doc.field("amount", 300);
 
@@ -96,7 +96,7 @@ public class DocumentTest extends DBTestBase {
 
   @Test
   public void testEvalInContext() {
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
 
     doc.field("amount", 300);
 

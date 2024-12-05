@@ -23,13 +23,13 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OStringCache;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OMap;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
+import com.orientechnologies.orient.core.db.record.LinkMap;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
+import com.orientechnologies.orient.core.db.record.RecordElement;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBagDelegate;
-import com.orientechnologies.orient.core.db.record.ridbag.embedded.OEmbeddedRidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBagDelegate;
+import com.orientechnologies.orient.core.db.record.ridbag.embedded.EmbeddedRidBag;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.exception.YTSerializationException;
@@ -40,7 +40,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.ORecordSerializationContext;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -216,7 +216,7 @@ public class HelperClasses {
     return toCalendar.getTimeInMillis();
   }
 
-  public static OGlobalProperty getGlobalProperty(final YTDocument document, final int len) {
+  public static OGlobalProperty getGlobalProperty(final YTEntityImpl document, final int len) {
     final int id = (len * -1) - 1;
     return ODocumentInternal.getGlobalPropertyById(document, id);
   }
@@ -254,8 +254,8 @@ public class HelperClasses {
   public static YTType getTypeFromValueEmbedded(final Object fieldValue) {
     YTType type = YTType.getTypeByValue(fieldValue);
     if (type == YTType.LINK
-        && fieldValue instanceof YTDocument
-        && !((YTDocument) fieldValue).getIdentity().isValid()) {
+        && fieldValue instanceof YTEntityImpl
+        && !((YTEntityImpl) fieldValue).getIdentity().isValid()) {
       type = YTType.EMBEDDED;
     }
     return type;
@@ -316,11 +316,11 @@ public class HelperClasses {
   }
 
   public static Map<Object, YTIdentifiable> readLinkMap(
-      final BytesContainer bytes, final ORecordElement owner, boolean justRunThrough) {
+      final BytesContainer bytes, final RecordElement owner, boolean justRunThrough) {
     int size = OVarIntSerializer.readAsInteger(bytes);
-    OMap result = null;
+    LinkMap result = null;
     if (!justRunThrough) {
-      result = new OMap(owner);
+      result = new LinkMap(owner);
     }
     while ((size--) > 0) {
       final String key = readString(bytes);
@@ -339,7 +339,7 @@ public class HelperClasses {
     OByteSerializer.INSTANCE.serialize(val, bytes.bytes, pos);
   }
 
-  public static void writeRidBag(BytesContainer bytes, ORidBag ridbag) {
+  public static void writeRidBag(BytesContainer bytes, RidBag ridbag) {
     ridbag.checkAndConvert();
 
     UUID ownerUuid = ridbag.getTemporaryId();
@@ -374,10 +374,10 @@ public class HelperClasses {
     }
   }
 
-  protected static void writeEmbeddedRidbag(BytesContainer bytes, ORidBag ridbag) {
+  protected static void writeEmbeddedRidbag(BytesContainer bytes, RidBag ridbag) {
     YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     int size = ridbag.size();
-    Object[] entries = ((OEmbeddedRidBag) ridbag.getDelegate()).getEntries();
+    Object[] entries = ((EmbeddedRidBag) ridbag.getDelegate()).getEntries();
     for (int i = 0; i < entries.length; i++) {
       Object entry = entries[i];
       if (entry instanceof YTIdentifiable itemValue) {
@@ -407,7 +407,7 @@ public class HelperClasses {
     }
   }
 
-  protected static void writeSBTreeRidbag(BytesContainer bytes, ORidBag ridbag, UUID ownerUuid) {
+  protected static void writeSBTreeRidbag(BytesContainer bytes, RidBag ridbag, UUID ownerUuid) {
     ((OSBTreeRidBag) ridbag.getDelegate()).applyNewEntries();
 
     OBonsaiCollectionPointer pointer = ridbag.getPointer();
@@ -465,9 +465,9 @@ public class HelperClasses {
     }
   }
 
-  private static int getHighLevelDocClusterId(ORidBag ridbag) {
-    ORidBagDelegate delegate = ridbag.getDelegate();
-    ORecordElement owner = delegate.getOwner();
+  private static int getHighLevelDocClusterId(RidBag ridbag) {
+    RidBagDelegate delegate = ridbag.getDelegate();
+    RecordElement owner = delegate.getOwner();
     while (owner != null && owner.getOwner() != null) {
       owner = owner.getOwner();
     }
@@ -485,16 +485,16 @@ public class HelperClasses {
     OVarIntSerializer.write(bytes, id.getClusterPosition());
   }
 
-  public static ORidBag readRidbag(YTDatabaseSessionInternal session, BytesContainer bytes) {
+  public static RidBag readRidbag(YTDatabaseSessionInternal session, BytesContainer bytes) {
     byte configByte = OByteSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset++);
     boolean isEmbedded = (configByte & 1) != 0;
 
     UUID uuid = null;
     // removed deserializing UUID
 
-    ORidBag ridbag = null;
+    RidBag ridbag = null;
     if (isEmbedded) {
-      ridbag = new ORidBag(session);
+      ridbag = new RidBag(session);
       int size = OVarIntSerializer.readAsInteger(bytes);
       ridbag.getDelegate().setSize(size);
       for (int i = 0; i < size; i++) {
@@ -523,7 +523,7 @@ public class HelperClasses {
         changes.put(recId, change);
       }
 
-      ridbag = new ORidBag(session, pointer, changes, uuid);
+      ridbag = new RidBag(session, pointer, changes, uuid);
       ridbag.getDelegate().setSize(-1);
     }
     return ridbag;

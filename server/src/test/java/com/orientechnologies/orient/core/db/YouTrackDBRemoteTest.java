@@ -10,7 +10,7 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.YTStorageException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.OServer;
@@ -67,7 +67,7 @@ public class YouTrackDBRemoteTest {
     YTDatabaseSessionInternal db = (YTDatabaseSessionInternal) factory.open("test", "admin",
         "admin");
     db.begin();
-    db.save(new YTDocument(), db.getClusterNameById(db.getDefaultClusterId()));
+    db.save(new YTEntityImpl(), db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
     db.close();
   }
@@ -97,7 +97,7 @@ public class YouTrackDBRemoteTest {
     ODatabasePool pool = new ODatabasePool(factory, "test", "admin", "admin");
     YTDatabaseSessionInternal db = (YTDatabaseSessionInternal) pool.acquire();
     db.begin();
-    db.save(new YTDocument(), db.getClusterNameById(db.getDefaultClusterId()));
+    db.save(new YTEntityImpl(), db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
     db.close();
     pool.close();

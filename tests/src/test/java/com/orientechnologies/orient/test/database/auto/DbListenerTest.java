@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
 import com.orientechnologies.orient.core.hook.YTDocumentHookAbstract;
 import com.orientechnologies.orient.core.hook.YTRecordHook;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,7 +57,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
 
   public static class DocumentChangeListener {
 
-    final Map<YTDocument, List<String>> changes = new HashMap<YTDocument, List<String>>();
+    final Map<YTEntityImpl, List<String>> changes = new HashMap<YTEntityImpl, List<String>>();
 
     public DocumentChangeListener(final YTDatabaseSession db) {
       db.registerHook(
@@ -69,7 +69,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
             }
 
             @Override
-            public void onRecordAfterUpdate(YTDocument iDocument) {
+            public void onRecordAfterUpdate(YTEntityImpl iDocument) {
               List<String> changedFields = new ArrayList<>();
               Collections.addAll(changedFields, iDocument.getDirtyFields());
               changes.put(iDocument, changedFields);
@@ -77,7 +77,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
           });
     }
 
-    public Map<YTDocument, List<String>> getChanges() {
+    public Map<YTEntityImpl, List<String>> getChanges() {
       return changes;
     }
   }
@@ -166,7 +166,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 1);
 
     database
-        .<YTDocument>newInstance().save();
+        .<YTEntityImpl>newInstance().save();
     database.commit();
     Assert.assertEquals(onBeforeTxCommit, baseOnBeforeTxCommit + 1);
     Assert.assertEquals(onAfterTxCommit, baseOnAfterTxCommit + 1);
@@ -174,7 +174,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     database.begin();
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 2);
 
-    database.<YTDocument>newInstance().save();
+    database.<YTEntityImpl>newInstance().save();
     database.rollback();
     Assert.assertEquals(onBeforeTxRollback, 1);
     Assert.assertEquals(onAfterTxRollback, 1);
@@ -196,7 +196,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 1);
 
     database
-        .<YTDocument>newInstance()
+        .<YTEntityImpl>newInstance()
         .save();
     var baseOnBeforeTxCommit = onBeforeTxCommit;
     var baseOnAfterTxCommit = onAfterTxCommit;
@@ -208,7 +208,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 2);
 
     database
-        .<YTDocument>newInstance()
+        .<YTEntityImpl>newInstance()
         .save();
     var baseOnBeforeTxRollback = onBeforeTxRollback;
     var baseOnAfterTxRollback = onAfterTxRollback;
@@ -229,9 +229,9 @@ public class DbListenerTest extends DocumentDBBaseTest {
     database = createSessionInstance();
 
     database.begin();
-    YTDocument rec =
+    YTEntityImpl rec =
         database
-            .<YTDocument>newInstance()
+            .<YTEntityImpl>newInstance()
             .field("name", "Jay");
     rec.save();
     database.commit();

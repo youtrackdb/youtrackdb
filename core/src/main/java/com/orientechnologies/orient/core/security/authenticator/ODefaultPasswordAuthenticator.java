@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.YTImmutableUser;
 import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.security.OSecurityManager;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
 import java.util.List;
@@ -47,15 +47,15 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
   }
 
   // OSecurityComponent
-  public void config(YTDatabaseSessionInternal session, final YTDocument jsonConfig,
+  public void config(YTDatabaseSessionInternal session, final YTEntityImpl jsonConfig,
       OSecuritySystem security) {
     super.config(session, jsonConfig, security);
 
     try {
       if (jsonConfig.containsField("users")) {
-        List<YTDocument> usersList = jsonConfig.field("users");
+        List<YTEntityImpl> usersList = jsonConfig.field("users");
 
-        for (YTDocument userDoc : usersList) {
+        for (YTEntityImpl userDoc : usersList) {
 
           YTSecurityUser userCfg = createServerUser(session, userDoc);
 
@@ -77,7 +77,7 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
 
   // Derived implementations can override this method to provide new server user implementations.
   protected YTSecurityUser createServerUser(YTDatabaseSessionInternal session,
-      final YTDocument userDoc) {
+      final YTEntityImpl userDoc) {
     YTSecurityUser userCfg = null;
 
     if (userDoc.containsField("username") && userDoc.containsField("resources")) {

@@ -19,7 +19,7 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
@@ -196,7 +196,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
     Assert.assertTrue(result2.hasNext());
     int size2 = 0;
     while (result2.hasNext()) {
-      YTDocument d = result2.next().getEntity().get().getRecord();
+      YTEntityImpl d = result2.next().getEntity().get().getRecord();
       Assert.assertEquals(d.getClassName(), "Movie");
       size2++;
     }
@@ -209,7 +209,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
     Assert.assertTrue(result3.hasNext());
     int size3 = 0;
     while (result3.hasNext()) {
-      YTDocument d = result3.next().getEntity().get().getRecord();
+      YTEntityImpl d = result3.next().getEntity().get().getRecord();
       Assert.assertEquals(d.getClassName(), "Movie");
       size3++;
     }

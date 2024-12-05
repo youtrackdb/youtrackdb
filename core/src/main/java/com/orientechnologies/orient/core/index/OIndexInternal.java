@@ -28,11 +28,11 @@ import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdExceptio
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.metadata.security.OPropertyAccess;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityResourceProperty;
+import com.orientechnologies.orient.core.metadata.security.PropertyAccess;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey;
 import java.util.Collection;
@@ -64,17 +64,17 @@ public interface OIndexInternal extends OIndex {
    * Loads the index giving the configuration.
    *
    * @param session
-   * @param iConfig YTDocument instance containing the configuration
+   * @param iConfig YTEntityImpl instance containing the configuration
    */
-  boolean loadFromConfiguration(YTDatabaseSessionInternal session, YTDocument iConfig);
+  boolean loadFromConfiguration(YTDatabaseSessionInternal session, YTEntityImpl iConfig);
 
   /**
    * Saves the index configuration to disk.
    *
-   * @return The configuration as YTDocument instance
+   * @return The configuration as YTEntityImpl instance
    * @see OIndex#getConfiguration(YTDatabaseSessionInternal)
    */
-  YTDocument updateConfiguration(YTDatabaseSessionInternal session);
+  YTEntityImpl updateConfiguration(YTDatabaseSessionInternal session);
 
   /**
    * Add given cluster to the list of clusters that should be automatically indexed.
@@ -104,7 +104,7 @@ public interface OIndexInternal extends OIndex {
 
   boolean hasRangeQuerySupport();
 
-  OIndexMetadata loadMetadata(YTDocument iConfig);
+  OIndexMetadata loadMetadata(YTEntityImpl iConfig);
 
   void close();
 
@@ -236,10 +236,10 @@ public interface OIndexInternal extends OIndex {
         if (item == null) {
           return null;
         }
-        if (!(item instanceof YTDocument)) {
+        if (!(item instanceof YTEntityImpl)) {
           return item;
         }
-        OPropertyAccess access = ODocumentInternal.getPropertyAccess((YTDocument) item);
+        PropertyAccess access = ODocumentInternal.getPropertyAccess((YTEntityImpl) item);
         if (access != null && !access.isReadable(indexProp)) {
           return null;
         }

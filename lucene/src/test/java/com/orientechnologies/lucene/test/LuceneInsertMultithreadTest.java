@@ -18,9 +18,9 @@
 
 package com.orientechnologies.lucene.test;
 
+import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.engine.local.OEngineLocalPaginated;
@@ -30,7 +30,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
@@ -137,7 +137,7 @@ public class LuceneInsertMultithreadTest {
       try (YTDatabaseSession db = YOU_TRACK_DB.open(dbName, "admin", "admin")) {
         db.begin();
         for (int i = 0; i < cycle; i++) {
-          YTDocument doc = new YTDocument("City");
+          YTEntityImpl doc = new YTEntityImpl("City");
 
           doc.field("name", "Rome");
 

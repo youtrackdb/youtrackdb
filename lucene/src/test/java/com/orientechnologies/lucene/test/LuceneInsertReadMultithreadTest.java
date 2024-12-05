@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -105,7 +105,7 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
 
       db.begin();
       for (int i = 0; i < cycle; i++) {
-        YTDocument doc = new YTDocument("City");
+        YTEntityImpl doc = new YTEntityImpl("City");
 
         doc.field("name", "Rome");
 

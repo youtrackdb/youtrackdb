@@ -4,7 +4,7 @@ import static org.junit.Assert.fail;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTValidationException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
@@ -28,7 +28,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
   @Test
   public void testRequiredValidation() {
     db.begin();
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     YTIdentifiable id = db.save(doc, db.getClusterNameById(db.getDefaultClusterId())).getIdentity();
     db.commit();
 
@@ -66,7 +66,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     clazz.createProperty(db, "linkSet", YTType.LINKSET).setMandatory(db, true);
     clazz.createProperty(db, "linkMap", YTType.LINKMAP).setMandatory(db, true);
 
-    YTDocument d = new YTDocument(clazz);
+    YTEntityImpl d = new YTEntityImpl(clazz);
     d.field("int", 10);
     d.field("long", 10);
     d.field("float", 10);
@@ -88,29 +88,29 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     d.field("embeddedSetNoClass", new HashSet<YTRecordId>());
     d.field("embeddedMapNoClass", new HashMap<String, YTRecordId>());
 
-    YTDocument embedded = new YTDocument("EmbeddedValidation");
+    YTEntityImpl embedded = new YTEntityImpl("EmbeddedValidation");
     embedded.field("int", 20);
     embedded.field("long", 20);
     d.field("embedded", embedded);
 
-    YTDocument embeddedInList = new YTDocument("EmbeddedValidation");
+    YTEntityImpl embeddedInList = new YTEntityImpl("EmbeddedValidation");
     embeddedInList.field("int", 30);
     embeddedInList.field("long", 30);
-    final ArrayList<YTDocument> embeddedList = new ArrayList<YTDocument>();
+    final ArrayList<YTEntityImpl> embeddedList = new ArrayList<YTEntityImpl>();
     embeddedList.add(embeddedInList);
     d.field("embeddedList", embeddedList);
 
-    YTDocument embeddedInSet = new YTDocument("EmbeddedValidation");
+    YTEntityImpl embeddedInSet = new YTEntityImpl("EmbeddedValidation");
     embeddedInSet.field("int", 30);
     embeddedInSet.field("long", 30);
-    final Set<YTDocument> embeddedSet = new HashSet<YTDocument>();
+    final Set<YTEntityImpl> embeddedSet = new HashSet<YTEntityImpl>();
     embeddedSet.add(embeddedInSet);
     d.field("embeddedSet", embeddedSet);
 
-    YTDocument embeddedInMap = new YTDocument("EmbeddedValidation");
+    YTEntityImpl embeddedInMap = new YTEntityImpl("EmbeddedValidation");
     embeddedInMap.field("int", 30);
     embeddedInMap.field("long", 30);
-    final Map<String, YTDocument> embeddedMap = new HashMap<String, YTDocument>();
+    final Map<String, YTEntityImpl> embeddedMap = new HashMap<String, YTEntityImpl>();
     embeddedMap.put("testEmbedded", embeddedInMap);
     d.field("embeddedMap", embeddedMap);
 
@@ -150,17 +150,17 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     YTClass clazzNotVertex = db.getMetadata().getSchema().createClass("NotVertex");
     clazzNotVertex.createProperty(db, "embeddedSimple", YTType.EMBEDDED);
 
-    YTDocument d = new YTDocument(clazz);
+    YTEntityImpl d = new YTEntityImpl(clazz);
     d.field("int", 30);
     d.field("long", 30);
-    d.field("embedded", new YTDocument("EmbeddedValidation").field("test", "test"));
+    d.field("embedded", new YTEntityImpl("EmbeddedValidation").field("test", "test"));
     try {
       d.validate();
       fail("Validation doesn't throw exception");
     } catch (YTValidationException e) {
       Assert.assertTrue(e.toString().contains("EmbeddedValidation.int"));
     }
-    d = new YTDocument(clazzNotVertex);
+    d = new YTEntityImpl(clazzNotVertex);
     checkField(d, "embeddedSimple", db.newVertex());
     db.begin();
     checkField(d, "embeddedSimple", db.newEdge(db.newVertex(), db.newVertex()));
@@ -179,18 +179,18 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     clazz.createProperty(db, "embeddedSet", YTType.EMBEDDEDSET, embeddedClazz)
         .setMandatory(db, true);
 
-    YTDocument d = new YTDocument(clazz);
+    YTEntityImpl d = new YTEntityImpl(clazz);
     d.field("int", 30);
     d.field("long", 30);
-    final Set<YTDocument> embeddedSet = new HashSet<YTDocument>();
+    final Set<YTEntityImpl> embeddedSet = new HashSet<YTEntityImpl>();
     d.field("embeddedSet", embeddedSet);
 
-    YTDocument embeddedInSet = new YTDocument("EmbeddedValidation");
+    YTEntityImpl embeddedInSet = new YTEntityImpl("EmbeddedValidation");
     embeddedInSet.field("int", 30);
     embeddedInSet.field("long", 30);
     embeddedSet.add(embeddedInSet);
 
-    YTDocument embeddedInSet2 = new YTDocument("EmbeddedValidation");
+    YTEntityImpl embeddedInSet2 = new YTEntityImpl("EmbeddedValidation");
     embeddedInSet2.field("int", 30);
     embeddedSet.add(embeddedInSet2);
 
@@ -214,18 +214,18 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     clazz.createProperty(db, "embeddedList", YTType.EMBEDDEDLIST, embeddedClazz)
         .setMandatory(db, true);
 
-    YTDocument d = new YTDocument(clazz);
+    YTEntityImpl d = new YTEntityImpl(clazz);
     d.field("int", 30);
     d.field("long", 30);
-    final ArrayList<YTDocument> embeddedList = new ArrayList<YTDocument>();
+    final ArrayList<YTEntityImpl> embeddedList = new ArrayList<YTEntityImpl>();
     d.field("embeddedList", embeddedList);
 
-    YTDocument embeddedInList = new YTDocument("EmbeddedValidation");
+    YTEntityImpl embeddedInList = new YTEntityImpl("EmbeddedValidation");
     embeddedInList.field("int", 30);
     embeddedInList.field("long", 30);
     embeddedList.add(embeddedInList);
 
-    YTDocument embeddedInList2 = new YTDocument("EmbeddedValidation");
+    YTEntityImpl embeddedInList2 = new YTEntityImpl("EmbeddedValidation");
     embeddedInList2.field("int", 30);
     embeddedList.add(embeddedInList2);
 
@@ -249,18 +249,18 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     clazz.createProperty(db, "embeddedMap", YTType.EMBEDDEDMAP, embeddedClazz)
         .setMandatory(db, true);
 
-    YTDocument d = new YTDocument(clazz);
+    YTEntityImpl d = new YTEntityImpl(clazz);
     d.field("int", 30);
     d.field("long", 30);
-    final Map<String, YTDocument> embeddedMap = new HashMap<String, YTDocument>();
+    final Map<String, YTEntityImpl> embeddedMap = new HashMap<String, YTEntityImpl>();
     d.field("embeddedMap", embeddedMap);
 
-    YTDocument embeddedInMap = new YTDocument("EmbeddedValidation");
+    YTEntityImpl embeddedInMap = new YTEntityImpl("EmbeddedValidation");
     embeddedInMap.field("int", 30);
     embeddedInMap.field("long", 30);
     embeddedMap.put("1", embeddedInMap);
 
-    YTDocument embeddedInMap2 = new YTDocument("EmbeddedValidation");
+    YTEntityImpl embeddedInMap2 = new YTEntityImpl("EmbeddedValidation");
     embeddedInMap2.field("int", 30);
     embeddedMap.put("2", embeddedInMap2);
 
@@ -272,9 +272,9 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     }
   }
 
-  private void checkRequireField(YTDocument toCheck, String fieldName) {
+  private void checkRequireField(YTEntityImpl toCheck, String fieldName) {
     try {
-      YTDocument newD = toCheck.copy();
+      YTEntityImpl newD = toCheck.copy();
       newD.removeField(fieldName);
       newD.validate();
       fail();
@@ -316,7 +316,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     clazz.createProperty(db, "linkMap", YTType.LINKMAP).setMax(db, "2");
     clazz.createProperty(db, "linkBag", YTType.LINKBAG).setMax(db, "2");
 
-    YTDocument d = new YTDocument(clazz);
+    YTEntityImpl d = new YTEntityImpl(clazz);
     d.field("int", 11);
     d.field("long", 11);
     d.field("float", 11);
@@ -342,7 +342,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     cont1.put("one", new YTRecordId(30, 30));
     cont1.put("two", new YTRecordId(30, 30));
     d.field("linkMap", cont1);
-    ORidBag bag1 = new ORidBag(db);
+    RidBag bag1 = new RidBag(db);
     bag1.add(new YTRecordId(40, 30));
     bag1.add(new YTRecordId(40, 33));
     d.field("linkBag", bag1);
@@ -386,7 +386,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     cont3.put("three", new YTRecordId(30, 30));
     checkField(d, "linkMap", cont3);
 
-    ORidBag bag2 = new ORidBag(db);
+    RidBag bag2 = new RidBag(db);
     bag2.add(new YTRecordId(40, 30));
     bag2.add(new YTRecordId(40, 33));
     bag2.add(new YTRecordId(40, 31));
@@ -396,7 +396,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
   @Test
   public void testMinValidation() {
     db.begin();
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     YTIdentifiable id = db.save(doc, db.getClusterNameById(db.getDefaultClusterId())).getIdentity();
     db.commit();
 
@@ -432,7 +432,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     clazz.createProperty(db, "linkMap", YTType.LINKMAP).setMin(db, "1");
     clazz.createProperty(db, "linkBag", YTType.LINKBAG).setMin(db, "1");
 
-    YTDocument d = new YTDocument(clazz);
+    YTEntityImpl d = new YTEntityImpl(clazz);
     d.field("int", 11);
     d.field("long", 11);
     d.field("float", 11);
@@ -448,7 +448,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     d.field("short", 12);
     d.field("string", "yeahyeahyeah");
     d.field("link", id);
-    // d.field("embedded", new YTDocument().field("test", "test"));
+    // d.field("embedded", new YTEntityImpl().field("test", "test"));
     d.field("embeddedList", List.of("a"));
     d.field("embeddedSet", new HashSet<String>(List.of("a")));
     Map<String, String> map = new HashMap<String, String>();
@@ -459,7 +459,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     HashMap<String, YTRecordId> map1 = new HashMap<String, YTRecordId>();
     map1.put("some", new YTRecordId(40, 50));
     d.field("linkMap", map1);
-    ORidBag bag1 = new ORidBag(db);
+    RidBag bag1 = new RidBag(db);
     bag1.add(new YTRecordId(40, 50));
     d.field("linkBag", bag1);
     d.validate();
@@ -484,13 +484,13 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     checkField(d, "linkList", new ArrayList<YTRecordId>());
     checkField(d, "linkSet", new HashSet<YTRecordId>());
     checkField(d, "linkMap", new HashMap<String, YTRecordId>());
-    checkField(d, "linkBag", new ORidBag(db));
+    checkField(d, "linkBag", new RidBag(db));
   }
 
   @Test
   public void testNotNullValidation() {
     db.begin();
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     YTIdentifiable id = db.save(doc, db.getClusterNameById(db.getDefaultClusterId())).getIdentity();
     db.commit();
 
@@ -518,7 +518,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     clazz.createProperty(db, "linkSet", YTType.LINKSET).setNotNull(db, true);
     clazz.createProperty(db, "linkMap", YTType.LINKMAP).setNotNull(db, true);
 
-    YTDocument d = new YTDocument(clazz);
+    YTEntityImpl d = new YTEntityImpl(clazz);
     d.field("int", 12);
     d.field("long", 12);
     d.field("float", 12);
@@ -532,7 +532,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     d.field("short", 12);
     d.field("string", "yeah");
     d.field("link", id);
-    d.field("embedded", new YTDocument().field("test", "test"));
+    d.field("embedded", new YTEntityImpl().field("test", "test"));
     d.field("embeddedList", new ArrayList<String>());
     d.field("embeddedSet", new HashSet<String>());
     d.field("embeddedMap", new HashMap<String, String>());
@@ -568,7 +568,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     YTClass clazz = db.getMetadata().getSchema().createClass("Validation");
     clazz.createProperty(db, "string", YTType.STRING).setRegexp(db, "[^Z]*");
 
-    YTDocument d = new YTDocument(clazz);
+    YTEntityImpl d = new YTEntityImpl(clazz);
     d.field("string", "yeah");
     d.validate();
 
@@ -582,7 +582,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     clazz.createProperty(db, "embeddedSet", YTType.EMBEDDEDSET).setLinkedType(db, YTType.INTEGER);
     clazz.createProperty(db, "embeddedMap", YTType.EMBEDDEDMAP).setLinkedType(db, YTType.INTEGER);
 
-    YTDocument d = new YTDocument(clazz);
+    YTEntityImpl d = new YTEntityImpl(clazz);
     List<Integer> list = Arrays.asList(1, 2);
     d.field("embeddedList", list);
     Set<Integer> set = new HashSet<Integer>(list);
@@ -615,26 +615,26 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     clazz.createProperty(db, "linkSet", YTType.LINKSET).setLinkedClass(db, clazz1);
     clazz.createProperty(db, "linkMap", YTType.LINKMAP).setLinkedClass(db, clazz1);
     clazz.createProperty(db, "linkBag", YTType.LINKBAG).setLinkedClass(db, clazz1);
-    YTDocument d = new YTDocument(clazz);
-    d.field("link", new YTDocument(clazz1));
-    d.field("embedded", new YTDocument(clazz1));
-    List<YTDocument> list = List.of(new YTDocument(clazz1));
+    YTEntityImpl d = new YTEntityImpl(clazz);
+    d.field("link", new YTEntityImpl(clazz1));
+    d.field("embedded", new YTEntityImpl(clazz1));
+    List<YTEntityImpl> list = List.of(new YTEntityImpl(clazz1));
     d.field("linkList", list);
-    Set<YTDocument> set = new HashSet<YTDocument>(list);
+    Set<YTEntityImpl> set = new HashSet<YTEntityImpl>(list);
     d.field("linkSet", set);
-    List<YTDocument> embeddedList = Arrays.asList(new YTDocument(clazz1), null);
+    List<YTEntityImpl> embeddedList = Arrays.asList(new YTEntityImpl(clazz1), null);
     d.field("embeddedList", embeddedList);
-    Set<YTDocument> embeddedSet = new HashSet<YTDocument>(embeddedList);
+    Set<YTEntityImpl> embeddedSet = new HashSet<YTEntityImpl>(embeddedList);
     d.field("embeddedSet", embeddedSet);
 
-    Map<String, YTDocument> map = new HashMap<String, YTDocument>();
-    map.put("a", new YTDocument(clazz1));
+    Map<String, YTEntityImpl> map = new HashMap<String, YTEntityImpl>();
+    map.put("a", new YTEntityImpl(clazz1));
     d.field("linkMap", map);
 
     d.validate();
 
-    checkField(d, "link", new YTDocument(clazz));
-    checkField(d, "embedded", new YTDocument(clazz));
+    checkField(d, "link", new YTEntityImpl(clazz));
+    checkField(d, "embedded", new YTEntityImpl(clazz));
 
     checkField(d, "linkList", Arrays.asList("a", "b"));
     checkField(d, "linkSet", new HashSet<String>(Arrays.asList("a", "b")));
@@ -644,15 +644,15 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     map1.put("b", "a2");
     checkField(d, "linkMap", map1);
 
-    checkField(d, "linkList", List.of(new YTDocument(clazz)));
-    checkField(d, "linkSet", new HashSet<YTDocument>(List.of(new YTDocument(clazz))));
-    checkField(d, "embeddedList", List.of(new YTDocument(clazz)));
-    checkField(d, "embeddedSet", List.of(new YTDocument(clazz)));
-    ORidBag bag = new ORidBag(db);
-    bag.add(new YTDocument(clazz));
+    checkField(d, "linkList", List.of(new YTEntityImpl(clazz)));
+    checkField(d, "linkSet", new HashSet<YTEntityImpl>(List.of(new YTEntityImpl(clazz))));
+    checkField(d, "embeddedList", List.of(new YTEntityImpl(clazz)));
+    checkField(d, "embeddedSet", List.of(new YTEntityImpl(clazz)));
+    RidBag bag = new RidBag(db);
+    bag.add(new YTEntityImpl(clazz));
     checkField(d, "linkBag", bag);
-    Map<String, YTDocument> map2 = new HashMap<String, YTDocument>();
-    map2.put("a", new YTDocument(clazz));
+    Map<String, YTEntityImpl> map2 = new HashMap<String, YTEntityImpl>();
+    map2.put("a", new YTEntityImpl(clazz));
     checkField(d, "linkMap", map2);
   }
 
@@ -664,17 +664,17 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     clazz.createProperty(db, "linkSet", YTType.LINKSET).setLinkedClass(db, clazz1);
     clazz.createProperty(db, "linkMap", YTType.LINKMAP).setLinkedClass(db, clazz1);
     clazz.createProperty(db, "linkBag", YTType.LINKBAG).setLinkedClass(db, clazz1);
-    YTDocument d = new YTDocument(clazz);
-    d.field("link", new YTDocument(clazz1));
-    d.field("embedded", new YTDocument(clazz1));
-    List<YTDocument> list = List.of(new YTDocument(clazz1));
+    YTEntityImpl d = new YTEntityImpl(clazz);
+    d.field("link", new YTEntityImpl(clazz1));
+    d.field("embedded", new YTEntityImpl(clazz1));
+    List<YTEntityImpl> list = List.of(new YTEntityImpl(clazz1));
     d.field("linkList", list);
-    Set<YTDocument> set = new HashSet<YTDocument>(list);
+    Set<YTEntityImpl> set = new HashSet<YTEntityImpl>(list);
     d.field("linkSet", set);
-    d.field("linkBag", new ORidBag(db));
+    d.field("linkBag", new RidBag(db));
 
-    Map<String, YTDocument> map = new HashMap<String, YTDocument>();
-    map.put("a", new YTDocument(clazz1));
+    Map<String, YTEntityImpl> map = new HashMap<String, YTEntityImpl>();
+    map.put("a", new YTEntityImpl(clazz1));
 
     db.begin();
     d.field("linkMap", map);
@@ -684,8 +684,8 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     try {
       db.begin();
       d = db.bindToSession(d);
-      YTDocument newD = d.copy();
-      ((Collection) newD.field("linkList")).add(new YTDocument(clazz));
+      YTEntityImpl newD = d.copy();
+      ((Collection) newD.field("linkList")).add(new YTEntityImpl(clazz));
       newD.validate();
       fail();
     } catch (YTValidationException v) {
@@ -695,8 +695,8 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     try {
       db.begin();
       d = db.bindToSession(d);
-      YTDocument newD = d.copy();
-      ((Collection) newD.field("linkSet")).add(new YTDocument(clazz));
+      YTEntityImpl newD = d.copy();
+      ((Collection) newD.field("linkSet")).add(new YTEntityImpl(clazz));
       newD.validate();
       fail();
     } catch (YTValidationException v) {
@@ -706,8 +706,8 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     try {
       db.begin();
       d = db.bindToSession(d);
-      YTDocument newD = d.copy();
-      ((ORidBag) newD.field("linkBag")).add(new YTDocument(clazz));
+      YTEntityImpl newD = d.copy();
+      ((RidBag) newD.field("linkBag")).add(new YTEntityImpl(clazz));
       newD.validate();
       fail();
     } catch (YTValidationException v) {
@@ -717,8 +717,8 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     try {
       db.begin();
       d = db.bindToSession(d);
-      YTDocument newD = d.copy();
-      ((Map<String, YTDocument>) newD.field("linkMap")).put("a", new YTDocument(clazz));
+      YTEntityImpl newD = d.copy();
+      ((Map<String, YTEntityImpl>) newD.field("linkMap")).put("a", new YTEntityImpl(clazz));
       newD.validate();
       fail();
     } catch (YTValidationException v) {
@@ -726,9 +726,9 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     }
   }
 
-  private void checkField(YTDocument toCheck, String field, Object newValue) {
+  private void checkField(YTEntityImpl toCheck, String field, Object newValue) {
     try {
-      YTDocument newD = toCheck.copy();
+      YTEntityImpl newD = toCheck.copy();
       newD.field(field, newValue);
       newD.validate();
       fail();

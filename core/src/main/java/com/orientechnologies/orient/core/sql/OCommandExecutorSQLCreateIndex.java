@@ -40,7 +40,7 @@ import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -74,7 +74,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
   private YTType[] keyTypes;
   private byte serializerKeyId;
   private String engine;
-  private YTDocument metadataDoc = null;
+  private YTEntityImpl metadataDoc = null;
   private String[] collates;
 
   public OCommandExecutorSQLCreateIndex parse(final OCommandRequest iRequest) {
@@ -220,7 +220,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
       if (configPos > -1) {
         final String configString =
             parserText.substring(configPos + KEYWORD_METADATA.length()).trim();
-        metadataDoc = new YTDocument();
+        metadataDoc = new YTEntityImpl();
         metadataDoc.fromJSON(configString);
       }
 

@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 
 /**
  *
@@ -29,9 +29,9 @@ public interface OReturnHandler {
 
   void reset();
 
-  void beforeUpdate(YTDocument result);
+  void beforeUpdate(YTEntityImpl result);
 
-  void afterUpdate(YTDocument result);
+  void afterUpdate(YTEntityImpl result);
 
   /**
    * @return collected result

@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OSQLHelper;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.Comparator;
@@ -247,7 +247,7 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
     if (additionalParams instanceof Map) {
       mapParams = (Map) additionalParams;
     } else if (additionalParams instanceof YTIdentifiable) {
-      mapParams = ((YTDocument) ((YTIdentifiable) additionalParams).getRecord()).toMap();
+      mapParams = ((YTEntityImpl) ((YTIdentifiable) additionalParams).getRecord()).toMap();
     }
     if (mapParams != null) {
       ctx.paramEdgeTypeNames = stringArray(mapParams.get(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES));

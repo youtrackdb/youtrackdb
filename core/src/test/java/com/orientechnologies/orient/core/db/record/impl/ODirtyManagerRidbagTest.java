@@ -4,11 +4,11 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODirtyManager;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import org.junit.Test;
 
 public class ODirtyManagerRidbagTest extends DBTestBase {
@@ -18,10 +18,10 @@ public class ODirtyManagerRidbagTest extends DBTestBase {
     Object value = YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValue();
     YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(-1);
     try {
-      YTDocument doc = new YTDocument();
+      YTEntityImpl doc = new YTEntityImpl();
       doc.field("test", "ddd");
-      ORidBag bag = new ORidBag(db);
-      YTDocument doc1 = new YTDocument();
+      RidBag bag = new RidBag(db);
+      YTEntityImpl doc1 = new YTEntityImpl();
       bag.add(doc1);
       doc.field("bag", bag);
       ODocumentInternal.convertAllMultiValuesToTrackedVersions(doc);

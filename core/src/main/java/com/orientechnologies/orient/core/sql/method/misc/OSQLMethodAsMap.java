@@ -18,7 +18,7 @@ package com.orientechnologies.orient.core.sql.method.misc;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -55,10 +55,10 @@ public class OSQLMethodAsMap extends OAbstractSQLMethod {
       return Collections.EMPTY_MAP;
     }
 
-    if (ioResult instanceof YTDocument)
+    if (ioResult instanceof YTEntityImpl)
     // CONVERT ODOCUMENT TO MAP
     {
-      return ((YTDocument) ioResult).toMap();
+      return ((YTEntityImpl) ioResult).toMap();
     }
 
     Iterator<Object> iter;

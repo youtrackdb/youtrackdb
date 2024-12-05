@@ -31,7 +31,7 @@ import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
 import com.orientechnologies.orient.core.serialization.serializer.string.OStringSerializerAnyStreamable;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
@@ -78,7 +78,8 @@ public abstract class OStringSerializerHelper {
   public static final String SKIPPED_VALUE = "[SKIPPED VALUE]";
 
   public static Object fieldTypeFromStream(
-      YTDatabaseSessionInternal db, final YTDocument iDocument, YTType iType, final Object iValue) {
+      YTDatabaseSessionInternal db, final YTEntityImpl iDocument, YTType iType,
+      final Object iValue) {
     if (iValue == null) {
       return null;
     }

@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -90,7 +90,7 @@ public class DateIndexTest extends DocumentDBBaseTest {
 
     final Date dateTwo = new Date(dateOne.getTime() + 24 * 60 * 60 * 1000 + 100);
 
-    final YTDocument dateDoc = new YTDocument("DateIndexTest");
+    final YTEntityImpl dateDoc = new YTEntityImpl("DateIndexTest");
 
     dateDoc.field("dateField", dateOne);
     dateDoc.field("dateTimeField", dateTwo);

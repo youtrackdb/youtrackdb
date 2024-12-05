@@ -30,19 +30,19 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
+import com.orientechnologies.orient.core.db.record.RecordElement;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.embedded.OEmbeddedRidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.embedded.EmbeddedRidBag;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
 import com.orientechnologies.orient.core.serialization.serializer.string.OStringBuilderSerializable;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OSBTreeBonsai;
-import com.orientechnologies.orient.core.storage.ridbag.ORemoteTreeRidBag;
+import com.orientechnologies.orient.core.storage.ridbag.RemoteTreeRidBag;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.Change;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
@@ -85,15 +85,15 @@ import javax.annotation.Nonnull;
  *
  * @since 1.7rc1
  */
-public class ORidBag
+public class RidBag
     implements OStringBuilderSerializable,
     Iterable<YTIdentifiable>,
     OSizeable,
     OTrackedMultiValue<YTIdentifiable, YTIdentifiable>,
     OCollection<YTIdentifiable>,
-    ORecordElement {
+    RecordElement {
 
-  private ORidBagDelegate delegate;
+  private RidBagDelegate delegate;
   private YTRecordId ownerRecord;
   private String fieldName;
 
@@ -102,7 +102,7 @@ public class ORidBag
 
   private UUID uuid;
 
-  public ORidBag(YTDatabaseSessionInternal session, final ORidBag ridBag) {
+  public RidBag(YTDatabaseSessionInternal session, final RidBag ridBag) {
     initThresholds(session);
     init();
     for (YTIdentifiable identifiable : ridBag) {
@@ -110,41 +110,41 @@ public class ORidBag
     }
   }
 
-  public ORidBag(YTDatabaseSessionInternal session) {
+  public RidBag(YTDatabaseSessionInternal session) {
     initThresholds(session);
     init();
   }
 
-  public ORidBag(YTDatabaseSessionInternal session, UUID uuid) {
+  public RidBag(YTDatabaseSessionInternal session, UUID uuid) {
     initThresholds(session);
     init();
     this.uuid = uuid;
   }
 
-  public ORidBag(YTDatabaseSessionInternal session, OBonsaiCollectionPointer pointer,
+  public RidBag(YTDatabaseSessionInternal session, OBonsaiCollectionPointer pointer,
       Map<YTIdentifiable, Change> changes, UUID uuid) {
     initThresholds(session);
     delegate = new OSBTreeRidBag(pointer, changes);
     this.uuid = uuid;
   }
 
-  private ORidBag(YTDatabaseSessionInternal session, final byte[] stream) {
+  private RidBag(YTDatabaseSessionInternal session, final byte[] stream) {
     initThresholds(session);
     fromStream(stream);
   }
 
-  public ORidBag(YTDatabaseSessionInternal session, ORidBagDelegate delegate) {
+  public RidBag(YTDatabaseSessionInternal session, RidBagDelegate delegate) {
     initThresholds(session);
     this.delegate = delegate;
   }
 
-  public static ORidBag fromStream(YTDatabaseSessionInternal session, final String value) {
+  public static RidBag fromStream(YTDatabaseSessionInternal session, final String value) {
     final byte[] stream = Base64.getDecoder().decode(value);
-    return new ORidBag(session, stream);
+    return new RidBag(session, stream);
   }
 
-  public ORidBag copy(YTDatabaseSessionInternal session) {
-    final ORidBag copy = new ORidBag(session);
+  public RidBag copy(YTDatabaseSessionInternal session) {
+    final RidBag copy = new RidBag(session);
     copy.topThreshold = topThreshold;
     copy.bottomThreshold = bottomThreshold;
     copy.uuid = uuid;
@@ -154,7 +154,7 @@ public class ORidBag
     {
       copy.delegate = delegate;
     } else {
-      copy.delegate = ((OEmbeddedRidBag) delegate).copy();
+      copy.delegate = ((EmbeddedRidBag) delegate).copy();
     }
 
     return copy;
@@ -206,7 +206,7 @@ public class ORidBag
   }
 
   public boolean isEmbedded() {
-    return delegate instanceof OEmbeddedRidBag;
+    return delegate instanceof EmbeddedRidBag;
   }
 
   public boolean isToSerializeEmbedded() {
@@ -276,11 +276,11 @@ public class ORidBag
   }
 
   private void convertToEmbedded() {
-    ORidBagDelegate oldDelegate = delegate;
+    RidBagDelegate oldDelegate = delegate;
     boolean isTransactionModified = oldDelegate.isTransactionModified();
-    delegate = new OEmbeddedRidBag();
+    delegate = new EmbeddedRidBag();
 
-    final ORecordElement owner = oldDelegate.getOwner();
+    final RecordElement owner = oldDelegate.getOwner();
     delegate.disableTracking(owner);
     for (YTIdentifiable identifiable : oldDelegate) {
       delegate.add(identifiable);
@@ -299,11 +299,11 @@ public class ORidBag
   }
 
   private void convertToTree() {
-    ORidBagDelegate oldDelegate = delegate;
+    RidBagDelegate oldDelegate = delegate;
     boolean isTransactionModified = oldDelegate.isTransactionModified();
     delegate = new OSBTreeRidBag();
 
-    final ORecordElement owner = oldDelegate.getOwner();
+    final RecordElement owner = oldDelegate.getOwner();
     delegate.disableTracking(owner);
     for (YTIdentifiable identifiable : oldDelegate) {
       delegate.add(identifiable);
@@ -352,7 +352,7 @@ public class ORidBag
   public void fromStream(BytesContainer stream) {
     final byte first = stream.bytes[stream.offset++];
     if ((first & 1) == 1) {
-      delegate = new OEmbeddedRidBag();
+      delegate = new EmbeddedRidBag();
     } else {
       delegate = new OSBTreeRidBag();
     }
@@ -369,8 +369,8 @@ public class ORidBag
   public Object returnOriginalState(
       YTDatabaseSessionInternal session,
       List<OMultiValueChangeEvent<YTIdentifiable, YTIdentifiable>> multiValueChangeEvents) {
-    return new ORidBag(session,
-        (ORidBagDelegate) delegate.returnOriginalState(session, multiValueChangeEvents));
+    return new RidBag(session,
+        (RidBagDelegate) delegate.returnOriginalState(session, multiValueChangeEvents));
   }
 
   @Override
@@ -378,9 +378,9 @@ public class ORidBag
     return delegate.getGenericClass();
   }
 
-  public void setOwner(ORecordElement owner) {
-    if ((!(owner instanceof YTDocument) && owner != null)
-        || (owner != null && ((YTDocument) owner).isEmbedded())) {
+  public void setOwner(RecordElement owner) {
+    if ((!(owner instanceof YTEntityImpl) && owner != null)
+        || (owner != null && ((YTEntityImpl) owner).isEmbedded())) {
       throw new YTDatabaseException("RidBag are supported only at document root");
     }
     delegate.setOwner(owner);
@@ -423,8 +423,8 @@ public class ORidBag
   public OBonsaiCollectionPointer getPointer() {
     if (isEmbedded()) {
       return OBonsaiCollectionPointer.INVALID;
-    } else if (delegate instanceof ORemoteTreeRidBag) {
-      return ((ORemoteTreeRidBag) delegate).getCollectionPointer();
+    } else if (delegate instanceof RemoteTreeRidBag) {
+      return ((RemoteTreeRidBag) delegate).getCollectionPointer();
     } else {
       return ((OSBTreeRidBag) delegate).getCollectionPointer();
     }
@@ -433,7 +433,7 @@ public class ORidBag
   /**
    * IMPORTANT! Only for internal usage.
    */
-  public boolean tryMerge(final ORidBag otherValue, boolean iMergeSingleItemsOfMultiValueFields) {
+  public boolean tryMerge(final RidBag otherValue, boolean iMergeSingleItemsOfMultiValueFields) {
     if (!isEmbedded() && !otherValue.isEmbedded()) {
       final OSBTreeRidBag thisTree = (OSBTreeRidBag) delegate;
       final OSBTreeRidBag otherTree = (OSBTreeRidBag) otherValue.delegate;
@@ -483,10 +483,10 @@ public class ORidBag
           && !ODatabaseRecordThreadLocal.instance().get().isRemote()) {
         delegate = new OSBTreeRidBag();
       } else {
-        delegate = new OEmbeddedRidBag();
+        delegate = new EmbeddedRidBag();
       }
     } else {
-      delegate = new OEmbeddedRidBag();
+      delegate = new EmbeddedRidBag();
     }
   }
 
@@ -497,14 +497,14 @@ public class ORidBag
    */
   private void replaceWithSBTree(OBonsaiCollectionPointer pointer) {
     delegate.requestDelete();
-    final ORemoteTreeRidBag treeBag = new ORemoteTreeRidBag(pointer);
+    final RemoteTreeRidBag treeBag = new RemoteTreeRidBag(pointer);
     treeBag.setRecordAndField(ownerRecord, fieldName);
     treeBag.setOwner(delegate.getOwner());
     treeBag.setTracker(delegate.getTracker());
     delegate = treeBag;
   }
 
-  public ORidBagDelegate getDelegate() {
+  public RidBagDelegate getDelegate() {
     return delegate;
   }
 
@@ -519,7 +519,7 @@ public class ORidBag
 
   @Override
   public boolean equals(Object other) {
-    if (!(other instanceof ORidBag otherRidbag)) {
+    if (!(other instanceof RidBag otherRidbag)) {
       return false;
     }
 
@@ -544,11 +544,11 @@ public class ORidBag
   }
 
   @Override
-  public void enableTracking(ORecordElement parent) {
+  public void enableTracking(RecordElement parent) {
     delegate.enableTracking(parent);
   }
 
-  public void disableTracking(ORecordElement document) {
+  public void disableTracking(RecordElement document) {
     delegate.disableTracking(document);
   }
 
@@ -578,7 +578,7 @@ public class ORidBag
   }
 
   @Override
-  public ORecordElement getOwner() {
+  public RecordElement getOwner() {
     return delegate.getOwner();
   }
 
@@ -593,8 +593,8 @@ public class ORidBag
   }
 
   public void setRecordAndField(YTRecordId id, String fieldName) {
-    if (this.delegate instanceof ORemoteTreeRidBag) {
-      ((ORemoteTreeRidBag) this.delegate).setRecordAndField(id, fieldName);
+    if (this.delegate instanceof RemoteTreeRidBag) {
+      ((RemoteTreeRidBag) this.delegate).setRecordAndField(id, fieldName);
     }
     this.ownerRecord = id;
     this.fieldName = fieldName;

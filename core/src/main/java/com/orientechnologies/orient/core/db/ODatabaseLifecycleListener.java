@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTView;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 
 /**
  * Listener Interface to receive callbacks on database usage.
@@ -64,10 +64,10 @@ public interface ODatabaseLifecycleListener {
 
   /**
    * Event called during the retrieving of distributed configuration, usually at startup and when
-   * the cluster shape changes. You can use this event to enrich the YTDocument sent to the client
+   * the cluster shape changes. You can use this event to enrich the YTEntityImpl sent to the client
    * with custom properties.
    *
    * @param iConfiguration
    */
-  void onLocalNodeConfigurationRequest(YTDocument iConfiguration);
+  void onLocalNodeConfigurationRequest(YTEntityImpl iConfiguration);
 }

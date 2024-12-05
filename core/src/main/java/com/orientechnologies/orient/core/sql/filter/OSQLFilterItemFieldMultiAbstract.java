@@ -25,8 +25,8 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.query.OQueryRuntimeValueMulti;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +55,7 @@ public abstract class OSQLFilterItemFieldMultiAbstract extends OSQLFilterItemAbs
 
   public Object getValue(
       final YTIdentifiable iRecord, Object iCurrentResult, OCommandContext iContext) {
-    final YTDocument doc = ((YTDocument) iRecord);
+    final YTEntityImpl doc = ((YTEntityImpl) iRecord);
 
     if (names.size() == 1) {
       return transformValue(

@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.List;
 import java.util.Map;
@@ -16,14 +16,14 @@ public class TestLinkedDocumentInMap extends DBTestBase {
     db.command("delete from PersonTest").close();
 
     db.begin();
-    YTDocument jaimeDoc = new YTDocument("PersonTest");
+    YTEntityImpl jaimeDoc = new YTEntityImpl("PersonTest");
     jaimeDoc.field("name", "jaime");
     jaimeDoc.save();
     db.commit();
 
     db.begin();
     jaimeDoc = db.bindToSession(jaimeDoc);
-    YTDocument tyrionDoc = new YTDocument("PersonTest");
+    YTEntityImpl tyrionDoc = new YTEntityImpl("PersonTest");
     tyrionDoc.fromJSON(
         "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":[{\"relationship\":\"brother\",\"contact\":"
             + jaimeDoc.toJSON()

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.command.script.OCommandScript;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.Collection;
@@ -40,7 +40,7 @@ public class OCommandExecutorSQLScriptTest extends DBTestBase {
         commit
         return $a
         """;
-    List<YTDocument> qResult = db.command(new OCommandScript("sql", script)).execute(db);
+    List<YTEntityImpl> qResult = db.command(new OCommandScript("sql", script)).execute(db);
 
     Assert.assertEquals(3, qResult.size());
   }
@@ -54,7 +54,7 @@ public class OCommandExecutorSQLScriptTest extends DBTestBase {
             commit retry 10
             return $a
             """;
-    YTDocument qResult = db.command(new OCommandScript("sql", script)).execute(db);
+    YTEntityImpl qResult = db.command(new OCommandScript("sql", script)).execute(db);
 
     Assert.assertNotNull(qResult);
   }
@@ -69,7 +69,7 @@ public class OCommandExecutorSQLScriptTest extends DBTestBase {
     String qResult = db.command(new OCommandScript("sql", script.toString())).execute(db);
     Assert.assertNotNull(qResult);
 
-    new YTDocument().fromJSON(qResult);
+    new YTEntityImpl().fromJSON(qResult);
 
     script = new StringBuilder();
     script.append("let $a = select from V limit 2\n");
@@ -80,7 +80,7 @@ public class OCommandExecutorSQLScriptTest extends DBTestBase {
     result = result.trim();
     Assert.assertTrue(result.startsWith("["));
     Assert.assertTrue(result.endsWith("]"));
-    new YTDocument().fromJSON(result.substring(1, result.length() - 1));
+    new YTEntityImpl().fromJSON(result.substring(1, result.length() - 1));
   }
 
   @Test
@@ -134,7 +134,7 @@ public class OCommandExecutorSQLScriptTest extends DBTestBase {
             UPDATE TestCounter INCREMENT weight = $counter[0].count RETURN AfTER @this;
             commit;
             """;
-    List<YTDocument> qResult = db.command(new OCommandScript("sql", script)).execute(db);
+    List<YTEntityImpl> qResult = db.command(new OCommandScript("sql", script)).execute(db);
 
     assertThat(db.bindToSession(qResult.get(0)).<Long>field("weight")).isEqualTo(4L);
   }
@@ -316,9 +316,10 @@ public class OCommandExecutorSQLScriptTest extends DBTestBase {
 
     db.command(new OCommandScript(batch)).execute(db);
 
-    List<YTDocument> result = db.query(new OSQLSynchQuery<YTDocument>("SELECT FROM QuotedRegex2"));
+    List<YTEntityImpl> result = db.query(
+        new OSQLSynchQuery<YTEntityImpl>("SELECT FROM QuotedRegex2"));
     Assert.assertEquals(1, result.size());
-    YTDocument doc = result.get(0);
+    YTEntityImpl doc = result.get(0);
     Assert.assertEquals("'';", doc.field("regexp"));
   }
 

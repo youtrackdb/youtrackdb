@@ -15,7 +15,7 @@ import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.functions.OIndexableSQLFunction;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
@@ -178,7 +178,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
   }
 
   private static Map<String, ?> parseMetadata(OExpression[] args) {
-    YTDocument metadata = new YTDocument();
+    YTEntityImpl metadata = new YTEntityImpl();
     if (args.length == 2) {
       metadata.fromJSON(args[1].toString());
     }

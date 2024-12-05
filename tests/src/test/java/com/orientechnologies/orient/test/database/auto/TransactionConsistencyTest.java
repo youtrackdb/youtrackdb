@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,12 +57,12 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database1.begin();
 
     // Create docA.
-    YTDocument vDocA_db1 = database1.newInstance();
+    YTEntityImpl vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
     database1.save(vDocA_db1);
 
     // Create docB.
-    YTDocument vDocB_db1 = database1.newInstance();
+    YTEntityImpl vDocB_db1 = database1.newInstance();
     vDocB_db1.field(NAME, "docB");
 
     database1.save(vDocB_db1);
@@ -79,7 +79,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database2.begin();
     try {
       // Get docA and update in db2 transaction context
-      YTDocument vDocA_db2 = database2.load(vDocA_Rid);
+      YTEntityImpl vDocA_db2 = database2.load(vDocA_Rid);
       vDocA_db2.field(NAME, "docA_v2");
       database2.save(vDocA_db2);
 
@@ -108,7 +108,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
       // Update docB in db2 transaction context -> should be rollbacked.
       database2.activateOnCurrentThread();
-      YTDocument vDocB_db2 = database2.load(vDocB_Rid);
+      YTEntityImpl vDocB_db2 = database2.load(vDocB_Rid);
       vDocB_db2.field(NAME, "docB_UpdatedInTranscationThatWillBeRollbacked");
       database2.save(vDocB_db2);
 
@@ -126,12 +126,12 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database2.activateOnCurrentThread();
     database2 = acquireSession();
 
-    YTDocument vDocA_db2 = database2.load(vDocA_Rid);
+    YTEntityImpl vDocA_db2 = database2.load(vDocA_Rid);
     Assert.assertEquals(vDocA_db2.field(NAME), "docA_v3");
     Assert.assertEquals(vDocA_db2.getVersion(), vDocA_version);
 
     // docB should be in the first state : "docB"
-    YTDocument vDocB_db2 = database2.load(vDocB_Rid);
+    YTEntityImpl vDocB_db2 = database2.load(vDocB_Rid);
     Assert.assertEquals(vDocB_db2.field(NAME), "docB");
     Assert.assertEquals(vDocB_db2.getVersion(), vDocB_version);
 
@@ -143,7 +143,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database1 = acquireSession();
 
     // Create docA.
-    YTDocument vDocA_db1 = database1.newInstance();
+    YTEntityImpl vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
     database1.begin();
     database1.save(vDocA_db1);
@@ -156,7 +156,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database2.begin();
     try {
       // Get docA and update in db2 transaction context
-      YTDocument vDocA_db2 = database2.load(vDocA_Rid);
+      YTEntityImpl vDocA_db2 = database2.load(vDocA_Rid);
       vDocA_db2.field(NAME, "docA_v2");
       database2.save(vDocA_db2);
 
@@ -190,7 +190,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database2 = acquireSession();
 
     // docB should be in the last state : "docA_v3"
-    YTDocument vDocB_db2 = database2.load(vDocA_Rid);
+    YTEntityImpl vDocB_db2 = database2.load(vDocA_Rid);
     Assert.assertEquals(vDocB_db2.field(NAME), "docA_v3");
 
     database1.activateOnCurrentThread();
@@ -205,7 +205,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database1 = acquireSession();
 
     // Create docA.
-    YTDocument vDocA_db1 = database1.newInstance();
+    YTEntityImpl vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
     database1.begin();
     database1.save(vDocA_db1);
@@ -218,7 +218,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database2.begin();
     try {
       // Get docA and update in db2 transaction context
-      YTDocument vDocA_db2 = database2.load(vDocA_Rid);
+      YTEntityImpl vDocA_db2 = database2.load(vDocA_Rid);
       vDocA_db2.field(NAME, "docA_v2");
       database2.save(vDocA_db2);
 
@@ -253,7 +253,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database2 = acquireSession();
 
     // docB should be in the last state : "docA_v3"
-    YTDocument vDocB_db2 = database2.load(vDocA_Rid);
+    YTEntityImpl vDocB_db2 = database2.load(vDocA_Rid);
     Assert.assertEquals(vDocB_db2.field(NAME), "docA_v3");
 
     database1.activateOnCurrentThread();
@@ -268,7 +268,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
     // Create docA in db1
     database1.begin();
-    YTDocument vDocA_db1 = database1.newInstance();
+    YTEntityImpl vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
     database1.save(vDocA_db1);
     database1.commit();
@@ -279,7 +279,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     // Update docA in db2
     database2 = acquireSession();
     database2.begin();
-    YTDocument vDocA_db2 = database2.load(vDocA_Rid);
+    YTEntityImpl vDocA_db2 = database2.load(vDocA_Rid);
     vDocA_db2.field(NAME, "docA_v2");
     database2.save(vDocA_db2);
     database2.commit();
@@ -287,7 +287,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     // Later... read docA with db1.
     database1.activateOnCurrentThread();
     database1.begin();
-    YTDocument vDocA_db1_later = database1.load(vDocA_Rid);
+    YTEntityImpl vDocA_db1_later = database1.load(vDocA_Rid);
     Assert.assertEquals(vDocA_db1_later.field(NAME), "docA_v2");
     database1.commit();
 
@@ -303,15 +303,17 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database = acquireSession();
     database.begin();
 
-    YTDocument kim = new YTDocument("Profile").field("name", "Kim").field("surname", "Bauer");
-    YTDocument teri = new YTDocument("Profile").field("name", "Teri").field("surname", "Bauer");
-    YTDocument jack = new YTDocument("Profile").field("name", "Jack").field("surname", "Bauer");
+    YTEntityImpl kim = new YTEntityImpl("Profile").field("name", "Kim").field("surname", "Bauer");
+    YTEntityImpl teri = new YTEntityImpl("Profile").field("name", "Teri").field("surname", "Bauer");
+    YTEntityImpl jack = new YTEntityImpl("Profile").field("name", "Jack").field("surname", "Bauer");
 
-    ((HashSet<YTDocument>) jack.field("following", new HashSet<YTDocument>()).field("following"))
+    ((HashSet<YTEntityImpl>) jack.field("following", new HashSet<YTEntityImpl>())
+        .field("following"))
         .add(kim);
-    ((HashSet<YTDocument>) kim.field("following", new HashSet<YTDocument>()).field("following"))
+    ((HashSet<YTEntityImpl>) kim.field("following", new HashSet<YTEntityImpl>()).field("following"))
         .add(teri);
-    ((HashSet<YTDocument>) teri.field("following", new HashSet<YTDocument>()).field("following"))
+    ((HashSet<YTEntityImpl>) teri.field("following", new HashSet<YTEntityImpl>())
+        .field("following"))
         .add(jack);
 
     jack.save();
@@ -321,7 +323,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database.close();
     database = acquireSession();
 
-    YTDocument loadedJack = database.load(jack.getIdentity());
+    YTEntityImpl loadedJack = database.load(jack.getIdentity());
 
     int jackLastVersion = loadedJack.getVersion();
     database.begin();
@@ -363,14 +365,16 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    YTDocument kim = new YTDocument("MyProfile").field("name", "Kim").field("surname", "Bauer");
-    YTDocument teri = new YTDocument("MyProfile").field("name", "Teri").field("surname", "Bauer");
-    YTDocument jack = new YTDocument("MyProfile").field("name", "Jack").field("surname", "Bauer");
+    YTEntityImpl kim = new YTEntityImpl("MyProfile").field("name", "Kim").field("surname", "Bauer");
+    YTEntityImpl teri = new YTEntityImpl("MyProfile").field("name", "Teri")
+        .field("surname", "Bauer");
+    YTEntityImpl jack = new YTEntityImpl("MyProfile").field("name", "Jack")
+        .field("surname", "Bauer");
 
-    YTDocument myedge = new YTDocument("MyEdge").field("in", kim).field("out", jack);
+    YTEntityImpl myedge = new YTEntityImpl("MyEdge").field("in", kim).field("out", jack);
     myedge.save();
-    ((HashSet<YTDocument>) kim.field("out", new HashSet<YTRID>()).field("out")).add(myedge);
-    ((HashSet<YTDocument>) jack.field("in", new HashSet<YTRID>()).field("in")).add(myedge);
+    ((HashSet<YTEntityImpl>) kim.field("out", new HashSet<YTRID>()).field("out")).add(myedge);
+    ((HashSet<YTEntityImpl>) jack.field("in", new HashSet<YTRID>()).field("in")).add(myedge);
 
     jack.save();
     kim.save();
@@ -387,22 +391,26 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   public void loadRecordTest() {
     database.begin();
 
-    YTDocument kim = new YTDocument("Profile").field("name", "Kim").field("surname", "Bauer");
-    YTDocument teri = new YTDocument("Profile").field("name", "Teri").field("surname", "Bauer");
-    YTDocument jack = new YTDocument("Profile").field("name", "Jack").field("surname", "Bauer");
-    YTDocument chloe = new YTDocument("Profile").field("name", "Chloe").field("surname", "O'Brien");
+    YTEntityImpl kim = new YTEntityImpl("Profile").field("name", "Kim").field("surname", "Bauer");
+    YTEntityImpl teri = new YTEntityImpl("Profile").field("name", "Teri").field("surname", "Bauer");
+    YTEntityImpl jack = new YTEntityImpl("Profile").field("name", "Jack").field("surname", "Bauer");
+    YTEntityImpl chloe = new YTEntityImpl("Profile").field("name", "Chloe")
+        .field("surname", "O'Brien");
 
-    ((HashSet<YTDocument>) jack.field("following", new HashSet<YTDocument>()).field("following"))
+    ((HashSet<YTEntityImpl>) jack.field("following", new HashSet<YTEntityImpl>())
+        .field("following"))
         .add(kim);
-    ((HashSet<YTDocument>) kim.field("following", new HashSet<YTDocument>()).field("following"))
+    ((HashSet<YTEntityImpl>) kim.field("following", new HashSet<YTEntityImpl>()).field("following"))
         .add(teri);
-    ((HashSet<YTDocument>) teri.field("following", new HashSet<YTDocument>()).field("following"))
+    ((HashSet<YTEntityImpl>) teri.field("following", new HashSet<YTEntityImpl>())
+        .field("following"))
         .add(jack);
-    ((HashSet<YTDocument>) teri.field("following")).add(kim);
-    ((HashSet<YTDocument>) chloe.field("following", new HashSet<YTDocument>()).field("following"))
+    ((HashSet<YTEntityImpl>) teri.field("following")).add(kim);
+    ((HashSet<YTEntityImpl>) chloe.field("following", new HashSet<YTEntityImpl>())
+        .field("following"))
         .add(jack);
-    ((HashSet<YTDocument>) chloe.field("following")).add(teri);
-    ((HashSet<YTDocument>) chloe.field("following")).add(kim);
+    ((HashSet<YTEntityImpl>) chloe.field("following")).add(teri);
+    ((HashSet<YTEntityImpl>) chloe.field("following")).add(kim);
 
     var schema = database.getSchema();
     var profileClusterIds =
@@ -467,11 +475,11 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
               + ")");
 
       // do insert
-      List<YTDocument> v = new ArrayList<>();
+      List<YTEntityImpl> v = new ArrayList<>();
       database.begin();
       for (int i = initialValue * chunkSize; i < (initialValue * chunkSize) + chunkSize; i++) {
-        YTDocument d =
-            new YTDocument("MyFruit")
+        YTEntityImpl d =
+            new YTEntityImpl("MyFruit")
                 .field("name", "" + i)
                 .field("color", "FOO")
                 .field("flavor", "BAR" + i);
@@ -493,7 +501,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
       // do delete
       database.begin();
-      for (YTDocument entries : v) {
+      for (YTEntityImpl entries : v) {
         database.delete(database.bindToSession(entries));
       }
       database.commit();
@@ -622,19 +630,20 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     List<YTEntity> inserted = new ArrayList<>();
 
     for (int i = 0; i < cnt; i++) {
-      YTDocument person = new YTDocument("TRPerson");
+      YTEntityImpl person = new YTEntityImpl("TRPerson");
       person.field("name", Character.toString((char) ('A' + i)));
       person.field("surname", Character.toString((char) ('A' + (i % 3))));
       person.field("myversion", 0);
-      person.field("in", new HashSet<YTDocument>());
-      person.field("out", new HashSet<YTDocument>());
+      person.field("in", new HashSet<YTEntityImpl>());
+      person.field("out", new HashSet<YTEntityImpl>());
 
       if (i >= 1) {
-        YTDocument edge = new YTDocument("TREdge");
+        YTEntityImpl edge = new YTEntityImpl("TREdge");
         edge.field("in", person.getIdentity());
         edge.field("out", inserted.get(i - 1));
-        (person.<Set<YTDocument>>getProperty("out")).add(edge);
-        (database.bindToSession(inserted.get(i - 1)).<Set<YTDocument>>getProperty("in")).add(edge);
+        (person.<Set<YTEntityImpl>>getProperty("out")).add(edge);
+        (database.bindToSession(inserted.get(i - 1)).<Set<YTEntityImpl>>getProperty("in")).add(
+            edge);
         edge.save();
       }
       inserted.add(person);
@@ -651,19 +660,19 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
             List<YTEntity> inserted2 = new ArrayList<>();
 
             for (int i = 0; i < cnt; i++) {
-              YTDocument person = new YTDocument("TRPerson");
+              YTEntityImpl person = new YTEntityImpl("TRPerson");
               person.field("name", Character.toString((char) ('a' + i)));
               person.field("surname", Character.toString((char) ('a' + (i % 3))));
               person.field("myversion", 0);
-              person.field("in", new HashSet<YTDocument>());
-              person.field("out", new HashSet<YTDocument>());
+              person.field("in", new HashSet<YTEntityImpl>());
+              person.field("out", new HashSet<YTEntityImpl>());
 
               if (i >= 1) {
-                YTDocument edge = new YTDocument("TREdge");
+                YTEntityImpl edge = new YTEntityImpl("TREdge");
                 edge.field("in", person.getIdentity());
                 edge.field("out", inserted2.get(i - 1));
-                (person.<Set<YTDocument>>getProperty("out")).add(edge);
-                ((inserted2.get(i - 1)).<Set<YTDocument>>getProperty("in")).add(edge);
+                (person.<Set<YTEntityImpl>>getProperty("out")).add(edge);
+                ((inserted2.get(i - 1)).<Set<YTEntityImpl>>getProperty("in")).add(edge);
                 edge.save();
               }
 
@@ -673,13 +682,13 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
             for (int i = 0; i < cnt; i++) {
               if (i != cnt - 1) {
-                var doc = database.bindToSession((YTDocument) inserted.get(i));
+                var doc = database.bindToSession((YTEntityImpl) inserted.get(i));
                 doc.setProperty("myversion", 2);
                 doc.save();
               }
             }
 
-            var doc = ((YTDocument) inserted.get(cnt - 1));
+            var doc = ((YTEntityImpl) inserted.get(cnt - 1));
             database.bindToSession(doc).delete();
 
             throw new IllegalStateException();
@@ -792,7 +801,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     YTSchema schema = database.getMetadata().getSchema();
     YTClass classA = schema.createClass("TransA");
     classA.createProperty(database, "name", YTType.STRING);
-    YTDocument doc = new YTDocument(classA);
+    YTEntityImpl doc = new YTEntityImpl(classA);
     doc.field("name", "test1");
 
     database.begin();

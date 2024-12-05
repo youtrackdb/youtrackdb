@@ -34,7 +34,7 @@ import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerStringAbstract;
@@ -161,7 +161,7 @@ public final class OCommandResponse implements OBinaryResponse {
         if (result instanceof ODocumentWrapper) {
           // RECORD
           channel.writeByte((byte) 'r');
-          final YTDocument doc = ((ODocumentWrapper) result).getDocument(session);
+          final YTEntityImpl doc = ((ODocumentWrapper) result).getDocument(session);
           if (listener != null) {
             listener.result(session, doc);
           }
@@ -256,7 +256,7 @@ public final class OCommandResponse implements OBinaryResponse {
 
     if (protocolVersion >= OChannelBinaryProtocol.PROTOCOL_VERSION_35) {
       channel.writeByte((byte) 'w');
-      YTDocument document = new YTDocument();
+      YTEntityImpl document = new YTEntityImpl();
       document.field("result", result);
       OMessageHelper.writeIdentifiable(session, channel, document, recordSerializer);
       if (listener != null) {
@@ -266,7 +266,7 @@ public final class OCommandResponse implements OBinaryResponse {
       channel.writeByte((byte) 'a');
       final StringBuilder value = new StringBuilder(64);
       if (listener != null) {
-        YTDocument document = new YTDocument();
+        YTEntityImpl document = new YTEntityImpl();
         document.field("result", result);
         listener.linkdedBySimpleValue(document);
       }
@@ -330,7 +330,7 @@ public final class OCommandResponse implements OBinaryResponse {
       } else {
         result = readSynchResult(network, database, temporaryResults);
         if (live) {
-          final YTDocument doc = ((List<YTDocument>) result).get(0);
+          final YTEntityImpl doc = ((List<YTEntityImpl>) result).get(0);
           final Integer token = doc.field("token");
           final Boolean unsubscribe = doc.field("unsubscribe");
           if (token != null) {
@@ -476,8 +476,8 @@ public final class OCommandResponse implements OBinaryResponse {
       case 'w':
         final YTIdentifiable record = OMessageHelper.readIdentifiable(database, network,
             serializer);
-        // ((YTDocument) record).setLazyLoad(false);
-        result = ((YTDocument) record).field("result");
+        // ((YTEntityImpl) record).setLazyLoad(false);
+        result = ((YTEntityImpl) record).field("result");
         break;
 
       default:

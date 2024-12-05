@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseStats;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.sql.parser.ODDLStatement;
@@ -73,7 +73,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
       // CONTENT REPLACES TEXT
       if (iRequest.getContent().startsWith("{")) {
         // JSON PAYLOAD
-        final YTDocument doc = new YTDocument();
+        final YTEntityImpl doc = new YTEntityImpl();
         doc.fromJSON(iRequest.getContent());
         text = doc.field("command");
         params = doc.field("parameters");

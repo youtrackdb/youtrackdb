@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.collate.ODefaultCollate;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 
 /**
@@ -92,10 +92,10 @@ public abstract class OAbstractIndexDefinition implements OIndexDefinition {
     nullValuesIgnored = value;
   }
 
-  protected void serializeToStream(YTDocument document) {
+  protected void serializeToStream(YTEntityImpl document) {
   }
 
-  protected void serializeFromStream(YTDocument document) {
+  protected void serializeFromStream(YTEntityImpl document) {
   }
 
   protected static <T> T refreshRid(YTDatabaseSessionInternal session, T value) {

@@ -4,7 +4,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.directmemory.ODirectMemoryAllocator;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Assert;
@@ -25,7 +25,7 @@ public class ORestricetedUserCleanUpTest extends DBTestBase {
     db.begin();
     YTUser auser = security.createUser("auser", "wherever", new String[]{});
     YTUser reader = security.getUser("admin");
-    YTDocument doc = new YTDocument("TestRecord");
+    YTEntityImpl doc = new YTEntityImpl("TestRecord");
     Set<YTIdentifiable> users = new HashSet<YTIdentifiable>();
     users.add(auser.getIdentity(db));
     users.add(reader.getIdentity(db));
@@ -34,7 +34,7 @@ public class ORestricetedUserCleanUpTest extends DBTestBase {
     doc.field(OSecurityShared.ALLOW_UPDATE_FIELD, users);
     doc.field(OSecurityShared.ALLOW_DELETE_FIELD, users);
     doc.field(OSecurityShared.ALLOW_ALL_FIELD, users);
-    YTDocument rid = db.save(doc);
+    YTEntityImpl rid = db.save(doc);
     db.commit();
 
     System.gc();

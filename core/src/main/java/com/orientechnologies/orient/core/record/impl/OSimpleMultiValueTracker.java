@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
+import com.orientechnologies.orient.core.db.record.RecordElement;
 import java.lang.ref.WeakReference;
 
 /**
@@ -34,12 +34,12 @@ import java.lang.ref.WeakReference;
  */
 public final class OSimpleMultiValueTracker<K, V> {
 
-  private final WeakReference<ORecordElement> element;
+  private final WeakReference<RecordElement> element;
   private OMultiValueChangeTimeLine<Object, Object> timeLine;
   private boolean enabled;
   private OMultiValueChangeTimeLine<K, V> transactionTimeLine;
 
-  public OSimpleMultiValueTracker(ORecordElement element) {
+  public OSimpleMultiValueTracker(RecordElement element) {
     this.element = new WeakReference<>(element);
   }
 
@@ -80,7 +80,7 @@ public final class OSimpleMultiValueTracker<K, V> {
       return;
     }
 
-    final ORecordElement document = this.element.get();
+    final RecordElement document = this.element.get();
     if (document == null) {
       // doc not alive anymore, do nothing.
       return;

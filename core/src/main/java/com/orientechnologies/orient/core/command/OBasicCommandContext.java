@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStep;
 import java.util.HashMap;
@@ -440,8 +440,8 @@ public class OBasicCommandContext implements OCommandContext {
    */
   public synchronized boolean addToUniqueResult(Object o) {
     Object toAdd = o;
-    if (o instanceof YTDocument && ((YTDocument) o).getIdentity().isNew()) {
-      toAdd = new ODocumentEqualityWrapper((YTDocument) o);
+    if (o instanceof YTEntityImpl && ((YTEntityImpl) o).getIdentity().isNew()) {
+      toAdd = new ODocumentEqualityWrapper((YTEntityImpl) o);
     }
     return this.uniqueResult.add(toAdd);
   }

@@ -34,7 +34,7 @@ import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -220,7 +220,7 @@ public abstract class YTSequence {
 
   private int maxRetry = DEF_MAX_RETRY;
 
-  protected YTSequence(YTDocument document) {
+  protected YTSequence(YTEntityImpl document) {
     Objects.requireNonNull(document);
     docRid = document.getIdentity();
   }
@@ -232,7 +232,7 @@ public abstract class YTSequence {
     docRid =
         db.computeInTx(
             () -> {
-              var document = new YTDocument(CLASS_NAME);
+              var document = new YTEntityImpl(CLASS_NAME);
 
               CreateParams currentParams;
               if (params == null) {
@@ -249,7 +249,7 @@ public abstract class YTSequence {
             });
   }
 
-  private void initSequence(YTDocument document, YTSequence.CreateParams params) {
+  private void initSequence(YTEntityImpl document, YTSequence.CreateParams params) {
     setStart(document, params.start);
     setIncrement(document, params.increment);
     if (params.currentValue == null) {
@@ -266,13 +266,13 @@ public abstract class YTSequence {
 
   public boolean updateParams(CreateParams params) throws YTDatabaseException {
     var db = getDatabase();
-    var doc = db.<YTDocument>load(docRid);
+    var doc = db.<YTEntityImpl>load(docRid);
     var result = updateParams(doc, params, false);
     doc.save();
     return result;
   }
 
-  boolean updateParams(YTDocument document, CreateParams params, boolean executeViaDistributed)
+  boolean updateParams(YTEntityImpl document, CreateParams params, boolean executeViaDistributed)
       throws YTDatabaseException {
     boolean any = false;
 
@@ -312,47 +312,47 @@ public abstract class YTSequence {
     return any;
   }
 
-  protected static long getValue(YTDocument doc) {
+  protected static long getValue(YTEntityImpl doc) {
     if (!doc.hasProperty(FIELD_VALUE)) {
       throw new YTSequenceException("Value property not found in document");
     }
     return doc.getProperty(FIELD_VALUE);
   }
 
-  protected void setValue(YTDocument document, long value) {
+  protected void setValue(YTEntityImpl document, long value) {
     document.setProperty(FIELD_VALUE, value);
   }
 
-  protected int getIncrement(YTDocument document) {
+  protected int getIncrement(YTEntityImpl document) {
     return document.getProperty(FIELD_INCREMENT);
   }
 
-  protected void setLimitValue(YTDocument document, Long limitValue) {
+  protected void setLimitValue(YTEntityImpl document, Long limitValue) {
     document.setProperty(FIELD_LIMIT_VALUE, limitValue);
   }
 
-  protected Long getLimitValue(YTDocument document) {
+  protected Long getLimitValue(YTEntityImpl document) {
     return document.getProperty(FIELD_LIMIT_VALUE);
   }
 
-  protected void setOrderType(YTDocument document, SequenceOrderType orderType) {
+  protected void setOrderType(YTEntityImpl document, SequenceOrderType orderType) {
     document.setProperty(FIELD_ORDER_TYPE, orderType.getValue());
   }
 
-  protected SequenceOrderType getOrderType(YTDocument document) {
+  protected SequenceOrderType getOrderType(YTEntityImpl document) {
     Byte val = document.getProperty(FIELD_ORDER_TYPE);
     return val == null ? SequenceOrderType.ORDER_POSITIVE : SequenceOrderType.fromValue(val);
   }
 
-  protected void setIncrement(YTDocument document, int value) {
+  protected void setIncrement(YTEntityImpl document, int value) {
     document.setProperty(FIELD_INCREMENT, value);
   }
 
-  protected long getStart(YTDocument document) {
+  protected long getStart(YTEntityImpl document) {
     return document.getProperty(FIELD_START);
   }
 
-  protected void setStart(YTDocument document, long value) {
+  protected void setStart(YTEntityImpl document, long value) {
     document.setProperty(FIELD_START, value);
   }
 
@@ -368,19 +368,19 @@ public abstract class YTSequence {
     return getSequenceName(getDatabase().load(docRid));
   }
 
-  protected void setName(YTDocument doc, final String name) {
+  protected void setName(YTEntityImpl doc, final String name) {
     doc.setProperty(FIELD_NAME, name);
   }
 
-  protected boolean getRecyclable(YTDocument document) {
+  protected boolean getRecyclable(YTEntityImpl document) {
     return document.getProperty(FIELD_RECYCLABLE);
   }
 
-  protected void setRecyclable(YTDocument document, final boolean recyclable) {
+  protected void setRecyclable(YTEntityImpl document, final boolean recyclable) {
     document.setProperty(FIELD_RECYCLABLE, recyclable);
   }
 
-  private void setSequenceType(YTDocument document) {
+  private void setSequenceType(YTEntityImpl document) {
     document.setProperty(FIELD_TYPE, getSequenceType());
   }
 
@@ -388,11 +388,11 @@ public abstract class YTSequence {
     return ODatabaseRecordThreadLocal.instance().get();
   }
 
-  public static String getSequenceName(final YTDocument iDocument) {
+  public static String getSequenceName(final YTEntityImpl iDocument) {
     return iDocument.getProperty(FIELD_NAME);
   }
 
-  public static SEQUENCE_TYPE getSequenceType(final YTDocument document) {
+  public static SEQUENCE_TYPE getSequenceType(final YTEntityImpl document) {
     String sequenceTypeStr = document.field(FIELD_TYPE);
     if (sequenceTypeStr != null) {
       return SEQUENCE_TYPE.valueOf(sequenceTypeStr);
@@ -466,7 +466,7 @@ public abstract class YTSequence {
                   try {
                     return db.computeInTx(
                         () -> {
-                          var doc = docRid.<YTDocument>getRecord();
+                          var doc = docRid.<YTEntityImpl>getRecord();
                           var result = callable.call(db, doc);
                           doc.save();
                           return result;
@@ -518,7 +518,7 @@ public abstract class YTSequence {
                 try {
                   return db.computeInTx(
                       () -> {
-                        var doc = docRid.<YTDocument>getRecord();
+                        var doc = docRid.<YTEntityImpl>getRecord();
                         var result = callable.call(db, doc);
                         doc.save();
                         return result;
@@ -557,6 +557,6 @@ public abstract class YTSequence {
   @FunctionalInterface
   public interface SequenceCallable {
 
-    long call(YTDatabaseSession db, YTDocument doc);
+    long call(YTDatabaseSession db, YTEntityImpl doc);
   }
 }

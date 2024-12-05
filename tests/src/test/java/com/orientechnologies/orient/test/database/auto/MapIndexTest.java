@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -932,14 +932,14 @@ public class MapIndexTest extends DocumentDBBaseTest {
     database.save(mapper);
     database.commit();
 
-    final List<YTDocument> resultByKey =
+    final List<YTEntityImpl> resultByKey =
         executeQuery("select * from Mapper where intMap containskey ?", "key1");
     Assert.assertNotNull(resultByKey);
     Assert.assertEquals(resultByKey.size(), 1);
 
     Assert.assertEquals(map, resultByKey.get(0).<Map<String, Integer>>getProperty("intMap"));
 
-    final List<YTDocument> resultByValue =
+    final List<YTEntityImpl> resultByValue =
         executeQuery("select * from Mapper where intMap containsvalue ?", 10);
     Assert.assertNotNull(resultByValue);
     Assert.assertEquals(resultByValue.size(), 1);

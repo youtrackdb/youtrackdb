@@ -24,7 +24,7 @@ import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.common.util.OResettable;
 import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTInternalResultSet;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.lang.reflect.Array;
@@ -106,7 +106,7 @@ public class OMultiValue {
     if (iObject.getClass().isArray()) {
       return Array.getLength(iObject);
     }
-    if ((iObject instanceof Iterable && !(iObject instanceof YTDocument))) {
+    if ((iObject instanceof Iterable && !(iObject instanceof YTEntityImpl))) {
       int i = 0;
       for (Object o : (Iterable) iObject) {
         i++;
@@ -296,7 +296,7 @@ public class OMultiValue {
       return null;
     }
 
-    if (iObject instanceof Iterable<?> && !(iObject instanceof YTDocument)) {
+    if (iObject instanceof Iterable<?> && !(iObject instanceof YTEntityImpl)) {
       return (Iterable<Object>) iObject;
     } else if (iObject instanceof Collection<?>) {
       return ((Collection<Object>) iObject);

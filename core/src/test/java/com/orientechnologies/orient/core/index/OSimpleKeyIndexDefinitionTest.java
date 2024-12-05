@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -144,12 +144,12 @@ public class OSimpleKeyIndexDefinitionTest extends DBTestBase {
     databaseDocumentTx.create();
 
     databaseDocumentTx.begin();
-    final YTDocument storeDocument = simpleKeyIndexDefinition.toStream(new YTDocument());
+    final YTEntityImpl storeDocument = simpleKeyIndexDefinition.toStream(new YTEntityImpl());
     storeDocument.save(
         databaseDocumentTx.getClusterNameById(databaseDocumentTx.getDefaultClusterId()));
     databaseDocumentTx.commit();
 
-    final YTDocument loadDocument = databaseDocumentTx.load(storeDocument.getIdentity());
+    final YTEntityImpl loadDocument = databaseDocumentTx.load(storeDocument.getIdentity());
     final OSimpleKeyIndexDefinition loadedKeyIndexDefinition = new OSimpleKeyIndexDefinition();
     loadedKeyIndexDefinition.fromStream(loadDocument);
 
@@ -160,6 +160,6 @@ public class OSimpleKeyIndexDefinitionTest extends DBTestBase {
 
   @Test(expected = YTIndexException.class)
   public void testGetDocumentValueToIndex() {
-    simpleKeyIndexDefinition.getDocumentValueToIndex(db, new YTDocument());
+    simpleKeyIndexDefinition.getDocumentValueToIndex(db, new YTEntityImpl());
   }
 }

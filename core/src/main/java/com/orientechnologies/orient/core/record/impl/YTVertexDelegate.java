@@ -35,9 +35,9 @@ import javax.annotation.Nullable;
  */
 public class YTVertexDelegate implements YTVertexInternal {
 
-  protected final YTDocument element;
+  protected final YTEntityImpl element;
 
-  public YTVertexDelegate(YTDocument entry) {
+  public YTVertexDelegate(YTEntityImpl entry) {
     this.element = entry;
   }
 
@@ -96,7 +96,7 @@ public class YTVertexDelegate implements YTVertexInternal {
   @Nonnull
   @SuppressWarnings("unchecked")
   @Override
-  public YTDocument getRecord() {
+  public YTEntityImpl getRecord() {
     return element;
   }
 
@@ -191,7 +191,7 @@ public class YTVertexDelegate implements YTVertexInternal {
 
   @Nonnull
   @Override
-  public YTDocument getBaseDocument() {
+  public YTEntityImpl getBaseDocument() {
     return element;
   }
 

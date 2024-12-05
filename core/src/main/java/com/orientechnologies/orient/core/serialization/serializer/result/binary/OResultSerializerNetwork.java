@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OSerializableWrapper;
@@ -574,7 +574,7 @@ public class OResultSerializerNetwork {
         throw new YTSerializationException(
             "Impossible serialize value of type "
                 + value.getClass()
-                + " with the YTDocument binary serializer");
+                + " with the YTEntityImpl binary serializer");
       }
     }
   }
@@ -586,8 +586,8 @@ public class OResultSerializerNetwork {
     YTType type =
         fieldValue instanceof YTResult ? YTType.EMBEDDED : YTType.getTypeByValue(fieldValue);
     if (type == YTType.LINK
-        && fieldValue instanceof YTDocument
-        && !((YTDocument) fieldValue).getIdentity().isValid()) {
+        && fieldValue instanceof YTEntityImpl
+        && !((YTEntityImpl) fieldValue).getIdentity().isValid()) {
       type = YTType.EMBEDDED;
     }
     return type;

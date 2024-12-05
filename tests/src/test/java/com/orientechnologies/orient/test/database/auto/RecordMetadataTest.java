@@ -3,7 +3,7 @@ package com.orientechnologies.orient.test.database.auto;
 import static org.testng.Assert.assertEquals;
 
 import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -27,7 +27,7 @@ public class RecordMetadataTest extends DocumentDBBaseTest {
 
   public void testGetRecordMetadata() {
 
-    YTDocument doc = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl();
     for (int i = 0; i < 5; i++) {
       database.begin();
       if (!doc.getIdentity().isNew()) {

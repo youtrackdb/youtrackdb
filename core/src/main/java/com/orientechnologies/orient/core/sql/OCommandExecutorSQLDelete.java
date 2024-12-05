@@ -40,7 +40,7 @@ import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilter;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 import com.orientechnologies.orient.core.sql.parser.ODeleteStatement;
@@ -61,7 +61,7 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
   public static final String KEYWORD_DELETE = "DELETE";
   private static final String VALUE_NOT_FOUND = "_not_found_";
 
-  private OSQLQuery<YTDocument> query;
+  private OSQLQuery<YTEntityImpl> query;
   private String indexName = null;
   private int recordCount = 0;
   private String returning = "COUNT";
@@ -139,7 +139,7 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
         subjectName = subjectName.trim();
         query =
             database.command(
-                new OSQLAsynchQuery<YTDocument>(
+                new OSQLAsynchQuery<YTEntityImpl>(
                     subjectName.substring(1, subjectName.length() - 1), this));
         parserNextWord(true);
         if (!parserIsEnded()) {
@@ -184,7 +184,7 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
                 : "";
         query =
             database.command(
-                new OSQLAsynchQuery<YTDocument>(
+                new OSQLAsynchQuery<YTEntityImpl>(
                     "select from " + getSelectTarget(subjectName) + condition, this));
       }
     } finally {
@@ -335,10 +335,10 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
   public boolean result(YTDatabaseSessionInternal querySession, final Object iRecord) {
     final YTRecordAbstract record = ((YTIdentifiable) iRecord).getRecord();
 
-    if (record instanceof YTDocument
+    if (record instanceof YTEntityImpl
         && compiledFilter != null
         && !Boolean.TRUE.equals(
-        this.compiledFilter.evaluate(record, (YTDocument) record, getContext()))) {
+        this.compiledFilter.evaluate(record, (YTEntityImpl) record, getContext()))) {
       return true;
     }
     if (record.getIdentity().isValid()) {
@@ -350,9 +350,9 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
       // UPDATED
       //        ORecordInternal.setVersion(record, -1);
 
-      if (!unsafe && record instanceof YTDocument) {
+      if (!unsafe && record instanceof YTEntityImpl) {
         // CHECK IF ARE VERTICES OR EDGES
-        final YTClass cls = ODocumentInternal.getImmutableSchemaClass(((YTDocument) record));
+        final YTClass cls = ODocumentInternal.getImmutableSchemaClass(((YTEntityImpl) record));
         if (cls != null) {
           if (cls.isSubClassOf("V"))
           // FOUND VERTEX

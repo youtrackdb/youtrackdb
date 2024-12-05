@@ -39,7 +39,7 @@ public class LinksetInTransactionTest extends DBTestBase {
     links.add(link2);
     withLinks1.save();
 
-    /* Remove all from OSet - if only link2 removed all OK */
+    /* Remove all from LinkSet - if only link2 removed all OK */
     links = withLinks1.getProperty("links");
     links.remove(link1);
     links = withLinks1.getProperty("links");

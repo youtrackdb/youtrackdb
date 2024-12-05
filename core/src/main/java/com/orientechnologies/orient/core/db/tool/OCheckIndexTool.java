@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -115,7 +115,7 @@ public class OCheckIndexTool extends ODatabaseTool {
         step = currentStep;
       }
       YTRecord record = iter.next();
-      if (record instanceof YTDocument doc) {
+      if (record instanceof YTEntityImpl doc) {
         checkThatRecordIsIndexed(session, doc, index, fields);
       }
       count++;
@@ -141,7 +141,7 @@ public class OCheckIndexTool extends ODatabaseTool {
   }
 
   private void checkThatRecordIsIndexed(
-      YTDatabaseSessionInternal session, YTDocument doc, OIndex index, List<String> fields) {
+      YTDatabaseSessionInternal session, YTEntityImpl doc, OIndex index, List<String> fields) {
     Object[] vals = new Object[fields.size()];
     YTRID docId = doc.getIdentity();
     for (int i = 0; i < vals.length; i++) {

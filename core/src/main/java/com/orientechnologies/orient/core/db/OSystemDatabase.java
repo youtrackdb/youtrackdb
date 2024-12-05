@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.security.ODefaultSecuritySystem;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.UUID;
@@ -118,11 +118,11 @@ public class OSystemDatabase {
     }
   }
 
-  public YTDocument save(final YTDocument document) {
+  public YTEntityImpl save(final YTEntityImpl document) {
     return save(document, null);
   }
 
-  public YTDocument save(final YTDocument document, final String clusterName) {
+  public YTEntityImpl save(final YTEntityImpl document, final String clusterName) {
     final YTDatabaseSessionInternal currentDB = ODatabaseRecordThreadLocal.instance()
         .getIfDefined();
     try {

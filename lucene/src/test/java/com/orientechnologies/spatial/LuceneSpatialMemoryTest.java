@@ -21,7 +21,7 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.spatial.collections.OSpatialCompositeKey;
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ public class LuceneSpatialMemoryTest {
         db.command("CREATE INDEX Point.ll ON Point(latitude,longitude) SPATIAL ENGINE LUCENE")
             .close();
 
-        YTDocument document = new YTDocument("Point");
+        YTEntityImpl document = new YTEntityImpl("Point");
 
         document.field("latitude", 42.2814837);
         document.field("longitude", -83.7605452);
@@ -63,7 +63,7 @@ public class LuceneSpatialMemoryTest {
 
         List<?> query =
             db.query(
-                new OSQLSynchQuery<YTDocument>(
+                new OSQLSynchQuery<YTEntityImpl>(
                     "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
                         + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
 
@@ -91,7 +91,7 @@ public class LuceneSpatialMemoryTest {
 
       db.begin();
 
-      YTDocument document = new YTDocument("Point");
+      YTEntityImpl document = new YTEntityImpl("Point");
 
       document.field("latitude", 42.2814837);
       document.field("longitude", -83.7605452);
@@ -102,7 +102,7 @@ public class LuceneSpatialMemoryTest {
 
       List<?> query =
           db.query(
-              new OSQLSynchQuery<YTDocument>(
+              new OSQLSynchQuery<YTEntityImpl>(
                   "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
                       + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
 
@@ -144,7 +144,7 @@ public class LuceneSpatialMemoryTest {
 
       query =
           db.query(
-              new OSQLSynchQuery<YTDocument>(
+              new OSQLSynchQuery<YTEntityImpl>(
                   "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
                       + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
 
@@ -173,7 +173,7 @@ public class LuceneSpatialMemoryTest {
 
       db.begin();
 
-      YTDocument document = new YTDocument("Point");
+      YTEntityImpl document = new YTEntityImpl("Point");
 
       document.field("latitude", 42.2814837);
       document.field("longitude", -83.7605452);
@@ -184,7 +184,7 @@ public class LuceneSpatialMemoryTest {
 
       List<?> query =
           db.query(
-              new OSQLSynchQuery<YTDocument>(
+              new OSQLSynchQuery<YTEntityImpl>(
                   "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
                       + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
 
@@ -230,7 +230,7 @@ public class LuceneSpatialMemoryTest {
 
       query =
           db.query(
-              new OSQLSynchQuery<YTDocument>(
+              new OSQLSynchQuery<YTEntityImpl>(
                   "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
                       + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
 
@@ -246,7 +246,7 @@ public class LuceneSpatialMemoryTest {
 
       query =
           db.query(
-              new OSQLSynchQuery<YTDocument>(
+              new OSQLSynchQuery<YTEntityImpl>(
                   "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
                       + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
 

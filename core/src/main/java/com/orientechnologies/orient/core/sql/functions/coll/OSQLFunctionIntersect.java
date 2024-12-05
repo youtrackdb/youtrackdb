@@ -24,7 +24,7 @@ import com.orientechnologies.common.util.OSupportsContains;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemVariable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -128,8 +128,8 @@ public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object
 
     for (Iterator it = current; it.hasNext(); ) {
       final Object curr = it.next();
-      if (value instanceof ORidBag) {
-        if (((ORidBag) value).contains((YTIdentifiable) curr)) {
+      if (value instanceof RidBag) {
+        if (((RidBag) value).contains((YTIdentifiable) curr)) {
           tempSet.add(curr);
         }
       } else if (value instanceof Collection) {

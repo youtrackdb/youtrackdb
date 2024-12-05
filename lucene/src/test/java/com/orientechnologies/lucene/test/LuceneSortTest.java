@@ -3,7 +3,7 @@ package com.orientechnologies.lucene.test;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -565,7 +565,7 @@ public class LuceneSortTest extends BaseLuceneTest {
   public void shouldIndexVeryLongDescriptionWithWildCardConfig() throws Exception {
 
     db.begin();
-    db.save(new YTDocument("Person").field("description", DESCRIPTION));
+    db.save(new YTEntityImpl("Person").field("description", DESCRIPTION));
     db.commit();
 
     db.command(
@@ -583,7 +583,7 @@ public class LuceneSortTest extends BaseLuceneTest {
   public void shouldIndexVeryLongDescriptionWithSingleField() throws Exception {
 
     db.begin();
-    db.save(new YTDocument("Person").field("description", DESCRIPTION));
+    db.save(new YTEntityImpl("Person").field("description", DESCRIPTION));
     db.commit();
 
     db.command(

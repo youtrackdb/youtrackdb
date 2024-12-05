@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
@@ -148,7 +148,7 @@ public class SchemaTest extends DocumentDBBaseTest {
               @Override
               public void run() {
                 ODatabaseRecordThreadLocal.instance().set(database);
-                YTDocument doc = new YTDocument("NewClass");
+                YTEntityImpl doc = new YTEntityImpl("NewClass");
 
                 database.begin();
                 database.save(doc);
@@ -407,10 +407,10 @@ public class SchemaTest extends DocumentDBBaseTest {
     YTClass oClass = database.getMetadata().getSchema().createClass("RenameClassTest");
 
     database.begin();
-    YTDocument document = new YTDocument("RenameClassTest");
+    YTEntityImpl document = new YTEntityImpl("RenameClassTest");
     document.save();
 
-    document = new YTDocument("RenameClassTest");
+    document = new YTEntityImpl("RenameClassTest");
 
     document.setClassName("RenameClassTest");
     document.save();
@@ -444,7 +444,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
       for (int i = 0; i < 6; ++i) {
         database.begin();
-        new YTDocument("multipleclusters").field("num", i).save();
+        new YTEntityImpl("multipleclusters").field("num", i).save();
         database.commit();
       }
 
@@ -470,7 +470,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
       for (int i = 0; i < 2; ++i) {
         database.begin();
-        new YTDocument("multipleclusters").field("num", i).save();
+        new YTEntityImpl("multipleclusters").field("num", i).save();
         database.commit();
       }
 
@@ -669,12 +669,12 @@ public class SchemaTest extends DocumentDBBaseTest {
         .execute(database);
 
     database.begin();
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         databaseDocumentTx.query(
-            new OSQLSynchQuery<YTDocument>("select * from TestRenameClusterOriginal"));
+            new OSQLSynchQuery<YTEntityImpl>("select * from TestRenameClusterOriginal"));
     Assert.assertEquals(result.size(), 1);
 
-    YTDocument document = result.get(0);
+    YTEntityImpl document = result.get(0);
     Assert.assertEquals(document.<Object>field("iteration"), i);
     database.commit();
   }

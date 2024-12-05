@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.schedule.OScheduler.STATUS;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
 import java.text.ParseException;
@@ -67,7 +67,7 @@ public class OScheduledEvent extends ODocumentWrapper {
   /**
    * Creates a scheduled event object from a configuration.
    */
-  public OScheduledEvent(final YTDocument doc, YTDatabaseSession session) {
+  public OScheduledEvent(final YTEntityImpl doc, YTDatabaseSession session) {
     super(doc);
     running = new AtomicBoolean(false);
     nextExecutionId = new AtomicLong(getNextExecutionId(session));
@@ -171,7 +171,7 @@ public class OScheduledEvent extends ODocumentWrapper {
   }
 
   @Override
-  public void fromStream(YTDatabaseSessionInternal session, final YTDocument iDocument) {
+  public void fromStream(YTDatabaseSessionInternal session, final YTEntityImpl iDocument) {
     super.fromStream(session, iDocument);
     try {
       cron.buildExpression(getRule(session));
@@ -194,8 +194,8 @@ public class OScheduledEvent extends ODocumentWrapper {
           function = (OFunction) funcDoc;
           // OVERWRITE FUNCTION ID
           document.field(PROP_FUNC, function.getId(session));
-        } else if (funcDoc instanceof YTDocument) {
-          function = new OFunction((YTDocument) funcDoc);
+        } else if (funcDoc instanceof YTEntityImpl) {
+          function = new OFunction((YTEntityImpl) funcDoc);
         } else if (funcDoc instanceof YTRecordId) {
           function = new OFunction((YTRecordId) funcDoc);
         }
@@ -397,7 +397,7 @@ public class OScheduledEvent extends ODocumentWrapper {
         return true;
       }
 
-      final YTDocument updated = session.load(rec.getIdentity());
+      final YTEntityImpl updated = session.load(rec.getIdentity());
       final Long currentExecutionId = updated.field(PROP_EXEC_ID);
       if (currentExecutionId == null) {
         return false;

@@ -21,7 +21,7 @@ package com.orientechnologies.lucene.test;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -56,7 +56,7 @@ public class LuceneBooleanIndexTest extends BaseLuceneTest {
   public void insertPerson() {
 
     for (int i = 0; i < 1000; i++) {
-      YTDocument doc = new YTDocument("Person");
+      YTEntityImpl doc = new YTEntityImpl("Person");
       doc.field("isDeleted", i % 2 == 0);
       db.begin();
       db.save(doc);

@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 
@@ -30,7 +30,7 @@ public class SetDocumentClassStep extends AbstractExecutionStep {
   private YTResult mapResult(YTResult result, OCommandContext ctx) {
     if (result.isEntity()) {
       var element = result.toEntity();
-      ((YTDocument) element).setClassName(targetClass);
+      ((YTEntityImpl) element).setClassName(targetClass);
       if (!(result instanceof YTResultInternal)) {
         result = new YTUpdatableResult(ctx.getDatabase(), element);
       } else {

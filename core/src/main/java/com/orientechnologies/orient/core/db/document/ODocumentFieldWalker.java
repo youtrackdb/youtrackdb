@@ -24,8 +24,8 @@ import com.orientechnologies.orient.core.db.record.OIdentifiableMultiValue;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -54,11 +54,11 @@ import java.util.Set;
  */
 public class ODocumentFieldWalker {
 
-  public YTDocument walkDocument(
-      YTDatabaseSessionInternal session, YTDocument document, ODocumentFieldVisitor fieldWalker) {
-    final Set<YTDocument> walked = Collections.newSetFromMap(new IdentityHashMap<>());
+  public YTEntityImpl walkDocument(
+      YTDatabaseSessionInternal session, YTEntityImpl document, ODocumentFieldVisitor fieldWalker) {
+    final Set<YTEntityImpl> walked = Collections.newSetFromMap(new IdentityHashMap<>());
 
-    YTDocument doc;
+    YTEntityImpl doc;
     if (document.getIdentity().isValid()) {
       doc = session.bindToSession(document);
     } else {
@@ -72,9 +72,9 @@ public class ODocumentFieldWalker {
 
   private void walkDocument(
       YTDatabaseSessionInternal session,
-      YTDocument document,
+      YTEntityImpl document,
       ODocumentFieldVisitor fieldWalker,
-      Set<YTDocument> walked) {
+      Set<YTEntityImpl> walked) {
     if (document.isUnloaded()) {
       throw new IllegalStateException("Document is unloaded");
     }
@@ -129,9 +129,9 @@ public class ODocumentFieldWalker {
         if (fieldWalker.goDeeper(fieldType, linkedType, fieldValue)) {
           if (fieldValue instanceof Map) {
             walkMap(session, (Map) fieldValue, fieldType, fieldWalker, walked);
-          } else if (fieldValue instanceof YTDocument doc) {
+          } else if (fieldValue instanceof YTEntityImpl doc) {
             if (YTType.EMBEDDED.equals(fieldType) || doc.isEmbedded()) {
-              var fdoc = (YTDocument) fieldValue;
+              var fdoc = (YTEntityImpl) fieldValue;
               if (fdoc.isUnloaded()) {
                 throw new IllegalStateException("Document is unloaded");
               }
@@ -163,12 +163,12 @@ public class ODocumentFieldWalker {
       Map map,
       YTType fieldType,
       ODocumentFieldVisitor fieldWalker,
-      Set<YTDocument> walked) {
+      Set<YTEntityImpl> walked) {
     for (Object value : map.values()) {
-      if (value instanceof YTDocument doc) {
+      if (value instanceof YTEntityImpl doc) {
         // only embedded documents are walked
         if (YTType.EMBEDDEDMAP.equals(fieldType) || doc.isEmbedded()) {
-          walkDocument(session, (YTDocument) value, fieldWalker, walked);
+          walkDocument(session, (YTEntityImpl) value, fieldWalker, walked);
         }
       }
     }
@@ -179,21 +179,21 @@ public class ODocumentFieldWalker {
       Iterable iterable,
       YTType fieldType,
       ODocumentFieldVisitor fieldWalker,
-      Set<YTDocument> walked) {
+      Set<YTEntityImpl> walked) {
     for (Object value : iterable) {
-      if (value instanceof YTDocument doc) {
+      if (value instanceof YTEntityImpl doc) {
         // only embedded documents are walked
         if (YTType.EMBEDDEDLIST.equals(fieldType)
             || YTType.EMBEDDEDSET.equals(fieldType)
             || doc.isEmbedded()) {
-          walkDocument(session, (YTDocument) value, fieldWalker, walked);
+          walkDocument(session, (YTEntityImpl) value, fieldWalker, walked);
         }
       }
     }
   }
 
   private static boolean updateFieldValueIfChanged(
-      YTDocument document,
+      YTEntityImpl document,
       String fieldName,
       Object fieldValue,
       Object newValue,

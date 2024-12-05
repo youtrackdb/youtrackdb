@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.distributed;
 
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.distributed.ODistributedRequest.EXECUTION_MODE;
 import com.orientechnologies.orient.server.distributed.task.ORemoteTask;
@@ -203,15 +203,15 @@ public interface ODistributedServerManager {
 
   String getLocalNodeName();
 
-  YTDocument getClusterConfiguration();
+  YTEntityImpl getClusterConfiguration();
 
   String getNodeNameById(int id);
 
   int getNodeIdByName(String node);
 
-  YTDocument getNodeConfigurationByUuid(String iNode, boolean useCache);
+  YTEntityImpl getNodeConfigurationByUuid(String iNode, boolean useCache);
 
-  YTDocument getLocalNodeConfiguration();
+  YTEntityImpl getLocalNodeConfiguration();
 
   ODistributedConfiguration getDatabaseConfiguration(String iDatabaseName);
 
@@ -246,7 +246,7 @@ public interface ODistributedServerManager {
       Object localResult,
       ODistributedResponseManagerFactory responseManagerFactory);
 
-  YTDocument getStats();
+  YTEntityImpl getStats();
 
   Throwable convertException(Throwable original);
 
@@ -323,5 +323,5 @@ public interface ODistributedServerManager {
   default void messageProcessEnd(ODistributedRequest iRequest, Object responsePayload) {
   }
 
-  YTDocument getOnlineDatabaseConfiguration(String databaseName);
+  YTEntityImpl getOnlineDatabaseConfiguration(String databaseName);
 }

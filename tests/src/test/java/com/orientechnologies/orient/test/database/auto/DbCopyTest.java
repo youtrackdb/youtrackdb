@@ -20,7 +20,7 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import org.testng.Assert;
@@ -55,7 +55,7 @@ public class DbCopyTest extends DocumentDBBaseTest implements OCommandOutputList
             otherDB.activateOnCurrentThread();
             for (int i = 0; i < 5; i++) {
               otherDB.begin();
-              YTDocument doc = otherDB.newInstance(className);
+              YTEntityImpl doc = otherDB.newInstance(className);
               doc.field("num", i);
               doc.save();
               otherDB.commit();
@@ -72,7 +72,7 @@ public class DbCopyTest extends DocumentDBBaseTest implements OCommandOutputList
 
     for (int i = 0; i < 20; i++) {
       database.begin();
-      YTDocument doc = database.newInstance(className);
+      YTEntityImpl doc = database.newInstance(className);
       doc.field("num", i);
       doc.save();
       database.commit();

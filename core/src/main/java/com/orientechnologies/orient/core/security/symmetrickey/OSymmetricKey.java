@@ -24,7 +24,7 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
 import com.orientechnologies.orient.core.exception.YTSecurityException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.io.BufferedWriter;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -574,8 +574,8 @@ public class OSymmetricKey {
 
       String json = new String(decoded, StandardCharsets.UTF_8);
 
-      // Convert the JSON content to an YTDocument to make parsing it easier.
-      final YTDocument doc = new YTDocument().fromJSON(json, "noMap");
+      // Convert the JSON content to an YTEntityImpl to make parsing it easier.
+      final YTEntityImpl doc = new YTEntityImpl().fromJSON(json, "noMap");
 
       // Set a default in case the JSON document does not contain an "algorithm" property.
       String algorithm = secretKeyAlgorithm;

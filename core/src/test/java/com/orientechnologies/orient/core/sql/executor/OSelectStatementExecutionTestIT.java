@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import org.junit.Assert;
@@ -17,7 +17,7 @@ public class OSelectStatementExecutionTestIT extends DBTestBase {
     String className = "stressTestNew";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 1000000; i++) {
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
@@ -44,22 +44,22 @@ public class OSelectStatementExecutionTestIT extends DBTestBase {
     String className = "stressTestOld";
     db.getMetadata().getSchema().createClass(className);
     for (int i = 0; i < 1000000; i++) {
-      YTDocument doc = db.newInstance(className);
+      YTEntityImpl doc = db.newInstance(className);
       doc.setProperty("name", "name" + i);
       doc.setProperty("surname", "surname" + i);
       doc.save();
     }
     for (int run = 0; run < 5; run++) {
       long begin = System.nanoTime();
-      List<YTDocument> r =
+      List<YTEntityImpl> r =
           db.query(
-              new OSQLSynchQuery<YTDocument>(
+              new OSQLSynchQuery<YTEntityImpl>(
                   "select name from " + className + " where name <> 'name1' "));
-      //      Iterator<YTDocument> result = r.iterator();
+      //      Iterator<YTEntityImpl> result = r.iterator();
       for (int i = 0; i < 999999; i++) {
         //        Assert.assertTrue(result.hasNext());
-        //        YTDocument item = result.next();
-        YTDocument item = r.get(i);
+        //        YTEntityImpl item = result.next();
+        YTEntityImpl item = r.get(i);
 
         //        Assert.assertNotNull(item);
         Object name = item.getProperty("name");

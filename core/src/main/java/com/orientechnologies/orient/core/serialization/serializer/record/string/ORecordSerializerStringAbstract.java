@@ -30,8 +30,8 @@ import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.string.OStringSerializerAnyStreamable;
@@ -56,7 +56,8 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
   private static final int MAX_INTEGER_DIGITS = MAX_INTEGER_AS_STRING.length();
 
   public static Object fieldTypeFromStream(
-      YTDatabaseSessionInternal db, final YTDocument iDocument, YTType iType, final Object iValue) {
+      YTDatabaseSessionInternal db, final YTEntityImpl iDocument, YTType iType,
+      final Object iValue) {
     if (iValue == null) {
       return null;
     }
@@ -85,8 +86,8 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
         // EMBEDED RECORD
         final Object embeddedObject =
             OStringSerializerEmbedded.INSTANCE.fromStream(db, (String) iValue);
-        if (embeddedObject instanceof YTDocument) {
-          ODocumentInternal.addOwner((YTDocument) embeddedObject, iDocument);
+        if (embeddedObject instanceof YTEntityImpl) {
+          ODocumentInternal.addOwner((YTEntityImpl) embeddedObject, iDocument);
         }
 
         // EMBEDDED OBJECT
@@ -97,8 +98,8 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
         // RECORD
         final Object result = OStringSerializerAnyStreamable.INSTANCE.fromStream(db,
             (String) iValue);
-        if (result instanceof YTDocument) {
-          ODocumentInternal.addOwner((YTDocument) result, iDocument);
+        if (result instanceof YTEntityImpl) {
+          ODocumentInternal.addOwner((YTEntityImpl) result, iDocument);
         }
         return result;
 
@@ -296,8 +297,8 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
         break;
 
       case EMBEDDED:
-        if (iValue instanceof YTDocument) {
-          ORecordSerializerSchemaAware2CSV.INSTANCE.toString((YTDocument) iValue, iBuffer, null);
+        if (iValue instanceof YTEntityImpl) {
+          ORecordSerializerSchemaAware2CSV.INSTANCE.toString((YTEntityImpl) iValue, iBuffer, null);
         } else {
           OStringSerializerEmbedded.INSTANCE.toStream(iBuffer, iValue);
         }
@@ -766,7 +767,7 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
   }
 
   @Override
-  public String[] getFieldNames(YTDatabaseSessionInternal db, YTDocument reference,
+  public String[] getFieldNames(YTDatabaseSessionInternal db, YTEntityImpl reference,
       byte[] iSource) {
     return null;
   }

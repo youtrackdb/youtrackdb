@@ -1,7 +1,7 @@
 package com.orientechnologies.lucene.test;
 
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ public class LuceneNullTest extends BaseLuceneTest {
     db.command("create index Test.names on Test (names) fulltext engine lucene").close();
 
     db.begin();
-    YTDocument doc = new YTDocument("Test");
+    YTEntityImpl doc = new YTEntityImpl("Test");
     db.save(doc);
     db.commit();
 
@@ -43,7 +43,7 @@ public class LuceneNullTest extends BaseLuceneTest {
     db.command("create property Test.names EMBEDDEDLIST STRING").close();
     db.command("create index Test.names on Test (names) fulltext engine lucene").close();
 
-    YTDocument doc = new YTDocument("Test");
+    YTEntityImpl doc = new YTEntityImpl("Test");
 
     db.begin();
     doc.field("names", new String[]{"foo"});

@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
@@ -39,7 +39,7 @@ public class ExternalCollectionsTest extends DBTestBase {
     list.add(0);
 
     db.begin();
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
     document.field("list", list);
     Assert.assertEquals(document.field("list"), list);
     document.save();
@@ -62,7 +62,7 @@ public class ExternalCollectionsTest extends DBTestBase {
     final List<Integer> list = new ArrayList<>();
     list.add(0);
 
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
     document.field("list", list);
     Assert.assertEquals(document.field("list"), list);
     document.save();
@@ -84,7 +84,7 @@ public class ExternalCollectionsTest extends DBTestBase {
     list.add(0);
 
     db.begin();
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
     document.field("list", list);
     Assert.assertEquals(document.field("list"), list);
     document.save();
@@ -104,7 +104,7 @@ public class ExternalCollectionsTest extends DBTestBase {
     final List<Integer> list = new ArrayList<>();
     list.add(0);
 
-    final YTDocument document = new YTDocument();
+    final YTEntityImpl document = new YTEntityImpl();
     document.field("list", list);
     Assert.assertEquals(document.field("list"), list);
     document.save();

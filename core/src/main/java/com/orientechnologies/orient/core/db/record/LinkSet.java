@@ -41,13 +41,13 @@ import javax.annotation.Nullable;
  *
  * <p>
  */
-public class OSet extends OTrackedSet<YTIdentifiable> implements IdentityChangeListener {
+public class LinkSet extends TrackedSet<YTIdentifiable> implements IdentityChangeListener {
 
-  public OSet(final ORecordElement iSourceRecord) {
+  public LinkSet(final RecordElement iSourceRecord) {
     super(iSourceRecord);
   }
 
-  public OSet(ORecordElement iSourceRecord, Collection<YTIdentifiable> iOrigin) {
+  public LinkSet(RecordElement iSourceRecord, Collection<YTIdentifiable> iOrigin) {
     this(iSourceRecord);
 
     if (iOrigin != null && !iOrigin.isEmpty()) {
@@ -168,7 +168,7 @@ public class OSet extends OTrackedSet<YTIdentifiable> implements IdentityChangeL
         iterator.remove();
 
         if (current instanceof ChangeableIdentity changeableIdentity) {
-          changeableIdentity.removeIdentityChangeListener(OSet.this);
+          changeableIdentity.removeIdentityChangeListener(LinkSet.this);
         }
         current = null;
       }

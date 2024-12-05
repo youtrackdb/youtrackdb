@@ -20,7 +20,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTFetchException;
 import com.orientechnologies.orient.core.fetch.OFetchContext;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 
 /**
  * Fetch context for {@class ONetworkBinaryProtocol} class
@@ -35,49 +35,51 @@ public class ORemoteFetchContext implements OFetchContext {
       Object iFieldValue, String iFieldName, Object iUserObject, YTType fieldType) {
   }
 
-  public void onBeforeMap(YTDocument iRootRecord, String iFieldName, final Object iUserObject)
+  public void onBeforeMap(YTEntityImpl iRootRecord, String iFieldName, final Object iUserObject)
       throws YTFetchException {
   }
 
-  public void onBeforeFetch(YTDocument iRootRecord) throws YTFetchException {
+  public void onBeforeFetch(YTEntityImpl iRootRecord) throws YTFetchException {
   }
 
   public void onBeforeArray(
-      YTDocument iRootRecord, String iFieldName, Object iUserObject, YTIdentifiable[] iArray)
+      YTEntityImpl iRootRecord, String iFieldName, Object iUserObject, YTIdentifiable[] iArray)
       throws YTFetchException {
   }
 
-  public void onAfterArray(YTDocument iRootRecord, String iFieldName, Object iUserObject)
+  public void onAfterArray(YTEntityImpl iRootRecord, String iFieldName, Object iUserObject)
       throws YTFetchException {
   }
 
   public void onBeforeDocument(
-      YTDocument iRecord, final YTDocument iDocument, String iFieldName, final Object iUserObject)
+      YTEntityImpl iRecord, final YTEntityImpl iDocument, String iFieldName,
+      final Object iUserObject)
       throws YTFetchException {
   }
 
   public void onBeforeCollection(
-      YTDocument iRootRecord,
+      YTEntityImpl iRootRecord,
       String iFieldName,
       final Object iUserObject,
       final Iterable<?> iterable)
       throws YTFetchException {
   }
 
-  public void onAfterMap(YTDocument iRootRecord, String iFieldName, final Object iUserObject)
+  public void onAfterMap(YTEntityImpl iRootRecord, String iFieldName, final Object iUserObject)
       throws YTFetchException {
   }
 
-  public void onAfterFetch(YTDocument iRootRecord) throws YTFetchException {
+  public void onAfterFetch(YTEntityImpl iRootRecord) throws YTFetchException {
   }
 
   public void onAfterDocument(
-      YTDocument iRootRecord, final YTDocument iDocument, String iFieldName,
+      YTEntityImpl iRootRecord, final YTEntityImpl iDocument, String iFieldName,
       final Object iUserObject)
       throws YTFetchException {
   }
 
-  public void onAfterCollection(YTDocument iRootRecord, String iFieldName, final Object iUserObject)
+  public void onAfterCollection(YTEntityImpl iRootRecord, String iFieldName,
+      final Object iUserObject)
       throws YTFetchException {
   }
 

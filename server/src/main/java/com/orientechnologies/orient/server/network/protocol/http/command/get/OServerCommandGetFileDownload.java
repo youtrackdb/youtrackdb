@@ -21,9 +21,9 @@ import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTBlob;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -73,9 +73,9 @@ public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDb
               fileType,
               (YTBlob) response,
               fileName);
-        } else if (response instanceof YTDocument) {
+        } else if (response instanceof YTEntityImpl) {
           for (YTProperty prop :
-              ODocumentInternal.getImmutableSchemaClass(((YTDocument) response)).properties(db)) {
+              ODocumentInternal.getImmutableSchemaClass(((YTEntityImpl) response)).properties(db)) {
             if (prop.getType().equals(YTType.BINARY)) {
               sendBinaryFieldFileContent(
                   iRequest,
@@ -83,7 +83,7 @@ public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDb
                   OHttpUtils.STATUS_OK_CODE,
                   OHttpUtils.STATUS_OK_DESCRIPTION,
                   fileType,
-                  ((YTDocument) response).field(prop.getName()),
+                  ((YTEntityImpl) response).field(prop.getName()),
                   fileName);
             }
           }

@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
@@ -109,13 +109,13 @@ public class ClassTest extends BaseMemoryInternalDatabase {
     classTwo.addClusterId(db, clusterId);
 
     db.begin();
-    YTDocument document = new YTDocument("ClassTwo");
+    YTEntityImpl document = new YTEntityImpl("ClassTwo");
     document.save("classthree");
 
-    document = new YTDocument("ClassTwo");
+    document = new YTEntityImpl("ClassTwo");
     document.save();
 
-    document = new YTDocument("ClassOne");
+    document = new YTEntityImpl("ClassOne");
     document.save();
     db.commit();
 

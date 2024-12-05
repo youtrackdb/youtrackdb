@@ -14,7 +14,7 @@ import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTStorageDoesNotExistException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -66,7 +66,7 @@ public class YouTrackDBEmbeddedTests {
               youTrackDb.open(
                   "createAndUseEmbeddedDatabase", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       db.executeInTx(
-          () -> db.save(new YTDocument(), db.getClusterNameById(db.getDefaultClusterId())));
+          () -> db.save(new YTEntityImpl(), db.getClusterNameById(db.getDefaultClusterId())));
       db.close();
     }
   }
@@ -542,7 +542,7 @@ public class YouTrackDBEmbeddedTests {
         (YTDatabaseSessionInternal)
             youTrackDb.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     db.executeInTx(
-        () -> db.save(new YTDocument(), db.getClusterNameById(db.getDefaultClusterId())));
+        () -> db.save(new YTEntityImpl(), db.getClusterNameById(db.getDefaultClusterId())));
     db.close();
     youTrackDb.close();
   }

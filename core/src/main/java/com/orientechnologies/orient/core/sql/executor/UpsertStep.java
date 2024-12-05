@@ -4,7 +4,7 @@ import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OAndBlock;
 import com.orientechnologies.orient.core.sql.parser.OBooleanExpression;
@@ -43,9 +43,9 @@ public class UpsertStep extends AbstractExecutionStep {
 
   private YTResult createNewRecord(
       OCommandContext ctx, OFromClause commandTarget, OWhereClause initialFilter) {
-    YTDocument doc;
+    YTEntityImpl doc;
     if (commandTarget.getItem().getIdentifier() != null) {
-      doc = new YTDocument(commandTarget.getItem().getIdentifier().getStringValue());
+      doc = new YTEntityImpl(commandTarget.getItem().getIdentifier().getStringValue());
     } else if (commandTarget.getItem().getCluster() != null) {
       OCluster cluster = commandTarget.getItem().getCluster();
       Integer clusterId = cluster.getClusterNumber();
@@ -57,7 +57,7 @@ public class UpsertStep extends AbstractExecutionStep {
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClassByClusterId(clusterId);
-      doc = new YTDocument(clazz);
+      doc = new YTEntityImpl(clazz);
     } else {
       throw new YTCommandExecutionException(
           "Cannot execute UPSERT on target '" + commandTarget + "'");

@@ -4,11 +4,11 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -85,8 +85,8 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
 
     db.create();
     for (int i = 0; i < 100; i++) {
-      YTDocument document = new YTDocument();
-      ORidBag ridBag = new ORidBag(db);
+      YTEntityImpl document = new YTEntityImpl();
+      RidBag ridBag = new RidBag(db);
       document.field("ridBag", ridBag);
 
       document.save();
@@ -128,12 +128,12 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
 
     long amountOfRids = 0;
     for (YTRID rid : ridTreePerDocument.keySet()) {
-      YTDocument document = db.load(rid);
+      YTEntityImpl document = db.load(rid);
       document.setLazyLoad(false);
 
       final ConcurrentSkipListSet<YTRID> ridTree = ridTreePerDocument.get(rid);
 
-      final ORidBag ridBag = document.field("ridBag");
+      final RidBag ridBag = document.field("ridBag");
 
       for (YTIdentifiable identifiable : ridBag) {
         Assert.assertTrue(ridTree.remove(identifiable.getIdentity()));
@@ -158,8 +158,8 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
       db.open("admin", "admin");
 
       try {
-        YTDocument document = new YTDocument();
-        ORidBag ridBag = new ORidBag(db);
+        YTEntityImpl document = new YTEntityImpl();
+        RidBag ridBag = new RidBag(db);
         document.field("ridBag", ridBag);
 
         document.save();
@@ -215,10 +215,10 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
           final YTRID orid = new YTRecordId(defaultClusterId, position);
 
           while (true) {
-            YTDocument document = db.load(orid);
+            YTEntityImpl document = db.load(orid);
             document.setLazyLoad(false);
 
-            ORidBag ridBag = document.field("ridBag");
+            RidBag ridBag = document.field("ridBag");
             for (YTRID rid : ridsToAdd) {
               ridBag.add(rid);
             }
@@ -281,9 +281,9 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
           final YTRID orid = new YTRecordId(defaultClusterId, position);
 
           while (true) {
-            YTDocument document = db.load(orid);
+            YTEntityImpl document = db.load(orid);
             document.setLazyLoad(false);
-            ORidBag ridBag = document.field("ridBag");
+            RidBag ridBag = document.field("ridBag");
             Iterator<YTIdentifiable> iterator = ridBag.iterator();
 
             List<YTRID> ridsToDelete = new ArrayList<YTRID>();

@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.id.YTRecordId;
 
 public class ODocumentSerializerDeltaDistributed extends ODocumentSerializerDelta {
@@ -15,7 +15,7 @@ public class ODocumentSerializerDeltaDistributed extends ODocumentSerializerDelt
     return INSTANCE;
   }
 
-  protected void deserializeDeltaLinkBag(BytesContainer bytes, ORidBag toUpdate) {
+  protected void deserializeDeltaLinkBag(BytesContainer bytes, RidBag toUpdate) {
     boolean isTree = deserializeByte(bytes) == 1;
     long rootChanges = OVarIntSerializer.readAsLong(bytes);
     while (rootChanges-- > 0) {
@@ -49,7 +49,7 @@ public class ODocumentSerializerDeltaDistributed extends ODocumentSerializerDelt
     }
   }
 
-  protected void serializeDeltaLinkBag(BytesContainer bytes, ORidBag value) {
+  protected void serializeDeltaLinkBag(BytesContainer bytes, RidBag value) {
     serializeByte(bytes, value.isEmbedded() ? (byte) 0 : 1);
     OMultiValueChangeTimeLine<YTIdentifiable, YTIdentifiable> timeline =
         value.getTransactionTimeLine();

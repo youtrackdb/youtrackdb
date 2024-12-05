@@ -23,7 +23,7 @@ import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collection;
 import java.util.Set;
 
@@ -120,7 +120,7 @@ public interface OIndexManager {
       OIndexDefinition indexDefinition,
       final int[] clusterIdsToIndex,
       final OProgressListener progressListener,
-      YTDocument metadata);
+      YTEntityImpl metadata);
 
   /**
    * Creates a new index.
@@ -144,7 +144,7 @@ public interface OIndexManager {
       OIndexDefinition indexDefinition,
       final int[] clusterIdsToIndex,
       final OProgressListener progressListener,
-      YTDocument metadata,
+      YTEntityImpl metadata,
       String algorithm);
 
   /**
@@ -192,7 +192,7 @@ public interface OIndexManager {
    * @return a document that used to store index configurations.
    */
   @Deprecated
-  YTDocument getConfiguration(YTDatabaseSession session);
+  YTEntityImpl getConfiguration(YTDatabaseSession session);
 
   /**
    * Returns list of indexes that contain passed in fields names as their first keys. Order of

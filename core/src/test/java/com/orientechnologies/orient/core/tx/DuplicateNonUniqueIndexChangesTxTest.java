@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -55,11 +55,11 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DBTestBase {
     db.begin();
 
     // saved persons will have null name
-    final YTDocument person1 = db.newInstance("Person");
+    final YTEntityImpl person1 = db.newInstance("Person");
     db.save(person1);
-    final YTDocument person2 = db.newInstance("Person");
+    final YTEntityImpl person2 = db.newInstance("Person");
     db.save(person2);
-    final YTDocument person3 = db.newInstance("Person");
+    final YTEntityImpl person3 = db.newInstance("Person");
     db.save(person3);
 
     // change some names
@@ -75,13 +75,13 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DBTestBase {
   @Test
   public void testDuplicateNullsOnUpdate() {
     db.begin();
-    YTDocument person1 = db.newInstance("Person");
+    YTEntityImpl person1 = db.newInstance("Person");
     person1.field("name", "Name1");
     db.save(person1);
-    YTDocument person2 = db.newInstance("Person");
+    YTEntityImpl person2 = db.newInstance("Person");
     person2.field("name", "Name2");
     db.save(person2);
-    YTDocument person3 = db.newInstance("Person");
+    YTEntityImpl person3 = db.newInstance("Person");
     person3.field("name", "Name3");
     db.save(person3);
     db.commit();
@@ -130,13 +130,13 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DBTestBase {
     db.begin();
 
     // saved persons will have same name
-    final YTDocument person1 = db.newInstance("Person");
+    final YTEntityImpl person1 = db.newInstance("Person");
     person1.field("name", "same");
     db.save(person1);
-    final YTDocument person2 = db.newInstance("Person");
+    final YTEntityImpl person2 = db.newInstance("Person");
     person2.field("name", "same");
     db.save(person2);
-    final YTDocument person3 = db.newInstance("Person");
+    final YTEntityImpl person3 = db.newInstance("Person");
     person3.field("name", "same");
     db.save(person3);
 
@@ -156,13 +156,13 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DBTestBase {
   @Test
   public void testDuplicateValuesOnUpdate() {
     db.begin();
-    YTDocument person1 = db.newInstance("Person");
+    YTEntityImpl person1 = db.newInstance("Person");
     person1.field("name", "Name1");
     db.save(person1);
-    YTDocument person2 = db.newInstance("Person");
+    YTEntityImpl person2 = db.newInstance("Person");
     person2.field("name", "Name2");
     db.save(person2);
-    YTDocument person3 = db.newInstance("Person");
+    YTEntityImpl person3 = db.newInstance("Person");
     person3.field("name", "Name3");
     db.save(person3);
     db.commit();
@@ -207,16 +207,16 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DBTestBase {
     db.begin();
 
     // saved persons will have same name
-    final YTDocument person1 = db.newInstance("Person");
+    final YTEntityImpl person1 = db.newInstance("Person");
     person1.field("name", "same");
     db.save(person1);
-    final YTDocument person2 = db.newInstance("Person");
+    final YTEntityImpl person2 = db.newInstance("Person");
     person2.field("name", "same");
     db.save(person2);
-    final YTDocument person3 = db.newInstance("Person");
+    final YTEntityImpl person3 = db.newInstance("Person");
     person3.field("name", "same");
     db.save(person3);
-    final YTDocument person4 = db.newInstance("Person");
+    final YTEntityImpl person4 = db.newInstance("Person");
     person4.field("name", "same");
     db.save(person4);
 
@@ -237,17 +237,17 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DBTestBase {
   @Test
   public void testDuplicateValuesOnUpdateDelete() {
     db.begin();
-    YTDocument person1 = db.newInstance("Person");
+    YTEntityImpl person1 = db.newInstance("Person");
     person1.field("name", "Name1");
     db.save(person1);
-    YTDocument person2 = db.newInstance("Person");
+    YTEntityImpl person2 = db.newInstance("Person");
     person2.field("name", "Name2");
     db.save(person2);
-    YTDocument person3 = db.newInstance("Person");
+    YTEntityImpl person3 = db.newInstance("Person");
     person3.field("name", "Name3");
     db.save(person3);
 
-    YTDocument person4 = db.newInstance("Person");
+    YTEntityImpl person4 = db.newInstance("Person");
     person4.field("name", "Name4");
     db.save(person4);
     db.commit();
@@ -303,7 +303,7 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DBTestBase {
 
     db.begin();
     for (int i = 0; i < OTransactionIndexChangesPerKey.SET_ADD_THRESHOLD * 2; ++i) {
-      YTDocument pers = db.newInstance("Person");
+      YTEntityImpl pers = db.newInstance("Person");
       pers.field("name", "Name");
       pers.field("serial", i);
       db.save(pers);
@@ -315,7 +315,7 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DBTestBase {
     try (Stream<YTRID> stream = index.getInternal().getRids(db, "Name")) {
       stream.forEach(
           (rid) -> {
-            final YTDocument document = db.load(rid);
+            final YTEntityImpl document = db.load(rid);
             unseen.remove(document.<Integer>field("serial"));
           });
     }

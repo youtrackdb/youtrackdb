@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -57,9 +57,9 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
     database.begin();
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 1).save();
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 1).save();
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     database.commit();
 
@@ -73,7 +73,7 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
     Set<YTIdentifiable> resultTwo = new HashSet<>();
@@ -99,11 +99,11 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
     database.begin();
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    YTDocument documentOne = new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 1);
+    YTEntityImpl documentOne = new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     documentOne.save();
-    YTDocument documentTwo = new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 1);
+    YTEntityImpl documentTwo = new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     documentTwo.save();
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     database.commit();
 
@@ -146,10 +146,10 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
     database.begin();
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    YTDocument documentOne = new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 1);
+    YTEntityImpl documentOne = new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     documentOne.save();
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 1).save();
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
     database.commit();
 
     Assert.assertNull(database.getTransaction().getIndexChanges(INDEX));
@@ -189,14 +189,14 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
 
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    final YTDocument document = new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 1);
+    final YTEntityImpl document = new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
 
     document.field(PROPERTY_NAME, 0);
     document.field(PROPERTY_NAME, 1);
     document.save();
 
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
     Set<YTIdentifiable> result = new HashSet<>();
@@ -222,8 +222,8 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
 
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 1).save();
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
     Set<YTIdentifiable> result = new HashSet<>();
@@ -234,7 +234,7 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 1).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
     database.commit();
 
     stream = index.getInternal().streamEntries(database, Arrays.asList(1, 2), true);
@@ -252,9 +252,9 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
 
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    YTDocument document = new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 1);
+    YTEntityImpl document = new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     document.delete();
 
@@ -282,9 +282,9 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
 
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    YTDocument document = new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 1);
+    YTEntityImpl document = new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     document.delete();
 
@@ -312,9 +312,9 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
 
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    YTDocument document = new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 1);
+    YTEntityImpl document = new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
-    new YTDocument(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     document.removeField(PROPERTY_NAME);
     document.save();

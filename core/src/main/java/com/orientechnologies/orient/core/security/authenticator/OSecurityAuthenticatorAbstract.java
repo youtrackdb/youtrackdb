@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.security.authenticator;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.security.OSecurityAuthenticator;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
 import javax.security.auth.Subject;
@@ -55,7 +55,7 @@ public abstract class OSecurityAuthenticatorAbstract implements OSecurityAuthent
   }
 
   // OSecurityComponent
-  public void config(YTDatabaseSessionInternal session, final YTDocument jsonConfig,
+  public void config(YTDatabaseSessionInternal session, final YTEntityImpl jsonConfig,
       OSecuritySystem security) {
     this.security = security;
     if (jsonConfig != null) {

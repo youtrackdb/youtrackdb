@@ -9,16 +9,16 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.index.OPropertyIndexDefinition;
+import com.orientechnologies.orient.core.metadata.schema.OGlobalProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
-import com.orientechnologies.orient.core.metadata.schema.OGlobalProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTPropertyImpl;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 
 /**
@@ -302,13 +302,13 @@ public class YTPropertyRemote extends YTPropertyImpl {
   }
 
   @Override
-  public OIndex createIndex(YTDatabaseSession session, String iType, YTDocument metadata) {
+  public OIndex createIndex(YTDatabaseSession session, String iType, YTEntityImpl metadata) {
     return owner.createIndex(session,
         getFullName(), iType, null, metadata, new String[]{globalRef.getName()});
   }
 
   @Override
-  public OIndex createIndex(YTDatabaseSession session, INDEX_TYPE iType, YTDocument metadata) {
+  public OIndex createIndex(YTDatabaseSession session, INDEX_TYPE iType, YTEntityImpl metadata) {
     return createIndex(session, iType.name(), metadata);
   }
 

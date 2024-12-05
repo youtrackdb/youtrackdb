@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
@@ -79,7 +79,7 @@ public class OFunctionLibraryImpl {
       try (YTResultSet result = db.query("select from OFunction order by name")) {
         while (result.hasNext()) {
           YTResult res = result.next();
-          YTDocument d = (YTDocument) res.getEntity().get();
+          YTEntityImpl d = (YTEntityImpl) res.getEntity().get();
           // skip the function records which do not contain real data
           if (d.fields() == 0) {
             continue;
@@ -96,13 +96,13 @@ public class OFunctionLibraryImpl {
     }
   }
 
-  public void droppedFunction(YTDocument function) {
+  public void droppedFunction(YTEntityImpl function) {
     functions.remove(function.field("name").toString());
     onFunctionsChanged(ODatabaseRecordThreadLocal.instance().get());
   }
 
-  public void createdFunction(YTDocument function) {
-    YTDocument metadataCopy = function.copy();
+  public void createdFunction(YTEntityImpl function) {
+    YTEntityImpl metadataCopy = function.copy();
     final OFunction f = new OFunction(metadataCopy);
     functions.put(metadataCopy.field("name").toString().toUpperCase(Locale.ENGLISH), f);
     onFunctionsChanged(ODatabaseRecordThreadLocal.instance().get());
@@ -170,7 +170,7 @@ public class OFunctionLibraryImpl {
   public synchronized void dropFunction(YTDatabaseSessionInternal session, OFunction function) {
     reloadIfNeeded(session);
     String name = function.getName(session);
-    YTDocument doc = function.getDocument(session);
+    YTEntityImpl doc = function.getDocument(session);
     doc.delete();
     functions.remove(name.toUpperCase(Locale.ENGLISH));
   }
@@ -181,20 +181,20 @@ public class OFunctionLibraryImpl {
     session.executeInTx(
         () -> {
           OFunction function = getFunction(iName);
-          YTDocument doc = function.getDocument(session);
+          YTEntityImpl doc = function.getDocument(session);
           doc.delete();
           functions.remove(iName.toUpperCase(Locale.ENGLISH));
         });
   }
 
-  public void updatedFunction(YTDocument function) {
+  public void updatedFunction(YTEntityImpl function) {
     YTDatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
     reloadIfNeeded(database);
     String oldName = (String) function.getOriginalValue("name");
     if (oldName != null) {
       functions.remove(oldName.toUpperCase(Locale.ENGLISH));
     }
-    YTDocument metadataCopy = function.copy();
+    YTEntityImpl metadataCopy = function.copy();
     OCallable<Object, Map<Object, Object>> callBack = null;
     OFunction oldFunction = functions.get(metadataCopy.field("name").toString());
     if (oldFunction != null) {
@@ -226,7 +226,7 @@ public class OFunctionLibraryImpl {
     needReload.set(true);
   }
 
-  public static void validateFunctionRecord(YTDocument doc) throws YTDatabaseException {
+  public static void validateFunctionRecord(YTEntityImpl doc) throws YTDatabaseException {
     String name = doc.getProperty("name");
     if (!Pattern.compile("[A-Za-z][A-Za-z0-9_]*").matcher(name).matches()) {
       throw new YTDatabaseException("Invalid function name: " + name);

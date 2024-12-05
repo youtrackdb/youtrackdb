@@ -21,11 +21,11 @@
 package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.OSimpleMultiValueTracker;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
@@ -40,10 +40,10 @@ import javax.annotation.Nullable;
  * Implementation of Set bound to a source YTRecord object to keep track of changes. This avoid to
  * call the makeDirty() by hand when the set is changed.
  */
-public class OTrackedSet<T> extends LinkedHashSet<T>
-    implements ORecordElement, OTrackedMultiValue<T, T>, Serializable {
+public class TrackedSet<T> extends LinkedHashSet<T>
+    implements RecordElement, OTrackedMultiValue<T, T>, Serializable {
 
-  protected final ORecordElement sourceRecord;
+  protected final RecordElement sourceRecord;
   private final boolean embeddedCollection;
   protected Class<?> genericClass;
   private boolean dirty = false;
@@ -51,8 +51,8 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
 
   private final OSimpleMultiValueTracker<T, T> tracker = new OSimpleMultiValueTracker<>(this);
 
-  public OTrackedSet(
-      final ORecordElement iRecord, final Collection<? extends T> iOrigin, final Class<?> cls) {
+  public TrackedSet(
+      final RecordElement iRecord, final Collection<? extends T> iOrigin, final Class<?> cls) {
     this(iRecord);
     genericClass = cls;
     if (iOrigin != null && !iOrigin.isEmpty()) {
@@ -60,13 +60,13 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
     }
   }
 
-  public OTrackedSet(final ORecordElement iSourceRecord) {
+  public TrackedSet(final RecordElement iSourceRecord) {
     this.sourceRecord = iSourceRecord;
-    embeddedCollection = this.getClass().equals(OTrackedSet.class);
+    embeddedCollection = this.getClass().equals(TrackedSet.class);
   }
 
   @Override
-  public ORecordElement getOwner() {
+  public RecordElement getOwner() {
     return sourceRecord;
   }
 
@@ -74,7 +74,7 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
   public Iterator<T> iterator() {
     return new Iterator<T>() {
       private T current;
-      private final Iterator<T> underlying = OTrackedSet.super.iterator();
+      private final Iterator<T> underlying = TrackedSet.super.iterator();
 
       @Override
       public boolean hasNext() {
@@ -153,8 +153,8 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
   }
 
   private void removeEvent(T removed) {
-    if (removed instanceof YTDocument) {
-      ODocumentInternal.removeOwner((YTDocument) removed, this);
+    if (removed instanceof YTEntityImpl) {
+      ODocumentInternal.removeOwner((YTEntityImpl) removed, this);
     }
 
     if (tracker.isEnabled()) {
@@ -165,7 +165,7 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
   }
 
   @SuppressWarnings("unchecked")
-  public OTrackedSet<T> setDirty() {
+  public TrackedSet<T> setDirty() {
     if (sourceRecord != null) {
       if (!(sourceRecord instanceof YTRecordAbstract)
           || !((YTRecordAbstract) sourceRecord).isDirty()) {
@@ -214,13 +214,13 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
   }
 
   private void addOwnerToEmbeddedDoc(T e) {
-    if (embeddedCollection && e instanceof YTDocument && !((YTDocument) e).getIdentity()
+    if (embeddedCollection && e instanceof YTEntityImpl && !((YTEntityImpl) e).getIdentity()
         .isValid()) {
-      ODocumentInternal.addOwner((YTDocument) e, this);
+      ODocumentInternal.addOwner((YTEntityImpl) e, this);
     }
 
-    if (e instanceof YTDocument) {
-      ORecordInternal.track(sourceRecord, (YTDocument) e);
+    if (e instanceof YTEntityImpl) {
+      ORecordInternal.track(sourceRecord, (YTEntityImpl) e);
     }
   }
 
@@ -234,14 +234,14 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
     super.add((T) newValue);
   }
 
-  public void enableTracking(ORecordElement parent) {
+  public void enableTracking(RecordElement parent) {
     if (!tracker.isEnabled()) {
       this.tracker.enable();
       OTrackedMultiValue.nestedEnabled(this.iterator(), this);
     }
   }
 
-  public void disableTracking(ORecordElement document) {
+  public void disableTracking(RecordElement document) {
     if (tracker.isEnabled()) {
       this.tracker.disable();
       OTrackedMultiValue.nestedDisable(this.iterator(), this);

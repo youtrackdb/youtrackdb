@@ -13,8 +13,8 @@ import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.OEdgeToVertexIterable;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OSQLHelper;
 import com.orientechnologies.orient.core.sql.functions.math.OSQLFunctionMathAbstract;
 import java.util.ArrayDeque;
@@ -232,7 +232,7 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
     if (additionalParams instanceof Map) {
       mapParams = (Map) additionalParams;
     } else if (additionalParams instanceof YTIdentifiable) {
-      mapParams = ((YTDocument) ((YTIdentifiable) additionalParams).getRecord()).toMap();
+      mapParams = ((YTEntityImpl) ((YTIdentifiable) additionalParams).getRecord()).toMap();
     }
     if (mapParams != null) {
       ctx.maxDepth = integer(mapParams.get("maxDepth"));

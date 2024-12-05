@@ -3,7 +3,7 @@ package com.orientechnologies.orient.client.remote.message;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -26,7 +26,7 @@ public class OListDatabasesResponse implements OBinaryResponse {
   public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel,
       int protocolVersion, ORecordSerializer serializer)
       throws IOException {
-    final YTDocument result = new YTDocument();
+    final YTEntityImpl result = new YTEntityImpl();
     result.field("databases", databases);
     byte[] toSend = serializer.toStream(session, result);
     channel.writeBytes(toSend);
@@ -36,7 +36,7 @@ public class OListDatabasesResponse implements OBinaryResponse {
   public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
     ORecordSerializer serializer = ORecordSerializerNetworkFactory.INSTANCE.current();
-    final YTDocument result = new YTDocument();
+    final YTEntityImpl result = new YTEntityImpl();
     serializer.fromStream(db, network.readBytes(), result, null);
     databases = result.field("databases");
   }

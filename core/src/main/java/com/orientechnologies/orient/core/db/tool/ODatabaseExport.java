@@ -39,7 +39,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerJSON;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
@@ -194,7 +194,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
 
           while (it.hasNext()) {
             rec = (YTRecordAbstract) it.next();
-            if (rec instanceof YTDocument doc) {
+            if (rec instanceof YTEntityImpl doc) {
               // CHECK IF THE CLASS OF THE DOCUMENT IS INCLUDED
               final String className =
                   doc.getClassName() != null
@@ -417,20 +417,21 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
         writer.beginObject(4, true, "definition");
 
         writer.writeAttribute(5, true, "defClass", index.getDefinition().getClass().getName());
-        writer.writeAttribute(5, true, "stream", index.getDefinition().toStream(new YTDocument()));
+        writer.writeAttribute(5, true, "stream",
+            index.getDefinition().toStream(new YTEntityImpl()));
 
         writer.endObject(4, true);
       }
 
       final var metadata = index.getMetadata();
       if (metadata != null) {
-        var doc = new YTDocument();
+        var doc = new YTEntityImpl();
         doc.fromMap(metadata);
 
         writer.writeAttribute(4, true, "metadata", doc);
       }
 
-      final YTDocument configuration = index.getConfiguration(database);
+      final YTEntityImpl configuration = index.getConfiguration(database);
       if (configuration.field("blueprintsIndexClass") != null) {
         writer.writeAttribute(
             4, true, "blueprintsIndexClass", configuration.field("blueprintsIndexClass"));
@@ -453,7 +454,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
 
     final Collection<? extends OIndex> indexes = indexManager.getIndexes(database);
 
-    YTDocument exportEntry;
+    YTEntityImpl exportEntry;
 
     int manualIndexes = 0;
     for (OIndex index : indexes) {
@@ -480,7 +481,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
 
           final OIndexDefinition indexDefinition = index.getDefinition();
 
-          exportEntry = new YTDocument();
+          exportEntry = new YTEntityImpl();
           exportEntry.setLazyLoad(false);
 
           if (indexDefinition instanceof ORuntimeKeyIndexDefinition

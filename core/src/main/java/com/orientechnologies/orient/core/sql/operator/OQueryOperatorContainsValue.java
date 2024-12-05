@@ -32,8 +32,8 @@ import com.orientechnologies.orient.core.index.OIndexInternal;
 import com.orientechnologies.orient.core.index.OPropertyMapIndexDefinition;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemField;
 import java.util.List;
@@ -163,9 +163,9 @@ public class OQueryOperatorContainsValue extends OQueryOperatorEqualityNotNulls 
           ((OSQLFilterItemField) iCondition.getLeft()).getFieldChain().getItemName(0);
       if (fieldName != null) {
         Object record = iRecord.getRecord();
-        if (record instanceof YTDocument) {
+        if (record instanceof YTEntityImpl) {
           YTProperty property =
-              ODocumentInternal.getImmutableSchemaClass(((YTDocument) record))
+              ODocumentInternal.getImmutableSchemaClass(((YTEntityImpl) record))
                   .getProperty(fieldName);
           if (property != null && property.getType().isMultiValue()) {
             type = property.getLinkedType();
@@ -184,18 +184,18 @@ public class OQueryOperatorContainsValue extends OQueryOperatorEqualityNotNulls 
       if (condition != null) {
         // CHECK AGAINST A CONDITION
         for (Object o : map.values()) {
-          if ((Boolean) condition.evaluate((YTDocument) o, null, iContext)) {
+          if ((Boolean) condition.evaluate((YTEntityImpl) o, null, iContext)) {
             return true;
           }
         }
       } else {
         for (Object val : map.values()) {
           Object convertedRight = iRight;
-          if (val instanceof YTDocument && iRight instanceof Map) {
-            val = ((YTDocument) val).toMap();
+          if (val instanceof YTEntityImpl && iRight instanceof Map) {
+            val = ((YTEntityImpl) val).toMap();
           }
-          if (val instanceof Map && iRight instanceof YTDocument) {
-            convertedRight = ((YTDocument) iRight).toMap();
+          if (val instanceof Map && iRight instanceof YTEntityImpl) {
+            convertedRight = ((YTEntityImpl) iRight).toMap();
           }
           if (OQueryOperatorEquals.equals(iContext.getDatabase(), val, convertedRight)) {
             return true;
@@ -211,7 +211,7 @@ public class OQueryOperatorContainsValue extends OQueryOperatorEqualityNotNulls 
       // CHECK AGAINST A CONDITION
       {
         for (Object o : map.values()) {
-          if ((Boolean) condition.evaluate((YTDocument) o, null, iContext)) {
+          if ((Boolean) condition.evaluate((YTEntityImpl) o, null, iContext)) {
             return true;
           } else {
             return map.containsValue(iLeft);

@@ -10,21 +10,21 @@ import com.orientechnologies.orient.core.record.YTVertex;
 import java.util.Set;
 import javax.annotation.Nullable;
 
-public class YTEdgeDocument extends YTDocument implements YTEdgeInternal {
+public class YTEdgeEntityImpl extends YTEntityImpl implements YTEdgeInternal {
 
-  public YTEdgeDocument(YTDatabaseSessionInternal session, String cl) {
+  public YTEdgeEntityImpl(YTDatabaseSessionInternal session, String cl) {
     super(session, cl);
   }
 
-  public YTEdgeDocument() {
+  public YTEdgeEntityImpl() {
     super();
   }
 
-  public YTEdgeDocument(YTDatabaseSessionInternal session) {
+  public YTEdgeEntityImpl(YTDatabaseSessionInternal session) {
     super(session);
   }
 
-  public YTEdgeDocument(YTDatabaseSessionInternal database, YTRID rid) {
+  public YTEdgeEntityImpl(YTDatabaseSessionInternal database, YTRID rid) {
     super(database, rid);
   }
 
@@ -107,15 +107,15 @@ public class YTEdgeDocument extends YTDocument implements YTEdgeInternal {
 
   @Override
   @Nullable
-  public YTDocument getBaseDocument() {
+  public YTEntityImpl getBaseDocument() {
     return this;
   }
 
   @Override
-  public YTEdgeDocument copy() {
+  public YTEdgeEntityImpl copy() {
     checkForBinding();
 
-    return (YTEdgeDocument) super.copyTo(new YTEdgeDocument());
+    return (YTEdgeEntityImpl) super.copyTo(new YTEdgeEntityImpl());
   }
 
   @Override

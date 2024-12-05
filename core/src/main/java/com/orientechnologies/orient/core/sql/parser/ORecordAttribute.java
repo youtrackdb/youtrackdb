@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
@@ -103,7 +103,7 @@ public class ORecordAttribute extends SimpleNode {
           .map(
               r -> {
                 var recordType = ORecordInternal.getRecordType(r);
-                if (recordType == YTDocument.RECORD_TYPE) {
+                if (recordType == YTEntityImpl.RECORD_TYPE) {
                   return "document";
                 } else if (recordType == YTRecordBytes.RECORD_TYPE) {
                   return "bytes";

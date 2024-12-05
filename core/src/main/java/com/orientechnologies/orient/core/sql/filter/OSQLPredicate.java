@@ -28,12 +28,12 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTQueryParsingException;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLSelect;
-import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.OSQLHelper;
+import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.operator.OQueryOperator;
 import com.orientechnologies.orient.core.sql.operator.OQueryOperatorAnd;
 import com.orientechnologies.orient.core.sql.operator.OQueryOperatorNot;
@@ -137,7 +137,7 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
   }
 
   public Object evaluate(
-      final YTIdentifiable iRecord, YTDocument iCurrentResult, final OCommandContext iContext) {
+      final YTIdentifiable iRecord, YTEntityImpl iCurrentResult, final OCommandContext iContext) {
     if (rootCondition == null) {
       return true;
     }

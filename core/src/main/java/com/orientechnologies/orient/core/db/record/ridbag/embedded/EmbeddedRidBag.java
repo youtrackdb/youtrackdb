@@ -29,9 +29,9 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
+import com.orientechnologies.orient.core.db.record.RecordElement;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBagDelegate;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBagDelegate;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.id.YTRID;
@@ -49,7 +49,7 @@ import java.util.NavigableMap;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-public class OEmbeddedRidBag implements ORidBagDelegate {
+public class EmbeddedRidBag implements RidBagDelegate {
 
   private boolean contentWasChanged = false;
 
@@ -58,7 +58,7 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
 
   private int size = 0;
 
-  private transient ORecordElement owner;
+  private transient RecordElement owner;
 
   private boolean dirty = false;
   private boolean transactionDirty = false;
@@ -204,7 +204,7 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
   }
 
   @Override
-  public ORecordElement getOwner() {
+  public RecordElement getOwner() {
     return owner;
   }
 
@@ -224,7 +224,7 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
   }
 
   @Override
-  public void setOwner(ORecordElement owner) {
+  public void setOwner(RecordElement owner) {
     if (owner != null && this.owner != null && !this.owner.equals(owner)) {
       throw new IllegalStateException(
           "This data structure is owned by document "
@@ -272,8 +272,8 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
     addEvent(identifiable, identifiable);
   }
 
-  public OEmbeddedRidBag copy() {
-    final OEmbeddedRidBag copy = new OEmbeddedRidBag();
+  public EmbeddedRidBag copy() {
+    final EmbeddedRidBag copy = new EmbeddedRidBag();
     copy.contentWasChanged = contentWasChanged;
     copy.entries = entries;
     copy.entriesLength = entriesLength;
@@ -353,7 +353,7 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
   public Object returnOriginalState(
       YTDatabaseSessionInternal session,
       List<OMultiValueChangeEvent<YTIdentifiable, YTIdentifiable>> multiValueChangeEvents) {
-    final OEmbeddedRidBag reverted = new OEmbeddedRidBag();
+    final EmbeddedRidBag reverted = new EmbeddedRidBag();
     for (YTIdentifiable identifiable : this) {
       reverted.add(identifiable);
     }
@@ -542,13 +542,13 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
     }
   }
 
-  public void enableTracking(final ORecordElement parent) {
+  public void enableTracking(final RecordElement parent) {
     if (!tracker.isEnabled()) {
       tracker.enable();
     }
   }
 
-  public void disableTracking(final ORecordElement document) {
+  public void disableTracking(final RecordElement document) {
     if (tracker.isEnabled()) {
       tracker.disable();
       this.dirty = false;

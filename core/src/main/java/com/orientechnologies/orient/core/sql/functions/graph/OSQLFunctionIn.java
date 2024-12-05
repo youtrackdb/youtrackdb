@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -95,7 +95,7 @@ public class OSQLFunctionIn extends OSQLFunctionMoveFiltered {
           .getRids((YTDatabaseSessionInternal) graph, key)) {
         result.add(
             stream
-                .map((edge) -> ((YTDocument) edge.getRecord()).rawField("out"))
+                .map((edge) -> ((YTEntityImpl) edge.getRecord()).rawField("out"))
                 .collect(Collectors.toSet()));
       }
     }

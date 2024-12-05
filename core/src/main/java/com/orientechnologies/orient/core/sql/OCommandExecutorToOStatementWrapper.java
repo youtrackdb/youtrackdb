@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.ORole;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.parser.OStatement;
 import com.orientechnologies.orient.core.sql.parser.OStatementCache;
 import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
@@ -42,7 +42,7 @@ import java.util.Set;
  */
 public class OCommandExecutorToOStatementWrapper implements OCommandExecutor {
 
-  protected OSQLAsynchQuery<YTDocument> request;
+  protected OSQLAsynchQuery<YTEntityImpl> request;
   private OCommandContext context;
   private OProgressListener progressListener;
 
@@ -53,10 +53,10 @@ public class OCommandExecutorToOStatementWrapper implements OCommandExecutor {
   public OCommandExecutorToOStatementWrapper parse(OCommandRequest iCommand) {
     final OCommandRequestText textRequest = (OCommandRequestText) iCommand;
     if (iCommand instanceof OSQLAsynchQuery) {
-      request = (OSQLAsynchQuery<YTDocument>) iCommand;
+      request = (OSQLAsynchQuery<YTEntityImpl>) iCommand;
     } else {
       // BUILD A QUERY OBJECT FROM THE COMMAND REQUEST
-      request = new OSQLSynchQuery<YTDocument>(textRequest.getText());
+      request = new OSQLSynchQuery<YTEntityImpl>(textRequest.getText());
       if (textRequest.getResultListener() != null) {
         request.setResultListener(textRequest.getResultListener());
       }

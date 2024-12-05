@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.core.command;
 
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 
 /**
  * Command predicate to be evaluated against a record and a context.
@@ -37,5 +37,5 @@ public interface OCommandPredicate {
    * @return The result of predicate
    */
   Object evaluate(
-      final YTIdentifiable iRecord, YTDocument iCurrentResult, final OCommandContext iContext);
+      final YTIdentifiable iRecord, YTEntityImpl iCurrentResult, final OCommandContext iContext);
 }

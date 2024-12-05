@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.storage.ridbag.sbtree;
 
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OBonsaiBucketPointer;
 
 /**
@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OBonsa
  * <p>Determines where the collection is stored. Contains file id and pointer to the root bucket.
  * Is immutable.
  *
- * @see ORidBag
+ * @see RidBag
  * @since 1.7rc1
  */
 public class OBonsaiCollectionPointer {

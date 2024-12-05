@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -28,7 +28,7 @@ public class TestNullLinkInCollection extends DBTestBase {
   public void testLinkListRemovedRecord() {
 
     db.begin();
-    YTDocument doc = new YTDocument("Test");
+    YTEntityImpl doc = new YTEntityImpl("Test");
     List<YTRecordId> docs = new ArrayList<>();
     docs.add(new YTRecordId(10, 20));
     doc.field("items", docs, YTType.LINKLIST);
@@ -43,7 +43,7 @@ public class TestNullLinkInCollection extends DBTestBase {
   @Test
   public void testLinkSetRemovedRecord() {
     db.begin();
-    YTDocument doc = new YTDocument("Test");
+    YTEntityImpl doc = new YTEntityImpl("Test");
     Set<YTRecordId> docs = new HashSet<>();
     docs.add(new YTRecordId(10, 20));
     doc.field("items", docs, YTType.LINKSET);

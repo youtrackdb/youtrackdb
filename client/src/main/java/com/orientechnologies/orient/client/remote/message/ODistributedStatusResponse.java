@@ -22,7 +22,7 @@ package com.orientechnologies.orient.client.remote.message;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
@@ -30,19 +30,19 @@ import java.io.IOException;
 
 public class ODistributedStatusResponse implements OBinaryResponse {
 
-  private YTDocument clusterConfig;
+  private YTEntityImpl clusterConfig;
 
   public ODistributedStatusResponse() {
   }
 
-  public ODistributedStatusResponse(YTDocument clusterConfig) {
+  public ODistributedStatusResponse(YTEntityImpl clusterConfig) {
     this.clusterConfig = clusterConfig;
   }
 
   @Override
   public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
-    clusterConfig = new YTDocument(network.readBytes());
+    clusterConfig = new YTEntityImpl(network.readBytes());
   }
 
   public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel,
@@ -52,7 +52,7 @@ public class ODistributedStatusResponse implements OBinaryResponse {
     channel.writeBytes(bytes);
   }
 
-  public YTDocument getClusterConfig() {
+  public YTEntityImpl getClusterConfig() {
     return clusterConfig;
   }
 }

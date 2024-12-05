@@ -21,8 +21,8 @@
 package com.orientechnologies.orient.core.record;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.record.RecordElement;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.impl.ODirtyManager;
@@ -170,8 +170,8 @@ public class ORecordInternal {
     ((YTRecordAbstract) record).setDirtyManager(dirtyManager);
   }
 
-  public static void track(final ORecordElement pointer, final YTIdentifiable pointed) {
-    ORecordElement firstRecord = pointer;
+  public static void track(final RecordElement pointer, final YTIdentifiable pointed) {
+    RecordElement firstRecord = pointer;
     while (firstRecord != null && !(firstRecord instanceof YTRecord)) {
       firstRecord = firstRecord.getOwner();
     }
@@ -180,8 +180,8 @@ public class ORecordInternal {
     }
   }
 
-  public static void unTrack(final ORecordElement pointer, final YTIdentifiable pointed) {
-    ORecordElement firstRecord = pointer;
+  public static void unTrack(final RecordElement pointer, final YTIdentifiable pointed) {
+    RecordElement firstRecord = pointer;
     while (firstRecord != null && !(firstRecord instanceof YTRecord)) {
       firstRecord = firstRecord.getOwner();
     }

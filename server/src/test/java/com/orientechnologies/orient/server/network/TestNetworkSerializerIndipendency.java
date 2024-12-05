@@ -10,7 +10,7 @@ import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.document.YTDatabaseSessionAbstract;
 import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.exception.YTStorageException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerBinary;
@@ -44,12 +44,12 @@ public class TestNetworkSerializerIndipendency {
       YTDatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerBinary.INSTANCE);
       dbTx = new YTDatabaseDocumentTx("remote:localhost/test");
       dbTx.open("admin", "admin");
-      YTDocument document = new YTDocument();
+      YTEntityImpl document = new YTEntityImpl();
       document.field("name", "something");
       document.field("surname", "something-else");
       document = dbTx.save(document, dbTx.getClusterNameById(dbTx.getDefaultClusterId()));
       dbTx.commit();
-      YTDocument doc = dbTx.load(document.getIdentity());
+      YTEntityImpl doc = dbTx.load(document.getIdentity());
       assertEquals(doc.fields(), document.fields());
       assertEquals(doc.<Object>field("name"), document.field("name"));
       assertEquals(doc.<Object>field("surname"), document.field("surname"));
@@ -88,7 +88,7 @@ public class TestNetworkSerializerIndipendency {
       dbTx = new YTDatabaseDocumentTx("remote:localhost/test");
       dbTx.open("admin", "admin");
       dbTx.begin();
-      YTDocument document = new YTDocument();
+      YTEntityImpl document = new YTEntityImpl();
       document.field("name", "something");
       document.field("surname", "something-else");
       document = dbTx.save(document, dbTx.getClusterNameById(dbTx.getDefaultClusterId()));
@@ -97,7 +97,7 @@ public class TestNetworkSerializerIndipendency {
       var surname = document.field("surname");
       dbTx.commit();
 
-      YTDocument doc = dbTx.load(document.getIdentity());
+      YTEntityImpl doc = dbTx.load(document.getIdentity());
       assertEquals(doc.fields(), fields);
       assertEquals(doc.field("name"), name);
       assertEquals(doc.field("surname"), surname);

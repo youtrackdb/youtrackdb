@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.index.OCompositeKeySerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALChanges;
@@ -251,7 +251,7 @@ public class OCompositeKeyTest extends DBTestBase {
     compositeKeyOne.addKey(null);
     compositeKeyOne.addKey(2);
 
-    YTDocument document = compositeKeyOne.toDocument();
+    YTEntityImpl document = compositeKeyOne.toDocument();
 
     final OCompositeKey compositeKeyTwo = new OCompositeKey();
     compositeKeyTwo.fromDocument(document);

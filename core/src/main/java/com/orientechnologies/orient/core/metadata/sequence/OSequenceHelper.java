@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.metadata.sequence;
 
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence.SEQUENCE_TYPE;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 
 /**
  * @since 3/1/2015
@@ -29,7 +29,7 @@ public class OSequenceHelper {
 
   public static final SEQUENCE_TYPE DEFAULT_SEQUENCE_TYPE = SEQUENCE_TYPE.CACHED;
 
-  public static YTSequence createSequence(SEQUENCE_TYPE sequenceType, YTDocument document) {
+  public static YTSequence createSequence(SEQUENCE_TYPE sequenceType, YTEntityImpl document) {
     return switch (sequenceType) {
       case ORDERED -> new YTSequenceOrdered(document);
       case CACHED -> new YTSequenceCached(document);
@@ -48,7 +48,7 @@ public class OSequenceHelper {
     return SEQUENCE_TYPE.valueOf(typeAsString);
   }
 
-  public static YTSequence createSequence(YTDocument document) {
+  public static YTSequence createSequence(YTEntityImpl document) {
     SEQUENCE_TYPE sequenceType = YTSequence.getSequenceType(document);
     return createSequence(sequenceType, document);
   }

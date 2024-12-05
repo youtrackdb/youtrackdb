@@ -18,14 +18,14 @@
 
 package com.orientechnologies.orient.server.plugin;
 
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 
 /**
  *
  */
 public interface OServerPluginConfigurable {
 
-  YTDocument getConfig();
+  YTEntityImpl getConfig();
 
-  void changeConfig(YTDocument document);
+  void changeConfig(YTEntityImpl document);
 }

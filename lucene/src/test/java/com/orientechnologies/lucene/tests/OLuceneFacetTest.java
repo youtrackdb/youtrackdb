@@ -22,7 +22,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Assert;
@@ -48,25 +48,25 @@ public class OLuceneFacetTest extends OLuceneBaseTest {
                 + " METADATA { 'facetFields' : ['category']}")
         .close();
 
-    YTDocument doc = new YTDocument("Item");
+    YTEntityImpl doc = new YTEntityImpl("Item");
     doc.field("name", "Pioneer");
     doc.field("category", "Electronic/HiFi");
 
     db.save(doc);
 
-    doc = new YTDocument("Item");
+    doc = new YTEntityImpl("Item");
     doc.field("name", "Hitachi");
     doc.field("category", "Electronic/HiFi");
 
     db.save(doc);
 
-    doc = new YTDocument("Item");
+    doc = new YTEntityImpl("Item");
     doc.field("name", "Philips");
     doc.field("category", "Electronic/HiFi");
 
     db.save(doc);
 
-    doc = new YTDocument("Item");
+    doc = new YTEntityImpl("Item");
     doc.field("name", "HP");
     doc.field("category", "Electronic/Computer");
 
@@ -86,20 +86,20 @@ public class OLuceneFacetTest extends OLuceneBaseTest {
 
     Assert.assertEquals(result.size(), 1);
 
-    List<YTDocument> facets = result.get(0).getProperty("$facet");
+    List<YTEntityImpl> facets = result.get(0).getProperty("$facet");
 
     Assert.assertEquals(facets.size(), 1);
 
-    YTDocument facet = facets.get(0);
+    YTEntityImpl facet = facets.get(0);
     Assert.assertEquals(facet.<Object>field("childCount"), 1);
     Assert.assertEquals(facet.<Object>field("value"), 2);
     Assert.assertEquals(facet.field("dim"), "category");
 
-    List<YTDocument> labelsValues = facet.field("labelsValue");
+    List<YTEntityImpl> labelsValues = facet.field("labelsValue");
 
     Assert.assertEquals(labelsValues.size(), 1);
 
-    YTDocument labelValues = labelsValues.get(0);
+    YTEntityImpl labelValues = labelsValues.get(0);
 
     Assert.assertEquals(labelValues.<Object>field("value"), 2);
     Assert.assertEquals(labelValues.field("label"), "Electronic");

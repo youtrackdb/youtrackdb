@@ -17,7 +17,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -48,13 +48,13 @@ public class OGeometryCollectionShapeBuilder extends OComplexShapeBuilder<ShapeC
 
   @Override
   public ShapeCollection<Shape> fromMapGeoJson(Map<String, Object> geoJsonMap) {
-    YTDocument doc = new YTDocument(getName());
+    YTEntityImpl doc = new YTEntityImpl(getName());
     doc.field("geometries", geoJsonMap.get("geometries"));
     return fromDoc(doc);
   }
 
   @Override
-  public ShapeCollection<Shape> fromDoc(YTDocument doc) {
+  public ShapeCollection<Shape> fromDoc(YTEntityImpl doc) {
 
     List<Object> geometries = doc.field("geometries");
 
@@ -90,10 +90,10 @@ public class OGeometryCollectionShapeBuilder extends OComplexShapeBuilder<ShapeC
   }
 
   @Override
-  public YTDocument toDoc(ShapeCollection<Shape> shapes) {
+  public YTEntityImpl toDoc(ShapeCollection<Shape> shapes) {
 
-    YTDocument doc = new YTDocument(getName());
-    List<YTDocument> geometries = new ArrayList<YTDocument>(shapes.size());
+    YTEntityImpl doc = new YTEntityImpl(getName());
+    List<YTEntityImpl> geometries = new ArrayList<YTEntityImpl>(shapes.size());
     for (Shape s : shapes) {
       geometries.add(shapeFactory.toDoc(s));
     }

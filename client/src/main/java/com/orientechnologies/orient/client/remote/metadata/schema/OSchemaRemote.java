@@ -14,7 +14,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTView;
 import com.orientechnologies.orient.core.metadata.schema.YTViewImpl;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -493,7 +493,7 @@ public class OSchemaRemote extends OSchemaShared {
         "'Internal' schema modification methods can be used only inside of embedded database");
   }
 
-  public void update(YTDatabaseSessionInternal session, YTDocument schema) {
+  public void update(YTDatabaseSessionInternal session, YTEntityImpl schema) {
     if (!skipPush.get()) {
       fromStream(session, schema);
       this.snapshot = null;

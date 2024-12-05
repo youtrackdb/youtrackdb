@@ -4,7 +4,7 @@ import com.orientechnologies.common.concur.YTTimeoutException;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,7 +59,7 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
               for (int i = 0; i < 10; i++) {
                 result.add(
                     new YTResultInternal(db,
-                        new YTDocument(i % 2 == 0 ? simpleClassName : className)));
+                        new YTEntityImpl(i % 2 == 0 ? simpleClassName : className)));
               }
               done = true;
             }
@@ -88,7 +88,7 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
             if (!done) {
               for (int i = 0; i < 10; i++) {
                 result.add(
-                    new YTResultInternal(db, new YTDocument(createClassInstance().getName())));
+                    new YTResultInternal(db, new YTEntityImpl(createClassInstance().getName())));
               }
               done = true;
             }

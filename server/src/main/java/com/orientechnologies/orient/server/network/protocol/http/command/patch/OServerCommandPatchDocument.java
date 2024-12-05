@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -63,7 +63,7 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
                 }
 
                 // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
-                var doc = new YTDocument();
+                var doc = new YTEntityImpl();
                 doc.fromJSON(iRequest.getContent());
 
                 if (iRequest.getIfMatch() != null)
@@ -82,7 +82,7 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
                   throw new IllegalArgumentException("Invalid Record ID in request: " + recordId);
                 }
 
-                final YTDocument currentDocument;
+                final YTEntityImpl currentDocument;
 
                 try {
                   currentDocument = db.load(recordId);

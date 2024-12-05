@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -192,7 +192,7 @@ public class YTPropertyEmbedded extends YTPropertyImpl {
                 indexToRecreate.getInternal()
                     .loadMetadata(indexToRecreate.getConfiguration(session));
 
-            final YTDocument metadata = new YTDocument();
+            final YTEntityImpl metadata = new YTEntityImpl();
             metadata.fromMap(indexToRecreate.getMetadata());
 
             final List<String> fields = indexMetadata.getIndexDefinition().getFields();

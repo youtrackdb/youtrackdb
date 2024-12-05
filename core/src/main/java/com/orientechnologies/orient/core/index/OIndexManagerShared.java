@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OTrackedSet;
+import com.orientechnologies.orient.core.db.record.TrackedSet;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
@@ -42,7 +42,7 @@ import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityResourceProperty;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sharding.auto.OAutoShardingIndexFactory;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -99,7 +99,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
         identity =
             new YTRecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId());
         // RELOAD IT
-        YTDocument document = database.load(identity);
+        YTEntityImpl document = database.load(identity);
         fromStream(database, document);
         ORecordInternal.unsetDirty(document);
         document.unload();
@@ -114,7 +114,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     try {
       session.executeInTx(
           () -> {
-            YTDocument document = session.load(identity);
+            YTEntityImpl document = session.load(identity);
             fromStream(session, document);
           });
     } finally {
@@ -182,9 +182,9 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
   public void create(YTDatabaseSessionInternal database) {
     acquireExclusiveLock();
     try {
-      YTDocument document =
+      YTEntityImpl document =
           database.computeInTx(
-              () -> database.save(new YTDocument(), OMetadataDefault.CLUSTER_INTERNAL_NAME));
+              () -> database.save(new YTEntityImpl(), OMetadataDefault.CLUSTER_INTERNAL_NAME));
       identity = document.getIdentity();
       database.getStorage().setIndexMgrRecordId(document.getIdentity().toString());
     } finally {
@@ -244,7 +244,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     return new ODictionary<>(idx);
   }
 
-  public YTDocument getConfiguration(YTDatabaseSessionInternal session) {
+  public YTEntityImpl getConfiguration(YTDatabaseSessionInternal session) {
     acquireSharedLock();
 
     try {
@@ -574,7 +574,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
       final OIndexDefinition indexDefinition,
       final int[] clusterIdsToIndex,
       OProgressListener progressListener,
-      YTDocument metadata) {
+      YTEntityImpl metadata) {
     return createIndex(
         database,
         iName,
@@ -607,7 +607,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
       final OIndexDefinition indexDefinition,
       final int[] clusterIdsToIndex,
       OProgressListener progressListener,
-      YTDocument metadata,
+      YTEntityImpl metadata,
       String algorithm) {
 
     final boolean manualIndexesAreUsed =
@@ -652,7 +652,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
       // manual indexes are always durable
       if (clusterIdsToIndex == null || clusterIdsToIndex.length == 0) {
         if (metadata == null) {
-          metadata = new YTDocument().setTrackingChanges(false);
+          metadata = new YTEntityImpl().setTrackingChanges(false);
         }
         if (metadata.field("trackMode") == null) {
           metadata.field("trackMode", "FULL");
@@ -846,13 +846,13 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
   }
 
   /**
-   * Binds POJO to YTDocument.
+   * Binds POJO to YTEntityImpl.
    */
-  public YTDocument toStream(YTDatabaseSessionInternal session) {
+  public YTEntityImpl toStream(YTDatabaseSessionInternal session) {
     internalAcquireExclusiveLock();
     try {
-      YTDocument document = session.load(identity);
-      final OTrackedSet<YTDocument> indexes = new OTrackedSet<>(document);
+      YTEntityImpl document = session.load(identity);
+      final TrackedSet<YTEntityImpl> indexes = new TrackedSet<>(document);
 
       for (final OIndex i : this.indexes.values()) {
         var indexInternal = (OIndexInternal) i;
@@ -926,20 +926,20 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     return false;
   }
 
-  protected void fromStream(YTDatabaseSessionInternal session, YTDocument document) {
+  protected void fromStream(YTDatabaseSessionInternal session, YTEntityImpl document) {
     internalAcquireExclusiveLock();
     try {
       final Map<String, OIndex> oldIndexes = new HashMap<>(indexes);
       clearMetadata(session);
 
-      final Collection<YTDocument> indexDocuments = document.field(CONFIG_INDEXES);
+      final Collection<YTEntityImpl> indexDocuments = document.field(CONFIG_INDEXES);
 
       if (indexDocuments != null) {
         OIndexInternal index;
         boolean configUpdated = false;
-        Iterator<YTDocument> indexConfigurationIterator = indexDocuments.iterator();
+        Iterator<YTEntityImpl> indexConfigurationIterator = indexDocuments.iterator();
         while (indexConfigurationIterator.hasNext()) {
-          final YTDocument d = indexConfigurationIterator.next();
+          final YTEntityImpl d = indexConfigurationIterator.next();
           try {
 
             final OIndexMetadata newIndexMetadata = OIndexAbstract.loadMetadataFromDoc(d);
@@ -1053,12 +1053,12 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     }
   }
 
-  public YTDocument toNetworkStream(YTDatabaseSessionInternal session) {
-    YTDocument document = new YTDocument(session);
+  public YTEntityImpl toNetworkStream(YTDatabaseSessionInternal session) {
+    YTEntityImpl document = new YTEntityImpl(session);
     internalAcquireExclusiveLock();
     try {
       document.setTrackingChanges(false);
-      final OTrackedSet<YTDocument> indexes = new OTrackedSet<>(document);
+      final TrackedSet<YTEntityImpl> indexes = new TrackedSet<>(document);
 
       for (final OIndex i : this.indexes.values()) {
         var indexInternal = (OIndexInternal) i;
@@ -1080,13 +1080,13 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     return storage;
   }
 
-  public YTDocument getDocument(YTDatabaseSessionInternal session) {
+  public YTEntityImpl getDocument(YTDatabaseSessionInternal session) {
     return toStream(session);
   }
 
   private void internalSave(YTDatabaseSessionInternal session) {
     session.begin();
-    YTDocument document = toStream(session);
+    YTEntityImpl document = toStream(session);
     document.save();
     session.commit();
   }

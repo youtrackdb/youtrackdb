@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +41,7 @@ public class OLiveIndexRebuildTest {
     clazz.createIndex(database, indexName, YTClass.INDEX_TYPE.UNIQUE, propertyName);
 
     for (int i = 0; i < 1000000; i++) {
-      YTDocument document = new YTDocument(className);
+      YTEntityImpl document = new YTEntityImpl(className);
       document.field(propertyName, i);
       document.save();
     }

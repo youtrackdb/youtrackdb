@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.security.OAuditingOperation;
 import com.orientechnologies.orient.core.security.OAuditingService;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
@@ -81,7 +81,7 @@ public class ODefaultAuditing
     private boolean onNodeLeftEnabled = false;
     private String onNodeLeftMessage = "The node ${node} has left";
 
-    public OAuditingDistribConfig(final YTDocument cfg) {
+    public OAuditingDistribConfig(final YTEntityImpl cfg) {
       if (cfg.containsField("onNodeJoinedEnabled")) {
         onNodeJoinedEnabled = cfg.field("onNodeJoinedEnabled");
       }
@@ -182,7 +182,7 @@ public class ODefaultAuditing
         }
       }
     }
-    final YTDocument cfg = new YTDocument().fromJSON(content, "noMap");
+    final YTEntityImpl cfg = new YTEntityImpl().fromJSON(content, "noMap");
     return new YTAuditingHook(cfg, security);
   }
 
@@ -301,10 +301,10 @@ public class ODefaultAuditing
   }
 
   @Override
-  public void onLocalNodeConfigurationRequest(YTDocument iConfiguration) {
+  public void onLocalNodeConfigurationRequest(YTEntityImpl iConfiguration) {
   }
 
-  protected void updateConfigOnDisk(final String iDatabaseName, final YTDocument cfg)
+  protected void updateConfigOnDisk(final String iDatabaseName, final YTEntityImpl cfg)
       throws IOException {
     final File auditingFileConfig = getConfigFile(iDatabaseName);
     if (auditingFileConfig != null) {
@@ -357,7 +357,7 @@ public class ODefaultAuditing
   // OAuditingService
   public void changeConfig(
       YTDatabaseSessionInternal session, final YTSecurityUser user, final String iDatabaseName,
-      final YTDocument cfg)
+      final YTEntityImpl cfg)
       throws IOException {
 
     // This should never happen, but just in case...
@@ -376,7 +376,7 @@ public class ODefaultAuditing
             "The auditing configuration for the database '%s' has been changed", iDatabaseName));
   }
 
-  public YTDocument getConfig(final String iDatabaseName) {
+  public YTEntityImpl getConfig(final String iDatabaseName) {
     return hooks.get(iDatabaseName).getConfiguration();
   }
 
@@ -526,7 +526,7 @@ public class ODefaultAuditing
             }));
   }
 
-  public void config(YTDatabaseSessionInternal session, final YTDocument jsonConfig,
+  public void config(YTDatabaseSessionInternal session, final YTEntityImpl jsonConfig,
       OSecuritySystem security) {
     context = security.getContext();
     this.security = security;
@@ -540,12 +540,12 @@ public class ODefaultAuditing
       }
 
       if (jsonConfig.containsField("distributed")) {
-        YTDocument distribDoc = jsonConfig.field("distributed");
+        YTEntityImpl distribDoc = jsonConfig.field("distributed");
         distribConfig = new OAuditingDistribConfig(distribDoc);
       }
 
       if (jsonConfig.containsField("systemImport")) {
-        YTDocument sysImport = jsonConfig.field("systemImport");
+        YTEntityImpl sysImport = jsonConfig.field("systemImport");
 
         systemDbImporter = new OSystemDBImporter(context, sysImport);
       }

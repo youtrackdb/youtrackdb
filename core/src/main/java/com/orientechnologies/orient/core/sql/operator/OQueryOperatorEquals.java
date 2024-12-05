@@ -35,7 +35,7 @@ import com.orientechnologies.orient.core.index.OIndexInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OBinaryField;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializer;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
@@ -123,11 +123,11 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
     // YTRID && RECORD
     final YTRID other = iRecord.getIdentity();
 
-    if (!other.isPersistent() && iRecord instanceof YTDocument) {
+    if (!other.isPersistent() && iRecord instanceof YTEntityImpl) {
       // ODOCUMENT AS RESULT OF SUB-QUERY: GET THE FIRST FIELD IF ANY
-      final Set<String> firstFieldName = ((YTDocument) iRecord).getPropertyNames();
+      final Set<String> firstFieldName = ((YTEntityImpl) iRecord).getPropertyNames();
       if (firstFieldName.size() > 0) {
-        Object fieldValue = ((YTDocument) iRecord).getProperty(firstFieldName.iterator().next());
+        Object fieldValue = ((YTEntityImpl) iRecord).getProperty(firstFieldName.iterator().next());
         if (fieldValue != null) {
           if (iConsiderIn && OMultiValue.isMultiValue(fieldValue)) {
             for (Object o : OMultiValue.getMultiValueIterable(fieldValue)) {

@@ -20,9 +20,9 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 
 public interface OIndexCallback {
 
-  Object getDocumentValueToIndex(YTDatabaseSessionInternal session, YTDocument iDocument);
+  Object getDocumentValueToIndex(YTDatabaseSessionInternal session, YTEntityImpl iDocument);
 }

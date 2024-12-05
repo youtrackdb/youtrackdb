@@ -36,7 +36,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTEntityInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemField;
@@ -68,7 +68,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
   private OSQLAsynchQuery<YTIdentifiable> subQuery = null;
   private final AtomicLong saved = new AtomicLong(0);
   private Object returnExpression = null;
-  private List<YTDocument> queryResult = null;
+  private List<YTEntityImpl> queryResult = null;
   private boolean unsafe = false;
 
   @SuppressWarnings("unchecked")
@@ -216,7 +216,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
   }
 
   /**
-   * Execute the INSERT and return the YTDocument object created.
+   * Execute the INSERT and return the YTEntityImpl object created.
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     final YTDatabaseSessionInternal database = getDatabase();
@@ -252,13 +252,14 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
       }
 
       // RETURN LAST ENTRY
-      return prepareReturnItem(new YTDocument(result));
+      return prepareReturnItem(new YTEntityImpl(result));
     } else {
       // CREATE NEW DOCUMENTS
-      final List<YTDocument> docs = new ArrayList<YTDocument>();
+      final List<YTEntityImpl> docs = new ArrayList<YTEntityImpl>();
       if (newRecords != null) {
         for (Map<String, Object> candidate : newRecords) {
-          final YTDocument doc = className != null ? new YTDocument(className) : new YTDocument();
+          final YTEntityImpl doc =
+              className != null ? new YTEntityImpl(className) : new YTEntityImpl();
           OSQLHelper.bindParameters(doc, candidate, commandParameters, context);
 
           saveRecord(doc);
@@ -271,7 +272,8 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
           return prepareReturnResult(docs);
         }
       } else if (content != null) {
-        final YTDocument doc = className != null ? new YTDocument(className) : new YTDocument();
+        final YTEntityImpl doc =
+            className != null ? new YTEntityImpl(className) : new YTEntityImpl();
         doc.merge(content, true, false);
         saveRecord(doc);
         return prepareReturnItem(doc);
@@ -321,15 +323,15 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
     YTClass oldClass = null;
     YTRecordAbstract oldRecord = ((YTIdentifiable) iRecord).getRecord();
 
-    if (oldRecord instanceof YTDocument) {
-      oldClass = ODocumentInternal.getImmutableSchemaClass(((YTDocument) oldRecord));
+    if (oldRecord instanceof YTEntityImpl) {
+      oldClass = ODocumentInternal.getImmutableSchemaClass(((YTEntityImpl) oldRecord));
     }
     final YTRecordAbstract rec = oldRecord.copy();
 
     // RESET THE IDENTITY TO AVOID UPDATE
     rec.getIdentity().reset();
 
-    if (rec instanceof YTDocument doc) {
+    if (rec instanceof YTEntityImpl doc) {
 
       if (className != null) {
         doc.setClassName(className);
@@ -347,12 +349,12 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
                 "WARNING: copying vertex record "
                     + doc
                     + " with INSERT/SELECT, the edge pointers won't be copied");
-        String[] fields = ((YTDocument) rec).fieldNames();
+        String[] fields = ((YTEntityImpl) rec).fieldNames();
         for (String field : fields) {
           if (field.startsWith("out_") || field.startsWith("in_")) {
             Object edges = doc.getPropertyInternal(field);
             if (edges instanceof YTIdentifiable) {
-              YTDocument edgeRec = ((YTIdentifiable) edges).getRecord();
+              YTEntityImpl edgeRec = ((YTIdentifiable) edges).getRecord();
               YTClass clazz = ODocumentInternal.getImmutableSchemaClass(edgeRec);
               if (clazz != null && clazz.isSubClassOf("E")) {
                 doc.removeProperty(field);
@@ -377,7 +379,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
     synchronized (this) {
       saveRecord(rec);
       if (queryResult != null) {
-        queryResult.add(((YTDocument) rec));
+        queryResult.add(((YTEntityImpl) rec));
       }
     }
 
@@ -388,18 +390,18 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
   public void end() {
   }
 
-  protected Object prepareReturnResult(List<YTDocument> res) {
+  protected Object prepareReturnResult(List<YTEntityImpl> res) {
     if (returnExpression == null) {
       return res; // No transformation
     }
     final ArrayList<Object> ret = new ArrayList<Object>();
-    for (YTDocument resItem : res) {
+    for (YTEntityImpl resItem : res) {
       ret.add(prepareReturnItem(resItem));
     }
     return ret;
   }
 
-  protected Object prepareReturnItem(YTDocument item) {
+  protected Object prepareReturnItem(YTEntityImpl item) {
     if (returnExpression == null) {
       return item; // No transformation
     }
@@ -409,7 +411,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
     if (res instanceof YTIdentifiable) {
       return res;
     } else { // wrapping doc
-      final YTDocument wrappingDoc = new YTDocument("result", res);
+      final YTEntityImpl wrappingDoc = new YTEntityImpl("result", res);
       wrappingDoc.field(
           "rid", item.getIdentity()); // passing record id.In many cases usable on client side
       wrappingDoc.field("version", item.getVersion()); // passing record version
@@ -508,7 +510,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
     String returning = parserGetLastWord().trim();
     if (returning.startsWith("$") || returning.startsWith("@")) {
       if (subQueryExpected) {
-        queryResult = new ArrayList<YTDocument>();
+        queryResult = new ArrayList<YTEntityImpl>();
       }
       returnExpression =
           (returning.length() > 0)

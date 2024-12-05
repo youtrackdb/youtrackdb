@@ -22,7 +22,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -76,7 +76,7 @@ public class EntityTreeTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "testPersonSaving")
   public void testCityEquality() {
     database.begin();
-    List<YTDocument> resultset =
+    List<YTEntityImpl> resultset =
         executeQuery("select from profile where location.city.name = 'Rome'");
     Assert.assertEquals(resultset.size(), 2);
 
@@ -136,11 +136,11 @@ public class EntityTreeTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "testSaveMultiCircular")
   public void testQueryMultiCircular() {
     database.begin();
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         executeQuery("select * from Profile where name = 'Barack' and surname = 'Obama'");
 
     Assert.assertEquals(result.size(), 1);
-    for (YTDocument profile : result) {
+    for (YTEntityImpl profile : result) {
       final Collection<YTIdentifiable> followers = profile.field("followers");
       if (followers != null) {
         for (YTIdentifiable follower : followers) {

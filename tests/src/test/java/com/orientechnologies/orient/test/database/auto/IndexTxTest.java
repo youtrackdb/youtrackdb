@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -53,8 +53,8 @@ public class IndexTxTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final YTDocument doc1 = new YTDocument("IndexTxTestClass");
-    final YTDocument doc2 = new YTDocument("IndexTxTestClass");
+    final YTEntityImpl doc1 = new YTEntityImpl("IndexTxTestClass");
+    final YTEntityImpl doc2 = new YTEntityImpl("IndexTxTestClass");
 
     doc1.save();
     doc2.save();

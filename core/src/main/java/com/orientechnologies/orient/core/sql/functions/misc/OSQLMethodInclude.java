@@ -23,7 +23,7 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
 import java.util.ArrayList;
@@ -98,9 +98,9 @@ public class OSQLMethodInclude extends OAbstractSQLMethod {
       } else if (iThis instanceof YTResult result) {
         iThis = result.asEntity();
       }
-      if (iThis instanceof YTDocument) {
+      if (iThis instanceof YTEntityImpl) {
         // ACT ON SINGLE DOCUMENT
-        return copy((YTDocument) iThis, iParams);
+        return copy((YTEntityImpl) iThis, iParams);
       } else if (iThis instanceof Map) {
         // ACT ON MAP
         return copy((Map) iThis, iParams);
@@ -111,7 +111,7 @@ public class OSQLMethodInclude extends OAbstractSQLMethod {
           if (o instanceof YTIdentifiable) {
             try {
               var record = ((YTIdentifiable) o).getRecord();
-              result.add(copy((YTDocument) record, iParams));
+              result.add(copy((YTEntityImpl) record, iParams));
             } catch (YTRecordNotFoundException rnf) {
               // IGNORE IT
             }
@@ -125,8 +125,8 @@ public class OSQLMethodInclude extends OAbstractSQLMethod {
     return null;
   }
 
-  private Object copy(final YTDocument document, final Object[] iFieldNames) {
-    final YTDocument doc = new YTDocument();
+  private Object copy(final YTEntityImpl document, final Object[] iFieldNames) {
+    final YTEntityImpl doc = new YTEntityImpl();
     for (int i = 0; i < iFieldNames.length; ++i) {
       if (iFieldNames[i] != null) {
 
@@ -154,7 +154,7 @@ public class OSQLMethodInclude extends OAbstractSQLMethod {
   }
 
   private Object copy(final Map map, final Object[] iFieldNames) {
-    final YTDocument doc = new YTDocument();
+    final YTEntityImpl doc = new YTEntityImpl();
     for (int i = 0; i < iFieldNames.length; ++i) {
       if (iFieldNames[i] != null) {
         final String fieldName = iFieldNames[i].toString();

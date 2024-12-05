@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 
 /**
  *
@@ -33,16 +33,16 @@ public class OOriginalRecordsReturnHandler extends ORecordsReturnHandler {
   }
 
   @Override
-  protected YTDocument preprocess(YTDocument result) {
+  protected YTEntityImpl preprocess(YTEntityImpl result) {
     return result.copy();
   }
 
   @Override
-  public void beforeUpdate(YTDocument result) {
+  public void beforeUpdate(YTEntityImpl result) {
     storeResult(result);
   }
 
   @Override
-  public void afterUpdate(YTDocument result) {
+  public void afterUpdate(YTEntityImpl result) {
   }
 }

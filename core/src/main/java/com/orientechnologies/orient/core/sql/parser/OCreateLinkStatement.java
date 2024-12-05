@@ -5,8 +5,8 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OList;
-import com.orientechnologies.orient.core.db.record.OSet;
+import com.orientechnologies.orient.core.db.record.LinkList;
+import com.orientechnologies.orient.core.db.record.LinkSet;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRID;
@@ -14,7 +14,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
@@ -126,19 +126,19 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
       var txLinkType = linkType;
       var txDestClass = destClass;
 
-      List<YTDocument> result;
+      List<YTEntityImpl> result;
       Object oldValue;
-      YTDocument target;
+      YTEntityImpl target;
 
       // BROWSE ALL THE RECORDS OF THE SOURCE CLASS
-      for (YTDocument doc : db.browseClass(documentSourceClass.getName())) {
+      for (YTEntityImpl doc : db.browseClass(documentSourceClass.getName())) {
         if (breakExec) {
           break;
         }
         Object value = doc.getProperty(sourceField.getStringValue());
 
         if (value != null) {
-          if (value instanceof YTDocument || value instanceof YTRID) {
+          if (value instanceof YTEntityImpl || value instanceof YTRID) {
             // ALREADY CONVERTED
           } else if (value instanceof Collection<?>) {
             // TODO
@@ -185,26 +185,26 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
                   multipleRelationship[0] = true;
                 }
 
-                Collection<YTDocument> coll;
+                Collection<YTEntityImpl> coll;
                 if (oldValue instanceof Collection) {
                   // ADD IT IN THE EXISTENT COLLECTION
-                  coll = (Collection<YTDocument>) oldValue;
+                  coll = (Collection<YTEntityImpl>) oldValue;
                   target.setDirty();
                 } else {
                   // CREATE A NEW COLLECTION FOR BOTH
-                  coll = new ArrayList<YTDocument>(2);
+                  coll = new ArrayList<YTEntityImpl>(2);
                   target.setProperty(linkName, coll);
-                  coll.add((YTDocument) oldValue);
+                  coll.add((YTEntityImpl) oldValue);
                 }
                 coll.add(doc);
               } else {
                 if (txLinkType != null) {
                   if (txLinkType == YTType.LINKSET) {
-                    value = new OSet(target);
+                    value = new LinkSet(target);
                     ((Set<YTIdentifiable>) value).add(doc);
                   } else if (txLinkType == YTType.LINKLIST) {
-                    value = new OList(target);
-                    ((OList) value).add(doc);
+                    value = new LinkList(target);
+                    ((LinkList) value).add(doc);
                   } else
                   // IGNORE THE TYPE, SET IT AS LINK
                   {
@@ -289,13 +289,13 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
     return total[0];
   }
 
-  private List<YTDocument> toList(YTResultSet rs) {
+  private List<YTEntityImpl> toList(YTResultSet rs) {
     if (!rs.hasNext()) {
       return null;
     }
-    List<YTDocument> result = new ArrayList<>();
+    List<YTEntityImpl> result = new ArrayList<>();
     while (rs.hasNext()) {
-      result.add((YTDocument) rs.next().getEntity().orElse(null));
+      result.add((YTEntityImpl) rs.next().getEntity().orElse(null));
     }
     return result;
   }

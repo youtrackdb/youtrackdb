@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.YTUser;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -55,7 +55,7 @@ public class OLuceneInsertUpdateTransactionTest extends OLuceneBaseTest {
 
     YTSchema schema = db.getMetadata().getSchema();
     db.begin();
-    YTDocument doc = new YTDocument("City");
+    YTEntityImpl doc = new YTEntityImpl("City");
     doc.field("name", "Rome");
     db.save(doc);
 
@@ -72,7 +72,7 @@ public class OLuceneInsertUpdateTransactionTest extends OLuceneBaseTest {
     }
     Assert.assertEquals(coll.size(), 0);
     db.begin();
-    doc = new YTDocument("City");
+    doc = new YTEntityImpl("City");
     doc.field("name", "Rome");
     db.save(doc);
 

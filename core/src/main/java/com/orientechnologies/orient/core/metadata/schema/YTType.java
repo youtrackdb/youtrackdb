@@ -27,20 +27,20 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.OList;
-import com.orientechnologies.orient.core.db.record.OMap;
-import com.orientechnologies.orient.core.db.record.OSet;
-import com.orientechnologies.orient.core.db.record.OTrackedList;
-import com.orientechnologies.orient.core.db.record.OTrackedMap;
-import com.orientechnologies.orient.core.db.record.OTrackedSet;
+import com.orientechnologies.orient.core.db.record.LinkList;
+import com.orientechnologies.orient.core.db.record.LinkMap;
+import com.orientechnologies.orient.core.db.record.LinkSet;
+import com.orientechnologies.orient.core.db.record.TrackedList;
+import com.orientechnologies.orient.core.db.record.TrackedMap;
+import com.orientechnologies.orient.core.db.record.TrackedSet;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTEntityInternal;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
@@ -163,7 +163,7 @@ public enum YTType {
 
   DECIMAL("Decimal", 21, BigDecimal.class, new Class<?>[]{BigDecimal.class, Number.class}),
 
-  LINKBAG("LinkBag", 22, ORidBag.class, new Class<?>[]{ORidBag.class}),
+  LINKBAG("LinkBag", 22, RidBag.class, new Class<?>[]{RidBag.class}),
 
   ANY("Any", 23, null, new Class<?>[]{});
 
@@ -205,13 +205,13 @@ public enum YTType {
     TYPES_BY_CLASS.put(Character.TYPE, STRING);
     TYPES_BY_CLASS.put(YTRecordId.class, LINK);
     TYPES_BY_CLASS.put(BigDecimal.class, DECIMAL);
-    TYPES_BY_CLASS.put(ORidBag.class, LINKBAG);
-    TYPES_BY_CLASS.put(OTrackedSet.class, EMBEDDEDSET);
-    TYPES_BY_CLASS.put(OSet.class, LINKSET);
-    TYPES_BY_CLASS.put(OTrackedList.class, EMBEDDEDLIST);
-    TYPES_BY_CLASS.put(OList.class, LINKLIST);
-    TYPES_BY_CLASS.put(OTrackedMap.class, EMBEDDEDMAP);
-    TYPES_BY_CLASS.put(OMap.class, LINKMAP);
+    TYPES_BY_CLASS.put(RidBag.class, LINKBAG);
+    TYPES_BY_CLASS.put(TrackedSet.class, EMBEDDEDSET);
+    TYPES_BY_CLASS.put(LinkSet.class, LINKSET);
+    TYPES_BY_CLASS.put(TrackedList.class, EMBEDDEDLIST);
+    TYPES_BY_CLASS.put(LinkList.class, LINKLIST);
+    TYPES_BY_CLASS.put(TrackedMap.class, EMBEDDEDMAP);
+    TYPES_BY_CLASS.put(LinkMap.class, LINKMAP);
     BYTE.castable.add(BOOLEAN);
     SHORT.castable.addAll(Arrays.asList(BOOLEAN, BYTE));
     INTEGER.castable.addAll(Arrays.asList(BOOLEAN, BYTE, SHORT));
@@ -321,7 +321,7 @@ public enum YTType {
 
     YTType byType = getTypeByClassInherit(clazz);
     if (LINK == byType) {
-      if (value instanceof YTDocument && ((YTDocument) value).isEmbedded()) {
+      if (value instanceof YTEntityImpl && ((YTEntityImpl) value).isEmbedded()) {
         return EMBEDDED;
       }
     } else if (EMBEDDEDSET == byType) {
@@ -346,7 +346,7 @@ public enum YTType {
     for (Object object : toCheck) {
       if (object != null
           && (!(object instanceof YTIdentifiable)
-          || (object instanceof YTDocument && ((YTDocument) object).isEmbedded()))) {
+          || (object instanceof YTEntityImpl && ((YTEntityImpl) object).isEmbedded()))) {
         return false;
       } else if (object != null) {
         empty = false;
@@ -605,8 +605,8 @@ public enum YTType {
         }
       }
 
-      if (targetClass.equals(ORidBag.class) && value instanceof Iterable<?> iterable) {
-        var ridBag = new ORidBag((YTDatabaseSessionInternal) session);
+      if (targetClass.equals(RidBag.class) && value instanceof Iterable<?> iterable) {
+        var ridBag = new RidBag((YTDatabaseSessionInternal) session);
 
         for (var item : iterable) {
           if (item instanceof YTIdentifiable identifiable) {

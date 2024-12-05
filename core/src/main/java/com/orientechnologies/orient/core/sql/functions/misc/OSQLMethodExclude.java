@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
@@ -104,9 +104,9 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
           iThis = result.asEntity();
         }
       }
-      if (iThis instanceof YTDocument) {
+      if (iThis instanceof YTEntityImpl) {
         // ACT ON SINGLE DOCUMENT
-        return copy(db, (YTDocument) iThis, iParams);
+        return copy(db, (YTEntityImpl) iThis, iParams);
       } else {
         if (iThis instanceof Map) {
           // ACT ON SINGLE MAP
@@ -119,7 +119,7 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
               if (o instanceof YTIdentifiable) {
                 try {
                   var rec = ((YTIdentifiable) o).getRecord();
-                  result.add(copy(db, (YTDocument) rec, iParams));
+                  result.add(copy(db, (YTEntityImpl) rec, iParams));
                 } catch (YTRecordNotFoundException rnf) {
                   // IGNORE IT
                 }
@@ -135,7 +135,7 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
     return null;
   }
 
-  private static Object copy(YTDatabaseSessionInternal db, final YTDocument document,
+  private static Object copy(YTDatabaseSessionInternal db, final YTEntityImpl document,
       final Object[] iFieldNames) {
     var result = new YTResultInternal(db);
 

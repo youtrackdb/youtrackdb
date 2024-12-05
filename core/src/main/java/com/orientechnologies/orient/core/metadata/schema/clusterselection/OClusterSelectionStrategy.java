@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.core.metadata.schema.clusterselection;
 
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 
 /**
  * Strategy to select the cluster to use. Instances are stateful, so can't be reused on multiple
@@ -24,9 +24,9 @@ import com.orientechnologies.orient.core.record.impl.YTDocument;
  */
 public interface OClusterSelectionStrategy {
 
-  int getCluster(final YTClass iClass, final YTDocument doc);
+  int getCluster(final YTClass iClass, final YTEntityImpl doc);
 
-  int getCluster(final YTClass iClass, int[] selection, final YTDocument doc);
+  int getCluster(final YTClass iClass, int[] selection, final YTEntityImpl doc);
 
   String getName();
 }

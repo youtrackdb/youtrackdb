@@ -47,7 +47,7 @@ public class YTEdgeDelegate implements YTEdgeInternal {
   protected YTImmutableClass lightweightEdgeType;
   protected String lightwightEdgeLabel;
 
-  protected YTDocument element;
+  protected YTEntityImpl element;
 
   public YTEdgeDelegate(
       YTVertex out, YTVertex in, YTImmutableClass lightweightEdgeType, String edgeLabel) {
@@ -57,7 +57,7 @@ public class YTEdgeDelegate implements YTEdgeInternal {
     this.lightwightEdgeLabel = edgeLabel;
   }
 
-  public YTEdgeDelegate(YTDocument elem) {
+  public YTEdgeDelegate(YTEntityImpl elem) {
     this.element = elem;
   }
 
@@ -68,7 +68,7 @@ public class YTEdgeDelegate implements YTEdgeInternal {
       return vOut;
     }
 
-    final YTDocument doc;
+    final YTEntityImpl doc;
     try {
       doc = getRecord();
     } catch (YTRecordNotFoundException rnf) {
@@ -93,7 +93,7 @@ public class YTEdgeDelegate implements YTEdgeInternal {
       return vOut;
     }
 
-    final YTDocument doc;
+    final YTEntityImpl doc;
     try {
       doc = getRecord();
     } catch (YTRecordNotFoundException rnf) {
@@ -127,7 +127,7 @@ public class YTEdgeDelegate implements YTEdgeInternal {
       return vIn;
     }
 
-    final YTDocument doc;
+    final YTEntityImpl doc;
     try {
       doc = getRecord();
     } catch (YTRecordNotFoundException rnf) {
@@ -152,7 +152,7 @@ public class YTEdgeDelegate implements YTEdgeInternal {
       return vIn;
     }
 
-    final YTDocument doc;
+    final YTEntityImpl doc;
 
     try {
       doc = getRecord();
@@ -182,7 +182,7 @@ public class YTEdgeDelegate implements YTEdgeInternal {
     if (element != null) {
       element.delete();
     } else {
-      YTEdgeDocument.deleteLinks(this);
+      YTEdgeEntityImpl.deleteLinks(this);
     }
   }
 
@@ -206,7 +206,7 @@ public class YTEdgeDelegate implements YTEdgeInternal {
 
   @Override
   @Nullable
-  public YTDocument getBaseDocument() {
+  public YTEntityImpl getBaseDocument() {
     return element;
   }
 

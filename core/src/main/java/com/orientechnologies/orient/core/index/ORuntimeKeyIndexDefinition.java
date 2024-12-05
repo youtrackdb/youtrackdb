@@ -23,7 +23,7 @@ import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import java.util.Arrays;
 import java.util.Collections;
@@ -84,13 +84,13 @@ public class ORuntimeKeyIndexDefinition<T> extends OAbstractIndexDefinition {
   }
 
   @Override
-  public @Nonnull YTDocument toStream(@Nonnull YTDocument document) {
+  public @Nonnull YTEntityImpl toStream(@Nonnull YTEntityImpl document) {
     serializeToStream(document);
     return document;
   }
 
   @Override
-  protected void serializeToStream(YTDocument document) {
+  protected void serializeToStream(YTEntityImpl document) {
     super.serializeToStream(document);
 
     document.setProperty("keySerializerId", serializer.getId());
@@ -98,12 +98,12 @@ public class ORuntimeKeyIndexDefinition<T> extends OAbstractIndexDefinition {
     document.setProperty("nullValuesIgnored", isNullValuesIgnored());
   }
 
-  public void fromStream(@Nonnull YTDocument document) {
+  public void fromStream(@Nonnull YTEntityImpl document) {
     serializeFromStream(document);
   }
 
   @Override
-  protected void serializeFromStream(YTDocument document) {
+  protected void serializeFromStream(YTEntityImpl document) {
     super.serializeFromStream(document);
 
     final byte keySerializerId = ((Number) document.field("keySerializerId")).byteValue();
@@ -122,7 +122,7 @@ public class ORuntimeKeyIndexDefinition<T> extends OAbstractIndexDefinition {
   }
 
   public Object getDocumentValueToIndex(
-      YTDatabaseSessionInternal session, final YTDocument iDocument) {
+      YTDatabaseSessionInternal session, final YTEntityImpl iDocument) {
     throw new YTIndexException("This method is not supported in given index definition.");
   }
 

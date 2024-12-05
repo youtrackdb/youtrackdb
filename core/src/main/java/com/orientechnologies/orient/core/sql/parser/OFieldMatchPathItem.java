@@ -4,7 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
@@ -70,7 +70,7 @@ public class OFieldMatchPathItem extends OMatchPathItem {
     }
     // TODO check possible results!
     Object qR = this.exp.execute(startingPoint, iCommandContext);
-    return (qR instanceof Iterable && !(qR instanceof YTDocument))
+    return (qR instanceof Iterable && !(qR instanceof YTEntityImpl))
         ? (Iterable) qR
         : Collections.singleton((YTIdentifiable) qR);
   }

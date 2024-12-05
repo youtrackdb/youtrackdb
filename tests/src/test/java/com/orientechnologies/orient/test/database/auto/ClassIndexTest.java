@@ -19,7 +19,7 @@ import com.orientechnologies.orient.core.index.YTIndexException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -94,7 +94,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             "ClassIndexTestPropertyOne",
             YTClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new YTDocument().fields("ignoreNullValues", true), new String[]{"fOne"});
+            new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"fOne"});
 
     assertEquals(result.getName(), "ClassIndexTestPropertyOne");
     assertEquals(oClass.getClassIndex(database, "ClassIndexTestPropertyOne").getName(),
@@ -115,7 +115,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "ClassIndex:TestPropertyOne",
           YTClass.INDEX_TYPE.UNIQUE.toString(),
           null,
-          new YTDocument().fields("ignoreNullValues", true), new String[]{"fOne"});
+          new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"fOne"});
       fail();
     } catch (Exception e) {
 
@@ -137,7 +137,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             "ClassIndexTestCompositeOne",
             YTClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new YTDocument().fields("ignoreNullValues", true), new String[]{"fOne", "fTwo"});
+            new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"fOne", "fTwo"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeOne");
     assertEquals(oClass.getClassIndex(database, "ClassIndexTestCompositeOne").getName(),
@@ -178,7 +178,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             "ClassIndexTestCompositeTwo",
             YTClass.INDEX_TYPE.UNIQUE.toString(),
             progressListener,
-            new YTDocument().fields("ignoreNullValues", true),
+            new YTEntityImpl().fields("ignoreNullValues", true),
             new String[]{"fOne", "fTwo", "fThree"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeTwo");
@@ -201,7 +201,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             "ClassIndexTestPropertyEmbeddedMap",
             YTClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new YTDocument().fields("ignoreNullValues", true), new String[]{"fEmbeddedMap"});
+            new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"fEmbeddedMap"});
 
     assertEquals(result.getName(), "ClassIndexTestPropertyEmbeddedMap");
     assertEquals(
@@ -232,7 +232,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             "ClassIndexTestCompositeEmbeddedMap",
             YTClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new YTDocument().fields("ignoreNullValues", true),
+            new YTEntityImpl().fields("ignoreNullValues", true),
             new String[]{"fFifteen", "fEmbeddedMap"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeEmbeddedMap");
@@ -263,7 +263,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             "ClassIndexTestCompositeEmbeddedMapByKey",
             YTClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new YTDocument().fields("ignoreNullValues", true),
+            new YTEntityImpl().fields("ignoreNullValues", true),
             new String[]{"fEight", "fEmbeddedMap"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeEmbeddedMapByKey");
@@ -295,7 +295,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             "ClassIndexTestCompositeEmbeddedMapByValue",
             YTClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new YTDocument().fields("ignoreNullValues", true),
+            new YTEntityImpl().fields("ignoreNullValues", true),
             new String[]{"fTen", "fEmbeddedMap by value"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeEmbeddedMapByValue");
@@ -327,7 +327,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             "ClassIndexTestCompositeLinkMapByValue",
             YTClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new YTDocument().fields("ignoreNullValues", true),
+            new YTEntityImpl().fields("ignoreNullValues", true),
             new String[]{"fEleven", "fLinkMap by value"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeLinkMapByValue");
@@ -358,7 +358,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             "ClassIndexTestCompositeEmbeddedSet",
             YTClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new YTDocument().fields("ignoreNullValues", true),
+            new YTEntityImpl().fields("ignoreNullValues", true),
             new String[]{"fTwelve", "fEmbeddedSet"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeEmbeddedSet");
@@ -389,7 +389,8 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             "ClassIndexTestCompositeLinkSet",
             YTClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new YTDocument().fields("ignoreNullValues", true), new String[]{"fTwelve", "fLinkSet"});
+            new YTEntityImpl().fields("ignoreNullValues", true),
+            new String[]{"fTwelve", "fLinkSet"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeLinkSet");
     assertEquals(
@@ -419,7 +420,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             "ClassIndexTestCompositeEmbeddedList",
             YTClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new YTDocument().fields("ignoreNullValues", true),
+            new YTEntityImpl().fields("ignoreNullValues", true),
             new String[]{"fThirteen", "fEmbeddedList"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeEmbeddedList");
@@ -450,7 +451,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             "ClassIndexTestCompositeLinkList",
             YTClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new YTDocument().fields("ignoreNullValues", true),
+            new YTEntityImpl().fields("ignoreNullValues", true),
             new String[]{"fFourteen", "fLinkList"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeLinkList");
@@ -480,7 +481,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             "ClassIndexTestCompositeRidBag",
             YTClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new YTDocument().fields("ignoreNullValues", true),
+            new YTEntityImpl().fields("ignoreNullValues", true),
             new String[]{"fFourteen", "fRidBag"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeRidBag");
@@ -510,7 +511,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             "ClassIndexTestPropertyLinkedMap",
             YTClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new YTDocument().fields("ignoreNullValues", true), new String[]{"fLinkMap"});
+            new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"fLinkMap"});
 
     assertEquals(result.getName(), "ClassIndexTestPropertyLinkedMap");
     assertEquals(
@@ -541,7 +542,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             "ClassIndexTestPropertyLinkedMapByKey",
             YTClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new YTDocument().fields("ignoreNullValues", true), new String[]{"fLinkMap by key"});
+            new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"fLinkMap by key"});
 
     assertEquals(result.getName(), "ClassIndexTestPropertyLinkedMapByKey");
     assertEquals(
@@ -572,7 +573,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             "ClassIndexTestPropertyLinkedMapByValue",
             YTClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new YTDocument().fields("ignoreNullValues", true), new String[]{"fLinkMap by value"});
+            new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"fLinkMap by value"});
 
     assertEquals(result.getName(), "ClassIndexTestPropertyLinkedMapByValue");
     assertEquals(
@@ -604,7 +605,8 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             "ClassIndexTestPropertyByKeyEmbeddedMap",
             YTClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new YTDocument().fields("ignoreNullValues", true), new String[]{"fEmbeddedMap by key"});
+            new YTEntityImpl().fields("ignoreNullValues", true),
+            new String[]{"fEmbeddedMap by key"});
 
     assertEquals(result.getName(), "ClassIndexTestPropertyByKeyEmbeddedMap");
     assertEquals(
@@ -636,7 +638,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             "ClassIndexTestPropertyByValueEmbeddedMap",
             YTClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new YTDocument().fields("ignoreNullValues", true),
+            new YTEntityImpl().fields("ignoreNullValues", true),
             new String[]{"fEmbeddedMap by value"});
 
     assertEquals(result.getName(), "ClassIndexTestPropertyByValueEmbeddedMap");
@@ -670,7 +672,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "ClassIndexTestPropertyWrongSpecifierEmbeddedMap",
           YTClass.INDEX_TYPE.UNIQUE.toString(),
           null,
-          new YTDocument().fields("ignoreNullValues", true), new String[]{"fEmbeddedMap by ttt"});
+          new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"fEmbeddedMap by ttt"});
     } catch (Exception e) {
       Assert.assertTrue(e instanceof IllegalArgumentException);
       exceptionIsThrown = true;
@@ -692,7 +694,8 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "ClassIndexTestPropertyWrongSpecifierEmbeddedMap",
           YTClass.INDEX_TYPE.UNIQUE.toString(),
           null,
-          new YTDocument().fields("ignoreNullValues", true), new String[]{"fEmbeddedMap b value"});
+          new YTEntityImpl().fields("ignoreNullValues", true),
+          new String[]{"fEmbeddedMap b value"});
     } catch (YTIndexException e) {
       exceptionIsThrown = true;
     }
@@ -709,7 +712,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           "ClassIndexTestPropertyWrongSpecifierEmbeddedMap",
           YTClass.INDEX_TYPE.UNIQUE.toString(),
           null,
-          new YTDocument().fields("ignoreNullValues", true),
+          new YTEntityImpl().fields("ignoreNullValues", true),
           new String[]{"fEmbeddedMap by value t"});
     } catch (YTIndexException e) {
       exceptionIsThrown = true;
@@ -2096,7 +2099,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             "ClassIndexInTestPropertyOne",
             YTClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new YTDocument().fields("ignoreNullValues", true), new String[]{"fOne"});
+            new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"fOne"});
 
     assertEquals(result.getName(), "ClassIndexInTestPropertyOne");
     assertEquals(inClass.getClassIndex(database, "ClassIndexInTestPropertyOne").getName(),
@@ -2122,7 +2125,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
         "ClassIndexTestCompositeFieldAbsent",
         YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new YTDocument().fields("ignoreNullValues", true), new String[]{"fFive"});
+        new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"fFive"});
   }
 
   @Test
@@ -2181,7 +2184,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
             "ClassIndexTestParentPropertyNine",
             YTClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new YTDocument().fields("ignoreNullValues", true), new String[]{"fNine"});
+            new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"fNine"});
 
     assertEquals(result.getName(), "ClassIndexTestParentPropertyNine");
     assertEquals(

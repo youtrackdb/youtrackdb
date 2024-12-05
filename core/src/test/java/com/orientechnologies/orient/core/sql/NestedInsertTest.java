@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,8 +25,8 @@ public class NestedInsertTest extends DBTestBase {
                 + " \"date\":\"2013-01-01\",\"@fieldTypes\":\"date=a\"}) return @this");
     db.commit();
 
-    final YTDocument res = ((YTIdentifiable) result.next().getProperty("@this")).getRecord();
-    final YTDocument embedded = res.field("meta");
+    final YTEntityImpl res = ((YTIdentifiable) result.next().getProperty("@this")).getRecord();
+    final YTEntityImpl embedded = res.field("meta");
     Assert.assertNotNull(embedded);
 
     Assert.assertEquals(embedded.fields(), 2);
@@ -48,8 +48,8 @@ public class NestedInsertTest extends DBTestBase {
                 + " name\"} return @this");
     db.commit();
 
-    final YTDocument res = ((YTIdentifiable) result.next().getProperty("@this")).getRecord();
-    final YTDocument ln = res.field("some");
+    final YTEntityImpl res = ((YTIdentifiable) result.next().getProperty("@this")).getRecord();
+    final YTEntityImpl ln = res.field("some");
     Assert.assertNotNull(ln);
     Assert.assertTrue(ln.getIdentity().isPersistent());
     Assert.assertEquals(ln.fields(), 1);

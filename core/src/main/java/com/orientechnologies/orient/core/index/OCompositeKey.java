@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.id.IdentityChangeListener;
 import com.orientechnologies.orient.core.index.comparator.OAlwaysGreaterKey;
 import com.orientechnologies.orient.core.index.comparator.OAlwaysLessKey;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import java.io.DataInput;
@@ -208,8 +208,8 @@ public class OCompositeKey
   }
 
   @Override
-  public YTDocument toDocument() {
-    final YTDocument document = new YTDocument();
+  public YTEntityImpl toDocument() {
+    final YTEntityImpl document = new YTEntityImpl();
     for (int i = 0; i < keys.size(); i++) {
       document.field("key" + i, keys.get(i));
     }
@@ -218,7 +218,7 @@ public class OCompositeKey
   }
 
   @Override
-  public void fromDocument(YTDocument document) {
+  public void fromDocument(YTEntityImpl document) {
     document.setLazyLoad(false);
 
     final String[] fieldNames = document.fieldNames();

@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -69,7 +69,7 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     YTSchema schema = db.getMetadata().getSchema();
 
     // Rome
-    YTDocument doc = new YTDocument("City");
+    YTEntityImpl doc = new YTEntityImpl("City");
     doc.field("name", "Rome");
     doc.field(
         "tags",
@@ -97,7 +97,7 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     assertThat(doc.<String>field("name")).isEqualTo("Rome");
 
     // London
-    doc = new YTDocument("City");
+    doc = new YTEntityImpl("City");
     doc.field("name", "London");
     doc.field(
         "tags",
@@ -149,7 +149,7 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
 
     YTSchema schema = db.getMetadata().getSchema();
 
-    YTDocument doc = new YTDocument("Person");
+    YTEntityImpl doc = new YTEntityImpl("Person");
     doc.field("name", "Enrico");
     doc.field(
         "tags",
@@ -173,7 +173,7 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
 
     assertThat(coll).hasSize(3);
 
-    doc = new YTDocument("Person");
+    doc = new YTEntityImpl("Person");
     doc.field("name", "Jared");
     doc.field(
         "tags",
@@ -244,7 +244,7 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     final YTClass c1 = db.createVertexClass("C1");
     c1.createProperty(db, "p1", YTType.STRING);
 
-    final YTDocument metadata = new YTDocument();
+    final YTEntityImpl metadata = new YTEntityImpl();
     metadata.field("default", "org.apache.lucene.analysis.en.EnglishAnalyzer");
 
     c1.createIndex(db, "p1", "FULLTEXT", null, metadata, "LUCENE", new String[]{"p1"});

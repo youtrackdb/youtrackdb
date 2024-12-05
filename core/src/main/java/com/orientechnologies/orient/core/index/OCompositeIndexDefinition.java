@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.OCommandExecutorSQLCreateIndex;
 import it.unimi.dsi.fastutil.ints.IntCollection;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -146,7 +146,7 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
    * {@inheritDoc}
    */
   public Object getDocumentValueToIndex(
-      YTDatabaseSessionInternal session, final YTDocument iDocument) {
+      YTDatabaseSessionInternal session, final YTEntityImpl iDocument) {
     final List<OCompositeKey> compositeKeys = new ArrayList<>(10);
     final OCompositeKey firstKey = new OCompositeKey();
     boolean containsCollection = false;
@@ -428,21 +428,21 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
    * {@inheritDoc}
    */
   @Override
-  public @Nonnull YTDocument toStream(@Nonnull YTDocument document) {
+  public @Nonnull YTEntityImpl toStream(@Nonnull YTEntityImpl document) {
     serializeToStream(document);
     return document;
   }
 
   @Override
-  protected void serializeToStream(YTDocument document) {
+  protected void serializeToStream(YTEntityImpl document) {
     super.serializeToStream(document);
 
-    final List<YTDocument> inds = new ArrayList<>(indexDefinitions.size());
+    final List<YTEntityImpl> inds = new ArrayList<>(indexDefinitions.size());
     final List<String> indClasses = new ArrayList<>(indexDefinitions.size());
 
     document.setPropertyInternal("className", className);
     for (final OIndexDefinition indexDefinition : indexDefinitions) {
-      final YTDocument indexDocument = indexDefinition.toStream(new YTDocument());
+      final YTEntityImpl indexDocument = indexDefinition.toStream(new YTEntityImpl());
       inds.add(indexDocument);
 
       indClasses.add(indexDefinition.getClass().getName());
@@ -503,18 +503,18 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
     return "`" + next + "`";
   }
 
-  public void fromStream(@Nonnull YTDocument document) {
+  public void fromStream(@Nonnull YTEntityImpl document) {
     serializeFromStream(document);
   }
 
   @Override
-  protected void serializeFromStream(YTDocument document) {
+  protected void serializeFromStream(YTEntityImpl document) {
     super.serializeFromStream(document);
 
     try {
       className = document.field("className");
 
-      final List<YTDocument> inds = document.field("indexDefinitions");
+      final List<YTEntityImpl> inds = document.field("indexDefinitions");
       final List<String> indClasses = document.field("indClasses");
 
       indexDefinitions.clear();
@@ -523,7 +523,7 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
 
       for (int i = 0; i < indClasses.size(); i++) {
         final Class<?> clazz = Class.forName(indClasses.get(i));
-        final YTDocument indDoc = inds.get(i);
+        final YTEntityImpl indDoc = inds.get(i);
 
         final OIndexDefinition indexDefinition =
             (OIndexDefinition) clazz.getDeclaredConstructor().newInstance();

@@ -17,7 +17,7 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
@@ -46,7 +46,7 @@ public class SQLBatchTest extends DocumentDBBaseTest {
       Assert.fail("Tx has been committed while a rollback was expected");
     } catch (YTCommandExecutionException e) {
 
-      List<YTDocument> result = executeQuery("select from V where email = '123'");
+      List<YTEntityImpl> result = executeQuery("select from V where email = '123'");
       Assert.assertTrue(result.isEmpty());
 
       result = executeQuery("select from E where crazyName = 'yes'");
@@ -80,7 +80,7 @@ public class SQLBatchTest extends DocumentDBBaseTest {
 
     database.execute("sql", script);
 
-    List<YTDocument> result = executeQuery("select from " + className2);
+    List<YTEntityImpl> result = executeQuery("select from " + className2);
     Assert.assertEquals(result.size(), 1);
     List foos = result.get(0).field("foos");
     Assert.assertEquals(foos.size(), 3);
@@ -115,7 +115,7 @@ public class SQLBatchTest extends DocumentDBBaseTest {
 
     database.execute("sql", script);
 
-    List<YTDocument> result = executeQuery("select from " + className2);
+    List<YTEntityImpl> result = executeQuery("select from " + className2);
     Assert.assertEquals(result.size(), 1);
     List foos = result.get(0).field("foos");
     Assert.assertEquals(foos.size(), 3);

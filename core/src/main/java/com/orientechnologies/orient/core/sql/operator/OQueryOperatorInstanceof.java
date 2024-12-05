@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 
 /**
@@ -63,8 +63,8 @@ public class OQueryOperatorInstanceof extends OQueryOperatorEqualityNotNulls {
     if (iLeft instanceof YTIdentifiable) {
       // GET THE RECORD'S CLASS
       final YTRecord record = ((YTIdentifiable) iLeft).getRecord();
-      if (record instanceof YTDocument) {
-        cls = ODocumentInternal.getImmutableSchemaClass(((YTDocument) record));
+      if (record instanceof YTEntityImpl) {
+        cls = ODocumentInternal.getImmutableSchemaClass(((YTEntityImpl) record));
       }
     } else if (iLeft instanceof String)
     // GET THE CLASS BY NAME

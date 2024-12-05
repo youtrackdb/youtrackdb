@@ -18,7 +18,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.locationtech.jts.geom.Coordinate;
@@ -52,7 +52,7 @@ public class OLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  public JtsGeometry fromDoc(YTDocument document) {
+  public JtsGeometry fromDoc(YTEntityImpl document) {
 
     validate(document);
     List<List<Number>> coordinates = document.field(COORDINATES);
@@ -67,26 +67,26 @@ public class OLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  public YTDocument toDoc(JtsGeometry shape) {
-    YTDocument doc = new YTDocument(getName());
+  public YTEntityImpl toDoc(JtsGeometry shape) {
+    YTEntityImpl doc = new YTEntityImpl(getName());
     LineString lineString = (LineString) shape.getGeom();
     doc.field(COORDINATES, coordinatesFromLineString(lineString));
     return doc;
   }
 
   @Override
-  protected YTDocument toDoc(JtsGeometry shape, Geometry geometry) {
+  protected YTEntityImpl toDoc(JtsGeometry shape, Geometry geometry) {
     if (geometry == null || Double.isNaN(geometry.getCoordinate().getZ())) {
       return toDoc(shape);
     }
 
-    YTDocument doc = new YTDocument(getName() + "Z");
+    YTEntityImpl doc = new YTEntityImpl(getName() + "Z");
     doc.field(COORDINATES, coordinatesFromLineStringZ(geometry));
     return doc;
   }
 
   @Override
-  public String asText(YTDocument document) {
+  public String asText(YTEntityImpl document) {
     if (document.getClassName().equals("OLineStringZ")) {
       List<List<Double>> coordinates = document.getProperty("coordinates");
 

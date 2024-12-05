@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -164,8 +164,8 @@ public class OMatchPathItem extends SimpleNode {
     }
     try {
       YTRecord record = identifiable.getRecord();
-      if (record instanceof YTDocument) {
-        return ODocumentInternal.getImmutableSchemaClass(((YTDocument) record))
+      if (record instanceof YTEntityImpl) {
+        return ODocumentInternal.getImmutableSchemaClass(((YTEntityImpl) record))
             .isSubClassOf(oClass);
       }
     } catch (YTRecordNotFoundException rnf) {
@@ -194,7 +194,7 @@ public class OMatchPathItem extends SimpleNode {
     }
 
     Object qR = this.method.execute(startingPoint, possibleResults, iCommandContext);
-    return (qR instanceof Iterable && !(qR instanceof YTDocument))
+    return (qR instanceof Iterable && !(qR instanceof YTEntityImpl))
         ? (Iterable) qR
         : Collections.singleton((YTIdentifiable) qR);
   }

@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionRuntime;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +54,7 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
   private String className;
   private YTClass clazz;
   private List<OPair<String, Object>> fields;
-  private YTDocument merge;
+  private YTEntityImpl merge;
   private int batch = 100;
 
   @SuppressWarnings("unchecked")
@@ -125,7 +125,7 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
   }
 
   /**
-   * Executes the command and return the YTDocument object created.
+   * Executes the command and return the YTEntityImpl object created.
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
 
@@ -145,7 +145,7 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
         OSQLEngine.getInstance().parseRIDTarget(db, source, context, iArgs);
 
     // CREATE EDGES
-    final List<YTDocument> result = new ArrayList<YTDocument>(sourceRIDs.size());
+    final List<YTEntityImpl> result = new ArrayList<YTEntityImpl>(sourceRIDs.size());
 
     for (YTIdentifiable from : sourceRIDs) {
       final YTVertex fromVertex = toVertex(from);
@@ -156,7 +156,7 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
       final YTRID oldVertex = fromVertex.getIdentity().copy();
       final YTRID newVertex = fromVertex.moveTo(className, clusterName);
 
-      final YTDocument newVertexDoc = newVertex.getRecord();
+      final YTEntityImpl newVertexDoc = newVertex.getRecord();
 
       if (fields != null) {
         // EVALUATE FIELDS
@@ -180,7 +180,7 @@ public class OCommandExecutorSQLMoveVertex extends OCommandExecutorSQLSetAware
 
       // PUT THE MOVE INTO THE RESULT
       result.add(
-          new YTDocument()
+          new YTEntityImpl()
               .setTrackingChanges(false)
               .field("old", oldVertex, YTType.LINK)
               .field("new", newVertex, YTType.LINK));

@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.select;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.util.HashSet;
 import java.util.List;
@@ -18,10 +18,10 @@ public class TestSqlEmbeddedResult extends DBTestBase {
     db.getMetadata().getSchema().createClass("Test");
 
     db.begin();
-    YTDocument doc = new YTDocument("Test");
-    YTDocument doc1 = new YTDocument();
+    YTEntityImpl doc = new YTEntityImpl("Test");
+    YTEntityImpl doc1 = new YTEntityImpl();
     doc1.setProperty("format", 1);
-    Set<YTDocument> docs = new HashSet<YTDocument>();
+    Set<YTEntityImpl> docs = new HashSet<YTEntityImpl>();
     docs.add(doc1);
     doc.setProperty("rel", docs);
     // doc
@@ -37,7 +37,7 @@ public class TestSqlEmbeddedResult extends DBTestBase {
             .collect(Collectors.toList());
     Assert.assertEquals(res.size(), 1);
     YTEntity ele = res.get(0);
-    Assert.assertTrue(ele.getProperty("el") instanceof YTDocument);
+    Assert.assertTrue(ele.getProperty("el") instanceof YTEntityImpl);
 
     res =
         db.query("select rel as el " + " from (select rel from Test)").stream()

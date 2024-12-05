@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValuesTransformer;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.spatial.factory.OSpatialStrategyFactory;
@@ -138,7 +138,7 @@ public abstract class OLuceneSpatialIndexEngineAbstract extends OLuceneIndexEngi
   }
 
   protected Document newGeoDocument(YTIdentifiable oIdentifiable, Shape shape,
-      YTDocument shapeDoc) {
+      YTEntityImpl shapeDoc) {
 
     FieldType ft = new FieldType();
     ft.setIndexOptions(IndexOptions.DOCS);

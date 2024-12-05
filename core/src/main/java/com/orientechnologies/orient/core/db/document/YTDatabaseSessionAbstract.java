@@ -80,12 +80,12 @@ import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.YTVertex;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.YTEdgeDelegate;
-import com.orientechnologies.orient.core.record.impl.YTEdgeDocument;
+import com.orientechnologies.orient.core.record.impl.YTEdgeEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTEdgeInternal;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
-import com.orientechnologies.orient.core.record.impl.YTVertexDocument;
+import com.orientechnologies.orient.core.record.impl.YTVertexEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTVertexInternal;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -140,7 +140,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
   protected YTDatabaseSessionInternal databaseOwner;
   protected OMetadataDefault metadata;
   protected YTImmutableUser user;
-  protected static final byte recordType = YTDocument.RECORD_TYPE;
+  protected static final byte recordType = YTEntityImpl.RECORD_TYPE;
   protected final Map<YTRecordHook, YTRecordHook.HOOK_POSITION> hooks = new LinkedHashMap<>();
   protected boolean retainRecords = true;
   protected OLocalRecordCache localCache;
@@ -921,8 +921,8 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
         }
 
         afterReadOperations(record);
-        if (record instanceof YTDocument) {
-          ODocumentInternal.checkClass((YTDocument) record, this);
+        if (record instanceof YTEntityImpl) {
+          ODocumentInternal.checkClass((YTEntityImpl) record, this);
         }
 
         localCache.updateRecord(record);
@@ -968,8 +968,8 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
       ORecordInternal.setRecordSerializer(record, serializer);
       ORecordInternal.fill(record, rid, recordBuffer.version, recordBuffer.buffer, false, this);
 
-      if (record instanceof YTDocument) {
-        ODocumentInternal.checkClass((YTDocument) record, this);
+      if (record instanceof YTEntityImpl) {
+        ODocumentInternal.checkClass((YTEntityImpl) record, this);
       }
 
       if (beforeReadOperations(record)) {
@@ -1019,8 +1019,8 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
     // if cluster id is not set yet try to find it out
     if (rid.getClusterId() <= YTRID.CLUSTER_ID_INVALID
         && getStorageInfo().isAssigningClusterIds()) {
-      if (record instanceof YTDocument) {
-        schemaClass = ODocumentInternal.getImmutableSchemaClass(this, ((YTDocument) record));
+      if (record instanceof YTEntityImpl) {
+        schemaClass = ODocumentInternal.getImmutableSchemaClass(this, ((YTEntityImpl) record));
         if (schemaClass != null) {
           if (schemaClass.isAbstract()) {
             throw new YTSchemaException(
@@ -1028,7 +1028,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
                     + schemaClass.getName()
                     + " and cannot be saved");
           }
-          rid.setClusterId(schemaClass.getClusterForNewInstance((YTDocument) record));
+          rid.setClusterId(schemaClass.getClusterForNewInstance((YTEntityImpl) record));
         } else {
           var defaultCluster = getStorageInfo().getDefaultClusterId();
           if (defaultCluster < 0) {
@@ -1051,8 +1051,8 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
         }
       }
     } else {
-      if (record instanceof YTDocument) {
-        schemaClass = ODocumentInternal.getImmutableSchemaClass(this, ((YTDocument) record));
+      if (record instanceof YTEntityImpl) {
+        schemaClass = ODocumentInternal.getImmutableSchemaClass(this, ((YTEntityImpl) record));
       }
     }
     // If the cluster id was set check is validity
@@ -1126,10 +1126,10 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
   }
 
   /**
-   * Creates a new YTDocument.
+   * Creates a new YTEntityImpl.
    */
-  public YTDocument newInstance() {
-    return new YTDocument(YTEntity.DEFAULT_CLASS_NAME, this);
+  public YTEntityImpl newInstance() {
+    return new YTEntityImpl(YTEntity.DEFAULT_CLASS_NAME, this);
   }
 
   @Override
@@ -1149,8 +1149,8 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
    * @return new instance of document.
    */
   @Override
-  public YTDocument newInstance(final String iClassName) {
-    return new YTDocument(this, iClassName);
+  public YTEntityImpl newInstance(final String iClassName) {
+    return new YTEntityImpl(this, iClassName);
   }
 
   @Override
@@ -1168,11 +1168,11 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
   }
 
   public YTVertex newVertex(final String iClassName) {
-    return new YTVertexDocument(this, iClassName);
+    return new YTVertexEntityImpl(this, iClassName);
   }
 
   private YTEdgeInternal newEdgeInternal(final String iClassName) {
-    return new YTEdgeDocument(this, iClassName);
+    return new YTEdgeEntityImpl(this, iClassName);
   }
 
   @Override
@@ -1220,8 +1220,8 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
     Objects.requireNonNull(inVertex, "To vertex is null");
 
     YTEdgeInternal edge;
-    YTDocument outDocument;
-    YTDocument inDocument;
+    YTEntityImpl outDocument;
+    YTEntityImpl inDocument;
 
     boolean outDocumentModified = false;
     if (checkDeletedInTx(toVertex)) {
@@ -1310,14 +1310,14 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
   /**
    * {@inheritDoc}
    */
-  public ORecordIteratorClass<YTDocument> browseClass(final String iClassName) {
+  public ORecordIteratorClass<YTEntityImpl> browseClass(final String iClassName) {
     return browseClass(iClassName, true);
   }
 
   /**
    * {@inheritDoc}
    */
-  public ORecordIteratorClass<YTDocument> browseClass(
+  public ORecordIteratorClass<YTEntityImpl> browseClass(
       final String iClassName, final boolean iPolymorphic) {
     if (getMetadata().getImmutableSchemaSnapshot().getClass(iClassName) == null) {
       throw new IllegalArgumentException(
@@ -1325,7 +1325,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
     }
 
     checkSecurity(ORule.ResourceGeneric.CLASS, ORole.PERMISSION_READ, iClassName);
-    return new ORecordIteratorClass<YTDocument>(this, iClassName, iPolymorphic, false);
+    return new ORecordIteratorClass<YTEntityImpl>(this, iClassName, iPolymorphic, false);
   }
 
   /**
@@ -1351,14 +1351,14 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
    */
   @Override
   @Deprecated
-  public ORecordIteratorCluster<YTDocument> browseCluster(
+  public ORecordIteratorCluster<YTEntityImpl> browseCluster(
       String iClusterName,
       long startClusterPosition,
       long endClusterPosition,
       boolean loadTombstones) {
     checkSecurity(ORule.ResourceGeneric.CLUSTER, ORole.PERMISSION_READ, iClusterName);
 
-    return new ORecordIteratorCluster<YTDocument>(
+    return new ORecordIteratorCluster<YTEntityImpl>(
         this, getClusterIdByName(iClusterName), startClusterPosition, endClusterPosition);
   }
 
@@ -1373,7 +1373,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
    * <p>If MVCC is enabled and the version of the document is different by the version stored in
    * the database, then a {@link YTConcurrentModificationException} exception is thrown.Before to
    * save the document it must be valid following the constraints declared in the schema if any (can
-   * work also in schema-less mode). To validate the document the {@link YTDocument#validate()} is
+   * work also in schema-less mode). To validate the document the {@link YTEntityImpl#validate()} is
    * called.
    *
    * @param record Record to save.
@@ -1402,7 +1402,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
    * <p>If MVCC is enabled and the version of the document is different by the version stored in
    * the database, then a {@link YTConcurrentModificationException} exception is thrown. Before to
    * save the document it must be valid following the constraints declared in the schema if any (can
-   * work also in schema-less mode). To validate the document the {@link YTDocument#validate()} is
+   * work also in schema-less mode). To validate the document the {@link YTEntityImpl#validate()} is
    * called.
    *
    * @param record      Record to save
@@ -1413,7 +1413,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
    *                                          version contained in the database.
    * @throws YTValidationException             if the document breaks some validation constraints
    *                                          defined in the schema
-   * @see #setMVCC(boolean), {@link #isMVCC()}, YTDocument#validate()
+   * @see #setMVCC(boolean), {@link #isMVCC()}, YTEntityImpl#validate()
    */
   @Override
   public <RET extends YTRecord> RET save(YTRecord record, String clusterName) {
@@ -1442,12 +1442,12 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
 
   private <RET extends YTRecord> RET saveInternal(YTRecordAbstract record, String clusterName) {
 
-    if (!(record instanceof YTDocument document)) {
+    if (!(record instanceof YTEntityImpl document)) {
       assignAndCheckCluster(record, clusterName);
       return (RET) currentTx.saveRecord(record, clusterName);
     }
 
-    YTDocument doc = document;
+    YTEntityImpl doc = document;
     ODocumentInternal.checkClass(doc, this);
     try {
       doc.autoConvertValues();
@@ -1474,7 +1474,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
       ORecordInternal.setRecordSerializer(doc, serializer);
     }
 
-    doc = (YTDocument) currentTx.saveRecord(record, clusterName);
+    doc = (YTEntityImpl) currentTx.saveRecord(record, clusterName);
     return (RET) doc;
   }
 
@@ -1524,8 +1524,8 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
       for (ORecordOperation op : getTransaction().getRecordOperations()) {
         if (op.type == ORecordOperation.DELETED) {
           final YTRecord rec = op.record;
-          if (rec instanceof YTDocument) {
-            YTClass schemaClass = ODocumentInternal.getImmutableSchemaClass(((YTDocument) rec));
+          if (rec instanceof YTEntityImpl) {
+            YTClass schemaClass = ODocumentInternal.getImmutableSchemaClass(((YTEntityImpl) rec));
             if (iPolymorphic) {
               if (schemaClass.isSubClassOf(className)) {
                 deletedInTx++;
@@ -1540,8 +1540,8 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
         }
         if (op.type == ORecordOperation.CREATED) {
           final YTRecord rec = op.record;
-          if (rec instanceof YTDocument) {
-            YTClass schemaClass = ODocumentInternal.getImmutableSchemaClass(((YTDocument) rec));
+          if (rec instanceof YTEntityImpl) {
+            YTClass schemaClass = ODocumentInternal.getImmutableSchemaClass(((YTEntityImpl) rec));
             if (schemaClass != null) {
               if (iPolymorphic) {
                 if (schemaClass.isSubClassOf(className)) {
@@ -1765,8 +1765,8 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
     }
     checkSecurity(ORule.ResourceGeneric.CLUSTER, operation, cluster);
 
-    if (record instanceof YTDocument) {
-      String clazzName = ((YTDocument) record).getClassName();
+    if (record instanceof YTEntityImpl) {
+      String clazzName = ((YTEntityImpl) record).getClassName();
       if (clazzName != null) {
         checkSecurity(ORule.ResourceGeneric.CLASS, operation, clazzName);
       }
@@ -1856,8 +1856,8 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
   }
 
   protected static void clearDocumentTracking(final YTRecord record) {
-    if (record instanceof YTDocument && ((YTDocument) record).isTrackingChanges()) {
-      ODocumentInternal.clearTrackData((YTDocument) record);
+    if (record instanceof YTEntityImpl && ((YTEntityImpl) record).isTrackingChanges()) {
+      ODocumentInternal.clearTrackData((YTEntityImpl) record);
     }
   }
 

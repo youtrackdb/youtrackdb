@@ -26,10 +26,10 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 
 /**
- * Hook abstract class that calls separate methods for YTDocument records.
+ * Hook abstract class that calls separate methods for YTEntityImpl records.
  *
  * @see YTRecordHook
  */
@@ -60,7 +60,7 @@ public abstract class YTDocumentHookAbstract implements YTRecordHook {
    * @return True if the document has been modified and a new marshalling is required, otherwise
    * false
    */
-  public RESULT onRecordBeforeCreate(final YTDocument iDocument) {
+  public RESULT onRecordBeforeCreate(final YTEntityImpl iDocument) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
@@ -69,7 +69,7 @@ public abstract class YTDocumentHookAbstract implements YTRecordHook {
    *
    * @param iDocument The document is going to be created
    */
-  public void onRecordAfterCreate(final YTDocument iDocument) {
+  public void onRecordAfterCreate(final YTEntityImpl iDocument) {
   }
 
   /**
@@ -77,7 +77,7 @@ public abstract class YTDocumentHookAbstract implements YTRecordHook {
    *
    * @param iDocument The document just created
    */
-  public void onRecordCreateFailed(final YTDocument iDocument) {
+  public void onRecordCreateFailed(final YTEntityImpl iDocument) {
   }
 
   /**
@@ -85,7 +85,7 @@ public abstract class YTDocumentHookAbstract implements YTRecordHook {
    *
    * @param iDocument The document just created
    */
-  public void onRecordCreateReplicated(final YTDocument iDocument) {
+  public void onRecordCreateReplicated(final YTEntityImpl iDocument) {
   }
 
   /**
@@ -95,7 +95,7 @@ public abstract class YTDocumentHookAbstract implements YTRecordHook {
    * @return True if the document has been modified and a new marshalling is required, otherwise
    * false
    */
-  public RESULT onRecordBeforeRead(final YTDocument iDocument) {
+  public RESULT onRecordBeforeRead(final YTEntityImpl iDocument) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
@@ -104,7 +104,7 @@ public abstract class YTDocumentHookAbstract implements YTRecordHook {
    *
    * @param iDocument The document just read
    */
-  public void onRecordAfterRead(final YTDocument iDocument) {
+  public void onRecordAfterRead(final YTEntityImpl iDocument) {
   }
 
   /**
@@ -112,7 +112,7 @@ public abstract class YTDocumentHookAbstract implements YTRecordHook {
    *
    * @param iDocument The document just created
    */
-  public void onRecordReadFailed(final YTDocument iDocument) {
+  public void onRecordReadFailed(final YTEntityImpl iDocument) {
   }
 
   /**
@@ -120,7 +120,7 @@ public abstract class YTDocumentHookAbstract implements YTRecordHook {
    *
    * @param iDocument The document just created
    */
-  public void onRecordReadReplicated(final YTDocument iDocument) {
+  public void onRecordReadReplicated(final YTEntityImpl iDocument) {
   }
 
   /**
@@ -130,7 +130,7 @@ public abstract class YTDocumentHookAbstract implements YTRecordHook {
    * @return True if the document has been modified and a new marshalling is required, otherwise
    * false
    */
-  public RESULT onRecordBeforeUpdate(final YTDocument iDocument) {
+  public RESULT onRecordBeforeUpdate(final YTEntityImpl iDocument) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
@@ -139,7 +139,7 @@ public abstract class YTDocumentHookAbstract implements YTRecordHook {
    *
    * @param iDocument The document just updated
    */
-  public void onRecordAfterUpdate(final YTDocument iDocument) {
+  public void onRecordAfterUpdate(final YTEntityImpl iDocument) {
   }
 
   /**
@@ -147,7 +147,7 @@ public abstract class YTDocumentHookAbstract implements YTRecordHook {
    *
    * @param iDocument The document is going to be updated
    */
-  public void onRecordUpdateFailed(final YTDocument iDocument) {
+  public void onRecordUpdateFailed(final YTEntityImpl iDocument) {
   }
 
   /**
@@ -155,7 +155,7 @@ public abstract class YTDocumentHookAbstract implements YTRecordHook {
    *
    * @param iDocument The document is going to be updated
    */
-  public void onRecordUpdateReplicated(final YTDocument iDocument) {
+  public void onRecordUpdateReplicated(final YTEntityImpl iDocument) {
   }
 
   /**
@@ -165,7 +165,7 @@ public abstract class YTDocumentHookAbstract implements YTRecordHook {
    * @return True if the document has been modified and a new marshalling is required, otherwise
    * false
    */
-  public RESULT onRecordBeforeDelete(final YTDocument iDocument) {
+  public RESULT onRecordBeforeDelete(final YTEntityImpl iDocument) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
@@ -174,7 +174,7 @@ public abstract class YTDocumentHookAbstract implements YTRecordHook {
    *
    * @param iDocument The document just deleted
    */
-  public void onRecordAfterDelete(final YTDocument iDocument) {
+  public void onRecordAfterDelete(final YTEntityImpl iDocument) {
   }
 
   /**
@@ -182,7 +182,7 @@ public abstract class YTDocumentHookAbstract implements YTRecordHook {
    *
    * @param iDocument The document is going to be deleted
    */
-  public void onRecordDeleteFailed(final YTDocument iDocument) {
+  public void onRecordDeleteFailed(final YTEntityImpl iDocument) {
   }
 
   /**
@@ -190,16 +190,16 @@ public abstract class YTDocumentHookAbstract implements YTRecordHook {
    *
    * @param iDocument The document is going to be deleted
    */
-  public void onRecordDeleteReplicated(final YTDocument iDocument) {
+  public void onRecordDeleteReplicated(final YTEntityImpl iDocument) {
   }
 
-  public void onRecordFinalizeUpdate(final YTDocument document) {
+  public void onRecordFinalizeUpdate(final YTEntityImpl document) {
   }
 
-  public void onRecordFinalizeCreation(final YTDocument document) {
+  public void onRecordFinalizeCreation(final YTEntityImpl document) {
   }
 
-  public void onRecordFinalizeDeletion(final YTDocument document) {
+  public void onRecordFinalizeDeletion(final YTEntityImpl document) {
   }
 
   public RESULT onTrigger(final TYPE iType, final YTRecord iRecord) {
@@ -207,7 +207,7 @@ public abstract class YTDocumentHookAbstract implements YTRecordHook {
       return RESULT.RECORD_NOT_CHANGED;
     }
 
-    if (!(iRecord instanceof YTDocument document)) {
+    if (!(iRecord instanceof YTEntityImpl document)) {
       return RESULT.RECORD_NOT_CHANGED;
     }
 
@@ -319,7 +319,7 @@ public abstract class YTDocumentHookAbstract implements YTRecordHook {
     return this;
   }
 
-  protected boolean filterBySchemaClass(final YTDocument iDocument) {
+  protected boolean filterBySchemaClass(final YTEntityImpl iDocument) {
     if (includeClasses == null && excludeClasses == null) {
       return true;
     }

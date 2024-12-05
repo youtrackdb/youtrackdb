@@ -20,7 +20,7 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
 import java.util.Map;
@@ -66,7 +66,7 @@ public class OSQLMethodToJSON extends OAbstractSQLMethod {
       return iParams.length == 1 ? record.toJSON(format) : record.toJSON();
     } else if (iThis instanceof Map) {
 
-      final YTDocument doc = new YTDocument();
+      final YTEntityImpl doc = new YTEntityImpl();
       //noinspection unchecked
       doc.fromMap((Map<String, Object>) iThis);
       return iParams.length == 1 ? doc.toJSON(format) : doc.toJSON();

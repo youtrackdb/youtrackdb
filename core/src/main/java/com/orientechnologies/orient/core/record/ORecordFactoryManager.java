@@ -23,12 +23,12 @@ import com.orientechnologies.common.exception.YTSystemException;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
-import com.orientechnologies.orient.core.record.impl.YTEdgeDocument;
+import com.orientechnologies.orient.core.record.impl.YTEdgeEntityImpl;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
 import com.orientechnologies.orient.core.record.impl.YTRecordFlat;
-import com.orientechnologies.orient.core.record.impl.YTVertexDocument;
-import com.orientechnologies.orient.core.record.impl.YTViewDocument;
+import com.orientechnologies.orient.core.record.impl.YTVertexEntityImpl;
+import com.orientechnologies.orient.core.record.impl.YTViewEntityImpl;
 
 /**
  * Record factory. To use your own record implementation use the declareRecordType() method. Example
@@ -52,21 +52,21 @@ public class ORecordFactoryManager {
 
   public ORecordFactoryManager() {
     declareRecordType(
-        YTDocument.RECORD_TYPE,
+        YTEntityImpl.RECORD_TYPE,
         "document",
-        YTDocument.class,
+        YTEntityImpl.class,
         (rid, database) -> {
           var cluster = rid.getClusterId();
           if (database != null && cluster >= 0) {
             if (database.isClusterVertex(cluster)) {
-              return new YTVertexDocument(database, rid);
+              return new YTVertexEntityImpl(database, rid);
             } else if (database.isClusterEdge(cluster)) {
-              return new YTEdgeDocument(database, rid);
+              return new YTEdgeEntityImpl(database, rid);
             } else if (database.isClusterView(cluster)) {
-              return new YTViewDocument(database, rid);
+              return new YTViewEntityImpl(database, rid);
             }
           }
-          return new YTDocument(database, rid);
+          return new YTEntityImpl(database, rid);
         });
     declareRecordType(
         YTBlob.RECORD_TYPE, "bytes", YTBlob.class, (rid, database) -> new YTRecordBytes(rid));

@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.metadata.security.jwt.OJwtPayload;
 import com.orientechnologies.orient.core.metadata.security.jwt.OTokenHeader;
 import com.orientechnologies.orient.core.metadata.security.jwt.OrientJwtHeader;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 
 /**
  *
@@ -90,7 +90,7 @@ public class JsonWebToken implements OJsonWebToken, OToken {
   @Override
   public YTUser getUser(YTDatabaseSessionInternal db) {
     YTRID userRid = payload.getUserRid();
-    YTDocument result;
+    YTEntityImpl result;
     result = db.load(userRid);
     if (!ODocumentInternal.getImmutableSchemaClass(result).isOuser()) {
       result = null;

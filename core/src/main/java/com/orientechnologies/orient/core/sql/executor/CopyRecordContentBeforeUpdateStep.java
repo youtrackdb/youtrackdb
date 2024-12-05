@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHookV2;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
 /**
@@ -35,9 +35,9 @@ public class CopyRecordContentBeforeUpdateStep extends AbstractExecutionStep {
       var rec = result.toEntity();
       prevValue.setProperty("@rid", rec.getIdentity());
       prevValue.setProperty("@version", rec.getVersion());
-      if (rec instanceof YTDocument) {
+      if (rec instanceof YTEntityImpl) {
         prevValue.setProperty(
-            "@class", ODocumentInternal.getImmutableSchemaClass(((YTDocument) rec)).getName());
+            "@class", ODocumentInternal.getImmutableSchemaClass(((YTEntityImpl) rec)).getName());
       }
       if (!result.toEntity().getIdentity().isNew()) {
         for (String propName : result.getPropertyNames()) {

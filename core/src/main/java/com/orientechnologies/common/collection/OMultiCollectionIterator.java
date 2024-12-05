@@ -23,9 +23,9 @@ import com.orientechnologies.common.util.OResettable;
 import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.common.util.OSupportsContains;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
 import com.orientechnologies.orient.core.iterator.OLazyWrapperIterator;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -204,7 +204,7 @@ public class OMultiCollectionIterator<T>
       final Object o = sources.get(i);
 
       if (o != null) {
-        if (o instanceof Set<?> || o instanceof ORidBag) {
+        if (o instanceof Set<?> || o instanceof RidBag) {
           // OK
         } else if (o instanceof OLazyWrapperIterator) {
           if (!((OLazyWrapperIterator) o).canUseMultiValueDirectly()) {
@@ -234,8 +234,8 @@ public class OMultiCollectionIterator<T>
           if (((Collection<?>) o).contains(value)) {
             return true;
           }
-        } else if (o instanceof ORidBag) {
-          if (((ORidBag) o).contains((YTIdentifiable) value)) {
+        } else if (o instanceof RidBag) {
+          if (((RidBag) o).contains((YTIdentifiable) value)) {
             return true;
           }
         }
@@ -252,7 +252,7 @@ public class OMultiCollectionIterator<T>
         Object next = sourcesIterator.next();
         if (next != null) {
 
-          if (!(next instanceof YTDocument) && next instanceof Iterable<?>) {
+          if (!(next instanceof YTEntityImpl) && next instanceof Iterable<?>) {
             next = ((Iterable) next).iterator();
           }
 

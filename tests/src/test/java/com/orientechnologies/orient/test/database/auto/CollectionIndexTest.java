@@ -19,7 +19,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -484,7 +484,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
     database.save(collector);
     database.commit();
 
-    List<YTDocument> result =
+    List<YTEntityImpl> result =
         executeQuery("select * from Collector where stringCollection contains ?", "eggs");
     Assert.assertNotNull(result);
     Assert.assertEquals(result.size(), 1);

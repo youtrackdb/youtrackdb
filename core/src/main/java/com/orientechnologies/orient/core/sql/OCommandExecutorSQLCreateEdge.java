@@ -163,7 +163,7 @@ public class OCommandExecutorSQLCreateEdge extends OCommandExecutorSQLSetAware
   }
 
   /**
-   * Execute the command and return the YTDocument object created.
+   * Execute the command and return the YTEntityImpl object created.
    */
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
     if (clazz == null) {

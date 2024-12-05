@@ -20,7 +20,7 @@
 package com.orientechnologies.common.collection;
 
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
+import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.core.sql.parser.OOrderBy;
 import com.orientechnologies.orient.core.sql.parser.OOrderByItem;
 import java.util.ArrayList;
@@ -115,10 +115,10 @@ public class OSortedMultiIterator<T extends YTIdentifiable> implements Iterator<
       return false;
     }
 
-    YTDocument leftDoc =
-        (left instanceof YTDocument) ? (YTDocument) left : (YTDocument) left.getRecord();
-    YTDocument rightDoc =
-        (right instanceof YTDocument) ? (YTDocument) right : (YTDocument) right.getRecord();
+    YTEntityImpl leftDoc =
+        (left instanceof YTEntityImpl) ? (YTEntityImpl) left : (YTEntityImpl) left.getRecord();
+    YTEntityImpl rightDoc =
+        (right instanceof YTEntityImpl) ? (YTEntityImpl) right : (YTEntityImpl) right.getRecord();
 
     for (OOrderByItem orderItem : orderBy.getItems()) {
       Object leftVal = leftDoc.field(orderItem.getRecordAttr());
