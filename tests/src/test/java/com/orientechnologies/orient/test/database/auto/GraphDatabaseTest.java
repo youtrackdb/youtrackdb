@@ -273,7 +273,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
         database
             .command("insert into E set in = #9:0, out = #9:1, a = 33 unsafe")
             .next()
-            .toElement();
+            .toEntity();
     database.commit();
 
     Assert.assertNotNull(insertedEdge);

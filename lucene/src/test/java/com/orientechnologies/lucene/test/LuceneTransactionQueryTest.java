@@ -166,7 +166,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
 
     db.begin();
 
-    YTEntity record = db.bindToSession(res.getElement().get());
+    YTEntity record = db.bindToSession(res.getEntity().get());
     record.setProperty("p1", "removed");
     db.save(record);
 

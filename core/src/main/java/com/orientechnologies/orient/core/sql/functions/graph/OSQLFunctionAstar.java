@@ -94,8 +94,8 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
         throw new IllegalArgumentException("Only one sourceVertex is allowed");
       }
       source = OMultiValue.getFirstValue(source);
-      if (source instanceof YTResult && ((YTResult) source).isElement()) {
-        source = ((YTResult) source).getElement().get();
+      if (source instanceof YTResult && ((YTResult) source).isEntity()) {
+        source = ((YTResult) source).getEntity().get();
       }
     }
     source = OSQLHelper.getValue(source, record, iContext);
@@ -115,8 +115,8 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
         throw new IllegalArgumentException("Only one destinationVertex is allowed");
       }
       dest = OMultiValue.getFirstValue(dest);
-      if (dest instanceof YTResult && ((YTResult) dest).isElement()) {
-        dest = ((YTResult) dest).getElement().get();
+      if (dest instanceof YTResult && ((YTResult) dest).isEntity()) {
+        dest = ((YTResult) dest).getEntity().get();
       }
     }
     dest = OSQLHelper.getValue(dest, record, iContext);

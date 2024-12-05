@@ -89,7 +89,7 @@ public class OShapeFactory extends OComplexShapeBuilder {
       return fromDoc((YTDocument) obj);
     }
     if (obj instanceof YTResult) {
-      YTEntity entity = ((YTResult) obj).toElement();
+      YTEntity entity = ((YTResult) obj).toEntity();
       return fromDoc((YTDocument) entity);
     }
     if (obj instanceof Map) {
@@ -123,7 +123,7 @@ public class OShapeFactory extends OComplexShapeBuilder {
   public String asText(Object obj) {
 
     if (obj instanceof YTResult) {
-      YTEntity entity = ((YTResult) obj).toElement();
+      YTEntity entity = ((YTResult) obj).toEntity();
       return asText((YTDocument) entity);
     }
     if (obj instanceof YTDocument) {

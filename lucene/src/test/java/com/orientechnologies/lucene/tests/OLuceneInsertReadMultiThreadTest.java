@@ -105,7 +105,7 @@ public class OLuceneInsertReadMultiThreadTest extends OLuceneBaseTest {
       db.begin();
       int i = 0;
       for (; i < cycle; i++) {
-        YTEntity doc = db.newElement("City");
+        YTEntity doc = db.newEntity("City");
 
         doc.setProperty("name", "Rome");
 
@@ -144,7 +144,7 @@ public class OLuceneInsertReadMultiThreadTest extends OLuceneBaseTest {
             db.query("select from City where SEARCH_FIELDS(['name'], 'Rome') =true ");
 
         if (resultSet.hasNext()) {
-          assertThat(resultSet.next().toElement().<String>getProperty("name"))
+          assertThat(resultSet.next().toEntity().<String>getProperty("name"))
               .isEqualToIgnoringCase("rome");
         }
         resultSet.close();

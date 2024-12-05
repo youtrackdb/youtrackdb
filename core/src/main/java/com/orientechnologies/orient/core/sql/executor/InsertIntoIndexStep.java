@@ -131,11 +131,11 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
     if (value instanceof YTIdentifiable) {
       insertIntoIndex(ctx.getDatabase(), index, key, (YTIdentifiable) value);
       count++;
-    } else if (value instanceof YTResult && ((YTResult) value).isElement()) {
-      insertIntoIndex(ctx.getDatabase(), index, key, ((YTResult) value).toElement());
+    } else if (value instanceof YTResult && ((YTResult) value).isEntity()) {
+      insertIntoIndex(ctx.getDatabase(), index, key, ((YTResult) value).toEntity());
       count++;
     } else if (value instanceof YTResultSet) {
-      ((YTResultSet) value).elementStream().forEach(x -> index.put(ctx.getDatabase(), key, x));
+      ((YTResultSet) value).entityStream().forEach(x -> index.put(ctx.getDatabase(), key, x));
     } else if (OMultiValue.isMultiValue(value)) {
       Iterator<?> iterator = OMultiValue.getMultiValueIterator(value);
       while (iterator.hasNext()) {
@@ -143,8 +143,8 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
         if (item instanceof YTIdentifiable) {
           insertIntoIndex(ctx.getDatabase(), index, key, (YTIdentifiable) item);
           count++;
-        } else if (item instanceof YTResult && ((YTResult) item).isElement()) {
-          insertIntoIndex(ctx.getDatabase(), index, key, ((YTResult) item).toElement());
+        } else if (item instanceof YTResult && ((YTResult) item).isEntity()) {
+          insertIntoIndex(ctx.getDatabase(), index, key, ((YTResult) item).toEntity());
           count++;
         } else {
           throw new YTCommandExecutionException("Cannot insert into index " + item);

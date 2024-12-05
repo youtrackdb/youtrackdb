@@ -48,8 +48,8 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
   }
 
   private void markAsVisited(YTResult nextValue, Set<YTRID> pastRids, Set<YTResult> pastItems) {
-    if (nextValue.isElement()) {
-      YTRID identity = nextValue.toElement().getIdentity();
+    if (nextValue.isEntity()) {
+      YTRID identity = nextValue.toEntity().getIdentity();
       int cluster = identity.getClusterId();
       long pos = identity.getClusterPosition();
       if (cluster >= 0 && pos >= 0) {
@@ -70,8 +70,8 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
   }
 
   private boolean alreadyVisited(YTResult nextValue, Set<YTRID> pastRids, Set<YTResult> pastItems) {
-    if (nextValue.isElement()) {
-      YTRID identity = nextValue.toElement().getIdentity();
+    if (nextValue.isEntity()) {
+      YTRID identity = nextValue.toEntity().getIdentity();
       int cluster = identity.getClusterId();
       long pos = identity.getClusterPosition();
       if (cluster >= 0 && pos >= 0) {

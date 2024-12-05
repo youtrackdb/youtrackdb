@@ -45,7 +45,7 @@ public class UpdateContentStep extends AbstractExecutionStep {
 
   private YTResult mapResult(YTResult result, OCommandContext ctx) {
     if (result instanceof YTResultInternal) {
-      var elem = result.toElement();
+      var elem = result.toEntity();
       assert elem != null;
       handleContent((YTEntityInternal) elem, ctx);
     }

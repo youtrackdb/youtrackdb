@@ -65,7 +65,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntity collector = database.newElement("Collector");
+    YTEntity collector = database.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
 
     database.save(collector);
@@ -92,7 +92,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
 
     try {
       database.begin();
-      YTEntity collector = database.newElement("Collector");
+      YTEntity collector = database.newEntity("Collector");
       collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
       database.save(collector);
       database.commit();
@@ -120,7 +120,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntity collector = database.newElement("Collector");
+    YTEntity collector = database.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     collector = database.save(collector);
     collector.setProperty("stringCollection", Arrays.asList("spam", "bacon"));
@@ -146,7 +146,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
   public void testIndexCollectionUpdateInTx() {
     checkEmbeddedDB();
 
-    YTEntity collector = database.newElement("Collector");
+    YTEntity collector = database.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     database.begin();
     collector = database.save(collector);
@@ -182,7 +182,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntity collector = database.newElement("Collector");
+    YTEntity collector = database.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     collector = database.save(collector);
     database.commit();
@@ -213,7 +213,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
   public void testIndexCollectionUpdateAddItem() {
     checkEmbeddedDB();
 
-    YTEntity collector = database.newElement("Collector");
+    YTEntity collector = database.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
 
     database.begin();
@@ -248,7 +248,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
   public void testIndexCollectionUpdateAddItemInTx() {
     checkEmbeddedDB();
 
-    YTEntity collector = database.newElement("Collector");
+    YTEntity collector = database.newEntity("Collector");
     collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
     database.begin();
     collector = database.save(collector);
@@ -285,7 +285,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
   public void testIndexCollectionUpdateAddItemInTxRollback() {
     checkEmbeddedDB();
 
-    YTEntity collector = database.newElement("Collector");
+    YTEntity collector = database.newEntity("Collector");
     collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
     database.begin();
     collector = database.save(collector);
@@ -316,7 +316,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
   public void testIndexCollectionUpdateRemoveItemInTx() {
     checkEmbeddedDB();
 
-    YTEntity collector = database.newElement("Collector");
+    YTEntity collector = database.newEntity("Collector");
     collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
     database.begin();
     collector = database.save(collector);
@@ -352,7 +352,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
   public void testIndexCollectionUpdateRemoveItemInTxRollback() {
     checkEmbeddedDB();
 
-    YTEntity collector = database.newElement("Collector");
+    YTEntity collector = database.newEntity("Collector");
     collector.setProperty("stringCollection", new ArrayList<>(Arrays.asList("spam", "eggs")));
     database.begin();
     collector = database.save(collector);
@@ -383,7 +383,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
   public void testIndexCollectionUpdateRemoveItem() {
     checkEmbeddedDB();
 
-    YTEntity collector = database.newElement("Collector");
+    YTEntity collector = database.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     database.begin();
     collector = database.save(collector);
@@ -413,7 +413,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
   public void testIndexCollectionRemove() {
     checkEmbeddedDB();
 
-    YTEntity collector = database.newElement("Collector");
+    YTEntity collector = database.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     database.begin();
     collector = database.save(collector);
@@ -428,7 +428,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
   public void testIndexCollectionRemoveInTx() {
     checkEmbeddedDB();
 
-    YTEntity collector = database.newElement("Collector");
+    YTEntity collector = database.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     database.begin();
     collector = database.save(collector);
@@ -450,7 +450,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
   public void testIndexCollectionRemoveInTxRollback() {
     checkEmbeddedDB();
 
-    YTEntity collector = database.newElement("Collector");
+    YTEntity collector = database.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
     database.begin();
     collector = database.save(collector);
@@ -477,7 +477,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
   }
 
   public void testIndexCollectionSQL() {
-    YTEntity collector = database.newElement("Collector");
+    YTEntity collector = database.newEntity("Collector");
     collector.setProperty("stringCollection", Arrays.asList("spam", "eggs"));
 
     database.begin();

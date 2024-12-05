@@ -1229,7 +1229,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     doc.setProperty("mapNested", mapNested);
     doc.setProperty("map1", map1);
     Map<String, YTEntity> mapEmbedded = new HashMap<>();
-    YTEntity embedded = db.newElement();
+    YTEntity embedded = db.newEntity();
     embedded.setProperty("other", 1);
     mapEmbedded.put("first", embedded);
     doc.setProperty("mapEmbedded", mapEmbedded, YTType.EMBEDDEDMAP);
@@ -1239,7 +1239,7 @@ public class ODocumentSerializerDeltaTest extends DBTestBase {
     db.begin();
     doc = db.bindToSession(doc);
     YTDocument originalDoc = doc.copy();
-    YTEntity embedded1 = db.newElement();
+    YTEntity embedded1 = db.newEntity();
     embedded1.setProperty("other", 1);
     ((Map<String, YTEntity>) doc.getProperty("mapEmbedded")).put("newDoc", embedded1);
     ((Map<String, String>) doc.getProperty("map")).put("value", "other");

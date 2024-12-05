@@ -28,8 +28,8 @@ public class SetDocumentClassStep extends AbstractExecutionStep {
   }
 
   private YTResult mapResult(YTResult result, OCommandContext ctx) {
-    if (result.isElement()) {
-      var element = result.toElement();
+    if (result.isEntity()) {
+      var element = result.toEntity();
       ((YTDocument) element).setClassName(targetClass);
       if (!(result instanceof YTResultInternal)) {
         result = new YTUpdatableResult(ctx.getDatabase(), element);

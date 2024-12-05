@@ -438,7 +438,7 @@ public class JSONTest extends DocumentDBBaseTest {
         database
             .command("select * from Profile where name = 'Barack' and surname = 'Obama'")
             .stream()
-            .map((e) -> (YTDocument) e.toElement())
+            .map((e) -> (YTDocument) e.toEntity())
             .toList();
 
     for (YTDocument doc : result) {

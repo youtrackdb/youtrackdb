@@ -32,7 +32,7 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
 
   private YTResult mapResult(YTResult result, OCommandContext ctx) {
     if (result instanceof YTResultInternal) {
-      handleUpdateEdge(result.toElement().getRecord());
+      handleUpdateEdge(result.toEntity().getRecord());
     }
     return result;
   }

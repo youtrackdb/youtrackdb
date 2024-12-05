@@ -28,13 +28,13 @@ public class UpdateMergeStep extends AbstractExecutionStep {
 
   private YTResult mapResult(YTResult result, OCommandContext ctx) {
     if (result instanceof YTResultInternal) {
-      if (!(result.getElement().orElse(null) instanceof YTDocument)) {
-        ((YTResultInternal) result).setIdentifiable(result.toElement().getRecord());
+      if (!(result.getEntity().orElse(null) instanceof YTDocument)) {
+        ((YTResultInternal) result).setIdentifiable(result.toEntity().getRecord());
       }
-      if (!(result.getElement().orElse(null) instanceof YTDocument)) {
+      if (!(result.getEntity().orElse(null) instanceof YTDocument)) {
         return result;
       }
-      handleMerge((YTDocument) result.getElement().orElse(null), ctx);
+      handleMerge((YTDocument) result.getEntity().orElse(null), ctx);
     }
     return result;
   }

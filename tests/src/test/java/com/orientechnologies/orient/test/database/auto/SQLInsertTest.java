@@ -96,7 +96,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                     + positions.get(3)
                     + ", 'hooray')")
             .next()
-            .getElement()
+            .getEntity()
             .get();
     database.commit();
 
@@ -119,7 +119,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                     + positions.get(3)
                     + ", dummy =  'hooray'")
             .next()
-            .getElement()
+            .getEntity()
             .get();
     database.commit();
 
@@ -152,7 +152,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                 new YTRecordId(addressId, positions.get(3)),
                 "hooray")
             .next()
-            .getElement()
+            .getEntity()
             .get();
     database.commit();
 
@@ -180,7 +180,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                 new YTRecordId(addressId, positions.get(3)),
                 "hooray")
             .next()
-            .getElement()
+            .getEntity()
             .get();
     database.commit();
 
@@ -205,7 +205,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                 "insert into O (equaledges, name, properties) values ('no',"
                     + " 'circle', {'round':'eeee', 'blaaa':'zigzag'} )")
             .next()
-            .getElement()
+            .getEntity()
             .get();
     database.commit();
 
@@ -233,7 +233,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                 "insert into O SET equaledges = 'no', name = 'circle',"
                     + " properties = {'round':'eeee', 'blaaa':'zigzag'} ")
             .next()
-            .getElement()
+            .getEntity()
             .get();
     database.commit();
 
@@ -261,7 +261,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                 "insert into O (equaledges, name, list) values ('yes',"
                     + " 'square', ['bottom', 'top','left','right'] )")
             .next()
-            .getElement()
+            .getEntity()
             .get();
     database.commit();
 
@@ -291,7 +291,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                 "insert into O SET equaledges = 'yes', name = 'square', list"
                     + " = ['bottom', 'top','left','right'] ")
             .next()
-            .getElement()
+            .getEntity()
             .get();
     database.commit();
 
@@ -352,7 +352,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
         database
             .command("INSERT INTO test SET names = (select name from OUser)")
             .next()
-            .getElement()
+            .getEntity()
             .get();
     database.commit();
 
@@ -370,7 +370,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
         database
             .command(
                     "insert into Account cluster anotherdefault (id, title) values (10, 'NoSQL"
-                        + " movement')").stream().findFirst().orElseThrow().toElement();
+                        + " movement')").stream().findFirst().orElseThrow().toEntity();
     database.commit();
 
     Assert.assertNotNull(doc);
@@ -400,7 +400,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                     + " {\"key\":\"value\"},dir= '',user= #3:"
                     + positions.get(0))
             .next()
-            .getElement()
+            .getEntity()
             .get();
     database.commit();
     Assert.assertNotNull(result);
@@ -536,7 +536,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                 "INSERT INTO TestConvert SET name = 'embeddedSetNoLinkedClass',"
                     + " embeddedSetNoLinkedClass = [{'line1':'123 Fake Street'}]")
             .next()
-            .getElement()
+            .getEntity()
             .get();
     database.commit();
 
@@ -564,7 +564,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                 "INSERT INTO TestConvert SET name = 'embeddedSetWithLinkedClass',"
                     + " embeddedSetWithLinkedClass = [{'line1':'123 Fake Street'}]")
             .next()
-            .getElement()
+            .getEntity()
             .get();
     database.commit();
 
@@ -590,7 +590,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                 "INSERT INTO TestConvert SET name = 'embeddedListNoLinkedClass',"
                     + " embeddedListNoLinkedClass = [{'line1':'123 Fake Street'}]")
             .next()
-            .getElement()
+            .getEntity()
             .get();
     database.commit();
 
@@ -620,7 +620,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                 "INSERT INTO TestConvert SET name = 'embeddedListWithLinkedClass',"
                     + " embeddedListWithLinkedClass = [{'line1':'123 Fake Street'}]")
             .next()
-            .getElement()
+            .getEntity()
             .get();
     database.commit();
 
@@ -648,7 +648,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                 "INSERT INTO TestConvert SET name = 'embeddedMapNoLinkedClass',"
                     + " embeddedMapNoLinkedClass = {test:{'line1':'123 Fake Street'}}")
             .next()
-            .getElement()
+            .getEntity()
             .get();
     database.commit();
 
@@ -676,7 +676,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                 "INSERT INTO TestConvert SET name = 'embeddedMapWithLinkedClass',"
                     + " embeddedMapWithLinkedClass = {test:{'line1':'123 Fake Street'}}")
             .next()
-            .getElement()
+            .getEntity()
             .orElseThrow();
     database.commit();
 
@@ -702,7 +702,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                 "INSERT INTO TestConvert SET name = 'embeddedNoLinkedClass',"
                     + " embeddedNoLinkedClass = {'line1':'123 Fake Street'}")
             .next()
-            .getElement()
+            .getEntity()
             .orElseThrow();
     database.commit();
 
@@ -761,7 +761,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                 "INSERT INTO TestConvert SET name = 'embeddedWithLinkedClass',"
                     + " embeddedWithLinkedClass = {'line1':'123 Fake Street'}")
             .next()
-            .getElement()
+            .getEntity()
             .get();
     database.commit();
 
@@ -791,7 +791,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                     + "      '@class': 'EmbeddedWithRecordAttributes_Like'\n"
                     + "    } ")
             .next()
-            .getElement()
+            .getEntity()
             .get();
     database.commit();
 
@@ -822,7 +822,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                     + "      @class: 'EmbeddedWithRecordAttributes2_Like'\n"
                     + "    } ")
             .next()
-            .getElement()
+            .getEntity()
             .get();
     database.commit();
 

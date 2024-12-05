@@ -84,12 +84,12 @@ public interface YTResultSet extends Spliterator<YTResult>, Iterator<YTResult>, 
     return stream().findFirst().orElseThrow(() -> new IllegalStateException("No result found"));
   }
 
-  default YTEntity findFirstElement() {
-    return elementStream().findFirst().orElse(null);
+  default YTEntity findFirstEntity() {
+    return entityStream().findFirst().orElse(null);
   }
 
-  default YTEntity findFirstElementOrThrow() {
-    return elementStream().findFirst()
+  default YTEntity findFirstEntityOrThrow() {
+    return entityStream().findFirst()
         .orElseThrow(() -> new IllegalStateException("No element found"));
   }
 
@@ -113,19 +113,19 @@ public interface YTResultSet extends Spliterator<YTResult>, Iterator<YTResult>, 
 
   /**
    * Returns the result set as a stream of elements (filters only the results that are elements -
-   * where the isElement() method returns true). IMPORTANT: the stream consumes the result set!
+   * where the isEntity() method returns true). IMPORTANT: the stream consumes the result set!
    *
    * @return
    */
-  default Stream<YTEntity> elementStream() {
+  default Stream<YTEntity> entityStream() {
     return StreamSupport.stream(
             new Spliterator<YTEntity>() {
               @Override
               public boolean tryAdvance(Consumer<? super YTEntity> action) {
                 while (hasNext()) {
                   YTResult elem = next();
-                  if (elem.isElement()) {
-                    action.accept(elem.getElement().get());
+                  if (elem.isEntity()) {
+                    action.accept(elem.getEntity().get());
                     return true;
                   }
                 }
@@ -151,8 +151,8 @@ public interface YTResultSet extends Spliterator<YTResult>, Iterator<YTResult>, 
         .onClose(this::close);
   }
 
-  default List<YTEntity> toElementList() {
-    return elementStream().toList();
+  default List<YTEntity> toEntityList() {
+    return entityStream().toList();
   }
 
   /**

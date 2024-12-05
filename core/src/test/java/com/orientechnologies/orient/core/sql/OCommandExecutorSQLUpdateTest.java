@@ -57,7 +57,7 @@ public class OCommandExecutorSQLUpdateTest extends DBTestBase {
     db.command("INSERT INTO company SET name = 'MyCompany'").close();
     db.commit();
 
-    final YTEntity r = db.query("SELECT FROM company").next().getElement().get();
+    final YTEntity r = db.query("SELECT FROM company").next().getEntity().get();
 
     db.begin();
     db.command("INSERT INTO employee SET name = 'Philipp'").close();
@@ -280,7 +280,7 @@ public class OCommandExecutorSQLUpdateTest extends DBTestBase {
     db.save(test);
     db.commit();
 
-    YTEntity queried = db.query("SELECT FROM test WHERE id = \"id1\"").next().getElement().get();
+    YTEntity queried = db.query("SELECT FROM test WHERE id = \"id1\"").next().getEntity().get();
 
     db.begin();
     db.command("UPDATE test set count += 2").close();
@@ -313,7 +313,7 @@ public class OCommandExecutorSQLUpdateTest extends DBTestBase {
     db.save(test);
     db.commit();
 
-    YTEntity queried = db.query("SELECT FROM test").next().getElement().get();
+    YTEntity queried = db.query("SELECT FROM test").next().getEntity().get();
     assertEquals(queried.getProperty("text"), "initial value");
 
     Map<String, Object> params = new HashMap<String, Object>();
@@ -338,7 +338,7 @@ public class OCommandExecutorSQLUpdateTest extends DBTestBase {
     db.save(test);
     db.commit();
 
-    YTEntity queried = db.query("SELECT FROM test").next().getElement().get();
+    YTEntity queried = db.query("SELECT FROM test").next().getEntity().get();
     assertEquals(queried.getProperty("text"), "initial value");
 
     Map<String, Object> params = new HashMap<String, Object>();
@@ -362,7 +362,7 @@ public class OCommandExecutorSQLUpdateTest extends DBTestBase {
         .close();
     db.commit();
 
-    YTEntity queried = db.query("SELECT FROM testquotesinjson").next().getElement().get();
+    YTEntity queried = db.query("SELECT FROM testquotesinjson").next().getEntity().get();
     assertEquals(((Map) queried.getProperty("value")).get("f12"), "test\\");
   }
 

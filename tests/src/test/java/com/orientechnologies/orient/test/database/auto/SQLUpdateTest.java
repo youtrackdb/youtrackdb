@@ -194,7 +194,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
                 "insert into O (equaledges, name, properties) values ('no',"
                     + " 'circleUpdate', {'round':'eeee', 'blaaa':'zigzag'} )")
             .next()
-            .toElement();
+            .toEntity();
 
     Assert.assertNotNull(element);
 

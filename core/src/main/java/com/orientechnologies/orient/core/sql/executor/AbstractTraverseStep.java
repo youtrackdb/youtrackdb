@@ -61,8 +61,8 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
           throw new IllegalStateException();
         }
         YTResult result = results.remove(0);
-        if (result.isElement()) {
-          this.traversed.add(result.toElement().getIdentity());
+        if (result.isEntity()) {
+          this.traversed.add(result.toEntity().getIdentity());
         }
         return result;
       }

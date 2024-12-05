@@ -155,7 +155,7 @@ public class OUpdateItem extends SimpleNode {
   }
 
   private Object initSchemafullCollections(YTResultInternal doc, String propName) {
-    YTClass oClass = doc.getElement().flatMap(x -> x.getSchemaType()).orElse(null);
+    YTClass oClass = doc.getEntity().flatMap(x -> x.getSchemaType()).orElse(null);
     if (oClass == null) {
       return null;
     }
@@ -183,8 +183,8 @@ public class OUpdateItem extends SimpleNode {
   }
 
   private YTClass calculateLinkedTypeForThisItem(YTResultInternal doc, OCommandContext ctx) {
-    if (doc.isElement()) {
-      var elem = doc.toElement();
+    if (doc.isEntity()) {
+      var elem = doc.toEntity();
 
     }
     return null;
@@ -192,7 +192,7 @@ public class OUpdateItem extends SimpleNode {
 
   private YTType calculateTypeForThisItem(YTResultInternal doc, String propertyName,
       OCommandContext ctx) {
-    YTEntity elem = doc.toElement();
+    YTEntity elem = doc.toEntity();
     YTClass clazz = elem.getSchemaType().orElse(null);
     if (clazz == null) {
       return null;
@@ -263,7 +263,7 @@ public class OUpdateItem extends SimpleNode {
 
   public static Object convertToPropertyType(
       YTResultInternal res, OIdentifier attrName, Object newValue, OCommandContext ctx) {
-    YTEntity doc = res.toElement();
+    YTEntity doc = res.toEntity();
     Optional<YTClass> optSchema = doc.getSchemaType();
     if (!optSchema.isPresent()) {
       return newValue;
@@ -337,7 +337,7 @@ public class OUpdateItem extends SimpleNode {
     if (item instanceof YTEntity) {
       YTClass currentType = ((YTEntity) item).getSchemaType().orElse(null);
       if (currentType == null || !currentType.isSubClassOf(linkedClass)) {
-        YTEntity result = ctx.getDatabase().newElement(linkedClass.getName());
+        YTEntity result = ctx.getDatabase().newEntity(linkedClass.getName());
         for (String prop : ((YTEntity) item).getPropertyNames()) {
           result.setProperty(prop, ((YTEntity) item).getProperty(prop));
         }
@@ -346,7 +346,7 @@ public class OUpdateItem extends SimpleNode {
         return item;
       }
     } else if (item instanceof Map) {
-      YTEntity result = ctx.getDatabase().newElement(linkedClass.getName());
+      YTEntity result = ctx.getDatabase().newEntity(linkedClass.getName());
       ((Map<String, Object>) item)
           .entrySet().stream().forEach(x -> result.setProperty(x.getKey(), x.getValue()));
       return result;
@@ -356,7 +356,7 @@ public class OUpdateItem extends SimpleNode {
 
   public static Object convertResultToDocument(Object value) {
     if (value instanceof YTResult) {
-      return ((YTResult) value).toElement();
+      return ((YTResult) value).toEntity();
     }
     if (value instanceof YTIdentifiable) {
       return value;

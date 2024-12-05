@@ -86,21 +86,21 @@ public class SQLCreateLinkTest extends DocumentDBBaseTest {
         database
             .command("INSERT INTO POST2 (id, title) VALUES ( 10, 'NoSQL movement' )")
             .next()
-            .toElement();
+            .toEntity();
     Assert.assertTrue(p1 instanceof YTDocument);
     Object p2 =
         database
             .command("INSERT INTO POST2 (id, title) VALUES ( 20, 'New YouTrackDB' )")
             .next()
-            .toElement();
+            .toEntity();
     Assert.assertTrue(p2 instanceof YTDocument);
 
     Object p3 =
-        database.command("INSERT INTO POST2 (id, title) VALUES ( 30, '(')").next().toElement();
+        database.command("INSERT INTO POST2 (id, title) VALUES ( 30, '(')").next().toEntity();
     Assert.assertTrue(p3 instanceof YTDocument);
 
     Object p4 =
-        database.command("INSERT INTO POST2 (id, title) VALUES ( 40, ')')").next().toElement();
+        database.command("INSERT INTO POST2 (id, title) VALUES ( 40, ')')").next().toEntity();
     Assert.assertTrue(p4 instanceof YTDocument);
     database.commit();
 

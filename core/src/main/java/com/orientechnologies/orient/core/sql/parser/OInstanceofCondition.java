@@ -64,11 +64,11 @@ public class OInstanceofCondition extends OBooleanExpression {
     if (currentRecord == null) {
       return false;
     }
-    if (!currentRecord.isElement()) {
+    if (!currentRecord.isEntity()) {
       return false;
     }
 
-    YTRecord record = currentRecord.getElement().get().getRecord();
+    YTRecord record = currentRecord.getEntity().get().getRecord();
     if (!(record instanceof YTDocument doc)) {
       return false;
     }

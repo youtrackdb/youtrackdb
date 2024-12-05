@@ -106,7 +106,7 @@ public class OServerCommandPostServerCommand extends OServerCommandAuthenticated
     if (returnExecutionPlan) {
       result
           .getExecutionPlan()
-          .ifPresent(x -> additionalContent.put("executionPlan", x.toResult(null).toElement()));
+          .ifPresent(x -> additionalContent.put("executionPlan", x.toResult(null).toEntity()));
     }
 
     result.close();

@@ -64,7 +64,7 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
         if (whileCond != null) {
           Object current = o;
           if (current instanceof YTResult) {
-            current = ((YTResult) current).getElement().orElse(null);
+            current = ((YTResult) current).getEntity().orElse(null);
           }
           MatchEdgeTraverser subtraverser = new MatchEdgeTraverser(null, sub);
           OExecutionStream rightStream =

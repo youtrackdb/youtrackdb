@@ -102,12 +102,12 @@ public class OOrderByItem {
       bVal = b.getProperty(recordAttr);
     } else if (alias != null) {
       if (isEdge) {
-        YTVertex aElement = (YTVertex) a.asElement();
+        YTVertex aElement = (YTVertex) a.asEntity();
         Iterator<YTVertex> aIter =
             aElement != null ? aElement.getVertices(ODirection.OUT, alias).iterator() : null;
         aVal = (aIter != null && aIter.hasNext()) ? aIter.next() : null;
 
-        YTVertex bElement = (YTVertex) b.asElement();
+        YTVertex bElement = (YTVertex) b.asEntity();
         Iterator<YTVertex> bIter =
             bElement != null ? bElement.getVertices(ODirection.OUT, alias).iterator() : null;
         bVal = (bIter != null && bIter.hasNext()) ? bIter.next() : null;

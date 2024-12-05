@@ -83,7 +83,7 @@ public class ORidBagBasicTest extends DBTestBase {
     try {
       YTVertex record = db.newVertex();
       Map<String, Object> valueSet = new HashMap<>();
-      YTEntity nested = db.newElement();
+      YTEntity nested = db.newEntity();
       nested.setProperty("bag", new ORidBag(db));
       valueSet.put("key", nested);
       record.setProperty("emb", valueSet);
@@ -96,7 +96,7 @@ public class ORidBagBasicTest extends DBTestBase {
     try {
       YTVertex record = db.newVertex();
       List<Object> valueList = new ArrayList<>();
-      YTEntity nested = db.newElement();
+      YTEntity nested = db.newEntity();
       nested.setProperty("bag", new ORidBag(db));
       valueList.add(nested);
       record.setProperty("emb", valueList);
@@ -109,7 +109,7 @@ public class ORidBagBasicTest extends DBTestBase {
     try {
       YTVertex record = db.newVertex();
       Set<Object> valueSet = new HashSet<>();
-      YTEntity nested = db.newElement();
+      YTEntity nested = db.newEntity();
       nested.setProperty("bag", new ORidBag(db));
       valueSet.add(nested);
       record.setProperty("emb", valueSet);
@@ -121,7 +121,7 @@ public class ORidBagBasicTest extends DBTestBase {
 
     try {
       YTVertex record = db.newVertex();
-      YTEntity nested = db.newElement();
+      YTEntity nested = db.newEntity();
       nested.setProperty("bag", new ORidBag(db));
       record.setProperty("emb", nested);
       db.save(record);

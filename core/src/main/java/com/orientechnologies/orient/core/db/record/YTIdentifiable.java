@@ -70,13 +70,13 @@ public interface YTIdentifiable extends Comparable<YTIdentifiable>, Comparator<Y
   }
 
   /**
-   * Returns the element instance associated with given identifiable, otherwise throws exception.
+   * Returns the entity instance associated with given identifiable, otherwise throws exception.
    *
    * @return YTRecord instance
    * @throws YTDatabaseException if the record is not an element.
    */
   @Nonnull
-  default YTEntity getElement() {
+  default YTEntity getEntity() {
     var record = getRecord();
     if (record instanceof YTEntity element) {
       return element;
@@ -86,16 +86,16 @@ public interface YTIdentifiable extends Comparable<YTIdentifiable>, Comparator<Y
   }
 
   /**
-   * Returns the element instance associated with given identifiable, or null if the record does not
+   * Returns the entity instance associated with given identifiable, or null if the record does not
    * exist.
    *
    * @return YTRecord instance or null if the record does not exist
-   * @see #getElement()
+   * @see #getEntity()
    */
   @Nullable
   default YTEntity getElementSilently() {
     try {
-      return getElement();
+      return getEntity();
     } catch (YTRecordNotFoundException e) {
       return null;
     }

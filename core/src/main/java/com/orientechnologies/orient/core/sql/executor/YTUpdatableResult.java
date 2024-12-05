@@ -17,7 +17,7 @@ public class YTUpdatableResult extends YTResultInternal {
   }
 
   @Override
-  public boolean isElement() {
+  public boolean isEntity() {
     return true;
   }
 
@@ -26,7 +26,7 @@ public class YTUpdatableResult extends YTResultInternal {
     T result = null;
     if (content != null && content.containsKey(name)) {
       result = (T) content.get(name);
-    } else if (isElement()) {
+    } else if (this.isEntity()) {
       result = ((YTEntity) identifiable).getProperty(name);
     }
     if (result instanceof YTIdentifiable && ((YTIdentifiable) result).getIdentity()
@@ -37,7 +37,7 @@ public class YTUpdatableResult extends YTResultInternal {
   }
 
   @Override
-  public YTEntity toElement() {
+  public YTEntity toEntity() {
     return (YTEntity) identifiable;
   }
 

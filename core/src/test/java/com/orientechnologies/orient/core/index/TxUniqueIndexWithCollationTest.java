@@ -46,15 +46,15 @@ public class TxUniqueIndexWithCollationTest extends DBTestBase {
         .createIndex(db, YTClass.INDEX_TYPE.UNIQUE);
 
     db.begin();
-    YTEntity one = db.newElement("user");
+    YTEntity one = db.newEntity("user");
     one.setProperty("name", "abc");
     db.save(one);
 
-    YTEntity two = db.newElement("user");
+    YTEntity two = db.newEntity("user");
     two.setProperty("name", "aby");
     db.save(two);
 
-    YTEntity three = db.newElement("user");
+    YTEntity three = db.newEntity("user");
     three.setProperty("name", "abz");
     db.save(three);
     db.commit();
@@ -98,7 +98,7 @@ public class TxUniqueIndexWithCollationTest extends DBTestBase {
 
     final List<YTDocument> r =
         db.query("select * from user where name in ['Abc', 'Abd', 'Abz'] order by name").stream()
-            .map(x -> ((YTDocument) (x.toElement())))
+            .map(x -> ((YTDocument) (x.toEntity())))
             .toList();
     assertEquals(3, r.size());
     assertEquals("abc", r.get(0).field("name"));

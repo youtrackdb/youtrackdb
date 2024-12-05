@@ -213,7 +213,7 @@ public class OSecurityRemote implements OSecurityInternal {
     try (YTResultSet result = session.query("select from OUser where name = ? limit 1",
         iUserName)) {
       if (result.hasNext()) {
-        return new YTUser(session, (YTDocument) result.next().getElement().get());
+        return new YTUser(session, (YTDocument) result.next().getEntity().get());
       }
     }
     return null;
@@ -250,7 +250,7 @@ public class OSecurityRemote implements OSecurityInternal {
     try (final YTResultSet result =
         session.query("select from ORole where name = ? limit 1", iRoleName)) {
       if (result.hasNext()) {
-        return new ORole(session, (YTDocument) result.next().getElement().get());
+        return new ORole(session, (YTDocument) result.next().getEntity().get());
       }
     }
 
@@ -259,13 +259,13 @@ public class OSecurityRemote implements OSecurityInternal {
 
   public List<YTDocument> getAllUsers(final YTDatabaseSession session) {
     try (YTResultSet rs = session.query("select from OUser")) {
-      return rs.stream().map((e) -> (YTDocument) e.getElement().get()).collect(Collectors.toList());
+      return rs.stream().map((e) -> (YTDocument) e.getEntity().get()).collect(Collectors.toList());
     }
   }
 
   public List<YTDocument> getAllRoles(final YTDatabaseSession session) {
     try (YTResultSet rs = session.query("select from ORole")) {
-      return rs.stream().map((e) -> (YTDocument) e.getElement().get()).collect(Collectors.toList());
+      return rs.stream().map((e) -> (YTDocument) e.getEntity().get()).collect(Collectors.toList());
     }
   }
 

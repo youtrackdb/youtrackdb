@@ -124,7 +124,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
 
     YTType otype =
         currentRecord
-            .toElement()
+            .toEntity()
             .getSchemaType()
             .map(st -> st.getProperty(fieldName))
             .map(op -> op.getType())
@@ -237,7 +237,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
     String columnLabel = fieldNames[column - 1];
 
     return currentRecord
-        .toElement()
+        .toEntity()
         .getSchemaType()
         .map(st -> st.getProperty(columnLabel))
         .map(p -> p.getType())
@@ -258,7 +258,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
     if (currentRecord == null) {
       return "";
     } else {
-      return ((YTDocument) currentRecord.toElement()).getSession().getName();
+      return ((YTDocument) currentRecord.toEntity()).getSession().getName();
     }
   }
 
@@ -303,7 +303,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
     final YTResult currentRecord = getCurrentRecord();
     YTType otype =
         currentRecord
-            .toElement()
+            .toEntity()
             .getSchemaType()
             .map(st -> st.getProperty(fieldNames[column - 1]).getType())
             .orElse(null);
@@ -337,7 +337,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
     String fieldName = getColumnName(column);
 
     return getCurrentRecord()
-        .toElement()
+        .toEntity()
         .getSchemaType()
         .map(st -> st.getProperty(fieldName))
         .orElse(null);

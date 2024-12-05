@@ -107,9 +107,9 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
       while (iIterator.hasNext()) {
         Object entry = iIterator.next();
 
-        if (entry != null && entry instanceof YTResult && ((YTResult) entry).isElement()) {
+        if (entry != null && entry instanceof YTResult && ((YTResult) entry).isEntity()) {
 
-          entry = ((YTResult) entry).getElement().get();
+          entry = ((YTResult) entry).getEntity().get();
 
         } else if (entry == null || !(entry instanceof YTIdentifiable)) {
           // IGNORE IT

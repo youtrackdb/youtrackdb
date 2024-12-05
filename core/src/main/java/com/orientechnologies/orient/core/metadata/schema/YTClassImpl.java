@@ -1394,7 +1394,7 @@ public abstract class YTClassImpl implements YTClass {
         database.executeInTx(
             () -> {
               YTDocument record =
-                  database.bindToSession((YTDocument) result.next().getElement().get());
+                  database.bindToSession((YTDocument) result.next().getEntity().get());
               record.field(propertyName, record.field(propertyName), type);
               database.save(record);
             });
@@ -1421,7 +1421,7 @@ public abstract class YTClassImpl implements YTClass {
         database.executeInTx(
             () -> {
               YTDocument record =
-                  database.bindToSession((YTDocument) result.next().getElement().get());
+                  database.bindToSession((YTDocument) result.next().getEntity().get());
               record.setFieldType(propertyName, type);
               record.field(newPropertyName, record.field(propertyName), type);
               database.save(record);
@@ -1503,7 +1503,7 @@ public abstract class YTClassImpl implements YTClass {
           case EMBEDDEDSET:
           case LINKSET:
             try {
-              Collection emb = item.toElement().getProperty(propertyName);
+              Collection emb = item.toEntity().getProperty(propertyName);
               emb.stream()
                   .filter(x -> !matchesType(x, linkedClass))
                   .findFirst()
@@ -1549,7 +1549,7 @@ public abstract class YTClassImpl implements YTClass {
 
   protected static boolean matchesType(Object x, YTClass linkedClass) {
     if (x instanceof YTResult) {
-      x = ((YTResult) x).toElement();
+      x = ((YTResult) x).toEntity();
     }
     if (x instanceof YTRID) {
       try {

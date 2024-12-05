@@ -2049,7 +2049,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
 
     List<YTIdentifiable> result =
         database.query("select expand(out()) from TestExpandSkip where name = '1'").stream()
-            .map((e) -> e.toElement())
+            .map((e) -> e.toEntity())
             .collect(Collectors.toList());
     Assert.assertEquals(result.size(), 3);
 
@@ -2061,25 +2061,25 @@ public class SQLSelectTestNew extends AbstractSelectTest {
                 "select expand(out()[name in :values]) from TestExpandSkip where name = '1'",
                 params)
             .stream()
-            .map((e) -> e.toElement())
+            .map((e) -> e.toEntity())
             .collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
 
     result =
         database.query("select expand(out()) from TestExpandSkip where name = '1' skip 1").stream()
-            .map((e) -> e.toElement())
+            .map((e) -> e.toEntity())
             .collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
 
     result =
         database.query("select expand(out()) from TestExpandSkip where name = '1' skip 2").stream()
-            .map((e) -> e.toElement())
+            .map((e) -> e.toEntity())
             .collect(Collectors.toList());
     Assert.assertEquals(result.size(), 1);
 
     result =
         database.query("select expand(out()) from TestExpandSkip where name = '1' skip 3").stream()
-            .map((e) -> e.toElement())
+            .map((e) -> e.toEntity())
             .collect(Collectors.toList());
     Assert.assertEquals(result.size(), 0);
 
@@ -2087,7 +2087,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
         database
             .query("select expand(out()) from TestExpandSkip where name = '1' skip 1 limit 1")
             .stream()
-            .map((e) -> e.toElement())
+            .map((e) -> e.toEntity())
             .collect(Collectors.toList());
     Assert.assertEquals(result.size(), 1);
   }
@@ -2122,7 +2122,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
                 "select expand(out('TestPolymorphicEdges_E1')) from TestPolymorphicEdges_V where"
                     + " name = '1'")
             .stream()
-            .map((r) -> r.toElement())
+            .map((r) -> r.toEntity())
             .collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
 
@@ -2132,7 +2132,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
                 "select expand(out('TestPolymorphicEdges_E2')) from TestPolymorphicEdges_V where"
                     + " name = '1' ")
             .stream()
-            .map((r) -> r.toElement())
+            .map((r) -> r.toEntity())
             .collect(Collectors.toList());
     Assert.assertEquals(result.size(), 1);
   }
@@ -2157,7 +2157,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
                 " select from (select from TestSizeOfLink where name = '1') where"
                     + " out()[name=2].size() > 0")
             .stream()
-            .map((e) -> e.toElement())
+            .map((e) -> e.toEntity())
             .collect(Collectors.toList());
     Assert.assertEquals(result.size(), 1);
   }
@@ -2215,20 +2215,20 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     database.command("create class " + className).close();
 
     database.begin();
-    YTEntity elem1 = database.newElement(className);
+    YTEntity elem1 = database.newEntity(className);
     elem1.setProperty("name", "a");
     elem1.save();
 
-    YTEntity elem2 = database.newElement(className);
+    YTEntity elem2 = database.newEntity(className);
     elem2.setProperty("name", "b");
     elem2.setProperty("surname", "lkj");
     elem2.save();
 
-    YTEntity elem3 = database.newElement(className);
+    YTEntity elem3 = database.newEntity(className);
     elem3.setProperty("name", "c");
     elem3.save();
 
-    YTEntity elem4 = database.newElement(className);
+    YTEntity elem4 = database.newEntity(className);
     elem4.setProperty("name", "d");
     elem4.setProperty("elem1", elem1);
     elem4.setProperty("elem2", elem2);
@@ -2255,7 +2255,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     YTResultSet rs = db.query(sql, args);
     List<YTDocument> result = new ArrayList<>();
     while (rs.hasNext()) {
-      result.add((YTDocument) rs.next().toElement());
+      result.add((YTDocument) rs.next().toEntity());
     }
     rs.close();
     return result;

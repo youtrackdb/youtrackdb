@@ -161,7 +161,7 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
 
     try (YTResultSet result = db.query("select from testDocFromJsonEmbedded_Class1")) {
       Assert.assertTrue(result.hasNext());
-      YTEntity item = result.next().getElement().get();
+      YTEntity item = result.next().getEntity().get();
       YTDocument meta = item.getProperty("meta");
       Assert.assertEquals(meta.getClassName(), "testDocFromJsonEmbedded_Class0");
       Assert.assertEquals(meta.field("ip"), "0:0:0:0:0:0:0:1");
@@ -240,7 +240,7 @@ public class ODatabaseDocumentTxTest extends DBTestBase {
       Assert.assertTrue(
           db.load(((YTIdentifiable) linkedVal).getIdentity()) instanceof YTIdentifiable);
 
-      Assert.assertTrue(res.toElement().getProperty("linked") instanceof YTVertex);
+      Assert.assertTrue(res.toEntity().getProperty("linked") instanceof YTVertex);
     }
   }
 

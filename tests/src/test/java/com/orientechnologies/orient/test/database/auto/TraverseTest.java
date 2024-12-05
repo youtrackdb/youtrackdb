@@ -196,7 +196,7 @@ public class TraverseTest extends DocumentDBBaseTest {
                     + tomCruise.getIdentity()
                     + " while $depth <= 1 ) where @class = 'Movie'")
             .stream()
-            .map(YTResult::toElement)
+            .map(YTResult::toEntity)
             .toList();
     Assert.assertTrue(result1.isEmpty());
 

@@ -28,14 +28,14 @@ public class CopyDocumentStep extends AbstractExecutionStep {
 
   private static YTResult mapResult(YTResult result, OCommandContext ctx) {
     YTDocument resultDoc;
-    if (result.isElement()) {
-      var docToCopy = (YTDocument) result.toElement();
+    if (result.isEntity()) {
+      var docToCopy = (YTDocument) result.toEntity();
       resultDoc = docToCopy.copy();
       resultDoc.getIdentity().reset();
       resultDoc.setClassName(null);
       resultDoc.setDirty();
     } else {
-      resultDoc = (YTDocument) result.toElement();
+      resultDoc = (YTDocument) result.toEntity();
     }
     return new YTUpdatableResult(ctx.getDatabase(), resultDoc);
   }

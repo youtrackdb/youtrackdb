@@ -73,7 +73,7 @@ public class OLuceneContextTest extends OLuceneBaseTest {
     assertThat(results).hasSize(1);
 
     YTResult doc = results.get(0);
-    System.out.println("doc.toElement().toJSON() = " + doc.toElement().toJSON());
+    System.out.println("doc.toEntity().toJSON() = " + doc.toEntity().toJSON());
 
     assertThat(doc.<Long>getProperty("$totalHits")).isEqualTo(14L);
     assertThat(doc.<Long>getProperty("$Song_title_totalHits")).isEqualTo(14L);

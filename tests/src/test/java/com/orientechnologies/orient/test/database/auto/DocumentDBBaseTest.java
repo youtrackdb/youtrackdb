@@ -67,42 +67,42 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
   protected List<YTDocument> executeQuery(String sql, YTDatabaseSessionInternal db,
       Object... args) {
     return db.query(sql, args).stream()
-        .map(YTResult::toElement)
+        .map(YTResult::toEntity)
         .map(element -> (YTDocument) element)
         .toList();
   }
 
   protected List<YTDocument> executeQuery(String sql, YTDatabaseSessionInternal db, Map args) {
     return db.query(sql, args).stream()
-        .map(YTResult::toElement)
+        .map(YTResult::toEntity)
         .map(element -> (YTDocument) element)
         .toList();
   }
 
   protected List<YTDocument> executeQuery(String sql, YTDatabaseSessionInternal db) {
     return db.query(sql).stream()
-        .map(YTResult::toElement)
+        .map(YTResult::toEntity)
         .map(element -> (YTDocument) element)
         .toList();
   }
 
   protected List<YTDocument> executeQuery(String sql, Object... args) {
     return database.query(sql, args).stream()
-        .map(YTResult::toElement)
+        .map(YTResult::toEntity)
         .map(element -> (YTDocument) element)
         .toList();
   }
 
   protected List<YTDocument> executeQuery(String sql, Map<?, ?> args) {
     return database.query(sql, args).stream()
-        .map(YTResult::toElement)
+        .map(YTResult::toEntity)
         .map(element -> (YTDocument) element)
         .toList();
   }
 
   protected List<YTDocument> executeQuery(String sql) {
     return database.query(sql).stream()
-        .map(YTResult::toElement)
+        .map(YTResult::toEntity)
         .map(element -> (YTDocument) element)
         .toList();
   }
@@ -115,20 +115,20 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
         .findAny()
         .isEmpty()) {
 
-      var bObama = database.newElement("Profile");
+      var bObama = database.newEntity("Profile");
       bObama.setProperty("nick", "ThePresident");
       bObama.setProperty("name", "Barack");
       bObama.setProperty("surname", "Obama");
       bObama.setProperty("followings", Collections.emptySet());
 
-      var follower1 = database.newElement("Profile");
+      var follower1 = database.newEntity("Profile");
       follower1.setProperty("nick", "PresidentSon1");
       follower1.setProperty("name", "Malia Ann");
       follower1.setProperty("surname", "Obama");
       follower1.setProperty("followings", Collections.singleton(bObama));
       follower1.setProperty("followers", Collections.emptySet());
 
-      var follower2 = database.newElement("Profile");
+      var follower2 = database.newEntity("Profile");
       follower2.setProperty("nick", "PresidentSon2");
       follower2.setProperty("name", "Natasha");
       follower2.setProperty("surname", "Obama");
@@ -168,7 +168,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
         == 0) {
       for (var id : ids) {
         database.begin();
-        var element = database.newElement("Account");
+        var element = database.newEntity("Account");
         element.setProperty("id", id);
         element.setProperty("name", "Gipsy");
         element.setProperty("location", "Italy");
@@ -209,7 +209,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
 
           if (count < 1_000) {
             for (int i = 0; i < 1_000 - count; i++) {
-              var profile = database.newElement("Profile");
+              var profile = database.newEntity("Profile");
               profile.setProperty("nick", "generatedNick" + i);
               profile.setProperty("name", "generatedName" + i);
               profile.setProperty("surname", "generatedSurname" + i);
@@ -272,7 +272,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
   private YTEntity addItaly() {
     return database.computeInTx(
         () -> {
-          var italy = database.newElement("Country");
+          var italy = database.newEntity("Country");
           italy.setProperty("name", "Italy");
           italy.save();
 
@@ -608,7 +608,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
         database.query("select from GraphVehicle").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
     for (YTResult v : result) {
-      Assert.assertTrue(v.getElement().get().getSchemaType().get().isSubClassOf(vehicleClass));
+      Assert.assertTrue(v.getEntity().get().getSchemaType().get().isSubClassOf(vehicleClass));
     }
 
     database.commit();
@@ -619,10 +619,10 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
     YTEdge edge2 = null;
 
     for (YTResult v : result) {
-      Assert.assertTrue(v.getElement().get().getSchemaType().get().isSubClassOf("GraphVehicle"));
+      Assert.assertTrue(v.getEntity().get().getSchemaType().get().isSubClassOf("GraphVehicle"));
 
-      if (v.getElement().get().getSchemaType().isPresent()
-          && v.getElement().get().getSchemaType().get().getName().equals("GraphCar")) {
+      if (v.getEntity().get().getSchemaType().isPresent()
+          && v.getEntity().get().getSchemaType().get().getName().equals("GraphCar")) {
         Assert.assertEquals(
             CollectionUtils.size(
                 database.<YTVertex>load(v.getIdentity().get()).getEdges(ODirection.OUT)),

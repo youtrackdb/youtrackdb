@@ -579,7 +579,7 @@ public enum YTType {
                             "Error in conversion of value '%s' to type '%s'", value, targetClass)),
                     e);
               }
-            } else if (o instanceof YTResult res && res.isElement()) {
+            } else if (o instanceof YTResult res && res.isEntity()) {
               result.add(res.getRecordId());
             }
           }

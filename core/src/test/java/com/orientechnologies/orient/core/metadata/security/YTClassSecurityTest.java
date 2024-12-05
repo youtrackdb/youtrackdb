@@ -71,7 +71,7 @@ public class YTClassSecurityTest {
     db.commit();
 
     db.begin();
-    YTEntity elem = db.newElement("Person");
+    YTEntity elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);

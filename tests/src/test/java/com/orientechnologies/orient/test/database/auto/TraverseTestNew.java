@@ -172,7 +172,7 @@ public class TraverseTestNew extends DocumentDBBaseTest {
     while (result1.hasNext()) {
       YTResult d = result1.next();
 
-      Assert.assertEquals(d.getElement().get().getSchemaType().get().getName(), "Movie");
+      Assert.assertEquals(d.getEntity().get().getSchemaType().get().getName(), "Movie");
     }
     result1.close();
   }
@@ -187,7 +187,7 @@ public class TraverseTestNew extends DocumentDBBaseTest {
     Assert.assertTrue(result1.hasNext());
     while (result1.hasNext()) {
       YTResult d = result1.next();
-      Assert.assertEquals(d.getElement().get().getSchemaType().get().getName(), "Movie");
+      Assert.assertEquals(d.getEntity().get().getSchemaType().get().getName(), "Movie");
     }
     result1.close();
   }
@@ -209,7 +209,7 @@ public class TraverseTestNew extends DocumentDBBaseTest {
     Assert.assertTrue(result2.hasNext());
     int size2 = 0;
     while (result2.hasNext()) {
-      YTDocument d = result2.next().getElement().get().getRecord();
+      YTDocument d = result2.next().getEntity().get().getRecord();
       Assert.assertEquals(d.getClassName(), "Movie");
       size2++;
     }
@@ -222,7 +222,7 @@ public class TraverseTestNew extends DocumentDBBaseTest {
     Assert.assertTrue(result3.hasNext());
     int size3 = 0;
     while (result3.hasNext()) {
-      YTDocument d = result3.next().getElement().get().getRecord();
+      YTDocument d = result3.next().getEntity().get().getRecord();
       Assert.assertEquals(d.getClassName(), "Movie");
       size3++;
     }

@@ -286,7 +286,7 @@ public class OrientJdbcResultSet implements ResultSet {
   }
 
   public void deleteRow() throws SQLException {
-    result.toElement().delete();
+    result.toEntity().delete();
   }
 
   public int findColumn(String columnLabel) throws SQLException {
@@ -325,7 +325,7 @@ public class OrientJdbcResultSet implements ResultSet {
 
     YTType columnType =
         result
-            .toElement()
+            .toEntity()
             .getSchemaType()
             .map(t -> t.getProperty(columnLabel).getType())
             .orElse(YTType.EMBEDDEDLIST);
@@ -462,7 +462,7 @@ public class OrientJdbcResultSet implements ResultSet {
           "An error occurred during the retrieval of the boolean value at column '"
               + columnLabel
               + "' ---> "
-              + result.toElement().toJSON(),
+              + result.toEntity().toJSON(),
           e);
     }
   }
@@ -655,7 +655,7 @@ public class OrientJdbcResultSet implements ResultSet {
 
   public int getInt(String columnLabel) throws SQLException {
     if ("@version".equals(columnLabel)) {
-      return result.toElement().getVersion();
+      return result.toEntity().getVersion();
     }
 
     try {
@@ -741,7 +741,7 @@ public class OrientJdbcResultSet implements ResultSet {
     }
 
     if ("@class".equals(columnLabel) || "class".equals(columnLabel)) {
-      String r = result.toElement().getSchemaType().map(t -> t.getName()).orElse(null);
+      String r = result.toEntity().getSchemaType().map(t -> t.getName()).orElse(null);
       lastReadWasNull = r == null;
       return r;
     }
@@ -788,7 +788,7 @@ public class OrientJdbcResultSet implements ResultSet {
   public RowId getRowId(final int columnIndex) throws SQLException {
     try {
       lastReadWasNull = false;
-      return new OrientRowId(result.toElement().getIdentity());
+      return new OrientRowId(result.toEntity().getIdentity());
     } catch (Exception e) {
       throw new SQLException(
           "An error occurred during the retrieval of the rowid for record '" + result + "'", e);
@@ -839,12 +839,12 @@ public class OrientJdbcResultSet implements ResultSet {
 
     if ("@rid".equals(columnLabel) || "rid".equals(columnLabel)) {
       lastReadWasNull = false;
-      return result.toElement().getIdentity().toString();
+      return result.toEntity().getIdentity().toString();
     }
 
     if ("@class".equals(columnLabel) || "class".equals(columnLabel)) {
       lastReadWasNull = false;
-      return result.toElement().getSchemaType().map(c -> c.getName()).orElse("NOCLASS");
+      return result.toEntity().getSchemaType().map(c -> c.getName()).orElse("NOCLASS");
     }
 
     try {

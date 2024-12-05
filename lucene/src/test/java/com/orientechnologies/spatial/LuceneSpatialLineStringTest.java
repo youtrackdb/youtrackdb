@@ -103,7 +103,7 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
     String query =
         "select * from Place where location && { 'shape' : { 'type' : 'OLineString' , 'coordinates'"
             + " : [[1,2],[4,6]]} } ";
-    var docs = db.query(query).toElementList();
+    var docs = db.query(query).toEntityList();
 
     Assert.assertEquals(1, docs.size());
 
@@ -113,7 +113,7 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
     Assert.assertEquals(1, docs.size());
 
     query = "select * from Place where location && ST_GeomFromText('LINESTRING(1 2, 4 6)') ";
-    docs = db.query(query).toElementList();
+    docs = db.query(query).toEntityList();
 
     Assert.assertEquals(1, docs.size());
 
@@ -122,7 +122,7 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
             + " 61.40723633876356,-149.2657470703125 61.40723633876356,-149.2657470703125"
             + " 61.05562700886678,-150.205078125 61.05562700886678,-150.205078125"
             + " 61.40723633876356))' ";
-    docs = db.query(query).toElementList();
+    docs = db.query(query).toEntityList();
 
     Assert.assertEquals(1, docs.size());
   }

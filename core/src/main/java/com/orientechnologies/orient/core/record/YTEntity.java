@@ -78,7 +78,7 @@ public interface YTEntity extends YTRecord {
     if (property instanceof YTEntity) {
       return (YTEntity) property;
     } else if (property instanceof YTIdentifiable identifiable) {
-      return identifiable.getElement();
+      return identifiable.getEntity();
     }
 
     throw new YTDatabaseException(

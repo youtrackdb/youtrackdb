@@ -35,7 +35,7 @@ public class OCompositeIndexGrowShrinkIT extends DBTestBase {
             "create index CompositeIndex_id_tags_name on CompositeIndex (id, tags, name) NOTUNIQUE")
         .close();
     for (int i = 0; i < 150000; i++) {
-      YTEntity rec = db.newElement("CompositeIndex");
+      YTEntity rec = db.newEntity("CompositeIndex");
       rec.setProperty("id", i);
       rec.setProperty("bar", i);
       rec.setProperty(
@@ -63,7 +63,7 @@ public class OCompositeIndexGrowShrinkIT extends DBTestBase {
         .close();
 
     for (int i = 0; i < 150000; i++) {
-      YTEntity rec = db.newElement("CompositeIndex");
+      YTEntity rec = db.newEntity("CompositeIndex");
       rec.setProperty("id", i);
       rec.setProperty("bar", i);
       rec.setProperty(

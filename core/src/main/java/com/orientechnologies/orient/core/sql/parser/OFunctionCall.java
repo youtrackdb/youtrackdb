@@ -110,7 +110,7 @@ public class OFunctionCall extends SimpleNode {
       if (targetObjects instanceof YTIdentifiable) {
         record = targetObjects;
       } else if (targetObjects instanceof YTResult) {
-        record = ((YTResult) targetObjects).toElement();
+        record = ((YTResult) targetObjects).toEntity();
       } else {
         record = targetObjects;
       }
@@ -121,7 +121,7 @@ public class OFunctionCall extends SimpleNode {
         if (current instanceof YTIdentifiable) {
           record = current;
         } else if (current instanceof YTResult) {
-          record = ((YTResult) current).toElement();
+          record = ((YTResult) current).toEntity();
         } else {
           record = current;
         }
@@ -152,7 +152,7 @@ public class OFunctionCall extends SimpleNode {
       } else if (record instanceof YTResult) {
         return function.execute(
             targetObjects,
-            ((YTResult) record).getElement().orElse(null),
+            ((YTResult) record).getEntity().orElse(null),
             null,
             paramValues.toArray(),
             ctx);

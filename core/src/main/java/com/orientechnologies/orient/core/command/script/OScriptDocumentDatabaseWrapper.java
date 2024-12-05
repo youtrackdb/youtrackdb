@@ -67,7 +67,7 @@ public class OScriptDocumentDatabaseWrapper {
 
   public YTIdentifiable[] query(final String iText, final Object... iParameters) {
     try (YTResultSet rs = database.query(iText, iParameters)) {
-      return rs.stream().map(YTResult::toElement).toArray(YTIdentifiable[]::new);
+      return rs.stream().map(YTResult::toEntity).toArray(YTIdentifiable[]::new);
     }
   }
 
@@ -99,7 +99,7 @@ public class OScriptDocumentDatabaseWrapper {
 
   public Object command(final String iText, final Object... iParameters) {
     try (YTResultSet rs = database.command(iText, iParameters)) {
-      return rs.stream().map(x -> x.toElement()).toArray(size -> new YTIdentifiable[size]);
+      return rs.stream().map(x -> x.toEntity()).toArray(size -> new YTIdentifiable[size]);
     }
   }
 

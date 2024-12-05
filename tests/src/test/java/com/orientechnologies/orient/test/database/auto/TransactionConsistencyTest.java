@@ -531,7 +531,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     // remove those foos in a transaction
     // Step 3a
     var result =
-        database.query("select * from Foo where address = 'test1'").elementStream().toList();
+        database.query("select * from Foo where address = 'test1'").entityStream().toList();
     Assert.assertEquals(result.size(), 1);
     // Step 4a
     database.begin();
@@ -539,7 +539,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database.commit();
 
     // Step 3b
-    result = database.query("select * from Foo where address = 'test2'").elementStream().toList();
+    result = database.query("select * from Foo where address = 'test2'").entityStream().toList();
     Assert.assertEquals(result.size(), 1);
     // Step 4b
     database.begin();
@@ -547,7 +547,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database.commit();
 
     // Step 3c
-    result = database.query("select * from Foo where address = 'test3'").elementStream().toList();
+    result = database.query("select * from Foo where address = 'test3'").entityStream().toList();
     Assert.assertEquals(result.size(), 1);
     // Step 4c
     database.begin();
@@ -594,7 +594,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     Assert.assertEquals(foos.size(), 1);
 
     database.begin();
-    database.delete(database.bindToSession(foos.get(0).toElement()));
+    database.delete(database.bindToSession(foos.get(0).toEntity()));
     database.commit();
   }
 
@@ -705,7 +705,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     var result =
         database
             .query("select from V where purpose = 'testQueryIsolation'")
-            .elementStream()
+            .entityStream()
             .toList();
     Assert.assertEquals(result.size(), 1);
 
@@ -714,7 +714,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     result =
         database
             .query("select from V where purpose = 'testQueryIsolation'")
-            .elementStream()
+            .entityStream()
             .toList();
     Assert.assertEquals(result.size(), 1);
   }
@@ -728,7 +728,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   @SuppressWarnings("unused")
   @Test
   public void testRollbackWithRemove() {
-    var account = database.newElement("Account");
+    var account = database.newEntity("Account");
     account.setProperty("name", "John Grisham");
     database.begin();
     account = database.save(account);
@@ -736,11 +736,11 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
     database.begin();
     account = database.bindToSession(account);
-    var address1 = database.newElement("Address");
+    var address1 = database.newEntity("Address");
     address1.setProperty("street", "Mulholland drive");
     address1.save();
 
-    var address2 = database.newElement("Address");
+    var address2 = database.newEntity("Address");
     address2.setProperty("street", "Via Veneto");
 
     List<YTEntity> addresses = new ArrayList<>();

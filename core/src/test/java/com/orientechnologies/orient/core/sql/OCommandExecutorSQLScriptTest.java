@@ -154,7 +154,7 @@ public class OCommandExecutorSQLScriptTest extends DBTestBase {
             """;
     YTResultSet qResult = db.execute("sql", script);
 
-    assertThat(qResult.next().getElement().orElseThrow().<Long>getProperty("weight")).isEqualTo(4L);
+    assertThat(qResult.next().getEntity().orElseThrow().<Long>getProperty("weight")).isEqualTo(4L);
   }
 
   @Test

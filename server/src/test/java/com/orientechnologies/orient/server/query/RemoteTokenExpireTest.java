@@ -163,7 +163,7 @@ public class RemoteTokenExpireTest {
 
     session.begin();
 
-    session.save(session.newElement("Some"));
+    session.save(session.newEntity("Some"));
 
     try (YTResultSet res = session.query("select from Some")) {
       Assert.assertEquals(1, res.stream().count());
@@ -179,7 +179,7 @@ public class RemoteTokenExpireTest {
 
     session.begin();
 
-    session.save(session.newElement("Some"));
+    session.save(session.newEntity("Some"));
 
     try (YTResultSet resultSet = session.query("select from Some")) {
       Assert.assertEquals(1, resultSet.stream().count());

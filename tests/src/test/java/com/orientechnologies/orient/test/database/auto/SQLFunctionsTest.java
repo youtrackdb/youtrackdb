@@ -81,7 +81,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
   public void queryMaxInline() {
     List<YTDocument> result =
         database.query("select max(1,2,7,0,-2,3) as max").stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertEquals(result.size(), 1);
@@ -108,7 +108,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
   public void queryMinInline() {
     List<YTDocument> result =
         database.query("select min(1,2,7,0,-2,3) as min").stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertEquals(result.size(), 1);
@@ -181,7 +181,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
     List<YTDocument> result =
         database.query("select count(*) from QueryCountExtendsRestrictedClass").stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
     YTDocument count = result.get(0);
     Assert.assertEquals(2L, count.<Object>field("count(*)"));
@@ -192,7 +192,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
     result =
         database.query("select count(*) as count from QueryCountExtendsRestrictedClass").stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
     count = result.get(0);
     Assert.assertEquals(2L, count.<Object>field("count"));
@@ -202,7 +202,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
     result =
         database.query("select count(*) as count from QueryCountExtendsRestrictedClass").stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
     count = result.get(0);
     Assert.assertEquals(2L, count.<Object>field("count"));
@@ -221,7 +221,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
     List<YTDocument> result =
         database.query("select count(*) as total from Indexed where key > 'one'").stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertEquals(result.size(), 1);
@@ -235,7 +235,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
   public void queryDistinct() {
     List<YTDocument> result =
         database.query("select distinct(name) as name from City").stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertTrue(result.size() > 1);
@@ -252,7 +252,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
   public void queryFunctionRenamed() {
     List<YTDocument> result =
         database.query("select distinct(name) as dist from City").stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertTrue(result.size() > 1);
@@ -265,12 +265,12 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
   @Test
   public void queryUnionAllAsAggregationNotRemoveDuplicates() {
     List<YTDocument> result =
-        database.query("select from City").stream().map(r -> (YTDocument) r.toElement()).toList();
+        database.query("select from City").stream().map(r -> (YTDocument) r.toEntity()).toList();
     int count = result.size();
 
     result =
         database.query("select unionAll(name) as name from City").stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
     Collection<Object> citiesFound = result.get(0).field("name");
     Assert.assertEquals(citiesFound.size(), count);
@@ -280,7 +280,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
   public void querySetNotDuplicates() {
     List<YTDocument> result =
         database.query("select set(name) as name from City").stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertEquals(result.size(), 1);
@@ -299,7 +299,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
   public void queryList() {
     List<YTDocument> result =
         database.query("select list(name) as names from City").stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());
@@ -315,7 +315,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
         database
             .query("select list( 1, 4, 5.00, 'john', map( 'kAA', 'vAA' ) ) as myresult")
             .stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertEquals(result.size(), 1);
@@ -346,7 +346,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
   public void querySet() {
     List<YTDocument> result =
         database.query("select set(name) as names from City").stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());
@@ -361,7 +361,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
   public void queryMap() {
     List<YTDocument> result =
         database.query("select map(name, country.name) as names from City").stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());
@@ -376,7 +376,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
   public void queryUnionAllAsInline() {
     List<YTDocument> result =
         database.query("select unionAll(out, in) as edges from V").stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertTrue(result.size() > 1);
@@ -394,7 +394,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
                 "select MIN(id) as min, max(id) as max, AVG(id) as average, sum(id) as total"
                     + " from Account")
             .stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertEquals(result.size(), 1);
@@ -422,7 +422,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
                 "select format('%d - %s (%s)', nr, street, type, dummy ) as output from"
                     + " Account")
             .stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertTrue(result.size() > 1);
@@ -446,7 +446,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
   public void querySysdateWithFormat() {
     List<YTDocument> result =
         database.query("select sysdate('dd-MM-yyyy') as date from Account").stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertTrue(result.size() > 1);
@@ -498,7 +498,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
   public void queryUndefinedFunction() {
     //noinspection ResultOfMethodCallIgnored
     database.query("select blaaaa(salary) as max from Account").stream()
-        .map(r -> (YTDocument) r.toElement())
+        .map(r -> (YTDocument) r.toEntity())
         .toList();
   }
 
@@ -542,7 +542,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
     List<YTDocument> result =
         database.query("select from Account where bigger(id,1000) = 1000").stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());
@@ -561,7 +561,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
             + moreThanInteger
             + "' as numberString from Account ) limit 1";
     List<YTDocument> result =
-        database.query(sql).stream().map(r -> (YTDocument) r.toElement()).toList();
+        database.query(sql).stream().map(r -> (YTDocument) r.toEntity()).toList();
 
     Assert.assertEquals(result.size(), 1);
     for (YTDocument d : result) {
@@ -577,7 +577,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
         database
             .query("select name, name.hash() as n256, name.hash('sha-512') as n512 from OUser")
             .stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());
@@ -604,7 +604,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
     List<YTDocument> result =
         database.query("select first(sequence) as first from V where sequence is not null").stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertEquals(result.size(), 2);
@@ -627,7 +627,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
     List<YTDocument> result =
         database.query("select last(sequence2) as last from V where sequence2 is not null").stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertEquals(result.size(), 2);
@@ -640,7 +640,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
     String sql = "select v.split('-') as value from ( select '1-2-3' as v ) limit 1";
 
     List<YTDocument> result =
-        database.query(sql).stream().map(r -> (YTDocument) r.toElement()).toList();
+        database.query(sql).stream().map(r -> (YTDocument) r.toEntity()).toList();
 
     Assert.assertEquals(result.size(), 1);
     for (YTDocument d : result) {

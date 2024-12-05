@@ -48,16 +48,16 @@ public class TxNonUniqueIndexWithCollationTest extends DBTestBase {
         .createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
-    YTEntity user = db.newElement("user");
+    YTEntity user = db.newEntity("user");
     user.setProperty("name", "abc");
     db.save(user);
-    user = db.newElement("user");
+    user = db.newEntity("user");
     user.setProperty("name", "aby");
     db.save(user);
-    user = db.newElement("user");
+    user = db.newEntity("user");
     user.setProperty("name", "aby");
     db.save(user);
-    user = db.newElement("user");
+    user = db.newEntity("user");
     user.setProperty("name", "abz");
     db.save(user);
     db.commit();
@@ -104,7 +104,7 @@ public class TxNonUniqueIndexWithCollationTest extends DBTestBase {
 
     final List<YTDocument> r =
         db.query("select * from user where name in ['Abc', 'Abd', 'Abz'] order by name").stream()
-            .map(x -> ((YTDocument) (x.toElement())))
+            .map(x -> ((YTDocument) (x.toEntity())))
             .toList();
     assertEquals(4, r.size());
     assertEquals("abc", r.get(0).field("name"));

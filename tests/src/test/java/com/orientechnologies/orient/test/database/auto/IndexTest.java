@@ -69,7 +69,7 @@ public class IndexTest extends DocumentDBBaseTest {
   }
 
   public void testDuplicatedIndexOnUnique() {
-    var jayMiner = database.newElement("Profile");
+    var jayMiner = database.newEntity("Profile");
     jayMiner.setProperty("nick", "Jay");
     jayMiner.setProperty("name", "Jay");
     jayMiner.setProperty("surname", "Miner");
@@ -78,7 +78,7 @@ public class IndexTest extends DocumentDBBaseTest {
     database.save(jayMiner);
     database.commit();
 
-    var jacobMiner = database.newElement("Profile");
+    var jacobMiner = database.newEntity("Profile");
     jacobMiner.setProperty("nick", "Jay");
     jacobMiner.setProperty("name", "Jacob");
     jacobMiner.setProperty("surname", "Miner");
@@ -115,7 +115,7 @@ public class IndexTest extends DocumentDBBaseTest {
       final List<String> expectedSurnames =
           new ArrayList<>(Arrays.asList("NolteIndex0", "NolteIndex1", "NolteIndex2"));
 
-      var result = resultSet.elementStream().toList();
+      var result = resultSet.entityStream().toList();
       Assert.assertEquals(result.size(), 3);
       for (final YTEntity profile : result) {
         expectedSurnames.remove(profile.<String>getProperty("surname"));
@@ -168,7 +168,7 @@ public class IndexTest extends DocumentDBBaseTest {
         profileSize);
     for (int i = 0; i < 10; i++) {
       database.begin();
-      YTEntity profile = database.newElement("Profile");
+      YTEntity profile = database.newEntity("Profile");
       profile.setProperty("nick", "Yay-" + i);
       profile.setProperty("name", "Jay");
       profile.setProperty("surname", "Miner");
@@ -203,7 +203,7 @@ public class IndexTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "testChangeOfIndexToNotUnique")
   public void testDuplicatedIndexOnNotUnique() {
     database.begin();
-    YTEntity nickNolte = database.newElement("Profile");
+    YTEntity nickNolte = database.newEntity("Profile");
     nickNolte.setProperty("nick", "Jay");
     nickNolte.setProperty("name", "Nick");
     nickNolte.setProperty("surname", "Nolte");
@@ -241,7 +241,7 @@ public class IndexTest extends DocumentDBBaseTest {
       final List<String> expectedNicks =
           new ArrayList<>(Arrays.asList("ZZZJayLongNickIndex4", "ZZZJayLongNickIndex5"));
 
-      var result = resultSet.elementStream().toList();
+      var result = resultSet.entityStream().toList();
       Assert.assertEquals(result.size(), 2);
       for (YTEntity profile : result) {
         expectedNicks.remove(profile.<String>getProperty("nick"));
@@ -265,7 +265,7 @@ public class IndexTest extends DocumentDBBaseTest {
               Arrays.asList(
                   "ZZZJayLongNickIndex3", "ZZZJayLongNickIndex4", "ZZZJayLongNickIndex5"));
 
-      var result = resultSet.elementStream().toList();
+      var result = resultSet.entityStream().toList();
       Assert.assertEquals(result.size(), 3);
       for (YTEntity profile : result) {
         expectedNicks.remove(profile.<String>getProperty("nick"));
@@ -285,7 +285,7 @@ public class IndexTest extends DocumentDBBaseTest {
       assertIndexUsage(resultSet);
       final List<String> expectedNicks = new ArrayList<>(Arrays.asList("000", "001"));
 
-      var result = resultSet.elementStream().toList();
+      var result = resultSet.entityStream().toList();
       Assert.assertEquals(result.size(), 2);
       for (YTEntity profile : result) {
         expectedNicks.remove(profile.<String>getProperty("nick"));
@@ -304,7 +304,7 @@ public class IndexTest extends DocumentDBBaseTest {
     try (var resultSet = database.query("select * from Profile where nick <= '002'")) {
       final List<String> expectedNicks = new ArrayList<>(Arrays.asList("000", "001", "002"));
 
-      var result = resultSet.elementStream().toList();
+      var result = resultSet.entityStream().toList();
       Assert.assertEquals(result.size(), 3);
       for (YTEntity profile : result) {
         expectedNicks.remove(profile.<String>getProperty("nick"));
@@ -325,7 +325,7 @@ public class IndexTest extends DocumentDBBaseTest {
       assertIndexUsage(resultSet);
       final List<String> expectedNicks = new ArrayList<>(Arrays.asList("001", "002", "003", "004"));
 
-      var result = resultSet.elementStream().toList();
+      var result = resultSet.entityStream().toList();
       Assert.assertEquals(result.size(), 4);
       for (YTEntity profile : result) {
         expectedNicks.remove(profile.<String>getProperty("nick"));
@@ -353,7 +353,7 @@ public class IndexTest extends DocumentDBBaseTest {
               Arrays.asList(
                   "ZZZJayLongNickIndex3", "ZZZJayLongNickIndex4", "ZZZJayLongNickIndex5"));
 
-      var result = resultSet.elementStream().toList();
+      var result = resultSet.entityStream().toList();
       Assert.assertEquals(result.size(), 3);
       for (YTEntity profile : result) {
         expectedNicks.remove(profile.<String>getProperty("nick"));
@@ -380,7 +380,7 @@ public class IndexTest extends DocumentDBBaseTest {
           new ArrayList<>(
               Arrays.asList(
                   "ZZZJayLongNickIndex3", "ZZZJayLongNickIndex4", "ZZZJayLongNickIndex5"));
-      var result = resultSet.elementStream().toList();
+      var result = resultSet.entityStream().toList();
       Assert.assertEquals(result.size(), 3);
       for (YTEntity profile : result) {
         expectedNicks.remove(profile.<String>getProperty("nick"));
@@ -393,7 +393,7 @@ public class IndexTest extends DocumentDBBaseTest {
   public void populateIndexDocuments() {
     for (int i = 0; i <= 5; i++) {
       database.begin();
-      final YTEntity profile = database.newElement("Profile");
+      final YTEntity profile = database.newEntity("Profile");
       profile.setProperty("nick", "ZZZJayLongNickIndex" + i);
       profile.setProperty("name", "NickIndex" + i);
       profile.setProperty("surname", "NolteIndex" + i);
@@ -403,7 +403,7 @@ public class IndexTest extends DocumentDBBaseTest {
 
     for (int i = 0; i <= 5; i++) {
       database.begin();
-      final YTEntity profile = database.newElement("Profile");
+      final YTEntity profile = database.newEntity("Profile");
       profile.setProperty("nick", "00" + i);
       profile.setProperty("name", "NickIndex" + i);
       profile.setProperty("surname", "NolteIndex" + i);
@@ -475,7 +475,7 @@ public class IndexTest extends DocumentDBBaseTest {
       final List<String> expectedSurnames =
           new ArrayList<>(Arrays.asList("NolteIndex0", "NolteIndex1", "NolteIndex2"));
 
-      var result = resultSet.elementStream().toList();
+      var result = resultSet.entityStream().toList();
       Assert.assertEquals(result.size(), 3);
       for (final YTEntity profile : result) {
         expectedSurnames.remove(profile.<String>getProperty("surname"));
@@ -1028,7 +1028,7 @@ public class IndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntity profile = database.newElement("Profile");
+    YTEntity profile = database.newEntity("Profile");
     profile.setProperty("nick", "NonProxiedObjectToDelete");
     profile.setProperty("name", "NonProxiedObjectToDelete");
     profile.setProperty("surname", "NonProxiedObjectToDelete");
@@ -1059,7 +1059,7 @@ public class IndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntity profile = database.newElement("Profile");
+    YTEntity profile = database.newEntity("Profile");
     profile.setProperty("nick", "NonProxiedObjectToDelete");
     profile.setProperty("name", "NonProxiedObjectToDelete");
     profile.setProperty("surname", "NonProxiedObjectToDelete");
@@ -1405,7 +1405,7 @@ public class IndexTest extends DocumentDBBaseTest {
     Assert.assertEquals(resultOne.get(0).getIdentity(), docOne.getIdentity());
 
     try (var result = database.command("explain " + queryOne)) {
-      var explain = result.next().toElement();
+      var explain = result.next().toEntity();
       Assert.assertTrue(
           explain
               .<String>getProperty("executionPlanAsString")

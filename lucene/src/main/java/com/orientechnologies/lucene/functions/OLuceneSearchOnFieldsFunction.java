@@ -64,7 +64,7 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
     }
     YTResult result = (YTResult) iThis;
 
-    YTEntity element = result.toElement();
+    YTEntity element = result.toEntity();
     if (!element.getSchemaType().isPresent()) {
       return false;
     }

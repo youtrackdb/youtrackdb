@@ -763,7 +763,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     YTResultSet rs = currentDatabase.command(command);
     final List<YTIdentifiable> result =
-        rs.stream().map(x -> x.toElement()).collect(Collectors.toList());
+        rs.stream().map(x -> x.toEntity()).collect(Collectors.toList());
     rs.close();
     float elapsedSeconds = getElapsedSecs(start);
 
@@ -1134,7 +1134,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     long start = System.currentTimeMillis();
     YTResultSet rs = currentDatabase.command("traverse " + iQueryText);
-    setResultset(rs.stream().map(x -> x.toElement()).collect(Collectors.toList()));
+    setResultset(rs.stream().map(x -> x.toEntity()).collect(Collectors.toList()));
     rs.close();
 
     float elapsedSeconds = getElapsedSecs(start);
@@ -1194,7 +1194,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
         if (item.isBlob()) {
           result.add(item.getBlob().get());
         } else {
-          result.add(item.toElement());
+          result.add(item.toEntity());
         }
       }
     }
@@ -1248,7 +1248,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     YTResultSet rs = currentDatabase.query(iQueryText);
     int count = 0;
     while (rs.hasNext() && (queryLimit < 0 || count < queryLimit)) {
-      result.add(rs.next().toElement());
+      result.add(rs.next().toEntity());
     }
     rs.close();
     setResultset(result);
@@ -3059,7 +3059,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
             if (item.isBlob()) {
               result.add(item.getBlob().get());
             } else {
-              result.add(item.toElement());
+              result.add(item.toEntity());
             }
           }
           setResultset(result);
@@ -3419,7 +3419,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     long start = System.currentTimeMillis();
 
     YTResultSet rs = currentDatabase.execute(iLanguage, iText);
-    currentResult = rs.stream().map(x -> x.toElement()).collect(Collectors.toList());
+    currentResult = rs.stream().map(x -> x.toEntity()).collect(Collectors.toList());
     rs.close();
     float elapsedSeconds = getElapsedSecs(start);
 
@@ -3596,7 +3596,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     final Object result;
     try (YTResultSet rs = currentDatabase.command(iReceivedCommand)) {
-      result = rs.stream().map(x -> x.toElement()).collect(Collectors.toList());
+      result = rs.stream().map(x -> x.toEntity()).collect(Collectors.toList());
     }
     float elapsedSeconds = getElapsedSecs(start);
 

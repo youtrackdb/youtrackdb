@@ -191,7 +191,7 @@ public class OSystemDatabase {
           () -> {
             YTEntity info;
             if (clz.count(db) == 0) {
-              info = db.newElement(SERVER_INFO_CLASS);
+              info = db.newEntity(SERVER_INFO_CLASS);
             } else {
               info = db.browseClass(clz.getName()).next();
             }

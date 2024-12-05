@@ -1154,16 +1154,16 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDataba
   }
 
   @Override
-  public YTEntity newElement() {
+  public YTEntity newEntity() {
     return newInstance();
   }
 
   @Override
-  public YTEntity newElement(String className) {
+  public YTEntity newEntity(String className) {
     return newInstance(className);
   }
 
-  public YTEntity newElement(YTClass clazz) {
+  public YTEntity newEntity(YTClass clazz) {
     return newInstance(clazz.getName());
   }
 

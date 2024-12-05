@@ -32,14 +32,14 @@ public class CopyRecordContentBeforeUpdateStep extends AbstractExecutionStep {
     var db = ctx.getDatabase();
     if (result instanceof YTUpdatableResult) {
       YTResultInternal prevValue = new YTResultInternal(db);
-      var rec = result.toElement();
+      var rec = result.toEntity();
       prevValue.setProperty("@rid", rec.getIdentity());
       prevValue.setProperty("@version", rec.getVersion());
       if (rec instanceof YTDocument) {
         prevValue.setProperty(
             "@class", ODocumentInternal.getImmutableSchemaClass(((YTDocument) rec)).getName());
       }
-      if (!result.toElement().getIdentity().isNew()) {
+      if (!result.toEntity().getIdentity().isNew()) {
         for (String propName : result.getPropertyNames()) {
           prevValue.setProperty(
               propName, OLiveQueryHookV2.unboxRidbags(result.getProperty(propName)));

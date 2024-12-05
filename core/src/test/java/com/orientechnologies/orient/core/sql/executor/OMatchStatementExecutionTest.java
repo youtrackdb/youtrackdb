@@ -1890,17 +1890,17 @@ public class OMatchStatementExecutionTest extends DBTestBase {
     return set.stream()
         .map(
             (r) -> {
-              if (r.isElement()) {
-                return (YTDocument) r.getElement().get();
+              if (r.isEntity()) {
+                return (YTDocument) r.getEntity().get();
               } else {
-                return (YTDocument) r.toElement();
+                return (YTDocument) r.toEntity();
               }
             })
         .collect(Collectors.toList());
   }
 
   private List<YTIdentifiable> collectIdentifiable(YTResultSet set) {
-    return set.stream().map((r) -> (YTDocument) r.toElement()).collect(Collectors.toList());
+    return set.stream().map((r) -> (YTDocument) r.toEntity()).collect(Collectors.toList());
   }
 
   private OProfiler getProfilerInstance() {

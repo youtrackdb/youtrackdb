@@ -35,7 +35,7 @@ public class LuceneCreateIndexIntegrationTest {
     session.command("create property Person.name STRING");
     session.command("create property Person.surname STRING");
 
-    final YTEntity doc = session.newElement("Person");
+    final YTEntity doc = session.newEntity("Person");
     doc.setProperty("name", "Jon");
     doc.setProperty("surname", "Snow");
     session.begin();

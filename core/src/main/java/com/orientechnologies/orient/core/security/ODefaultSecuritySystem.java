@@ -429,7 +429,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
                   return new YTImmutableUser(sessionInternal,
                       0,
                       new YTSystemUser(sessionInternal,
-                          resultset.next().getElement().orElseThrow().getRecord(), dbName));
+                          resultset.next().getEntity().orElseThrow().getRecord(), dbName));
                 }
                 return null;
               },

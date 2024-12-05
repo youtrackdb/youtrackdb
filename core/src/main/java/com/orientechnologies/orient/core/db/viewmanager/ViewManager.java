@@ -484,7 +484,7 @@ public class ViewManager {
   }
 
   private YTEntity copyElement(YTResult item, YTDatabaseSession db) {
-    YTEntity newRow = db.newElement();
+    YTEntity newRow = db.newEntity();
     for (String prop : item.getPropertyNames()) {
       if (!prop.equalsIgnoreCase("@rid") && !prop.equalsIgnoreCase("@class")) {
         newRow.setProperty(prop, item.getProperty(prop));
@@ -615,7 +615,7 @@ public class ViewManager {
 //                (Object) after.getProperty("@rid"))) {
 //          while (rs.hasNext()) {
 //            YTResult row = rs.next();
-//            row.getElement()
+//            row.getEntity()
 //                .ifPresent(elem -> updateViewRow(elem, after, view, (YTDatabaseSessionInternal) db));
 //          }
 //        }
@@ -661,7 +661,7 @@ public class ViewManager {
 //                "SELECT FROM " + viewName + " WHERE " + view.getOriginRidField() + " = ?",
 //                (Object) data.getProperty("@rid"))) {
 //          while (rs.hasNext()) {
-//            rs.next().getElement().ifPresent(x -> x.delete());
+//            rs.next().getEntity().ifPresent(x -> x.delete());
 //          }
 //        }
 //      }

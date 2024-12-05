@@ -49,7 +49,7 @@ public class OContainsCondition extends OBooleanExpression {
             return true;
           }
           if (item instanceof YTResult) {
-            item = ((YTResult) item).getElement().orElse(null);
+            item = ((YTResult) item).getEntity().orElse(null);
           }
           if (item instanceof YTIdentifiable && ((Collection) left).contains(item)) {
             return true;

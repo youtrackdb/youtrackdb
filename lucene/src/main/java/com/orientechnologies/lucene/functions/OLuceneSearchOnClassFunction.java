@@ -67,7 +67,7 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
       result = new YTResultInternal(ctx.getDatabase(), (YTIdentifiable) iThis);
     }
 
-    YTEntity element = result.toElement();
+    YTEntity element = result.toEntity();
 
     String className = element.getSchemaType().get().getName();
 

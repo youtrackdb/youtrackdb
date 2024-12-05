@@ -55,7 +55,7 @@ public class OSQLMethodToJSON extends OAbstractSQLMethod {
     final String format = iParams.length > 0 ? ((String) iParams[0]).replace("\"", "") : null;
 
     if (iThis instanceof YTResult) {
-      iThis = ((YTResult) iThis).toElement();
+      iThis = ((YTResult) iThis).toEntity();
     }
     if (iThis instanceof YTRecord record) {
 

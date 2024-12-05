@@ -29,8 +29,8 @@ public class ConvertToUpdatableResultStep extends AbstractExecutionStep {
     if (result instanceof YTUpdatableResult) {
       return result;
     }
-    if (result.isElement()) {
-      var element = result.toElement();
+    if (result.isEntity()) {
+      var element = result.toEntity();
       if (element != null) {
         return new YTUpdatableResult(ctx.getDatabase(), element);
       }

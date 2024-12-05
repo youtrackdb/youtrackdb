@@ -50,8 +50,8 @@ public class OContainsAnyCondition extends OBooleanExpression {
             return true;
           }
           if (next instanceof YTResult
-              && ((YTResult) next).isElement()
-              && ((Collection) left).contains(((YTResult) next).toElement())) {
+              && ((YTResult) next).isEntity()
+              && ((Collection) left).contains(((YTResult) next).toEntity())) {
             return true;
           }
         }
@@ -76,12 +76,12 @@ public class OContainsAnyCondition extends OBooleanExpression {
             return true;
           }
           Object leftElem =
-              leftItem instanceof YTResult && ((YTResult) leftItem).isElement()
-                  ? ((YTResult) leftItem).getElement().get()
+              leftItem instanceof YTResult && ((YTResult) leftItem).isEntity()
+                  ? ((YTResult) leftItem).getEntity().get()
                   : rightItem;
           Object rightElem =
-              rightItem instanceof YTResult && ((YTResult) rightItem).isElement()
-                  ? ((YTResult) rightItem).getElement().get()
+              rightItem instanceof YTResult && ((YTResult) rightItem).isEntity()
+                  ? ((YTResult) rightItem).getEntity().get()
                   : rightItem;
           if (leftElem != null && leftElem.equals(rightElem)) {
             return true;

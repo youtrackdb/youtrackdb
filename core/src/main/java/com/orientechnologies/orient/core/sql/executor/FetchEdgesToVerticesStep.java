@@ -85,7 +85,7 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
 
   private OExecutionStream edges(YTDatabaseSessionInternal db, Object from) {
     if (from instanceof YTResult) {
-      from = ((YTResult) from).toElement();
+      from = ((YTResult) from).toEntity();
     }
     if (from instanceof YTIdentifiable && !(from instanceof YTEntity)) {
       from = ((YTIdentifiable) from).getRecord();

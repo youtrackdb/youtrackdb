@@ -266,7 +266,7 @@ public class OLiveQueryRemoteTest {
 
     db.begin();
     for (int i = 0; i < txSize; i++) {
-      YTEntity elem = db.newElement("test");
+      YTEntity elem = db.newEntity("test");
       elem.setProperty("name", "foo");
       elem.setProperty("surname", "bar" + i);
       elem.save();

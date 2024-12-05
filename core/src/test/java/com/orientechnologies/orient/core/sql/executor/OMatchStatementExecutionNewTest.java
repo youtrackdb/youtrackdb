@@ -899,7 +899,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     YTResult item = qResult.next();
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
-    return item.getElement().get().getRecord();
+    return item.getEntity().get().getRecord();
   }
 
   private YTDocument getManagerArrows(String personName) {
@@ -921,7 +921,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
     YTResult item = qResult.next();
     Assert.assertFalse(qResult.hasNext());
     qResult.close();
-    return item.getElement().get().getRecord();
+    return item.getEntity().get().getRecord();
   }
 
   @Test

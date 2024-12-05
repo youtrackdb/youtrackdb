@@ -394,8 +394,8 @@ public class SQLSelectTest extends AbstractSelectTest {
 
       races = record.field("races");
       for (YTIdentifiable race : races) {
-        if (Objects.equals(race.getElement().getProperty("name"), "European")
-            || Objects.equals(race.getElement().getProperty("name"), "Asiatic")) {
+        if (Objects.equals(race.getEntity().getProperty("name"), "European")
+            || Objects.equals(race.getEntity().getProperty("name"), "Asiatic")) {
           found = true;
           break;
         }
@@ -417,8 +417,8 @@ public class SQLSelectTest extends AbstractSelectTest {
 
       races = record.field("races");
       for (YTIdentifiable race : races) {
-        if (Objects.equals(race.getElement().getProperty("name"), "European")
-            || Objects.equals(race.getElement().getProperty("name"), "Asiatic")) {
+        if (Objects.equals(race.getEntity().getProperty("name"), "European")
+            || Objects.equals(race.getEntity().getProperty("name"), "Asiatic")) {
           found = true;
           break;
         }

@@ -79,7 +79,7 @@ public class OFunctionLibraryImpl {
       try (YTResultSet result = db.query("select from OFunction order by name")) {
         while (result.hasNext()) {
           YTResult res = result.next();
-          YTDocument d = (YTDocument) res.getElement().get();
+          YTDocument d = (YTDocument) res.getEntity().get();
           // skip the function records which do not contain real data
           if (d.fields() == 0) {
             continue;

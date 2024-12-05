@@ -350,7 +350,7 @@ public abstract class OIndexRemote implements OIndex {
     try (YTResultSet rs =
         getDatabase()
             .indexQuery(name, String.format(QUERY_GET_ENTRIES, name, params), iKeys.toArray())) {
-      return rs.stream().map((res) -> (YTDocument) res.toElement()).collect(Collectors.toList());
+      return rs.stream().map((res) -> (YTDocument) res.toEntity()).collect(Collectors.toList());
     }
   }
 

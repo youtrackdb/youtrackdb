@@ -146,7 +146,7 @@ public class EntityTreeTest extends DocumentDBBaseTest {
         for (YTIdentifiable follower : followers) {
           Assert.assertTrue(
               ((Collection<YTIdentifiable>)
-                  Objects.requireNonNull(follower.getElement().getProperty("followings")))
+                  Objects.requireNonNull(follower.getEntity().getProperty("followings")))
                   .contains(profile));
         }
       }
@@ -180,7 +180,7 @@ public class EntityTreeTest extends DocumentDBBaseTest {
     test = database.load(rid);
     Assert.assertNotNull(test.<Set<YTIdentifiable>>getProperty("set"));
     for (YTIdentifiable identifiable : test.<Set<YTIdentifiable>>getProperty("set")) {
-      var child = identifiable.getElement();
+      var child = identifiable.getEntity();
       Assert.assertNotNull(child.<String>getProperty("name"));
       Assert.assertTrue(Integer.parseInt(child.getProperty("name")) < 100);
       Assert.assertTrue(Integer.parseInt(child.getProperty("name")) >= 0);
@@ -246,7 +246,7 @@ public class EntityTreeTest extends DocumentDBBaseTest {
     database = createSessionInstance();
 
     database.begin();
-    var loadedObj = database.loadElement(rid);
+    var loadedObj = database.loadEntity(rid);
 
     Assert.assertEquals(loadedObj.<Set<Object>>getProperty("set").size(), 4);
     Assert.assertEquals(loadedObj.<Set<YTIdentifiable>>getProperty("set").size(), 4);
@@ -275,9 +275,9 @@ public class EntityTreeTest extends DocumentDBBaseTest {
     database.begin();
     YTRID rid = p.getIdentity();
     p = database.load(rid);
-    sat = p.<List<YTIdentifiable>>getProperty("satellites").get(0).getElement();
+    sat = p.<List<YTIdentifiable>>getProperty("satellites").get(0).getEntity();
     near = sat.getElementProperty("near");
-    satNear = near.<List<YTIdentifiable>>getProperty("satellites").get(0).getElement();
+    satNear = near.<List<YTIdentifiable>>getProperty("satellites").get(0).getEntity();
     Assert.assertEquals(satNear.<Long>getProperty("diameter"), 10);
 
     satNear.setProperty("diameter", 100);
@@ -288,9 +288,9 @@ public class EntityTreeTest extends DocumentDBBaseTest {
 
     database.begin();
     p = database.load(rid);
-    sat = p.<List<YTIdentifiable>>getProperty("satellites").get(0).getElement();
+    sat = p.<List<YTIdentifiable>>getProperty("satellites").get(0).getEntity();
     near = sat.getElementProperty("near");
-    satNear = near.<List<YTIdentifiable>>getProperty("satellites").get(0).getElement();
+    satNear = near.<List<YTIdentifiable>>getProperty("satellites").get(0).getEntity();
     Assert.assertEquals(satNear.<Long>getProperty("diameter"), 100);
     database.commit();
   }
@@ -317,7 +317,7 @@ public class EntityTreeTest extends DocumentDBBaseTest {
     YTRID rid = p.getIdentity();
 
     p = database.load(rid);
-    sat = p.<Map<String, YTIdentifiable>>getProperty("satellitesMap").get("Moon").getElement();
+    sat = p.<Map<String, YTIdentifiable>>getProperty("satellitesMap").get("Moon").getEntity();
     Assert.assertEquals(p.<Integer>getProperty("distanceSun"), 1000);
     Assert.assertEquals(p.getProperty("name"), "Earth");
     Assert.assertEquals(sat.<Long>getProperty("diameter"), 50);
@@ -328,7 +328,7 @@ public class EntityTreeTest extends DocumentDBBaseTest {
 
     database.begin();
     p = database.load(rid);
-    sat = p.<Map<String, YTIdentifiable>>getProperty("satellitesMap").get("Moon").getElement();
+    sat = p.<Map<String, YTIdentifiable>>getProperty("satellitesMap").get("Moon").getEntity();
     Assert.assertEquals(sat.<Long>getProperty("diameter"), 500);
     Assert.assertEquals(p.<Integer>getProperty("distanceSun"), 1000);
     Assert.assertEquals(p.getProperty("name"), "Earth");
@@ -369,13 +369,13 @@ public class EntityTreeTest extends DocumentDBBaseTest {
         jupiter
             .<Map<String, YTIdentifiable>>getProperty("satellitesMap")
             .get("JupiterMoon")
-            .getElement();
+            .getEntity();
     mercury = jupiterMoon.getElementProperty("near");
     mercuryMoon =
         mercury
             .<Map<String, YTIdentifiable>>getProperty("satellitesMap")
             .get("MercuryMoon")
-            .getElement();
+            .getEntity();
     Assert.assertEquals(mercuryMoon.<Long>getProperty("diameter"), 10);
     Assert.assertEquals(mercuryMoon.getProperty("name"), "MercuryMoon");
     Assert.assertEquals(jupiterMoon.<Long>getProperty("diameter"), 50);
@@ -397,13 +397,13 @@ public class EntityTreeTest extends DocumentDBBaseTest {
         jupiter
             .<Map<String, YTIdentifiable>>getProperty("satellitesMap")
             .get("JupiterMoon")
-            .getElement();
+            .getEntity();
     mercury = jupiterMoon.getElementProperty("near");
     mercuryMoon =
         mercury
             .<Map<String, YTIdentifiable>>getProperty("satellitesMap")
             .get("MercuryMoon")
-            .getElement();
+            .getEntity();
     Assert.assertEquals(mercuryMoon.<Long>getProperty("diameter"), 100);
     Assert.assertEquals(mercuryMoon.getProperty("name"), "MercuryMoon");
     Assert.assertEquals(jupiterMoon.<Long>getProperty("diameter"), 50);
@@ -420,7 +420,7 @@ public class EntityTreeTest extends DocumentDBBaseTest {
   public void iteratorShouldTerminate() {
     database.begin();
 
-    var person = database.newElement("Profile");
+    var person = database.newEntity("Profile");
     person.setProperty("nick", "Guy1");
     person.setProperty("name", "Guy");
     person.setProperty("surname", "Ritchie");
@@ -433,7 +433,7 @@ public class EntityTreeTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    var person2 = database.newElement("Profile");
+    var person2 = database.newEntity("Profile");
     person2.setProperty("nick", "Guy2");
     person2.setProperty("name", "Guy");
     person2.setProperty("surname", "Brush");
@@ -450,16 +450,16 @@ public class EntityTreeTest extends DocumentDBBaseTest {
   @Test
   public void testSave() {
     database.begin();
-    var parent1 = database.newElement("RefParent");
+    var parent1 = database.newEntity("RefParent");
     parent1 = database.save(parent1);
-    var parent2 = database.newElement("RefParent");
+    var parent2 = database.newEntity("RefParent");
     parent2 = database.save(parent2);
 
-    var child1 = database.newElement("RefChild");
+    var child1 = database.newEntity("RefChild");
     parent1.setProperty("children", Collections.singleton(child1));
     parent1 = database.save(parent1);
 
-    var child2 = database.newElement("RefChild");
+    var child2 = database.newEntity("RefChild");
     parent2.setProperty("children", Collections.singleton(child2));
     database.save(parent2);
     database.commit();
@@ -468,9 +468,9 @@ public class EntityTreeTest extends DocumentDBBaseTest {
     parent1 = database.load(parent1.getIdentity());
     parent2 = database.load(parent2.getIdentity());
 
-    var child3 = database.newElement("RefChild");
+    var child3 = database.newEntity("RefChild");
 
-    var otherThing = database.newElement("OtherThing");
+    var otherThing = database.newEntity("OtherThing");
     child3.setProperty("otherThing", otherThing);
 
     otherThing.setProperty("relationToParent1", parent1);

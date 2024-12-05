@@ -553,7 +553,7 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   }
 
   @Override
-  public YTEntity newElement() {
+  public YTEntity newEntity() {
     checkOpenness();
     return internal.newInstance();
   }
@@ -566,9 +566,9 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   }
 
   @Override
-  public YTEntity newElement(String className) {
+  public YTEntity newEntity(String className) {
     checkOpenness();
-    return internal.newElement(className);
+    return internal.newEntity(className);
   }
 
   public void setUseLightweightEdges(boolean b) {

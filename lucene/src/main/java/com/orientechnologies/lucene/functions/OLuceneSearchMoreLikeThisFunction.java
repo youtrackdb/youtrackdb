@@ -159,7 +159,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
     while (iter.hasNext()) {
       Object item = iter.next();
       if (item instanceof YTResult) {
-        if (((YTResult) item).isElement()) {
+        if (((YTResult) item).isEntity()) {
           rids.add(((YTResult) item).getIdentity().get().toString());
         } else {
           var properties = ((YTResult) item).getPropertyNames();

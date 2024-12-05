@@ -205,7 +205,7 @@ public class ComplexTypesTest extends DocumentDBBaseTest {
 
     int tot = 0;
     while (it.hasNext()) {
-      var d = it.next().getElement();
+      var d = it.next().getEntity();
 
       if (Objects.equals(d.getProperty("name"), "Marcus")) {
         Assert.assertEquals(d.getClassName(), "Account");

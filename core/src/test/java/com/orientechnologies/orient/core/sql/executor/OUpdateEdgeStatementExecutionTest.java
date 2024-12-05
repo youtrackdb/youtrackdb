@@ -26,7 +26,7 @@ public class OUpdateEdgeStatementExecutionTest extends DBTestBase {
     try (YTResultSet res1 = db.command("create vertex")) {
       YTResult r = res1.next();
       Assert.assertEquals(r.getProperty("@class"), "V");
-      v1 = r.toElement();
+      v1 = r.toEntity();
     }
     db.commit();
 
@@ -35,7 +35,7 @@ public class OUpdateEdgeStatementExecutionTest extends DBTestBase {
     try (YTResultSet res2 = db.command("create vertex V1")) {
       YTResult r = res2.next();
       Assert.assertEquals(r.getProperty("@class"), "V1");
-      v2 = r.toElement();
+      v2 = r.toEntity();
     }
     db.commit();
 
@@ -45,7 +45,7 @@ public class OUpdateEdgeStatementExecutionTest extends DBTestBase {
       YTResult r = res3.next();
       Assert.assertEquals(r.getProperty("@class"), "V");
       Assert.assertEquals(r.getProperty("brand"), "fiat");
-      v3 = r.toElement();
+      v3 = r.toEntity();
     }
     db.commit();
 
@@ -57,7 +57,7 @@ public class OUpdateEdgeStatementExecutionTest extends DBTestBase {
       Assert.assertEquals(r.getProperty("@class"), "V1");
       Assert.assertEquals(r.getProperty("brand"), "fiat");
       Assert.assertEquals(r.getProperty("name"), "wow");
-      v4 = r.toElement();
+      v4 = r.toEntity();
     }
     db.commit();
 
@@ -69,7 +69,7 @@ public class OUpdateEdgeStatementExecutionTest extends DBTestBase {
     Assert.assertTrue(edges.hasNext());
     YTResult edge = edges.next();
     Assert.assertFalse(edges.hasNext());
-    Assert.assertEquals(((YTDocument) edge.toElement().getRecord()).getClassName(), "E1");
+    Assert.assertEquals(((YTDocument) edge.toEntity().getRecord()).getClassName(), "E1");
     edges.close();
 
     db.begin();
@@ -79,7 +79,7 @@ public class OUpdateEdgeStatementExecutionTest extends DBTestBase {
             + ", in = "
             + v4.getIdentity()
             + " where @rid = "
-            + edge.toElement().getIdentity());
+            + edge.toEntity().getIdentity());
     db.commit();
 
     YTResultSet result = db.query("select expand(out('E1')) from " + v3.getIdentity());
@@ -125,7 +125,7 @@ public class OUpdateEdgeStatementExecutionTest extends DBTestBase {
     YTResult edge = edges.next();
 
     db.begin();
-    db.command("UPDATE EDGE " + edge.toElement().getIdentity() + " SET in = " + v3.getIdentity())
+    db.command("UPDATE EDGE " + edge.toEntity().getIdentity() + " SET in = " + v3.getIdentity())
         .close();
     db.commit();
     edges.close();

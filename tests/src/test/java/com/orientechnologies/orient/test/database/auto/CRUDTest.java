@@ -97,23 +97,23 @@ public class CRUDTest extends DocumentDBBaseTest {
     YTEntity address;
 
     database.begin();
-    var country = database.newElement("Country");
+    var country = database.newEntity("Country");
     country.setProperty("name", "Italy");
     country.save();
 
-    rome = database.newElement("City");
+    rome = database.newEntity("City");
     rome.setProperty("name", "Rome");
     rome.setProperty("country", country);
     database.save(rome);
 
-    address = database.newElement("Address");
+    address = database.newEntity("Address");
     address.setProperty("type", "Residence");
     address.setProperty("street", "Piazza Navona, 1");
     address.setProperty("city", rome);
     database.save(address);
 
     for (long i = startRecordNumber; i < startRecordNumber + TOT_RECORDS_ACCOUNT; ++i) {
-      YTEntity account = database.newElement("Account");
+      YTEntity account = database.newEntity("Account");
       account.setProperty("id", i);
       account.setProperty("name", "Bill");
       account.setProperty("surname", "Gates");
@@ -143,7 +143,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
   @Test
   public void testSimpleTypes() {
-    YTEntity element = database.newElement("JavaSimpleTestClass");
+    YTEntity element = database.newEntity("JavaSimpleTestClass");
     Assert.assertEquals(element.getProperty("text"), "initTest");
 
     database.begin();
@@ -408,9 +408,9 @@ public class CRUDTest extends DocumentDBBaseTest {
     YTEntity a = database.newInstance("JavaComplexTestClass");
 
     for (int i = 0; i < 3; i++) {
-      var child1 = database.newElement("Child");
-      var child2 = database.newElement("Child");
-      var child3 = database.newElement("Child");
+      var child1 = database.newEntity("Child");
+      var child2 = database.newEntity("Child");
+      var child3 = database.newEntity("Child");
 
       a.setProperty("list", Collections.singletonList(child1));
       a.setProperty("set", Collections.singleton(child2));
@@ -451,9 +451,9 @@ public class CRUDTest extends DocumentDBBaseTest {
     YTEntity a = database.newInstance("JavaComplexTestClass");
 
     for (int i = 0; i < 10; i++) {
-      var child1 = database.newElement("Child");
-      var child2 = database.newElement("Child");
-      var child3 = database.newElement("Child");
+      var child1 = database.newEntity("Child");
+      var child2 = database.newEntity("Child");
+      var child3 = database.newEntity("Child");
 
       a.setProperty("list", Collections.singletonList(child1));
       a.setProperty("set", Collections.singleton(child2));
@@ -491,9 +491,9 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database.begin();
     for (int i = 0; i < 100; i++) {
-      var child1 = database.newElement("Child");
-      var child2 = database.newElement("Child");
-      var child3 = database.newElement("Child");
+      var child1 = database.newEntity("Child");
+      var child2 = database.newEntity("Child");
+      var child3 = database.newEntity("Child");
 
       a.setProperty("list", Collections.singletonList(child1));
       a.setProperty("set", Collections.singleton(child2));
@@ -553,7 +553,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testSimpleTypes")
   public void testDateInTransaction() {
-    var element = database.newElement("JavaSimpleTestClass");
+    var element = database.newEntity("JavaSimpleTestClass");
     Date date = new Date();
     element.setProperty("dateField", date);
     database.begin();
@@ -857,7 +857,7 @@ public class CRUDTest extends DocumentDBBaseTest {
                 loaded
                     .<List<YTEntity>>getProperty("embeddedList")
                     .get(2)
-                    .getElement()
+                    .getEntity()
                     .getSchemaClass())
             .getName(),
         "Child");
@@ -866,7 +866,7 @@ public class CRUDTest extends DocumentDBBaseTest {
                 loaded
                     .<List<YTEntity>>getProperty("embeddedList")
                     .get(3)
-                    .getElement()
+                    .getEntity()
                     .getSchemaClass())
             .getName(),
         "Child");
@@ -1071,28 +1071,28 @@ public class CRUDTest extends DocumentDBBaseTest {
         loaded
             .<Map<String, YTIdentifiable>>getProperty("children")
             .get("first")
-            .getElement()
+            .getEntity()
             .getProperty("name"),
         c1.<String>getProperty("name"));
     Assert.assertEquals(
         loaded
             .<Map<String, YTIdentifiable>>getProperty("children")
             .get("second")
-            .getElement()
+            .getEntity()
             .getProperty("name"),
         c2.<String>getProperty("name"));
     Assert.assertEquals(
         loaded
             .<Map<String, YTIdentifiable>>getProperty("children")
             .get("third")
-            .getElement()
+            .getEntity()
             .getProperty("name"),
         c3.<String>getProperty("name"));
     Assert.assertEquals(
         loaded
             .<Map<String, YTIdentifiable>>getProperty("children")
             .get("fourth")
-            .getElement()
+            .getEntity()
             .getProperty("name"),
         c4.<String>getProperty("name"));
     Assert.assertNull(loaded.<Map<String, YTIdentifiable>>getProperty("children").get("fifth"));
@@ -1154,28 +1154,28 @@ public class CRUDTest extends DocumentDBBaseTest {
         loaded
             .<Map<String, YTIdentifiable>>getProperty("children")
             .get("first")
-            .getElement()
+            .getEntity()
             .getProperty("name"),
         c1.<String>getProperty("name"));
     Assert.assertEquals(
         loaded
             .<Map<String, YTIdentifiable>>getProperty("children")
             .get("second")
-            .getElement()
+            .getEntity()
             .getProperty("name"),
         c2.<String>getProperty("name"));
     Assert.assertEquals(
         loaded
             .<Map<String, YTIdentifiable>>getProperty("children")
             .get("third")
-            .getElement()
+            .getEntity()
             .getProperty("name"),
         c3.<String>getProperty("name"));
     Assert.assertEquals(
         loaded
             .<Map<String, YTIdentifiable>>getProperty("children")
             .get("fourth")
-            .getElement()
+            .getEntity()
             .getProperty("name"),
         c4.<String>getProperty("name"));
     database.commit();
@@ -1226,7 +1226,7 @@ public class CRUDTest extends DocumentDBBaseTest {
           loaded
               .<Map<String, YTIdentifiable>>getProperty("children")
               .get(key)
-              .getElement()
+              .getEntity()
               .getClassName(),
           "Child");
       Assert.assertEquals(
@@ -1234,35 +1234,35 @@ public class CRUDTest extends DocumentDBBaseTest {
           loaded
               .<Map<String, YTIdentifiable>>getProperty("children")
               .get(key)
-              .getElement()
+              .getEntity()
               .getProperty("name"));
       switch (key) {
         case "Peter" -> Assert.assertEquals(
             loaded
                 .<Map<String, YTIdentifiable>>getProperty("children")
                 .get(key)
-                .getElement()
+                .getEntity()
                 .getProperty("name"),
             "Peter");
         case "Walter" -> Assert.assertEquals(
             loaded
                 .<Map<String, YTIdentifiable>>getProperty("children")
                 .get(key)
-                .getElement()
+                .getEntity()
                 .getProperty("name"),
             "Walter");
         case "Olivia" -> Assert.assertEquals(
             loaded
                 .<Map<String, YTIdentifiable>>getProperty("children")
                 .get(key)
-                .getElement()
+                .getEntity()
                 .getProperty("name"),
             "Olivia");
         case "Astrid" -> Assert.assertEquals(
             loaded
                 .<Map<String, YTIdentifiable>>getProperty("children")
                 .get(key)
-                .getElement()
+                .getEntity()
                 .getProperty("name"),
             "Astrid");
       }
@@ -1300,7 +1300,7 @@ public class CRUDTest extends DocumentDBBaseTest {
           reloaded
               .<Map<String, YTIdentifiable>>getProperty("children")
               .get("The Observer")
-              .getElement()
+              .getEntity()
               .getProperty("name"),
           "The Observer");
       Assert.assertTrue(
@@ -1363,7 +1363,7 @@ public class CRUDTest extends DocumentDBBaseTest {
           loaded
               .<Map<String, YTIdentifiable>>getProperty("children")
               .get(key)
-              .getElement()
+              .getEntity()
               .getClassName(),
           "Child");
       Assert.assertEquals(
@@ -1371,35 +1371,35 @@ public class CRUDTest extends DocumentDBBaseTest {
           loaded
               .<Map<String, YTIdentifiable>>getProperty("children")
               .get(key)
-              .getElement()
+              .getEntity()
               .getProperty("name"));
       switch (key) {
         case "Peter" -> Assert.assertEquals(
             loaded
                 .<Map<String, YTIdentifiable>>getProperty("children")
                 .get(key)
-                .getElement()
+                .getEntity()
                 .getProperty("name"),
             "Peter");
         case "Walter" -> Assert.assertEquals(
             loaded
                 .<Map<String, YTIdentifiable>>getProperty("children")
                 .get(key)
-                .getElement()
+                .getEntity()
                 .getProperty("name"),
             "Walter");
         case "Olivia" -> Assert.assertEquals(
             loaded
                 .<Map<String, YTIdentifiable>>getProperty("children")
                 .get(key)
-                .getElement()
+                .getEntity()
                 .getProperty("name"),
             "Olivia");
         case "Astrid" -> Assert.assertEquals(
             loaded
                 .<Map<String, YTIdentifiable>>getProperty("children")
                 .get(key)
-                .getElement()
+                .getEntity()
                 .getProperty("name"),
             "Astrid");
       }
@@ -1428,7 +1428,7 @@ public class CRUDTest extends DocumentDBBaseTest {
           reloaded
               .<Map<String, YTIdentifiable>>getProperty("children")
               .get("The Observer")
-              .getElement()
+              .getEntity()
               .getProperty("name"),
           "The Observer");
       Assert.assertTrue(
@@ -2088,7 +2088,7 @@ public class CRUDTest extends DocumentDBBaseTest {
       Assert.assertTrue(nameToInt > 0 && nameToInt < 5);
     }
 
-    var other = database.newElement("JavaSimpleTestClass");
+    var other = database.newEntity("JavaSimpleTestClass");
     p.<List>getProperty("list").add(other);
     p.<Set>getProperty("set").add(other);
     p.<Map>getProperty("map").put("5", other);
@@ -2307,7 +2307,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
   @Test
   public void testObjectDelete() {
-    YTEntity media = database.newElement("Media");
+    YTEntity media = database.newEntity("Media");
     YTBlob testRecord = database.newBlob("This is a test".getBytes());
 
     media.setProperty("content", testRecord);
@@ -2333,15 +2333,15 @@ public class CRUDTest extends DocumentDBBaseTest {
         (session, a) -> {
           if (i[0] % 2 == 0) {
             var addresses = a.<List<YTIdentifiable>>getProperty("addresses");
-            var newAddress = database.newElement("Address");
+            var newAddress = database.newEntity("Address");
 
             newAddress.setProperty("street", "Plaza central");
             newAddress.setProperty("type", "work");
 
-            var city = database.newElement("City");
+            var city = database.newEntity("City");
             city.setProperty("name", "Madrid");
 
-            var country = database.newElement("Country");
+            var country = database.newEntity("Country");
             country.setProperty("name", "Spain");
 
             city.setProperty("country", country);
@@ -2365,7 +2365,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.begin();
     YTEntity a;
     for (var iterator = database.query("select from Account"); iterator.hasNext(); ) {
-      a = iterator.next().toElement();
+      a = iterator.next().toEntity();
 
       if (i % 2 == 0) {
         Assert.assertEquals(
@@ -2405,27 +2405,27 @@ public class CRUDTest extends DocumentDBBaseTest {
     long profiles = database.countClass("Profile");
 
     database.begin();
-    YTEntity neo = database.newElement("Profile");
+    YTEntity neo = database.newEntity("Profile");
     neo.setProperty("nick", "Neo");
     neo.setProperty("value", 1);
 
-    var address = database.newElement("Address");
+    var address = database.newEntity("Address");
     address.setProperty("street", "Rio de Castilla");
     address.setProperty("type", "residence");
 
-    var city = database.newElement("City");
+    var city = database.newEntity("City");
     city.setProperty("name", "Madrid");
 
-    var country = database.newElement("Country");
+    var country = database.newEntity("Country");
     country.setProperty("name", "Spain");
 
     city.setProperty("country", country);
     address.setProperty("city", city);
 
-    var morpheus = database.newElement("Profile");
+    var morpheus = database.newEntity("Profile");
     morpheus.setProperty("nick", "Morpheus");
 
-    var trinity = database.newElement("Profile");
+    var trinity = database.newEntity("Profile");
     trinity.setProperty("nick", "Trinity");
 
     var followers = new HashSet<>();
@@ -2450,7 +2450,7 @@ public class CRUDTest extends DocumentDBBaseTest {
             obj.<Set<YTIdentifiable>>getProperty("followers")
                 .iterator()
                 .next()
-                .getElement()
+                .getEntity()
                 .getClassName(),
             "Profile");
       } else if (obj.<String>getProperty("nick").equals("Morpheus")
@@ -2607,13 +2607,13 @@ public class CRUDTest extends DocumentDBBaseTest {
 
       List<YTEntity> result =
           db.query("select from Profile where name = :name and surname = :surname", params)
-              .elementStream()
+              .entityStream()
               .toList();
       Assert.assertFalse(result.isEmpty());
 
       result =
           db.query("select from Profile where name = :name and surname = :surname", params)
-              .elementStream()
+              .entityStream()
               .toList();
       Assert.assertFalse(result.isEmpty());
       db.commit();
@@ -2665,7 +2665,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
   @Test(enabled = false, dependsOnMethods = "testCreate")
   public void testEmbeddedBinary() {
-    YTEntity a = database.newElement("Account");
+    YTEntity a = database.newEntity("Account");
     a.setProperty("name", "Chris");
     a.setProperty("surname", "Martin");
     a.setProperty("id", 0);

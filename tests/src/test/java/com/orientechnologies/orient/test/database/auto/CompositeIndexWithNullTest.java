@@ -55,7 +55,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
     String query = "select from compositeIndexNullPointQueryClass where prop1 = 1 and prop2 = 2";
     List<YTEntity> result =
-        database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
+        database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
     Assert.assertEquals(result.size(), 5);
     for (int k = 0; k < 5; k++) {
       YTEntity document = result.get(k);
@@ -72,7 +72,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     query =
         "select from compositeIndexNullPointQueryClass where prop1 = 1 and prop2 = 2 and prop3 is"
             + " null";
-    result = database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
+    result = database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 2);
     for (YTEntity document : result) {
@@ -121,7 +121,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     String query =
         "select from compositeIndexNullPointQueryInTxClass where prop1 = 1 and prop2 = 2";
     List<YTEntity> result =
-        database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
+        database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
     Assert.assertEquals(result.size(), 5);
     for (int k = 0; k < 5; k++) {
       YTEntity document = result.get(k);
@@ -138,7 +138,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     query =
         "select from compositeIndexNullPointQueryInTxClass where prop1 = 1 and prop2 = 2 and prop3"
             + " is null";
-    result = database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
+    result = database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 2);
     for (YTEntity document : result) {
@@ -189,7 +189,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     String query =
         "select from compositeIndexNullPointQueryInMiddleTxClass where prop1 = 1 and prop2 = 2";
     List<YTEntity> result =
-        database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
+        database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
     Assert.assertEquals(result.size(), 5);
 
     for (int k = 0; k < 5; k++) {
@@ -207,7 +207,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     query =
         "select from compositeIndexNullPointQueryInMiddleTxClass where prop1 = 1 and prop2 = 2 and"
             + " prop3 is null";
-    result = database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
+    result = database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 2);
     for (YTEntity document : result) {
@@ -256,7 +256,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
     String query = "select from compositeIndexNullRangeQueryClass where prop1 = 1 and prop2 > 2";
     List<YTEntity> result =
-        database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
+        database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 5);
     for (int k = 0; k < 5; k++) {
@@ -272,7 +272,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
             .contains("compositeIndexNullRangeQueryIndex"));
 
     query = "select from compositeIndexNullRangeQueryClass where prop1 > 0";
-    result = database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
+    result = database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 10);
     for (int k = 0; k < 10; k++) {
@@ -318,7 +318,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     String query =
         "select from compositeIndexNullRangeQueryInMiddleTxClass where prop1 = 1 and prop2 > 2";
     List<YTEntity> result =
-        database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
+        database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 5);
     for (int k = 0; k < 5; k++) {
@@ -334,7 +334,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
             .contains("compositeIndexNullRangeQueryInMiddleTxIndex"));
 
     query = "select from compositeIndexNullRangeQueryInMiddleTxClass where prop1 > 0";
-    result = database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
+    result = database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 10);
     for (int k = 0; k < 10; k++) {
@@ -379,7 +379,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
     String query = "select from compositeIndexNullPointQueryNullInTheMiddleClass where prop1 = 1";
     List<YTEntity> result =
-        database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
+        database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
     Assert.assertEquals(result.size(), 10);
     for (int k = 0; k < 10; k++) {
       YTEntity document = result.get(k);
@@ -395,7 +395,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     query =
         "select from compositeIndexNullPointQueryNullInTheMiddleClass where prop1 = 1 and prop2 is"
             + " null";
-    result = database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
+    result = database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 5);
     for (YTEntity document : result) {
@@ -412,7 +412,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     query =
         "select from compositeIndexNullPointQueryNullInTheMiddleClass where prop1 = 1 and prop2 is"
             + " null and prop3 = 13";
-    result = database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
+    result = database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 1);
 
@@ -464,7 +464,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     String query =
         "select from compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass where prop1 = 1";
     List<YTEntity> result =
-        database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
+        database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
     Assert.assertEquals(result.size(), 10);
     for (int k = 0; k < 10; k++) {
       YTEntity document = result.get(k);
@@ -480,7 +480,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     query =
         "select from compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass where prop1 = 1 and"
             + " prop2 is null";
-    result = database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
+    result = database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 5);
     for (YTEntity document : result) {
@@ -497,7 +497,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     query =
         "select from compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass where prop1 = 1 and"
             + " prop2 is null and prop3 = 13";
-    result = database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
+    result = database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 1);
 
@@ -544,7 +544,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     final String query =
         "select from compositeIndexNullRangeQueryNullInTheMiddleClass where prop1 > 0";
     List<YTEntity> result =
-        database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
+        database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
     Assert.assertEquals(result.size(), 10);
     for (int k = 0; k < 10; k++) {
       YTEntity document = result.get(k);
@@ -598,7 +598,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     final String query =
         "select from compositeIndexNullRangeQueryNullInTheMiddleInMiddleTxClass where prop1 > 0";
     List<YTEntity> result =
-        database.query(query).stream().map((r) -> r.toElement()).collect(Collectors.toList());
+        database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
     Assert.assertEquals(result.size(), 10);
     for (int k = 0; k < 10; k++) {
       YTEntity document = result.get(k);

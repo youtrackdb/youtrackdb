@@ -41,11 +41,11 @@ public class InsertValuesStep extends AbstractExecutionStep {
           @Override
           public YTResult map(YTResult result, OCommandContext ctx) {
             if (!(result instanceof YTResultInternal)) {
-              if (!result.isElement()) {
+              if (!result.isEntity()) {
                 throw new YTCommandExecutionException(
                     "Error executing INSERT, cannot modify element: " + result);
               }
-              result = new YTUpdatableResult(ctx.getDatabase(), result.toElement());
+              result = new YTUpdatableResult(ctx.getDatabase(), result.toEntity());
             }
             List<OExpression> currentValues = values.get(nextValueSet++);
             if (currentValues.size() != identifiers.size()) {

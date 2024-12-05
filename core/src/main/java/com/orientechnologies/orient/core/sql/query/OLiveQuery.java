@@ -82,7 +82,7 @@ public class OLiveQuery<T> extends OSQLSynchQuery<T> {
       ((OLocalLiveResultListener) getResultListener())
           .onLiveResult(
               token,
-              new ORecordOperation((YTRecordAbstract) data.toElement(), ORecordOperation.CREATED));
+              new ORecordOperation((YTRecordAbstract) data.toEntity(), ORecordOperation.CREATED));
     }
 
     @Override
@@ -90,7 +90,7 @@ public class OLiveQuery<T> extends OSQLSynchQuery<T> {
       ((OLocalLiveResultListener) getResultListener())
           .onLiveResult(
               token,
-              new ORecordOperation((YTRecordAbstract) after.toElement(), ORecordOperation.UPDATED));
+              new ORecordOperation((YTRecordAbstract) after.toEntity(), ORecordOperation.UPDATED));
     }
 
     @Override
@@ -98,7 +98,7 @@ public class OLiveQuery<T> extends OSQLSynchQuery<T> {
       ((OLocalLiveResultListener) getResultListener())
           .onLiveResult(
               token,
-              new ORecordOperation((YTRecordAbstract) data.toElement(), ORecordOperation.DELETED));
+              new ORecordOperation((YTRecordAbstract) data.toEntity(), ORecordOperation.DELETED));
     }
 
     @Override

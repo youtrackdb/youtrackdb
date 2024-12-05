@@ -30,13 +30,13 @@ public class SaveElementStep extends AbstractExecutionStep {
   }
 
   private YTResult mapResult(YTResult result, OCommandContext ctx) {
-    if (result.isElement()) {
+    if (result.isEntity()) {
       var db = ctx.getDatabase();
 
       if (cluster == null) {
-        db.save(result.getElement().orElse(null));
+        db.save(result.getEntity().orElse(null));
       } else {
-        db.save(result.getElement().orElse(null), cluster.getStringValue());
+        db.save(result.getEntity().orElse(null), cluster.getStringValue());
       }
     }
     return result;

@@ -105,7 +105,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
       while (toIter.hasNext()) {
         Object elem = toIter.next();
         if (elem instanceof YTResult) {
-          elem = ((YTResult) elem).toElement();
+          elem = ((YTResult) elem).toEntity();
         }
         if (elem instanceof YTIdentifiable && !(elem instanceof YTEntity)) {
           elem = ((YTIdentifiable) elem).getRecord();
@@ -142,7 +142,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
 
   private Iterable<YTEdge> loadNextResults(Object from) {
     if (from instanceof YTResult) {
-      from = ((YTResult) from).toElement();
+      from = ((YTResult) from).toEntity();
     }
     if (from instanceof YTIdentifiable && !(from instanceof YTEntity)) {
       from = ((YTIdentifiable) from).getRecord();

@@ -120,7 +120,7 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
           if (propertyNames.size() == 1) {
             Object property = inner.getProperty(propertyNames.iterator().next());
             if (property instanceof YTResult) {
-              shape = ((YTResult) property).toElement();
+              shape = ((YTResult) property).toEntity();
             }
           } else {
             return new OLuceneResultSetEmpty();
@@ -132,7 +132,7 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
     }
 
     if (shape instanceof YTResultInternal) {
-      shape = ((YTResultInternal) shape).toElement();
+      shape = ((YTResultInternal) shape).toEntity();
     }
     queryParams.put(SpatialQueryBuilderAbstract.SHAPE, shape);
 

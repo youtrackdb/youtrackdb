@@ -257,7 +257,7 @@ public class OSecurityEngineTest {
     var rec1 =
         db.computeInTx(
             () -> {
-              YTEntity record1 = db.newElement("Person");
+              YTEntity record1 = db.newEntity("Person");
               record1.setProperty("name", "foo");
               record1.save();
               return record1;
@@ -266,7 +266,7 @@ public class OSecurityEngineTest {
     var rec2 =
         db.computeInTx(
             () -> {
-              YTEntity record2 = db.newElement("Person");
+              YTEntity record2 = db.newEntity("Person");
               record2.setProperty("name", "bar");
               record2.save();
               return record2;

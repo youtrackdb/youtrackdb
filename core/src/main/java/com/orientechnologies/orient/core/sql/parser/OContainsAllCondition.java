@@ -49,8 +49,8 @@ public class OContainsAllCondition extends OBooleanExpression {
           if (((Collection) left).contains(next)) {
             found = true;
           } else if (next instanceof YTResult
-              && ((YTResult) next).isElement()
-              && ((Collection) left).contains(((YTResult) next).toElement())) {
+              && ((YTResult) next).isEntity()
+              && ((Collection) left).contains(((YTResult) next).toEntity())) {
             found = true;
           }
           if (!found) {

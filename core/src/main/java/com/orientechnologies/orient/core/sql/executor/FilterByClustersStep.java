@@ -42,7 +42,7 @@ public class FilterByClustersStep extends AbstractExecutionStep {
   }
 
   private YTResult filterMap(YTResult result, IntOpenHashSet clusterIds) {
-    if (result.isElement()) {
+    if (result.isEntity()) {
       var rid = result.getRecordId();
       assert rid != null;
 

@@ -55,13 +55,13 @@ public class ORemoteSecurityTests {
 
     try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
-      YTEntity elem = filteredSession.newElement("Person");
+      YTEntity elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
       filteredSession.save(elem);
       filteredSession.commit();
       try {
         filteredSession.begin();
-        elem = filteredSession.newElement("Person");
+        elem = filteredSession.newEntity("Person");
         elem.setProperty("name", "bar");
         filteredSession.save(elem);
         filteredSession.commit();
@@ -100,11 +100,11 @@ public class ORemoteSecurityTests {
     db.commit();
 
     db.begin();
-    YTEntity elem = db.newElement("Person");
+    YTEntity elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     db.save(elem);
 
-    elem = db.newElement("Person");
+    elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
     db.save(elem);
     db.commit();
@@ -129,11 +129,11 @@ public class ORemoteSecurityTests {
     db.commit();
 
     db.begin();
-    YTEntity elem = db.newElement("Person");
+    YTEntity elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     db.save(elem);
 
-    elem = db.newElement("Person");
+    elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
     db.save(elem);
     db.commit();
@@ -156,12 +156,12 @@ public class ORemoteSecurityTests {
     db.commit();
 
     db.begin();
-    YTEntity elem = db.newElement("Person");
+    YTEntity elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);
 
-    elem = db.newElement("Person");
+    elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "bar");
     db.save(elem);
@@ -186,7 +186,7 @@ public class ORemoteSecurityTests {
 
     try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
-      YTEntity elem = filteredSession.newElement("Person");
+      YTEntity elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
       filteredSession.save(elem);
       filteredSession.commit();
@@ -212,7 +212,7 @@ public class ORemoteSecurityTests {
 
     try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
-      YTEntity elem = filteredSession.newElement("Person");
+      YTEntity elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
       filteredSession.save(elem);
       filteredSession.commit();
@@ -237,7 +237,7 @@ public class ORemoteSecurityTests {
 
     try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
-      YTEntity elem = filteredSession.newElement("Person");
+      YTEntity elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
       filteredSession.save(elem);
       filteredSession.commit();
@@ -264,7 +264,7 @@ public class ORemoteSecurityTests {
 
     try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
-      YTEntity elem = filteredSession.newElement("Person");
+      YTEntity elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
       filteredSession.save(elem);
       filteredSession.commit();
@@ -290,7 +290,7 @@ public class ORemoteSecurityTests {
     try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
 
       filteredSession.begin();
-      YTEntity elem = filteredSession.newElement("Person");
+      YTEntity elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "bar");
       filteredSession.save(elem);
       filteredSession.commit();
@@ -304,7 +304,7 @@ public class ORemoteSecurityTests {
       }
 
       filteredSession.begin();
-      elem = filteredSession.newElement("Person");
+      elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
       filteredSession.save(elem);
       filteredSession.delete(elem);
@@ -321,11 +321,11 @@ public class ORemoteSecurityTests {
 
     try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
-      YTEntity elem = filteredSession.newElement("Person");
+      YTEntity elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
       filteredSession.save(elem);
 
-      elem = filteredSession.newElement("Person");
+      elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "bar");
       filteredSession.save(elem);
       filteredSession.commit();
@@ -357,11 +357,11 @@ public class ORemoteSecurityTests {
     db.commit();
 
     db.begin();
-    YTEntity elem = db.newElement("Person");
+    YTEntity elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     db.save(elem);
 
-    elem = db.newElement("Person");
+    elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
     db.save(elem);
     db.commit();
@@ -383,11 +383,11 @@ public class ORemoteSecurityTests {
     db.commit();
 
     db.begin();
-    YTEntity elem = db.newElement("Person");
+    YTEntity elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     db.save(elem);
 
-    elem = db.newElement("Person");
+    elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
     db.save(elem);
     db.commit();
@@ -416,11 +416,11 @@ public class ORemoteSecurityTests {
     db.commit();
 
     db.begin();
-    YTEntity elem = db.newElement("Person");
+    YTEntity elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     db.save(elem);
 
-    elem = db.newElement("Person");
+    elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
     db.save(elem);
     db.commit();
@@ -448,11 +448,11 @@ public class ORemoteSecurityTests {
     db.commit();
 
     db.begin();
-    YTEntity elem = db.newElement("Person");
+    YTEntity elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     db.save(elem);
 
-    elem = db.newElement("Person");
+    elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
     db.save(elem);
     db.commit();
@@ -478,7 +478,7 @@ public class ORemoteSecurityTests {
     db.commit();
 
     db.begin();
-    YTEntity elem = db.newElement("Person");
+    YTEntity elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);
@@ -501,7 +501,7 @@ public class ORemoteSecurityTests {
     db.commit();
 
     db.begin();
-    YTEntity elem = db.newElement("Person");
+    YTEntity elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);
@@ -514,7 +514,7 @@ public class ORemoteSecurityTests {
       try {
         db.begin();
         YTResult item = resultSet.next();
-        YTEntity doc = item.getElement().get();
+        YTEntity doc = item.getEntity().get();
         doc.setProperty("name", "bar");
 
         doc.save();

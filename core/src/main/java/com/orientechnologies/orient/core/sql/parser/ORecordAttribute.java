@@ -90,7 +90,7 @@ public class ORecordAttribute extends SimpleNode {
       }
       return identity;
     } else if (name.equalsIgnoreCase("@class")) {
-      var element = iCurrentRecord.toElement();
+      var element = iCurrentRecord.toEntity();
       if (element != null) {
         return element.getSchemaType().map(YTClass::getName).orElse(null);
       }

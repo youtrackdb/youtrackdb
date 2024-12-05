@@ -66,8 +66,8 @@ public class YTResultInternal implements YTResult {
       throw new IllegalStateException("Impossible to mutate result set");
     }
     checkType(value);
-    if (value instanceof YTResult && ((YTResult) value).isElement()) {
-      content.put(name, ((YTResult) value).getElement().get());
+    if (value instanceof YTResult && ((YTResult) value).isEntity()) {
+      content.put(name, ((YTResult) value).getEntity().get());
     } else {
       content.put(name, value);
     }
@@ -118,8 +118,8 @@ public class YTResultInternal implements YTResult {
     if (value instanceof Optional) {
       value = ((Optional) value).orElse(null);
     }
-    if (value instanceof YTResult && ((YTResult) value).isElement()) {
-      temporaryContent.put(name, ((YTResult) value).getElement().get());
+    if (value instanceof YTResult && ((YTResult) value).isEntity()) {
+      temporaryContent.put(name, ((YTResult) value).getEntity().get());
     } else {
       temporaryContent.put(name, value);
     }
@@ -149,7 +149,7 @@ public class YTResultInternal implements YTResult {
     if (content != null && content.containsKey(name)) {
       result = (T) wrap(session, content.get(name));
     } else {
-      if (isElement()) {
+      if (isEntity()) {
         result = (T) wrap(session,
             ODocumentInternal.rawPropertyRead((YTEntity) identifiable, name));
       }
@@ -162,14 +162,14 @@ public class YTResultInternal implements YTResult {
   }
 
   @Override
-  public YTEntity getElementProperty(String name) {
+  public YTEntity getEntityProperty(String name) {
     loadIdentifiable();
 
     Object result = null;
     if (content != null && content.containsKey(name)) {
       result = content.get(name);
     } else {
-      if (isElement()) {
+      if (isEntity()) {
         result = ODocumentInternal.rawPropertyRead((YTEntity) identifiable, name);
       }
     }
@@ -192,7 +192,7 @@ public class YTResultInternal implements YTResult {
     if (content != null && content.containsKey(name)) {
       result = content.get(name);
     } else {
-      if (isElement()) {
+      if (isEntity()) {
         result = ODocumentInternal.rawPropertyRead((YTEntity) identifiable, name);
       }
     }
@@ -215,7 +215,7 @@ public class YTResultInternal implements YTResult {
     if (content != null && content.containsKey(name)) {
       result = content.get(name);
     } else {
-      if (isElement()) {
+      if (isEntity()) {
         result = ODocumentInternal.rawPropertyRead((YTEntity) identifiable, name);
       }
     }
@@ -238,7 +238,7 @@ public class YTResultInternal implements YTResult {
     if (content != null && content.containsKey(name)) {
       result = content.get(name);
     } else {
-      if (isElement()) {
+      if (isEntity()) {
         result = ODocumentInternal.rawPropertyRead((YTEntity) identifiable, name);
       }
     }
@@ -301,7 +301,7 @@ public class YTResultInternal implements YTResult {
 
   public Collection<String> getPropertyNames() {
     loadIdentifiable();
-    if (isElement()) {
+    if (isEntity()) {
       return ((YTEntity) identifiable).getPropertyNames();
     } else {
       if (content != null) {
@@ -314,7 +314,7 @@ public class YTResultInternal implements YTResult {
 
   public boolean hasProperty(String propName) {
     loadIdentifiable();
-    if (isElement() && ((YTEntity) identifiable).hasProperty(propName)) {
+    if (isEntity() && ((YTEntity) identifiable).hasProperty(propName)) {
       return true;
     }
     if (content != null) {
@@ -324,7 +324,7 @@ public class YTResultInternal implements YTResult {
   }
 
   @Override
-  public boolean isElement() {
+  public boolean isEntity() {
     if (identifiable == null) {
       return false;
     }
@@ -342,18 +342,18 @@ public class YTResultInternal implements YTResult {
     return identifiable instanceof YTEntity;
   }
 
-  public Optional<YTEntity> getElement() {
+  public Optional<YTEntity> getEntity() {
     loadIdentifiable();
-    if (isElement()) {
+    if (isEntity()) {
       return Optional.ofNullable((YTEntity) identifiable);
     }
     return Optional.empty();
   }
 
   @Override
-  public YTEntity asElement() {
+  public YTEntity asEntity() {
     loadIdentifiable();
-    if (isElement()) {
+    if (isEntity()) {
       return (YTEntity) identifiable;
     }
 
@@ -361,9 +361,9 @@ public class YTResultInternal implements YTResult {
   }
 
   @Override
-  public YTEntity toElement() {
-    if (isElement()) {
-      return getElement().get();
+  public YTEntity toEntity() {
+    if (isEntity()) {
+      return getEntity().get();
     }
     YTDocument doc = new YTDocument();
     for (String s : getPropertyNames()) {
@@ -483,7 +483,7 @@ public class YTResultInternal implements YTResult {
 
   private Object convertToElement(Object property) {
     if (property instanceof YTResult) {
-      return ((YTResult) property).toElement();
+      return ((YTResult) property).toEntity();
     }
     if (property instanceof List) {
       return ((List) property).stream().map(x -> convertToElement(x)).collect(Collectors.toList());
@@ -566,12 +566,12 @@ public class YTResultInternal implements YTResult {
       return false;
     }
     if (identifiable != null) {
-      if (!resultObj.getElement().isPresent()) {
+      if (!resultObj.getEntity().isPresent()) {
         return false;
       }
-      return identifiable.equals(resultObj.getElement().get());
+      return identifiable.equals(resultObj.getEntity().get());
     } else {
-      if (resultObj.getElement().isPresent()) {
+      if (resultObj.getEntity().isPresent()) {
         return false;
       }
       if (content != null) {

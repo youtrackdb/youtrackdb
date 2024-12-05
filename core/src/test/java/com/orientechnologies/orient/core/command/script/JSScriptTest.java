@@ -41,7 +41,7 @@ public class JSScriptTest extends DBTestBase {
     Assert.assertEquals(1, results.size()); // no default users anymore, 'admin' created
 
     results.stream()
-        .map(r -> r.getElement().get())
+        .map(r -> r.getEntity().get())
         .forEach(
             oElement -> {
               Assert.assertEquals("OUser", oElement.getSchemaType().get().getName());
@@ -61,7 +61,7 @@ public class JSScriptTest extends DBTestBase {
     Object value = results.get(0).getProperty("value");
     Collection<YTResult> values = (Collection<YTResult>) value;
     values.stream()
-        .map(r -> r.getElement().get())
+        .map(r -> r.getEntity().get())
         .forEach(
             oElement -> {
               Assert.assertEquals("OUser", oElement.getSchemaType().get().getName());

@@ -124,7 +124,7 @@ public class OLuceneIndexVsLuceneTest extends OLuceneBaseTest {
         .forEach(
             r -> {
               System.out.println("r = " + r);
-              assertThat((Object[]) r.toElement().getProperty("$score")).isNotNull();
+              assertThat((Object[]) r.toEntity().getProperty("$score")).isNotNull();
             });
 
     //    int i = 0;

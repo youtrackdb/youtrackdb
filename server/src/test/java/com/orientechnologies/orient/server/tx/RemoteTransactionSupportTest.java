@@ -180,7 +180,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryDeleteTxSQLTransaction() {
     db.begin();
-    YTEntity someTx = db.newElement("SomeTx");
+    YTEntity someTx = db.newEntity("SomeTx");
     someTx.setProperty("name", "foo");
     someTx.save();
     db.commit();
@@ -197,7 +197,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testDoubleSaveTransaction() {
     db.begin();
-    YTEntity someTx = db.newElement("SomeTx");
+    YTEntity someTx = db.newEntity("SomeTx");
     someTx.setProperty("name", "foo");
     db.save(someTx);
     db.save(someTx);
@@ -210,7 +210,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testDoubleSaveDoubleFlushTransaction() {
     db.begin();
-    YTEntity someTx = db.newElement("SomeTx");
+    YTEntity someTx = db.newEntity("SomeTx");
     someTx.setProperty("name", "foo");
     db.save(someTx);
     db.save(someTx);
@@ -231,11 +231,11 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testRefFlushedInTransaction() {
     db.begin();
-    YTEntity someTx = db.newElement("SomeTx");
+    YTEntity someTx = db.newEntity("SomeTx");
     someTx.setProperty("name", "foo");
     db.save(someTx);
 
-    YTEntity oneMore = db.newElement("SomeTx");
+    YTEntity oneMore = db.newEntity("SomeTx");
     oneMore.setProperty("name", "bar");
     oneMore.setProperty("ref", someTx);
     YTResultSet result = db.query("select from SomeTx");
@@ -252,11 +252,11 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testDoubleRefFlushedInTransaction() {
     db.begin();
-    YTEntity someTx = db.newElement("SomeTx");
+    YTEntity someTx = db.newEntity("SomeTx");
     someTx.setProperty("name", "foo");
     db.save(someTx);
 
-    YTEntity oneMore = db.newElement("SomeTx");
+    YTEntity oneMore = db.newEntity("SomeTx");
     oneMore.setProperty("name", "bar");
     oneMore.setProperty("ref", someTx.getIdentity());
 
@@ -264,7 +264,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     assertEquals(1, result.stream().count());
     result.close();
 
-    YTEntity ref2 = db.newElement("SomeTx");
+    YTEntity ref2 = db.newEntity("SomeTx");
     ref2.setProperty("name", "other");
     db.save(ref2);
 
@@ -349,8 +349,8 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   public void testRidbagsTx() {
     db.begin();
 
-    YTEntity v1 = db.newElement("SomeTx");
-    YTEntity v2 = db.newElement("SomeTx");
+    YTEntity v1 = db.newEntity("SomeTx");
+    YTEntity v2 = db.newEntity("SomeTx");
     db.save(v2);
     ORidBag ridbag = new ORidBag(db);
     ridbag.add(v2.getIdentity());
@@ -358,7 +358,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     db.save(v1);
     YTResultSet result1 = db.query("select rids from SomeTx where rids is not null");
     assertTrue(result1.hasNext());
-    YTEntity v3 = db.newElement("SomeTx");
+    YTEntity v3 = db.newEntity("SomeTx");
     db.save(v3);
     ArrayList<Object> val = new ArrayList<>();
     val.add(v2.getIdentity());
@@ -374,10 +374,10 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   public void testProperIndexingOnDoubleInternalBegin() {
     db.begin();
 
-    YTEntity idx = db.newElement("IndexedTx");
+    YTEntity idx = db.newEntity("IndexedTx");
     idx.setProperty("name", FIELD_VALUE);
     db.save(idx);
-    YTEntity someTx = db.newElement("SomeTx");
+    YTEntity someTx = db.newEntity("SomeTx");
     someTx.setProperty("name", "foo");
     YTRecord id = db.save(someTx);
     try (YTResultSet rs = db.query("select from ?", id)) {
@@ -395,11 +395,11 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
   public void testDuplicateIndexTx() {
     db.begin();
 
-    YTEntity v1 = db.newElement("UniqueIndexedTx");
+    YTEntity v1 = db.newEntity("UniqueIndexedTx");
     v1.setProperty("name", "a");
     db.save(v1);
 
-    YTEntity v2 = db.newElement("UniqueIndexedTx");
+    YTEntity v2 = db.newEntity("UniqueIndexedTx");
     v2.setProperty("name", "a");
     db.save(v2);
     db.commit();

@@ -117,7 +117,7 @@ public class GraphRecoveringTest {
         session.begin();
         for (var e :
             session.query("select from E").stream()
-                .map(YTResult::toElement)
+                .map(YTResult::toEntity)
                 .map(YTEntity::toEdge)
                 .toList()) {
           e.<YTDocument>getRecord().removeField("out");
@@ -155,7 +155,7 @@ public class GraphRecoveringTest {
         session.begin();
         for (var v :
             session.query("select from V").stream()
-                .map(YTResult::toElement)
+                .map(YTResult::toEntity)
                 .filter(Objects::nonNull)
                 .map(YTEntity::toVertex)
                 .toList()) {

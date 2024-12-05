@@ -56,7 +56,7 @@ public class OSequenceLibraryImpl {
           YTResult res = result.next();
 
           final YTSequence sequence =
-              OSequenceHelper.createSequence((YTDocument) res.getElement().get());
+              OSequenceHelper.createSequence((YTDocument) res.getEntity().get());
           sequences.put(sequence.getName().toUpperCase(Locale.ENGLISH), sequence);
         }
       }

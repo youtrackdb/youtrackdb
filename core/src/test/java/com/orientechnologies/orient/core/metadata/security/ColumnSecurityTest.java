@@ -214,11 +214,11 @@ public class ColumnSecurityTest {
     security.setSecurityPolicy(
         db, security.getRole(db, "reader"), "database.class.Person.name", policy);
 
-    YTEntity elem = db.newElement("Person");
+    YTEntity elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     db.save(elem);
 
-    elem = db.newElement("Person");
+    elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
     db.save(elem);
 
@@ -261,11 +261,11 @@ public class ColumnSecurityTest {
     security.setSecurityPolicy(
         db, security.getRole(db, "reader"), "database.class.Person.name", policy);
 
-    YTEntity elem = db.newElement("Person");
+    YTEntity elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     db.save(elem);
 
-    elem = db.newElement("Person");
+    elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
     db.save(elem);
 
@@ -298,11 +298,11 @@ public class ColumnSecurityTest {
     security.setSecurityPolicy(
         db, security.getRole(db, "reader"), "database.class.Person.name", policy);
 
-    YTEntity elem = db.newElement("Person");
+    YTEntity elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     db.save(elem);
 
-    elem = db.newElement("Person");
+    elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
     db.save(elem);
 
@@ -364,12 +364,12 @@ public class ColumnSecurityTest {
     security.setSecurityPolicy(
         db, security.getRole(db, "reader"), "database.class.Person.name", policy);
 
-    YTEntity elem = db.newElement("Person");
+    YTEntity elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);
 
-    elem = db.newElement("Person");
+    elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
     elem.setProperty("surname", "bar");
     db.save(elem);
@@ -402,12 +402,12 @@ public class ColumnSecurityTest {
     db.close();
     this.db = (YTDatabaseSessionInternal) context.open(DB_NAME, "writer", "writer");
 
-    YTEntity elem = db.newElement("Person");
+    YTEntity elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);
 
-    elem = db.newElement("Person");
+    elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
     elem.setProperty("surname", "bar");
     try {
@@ -431,12 +431,12 @@ public class ColumnSecurityTest {
     security.setSecurityPolicy(
         db, security.getRole(db, "writer"), "database.class.Person.name", policy);
 
-    YTEntity elem = db.newElement("Person");
+    YTEntity elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);
 
-    elem = db.newElement("Person");
+    elem = db.newEntity("Person");
     elem.setProperty("name", "bar");
     elem.setProperty("surname", "bar");
     db.save(elem);
@@ -474,7 +474,7 @@ public class ColumnSecurityTest {
     security.setSecurityPolicy(
         db, security.getRole(db, "writer"), "database.class.Person.name", policy);
 
-    YTEntity elem = db.newElement("Person");
+    YTEntity elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);
@@ -504,7 +504,7 @@ public class ColumnSecurityTest {
     db.command("CREATE SECURITY POLICY testPolicy SET read = (name = 'bar')");
     db.command("ALTER ROLE reader SET POLICY testPolicy ON database.class.Person.name");
 
-    YTEntity elem = db.newElement("Person");
+    YTEntity elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);
@@ -525,7 +525,7 @@ public class ColumnSecurityTest {
     db.command("CREATE SECURITY POLICY testPolicy SET read = (name = 'bar')");
     db.command("ALTER ROLE reader SET POLICY testPolicy ON database.class.Person.name");
 
-    YTEntity elem = db.newElement("Person");
+    YTEntity elem = db.newEntity("Person");
     elem.setProperty("name", "foo");
     elem.setProperty("surname", "foo");
     db.save(elem);
@@ -536,7 +536,7 @@ public class ColumnSecurityTest {
     try (final YTResultSet resultSet = db.query("SELECT from Person")) {
       YTResult item = resultSet.next();
       Assert.assertNull(item.getProperty("name"));
-      YTEntity doc = item.getElement().get();
+      YTEntity doc = item.getEntity().get();
       doc.setProperty("name", "bar");
       try {
         doc.save();

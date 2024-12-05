@@ -146,7 +146,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database = createSessionInstance("writer", "writer");
     database.begin();
     try {
-      var adminRecord = database.loadElement(this.adminRecordId);
+      var adminRecord = database.loadEntity(this.adminRecordId);
       adminRecord.setProperty("user", "writer-hacker");
       adminRecord.save();
       database.commit();
@@ -407,7 +407,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     YTResult res = result.next();
     Assert.assertFalse(result.hasNext());
 
-    final YTEntity doc = res.getElement().get();
+    final YTEntity doc = res.getEntity().get();
     Assert.assertEquals(doc.getProperty("data"), "My Test");
     doc.setProperty("user", "admin");
 

@@ -191,7 +191,7 @@ public class LuceneTransactionEmbeddedQueryTest {
       db.begin();
 
       // select in transaction while updating
-      YTEntity record = db.bindToSession(resultRecord.getElement().get());
+      YTEntity record = db.bindToSession(resultRecord.getEntity().get());
       Collection p1 = record.getProperty("p1");
       p1.remove("update removed");
       db.save(record);

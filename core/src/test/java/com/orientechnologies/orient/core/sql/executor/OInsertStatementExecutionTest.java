@@ -395,7 +395,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
       Object o = ((List) list).get(0);
       Assert.assertTrue(o instanceof YTResult);
       Assert.assertEquals("foo", ((YTResult) o).getProperty("name"));
-      Assert.assertEquals(className1, ((YTResult) o).toElement().getSchemaType().get().getName());
+      Assert.assertEquals(className1, ((YTResult) o).toEntity().getSchemaType().get().getName());
     }
     result.close();
   }
@@ -427,7 +427,7 @@ public class OInsertStatementExecutionTest extends DBTestBase {
       Object o = ((List) list).get(0);
       Assert.assertTrue(o instanceof YTResult);
       Assert.assertEquals("foo", ((YTResult) o).getProperty("name"));
-      Assert.assertEquals(className1, ((YTResult) o).toElement().getSchemaType().get().getName());
+      Assert.assertEquals(className1, ((YTResult) o).toEntity().getSchemaType().get().getName());
     }
     result.close();
   }

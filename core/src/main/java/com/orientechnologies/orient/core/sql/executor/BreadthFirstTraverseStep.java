@@ -44,7 +44,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
         List<YTIdentifiable> path = new ArrayList<>();
         path.add(item.getIdentity().get());
         ((YTResultInternal) item).setMetadata("$path", path);
-        if (item.isElement() && !traversed.contains(item.getElement().get().getIdentity())) {
+        if (item.isEntity() && !traversed.contains(item.getEntity().get().getIdentity())) {
           tryAddEntryPoint(item, ctx, entryPoints, traversed);
         }
       }
@@ -55,8 +55,8 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
     YTTraverseResult res = null;
     if (item instanceof YTTraverseResult) {
       res = (YTTraverseResult) item;
-    } else if (item.isElement() && item.getElement().get().getIdentity().isPersistent()) {
-      res = new YTTraverseResult(db, item.getElement().get());
+    } else if (item.isEntity() && item.getEntity().get().getIdentity().isPersistent()) {
+      res = new YTTraverseResult(db, item.getEntity().get());
       res.depth = 0;
       res.setMetadata("$depth", 0);
     } else if (item.getPropertyNames().size() == 1) {
@@ -169,10 +169,10 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
       OCommandContext ctx,
       List<YTResult> entryPoints,
       Set<YTRID> traversed) {
-    if (!nextStep.isElement()) {
+    if (!nextStep.isEntity()) {
       return;
     }
-    if (traversed.contains(nextStep.getElement().get().getIdentity())) {
+    if (traversed.contains(nextStep.getEntity().get().getIdentity())) {
       return;
     }
     if (nextStep instanceof YTTraverseResult) {
@@ -193,7 +193,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
 
       tryAddEntryPoint(nextStep, ctx, entryPoints, traversed);
     } else {
-      YTTraverseResult res = new YTTraverseResult(ctx.getDatabase(), nextStep.getElement().get());
+      YTTraverseResult res = new YTTraverseResult(ctx.getDatabase(), nextStep.getEntity().get());
       res.depth = depth;
       res.setMetadata("$depth", depth);
 
@@ -218,7 +218,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
     if (whileClause == null || whileClause.matchesFilters(res, ctx)) {
       entryPoints.add(res);
     }
-    traversed.add(res.getElement().get().getIdentity());
+    traversed.add(res.getEntity().get().getIdentity());
   }
 
   @Override

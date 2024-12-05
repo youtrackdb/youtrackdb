@@ -33,7 +33,7 @@ public class TestSqlEmbeddedResult extends DBTestBase {
             .query(
                 "select $current as el " + " from (select expand(rel.include('format')) from Test)")
             .stream()
-            .map(YTResult::toElement)
+            .map(YTResult::toEntity)
             .collect(Collectors.toList());
     Assert.assertEquals(res.size(), 1);
     YTEntity ele = res.get(0);
@@ -41,7 +41,7 @@ public class TestSqlEmbeddedResult extends DBTestBase {
 
     res =
         db.query("select rel as el " + " from (select rel from Test)").stream()
-            .map(YTResult::toElement)
+            .map(YTResult::toEntity)
             .toList();
 
     Assert.assertEquals(res.size(), 1);

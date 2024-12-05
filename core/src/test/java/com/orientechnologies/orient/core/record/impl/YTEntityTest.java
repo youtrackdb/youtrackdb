@@ -13,7 +13,7 @@ public class YTEntityTest extends DBTestBase {
 
   @Test
   public void testGetSetProperty() {
-    YTEntity elem = db.newElement();
+    YTEntity elem = db.newEntity();
     elem.setProperty("foo", "foo1");
     elem.setProperty("foo.bar", "foobar");
     elem.setProperty("  ", "spaces");
@@ -28,7 +28,7 @@ public class YTEntityTest extends DBTestBase {
   public void testLoadAndSave() {
     db.createClassIfNotExist("TestLoadAndSave");
     db.begin();
-    YTEntity elem = db.newElement("TestLoadAndSave");
+    YTEntity elem = db.newEntity("TestLoadAndSave");
     elem.setProperty("name", "foo");
     db.save(elem);
     db.commit();

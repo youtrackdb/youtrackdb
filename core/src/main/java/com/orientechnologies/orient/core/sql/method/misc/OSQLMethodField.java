@@ -58,7 +58,7 @@ public class OSQLMethodField extends OAbstractSQLMethod {
 
     if (ioResult != null) {
       if (ioResult instanceof YTResult) {
-        ioResult = ((YTResult) ioResult).toElement();
+        ioResult = ((YTResult) ioResult).toEntity();
       }
       if (ioResult instanceof Iterable && !(ioResult instanceof YTDocument)) {
         ioResult = ((Iterable) ioResult).iterator();

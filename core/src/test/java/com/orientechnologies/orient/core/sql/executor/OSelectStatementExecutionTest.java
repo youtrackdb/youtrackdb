@@ -185,9 +185,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       Assert.assertTrue(("" + item.getProperty("name")).startsWith("name"));
       if (lastItem != null) {
         Assert.assertTrue(
-            lastItem.getIdentity().compareTo(item.getElement().get().getIdentity()) < 0);
+            lastItem.getIdentity().compareTo(item.getEntity().get().getIdentity()) < 0);
       }
-      lastItem = item.getElement().get();
+      lastItem = item.getEntity().get();
     }
     Assert.assertFalse(result.hasNext());
 
@@ -217,9 +217,9 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       Assert.assertTrue(("" + item.getProperty("name")).startsWith("name"));
       if (lastItem != null) {
         Assert.assertTrue(
-            lastItem.getIdentity().compareTo(item.getElement().get().getIdentity()) > 0);
+            lastItem.getIdentity().compareTo(item.getEntity().get().getIdentity()) > 0);
       }
-      lastItem = item.getElement().get();
+      lastItem = item.getEntity().get();
     }
     Assert.assertFalse(result.hasNext());
 
@@ -506,7 +506,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       Assert.assertNotNull(name);
       Assert.assertTrue(name.startsWith("name"));
       Assert.assertNull(surname);
-      Assert.assertFalse(item.getElement().isPresent());
+      Assert.assertFalse(item.getEntity().isPresent());
     }
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -576,7 +576,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    YTEntity elem = db.newElement(className);
+    YTEntity elem = db.newEntity(className);
     elem.setProperty("name", "bar");
     elem.save();
     db.commit();
@@ -603,7 +603,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.getMetadata().getSchema().createClass(className);
 
     db.begin();
-    YTEntity elem = db.newElement(className);
+    YTEntity elem = db.newEntity(className);
     elem.setProperty("name", "bar");
     elem.save();
     db.commit();
@@ -3446,20 +3446,20 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.command("create class " + className).close();
 
     db.begin();
-    YTEntity elem1 = db.newElement(className);
+    YTEntity elem1 = db.newEntity(className);
     elem1.setProperty("name", "a");
     elem1.save();
 
-    YTEntity elem2 = db.newElement(className);
+    YTEntity elem2 = db.newEntity(className);
     elem2.setProperty("name", "b");
     elem2.setProperty("surname", "lkj");
     elem2.save();
 
-    YTEntity elem3 = db.newElement(className);
+    YTEntity elem3 = db.newEntity(className);
     elem3.setProperty("name", "c");
     elem3.save();
 
-    YTEntity elem4 = db.newElement(className);
+    YTEntity elem4 = db.newEntity(className);
     elem4.setProperty("name", "d");
     elem4.setProperty("elem1", elem1);
     elem4.setProperty("elem2", elem2);
@@ -3488,7 +3488,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.command("create class " + className).close();
 
     db.begin();
-    YTEntity elem1 = db.newElement(className);
+    YTEntity elem1 = db.newEntity(className);
     List<String> coll = new ArrayList<>();
     coll.add("foo");
     coll.add("bar");
@@ -3534,7 +3534,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     db.command("create class " + className).close();
 
     db.begin();
-    YTEntity elem1 = db.newElement(className);
+    YTEntity elem1 = db.newEntity(className);
     List<Long> coll = new ArrayList<>();
     coll.add(1L);
     coll.add(3L);
@@ -3542,7 +3542,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     elem1.setProperty("coll", coll);
     elem1.save();
 
-    YTEntity elem2 = db.newElement(className);
+    YTEntity elem2 = db.newEntity(className);
     coll = new ArrayList<>();
     coll.add(2L);
     coll.add(4L);
@@ -3961,20 +3961,20 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     prop.createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
-    YTEntity elem3 = db.newElement(className3);
+    YTEntity elem3 = db.newEntity(className3);
     elem3.setProperty("name", "John");
     elem3.save();
 
-    YTEntity elem2 = db.newElement(className2);
+    YTEntity elem2 = db.newEntity(className2);
     elem2.setProperty("next", elem3);
     elem2.save();
 
-    YTEntity elem1 = db.newElement(className1);
+    YTEntity elem1 = db.newEntity(className1);
     elem1.setProperty("next", elem2);
     elem1.setProperty("name", "right");
     elem1.save();
 
-    elem1 = db.newElement(className1);
+    elem1 = db.newEntity(className1);
     elem1.setProperty("name", "wrong");
     elem1.save();
     db.commit();
@@ -4010,29 +4010,29 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     prop.createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
-    YTEntity elem3 = db.newElement(className3);
+    YTEntity elem3 = db.newEntity(className3);
     elem3.setProperty("name", "John");
     elem3.save();
 
-    YTEntity elemFoo = db.newElement(className3);
+    YTEntity elemFoo = db.newEntity(className3);
     elemFoo.setProperty("foo", "bar");
     elemFoo.save();
 
-    YTEntity elem2 = db.newElement(className2);
+    YTEntity elem2 = db.newEntity(className2);
     List<YTEntity> elems3 = new ArrayList<>();
     elems3.add(elem3);
     elems3.add(elemFoo);
     elem2.setProperty("next", elems3);
     elem2.save();
 
-    YTEntity elem1 = db.newElement(className1);
+    YTEntity elem1 = db.newEntity(className1);
     List<YTEntity> elems2 = new ArrayList<>();
     elems2.add(elem2);
     elem1.setProperty("next", elems2);
     elem1.setProperty("name", "right");
     elem1.save();
 
-    elem1 = db.newElement(className1);
+    elem1 = db.newEntity(className1);
     elem1.setProperty("name", "wrong");
     elem1.save();
     db.commit();
@@ -4063,7 +4063,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.begin();
       Map<String, Object> theMap = new HashMap<>();
       theMap.put("key" + i, "val" + i);
-      YTEntity elem1 = db.newElement(className);
+      YTEntity elem1 = db.newEntity(className);
       elem1.setProperty("themap", theMap);
       elem1.save();
       db.commit();
@@ -4101,7 +4101,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.begin();
       Map<String, Object> theMap = new HashMap<>();
       theMap.put("key" + i, "val" + i);
-      YTEntity elem1 = db.newElement(className);
+      YTEntity elem1 = db.newEntity(className);
       elem1.setProperty("themap", theMap);
       elem1.setProperty("thestring", "thestring" + i);
       elem1.save();
@@ -4138,7 +4138,7 @@ public class OSelectStatementExecutionTest extends DBTestBase {
       db.begin();
       Map<String, Object> theMap = new HashMap<>();
       theMap.put("key" + i, "val" + i);
-      YTEntity elem1 = db.newElement(className);
+      YTEntity elem1 = db.newEntity(className);
       elem1.setProperty("themap", theMap);
       elem1.save();
       db.commit();
@@ -4587,20 +4587,20 @@ public class OSelectStatementExecutionTest extends DBTestBase {
     d.createProperty(db, "name", YTType.STRING).createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
-    YTEntity dDoc = db.newElement(d.getName());
+    YTEntity dDoc = db.newEntity(d.getName());
     dDoc.setProperty("name", "foo");
     dDoc.save();
 
-    YTEntity cDoc = db.newElement(c.getName());
+    YTEntity cDoc = db.newEntity(c.getName());
     cDoc.setProperty("name", "foo");
     cDoc.setProperty("d", dDoc);
     cDoc.save();
 
-    YTEntity bDoc = db.newElement(b.getName());
+    YTEntity bDoc = db.newEntity(b.getName());
     bDoc.setProperty("c", cDoc);
     bDoc.save();
 
-    YTEntity aDoc = db.newElement(a.getName());
+    YTEntity aDoc = db.newEntity(a.getName());
     aDoc.setProperty("b", bDoc);
     aDoc.save();
 

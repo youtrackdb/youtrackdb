@@ -120,8 +120,8 @@ public class OResultSerializerNetwork {
       Object propertyValue = result.getProperty(property);
       if (propertyValue != null) {
         if (propertyValue instanceof YTResult) {
-          if (((YTResult) propertyValue).isElement()) {
-            YTEntity elem = ((YTResult) propertyValue).getElement().get();
+          if (((YTResult) propertyValue).isEntity()) {
+            YTEntity elem = ((YTResult) propertyValue).getEntity().get();
             writeOType(bytes, bytes.alloc(1), YTType.LINK);
             serializeValue(bytes, elem.getIdentity(), YTType.LINK, null);
           } else {
@@ -439,8 +439,8 @@ public class OResultSerializerNetwork {
         writeLinkCollection(bytes, ridCollection);
         break;
       case LINK:
-        if (value instanceof YTResult && ((YTResult) value).isElement()) {
-          value = ((YTResult) value).getElement().get();
+        if (value instanceof YTResult && ((YTResult) value).isEntity()) {
+          value = ((YTResult) value).getEntity().get();
         }
         if (!(value instanceof YTIdentifiable)) {
           throw new YTValidationException("Value '" + value + "' is not a YTIdentifiable");
@@ -580,7 +580,7 @@ public class OResultSerializerNetwork {
   }
 
   private YTType getTypeFromValueEmbedded(final Object fieldValue) {
-    if (fieldValue instanceof YTResult && ((YTResult) fieldValue).isElement()) {
+    if (fieldValue instanceof YTResult && ((YTResult) fieldValue).isEntity()) {
       return YTType.LINK;
     }
     YTType type =

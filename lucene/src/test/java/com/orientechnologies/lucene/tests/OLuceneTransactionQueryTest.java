@@ -106,7 +106,7 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
     doc.field("p1", "abc");
 
     //noinspection OptionalGetWithoutIsPresent
-    db.delete(results.get(0).getElement().get().getIdentity());
+    db.delete(results.get(0).getEntity().get().getIdentity());
 
     Collection coll;
     try (YTResultSet vertices = db.query(query)) {
@@ -183,7 +183,7 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
 
     YTResult record = results.get(0);
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    YTEntity element = db.bindToSession(record.getElement().get());
+    YTEntity element = db.bindToSession(record.getEntity().get());
     element.setProperty("p1", "removed");
     db.save(element);
 

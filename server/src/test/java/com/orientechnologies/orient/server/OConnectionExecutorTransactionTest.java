@@ -378,7 +378,7 @@ public class OConnectionExecutorTransactionTest {
 
     assertEquals("update", results.get(0).getProperty("name"));
 
-    assertTrue(results.get(0).getElement().get().getIdentity().isTemporary());
+    assertTrue(results.get(0).getEntity().get().getIdentity().isTemporary());
 
     OCommit37Request commit = new OCommit37Request(database, 10, false, true, null,
         new HashMap<>());

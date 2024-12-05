@@ -139,7 +139,7 @@ public class OProjection extends SimpleNode {
       }
       if (item.isAll()) {
         iRecord
-            .getElement()
+            .getEntity()
             .ifPresent(
                 (e) -> {
                   if (e.getRecord() instanceof YTDocument) {
@@ -156,8 +156,8 @@ public class OProjection extends SimpleNode {
           }
           result.setProperty(alias, val);
         }
-        if (iRecord.getElement().isPresent()) {
-          YTEntity x = iRecord.getElement().get();
+        if (iRecord.getEntity().isPresent()) {
+          YTEntity x = iRecord.getEntity().get();
           if (!this.excludes.contains("@rid")) {
             result.setProperty("@rid", x.getIdentity());
           }

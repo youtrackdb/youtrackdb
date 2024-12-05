@@ -81,7 +81,7 @@ public class OLuceneFacetTest extends OLuceneBaseTest {
 
     List<YTEntity> result =
         db.command("select *,$facet from Item where name lucene '(name:P*)' limit 1 ").stream()
-            .map((o) -> o.toElement())
+            .map((o) -> o.toEntity())
             .collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 1);
@@ -110,7 +110,7 @@ public class OLuceneFacetTest extends OLuceneBaseTest {
                 "select *,$facet from Item where name lucene { 'q' : 'H*', 'drillDown' :"
                     + " 'category:Electronic' }  limit 1 ")
             .stream()
-            .map((o) -> o.toElement())
+            .map((o) -> o.toEntity())
             .collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 1);

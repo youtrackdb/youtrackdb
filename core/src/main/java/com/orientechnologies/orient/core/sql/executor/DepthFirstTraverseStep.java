@@ -54,9 +54,9 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
       }
       ((YTResultInternal) item).setMetadata("$path", path);
 
-      if (item.isElement() && !traversed.contains(item.getElement().get().getIdentity())) {
+      if (item.isEntity() && !traversed.contains(item.getEntity().get().getIdentity())) {
         tryAddEntryPointAtTheEnd(item, ctx, entryPoints, traversed);
-        traversed.add(item.getElement().get().getIdentity());
+        traversed.add(item.getEntity().get().getIdentity());
       } else if (item.getProperty("@rid") != null
           && item.getProperty("@rid") instanceof YTIdentifiable) {
         tryAddEntryPointAtTheEnd(item, ctx, entryPoints, traversed);
@@ -69,8 +69,8 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
     YTTraverseResult res = null;
     if (item instanceof YTTraverseResult) {
       res = (YTTraverseResult) item;
-    } else if (item.isElement() && item.getElement().get().getIdentity().isValid()) {
-      res = new YTTraverseResult(db, item.getElement().get());
+    } else if (item.isEntity() && item.getEntity().get().getIdentity().isValid()) {
+      res = new YTTraverseResult(db, item.getEntity().get());
       res.depth = 0;
     } else if (item.getPropertyNames().size() == 1) {
       Object val = item.getProperty(item.getPropertyNames().iterator().next());
@@ -198,10 +198,10 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
       OCommandContext ctx,
       List<YTResult> entryPoints,
       Set<YTRID> traversed) {
-    if (!nextStep.isElement()) {
+    if (!nextStep.isEntity()) {
       return;
     }
-    if (traversed.contains(nextStep.getElement().get().getIdentity())) {
+    if (traversed.contains(nextStep.getEntity().get().getIdentity())) {
       return;
     }
     if (nextStep instanceof YTTraverseResult) {
@@ -221,7 +221,7 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
 
       tryAddEntryPoint(nextStep, ctx, entryPoints, traversed);
     } else {
-      YTTraverseResult res = new YTTraverseResult(ctx.getDatabase(), nextStep.getElement().get());
+      YTTraverseResult res = new YTTraverseResult(ctx.getDatabase(), nextStep.getEntity().get());
       res.depth = depth;
       res.setMetadata("$depth", depth);
       List<YTIdentifiable> newPath = new ArrayList<>();
@@ -246,8 +246,8 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
       entryPoints.add(0, res);
     }
 
-    if (res.isElement()) {
-      traversed.add(res.getElement().get().getIdentity());
+    if (res.isEntity()) {
+      traversed.add(res.getEntity().get().getIdentity());
     } else if (res.getProperty("@rid") != null
         && res.getProperty("@rid") instanceof YTIdentifiable) {
       traversed.add(((YTIdentifiable) res.getProperty("@rid")).getIdentity());
@@ -260,8 +260,8 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
       entryPoints.add(res);
     }
 
-    if (res.isElement()) {
-      traversed.add(res.getElement().get().getIdentity());
+    if (res.isEntity()) {
+      traversed.add(res.getEntity().get().getIdentity());
     } else if (res.getProperty("@rid") != null
         && res.getProperty("@rid") instanceof YTIdentifiable) {
       traversed.add(((YTIdentifiable) res.getProperty("@rid")).getIdentity());

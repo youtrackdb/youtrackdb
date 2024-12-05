@@ -14,7 +14,7 @@ public class RecordCreateTest extends DocumentDBBaseTest {
 
   @Test
   public void testNewRecordNoTx() {
-    var element = database.newElement();
+    var element = database.newEntity();
     Assert.assertFalse(element.exists());
   }
 
@@ -22,7 +22,7 @@ public class RecordCreateTest extends DocumentDBBaseTest {
   public void testNewRecordTx() {
     database.begin();
     try {
-      var element = database.newElement();
+      var element = database.newEntity();
       Assert.assertFalse(element.exists());
     } finally {
       database.rollback();
@@ -33,7 +33,7 @@ public class RecordCreateTest extends DocumentDBBaseTest {
   public void testSavedRecordTx() {
     database.begin();
     try {
-      var element = database.newElement();
+      var element = database.newEntity();
       element.save();
       Assert.assertTrue(element.exists());
     } finally {
@@ -45,7 +45,7 @@ public class RecordCreateTest extends DocumentDBBaseTest {
   public void testDeletedRecordTx() {
     database.begin();
     try {
-      var element = database.newElement();
+      var element = database.newEntity();
       element.save();
       element.delete();
       Assert.assertFalse(element.exists());
@@ -58,7 +58,7 @@ public class RecordCreateTest extends DocumentDBBaseTest {
   public void testSaveDeletedRecordTx() {
     database.begin();
     try {
-      var element = database.newElement();
+      var element = database.newEntity();
       element.save();
       Assert.assertTrue(element.exists());
       element.delete();
@@ -70,7 +70,7 @@ public class RecordCreateTest extends DocumentDBBaseTest {
 
   @Test
   public void testLoadedRecordNoTx() {
-    var element = database.newElement();
+    var element = database.newEntity();
     database.begin();
     element.save();
     database.commit();
@@ -83,7 +83,7 @@ public class RecordCreateTest extends DocumentDBBaseTest {
   public void testLoadedRecordTx() {
     database.begin();
     try {
-      var element = database.newElement();
+      var element = database.newEntity();
       element.save();
       var loadedElement = database.load(element.getIdentity());
       Assert.assertTrue(loadedElement.exists());
@@ -96,7 +96,7 @@ public class RecordCreateTest extends DocumentDBBaseTest {
   public void testLoadedDeletedRecordTx() {
     database.begin();
     try {
-      var element = database.newElement();
+      var element = database.newEntity();
       element.save();
       var loadedElement = database.load(element.getIdentity());
       Assert.assertTrue(loadedElement.exists());

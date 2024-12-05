@@ -36,14 +36,14 @@ public class SQLUpdateEdgeTest extends DBTestBase {
 
     // VERTEXES
     db.begin();
-    YTEntity v1 = db.command("create vertex").next().getElement().get();
+    YTEntity v1 = db.command("create vertex").next().getEntity().get();
     assertEquals(v1.getSchemaType().get().getName(), "V");
 
-    YTEntity v2 = db.command("create vertex V1").next().getElement().get();
+    YTEntity v2 = db.command("create vertex V1").next().getEntity().get();
     assertEquals(v2.getSchemaType().get().getName(), "V1");
 
     YTEntity v3 =
-        db.command("create vertex set vid = 'v3', brand = 'fiat'").next().getElement().get();
+        db.command("create vertex set vid = 'v3', brand = 'fiat'").next().getEntity().get();
 
     assertEquals(v3.getSchemaType().get().getName(), "V");
     assertEquals(v3.getProperty("brand"), "fiat");
@@ -51,7 +51,7 @@ public class SQLUpdateEdgeTest extends DBTestBase {
     YTEntity v4 =
         db.command("create vertex V1 set vid = 'v4',  brand = 'fiat',name = 'wow'")
             .next()
-            .getElement()
+            .getEntity()
             .get();
     db.commit();
 

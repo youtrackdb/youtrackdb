@@ -47,7 +47,7 @@ public class MatchEdgeTraverser {
     }
     String endPointAlias = getEndpointAlias();
     YTResult nextR = downstream.next(ctx);
-    YTIdentifiable nextElement = nextR.getElement().get();
+    YTIdentifiable nextElement = nextR.getEntity().get();
     Object prevValue = sourceRecord.getProperty(endPointAlias);
     if (prevValue != null && !equals(prevValue, nextElement)) {
       return null;
@@ -71,10 +71,10 @@ public class MatchEdgeTraverser {
 
   protected boolean equals(Object prevValue, YTIdentifiable nextElement) {
     if (prevValue instanceof YTResult) {
-      prevValue = ((YTResult) prevValue).getElement().orElse(null);
+      prevValue = ((YTResult) prevValue).getEntity().orElse(null);
     }
     if (nextElement instanceof YTResult) {
-      nextElement = ((YTResult) nextElement).getElement().orElse(null);
+      nextElement = ((YTResult) nextElement).getEntity().orElse(null);
     }
     return prevValue != null && prevValue.equals(nextElement);
   }
@@ -98,7 +98,7 @@ public class MatchEdgeTraverser {
     if (downstream == null) {
       Object startingElem = sourceRecord.getProperty(getStartingPointAlias());
       if (startingElem instanceof YTResult) {
-        startingElem = ((YTResult) startingElem).getElement().orElse(null);
+        startingElem = ((YTResult) startingElem).getEntity().orElse(null);
       }
       downstream = executeTraversal(ctx, this.item, (YTIdentifiable) startingElem, 0, null);
     }
@@ -181,7 +181,7 @@ public class MatchEdgeTraverser {
             newPath.addAll(pathToHere);
           }
 
-          YTEntity elem = origin.toElement();
+          YTEntity elem = origin.toEntity();
           newPath.add(elem.getIdentity());
 
           OExecutionStream subResult =
@@ -211,7 +211,7 @@ public class MatchEdgeTraverser {
       matched.setProperty(
           getStartingPointAlias(), sourceRecord.getProperty(getStartingPointAlias()));
     }
-    YTEntity elem = next.toElement();
+    YTEntity elem = next.toEntity();
     iCommandContext.setVariable("$currentMatch", elem);
     if (matchesFilters(iCommandContext, theFilter, elem)
         && matchesClass(iCommandContext, theClassName, elem)

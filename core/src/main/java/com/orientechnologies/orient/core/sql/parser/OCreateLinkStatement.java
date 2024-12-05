@@ -295,7 +295,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
     }
     List<YTDocument> result = new ArrayList<>();
     while (rs.hasNext()) {
-      result.add((YTDocument) rs.next().getElement().orElse(null));
+      result.add((YTDocument) rs.next().getEntity().orElse(null));
     }
     return result;
   }

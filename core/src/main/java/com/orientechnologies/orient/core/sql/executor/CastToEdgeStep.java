@@ -23,15 +23,15 @@ public class CastToEdgeStep extends AbstractExecutionStep {
   }
 
   private YTResult mapResult(YTResult result, OCommandContext ctx) {
-    if (result.getElement().orElse(null) instanceof YTEdge) {
+    if (result.getEntity().orElse(null) instanceof YTEdge) {
       return result;
     }
     var db = ctx.getDatabase();
     if (result.isEdge()) {
       if (result instanceof YTResultInternal) {
-        ((YTResultInternal) result).setIdentifiable(result.toElement().toEdge());
+        ((YTResultInternal) result).setIdentifiable(result.toEntity().toEdge());
       } else {
-        result = new YTResultInternal(db, result.toElement().toEdge());
+        result = new YTResultInternal(db, result.toEntity().toEdge());
       }
     } else {
       throw new YTCommandExecutionException("Current element is not a vertex: " + result);

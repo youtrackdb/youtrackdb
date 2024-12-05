@@ -75,7 +75,7 @@ public class OServerCommandGetQuery extends OServerCommandAuthenticatedDbAbstrac
 
       result
           .getExecutionPlan()
-          .ifPresent(x -> additionalContent.put("executionPlan", x.toResult(db).toElement()));
+          .ifPresent(x -> additionalContent.put("executionPlan", x.toResult(db).toEntity()));
 
       result.close();
 

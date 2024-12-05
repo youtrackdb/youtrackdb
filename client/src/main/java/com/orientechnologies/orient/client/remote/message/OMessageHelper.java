@@ -451,7 +451,7 @@ public class OMessageHelper {
       ORecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(OQueryResponse.RECORD_TYPE_VERTEX);
-    writeDocument(session, channel, row.getElement().get().getRecord(), recordSerializer);
+    writeDocument(session, channel, row.getEntity().get().getRecord(), recordSerializer);
   }
 
   private static void writeElement(
@@ -459,7 +459,7 @@ public class OMessageHelper {
       ORecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(OQueryResponse.RECORD_TYPE_ELEMENT);
-    writeDocument(session, channel, row.getElement().get().getRecord(), recordSerializer);
+    writeDocument(session, channel, row.getEntity().get().getRecord(), recordSerializer);
   }
 
   private static void writeEdge(
@@ -467,7 +467,7 @@ public class OMessageHelper {
       ORecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(OQueryResponse.RECORD_TYPE_EDGE);
-    writeDocument(session, channel, row.getElement().get().getRecord(), recordSerializer);
+    writeDocument(session, channel, row.getEntity().get().getRecord(), recordSerializer);
   }
 
   private static void writeDocument(
@@ -486,7 +486,7 @@ public class OMessageHelper {
       writeVertex(session, row, channel, recordSerializer);
     } else if (row.isEdge()) {
       writeEdge(session, row, channel, recordSerializer);
-    } else if (row.isElement()) {
+    } else if (row.isEntity()) {
       writeElement(session, row, channel, recordSerializer);
     } else {
       writeProjection(row, channel);

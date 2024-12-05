@@ -27,7 +27,7 @@ public class ConvertToResultInternalStep extends AbstractExecutionStep {
 
   private YTResult filterMap(YTResult result, OCommandContext ctx) {
     if (result instanceof YTUpdatableResult) {
-      var element = result.toElement();
+      var element = result.toEntity();
       if (element != null) {
         return new YTResultInternal(ctx.getDatabase(), element);
       }

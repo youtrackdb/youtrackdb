@@ -51,7 +51,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
       Object[] params,
       OCommandContext ctx) {
     YTEntity element =
-        iThis instanceof YTEntity ? (YTEntity) iThis : ((YTResult) iThis).toElement();
+        iThis instanceof YTEntity ? (YTEntity) iThis : ((YTResult) iThis).toEntity();
 
     String indexName = (String) params[0];
 

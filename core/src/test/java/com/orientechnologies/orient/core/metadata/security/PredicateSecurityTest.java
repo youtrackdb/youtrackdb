@@ -89,14 +89,14 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          YTEntity elem = db.newElement("Person");
+          YTEntity elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
           db.save(elem);
         });
     try {
       db.executeInTx(
           () -> {
-            var elem = db.newElement("Person");
+            var elem = db.newEntity("Person");
             elem.setProperty("name", "bar");
             db.save(elem);
           });
@@ -155,14 +155,14 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          YTEntity elem = db.newElement("Person");
+          YTEntity elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
           db.save(elem);
         });
 
     db.executeInTx(
         () -> {
-          var elem = db.newElement("Person");
+          var elem = db.newEntity("Person");
           elem.setProperty("name", "bar");
           db.save(elem);
         });
@@ -196,14 +196,14 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          YTEntity elem = db.newElement("Person");
+          YTEntity elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
           db.save(elem);
         });
 
     db.executeInTx(
         () -> {
-          var elem = db.newElement("Person");
+          var elem = db.newEntity("Person");
           elem.setProperty("name", "bar");
           db.save(elem);
         });
@@ -235,7 +235,7 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          YTEntity elem = db.newElement("Person");
+          YTEntity elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
           elem.setProperty("surname", "foo");
           db.save(elem);
@@ -243,7 +243,7 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          var elem = db.newElement("Person");
+          var elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
           elem.setProperty("surname", "bar");
           db.save(elem);
@@ -284,7 +284,7 @@ public class PredicateSecurityTest {
     YTEntity elem =
         db.computeInTx(
             () -> {
-              var e = db.newElement("Person");
+              var e = db.newEntity("Person");
               e.setProperty("name", "foo");
               db.save(e);
               return e;
@@ -339,7 +339,7 @@ public class PredicateSecurityTest {
     YTEntity elem =
         db.computeInTx(
             () -> {
-              var e = db.newElement("Person");
+              var e = db.newEntity("Person");
               e.setProperty("name", "foo");
               db.save(e);
               return e;
@@ -379,7 +379,7 @@ public class PredicateSecurityTest {
     YTEntity elem =
         db.computeInTx(
             () -> {
-              var e = db.newElement("Person");
+              var e = db.newEntity("Person");
               e.setProperty("name", "foo");
               db.save(e);
               return e;
@@ -422,7 +422,7 @@ public class PredicateSecurityTest {
     YTEntity elem =
         db.computeInTx(
             () -> {
-              var e = db.newElement("Person");
+              var e = db.newEntity("Person");
               e.setProperty("name", "foo");
               db.save(e);
               return e;
@@ -461,7 +461,7 @@ public class PredicateSecurityTest {
     YTEntity elem =
         db.computeInTx(
             () -> {
-              var e = db.newElement("Person");
+              var e = db.newEntity("Person");
               e.setProperty("name", "bar");
               db.save(e);
               return e;
@@ -477,7 +477,7 @@ public class PredicateSecurityTest {
     elem =
         db.computeInTx(
             () -> {
-              var e = db.newElement("Person");
+              var e = db.newEntity("Person");
               e.setProperty("name", "foo");
               db.save(e);
               return e;
@@ -508,14 +508,14 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          YTEntity elem = db.newElement("Person");
+          YTEntity elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
           db.save(elem);
         });
 
     db.executeInTx(
         () -> {
-          var elem = db.newElement("Person");
+          var elem = db.newEntity("Person");
           elem.setProperty("name", "bar");
           db.save(elem);
         });
@@ -555,14 +555,14 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          YTEntity elem = db.newElement("Person");
+          YTEntity elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
           db.save(elem);
         });
 
     db.executeInTx(
         () -> {
-          var elem = db.newElement("Person");
+          var elem = db.newEntity("Person");
           elem.setProperty("name", "bar");
           db.save(elem);
         });
@@ -594,14 +594,14 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          var e = db.newElement("Person");
+          var e = db.newEntity("Person");
           e.setProperty("name", "foo");
           db.save(e);
         });
 
     db.executeInTx(
         () -> {
-          var elem = db.newElement("Person");
+          var elem = db.newEntity("Person");
           elem.setProperty("name", "bar");
           db.save(elem);
         });
@@ -637,14 +637,14 @@ public class PredicateSecurityTest {
 
     db.executeInTx(
         () -> {
-          YTEntity elem = db.newElement("Person");
+          YTEntity elem = db.newEntity("Person");
           elem.setProperty("name", "foo");
           db.save(elem);
         });
 
     db.executeInTx(
         () -> {
-          var elem = db.newElement("Person");
+          var elem = db.newEntity("Person");
           elem.setProperty("name", "bar");
           db.save(elem);
         });

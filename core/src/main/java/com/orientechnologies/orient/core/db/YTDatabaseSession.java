@@ -311,7 +311,7 @@ public interface YTDatabaseSession extends AutoCloseable {
    * @throws YTRecordNotFoundException if the record does not exist
    */
   @Nonnull
-  default YTEntity loadElement(YTRID id) throws YTDatabaseException, YTRecordNotFoundException {
+  default YTEntity loadEntity(YTRID id) throws YTDatabaseException, YTRecordNotFoundException {
     var record = load(id);
     if (record instanceof YTEntity element) {
       return element;
@@ -399,9 +399,9 @@ public interface YTDatabaseSession extends AutoCloseable {
    */
   boolean isPooled();
 
-  YTEntity newElement();
+  YTEntity newEntity();
 
-  YTEntity newElement(final String className);
+  YTEntity newEntity(final String className);
 
   /**
    * Creates a new Edge of type E

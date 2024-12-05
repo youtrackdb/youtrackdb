@@ -68,7 +68,7 @@ public class OStorageEncryptionTestIT {
               session.query("select from EncryptedData where id = ?", random.nextInt(10_000_000))) {
             if (resultSet.hasNext()) {
               final YTResult result = resultSet.next();
-              result.getElement().ifPresent(YTRecord::delete);
+              result.getEntity().ifPresent(YTRecord::delete);
             }
           }
         }

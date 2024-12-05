@@ -29,7 +29,7 @@ public interface YTResult {
    * @param name the property name
    * @param <T>
    * @return the property value. If the property value is a persistent record, it only returns the
-   * RID. See also {@link #getElementProperty(String)} {@link #getVertexProperty(String)}
+   * RID. See also {@link #getEntityProperty(String)} {@link #getVertexProperty(String)}
    * {@link #getEdgeProperty(String)} {@link #getBlobProperty(String)}
    */
   <T> T getProperty(String name);
@@ -40,7 +40,7 @@ public interface YTResult {
    * @param name the property name
    * @return the property value. Null if the property is not defined or if it's not an YTEntity
    */
-  YTEntity getElementProperty(String name);
+  YTEntity getEntityProperty(String name);
 
   /**
    * returns an YTVertex property from the result
@@ -73,27 +73,27 @@ public interface YTResult {
   @Nullable
   YTRID getRecordId();
 
-  boolean isElement();
+  boolean isEntity();
 
-  Optional<YTEntity> getElement();
-
-  @Nullable
-  YTEntity asElement();
+  Optional<YTEntity> getEntity();
 
   @Nullable
-  YTEntity toElement();
+  YTEntity asEntity();
+
+  @Nullable
+  YTEntity toEntity();
 
   default boolean isVertex() {
-    return getElement().map(x -> x.isVertex()).orElse(false);
+    return getEntity().map(x -> x.isVertex()).orElse(false);
   }
 
   default Optional<YTVertex> getVertex() {
-    return getElement().flatMap(x -> x.asVertex());
+    return getEntity().flatMap(x -> x.asVertex());
   }
 
   @Nullable
   default YTVertex toVertex() {
-    var element = toElement();
+    var element = toEntity();
     if (element == null) {
       return null;
     }
@@ -102,16 +102,16 @@ public interface YTResult {
   }
 
   default boolean isEdge() {
-    return getElement().map(x -> x.isEdge()).orElse(false);
+    return getEntity().map(x -> x.isEdge()).orElse(false);
   }
 
   default Optional<YTEdge> getEdge() {
-    return getElement().flatMap(x -> x.asEdge());
+    return getEntity().flatMap(x -> x.asEdge());
   }
 
   @Nullable
   default YTEdge toEdge() {
-    var element = toElement();
+    var element = toEntity();
     if (element == null) {
       return null;
     }
@@ -144,8 +144,8 @@ public interface YTResult {
   Set<String> getMetadataKeys();
 
   default String toJSON() {
-    if (isElement()) {
-      return getElement().get().toJSON();
+    if (isEntity()) {
+      return getEntity().get().toJSON();
     }
     StringBuilder result = new StringBuilder();
     result.append("{");

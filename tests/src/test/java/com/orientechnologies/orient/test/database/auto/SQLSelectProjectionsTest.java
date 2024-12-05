@@ -20,8 +20,8 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -57,7 +57,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
                 "select nick, followings, followers from Profile where nick is defined and"
                     + " followings is defined and followers is defined")
             .stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());
@@ -78,7 +78,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
   public void queryProjectionObjectLevel() {
     var result =
         database.query("select nick, followings, followers from Profile").stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());
@@ -98,7 +98,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
                 "select name.toUpperCase(Locale.ENGLISH), address.city.country.name from"
                     + " Profile")
             .stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());
@@ -123,7 +123,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
                 "select name, name.toUpperCase(Locale.ENGLISH) as name2 from Profile where name is"
                     + " not null")
             .stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());
@@ -146,7 +146,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
                 "select location.city.country.name as location, address.city.country.name as"
                     + " address from Profile where location.city.country.name is not null")
             .stream()
-            .map(r -> (YTDocument) r.toElement())
+            .map(r -> (YTDocument) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());

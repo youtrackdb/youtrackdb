@@ -150,7 +150,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
         var dbRef = db;
         result
             .getExecutionPlan()
-            .ifPresent(x -> additionalContent.put("executionPlan", x.toResult(dbRef).toElement()));
+            .ifPresent(x -> additionalContent.put("executionPlan", x.toResult(dbRef).toEntity()));
       }
 
       result.close();
@@ -167,7 +167,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
 
       additionalContent.put("elapsedMs", elapsedMs);
       ODatabaseStats dbStats = db.getStats();
-      additionalContent.put("dbStats", dbStats.toResult(db).toElement());
+      additionalContent.put("dbStats", dbStats.toResult(db).toEntity());
 
       iResponse.writeResult(response, format, accept, additionalContent, mode, db);
       ok = true;

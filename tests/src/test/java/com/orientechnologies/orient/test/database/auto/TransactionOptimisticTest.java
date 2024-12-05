@@ -20,8 +20,8 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
@@ -272,19 +272,19 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
     Assert.assertNotNull(jackFollowings);
     Assert.assertEquals(jackFollowings.size(), 1);
 
-    var loadedKim = jackFollowings.iterator().next().getElement();
+    var loadedKim = jackFollowings.iterator().next().getEntity();
     Assert.assertEquals(loadedKim.getProperty("name"), "Kim");
     Collection<YTIdentifiable> kimFollowings = loadedKim.getProperty("following");
     Assert.assertNotNull(kimFollowings);
     Assert.assertEquals(kimFollowings.size(), 1);
 
-    var loadedTeri = kimFollowings.iterator().next().getElement();
+    var loadedTeri = kimFollowings.iterator().next().getEntity();
     Assert.assertEquals(loadedTeri.getProperty("name"), "Teri");
     Collection<YTIdentifiable> teriFollowings = loadedTeri.getProperty("following");
     Assert.assertNotNull(teriFollowings);
     Assert.assertEquals(teriFollowings.size(), 1);
 
-    Assert.assertEquals(teriFollowings.iterator().next().getElement().getProperty("name"), "Jack");
+    Assert.assertEquals(teriFollowings.iterator().next().getEntity().getProperty("name"), "Jack");
 
     database.close();
   }

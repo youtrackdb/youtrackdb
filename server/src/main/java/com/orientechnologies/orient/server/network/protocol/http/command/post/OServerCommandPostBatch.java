@@ -183,7 +183,7 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
           } else {
             result = db.execute(language, commandAsString, (Object[]) params);
           }
-          lastResult = result.stream().map(x -> x.toElement()).collect(Collectors.toList());
+          lastResult = result.stream().map(x -> x.toEntity()).collect(Collectors.toList());
           result.close();
         } else if (type.equals("script")) {
           // COMMAND
@@ -228,7 +228,7 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
             result = db.execute(language, text.toString(), (Object[]) params);
           }
 
-          lastResult = result.stream().map(x -> x.toElement()).collect(Collectors.toList());
+          lastResult = result.stream().map(x -> x.toEntity()).collect(Collectors.toList());
           result.close();
         }
       }

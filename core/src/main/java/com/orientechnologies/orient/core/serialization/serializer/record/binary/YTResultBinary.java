@@ -99,7 +99,7 @@ public class YTResultBinary implements YTResult {
   }
 
   @Override
-  public YTEntity getElementProperty(String name) {
+  public YTEntity getEntityProperty(String name) {
     throw new UnsupportedOperationException(
         "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
   }
@@ -141,7 +141,7 @@ public class YTResultBinary implements YTResult {
   }
 
   @Override
-  public boolean isElement() {
+  public boolean isEntity() {
     return true;
   }
 
@@ -151,17 +151,17 @@ public class YTResultBinary implements YTResult {
   }
 
   @Override
-  public Optional<YTEntity> getElement() {
+  public Optional<YTEntity> getEntity() {
     return Optional.of(toDocument());
   }
 
   @Override
-  public YTEntity asElement() {
+  public YTEntity asEntity() {
     return toDocument();
   }
 
   @Override
-  public YTEntity toElement() {
+  public YTEntity toEntity() {
     return toDocument();
   }
 

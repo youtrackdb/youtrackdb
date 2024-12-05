@@ -35,8 +35,8 @@ public class FilterByClassStep extends AbstractExecutionStep {
   }
 
   private YTResult filterMap(YTResult result, OCommandContext ctx) {
-    if (result.isElement()) {
-      Optional<YTClass> clazz = result.toElement().getSchemaType();
+    if (result.isEntity()) {
+      Optional<YTClass> clazz = result.toEntity().getSchemaType();
       if (clazz.isPresent() && clazz.get().isSubClassOf(className)) {
         return result;
       }

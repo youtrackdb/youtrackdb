@@ -213,8 +213,8 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     if (OMultiValue.isMultiValue(rightValue)) {
       for (Object item : OMultiValue.getMultiValueIterable(rightValue)) {
         if (item instanceof YTResult) {
-          if (((YTResult) item).isElement()) {
-            item = ((YTResult) item).getElement().orElseThrow(IllegalStateException::new);
+          if (((YTResult) item).isEntity()) {
+            item = ((YTResult) item).getEntity().orElseThrow(IllegalStateException::new);
           } else if (((YTResult) item).getPropertyNames().size() == 1) {
             item =
                 ((YTResult) item).getProperty(
@@ -464,7 +464,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       }
     }
     if (value instanceof YTResult) {
-      if (((YTResult) value).isElement()) {
+      if (((YTResult) value).isEntity()) {
         return ((YTResult) value).getIdentity().orElse(null);
       }
 

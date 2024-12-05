@@ -37,7 +37,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
 
     List<YTEntity> results =
         db.query("select sequence('Sequence1').next() as val").stream()
-            .map(YTResult::toElement)
+            .map(YTResult::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (YTEntity result : results) {
@@ -45,7 +45,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
     }
     results =
         db.query("select sequence('Sequence1').next() as val").stream()
-            .map(YTResult::toElement)
+            .map(YTResult::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (YTEntity result : results) {
@@ -53,7 +53,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
     }
     results =
         db.query("select sequence('Sequence1').next() as val").stream()
-            .map(YTResult::toElement)
+            .map(YTResult::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (YTEntity result : results) {
@@ -67,7 +67,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
 
     List<YTEntity> results =
         db.query("select sequence('SequenceIncrement').next() as val").stream()
-            .map(YTResult::toElement)
+            .map(YTResult::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (YTEntity result : results) {
@@ -75,7 +75,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
     }
     results =
         db.query("select sequence('SequenceIncrement').next() as val").stream()
-            .map(YTResult::toElement)
+            .map(YTResult::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (YTEntity result : results) {
@@ -83,7 +83,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
     }
     results =
         db.query("select sequence('SequenceIncrement').next() as val").stream()
-            .map(YTResult::toElement)
+            .map(YTResult::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (YTEntity result : results) {
@@ -97,7 +97,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
 
     List<YTEntity> results =
         db.query("select sequence('SequenceStart').next() as val").stream()
-            .map(YTResult::toElement)
+            .map(YTResult::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (YTEntity result : results) {
@@ -105,7 +105,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
     }
     results =
         db.query("select sequence('SequenceStart').next() as val").stream()
-            .map(YTResult::toElement)
+            .map(YTResult::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (YTEntity result : results) {
@@ -113,7 +113,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
     }
     results =
         db.query("select sequence('SequenceStart').next() as val").stream()
-            .map(YTResult::toElement)
+            .map(YTResult::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (YTEntity result : results) {
@@ -127,7 +127,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
 
     List<YTEntity> results =
         db.query("select sequence('SequenceStartIncrement').next() as val").stream()
-            .map(YTResult::toElement)
+            .map(YTResult::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (YTEntity result : results) {
@@ -135,7 +135,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
     }
     results =
         db.query("select sequence('SequenceStartIncrement').next() as val").stream()
-            .map(YTResult::toElement)
+            .map(YTResult::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (YTEntity result : results) {
@@ -143,7 +143,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
     }
     results =
         db.query("select sequence('SequenceStartIncrement').next() as val").stream()
-            .map(YTResult::toElement)
+            .map(YTResult::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (YTEntity result : results) {

@@ -96,7 +96,7 @@ public class OSQLMethodInclude extends OAbstractSQLMethod {
           return null;
         }
       } else if (iThis instanceof YTResult result) {
-        iThis = result.asElement();
+        iThis = result.asEntity();
       }
       if (iThis instanceof YTDocument) {
         // ACT ON SINGLE DOCUMENT

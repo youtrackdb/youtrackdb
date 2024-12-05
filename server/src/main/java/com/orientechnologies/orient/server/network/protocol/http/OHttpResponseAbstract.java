@@ -328,10 +328,10 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
 
                 if (r instanceof YTResult result) {
 
-                  records.add(result.toElement());
+                  records.add(result.toEntity());
 
                   result
-                      .toElement()
+                      .toEntity()
                       .getSchemaType()
                       .ifPresent(x -> x.properties(databaseDocumentInternal)
                           .forEach(prop -> colNames.add(prop.getName())));

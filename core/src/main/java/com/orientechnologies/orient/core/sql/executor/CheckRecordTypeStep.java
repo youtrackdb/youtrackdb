@@ -29,10 +29,10 @@ public class CheckRecordTypeStep extends AbstractExecutionStep {
   }
 
   private YTResult mapResult(YTResult result, OCommandContext ctx) {
-    if (!result.isElement()) {
+    if (!result.isEntity()) {
       throw new YTCommandExecutionException("record " + result + " is not an instance of " + clazz);
     }
-    YTEntity doc = result.toElement();
+    YTEntity doc = result.toEntity();
     if (doc == null) {
       throw new YTCommandExecutionException("record " + result + " is not an instance of " + clazz);
     }

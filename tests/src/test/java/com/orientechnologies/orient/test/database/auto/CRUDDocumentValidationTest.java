@@ -177,7 +177,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream().toList();
     database.begin();
     Assert.assertEquals(result.size(), 1);
-    YTEntity readDoc = result.get(0).toElement();
+    YTEntity readDoc = result.get(0).toEntity();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K1N");
     readDoc.save();
@@ -201,7 +201,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K2").stream().toList();
     database.begin();
     Assert.assertEquals(result.size(), 1);
-    YTEntity readDoc = result.get(0).toElement();
+    YTEntity readDoc = result.get(0).toEntity();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K2N");
     readDoc.save();
@@ -223,7 +223,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     List<YTResult> result =
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K3").stream().toList();
     Assert.assertEquals(result.size(), 1);
-    YTEntity readDoc = result.get(0).toElement();
+    YTEntity readDoc = result.get(0).toEntity();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K3N");
     readDoc.save();

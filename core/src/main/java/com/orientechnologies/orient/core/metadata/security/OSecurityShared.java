@@ -459,7 +459,7 @@ public class OSecurityShared implements OSecurityInternal {
         session.query("select from ORole where name = ? limit 1", iRoleName)) {
       if (result.hasNext()) {
         return new ORole(session,
-            (YTDocument) result.next().getElement().get());
+            (YTDocument) result.next().getEntity().get());
       }
     }
 
@@ -509,13 +509,13 @@ public class OSecurityShared implements OSecurityInternal {
 
   public List<YTDocument> getAllUsers(final YTDatabaseSession session) {
     try (YTResultSet rs = session.query("select from OUser")) {
-      return rs.stream().map((e) -> (YTDocument) e.getElement().get()).collect(Collectors.toList());
+      return rs.stream().map((e) -> (YTDocument) e.getEntity().get()).collect(Collectors.toList());
     }
   }
 
   public List<YTDocument> getAllRoles(final YTDatabaseSession session) {
     try (YTResultSet rs = session.query("select from ORole")) {
-      return rs.stream().map((e) -> (YTDocument) e.getElement().get()).collect(Collectors.toList());
+      return rs.stream().map((e) -> (YTDocument) e.getEntity().get()).collect(Collectors.toList());
     }
   }
 
@@ -613,7 +613,7 @@ public class OSecurityShared implements OSecurityInternal {
 
   @Override
   public OSecurityPolicyImpl createSecurityPolicy(YTDatabaseSession session, String name) {
-    YTEntity elem = session.newElement(OSecurityPolicy.class.getSimpleName());
+    YTEntity elem = session.newEntity(OSecurityPolicy.class.getSimpleName());
     elem.setProperty("name", name);
     OSecurityPolicyImpl policy = new OSecurityPolicyImpl(elem);
     saveSecurityPolicy(session, policy);
@@ -627,7 +627,7 @@ public class OSecurityShared implements OSecurityInternal {
             "SELECT FROM " + OSecurityPolicy.class.getSimpleName() + " WHERE name = ?", name)) {
       if (rs.hasNext()) {
         YTResult result = rs.next();
-        return new OSecurityPolicyImpl(result.getElement().get());
+        return new OSecurityPolicyImpl(result.getEntity().get());
       }
     }
     return null;
@@ -1222,7 +1222,7 @@ public class OSecurityShared implements OSecurityInternal {
                   session.query("select from OUser where name = ? limit 1", iUserName)) {
                 if (result.hasNext()) {
                   return new YTUser(session,
-                      (YTDocument) result.next().getElement().get());
+                      (YTDocument) result.next().getEntity().get());
                 }
               }
               return null;

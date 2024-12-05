@@ -58,14 +58,14 @@ public class ConvertToResultInternalStepTest extends TestUtilsFixture {
         Assert.fail("There is an item in result set that is not an instance of YTResultInternal");
       }
       if (!currentItem
-          .getElement()
+          .getEntity()
           .get()
           .getProperty(STRING_PROPERTY)
           .equals(documents.get(counter).getProperty(STRING_PROPERTY))) {
         Assert.fail("String YTDocument property inside YTResult instance is not preserved");
       }
       if (!currentItem
-          .getElement()
+          .getEntity()
           .get()
           .getProperty(INTEGER_PROPERTY)
           .equals(documents.get(counter).getProperty(INTEGER_PROPERTY))) {

@@ -1401,7 +1401,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                   "select from " + YTUser.CLASS_NAME + " where name = ?",
                   ((YTDocument) record).<String>getProperty("name"))) {
             if (resultSet.hasNext()) {
-              systemRecord = resultSet.next().toElement();
+              systemRecord = resultSet.next().toEntity();
             }
           }
         } else if (cls.getName().equals(ORole.CLASS_NAME)) {
@@ -1410,7 +1410,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                   "select from " + ORole.CLASS_NAME + " where name = ?",
                   ((YTDocument) record).<String>getProperty("name"))) {
             if (resultSet.hasNext()) {
-              systemRecord = resultSet.next().toElement();
+              systemRecord = resultSet.next().toEntity();
             }
           }
         } else if (cls.getName().equals(OSecurityPolicy.class.getSimpleName())) {
@@ -1419,7 +1419,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                   "select from " + OSecurityPolicy.class.getSimpleName() + " where name = ?",
                   ((YTDocument) record).<String>getProperty("name"))) {
             if (resultSet.hasNext()) {
-              systemRecord = resultSet.next().toElement();
+              systemRecord = resultSet.next().toEntity();
             }
           }
         } else if (cls.getName().equals("V") || cls.getName().equals("E")) {

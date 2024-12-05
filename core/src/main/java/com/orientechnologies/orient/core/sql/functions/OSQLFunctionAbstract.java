@@ -121,8 +121,8 @@ public abstract class OSQLFunctionAbstract implements OSQLFunction {
         return null;
       }
       source = OMultiValue.getFirstValue(source);
-      if (source instanceof YTResult && ((YTResult) source).isElement()) {
-        source = ((YTResult) source).getElement().get();
+      if (source instanceof YTResult && ((YTResult) source).isEntity()) {
+        source = ((YTResult) source).getEntity().get();
       }
     }
     return source;

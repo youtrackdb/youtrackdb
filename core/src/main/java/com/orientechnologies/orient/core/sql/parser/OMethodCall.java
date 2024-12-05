@@ -145,7 +145,7 @@ public class OMethodCall extends SimpleNode {
       Object val,
       List<Object> paramValues) {
     if (val instanceof YTResult) {
-      val = ((YTResult) val).getElement().orElse(null);
+      val = ((YTResult) val).getEntity().orElse(null);
     }
     return method.execute(
         targetObjects, (YTIdentifiable) val, ctx, targetObjects, paramValues.toArray());
@@ -160,7 +160,7 @@ public class OMethodCall extends SimpleNode {
     if (graphFunction instanceof OSQLFunctionFiltered) {
       Object current = ctx.getVariable("$current");
       if (current instanceof YTResult) {
-        current = ((YTResult) current).getElement().orElse(null);
+        current = ((YTResult) current).getEntity().orElse(null);
       }
       return ((OSQLFunctionFiltered) graphFunction)
           .execute(
@@ -178,7 +178,7 @@ public class OMethodCall extends SimpleNode {
       } else if (current instanceof YTResult) {
         return graphFunction.execute(
             targetObjects,
-            ((YTResult) current).getElement().orElse(null),
+            ((YTResult) current).getEntity().orElse(null),
             null,
             paramValues.toArray(),
             ctx);
