@@ -3,13 +3,13 @@ package com.orientechnologies.orient.server.token;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.security.OToken;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.metadata.security.jwt.OJsonWebToken;
 import com.orientechnologies.orient.core.metadata.security.jwt.OJwtPayload;
 import com.orientechnologies.orient.core.metadata.security.jwt.OTokenHeader;
 import com.orientechnologies.orient.core.metadata.security.jwt.OrientJwtHeader;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 
 /**
  *
@@ -88,14 +88,14 @@ public class JsonWebToken implements OJsonWebToken, OToken {
   }
 
   @Override
-  public OUser getUser(YTDatabaseSessionInternal db) {
+  public YTUser getUser(YTDatabaseSessionInternal db) {
     YTRID userRid = payload.getUserRid();
     YTDocument result;
     result = db.load(userRid);
     if (!ODocumentInternal.getImmutableSchemaClass(result).isOuser()) {
       result = null;
     }
-    return new OUser(db, result);
+    return new YTUser(db, result);
   }
 
   @Override

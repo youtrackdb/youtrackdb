@@ -25,7 +25,7 @@ import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.NET
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +51,7 @@ public class ORemoteConnectionManager {
   protected final long idleTimeout;
   private final TimerTask idleTask;
 
-  public ORemoteConnectionManager(final OContextConfiguration clientConfiguration, Timer timer) {
+  public ORemoteConnectionManager(final YTContextConfiguration clientConfiguration, Timer timer) {
     connections = new ConcurrentHashMap<String, ORemoteConnectionPool>();
     timeout = clientConfiguration.getValueAsLong(NETWORK_LOCK_TIMEOUT);
     int idleSecs = clientConfiguration.getValueAsInteger(CLIENT_CHANNEL_IDLE_TIMEOUT);
@@ -83,7 +83,7 @@ public class ORemoteConnectionManager {
   }
 
   public OChannelBinaryAsynchClient acquire(
-      String iServerURL, final OContextConfiguration clientConfiguration) {
+      String iServerURL, final YTContextConfiguration clientConfiguration) {
 
     long localTimeout = timeout;
 

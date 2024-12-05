@@ -5,7 +5,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.OTokenHandler;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -70,7 +70,7 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
       } else if (tokenHandler != null) {
         // Generate and return a JWT access token
 
-        OSecurityUser user = null;
+        YTSecurityUser user = null;
         try (YTDatabaseSessionInternal db = server.openDatabase(iRequest.getDatabaseName(),
             username,
             password)) {

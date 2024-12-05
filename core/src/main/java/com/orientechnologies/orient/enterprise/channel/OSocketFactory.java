@@ -17,7 +17,7 @@ package com.orientechnologies.orient.enterprise.channel;
 
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import java.io.FileInputStream;
@@ -39,7 +39,7 @@ public class OSocketFactory {
   private SocketFactory socketFactory;
   private boolean useSSL = false;
   private SSLContext context = null;
-  private final OContextConfiguration config;
+  private final YTContextConfiguration config;
 
   private String keyStorePath = null;
   private String keyStorePassword = null;
@@ -48,7 +48,7 @@ public class OSocketFactory {
   private String trustStorePassword = null;
   private final String trustStoreType = KeyStore.getDefaultType();
 
-  private OSocketFactory(final OContextConfiguration iConfig) {
+  private OSocketFactory(final YTContextConfiguration iConfig) {
     config = iConfig;
 
     useSSL = iConfig.getValueAsBoolean(YTGlobalConfiguration.CLIENT_USE_SSL);
@@ -60,7 +60,7 @@ public class OSocketFactory {
         (String) iConfig.getValue(YTGlobalConfiguration.CLIENT_SSL_TRUSTSTORE_PASSWORD);
   }
 
-  public static OSocketFactory instance(final OContextConfiguration iConfig) {
+  public static OSocketFactory instance(final YTContextConfiguration iConfig) {
     return new OSocketFactory(iConfig);
   }
 

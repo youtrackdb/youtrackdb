@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.hook.ORecordHook;
+import com.orientechnologies.orient.core.hook.YTRecordHook;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.config.OServerHookConfiguration;
@@ -79,9 +79,9 @@ public class OConfigurableHooksManager implements ODatabaseLifecycleListener {
       var db = iDatabase;
       for (OServerHookConfiguration hook : configuredHooks) {
         try {
-          final ORecordHook.HOOK_POSITION pos = ORecordHook.HOOK_POSITION.valueOf(hook.position);
+          final YTRecordHook.HOOK_POSITION pos = YTRecordHook.HOOK_POSITION.valueOf(hook.position);
           Class<?> klass = Class.forName(hook.clazz);
-          final ORecordHook h;
+          final YTRecordHook h;
           Constructor constructor = null;
           try {
             constructor = klass.getConstructor(YTDatabaseSession.class);
@@ -90,9 +90,9 @@ public class OConfigurableHooksManager implements ODatabaseLifecycleListener {
           }
 
           if (constructor != null) {
-            h = (ORecordHook) constructor.newInstance(iDatabase);
+            h = (YTRecordHook) constructor.newInstance(iDatabase);
           } else {
-            h = (ORecordHook) klass.newInstance();
+            h = (YTRecordHook) klass.newInstance();
           }
           if (hook.parameters != null && hook.parameters.length > 0) {
             try {

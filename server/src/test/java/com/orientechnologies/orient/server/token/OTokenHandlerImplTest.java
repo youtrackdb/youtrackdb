@@ -6,9 +6,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.metadata.security.jwt.OJwtPayload;
 import com.orientechnologies.orient.core.metadata.security.jwt.OTokenHeader;
 import com.orientechnologies.orient.core.metadata.security.jwt.OrientJwtHeader;
@@ -24,7 +24,7 @@ public class OTokenHandlerImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testWebTokenCreationValidation()
       throws InvalidKeyException, NoSuchAlgorithmException, IOException {
-    OSecurityUser original = db.getUser();
+    YTSecurityUser original = db.getUser();
     OTokenHandlerImpl handler = new OTokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
     byte[] token = handler.getSignedWebToken(db, original);
 
@@ -40,7 +40,7 @@ public class OTokenHandlerImplTest extends BaseMemoryInternalDatabase {
 
     assertTrue(tok.getIsVerified());
 
-    OUser user = tok.getUser(db);
+    YTUser user = tok.getUser(db);
     assertEquals(user.getName(db), original.getName(db));
     boolean boole = handler.validateToken(tok, "open", db.getName());
     assertTrue(boole);
@@ -99,7 +99,7 @@ public class OTokenHandlerImplTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testTokenForge() throws InvalidKeyException, NoSuchAlgorithmException, IOException {
-    OSecurityUser original = db.getUser();
+    YTSecurityUser original = db.getUser();
     OTokenHandlerImpl handler = new OTokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
 
     byte[] token = handler.getSignedWebToken(db, original);
@@ -119,7 +119,7 @@ public class OTokenHandlerImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testBinartTokenCreationValidation()
       throws InvalidKeyException, NoSuchAlgorithmException, IOException {
-    OSecurityUser original = db.getUser();
+    YTSecurityUser original = db.getUser();
     OTokenHandlerImpl handler = new OTokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
     ONetworkProtocolData data = new ONetworkProtocolData();
     data.driverName = "aa";
@@ -135,7 +135,7 @@ public class OTokenHandlerImplTest extends BaseMemoryInternalDatabase {
 
     assertTrue(tok.getIsVerified());
 
-    OUser user = tok.getUser(db);
+    YTUser user = tok.getUser(db);
     assertEquals(user.getName(db), original.getName(db));
     boolean boole = handler.validateBinaryToken(tok);
     assertTrue(boole);
@@ -144,7 +144,7 @@ public class OTokenHandlerImplTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testTokenNotRenew() {
-    OSecurityUser original = db.getUser();
+    YTSecurityUser original = db.getUser();
     OTokenHandlerImpl handler = new OTokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
     ONetworkProtocolData data = new ONetworkProtocolData();
     data.driverName = "aa";
@@ -162,7 +162,7 @@ public class OTokenHandlerImplTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testTokenRenew() {
-    OSecurityUser original = db.getUser();
+    YTSecurityUser original = db.getUser();
     OTokenHandlerImpl handler = new OTokenHandlerImpl("any key".getBytes(), 60, "HmacSHA256");
     ONetworkProtocolData data = new ONetworkProtocolData();
     data.driverName = "aa";

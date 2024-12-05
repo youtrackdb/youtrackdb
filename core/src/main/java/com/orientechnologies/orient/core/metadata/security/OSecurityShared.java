@@ -43,7 +43,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.ORule.ResourceGeneric;
 import com.orientechnologies.orient.core.metadata.security.OSecurityRole.ALLOW_MODES;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser.STATUSES;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser.STATUSES;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import com.orientechnologies.orient.core.record.YTEntity;
@@ -254,7 +254,7 @@ public class OSecurityShared implements OSecurityInternal {
       return false;
     }
 
-    final OSecurityUser currentUser = session.getUser();
+    final YTSecurityUser currentUser = session.getUser();
     if (currentUser != null) {
       // CHECK IF CURRENT USER IS ENLISTED
       if (iAllowAll == null
@@ -296,15 +296,15 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public OSecurityUser securityAuthenticate(
+  public YTSecurityUser securityAuthenticate(
       YTDatabaseSessionInternal session, OAuthenticationInfo authenticationInfo) {
-    OSecurityUser user = null;
+    YTSecurityUser user = null;
     final String dbName = session.getName();
     assert !session.isRemote();
     user = security.authenticate(session, authenticationInfo);
 
     if (user != null) {
-      if (user.getAccountStatus(session) != OSecurityUser.STATUSES.ACTIVE) {
+      if (user.getAccountStatus(session) != YTSecurityUser.STATUSES.ACTIVE) {
         throw new YTSecurityAccessException(dbName,
             "User '" + user.getName(session) + "' is not active");
       }
@@ -323,15 +323,15 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public OSecurityUser securityAuthenticate(
+  public YTSecurityUser securityAuthenticate(
       YTDatabaseSessionInternal session, String userName, String password) {
-    OSecurityUser user;
+    YTSecurityUser user;
     final String dbName = session.getName();
     assert !session.isRemote();
     user = security.authenticate(session, userName, password);
 
     if (user != null) {
-      if (user.getAccountStatus(session) != OSecurityUser.STATUSES.ACTIVE) {
+      if (user.getAccountStatus(session) != YTSecurityUser.STATUSES.ACTIVE) {
         throw new YTSecurityAccessException(dbName,
             "User '" + user.getName(session) + "' is not active");
       }
@@ -351,19 +351,19 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public OUser authenticate(
+  public YTUser authenticate(
       YTDatabaseSessionInternal session, final String iUsername, final String iUserPassword) {
     return null;
   }
 
   // Token MUST be validated before being passed to this method.
-  public OUser authenticate(final YTDatabaseSessionInternal session, final OToken authToken) {
+  public YTUser authenticate(final YTDatabaseSessionInternal session, final OToken authToken) {
     final String dbName = session.getName();
     if (!authToken.getIsValid()) {
       throw new YTSecurityAccessException(dbName, "Token not valid");
     }
 
-    OUser user = authToken.getUser(session);
+    YTUser user = authToken.getUser(session);
     if (user == null && authToken.getUserName() != null) {
       // Token handler may not support returning an OUser so let's get username (subject) and query:
       user = getUser(session, authToken.getUserName());
@@ -381,25 +381,25 @@ public class OSecurityShared implements OSecurityInternal {
     return user;
   }
 
-  public OUser getUser(final YTDatabaseSession session, final YTRID iRecordId) {
+  public YTUser getUser(final YTDatabaseSession session, final YTRID iRecordId) {
     if (iRecordId == null) {
       return null;
     }
 
     YTDocument result;
     result = session.load(iRecordId);
-    if (!result.getClassName().equals(OUser.CLASS_NAME)) {
+    if (!result.getClassName().equals(YTUser.CLASS_NAME)) {
       result = null;
     }
-    return new OUser(session, result);
+    return new YTUser(session, result);
   }
 
-  public OUser createUser(
+  public YTUser createUser(
       final YTDatabaseSessionInternal session,
       final String iUserName,
       final String iUserPassword,
       final String... iRoles) {
-    final OUser user = new OUser(session, iUserName, iUserPassword);
+    final YTUser user = new YTUser(session, iUserName, iUserPassword);
 
     if (iRoles != null) {
       for (String r : iRoles) {
@@ -410,12 +410,12 @@ public class OSecurityShared implements OSecurityInternal {
     return user.save(session);
   }
 
-  public OUser createUser(
+  public YTUser createUser(
       final YTDatabaseSessionInternal session,
       final String userName,
       final String userPassword,
       final ORole... roles) {
-    final OUser user = new OUser(session, userName, userPassword);
+    final YTUser user = new YTUser(session, userName, userPassword);
 
     if (roles != null) {
       for (ORole r : roles) {
@@ -670,13 +670,13 @@ public class OSecurityShared implements OSecurityInternal {
     return resource; // TODO
   }
 
-  public OUser create(final YTDatabaseSessionInternal session) {
+  public YTUser create(final YTDatabaseSessionInternal session) {
     if (!session.getMetadata().getSchema().getClasses().isEmpty()) {
       return null;
     }
 
     skipRoleHasPredicateSecurityForClassUpdate = true;
-    OUser adminUser = null;
+    YTUser adminUser = null;
     try {
       YTClass identityClass =
           session.getMetadata().getSchema().getClass(OIdentity.CLASS_NAME); // SINCE 1.2.0
@@ -714,17 +714,17 @@ public class OSecurityShared implements OSecurityInternal {
         });
   }
 
-  private OUser createDefaultUsers(final YTDatabaseSessionInternal session) {
+  private YTUser createDefaultUsers(final YTDatabaseSessionInternal session) {
     boolean createDefUsers =
         session.getConfiguration().getValueAsBoolean(YTGlobalConfiguration.CREATE_DEFAULT_USERS);
 
-    OUser adminUser = null;
+    YTUser adminUser = null;
     // This will return the global value if a local storage context configuration value does not
     // exist.
     if (createDefUsers) {
       session.computeInTx(
           () -> {
-            var admin = createUser(session, OUser.ADMIN, OUser.ADMIN, ORole.ADMIN);
+            var admin = createUser(session, YTUser.ADMIN, YTUser.ADMIN, ORole.ADMIN);
             createUser(session, "reader", "reader", DEFAULT_READER_ROLE_NAME);
             createUser(session, "writer", "writer", DEFAULT_WRITER_ROLE_NAME);
             return admin;
@@ -1015,9 +1015,9 @@ public class OSecurityShared implements OSecurityInternal {
             "OUser.name", INDEX_TYPE.UNIQUE, ONullOutputListener.INSTANCE, "name");
       }
     }
-    if (!userClass.existsProperty(OUser.PASSWORD_FIELD)) {
+    if (!userClass.existsProperty(YTUser.PASSWORD_FIELD)) {
       userClass
-          .createProperty(database, OUser.PASSWORD_FIELD, YTType.STRING, (YTType) null, unsafe)
+          .createProperty(database, YTUser.PASSWORD_FIELD, YTType.STRING, (YTType) null, unsafe)
           .setMandatory(database, true)
           .setNotNull(database, true);
     }
@@ -1214,14 +1214,14 @@ public class OSecurityShared implements OSecurityInternal {
     }
   }
 
-  public static OUser getUserInternal(final YTDatabaseSession session, final String iUserName) {
-    return (OUser)
+  public static YTUser getUserInternal(final YTDatabaseSession session, final String iUserName) {
+    return (YTUser)
         OScenarioThreadLocal.executeAsDistributed(
             () -> {
               try (YTResultSet result =
                   session.query("select from OUser where name = ? limit 1", iUserName)) {
                 if (result.hasNext()) {
-                  return new OUser(session,
+                  return new YTUser(session,
                       (YTDocument) result.next().getElement().get());
                 }
               }
@@ -1230,7 +1230,7 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   @Override
-  public OUser getUser(YTDatabaseSession session, String username) {
+  public YTUser getUser(YTDatabaseSession session, String username) {
     return getUserInternal(session, username);
   }
 
@@ -1321,7 +1321,7 @@ public class OSecurityShared implements OSecurityInternal {
     if (skipRoleHasPredicateSecurityForClassUpdate) {
       return;
     }
-    OSecurityUser user = session.getUser();
+    YTSecurityUser user = session.getUser();
     try {
       if (user != null) {
         session.setUser(null);
@@ -1858,7 +1858,7 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   protected void updateAllFilteredPropertiesInternal(YTDatabaseSessionInternal session) {
-    OSecurityUser user = session.getUser();
+    YTSecurityUser user = session.getUser();
     try {
       if (user != null) {
         session.setUser(null);

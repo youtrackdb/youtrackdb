@@ -49,7 +49,7 @@ public class OSecurityEngine {
       OSecurityShared security,
       String resourceString,
       OSecurityPolicy.Scope scope) {
-    OSecurityUser user = session.getUser();
+    YTSecurityUser user = session.getUser();
     if (user == null) {
       return OBooleanExpression.FALSE;
     }

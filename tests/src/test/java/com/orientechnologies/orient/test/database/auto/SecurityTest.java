@@ -25,8 +25,8 @@ import com.orientechnologies.orient.core.exception.YTValidationException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurity;
 import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
@@ -179,7 +179,7 @@ public class SecurityTest extends DocumentDBBaseTest {
 
       try {
         database.begin();
-        OUser child = security.createUser("writerChild", "writerChild", writerGrandChild);
+        YTUser child = security.createUser("writerChild", "writerChild", writerGrandChild);
         child.save(database);
         database.commit();
 
@@ -194,7 +194,7 @@ public class SecurityTest extends DocumentDBBaseTest {
             database = createSessionInstance("writerChild", "writerChild");
 
             database.begin();
-            OSecurityUser user = database.getUser();
+            YTSecurityUser user = database.getUser();
             Assert.assertTrue(user.hasRole(database, "writer", true));
             Assert.assertFalse(user.hasRole(database, "wrter", true));
             database.commit();
@@ -235,7 +235,7 @@ public class SecurityTest extends DocumentDBBaseTest {
     database = createSessionInstance();
     database.begin();
     security = database.getMetadata().getSecurity();
-    OUser user = security.getUser("user'quoted");
+    YTUser user = security.getUser("user'quoted");
     Assert.assertNotNull(user);
     security.dropUser(user.getName(database));
     database.commit();

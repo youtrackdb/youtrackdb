@@ -2,10 +2,10 @@ package com.orientechnologies.orient.client.remote;
 
 import com.orientechnologies.orient.client.remote.message.push.OStorageConfigurationPayload;
 import com.orientechnologies.orient.core.config.IndexEngineData;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import java.util.TimeZone;
 
 public class OStorageConfigurationRemote implements OStorageConfiguration {
 
-  private OContextConfiguration contextConfiguration;
+  private YTContextConfiguration contextConfiguration;
 
   private final String dateFormat;
   private final String dateTimeFormat;
@@ -46,7 +46,7 @@ public class OStorageConfigurationRemote implements OStorageConfiguration {
   public OStorageConfigurationRemote(
       String networkRecordSerializer,
       OStorageConfigurationPayload payload,
-      OContextConfiguration contextConfiguration) {
+      YTContextConfiguration contextConfiguration) {
     this.networkRecordSerializer = networkRecordSerializer;
     this.contextConfiguration = contextConfiguration;
     this.dateFormat = payload.getDateFormat();
@@ -110,7 +110,7 @@ public class OStorageConfigurationRemote implements OStorageConfiguration {
     return strictSql;
   }
 
-  public OStorageConfiguration load(OContextConfiguration contextConfiguration) {
+  public OStorageConfiguration load(YTContextConfiguration contextConfiguration) {
     this.contextConfiguration = contextConfiguration;
     return null;
   }
@@ -136,7 +136,7 @@ public class OStorageConfigurationRemote implements OStorageConfiguration {
   }
 
   @Override
-  public OContextConfiguration getContextConfiguration() {
+  public YTContextConfiguration getContextConfiguration() {
     return contextConfiguration;
   }
 

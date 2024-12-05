@@ -34,9 +34,9 @@ import com.orientechnologies.orient.core.metadata.security.OSecurityPolicyImpl;
 import com.orientechnologies.orient.core.metadata.security.OSecurityResourceProperty;
 import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityRole.ALLOW_MODES;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -61,12 +61,12 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
   }
 
   @Override
-  public OSecurityUser securityAuthenticate(
+  public YTSecurityUser securityAuthenticate(
       YTDatabaseSessionInternal session, String userName, String password) {
     return authenticate(session, userName, password);
   }
 
-  public OUser authenticate(
+  public YTUser authenticate(
       YTDatabaseSessionInternal session, final String username, final String password) {
     if (delegate == null) {
       throw new YTSecurityAccessException(
@@ -80,7 +80,7 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
 
     final String dbName = session.getName();
 
-    OUser user = delegate.getUser(session, username);
+    YTUser user = delegate.getUser(session, username);
 
     if (user == null) {
       throw new YTSecurityAccessException(
@@ -89,7 +89,7 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
               + username);
     }
 
-    if (user.getAccountStatus(session) != OSecurityUser.STATUSES.ACTIVE) {
+    if (user.getAccountStatus(session) != YTSecurityUser.STATUSES.ACTIVE) {
       throw new YTSecurityAccessException(
           dbName, "OSymmetricKeySecurity.authenticate() User '" + username + "' is not active");
     }
@@ -182,7 +182,7 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
     return delegate.disallowIdentity(session, iDocument, iAllowFieldName, iId);
   }
 
-  public OUser create(YTDatabaseSessionInternal session) {
+  public YTUser create(YTDatabaseSessionInternal session) {
     return delegate.create(session);
   }
 
@@ -190,19 +190,19 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
     delegate.load(session);
   }
 
-  public OUser authenticate(YTDatabaseSessionInternal session, final OToken authToken) {
+  public YTUser authenticate(YTDatabaseSessionInternal session, final OToken authToken) {
     return null;
   }
 
-  public OUser getUser(YTDatabaseSession session, final String iUserName) {
+  public YTUser getUser(YTDatabaseSession session, final String iUserName) {
     return delegate.getUser(session, iUserName);
   }
 
-  public OUser getUser(YTDatabaseSession session, final YTRID iUserId) {
+  public YTUser getUser(YTDatabaseSession session, final YTRID iUserId) {
     return delegate.getUser(session, iUserId);
   }
 
-  public OUser createUser(
+  public YTUser createUser(
       YTDatabaseSessionInternal session,
       final String iUserName,
       final String iUserPassword,
@@ -210,7 +210,7 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
     return delegate.createUser(session, iUserName, iUserPassword, iRoles);
   }
 
-  public OUser createUser(
+  public YTUser createUser(
       YTDatabaseSessionInternal session,
       final String iUserName,
       final String iUserPassword,
@@ -367,7 +367,7 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
   }
 
   @Override
-  public OSecurityUser securityAuthenticate(
+  public YTSecurityUser securityAuthenticate(
       YTDatabaseSessionInternal session, OAuthenticationInfo authenticationInfo) {
     return delegate.securityAuthenticate(session, authenticationInfo);
   }

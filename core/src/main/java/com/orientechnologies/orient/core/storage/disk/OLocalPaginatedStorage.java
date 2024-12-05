@@ -42,7 +42,7 @@ import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.compression.impl.OZIPCompressionUtil;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBEmbedded;
@@ -259,7 +259,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
 
   @SuppressWarnings("CanBeFinal")
   @Override
-  public void create(final OContextConfiguration contextConfiguration) {
+  public void create(final YTContextConfiguration contextConfiguration) {
     try {
       stateLock.writeLock().lock();
       try {
@@ -287,7 +287,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
         .info(this, "Storage '%s' is created under YouTrackDB distribution : %s", additionalArgs);
   }
 
-  protected void doCreate(OContextConfiguration contextConfiguration)
+  protected void doCreate(YTContextConfiguration contextConfiguration)
       throws IOException, InterruptedException {
     final Path storageFolder = storagePath;
     if (!Files.exists(storageFolder)) {
@@ -466,7 +466,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
         stateLock.writeLock().unlock();
       }
 
-      open(new OContextConfiguration());
+      open(new YTContextConfiguration());
       atomicOperationsManager.executeInsideAtomicOperation(null, this::generateDatabaseInstanceId);
     } catch (final RuntimeException e) {
       throw logAndPrepareForRethrow(e);
@@ -566,7 +566,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
   @Override
   protected OWriteAheadLog createWalFromIBUFiles(
       final java.io.File directory,
-      final OContextConfiguration contextConfiguration,
+      final YTContextConfiguration contextConfiguration,
       final Locale locale,
       byte[] iv)
       throws IOException {
@@ -618,7 +618,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
 
   @Override
   protected void initConfiguration(
-      final OContextConfiguration contextConfiguration,
+      final YTContextConfiguration contextConfiguration,
       OAtomicOperation atomicOperation)
       throws IOException {
     if (!OClusterBasedStorageConfiguration.exists(writeCache)
@@ -826,7 +826,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
   }
 
   @Override
-  protected void initWalAndDiskCache(final OContextConfiguration contextConfiguration)
+  protected void initWalAndDiskCache(final YTContextConfiguration contextConfiguration)
       throws IOException, InterruptedException {
     final String aesKeyEncoded =
         contextConfiguration.getValueAsString(YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY);
@@ -1617,7 +1617,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
   private IncrementalRestorePreprocessingResult preprocessingIncrementalRestore()
       throws IOException {
     final Locale serverLocale = configuration.getLocaleInstance();
-    final OContextConfiguration contextConfiguration = configuration.getContextConfiguration();
+    final YTContextConfiguration contextConfiguration = configuration.getContextConfiguration();
     final String charset = configuration.getCharset();
     final Locale locale = configuration.getLocaleInstance();
 
@@ -1742,7 +1742,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
   }
 
   private void postProcessIncrementalRestore(YTDatabaseSessionInternal session,
-      OContextConfiguration contextConfiguration)
+      YTContextConfiguration contextConfiguration)
       throws IOException {
     if (OClusterBasedStorageConfiguration.exists(writeCache)) {
       configuration = new OClusterBasedStorageConfiguration(this);
@@ -1792,7 +1792,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
       final String charset,
       final Locale serverLocale,
       final Locale locale,
-      final OContextConfiguration contextConfiguration,
+      final YTContextConfiguration contextConfiguration,
       final byte[] aesKey,
       final InputStream inputStream,
       final boolean isFull)
@@ -2090,7 +2090,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
 
   private record IncrementalRestorePreprocessingResult(
       Locale serverLocale,
-      OContextConfiguration contextConfiguration,
+      YTContextConfiguration contextConfiguration,
       String charset,
       Locale locale) {
 

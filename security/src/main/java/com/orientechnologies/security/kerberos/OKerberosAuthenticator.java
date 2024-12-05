@@ -17,8 +17,8 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.metadata.security.OImmutableUser;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTImmutableUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
 import com.orientechnologies.orient.core.security.authenticator.OSecurityAuthenticatorAbstract;
@@ -90,7 +90,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
 
   // OSecurityAuthenticator
   // Kerberos magic happens here.
-  public OSecurityUser authenticate(
+  public YTSecurityUser authenticate(
       YTDatabaseSessionInternal session, final String username, final String password) {
     // username will contain either the principal or be null.
     // password will contain either a Kerberos 5 service ticket or a SPNEGO ticket.
@@ -187,8 +187,8 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
       OLogManager.instance().debug(this, "OKerberosAuthenticator.authenticate() Exception: ", ex);
     }
 
-    return new OImmutableUser(session, principal,
-        OSecurityUser.SERVER_USER_TYPE);
+    return new YTImmutableUser(session, principal,
+        YTSecurityUser.SERVER_USER_TYPE);
   }
 
   // OSecurityAuthenticator

@@ -22,7 +22,7 @@ package com.orientechnologies.orient.server;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
 import com.orientechnologies.orient.client.remote.message.OShutdownRequest;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.YTNetworkProtocolException;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
@@ -39,7 +39,7 @@ public class OServerShutdownMain {
   public int[] networkPort;
   public OChannelBinaryAsynchClient channel;
 
-  private final OContextConfiguration contextConfig;
+  private final YTContextConfiguration contextConfig;
   private final String rootUser;
   private final String rootPassword;
 
@@ -48,7 +48,7 @@ public class OServerShutdownMain {
       final String iServerPorts,
       final String iRootUser,
       final String iRootPassword) {
-    contextConfig = new OContextConfiguration();
+    contextConfig = new YTContextConfiguration();
 
     rootUser = iRootUser;
     rootPassword = iRootPassword;

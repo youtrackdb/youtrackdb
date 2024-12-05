@@ -27,14 +27,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * Represents a context configuration where custom setting could be defined for the context only. If
  * not defined, globals will be taken.
  */
-public class OContextConfiguration implements Serializable {
+public class YTContextConfiguration implements Serializable {
 
   private final Map<String, Object> config = new ConcurrentHashMap<String, Object>();
 
   /**
    * Empty constructor to create just a proxy for the YTGlobalConfiguration. No values are setted.
    */
-  public OContextConfiguration() {
+  public YTContextConfiguration() {
   }
 
   /**
@@ -42,11 +42,11 @@ public class OContextConfiguration implements Serializable {
    *
    * @param iConfig Map of parameters of type Map<String, Object>.
    */
-  public OContextConfiguration(final Map<String, Object> iConfig) {
+  public YTContextConfiguration(final Map<String, Object> iConfig) {
     this.config.putAll(iConfig);
   }
 
-  public OContextConfiguration(final OContextConfiguration iParent) {
+  public YTContextConfiguration(final YTContextConfiguration iParent) {
     if (iParent != null) {
       config.putAll(iParent.config);
     }
@@ -175,7 +175,7 @@ public class OContextConfiguration implements Serializable {
     return config.keySet();
   }
 
-  public void merge(OContextConfiguration contextConfiguration) {
+  public void merge(YTContextConfiguration contextConfiguration) {
     this.config.putAll(contextConfiguration.config);
   }
 }

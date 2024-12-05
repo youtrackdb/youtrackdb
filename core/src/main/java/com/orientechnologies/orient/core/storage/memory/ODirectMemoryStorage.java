@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.core.storage.memory;
 
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.engine.memory.OEngineMemory;
@@ -52,7 +52,7 @@ public class ODirectMemoryStorage extends OAbstractPaginatedStorage {
   }
 
   @Override
-  protected void initWalAndDiskCache(final OContextConfiguration contextConfiguration) {
+  protected void initWalAndDiskCache(final YTContextConfiguration contextConfiguration) {
     if (writeAheadLog == null) {
       writeAheadLog = new OMemoryWriteAheadLog();
     }
@@ -172,7 +172,7 @@ public class ODirectMemoryStorage extends OAbstractPaginatedStorage {
   @Override
   protected OWriteAheadLog createWalFromIBUFiles(
       final File directory,
-      final OContextConfiguration contextConfiguration,
+      final YTContextConfiguration contextConfiguration,
       final Locale locale,
       byte[] iv) {
     return null;

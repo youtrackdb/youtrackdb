@@ -22,7 +22,7 @@ import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
-import com.orientechnologies.orient.core.hook.ORecordHook;
+import com.orientechnologies.orient.core.hook.YTRecordHook;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -81,7 +81,7 @@ public class DbImportStreamExportTest extends DocumentDBBaseTest implements OCom
     final ODatabaseImport dbImport =
         new ODatabaseImport(database, new FileInputStream(importDir), this);
     // UNREGISTER ALL THE HOOKS
-    for (final ORecordHook hook : new ArrayList<>(database.getHooks().keySet())) {
+    for (final YTRecordHook hook : new ArrayList<>(database.getHooks().keySet())) {
       database.unregisterHook(hook);
     }
 

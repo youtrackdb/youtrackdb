@@ -17,19 +17,19 @@ import com.orientechnologies.common.parser.OVariableParser;
 import com.orientechnologies.common.parser.OVariableParserListener;
 import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.OSystemDatabase;
+import com.orientechnologies.orient.core.db.YTDatabaseListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OSystemDatabase;
-import com.orientechnologies.orient.core.hook.ORecordHookAbstract;
+import com.orientechnologies.orient.core.hook.YTRecordHookAbstract;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OAuditingOperation;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Hook to audit database access.
  */
-public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListener {
+public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseListener {
 
   private final Map<String, OAuditingClassConfig> classes =
       new HashMap<String, OAuditingClassConfig>(20);
@@ -177,20 +177,20 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
     }
   }
 
-  /// / OAuditingHook
-  public OAuditingHook(final String iConfiguration) {
+  /// / YTAuditingHook
+  public YTAuditingHook(final String iConfiguration) {
     this(new YTDocument().fromJSON(iConfiguration, "noMap"), null);
   }
 
-  public OAuditingHook(final String iConfiguration, final OSecuritySystem system) {
+  public YTAuditingHook(final String iConfiguration, final OSecuritySystem system) {
     this(new YTDocument().fromJSON(iConfiguration, "noMap"), system);
   }
 
-  public OAuditingHook(final YTDocument iConfiguration) {
+  public YTAuditingHook(final YTDocument iConfiguration) {
     this(iConfiguration, null);
   }
 
-  public OAuditingHook(final YTDocument iConfiguration, final OSecuritySystem system) {
+  public YTAuditingHook(final YTDocument iConfiguration, final OSecuritySystem system) {
     this.iConfiguration = iConfiguration;
 
     onGlobalCreate = onGlobalRead = onGlobalUpdate = onGlobalDelete = false;
@@ -245,7 +245,7 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
     auditingThread.start();
   }
 
-  public OAuditingHook(final OSecuritySystem server) {
+  public YTAuditingHook(final OSecuritySystem server) {
     auditingQueue = new LinkedBlockingQueue<YTDocument>();
     auditingThread =
         new OAuditingLoggingThread(
@@ -621,7 +621,7 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
   protected void logClass(final OAuditingOperation operation, final String note) {
     final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
 
-    final OSecurityUser user = db.getUser();
+    final YTSecurityUser user = db.getUser();
 
     final YTDocument doc = createLogDocument(db, operation, db.getName(), user, note);
 
@@ -645,7 +645,7 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
   public void log(
       YTDatabaseSessionInternal db, final OAuditingOperation operation,
       final String dbName,
-      OSecurityUser user,
+      YTSecurityUser user,
       final String message) {
     if (auditingQueue != null) {
       auditingQueue.offer(createLogDocument(db, operation, dbName, user, message));
@@ -655,7 +655,7 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
   private static YTDocument createLogDocument(
       YTDatabaseSessionInternal session, final OAuditingOperation operation,
       final String dbName,
-      OSecurityUser user,
+      YTSecurityUser user,
       final String message) {
     YTDocument doc = null;
 

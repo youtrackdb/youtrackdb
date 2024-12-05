@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.network.protocol;
 
 import com.orientechnologies.common.thread.OSoftThread;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.enterprise.channel.OChannel;
 import com.orientechnologies.orient.server.OClientConnection;
 import com.orientechnologies.orient.server.OServer;
@@ -42,7 +42,7 @@ public abstract class ONetworkProtocol extends OSoftThread {
       final OServerNetworkListener iListener,
       final OServer iServer,
       final Socket iSocket,
-      OContextConfiguration iConfiguration)
+      YTContextConfiguration iConfiguration)
       throws IOException;
 
   public abstract String getType();

@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.enterprise.channel.text;
 
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -27,7 +27,7 @@ import java.net.Socket;
 
 public class OChannelTextServer extends OChannelText {
 
-  public OChannelTextServer(final Socket iSocket, final OContextConfiguration iConfiguration)
+  public OChannelTextServer(final Socket iSocket, final YTContextConfiguration iConfiguration)
       throws IOException {
     super(iSocket, iConfiguration);
     if (socketBufferSize > 0) {

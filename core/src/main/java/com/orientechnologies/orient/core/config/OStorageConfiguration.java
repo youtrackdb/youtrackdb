@@ -37,7 +37,7 @@ public interface OStorageConfiguration {
 
   String getDateTimeFormat();
 
-  OContextConfiguration getContextConfiguration();
+  YTContextConfiguration getContextConfiguration();
 
   String getLocaleCountry();
 

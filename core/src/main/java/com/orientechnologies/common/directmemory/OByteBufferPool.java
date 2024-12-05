@@ -21,7 +21,7 @@ package com.orientechnologies.common.directmemory;
 
 import com.orientechnologies.common.directmemory.ODirectMemoryAllocator.Intention;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -60,7 +60,7 @@ public final class OByteBufferPool implements OByteBufferPoolMXBean {
   /**
    * @return Singleton instance
    */
-  public static OByteBufferPool instance(OContextConfiguration contextConfiguration) {
+  public static OByteBufferPool instance(YTContextConfiguration contextConfiguration) {
     final OByteBufferPool instance = INSTANCE_HOLDER.get();
     if (instance != null) {
       return instance;

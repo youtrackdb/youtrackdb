@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.security.authenticator;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OSecurityAuthenticator;
@@ -110,7 +110,7 @@ public abstract class OSecurityAuthenticatorAbstract implements OSecurityAuthent
     return name;
   }
 
-  public OSecurityUser getUser(final String username, YTDatabaseSessionInternal session) {
+  public YTSecurityUser getUser(final String username, YTDatabaseSessionInternal session) {
     return null;
   }
 
@@ -120,7 +120,7 @@ public abstract class OSecurityAuthenticatorAbstract implements OSecurityAuthent
   }
 
   @Override
-  public OSecurityUser authenticate(
+  public YTSecurityUser authenticate(
       YTDatabaseSessionInternal session, OAuthenticationInfo authenticationInfo) {
     // Return null means no valid authentication
     return null;
@@ -130,7 +130,7 @@ public abstract class OSecurityAuthenticatorAbstract implements OSecurityAuthent
     return false;
   }
 
-  protected boolean isPasswordValid(YTDatabaseSessionInternal session, final OSecurityUser user) {
+  protected boolean isPasswordValid(YTDatabaseSessionInternal session, final YTSecurityUser user) {
     return user != null && user.getPassword(session) != null && !user.getPassword(session)
         .isEmpty();
   }

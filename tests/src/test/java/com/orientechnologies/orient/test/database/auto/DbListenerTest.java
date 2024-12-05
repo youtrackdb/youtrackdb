@@ -18,12 +18,12 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseListener;
+import com.orientechnologies.orient.core.db.YTDatabaseListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
-import com.orientechnologies.orient.core.hook.ORecordHook;
+import com.orientechnologies.orient.core.hook.YTDocumentHookAbstract;
+import com.orientechnologies.orient.core.hook.YTRecordHook;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,11 +61,11 @@ public class DbListenerTest extends DocumentDBBaseTest {
 
     public DocumentChangeListener(final YTDatabaseSession db) {
       db.registerHook(
-          new ODocumentHookAbstract(db) {
+          new YTDocumentHookAbstract(db) {
 
             @Override
-            public ORecordHook.DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-              return ORecordHook.DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE;
+            public YTRecordHook.DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
+              return YTRecordHook.DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE;
             }
 
             @Override
@@ -82,7 +82,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     }
   }
 
-  public class DbListener implements ODatabaseListener {
+  public class DbListener implements YTDatabaseListener {
 
     @Override
     public void onAfterTxCommit(YTDatabaseSession iDatabase) {

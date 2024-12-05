@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 
 /**
  * Provides a default password authenticator.
@@ -45,15 +45,15 @@ public class OSystemUserAuthenticator extends OSecurityAuthenticatorAbstract {
   // OSecurityAuthenticator
   // Returns the actual username if successful, null otherwise.
   // This will authenticate username using the system database.
-  public OSecurityUser authenticate(
+  public YTSecurityUser authenticate(
       YTDatabaseSessionInternal session, final String username, final String password) {
 
     try {
       if (getSecurity() != null) {
         // dbName parameter is null because we don't need to filter any roles for this.
-        OSecurityUser user = getSecurity().getSystemUser(username, null);
+        YTSecurityUser user = getSecurity().getSystemUser(username, null);
 
-        if (user != null && user.getAccountStatus(session) == OSecurityUser.STATUSES.ACTIVE) {
+        if (user != null && user.getAccountStatus(session) == YTSecurityUser.STATUSES.ACTIVE) {
           if (user.checkPassword(session, password)) {
             return user;
           }
@@ -77,9 +77,9 @@ public class OSystemUserAuthenticator extends OSecurityAuthenticatorAbstract {
 
     try {
       if (getSecurity() != null) {
-        OSecurityUser user = getSecurity().getSystemUser(username, null);
+        YTSecurityUser user = getSecurity().getSystemUser(username, null);
 
-        if (user != null && user.getAccountStatus(session) == OSecurityUser.STATUSES.ACTIVE) {
+        if (user != null && user.getAccountStatus(session) == YTSecurityUser.STATUSES.ACTIVE) {
           OSecurityRole role = null;
 
           ORule.ResourceGeneric rg = ORule.mapLegacyResourceToGenericResource(resource);
@@ -105,8 +105,8 @@ public class OSystemUserAuthenticator extends OSecurityAuthenticatorAbstract {
   }
 
   // OSecurityAuthenticator
-  public OSecurityUser getUser(final String username, YTDatabaseSessionInternal session) {
-    OSecurityUser userCfg = null;
+  public YTSecurityUser getUser(final String username, YTDatabaseSessionInternal session) {
+    YTSecurityUser userCfg = null;
 
     try {
       if (getSecurity() != null) {

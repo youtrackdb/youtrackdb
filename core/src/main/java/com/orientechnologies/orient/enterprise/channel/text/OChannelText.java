@@ -19,14 +19,14 @@
  */
 package com.orientechnologies.orient.enterprise.channel.text;
 
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.enterprise.channel.OChannel;
 import java.io.IOException;
 import java.net.Socket;
 
 public class OChannelText extends OChannel {
 
-  public OChannelText(final Socket iSocket, final OContextConfiguration iConfig)
+  public OChannelText(final Socket iSocket, final YTContextConfiguration iConfig)
       throws IOException {
     super(iSocket, iConfig);
   }

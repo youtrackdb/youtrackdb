@@ -54,7 +54,7 @@ import com.orientechnologies.orient.client.remote.message.OSetGlobalConfiguratio
 import com.orientechnologies.orient.client.remote.message.YTRemoteResultSet;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.OCachedDatabasePoolFactory;
 import com.orientechnologies.orient.core.db.OCachedDatabasePoolFactoryImpl;
@@ -642,7 +642,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
         response.isHasNextPage());
   }
 
-  public OContextConfiguration getContextConfiguration() {
+  public YTContextConfiguration getContextConfiguration() {
     return configurations.getConfigurations();
   }
 
@@ -675,7 +675,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
       OStorageRemoteSession session) {
 
     OChannelBinaryAsynchClient network = null;
-    OContextConfiguration config = getContextConfiguration();
+    YTContextConfiguration config = getContextConfiguration();
     try {
       String serverUrl =
           urls.getNextAvailableServerURL(false, session, config, CONNECTION_STRATEGY.STICKY);

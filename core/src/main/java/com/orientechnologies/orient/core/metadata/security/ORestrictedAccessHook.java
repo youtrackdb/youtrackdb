@@ -24,8 +24,8 @@ import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.Set;
 
 /**
@@ -50,7 +50,7 @@ public class ORestrictedAccessHook {
 
       YTIdentifiable identity = null;
       if (identityType.equals("user")) {
-        final OSecurityUser user = database.getUser();
+        final YTSecurityUser user = database.getUser();
         if (user != null) {
           identity = user.getIdentity(database);
         }

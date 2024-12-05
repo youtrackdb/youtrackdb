@@ -4,15 +4,15 @@ import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperation38Response;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
+import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
-import com.orientechnologies.orient.core.hook.ORecordHook;
+import com.orientechnologies.orient.core.hook.YTRecordHook;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
+import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges.OPERATION;
@@ -172,13 +172,13 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
         if (callHook) {
           switch (iStatus) {
             case ORecordOperation.CREATED:
-              database.callbackHooks(ORecordHook.TYPE.AFTER_CREATE, iRecord);
+              database.callbackHooks(YTRecordHook.TYPE.AFTER_CREATE, iRecord);
               break;
             case ORecordOperation.UPDATED:
-              database.callbackHooks(ORecordHook.TYPE.AFTER_UPDATE, iRecord);
+              database.callbackHooks(YTRecordHook.TYPE.AFTER_UPDATE, iRecord);
               break;
             case ORecordOperation.DELETED:
-              database.callbackHooks(ORecordHook.TYPE.AFTER_DELETE, iRecord);
+              database.callbackHooks(YTRecordHook.TYPE.AFTER_DELETE, iRecord);
               break;
           }
         }
@@ -186,13 +186,13 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
         if (callHook) {
           switch (iStatus) {
             case ORecordOperation.CREATED:
-              database.callbackHooks(ORecordHook.TYPE.CREATE_FAILED, iRecord);
+              database.callbackHooks(YTRecordHook.TYPE.CREATE_FAILED, iRecord);
               break;
             case ORecordOperation.UPDATED:
-              database.callbackHooks(ORecordHook.TYPE.UPDATE_FAILED, iRecord);
+              database.callbackHooks(YTRecordHook.TYPE.UPDATE_FAILED, iRecord);
               break;
             case ORecordOperation.DELETED:
-              database.callbackHooks(ORecordHook.TYPE.DELETE_FAILED, iRecord);
+              database.callbackHooks(YTRecordHook.TYPE.DELETE_FAILED, iRecord);
               break;
           }
         }
@@ -204,13 +204,13 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
       if (callHook) {
         switch (iStatus) {
           case ORecordOperation.CREATED:
-            database.callbackHooks(ORecordHook.TYPE.FINALIZE_CREATION, iRecord);
+            database.callbackHooks(YTRecordHook.TYPE.FINALIZE_CREATION, iRecord);
             break;
           case ORecordOperation.UPDATED:
-            database.callbackHooks(ORecordHook.TYPE.FINALIZE_UPDATE, iRecord);
+            database.callbackHooks(YTRecordHook.TYPE.FINALIZE_UPDATE, iRecord);
             break;
           case ORecordOperation.DELETED:
-            database.callbackHooks(ORecordHook.TYPE.FINALIZE_DELETION, iRecord);
+            database.callbackHooks(YTRecordHook.TYPE.FINALIZE_DELETION, iRecord);
             break;
         }
       }

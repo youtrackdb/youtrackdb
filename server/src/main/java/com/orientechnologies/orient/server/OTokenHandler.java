@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.server;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.security.OParsedToken;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
 import java.io.IOException;
@@ -41,9 +41,9 @@ public interface OTokenHandler {
   ONetworkProtocolData getProtocolDataFromToken(OClientConnection oClientConnection, OToken token);
 
   // Return a byte array representing a signed token
-  byte[] getSignedWebToken(YTDatabaseSessionInternal db, OSecurityUser user);
+  byte[] getSignedWebToken(YTDatabaseSessionInternal db, YTSecurityUser user);
 
-  default byte[] getSignedWebTokenServerUser(OSecurityUser user) {
+  default byte[] getSignedWebTokenServerUser(YTSecurityUser user) {
     throw new UnsupportedOperationException();
   }
 
@@ -52,7 +52,7 @@ public interface OTokenHandler {
   }
 
   byte[] getSignedBinaryToken(
-      YTDatabaseSessionInternal db, OSecurityUser user, ONetworkProtocolData data);
+      YTDatabaseSessionInternal db, YTSecurityUser user, ONetworkProtocolData data);
 
   byte[] renewIfNeeded(OToken token);
 

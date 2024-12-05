@@ -25,15 +25,15 @@ import com.orientechnologies.orient.core.db.YTDatabaseSession.STATUS;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
+import com.orientechnologies.orient.core.record.impl.YTDocument;
 
 /**
  * Hook abstract class that calls separate methods for YTDocument records.
  *
- * @see ORecordHook
+ * @see YTRecordHook
  */
-public abstract class ODocumentHookAbstract implements ORecordHook {
+public abstract class YTDocumentHookAbstract implements YTRecordHook {
 
   private String[] includeClasses;
   private String[] excludeClasses;
@@ -41,11 +41,11 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
   protected YTDatabaseSession database;
 
   @Deprecated
-  public ODocumentHookAbstract() {
+  public YTDocumentHookAbstract() {
     this.database = ODatabaseRecordThreadLocal.instance().get();
   }
 
-  public ODocumentHookAbstract(YTDatabaseSession database) {
+  public YTDocumentHookAbstract(YTDatabaseSession database) {
     this.database = database;
   }
 
@@ -299,7 +299,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
     return includeClasses;
   }
 
-  public ODocumentHookAbstract setIncludeClasses(final String... includeClasses) {
+  public YTDocumentHookAbstract setIncludeClasses(final String... includeClasses) {
     if (excludeClasses != null) {
       throw new IllegalStateException("Cannot include classes if exclude classes has been set");
     }
@@ -311,7 +311,7 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
     return excludeClasses;
   }
 
-  public ODocumentHookAbstract setExcludeClasses(final String... excludeClasses) {
+  public YTDocumentHookAbstract setExcludeClasses(final String... excludeClasses) {
     if (includeClasses != null) {
       throw new IllegalStateException("Cannot exclude classes if include classes has been set");
     }

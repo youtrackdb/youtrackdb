@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -17,7 +17,7 @@ public class MockChannel extends OChannelBinary {
   private final ByteArrayOutputStream byteOut;
 
   public MockChannel() throws IOException {
-    super(new Socket(), new OContextConfiguration());
+    super(new Socket(), new YTContextConfiguration());
 
     this.byteOut = new ByteArrayOutputStream();
     this.out = new DataOutputStream(byteOut);

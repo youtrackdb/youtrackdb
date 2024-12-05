@@ -36,7 +36,7 @@ import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OExecutionThreadLocal;
@@ -68,7 +68,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
@@ -189,7 +189,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
   private final Object resultLock = new Object();
 
   public OCommandExecutorSQLSelect() {
-    OContextConfiguration conf = getDatabase().getConfiguration();
+    YTContextConfiguration conf = getDatabase().getConfiguration();
     resultQueue =
         new ArrayBlockingQueue<AsyncResult>(
             conf.getValueAsInteger(YTGlobalConfiguration.QUERY_PARALLEL_RESULT_QUEUE_SIZE));
@@ -1398,7 +1398,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
 
   private boolean isUsingRestrictedClasses(YTDatabaseSessionInternal db) {
     boolean restrictedClasses = false;
-    final OSecurityUser user = db.getUser();
+    final YTSecurityUser user = db.getUser();
 
     if (parsedTarget.getTargetClasses() != null
         && user != null

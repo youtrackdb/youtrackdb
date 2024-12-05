@@ -69,28 +69,28 @@ public class OSecurityProxy implements OSecurity {
     return security.denyRole(session, iDocument, iOperationType, iRoleName);
   }
 
-  public OUser authenticate(final String iUsername, final String iUserPassword) {
+  public YTUser authenticate(final String iUsername, final String iUserPassword) {
     return security.authenticate(session, iUsername, iUserPassword);
   }
 
-  public OUser authenticate(final OToken authToken) {
+  public YTUser authenticate(final OToken authToken) {
     return security.authenticate(session, authToken);
   }
 
-  public OUser getUser(final String iUserName) {
+  public YTUser getUser(final String iUserName) {
     return security.getUser(session, iUserName);
   }
 
-  public OUser getUser(final YTRID iUserId) {
+  public YTUser getUser(final YTRID iUserId) {
     return security.getUser(session, iUserId);
   }
 
-  public OUser createUser(
+  public YTUser createUser(
       final String iUserName, final String iUserPassword, final String... iRoles) {
     return security.createUser(session, iUserName, iUserPassword, iRoles);
   }
 
-  public OUser createUser(
+  public YTUser createUser(
       final String iUserName, final String iUserPassword, final ORole... iRoles) {
     return security.createUser(session, iUserName, iUserPassword, iRoles);
   }

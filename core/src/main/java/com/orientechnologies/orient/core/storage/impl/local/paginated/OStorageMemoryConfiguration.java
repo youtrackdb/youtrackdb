@@ -21,8 +21,8 @@
 package com.orientechnologies.orient.core.storage.impl.local.paginated;
 
 import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfigurationImpl;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.nio.charset.StandardCharsets;
@@ -41,7 +41,7 @@ public class OStorageMemoryConfiguration extends OStorageConfigurationImpl {
   }
 
   @Override
-  public OStorageConfigurationImpl load(final OContextConfiguration configuration)
+  public OStorageConfigurationImpl load(final YTContextConfiguration configuration)
       throws YTSerializationException {
     lock.writeLock().lock();
     try {

@@ -32,8 +32,8 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
 import com.orientechnologies.orient.core.metadata.OMetadata;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -240,11 +240,11 @@ public class OScriptDocumentDatabaseWrapper {
     return database.setValidationEnabled(iValue);
   }
 
-  public OSecurityUser getUser() {
+  public YTSecurityUser getUser() {
     return database.getUser();
   }
 
-  public void setUser(OUser user) {
+  public void setUser(YTUser user) {
     database.setUser(user);
   }
 

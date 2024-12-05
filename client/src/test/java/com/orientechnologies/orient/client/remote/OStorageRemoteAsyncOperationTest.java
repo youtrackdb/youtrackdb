@@ -7,7 +7,7 @@ import static org.junit.Assert.fail;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
 import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -52,7 +52,7 @@ public class OStorageRemoteAsyncOperationTest {
     Mockito.when(session.getServerSession(Mockito.anyString())).thenReturn(nodeSession);
     storage =
         new OStorageRemote(
-            new ORemoteURLs(new String[]{}, new OContextConfiguration()),
+            new ORemoteURLs(new String[]{}, new YTContextConfiguration()),
             "mock",
             null,
             "mock",

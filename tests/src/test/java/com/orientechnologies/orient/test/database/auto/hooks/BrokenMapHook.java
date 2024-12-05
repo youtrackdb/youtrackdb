@@ -3,8 +3,8 @@ package com.orientechnologies.orient.test.database.auto.hooks;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
-import com.orientechnologies.orient.core.hook.ORecordHook;
-import com.orientechnologies.orient.core.hook.ORecordHookAbstract;
+import com.orientechnologies.orient.core.hook.YTRecordHook;
+import com.orientechnologies.orient.core.hook.YTRecordHookAbstract;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import java.text.SimpleDateFormat;
@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-public class BrokenMapHook extends ORecordHookAbstract implements ORecordHook {
+public class BrokenMapHook extends YTRecordHookAbstract implements YTRecordHook {
 
   private final YTDatabaseSessionInternal database;
 

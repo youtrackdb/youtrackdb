@@ -56,15 +56,15 @@ public interface OSecurityInternal {
       YTDatabaseSessionInternal session, YTDocument iDocument, String iAllowFieldName,
       YTIdentifiable iId);
 
-  OUser authenticate(YTDatabaseSessionInternal session, String iUsername, String iUserPassword);
+  YTUser authenticate(YTDatabaseSessionInternal session, String iUsername, String iUserPassword);
 
-  OUser createUser(
+  YTUser createUser(
       YTDatabaseSessionInternal session, String iUserName, String iUserPassword, String[] iRoles);
 
-  OUser createUser(
+  YTUser createUser(
       YTDatabaseSessionInternal session, String iUserName, String iUserPassword, ORole[] iRoles);
 
-  OUser authenticate(YTDatabaseSessionInternal session, OToken authToken);
+  YTUser authenticate(YTDatabaseSessionInternal session, OToken authToken);
 
   ORole createRole(
       YTDatabaseSessionInternal session,
@@ -75,9 +75,9 @@ public interface OSecurityInternal {
   ORole createRole(
       YTDatabaseSessionInternal session, String iRoleName, ALLOW_MODES iAllowMode);
 
-  OUser getUser(YTDatabaseSession session, String iUserName);
+  YTUser getUser(YTDatabaseSession session, String iUserName);
 
-  OUser getUser(YTDatabaseSession session, YTRID userId);
+  YTUser getUser(YTDatabaseSession session, YTRID userId);
 
   ORole getRole(YTDatabaseSession session, String iRoleName);
 
@@ -149,7 +149,7 @@ public interface OSecurityInternal {
 
   void incrementVersion(YTDatabaseSession session);
 
-  OUser create(YTDatabaseSessionInternal session);
+  YTUser create(YTDatabaseSessionInternal session);
 
   void load(YTDatabaseSessionInternal session);
 
@@ -206,9 +206,9 @@ public interface OSecurityInternal {
    */
   Set<OSecurityResourceProperty> getAllFilteredProperties(YTDatabaseSessionInternal database);
 
-  OSecurityUser securityAuthenticate(YTDatabaseSessionInternal session, String userName,
+  YTSecurityUser securityAuthenticate(YTDatabaseSessionInternal session, String userName,
       String password);
 
-  OSecurityUser securityAuthenticate(
+  YTSecurityUser securityAuthenticate(
       YTDatabaseSessionInternal session, OAuthenticationInfo authenticationInfo);
 }

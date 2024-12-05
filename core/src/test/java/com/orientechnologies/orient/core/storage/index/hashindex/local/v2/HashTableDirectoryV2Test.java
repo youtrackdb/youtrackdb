@@ -15,9 +15,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-/**
- * @since 5/15/14
- */
 public class HashTableDirectoryV2Test {
 
   private static YTDatabaseSessionInternal db;

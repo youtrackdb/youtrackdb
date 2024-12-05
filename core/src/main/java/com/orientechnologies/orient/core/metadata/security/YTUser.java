@@ -43,7 +43,7 @@ import java.util.Set;
  *
  * @see ORole
  */
-public class OUser extends OIdentity implements OSecurityUser {
+public class YTUser extends OIdentity implements YTSecurityUser {
 
   public static final String ADMIN = "admin";
   public static final String CLASS_NAME = "OUser";
@@ -57,16 +57,16 @@ public class OUser extends OIdentity implements OSecurityUser {
   /**
    * Constructor used in unmarshalling.
    */
-  public OUser() {
+  public YTUser() {
   }
 
-  public OUser(YTDatabaseSessionInternal session, final String iName) {
+  public YTUser(YTDatabaseSessionInternal session, final String iName) {
     super(CLASS_NAME);
     getDocument(session).field("name", iName);
     setAccountStatus(session, STATUSES.ACTIVE);
   }
 
-  public OUser(YTDatabaseSessionInternal session, String iUserName, final String iUserPassword) {
+  public YTUser(YTDatabaseSessionInternal session, String iUserName, final String iUserPassword) {
     super("OUser");
     getDocument(session).field("name", iUserName);
     setPassword(session, iUserPassword);
@@ -76,7 +76,7 @@ public class OUser extends OIdentity implements OSecurityUser {
   /**
    * Create the user by reading the source document.
    */
-  public OUser(YTDatabaseSession session, final YTDocument iSource) {
+  public YTUser(YTDatabaseSession session, final YTDocument iSource) {
     fromStream((YTDatabaseSessionInternal) session, iSource);
   }
 
@@ -297,7 +297,7 @@ public class OUser extends OIdentity implements OSecurityUser {
     return getDocument(session).field("name");
   }
 
-  public OUser setName(YTDatabaseSessionInternal session, final String iName) {
+  public YTUser setName(YTDatabaseSessionInternal session, final String iName) {
     getDocument(session).field("name", iName);
     return this;
   }
@@ -306,7 +306,7 @@ public class OUser extends OIdentity implements OSecurityUser {
     return getDocument(session).field(PASSWORD_FIELD);
   }
 
-  public OUser setPassword(YTDatabaseSessionInternal session, final String iPassword) {
+  public YTUser setPassword(YTDatabaseSessionInternal session, final String iPassword) {
     getDocument(session).field(PASSWORD_FIELD, iPassword);
     return this;
   }
@@ -327,7 +327,7 @@ public class OUser extends OIdentity implements OSecurityUser {
     return roles;
   }
 
-  public OUser addRole(YTDatabaseSessionInternal session, final String iRole) {
+  public YTUser addRole(YTDatabaseSessionInternal session, final String iRole) {
     if (iRole != null) {
       addRole(session, session.getMetadata().getSecurity().getRole(iRole));
     }
@@ -335,7 +335,7 @@ public class OUser extends OIdentity implements OSecurityUser {
   }
 
   @Override
-  public OUser addRole(YTDatabaseSessionInternal session, final OSecurityRole iRole) {
+  public YTUser addRole(YTDatabaseSessionInternal session, final OSecurityRole iRole) {
     if (iRole != null) {
       roles.add((ORole) iRole);
     }
@@ -393,8 +393,8 @@ public class OUser extends OIdentity implements OSecurityUser {
 
   @Override
   @SuppressWarnings("unchecked")
-  public OUser save(YTDatabaseSessionInternal session) {
-    getDocument(session).save(OUser.class.getSimpleName());
+  public YTUser save(YTDatabaseSessionInternal session) {
+    getDocument(session).save();
     return this;
   }
 
@@ -405,7 +405,7 @@ public class OUser extends OIdentity implements OSecurityUser {
       return getName(database);
     }
 
-    return OUser.class.getName();
+    return YTUser.class.getName();
   }
 
   @Override

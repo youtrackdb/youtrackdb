@@ -25,8 +25,8 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfigurationImpl;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.exception.YTStorageException;
 import com.orientechnologies.orient.core.storage.disk.OLocalPaginatedStorage;
@@ -124,7 +124,7 @@ public class OStorageConfigurationSegment extends OStorageConfigurationImpl {
   }
 
   @Override
-  public OStorageConfigurationImpl load(final OContextConfiguration configuration)
+  public OStorageConfigurationImpl load(final YTContextConfiguration configuration)
       throws YTSerializationException {
     lock.writeLock().lock();
     try {

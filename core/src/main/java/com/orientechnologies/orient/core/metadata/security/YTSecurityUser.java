@@ -9,7 +9,7 @@ import java.util.Set;
 /**
  * @since 03/11/14
  */
-public interface OSecurityUser extends Serializable {
+public interface YTSecurityUser extends Serializable {
 
   String SERVER_USER_TYPE = "Server";
   String DATABASE_USER_TYPE = "Database";
@@ -48,21 +48,21 @@ public interface OSecurityUser extends Serializable {
 
   String getName(YTDatabaseSessionInternal session);
 
-  OSecurityUser setName(YTDatabaseSessionInternal session, final String iName);
+  YTSecurityUser setName(YTDatabaseSessionInternal session, final String iName);
 
   String getPassword(YTDatabaseSessionInternal session);
 
-  OSecurityUser setPassword(YTDatabaseSessionInternal session, final String iPassword);
+  YTSecurityUser setPassword(YTDatabaseSessionInternal session, final String iPassword);
 
-  OSecurityUser.STATUSES getAccountStatus(YTDatabaseSessionInternal session);
+  YTSecurityUser.STATUSES getAccountStatus(YTDatabaseSessionInternal session);
 
   void setAccountStatus(YTDatabaseSessionInternal session, STATUSES accountStatus);
 
   Set<? extends OSecurityRole> getRoles();
 
-  OSecurityUser addRole(YTDatabaseSessionInternal session, final String iRole);
+  YTSecurityUser addRole(YTDatabaseSessionInternal session, final String iRole);
 
-  OSecurityUser addRole(YTDatabaseSessionInternal session, final OSecurityRole iRole);
+  YTSecurityUser addRole(YTDatabaseSessionInternal session, final OSecurityRole iRole);
 
   boolean removeRole(YTDatabaseSessionInternal session, final String iRoleName);
 

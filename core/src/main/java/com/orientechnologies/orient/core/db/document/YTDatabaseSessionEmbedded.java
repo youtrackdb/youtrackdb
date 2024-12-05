@@ -30,12 +30,12 @@ import com.orientechnologies.orient.core.command.OScriptExecutor;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
-import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseStats;
 import com.orientechnologies.orient.core.db.OHookReplacedRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OSharedContextEmbedded;
+import com.orientechnologies.orient.core.db.YTDatabaseListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YTLiveQueryMonitor;
@@ -51,7 +51,7 @@ import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTSchemaException;
 import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import com.orientechnologies.orient.core.exception.YTSecurityException;
-import com.orientechnologies.orient.core.hook.ORecordHook;
+import com.orientechnologies.orient.core.hook.YTRecordHook;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OClassIndexManager;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
@@ -62,7 +62,6 @@ import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTSchemaProxy;
 import com.orientechnologies.orient.core.metadata.schema.YTView;
-import com.orientechnologies.orient.core.metadata.security.OImmutableUser;
 import com.orientechnologies.orient.core.metadata.security.OPropertyAccess;
 import com.orientechnologies.orient.core.metadata.security.OPropertyEncryptionNone;
 import com.orientechnologies.orient.core.metadata.security.ORestrictedAccessHook;
@@ -71,9 +70,10 @@ import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTImmutableUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceAction;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibraryProxy;
@@ -242,11 +242,11 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
       OSecurityInternal security = sharedContext.getSecurity();
 
       if (user == null || user.getVersion() != security.getVersion(this)) {
-        final OSecurityUser usr;
+        final YTSecurityUser usr;
 
         usr = security.securityAuthenticate(this, authenticationInfo);
         if (usr != null) {
-          user = new OImmutableUser(this, security.getVersion(this), usr);
+          user = new YTImmutableUser(this, security.getVersion(this), usr);
         } else {
           user = null;
         }
@@ -278,7 +278,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
             if (user == null
                 || user.getVersion() != security.getVersion(this)
                 || !user.getName(this).equalsIgnoreCase(iUserName)) {
-              final OSecurityUser usr;
+              final YTSecurityUser usr;
 
               if (checkPassword) {
                 usr = security.securityAuthenticate(this, iUserName, iUserPassword);
@@ -286,7 +286,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
                 usr = security.getUser(this, iUserName);
               }
               if (usr != null) {
-                user = new OImmutableUser(this, security.getVersion(this), usr);
+                user = new YTImmutableUser(this, security.getVersion(this), usr);
               } else {
                 user = null;
               }
@@ -306,7 +306,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
 
   private void applyListeners(YouTrackDBConfig config) {
     if (config != null) {
-      for (ODatabaseListener listener : config.getListeners()) {
+      for (YTDatabaseListener listener : config.getListeners()) {
         registerListener(listener);
       }
     }
@@ -362,7 +362,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     }
 
     // WAKE UP LISTENERS
-    for (ODatabaseListener listener : browseListeners()) {
+    for (YTDatabaseListener listener : browseListeners()) {
       try {
         listener.onCreate(this);
       } catch (Exception ignore) {
@@ -929,7 +929,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   public YTIdentifiable beforeCreateOperations(YTIdentifiable id, String iClusterName) {
     checkSecurity(ORole.PERMISSION_CREATE, id, iClusterName);
 
-    ORecordHook.RESULT triggerChanged = null;
+    YTRecordHook.RESULT triggerChanged = null;
     boolean changed = false;
     if (id instanceof YTDocument doc) {
 
@@ -949,7 +949,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
         }
         if (clazz.isOuser()) {
           doc.validate();
-          changed = OUser.encodePassword(this, doc);
+          changed = YTUser.encodePassword(this, doc);
         }
         if (clazz.isTriggered()) {
           triggerChanged = OClassTrigger.onRecordBeforeCreate(doc, this);
@@ -964,17 +964,17 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
       }
     }
 
-    ORecordHook.RESULT res = callbackHooks(ORecordHook.TYPE.BEFORE_CREATE, id);
+    YTRecordHook.RESULT res = callbackHooks(YTRecordHook.TYPE.BEFORE_CREATE, id);
     if (changed
-        || res == ORecordHook.RESULT.RECORD_CHANGED
-        || triggerChanged == ORecordHook.RESULT.RECORD_CHANGED) {
+        || res == YTRecordHook.RESULT.RECORD_CHANGED
+        || triggerChanged == YTRecordHook.RESULT.RECORD_CHANGED) {
       if (id instanceof YTDocument) {
         ((YTDocument) id).validate();
       }
       return id;
     } else {
-      if (res == ORecordHook.RESULT.RECORD_REPLACED
-          || triggerChanged == ORecordHook.RESULT.RECORD_REPLACED) {
+      if (res == YTRecordHook.RESULT.RECORD_REPLACED
+          || triggerChanged == YTRecordHook.RESULT.RECORD_REPLACED) {
         YTRecord replaced = OHookReplacedRecordThreadLocal.INSTANCE.get();
         if (replaced instanceof YTDocument) {
           ((YTDocument) replaced).validate();
@@ -989,7 +989,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   public YTIdentifiable beforeUpdateOperations(YTIdentifiable id, String iClusterName) {
     checkSecurity(ORole.PERMISSION_UPDATE, id, iClusterName);
 
-    ORecordHook.RESULT triggerChanged = null;
+    YTRecordHook.RESULT triggerChanged = null;
     boolean changed = false;
     if (id instanceof YTDocument doc) {
       YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
@@ -999,7 +999,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
           changed = true;
         }
         if (clazz.isOuser()) {
-          changed = OUser.encodePassword(this, doc);
+          changed = YTUser.encodePassword(this, doc);
         }
         if (clazz.isTriggered()) {
           triggerChanged = OClassTrigger.onRecordBeforeUpdate(doc, this);
@@ -1025,16 +1025,16 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
         ODocumentInternal.setPropertyEncryption(doc, OPropertyEncryptionNone.instance());
       }
     }
-    ORecordHook.RESULT res = callbackHooks(ORecordHook.TYPE.BEFORE_UPDATE, id);
-    if (res == ORecordHook.RESULT.RECORD_CHANGED
-        || triggerChanged == ORecordHook.RESULT.RECORD_CHANGED) {
+    YTRecordHook.RESULT res = callbackHooks(YTRecordHook.TYPE.BEFORE_UPDATE, id);
+    if (res == YTRecordHook.RESULT.RECORD_CHANGED
+        || triggerChanged == YTRecordHook.RESULT.RECORD_CHANGED) {
       if (id instanceof YTDocument) {
         ((YTDocument) id).validate();
       }
       return id;
     } else {
-      if (res == ORecordHook.RESULT.RECORD_REPLACED
-          || triggerChanged == ORecordHook.RESULT.RECORD_REPLACED) {
+      if (res == YTRecordHook.RESULT.RECORD_REPLACED
+          || triggerChanged == YTRecordHook.RESULT.RECORD_REPLACED) {
         YTRecord replaced = OHookReplacedRecordThreadLocal.INSTANCE.get();
         if (replaced instanceof YTDocument) {
           ((YTDocument) replaced).validate();
@@ -1134,7 +1134,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
         }
       }
     }
-    callbackHooks(ORecordHook.TYPE.BEFORE_DELETE, id);
+    callbackHooks(YTRecordHook.TYPE.BEFORE_DELETE, id);
   }
 
   public void afterCreateOperations(final YTIdentifiable id) {
@@ -1158,7 +1158,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
       OLiveQueryHookV2.addOp(this, doc, ORecordOperation.CREATED);
     }
 
-    callbackHooks(ORecordHook.TYPE.AFTER_CREATE, id);
+    callbackHooks(YTRecordHook.TYPE.AFTER_CREATE, id);
   }
 
   public void afterUpdateOperations(final YTIdentifiable id) {
@@ -1178,7 +1178,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
       }
 
     }
-    callbackHooks(ORecordHook.TYPE.AFTER_UPDATE, id);
+    callbackHooks(YTRecordHook.TYPE.AFTER_UPDATE, id);
   }
 
   public void afterDeleteOperations(final YTIdentifiable id) {
@@ -1206,7 +1206,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
       OLiveQueryHook.addOp(doc, ORecordOperation.DELETED, this);
       OLiveQueryHookV2.addOp(this, doc, ORecordOperation.DELETED);
     }
-    callbackHooks(ORecordHook.TYPE.AFTER_DELETE, id);
+    callbackHooks(YTRecordHook.TYPE.AFTER_DELETE, id);
   }
 
   @Override
@@ -1219,7 +1219,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
         }
       }
     }
-    callbackHooks(ORecordHook.TYPE.AFTER_READ, identifiable);
+    callbackHooks(YTRecordHook.TYPE.AFTER_READ, identifiable);
   }
 
   @Override
@@ -1228,8 +1228,8 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
       YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null) {
         if (clazz.isTriggered()) {
-          ORecordHook.RESULT val = OClassTrigger.onRecordBeforeRead(doc, this);
-          if (val == ORecordHook.RESULT.SKIP) {
+          YTRecordHook.RESULT val = OClassTrigger.onRecordBeforeRead(doc, this);
+          if (val == YTRecordHook.RESULT.SKIP) {
             return true;
           }
         }
@@ -1253,7 +1253,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
         ODocumentInternal.setPropertyEncryption(doc, OPropertyEncryptionNone.instance());
       }
     }
-    return callbackHooks(ORecordHook.TYPE.BEFORE_READ, identifiable) == ORecordHook.RESULT.SKIP;
+    return callbackHooks(YTRecordHook.TYPE.BEFORE_READ, identifiable) == YTRecordHook.RESULT.SKIP;
   }
 
   @Override

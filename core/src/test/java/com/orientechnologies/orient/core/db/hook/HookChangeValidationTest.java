@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.YTValidationException;
-import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
+import com.orientechnologies.orient.core.hook.YTDocumentHookAbstract;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -23,7 +23,7 @@ public class HookChangeValidationTest extends DBTestBase {
     classA.createProperty(db, "property2", YTType.STRING).setReadonly(db, true);
     classA.createProperty(db, "property3", YTType.STRING).setMandatory(db, true);
     db.registerHook(
-        new ODocumentHookAbstract() {
+        new YTDocumentHookAbstract() {
           @Override
           public RESULT onRecordBeforeCreate(YTDocument doc) {
             doc.removeField("property1");
@@ -65,7 +65,7 @@ public class HookChangeValidationTest extends DBTestBase {
     classA.createProperty(db, "property2", YTType.STRING).setReadonly(db, true);
     classA.createProperty(db, "property3", YTType.STRING).setMandatory(db, true);
     db.registerHook(
-        new ODocumentHookAbstract() {
+        new YTDocumentHookAbstract() {
           @Override
           public RESULT onRecordBeforeCreate(YTDocument doc) {
             return RESULT.RECORD_NOT_CHANGED;

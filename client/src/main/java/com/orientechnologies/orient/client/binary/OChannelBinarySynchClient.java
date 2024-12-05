@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.client.binary;
 
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import java.io.IOException;
 
 /**
@@ -31,7 +31,7 @@ public class OChannelBinarySynchClient extends OChannelBinaryClientAbstract {
       final String remoteHost,
       final int remotePort,
       final String iDatabaseName,
-      final OContextConfiguration iConfig,
+      final YTContextConfiguration iConfig,
       final int protocolVersion)
       throws IOException {
     super(remoteHost, remotePort, iDatabaseName, iConfig, protocolVersion);

@@ -2,7 +2,7 @@ package com.orientechnologies.orient.server.network.protocol.http;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.server.OClientConnection;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -24,7 +24,7 @@ public class OHttpResponseImpl extends OHttpResponseAbstract {
       String iCallbackFunction,
       boolean iKeepAlive,
       OClientConnection connection,
-      OContextConfiguration contextConfiguration) {
+      YTContextConfiguration contextConfiguration) {
     super(
         iOutStream,
         iHttpVersion,

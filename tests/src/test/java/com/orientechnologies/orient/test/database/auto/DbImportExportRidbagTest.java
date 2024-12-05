@@ -22,7 +22,7 @@ import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
-import com.orientechnologies.orient.core.hook.ORecordHook;
+import com.orientechnologies.orient.core.hook.YTRecordHook;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -90,7 +90,7 @@ public class DbImportExportRidbagTest extends DocumentDBBaseTest implements OCom
     dbImport.setMaxRidbagStringSizeBeforeLazyImport(50);
 
     // UNREGISTER ALL THE HOOKS
-    for (ORecordHook hook : new ArrayList<ORecordHook>(database.getHooks().keySet())) {
+    for (YTRecordHook hook : new ArrayList<YTRecordHook>(database.getHooks().keySet())) {
       database.unregisterHook(hook);
     }
 

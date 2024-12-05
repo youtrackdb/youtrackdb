@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.db.hook;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.hook.ORecordHook;
+import com.orientechnologies.orient.core.hook.YTRecordHook;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -14,8 +14,8 @@ public class HookRegisterRemoveTest extends DBTestBase {
   @Test
   public void addAndRemoveHookTest() {
     final AtomicInteger integer = new AtomicInteger(0);
-    ORecordHook iHookImpl =
-        new ORecordHook() {
+    YTRecordHook iHookImpl =
+        new YTRecordHook() {
 
           @Override
           public void onUnregister() {

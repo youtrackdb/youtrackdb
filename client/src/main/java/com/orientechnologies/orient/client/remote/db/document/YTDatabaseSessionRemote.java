@@ -33,10 +33,10 @@ import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.script.YTCommandScriptException;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OHookReplacedRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OSharedContext;
+import com.orientechnologies.orient.core.db.YTDatabaseListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YTLiveQueryMonitor;
@@ -46,7 +46,7 @@ import com.orientechnologies.orient.core.db.document.YTDatabaseSessionAbstract;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
-import com.orientechnologies.orient.core.hook.ORecordHook;
+import com.orientechnologies.orient.core.hook.YTRecordHook;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.index.OClassIndexManager;
 import com.orientechnologies.orient.core.index.OIndexManagerRemote;
@@ -55,11 +55,11 @@ import com.orientechnologies.orient.core.metadata.OMetadataDefault;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchemaProxy;
-import com.orientechnologies.orient.core.metadata.security.OImmutableUser;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OToken;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTImmutableUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceAction;
 import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTRecord;
@@ -254,8 +254,8 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
 
       initAtFirstOpen();
       this.user =
-          new OImmutableUser(this,
-              -1, new OUser(this, user, password)); // .addRole(new ORole("passthrough", null,
+          new YTImmutableUser(this,
+              -1, new YTUser(this, user, password)); // .addRole(new ORole("passthrough", null,
       // ORole.ALLOW_MODES.ALLOW_ALL_BUT)));
 
       // WAKE UP LISTENERS
@@ -303,7 +303,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   }
 
   private void applyListeners(YouTrackDBConfig config) {
-    for (ODatabaseListener listener : config.getListeners()) {
+    for (YTDatabaseListener listener : config.getListeners()) {
       registerListener(listener);
     }
   }
@@ -533,14 +533,14 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   @Override
   public YTIdentifiable beforeCreateOperations(YTIdentifiable id, String iClusterName) {
     checkSecurity(ORole.PERMISSION_CREATE, id, iClusterName);
-    ORecordHook.RESULT res = callbackHooks(ORecordHook.TYPE.BEFORE_CREATE, id);
-    if (res == ORecordHook.RESULT.RECORD_CHANGED) {
+    YTRecordHook.RESULT res = callbackHooks(YTRecordHook.TYPE.BEFORE_CREATE, id);
+    if (res == YTRecordHook.RESULT.RECORD_CHANGED) {
       if (id instanceof YTDocument) {
         ((YTDocument) id).validate();
       }
       return id;
     } else {
-      if (res == ORecordHook.RESULT.RECORD_REPLACED) {
+      if (res == YTRecordHook.RESULT.RECORD_REPLACED) {
         YTRecord replaced = OHookReplacedRecordThreadLocal.INSTANCE.get();
         if (replaced instanceof YTDocument) {
           ((YTDocument) replaced).validate();
@@ -554,14 +554,14 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   @Override
   public YTIdentifiable beforeUpdateOperations(YTIdentifiable id, String iClusterName) {
     checkSecurity(ORole.PERMISSION_UPDATE, id, iClusterName);
-    ORecordHook.RESULT res = callbackHooks(ORecordHook.TYPE.BEFORE_UPDATE, id);
-    if (res == ORecordHook.RESULT.RECORD_CHANGED) {
+    YTRecordHook.RESULT res = callbackHooks(YTRecordHook.TYPE.BEFORE_UPDATE, id);
+    if (res == YTRecordHook.RESULT.RECORD_CHANGED) {
       if (id instanceof YTDocument) {
         ((YTDocument) id).validate();
       }
       return id;
     } else {
-      if (res == ORecordHook.RESULT.RECORD_REPLACED) {
+      if (res == YTRecordHook.RESULT.RECORD_REPLACED) {
         YTRecord replaced = OHookReplacedRecordThreadLocal.INSTANCE.get();
         if (replaced instanceof YTDocument) {
           ((YTDocument) replaced).validate();
@@ -575,11 +575,11 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   @Override
   public void beforeDeleteOperations(YTIdentifiable id, String iClusterName) {
     checkSecurity(ORole.PERMISSION_DELETE, id, iClusterName);
-    callbackHooks(ORecordHook.TYPE.BEFORE_DELETE, id);
+    callbackHooks(YTRecordHook.TYPE.BEFORE_DELETE, id);
   }
 
   public void afterUpdateOperations(final YTIdentifiable id) {
-    callbackHooks(ORecordHook.TYPE.AFTER_UPDATE, id);
+    callbackHooks(YTRecordHook.TYPE.AFTER_UPDATE, id);
     if (id instanceof YTDocument doc) {
       YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null && getTransaction().isActive()) {
@@ -589,7 +589,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   }
 
   public void afterCreateOperations(final YTIdentifiable id) {
-    callbackHooks(ORecordHook.TYPE.AFTER_CREATE, id);
+    callbackHooks(YTRecordHook.TYPE.AFTER_CREATE, id);
     if (id instanceof YTDocument doc) {
       YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null && getTransaction().isActive()) {
@@ -599,7 +599,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   }
 
   public void afterDeleteOperations(final YTIdentifiable id) {
-    callbackHooks(ORecordHook.TYPE.AFTER_DELETE, id);
+    callbackHooks(YTRecordHook.TYPE.AFTER_DELETE, id);
     if (id instanceof YTDocument doc) {
       YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null && getTransaction().isActive()) {
@@ -610,12 +610,12 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
 
   @Override
   public boolean beforeReadOperations(YTIdentifiable identifiable) {
-    return callbackHooks(ORecordHook.TYPE.BEFORE_READ, identifiable) == ORecordHook.RESULT.SKIP;
+    return callbackHooks(YTRecordHook.TYPE.BEFORE_READ, identifiable) == YTRecordHook.RESULT.SKIP;
   }
 
   @Override
   public void afterReadOperations(YTIdentifiable identifiable) {
-    callbackHooks(ORecordHook.TYPE.AFTER_READ, identifiable);
+    callbackHooks(YTRecordHook.TYPE.AFTER_READ, identifiable);
   }
 
   @Override

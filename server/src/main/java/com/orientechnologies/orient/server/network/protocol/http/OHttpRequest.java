@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.security.OParsedToken;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
 import com.orientechnologies.orient.server.network.protocol.http.multipart.OHttpMultipartBaseInputStream;
@@ -35,7 +35,7 @@ public interface OHttpRequest {
 
   String getUrl();
 
-  OContextConfiguration getConfiguration();
+  YTContextConfiguration getConfiguration();
 
   InputStream getIn();
 

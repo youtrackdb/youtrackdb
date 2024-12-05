@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.common.concur.resource.OReentrantResourcePool;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import java.util.Map;
@@ -105,7 +105,7 @@ public abstract class ODatabasePoolBase extends Thread {
                           .getStorage()
                           .open(session,
                               (String) iAdditionalArgs[0],
-                              (String) iAdditionalArgs[1], new OContextConfiguration());
+                              (String) iAdditionalArgs[1], new YTContextConfiguration());
                     } else if (!iValue.getUser()
                         .checkPassword(session, (String) iAdditionalArgs[1])) {
                       throw new YTSecurityAccessException(

@@ -21,9 +21,9 @@ package com.orientechnologies.orient.core.security.authenticator;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.security.OImmutableUser;
 import com.orientechnologies.orient.core.metadata.security.ORole;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTImmutableUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OSecurityManager;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
@@ -37,8 +37,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstract {
 
   // Holds a map of the users specified in the security.json file.
-  private ConcurrentHashMap<String, OSecurityUser> usersMap =
-      new ConcurrentHashMap<String, OSecurityUser>();
+  private ConcurrentHashMap<String, YTSecurityUser> usersMap =
+      new ConcurrentHashMap<String, YTSecurityUser>();
 
   // OSecurityComponent
   // Called once the Server is running.
@@ -57,7 +57,7 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
 
         for (YTDocument userDoc : usersList) {
 
-          OSecurityUser userCfg = createServerUser(session, userDoc);
+          YTSecurityUser userCfg = createServerUser(session, userDoc);
 
           if (userCfg != null) {
             String checkName = userCfg.getName(session);
@@ -76,9 +76,9 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
   }
 
   // Derived implementations can override this method to provide new server user implementations.
-  protected OSecurityUser createServerUser(YTDatabaseSessionInternal session,
+  protected YTSecurityUser createServerUser(YTDatabaseSessionInternal session,
       final YTDocument userDoc) {
-    OSecurityUser userCfg = null;
+    YTSecurityUser userCfg = null;
 
     if (userDoc.containsField("username") && userDoc.containsField("resources")) {
       final String user = userDoc.field("username");
@@ -88,7 +88,7 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
       if (password == null) {
         password = "";
       }
-      userCfg = new OImmutableUser(session, user, OSecurityUser.SERVER_USER_TYPE);
+      userCfg = new YTImmutableUser(session, user, YTSecurityUser.SERVER_USER_TYPE);
       // userCfg.addRole(OSecurityShared.createRole(null, user));
     }
 
@@ -106,11 +106,11 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
 
   // OSecurityAuthenticator
   // Returns the actual username if successful, null otherwise.
-  public OSecurityUser authenticate(
+  public YTSecurityUser authenticate(
       YTDatabaseSessionInternal session, final String username, final String password) {
 
     try {
-      OSecurityUser user = getUser(username, session);
+      YTSecurityUser user = getUser(username, session);
 
       if (isPasswordValid(session, user)) {
         if (OSecurityManager.checkPassword(password, user.getPassword(session))) {
@@ -131,7 +131,7 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
       return false;
     }
 
-    OSecurityUser userCfg = getUser(username, session);
+    YTSecurityUser userCfg = getUser(username, session);
 
     if (userCfg != null) {
       // TODO: to verify if this logic match previous logic
@@ -153,8 +153,8 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
   }
 
   // OSecurityAuthenticator
-  public OSecurityUser getUser(final String username, YTDatabaseSessionInternal session) {
-    OSecurityUser userCfg = null;
+  public YTSecurityUser getUser(final String username, YTDatabaseSessionInternal session) {
+    YTSecurityUser userCfg = null;
 
     synchronized (usersMap) {
       if (username != null) {

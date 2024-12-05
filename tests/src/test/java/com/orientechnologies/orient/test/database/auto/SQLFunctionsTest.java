@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OSecurityManager;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
@@ -145,8 +145,8 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
     database.getMetadata().getSchema().createClass("QueryCountExtendsRestrictedClass", restricted);
 
     database.begin();
-    OUser admin = database.getMetadata().getSecurity().getUser("admin");
-    OUser reader = database.getMetadata().getSecurity().getUser("reader");
+    YTUser admin = database.getMetadata().getSecurity().getUser("admin");
+    YTUser reader = database.getMetadata().getSecurity().getUser("reader");
 
     @SuppressWarnings("deprecation")
     ORole byPassRestrictedRole =

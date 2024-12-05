@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.security;
 
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,10 +34,10 @@ public interface OSecurityAuthenticator extends OSecurityComponent {
   // Returns the actual username if successful, null otherwise.
   // Some token-based authentication (e.g., SPNEGO tokens have the user's name embedded in the
   // service ticket).
-  OSecurityUser authenticate(
+  YTSecurityUser authenticate(
       YTDatabaseSessionInternal session, final String username, final String password);
 
-  OSecurityUser authenticate(YTDatabaseSessionInternal session,
+  YTSecurityUser authenticate(YTDatabaseSessionInternal session,
       OAuthenticationInfo authenticationInfo);
 
   String getAuthenticationHeader(final String databaseName);
@@ -51,7 +51,7 @@ public interface OSecurityAuthenticator extends OSecurityComponent {
   // Returns the name of this OSecurityAuthenticator.
   String getName();
 
-  OSecurityUser getUser(final String username, YTDatabaseSessionInternal session);
+  YTSecurityUser getUser(final String username, YTDatabaseSessionInternal session);
 
   boolean isAuthorized(YTDatabaseSessionInternal session, final String username,
       final String resource);

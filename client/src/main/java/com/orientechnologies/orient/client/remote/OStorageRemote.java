@@ -107,9 +107,9 @@ import com.orientechnologies.orient.client.remote.message.YTRemoteResultSet;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.OCommandRequestAsynch;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
@@ -202,7 +202,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   private final ExecutorService asynchExecutor;
   private final YTDocument clusterConfiguration = new YTDocument();
   private final AtomicInteger users = new AtomicInteger(0);
-  private final OContextConfiguration clientConfiguration;
+  private final YTContextConfiguration clientConfiguration;
   private final int connectionRetry;
   private final int connectionRetryDelay;
   private OCluster[] clusters = OCommonConst.EMPTY_CLUSTER_ARRAY;
@@ -270,7 +270,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     if (config != null) {
       clientConfiguration = config.getConfigurations();
     } else {
-      clientConfiguration = new OContextConfiguration();
+      clientConfiguration = new YTContextConfiguration();
     }
     connectionRetry =
         clientConfiguration.getValueAsInteger(YTGlobalConfiguration.NETWORK_SOCKET_RETRY);
@@ -620,7 +620,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
   public void open(
       YTDatabaseSessionInternal db, final String iUserName, final String iUserPassword,
-      final OContextConfiguration conf) {
+      final YTContextConfiguration conf) {
     var remoteDb = (YTDatabaseSessionRemote) db;
     addUser();
     try {
@@ -687,7 +687,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     updateStorageConfiguration(storageConfiguration);
   }
 
-  public void create(OContextConfiguration contextConfiguration) {
+  public void create(YTContextConfiguration contextConfiguration) {
     throw new UnsupportedOperationException(
         "Cannot create a database in a remote server. Please use the console or the OServerAdmin"
             + " class.");
@@ -708,7 +708,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     if (session != null) {
       final Collection<OStorageRemoteNodeSession> nodes = session.getAllServerSessions();
       if (!nodes.isEmpty()) {
-        OContextConfiguration config = null;
+        YTContextConfiguration config = null;
         if (configuration != null) {
           config = configuration.getContextConfiguration();
         }
@@ -957,7 +957,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
             + " Enterprise Edition");
   }
 
-  public OContextConfiguration getClientConfiguration() {
+  public YTContextConfiguration getClientConfiguration() {
     return clientConfiguration;
   }
 
@@ -1938,7 +1938,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   protected String getNextAvailableServerURL(
       boolean iIsConnectOperation, OStorageRemoteSession session) {
 
-    OContextConfiguration config = null;
+    YTContextConfiguration config = null;
     if (configuration != null) {
       config = configuration.getContextConfiguration();
     }
@@ -1958,7 +1958,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   public static OChannelBinaryAsynchClient getNetwork(
       final String iCurrentURL,
       ORemoteConnectionManager connectionManager,
-      OContextConfiguration config) {
+      YTContextConfiguration config) {
     OChannelBinaryAsynchClient network;
     do {
       try {

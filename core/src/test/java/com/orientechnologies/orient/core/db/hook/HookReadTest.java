@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.db.hook;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.hook.ORecordHook;
+import com.orientechnologies.orient.core.hook.YTRecordHook;
 import com.orientechnologies.orient.core.metadata.security.OSecurityPolicy;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -15,7 +15,7 @@ public class HookReadTest extends DBTestBase {
   @Test
   public void testSelectChangedInHook() {
     db.registerHook(
-        new ORecordHook() {
+        new YTRecordHook() {
           @Override
           public void onUnregister() {
           }

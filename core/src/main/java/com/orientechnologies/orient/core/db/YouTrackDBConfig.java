@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.db;
 
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.config.ONodeConfiguration;
 import com.orientechnologies.orient.core.security.ODefaultSecurityConfig;
@@ -42,16 +42,16 @@ public class YouTrackDBConfig {
   public static final String LOCK_TYPE_READWRITE = "readwrite";
 
   private YouTrackDBConfig parent;
-  private OContextConfiguration configurations;
+  private YTContextConfiguration configurations;
   private Map<ATTRIBUTES, Object> attributes;
-  private Set<ODatabaseListener> listeners;
+  private Set<YTDatabaseListener> listeners;
   private ClassLoader classLoader;
   private ONodeConfiguration nodeConfiguration;
   private final OSecurityConfig securityConfig;
   private final List<OGlobalUser> users;
 
   protected YouTrackDBConfig() {
-    configurations = new OContextConfiguration();
+    configurations = new YTContextConfiguration();
     attributes = new HashMap<>();
     parent = null;
     listeners = new HashSet<>();
@@ -61,9 +61,9 @@ public class YouTrackDBConfig {
   }
 
   protected YouTrackDBConfig(
-      OContextConfiguration configurations,
+      YTContextConfiguration configurations,
       Map<ATTRIBUTES, Object> attributes,
-      Set<ODatabaseListener> listeners,
+      Set<YTDatabaseListener> listeners,
       ClassLoader classLoader,
       ONodeConfiguration nodeConfiguration,
       OSecurityConfig securityConfig,
@@ -94,11 +94,11 @@ public class YouTrackDBConfig {
     return new YouTrackDBConfigBuilder();
   }
 
-  public Set<ODatabaseListener> getListeners() {
+  public Set<YTDatabaseListener> getListeners() {
     return listeners;
   }
 
-  public OContextConfiguration getConfigurations() {
+  public YTContextConfiguration getConfigurations() {
     return configurations;
   }
 
@@ -135,7 +135,7 @@ public class YouTrackDBConfig {
       }
 
       if (parent.configurations != null) {
-        OContextConfiguration confis = new OContextConfiguration();
+        YTContextConfiguration confis = new YTContextConfiguration();
         confis.merge(parent.configurations);
         if (this.configurations != null) {
           confis.merge(this.configurations);
@@ -148,7 +148,7 @@ public class YouTrackDBConfig {
       }
 
       if (parent.listeners != null) {
-        Set<ODatabaseListener> lis = new HashSet<>();
+        Set<YTDatabaseListener> lis = new HashSet<>();
         lis.addAll(parent.listeners);
         if (this.listeners != null) {
           lis.addAll(this.listeners);

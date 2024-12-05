@@ -17,7 +17,7 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.db.ODatabaseListener;
+import com.orientechnologies.orient.core.db.YTDatabaseListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
@@ -112,8 +112,8 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
         .save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final ODatabaseListener listener =
-        new ODatabaseListener() {
+    final YTDatabaseListener listener =
+        new YTDatabaseListener() {
 
           @Override
           public void onAfterTxCommit(YTDatabaseSession iDatabase) {

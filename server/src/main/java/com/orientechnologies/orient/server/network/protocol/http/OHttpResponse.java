@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server.network.protocol.http;
 
 import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.server.OClientConnection;
@@ -216,7 +216,7 @@ public interface OHttpResponse {
 
   boolean isSameSiteCookie();
 
-  OContextConfiguration getContextConfiguration();
+  YTContextConfiguration getContextConfiguration();
 
   void addHeader(String name, String value);
 

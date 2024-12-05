@@ -3,14 +3,14 @@ package com.orientechnologies.orient.server.token;
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.exception.YTSystemException;
 import com.orientechnologies.common.util.OCommonConst;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.YTImmutableRecordId;
 import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
 import com.orientechnologies.orient.core.metadata.security.OTokenException;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.binary.OBinaryToken;
 import com.orientechnologies.orient.core.metadata.security.binary.OBinaryTokenPayloadImpl;
 import com.orientechnologies.orient.core.metadata.security.binary.OBinaryTokenSerializer;
@@ -43,7 +43,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
   private long sessionInMills = 1000 * 60 * 60; // 1 HOUR
   private final OTokenSign sign;
 
-  public OTokenHandlerImpl(OContextConfiguration config) {
+  public OTokenHandlerImpl(YTContextConfiguration config) {
     this(
         new OTokenSignImpl(config),
         config.getValueAsLong(YTGlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT));
@@ -53,7 +53,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
     this(new OTokenSignImpl(key, algorithm), sessionLength);
   }
 
-  public OTokenHandlerImpl(OTokenSign sign, OContextConfiguration config) {
+  public OTokenHandlerImpl(OTokenSign sign, YTContextConfiguration config) {
     this(sign, config.getValueAsLong(YTGlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT));
   }
 
@@ -177,7 +177,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
     return valid;
   }
 
-  public byte[] getSignedWebToken(final YTDatabaseSessionInternal db, final OSecurityUser user) {
+  public byte[] getSignedWebToken(final YTDatabaseSessionInternal db, final YTSecurityUser user) {
     final ByteArrayOutputStream tokenByteOS = new ByteArrayOutputStream(1024);
     final OrientJwtHeader header = new OrientJwtHeader();
     header.setAlgorithm("HS256");
@@ -206,7 +206,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
     return tokenByteOS.toByteArray();
   }
 
-  public byte[] getSignedWebTokenServerUser(final OSecurityUser user) {
+  public byte[] getSignedWebTokenServerUser(final YTSecurityUser user) {
     final ByteArrayOutputStream tokenByteOS = new ByteArrayOutputStream(1024);
     final OrientJwtHeader header = new OrientJwtHeader();
     header.setAlgorithm("HS256");
@@ -251,7 +251,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
 
   public byte[] getSignedBinaryToken(
       final YTDatabaseSessionInternal db,
-      final OSecurityUser user,
+      final YTSecurityUser user,
       final ONetworkProtocolData data) {
     try {
 
@@ -446,7 +446,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
     return doc.toJSON().getBytes(StandardCharsets.UTF_8);
   }
 
-  protected OJwtPayload createPayloadServerUser(OSecurityUser serverUser) {
+  protected OJwtPayload createPayloadServerUser(YTSecurityUser serverUser) {
     if (serverUser == null) {
       throw new IllegalArgumentException("User is null");
     }
@@ -467,7 +467,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
   }
 
   protected OJwtPayload createPayload(final YTDatabaseSessionInternal db,
-      final OSecurityUser user) {
+      final YTSecurityUser user) {
     if (user == null) {
       throw new IllegalArgumentException("User is null");
     }

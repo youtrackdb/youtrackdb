@@ -4,7 +4,7 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
+import com.orientechnologies.orient.core.hook.YTDocumentHookAbstract;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.server.config.OServerConfigurationManager;
 import com.orientechnologies.orient.server.config.OServerHookConfiguration;
@@ -25,7 +25,7 @@ public class HookInstallServerTest {
 
   private static final String SERVER_DIRECTORY = "./target/dbfactory";
 
-  public static class MyHook extends ODocumentHookAbstract {
+  public static class MyHook extends YTDocumentHookAbstract {
 
     public MyHook() {
     }

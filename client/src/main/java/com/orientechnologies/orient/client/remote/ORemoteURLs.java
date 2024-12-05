@@ -4,7 +4,7 @@ import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.CLI
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.client.remote.OStorageRemote.CONNECTION_STRATEGY;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.exception.YTStorageException;
@@ -27,7 +27,7 @@ public class ORemoteURLs {
   private List<String> initialServerURLs;
   private int nextServerToConnect;
 
-  public ORemoteURLs(String[] hosts, OContextConfiguration config) {
+  public ORemoteURLs(String[] hosts, YTContextConfiguration config) {
     for (String host : hosts) {
       addHost(host, config);
     }
@@ -55,7 +55,7 @@ public class ORemoteURLs {
     }
   }
 
-  public synchronized void addAll(List<String> toAdd, OContextConfiguration clientConfiguration) {
+  public synchronized void addAll(List<String> toAdd, YTContextConfiguration clientConfiguration) {
     if (toAdd.size() > 0) {
       serverURLs.clear();
       this.nextServerToConnect = 0;
@@ -68,7 +68,7 @@ public class ORemoteURLs {
   /**
    * Registers the remote server with port.
    */
-  protected String addHost(String host, OContextConfiguration clientConfiguration) {
+  protected String addHost(String host, YTContextConfiguration clientConfiguration) {
 
     if (host.contains("/")) {
       host = host.substring(0, host.indexOf('/'));
@@ -119,7 +119,7 @@ public class ORemoteURLs {
   }
 
   public synchronized String parseServerUrls(
-      String url, OContextConfiguration contextConfiguration) {
+      String url, YTContextConfiguration contextConfiguration) {
     int dbPos = url.indexOf('/');
     String name;
     if (dbPos == -1) {
@@ -151,7 +151,7 @@ public class ORemoteURLs {
   }
 
   private List<String> fetchHostsFromDns(
-      final String primaryServer, OContextConfiguration contextConfiguration) {
+      final String primaryServer, YTContextConfiguration contextConfiguration) {
     OLogManager.instance()
         .debug(
             this,
@@ -198,7 +198,7 @@ public class ORemoteURLs {
   }
 
   private synchronized String getNextConnectUrl(
-      OStorageRemoteSession session, OContextConfiguration contextConfiguration) {
+      OStorageRemoteSession session, YTContextConfiguration contextConfiguration) {
     if (serverURLs.isEmpty()) {
       reloadOriginalURLs();
       if (serverURLs.isEmpty()) {
@@ -226,7 +226,7 @@ public class ORemoteURLs {
   public synchronized String getServerURFromList(
       boolean iNextAvailable,
       OStorageRemoteSession session,
-      OContextConfiguration contextConfiguration) {
+      YTContextConfiguration contextConfiguration) {
     if (session != null && session.getCurrentUrl() != null && !iNextAvailable) {
       return session.getCurrentUrl();
     }
@@ -269,7 +269,7 @@ public class ORemoteURLs {
   public synchronized String getNextAvailableServerURL(
       boolean iIsConnectOperation,
       OStorageRemoteSession session,
-      OContextConfiguration contextConfiguration,
+      YTContextConfiguration contextConfiguration,
       CONNECTION_STRATEGY strategy) {
     String url = null;
     if (session.isStickToSession()) {
@@ -317,7 +317,7 @@ public class ORemoteURLs {
   }
 
   public synchronized void updateDistributedNodes(
-      List<String> hosts, OContextConfiguration clientConfiguration) {
+      List<String> hosts, YTContextConfiguration clientConfiguration) {
     if (!clientConfiguration.getValueAsBoolean(CLIENT_CONNECTION_FETCH_HOST_LIST)) {
       List<String> definedHosts = initialServerURLs;
       for (String host : definedHosts) {

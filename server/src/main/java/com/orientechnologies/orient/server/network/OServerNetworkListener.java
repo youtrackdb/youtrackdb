@@ -22,7 +22,7 @@ package com.orientechnologies.orient.server.network;
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.exception.YTSystemException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.enterprise.channel.OChannel;
@@ -55,7 +55,7 @@ public class OServerNetworkListener extends Thread {
       new ArrayList<OServerCommandConfiguration>();
   private final List<OServerCommand> statelessCommands = new ArrayList<OServerCommand>();
   private int socketBufferSize;
-  private OContextConfiguration configuration;
+  private YTContextConfiguration configuration;
   private final OServer server;
   private int protocolVersion = -1;
 
@@ -423,9 +423,9 @@ public class OServerNetworkListener extends Thread {
    * @param iServerConfig
    */
   private void readParameters(
-      final OContextConfiguration iServerConfig,
+      final YTContextConfiguration iServerConfig,
       final OServerParameterConfiguration[] iParameters) {
-    configuration = new OContextConfiguration(iServerConfig);
+    configuration = new YTContextConfiguration(iServerConfig);
 
     // SET PARAMETERS
     if (iParameters != null) {

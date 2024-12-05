@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.db.hook;
 import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.hook.ORecordHook;
+import com.orientechnologies.orient.core.hook.YTRecordHook;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import org.junit.Test;
@@ -16,7 +16,7 @@ public class HookSaveTest extends DBTestBase {
   @Test
   public void testCreatedLinkedInHook() {
     db.registerHook(
-        new ORecordHook() {
+        new YTRecordHook() {
           @Override
           public void onUnregister() {
           }
@@ -55,7 +55,7 @@ public class HookSaveTest extends DBTestBase {
   @Test
   public void testCreatedBackLinkedInHook() {
     db.registerHook(
-        new ORecordHook() {
+        new YTRecordHook() {
           @Override
           public void onUnregister() {
           }

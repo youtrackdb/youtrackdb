@@ -24,9 +24,9 @@ import com.orientechnologies.orient.core.record.YTRecord;
 /**
  * Hook abstract class that calls separate methods for each hook defined.
  *
- * @see ORecordHook
+ * @see YTRecordHook
  */
-public abstract class ORecordHookAbstract implements ORecordHook {
+public abstract class YTRecordHookAbstract implements YTRecordHook {
 
   /**
    * Called on unregistration.

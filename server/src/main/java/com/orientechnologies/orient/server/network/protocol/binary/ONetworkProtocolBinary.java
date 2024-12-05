@@ -36,7 +36,7 @@ import com.orientechnologies.orient.client.remote.message.OBinaryPushResponse;
 import com.orientechnologies.orient.client.remote.message.OError37Response;
 import com.orientechnologies.orient.client.remote.message.OErrorResponse;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
@@ -137,7 +137,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
       final OServerNetworkListener iListener,
       final OServer iServer,
       final Socket iSocket,
-      final OContextConfiguration iConfig)
+      final YTContextConfiguration iConfig)
       throws IOException {
 
     OChannelBinaryServer channel = new OChannelBinaryServer(iSocket, iConfig);

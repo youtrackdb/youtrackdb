@@ -31,7 +31,7 @@ import com.orientechnologies.orient.core.metadata.schema.clusterselection.OClust
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityPolicy;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.schedule.OScheduledEvent;
@@ -168,7 +168,7 @@ public class YTImmutableClass implements YTClass {
       this.function = isSubClassOf(OFunctionLibraryImpl.CLASSNAME);
       this.scheduler = isSubClassOf(OScheduledEvent.CLASS_NAME);
       this.sequence = isSubClassOf(YTSequence.CLASS_NAME);
-      this.ouser = isSubClassOf(OUser.CLASS_NAME);
+      this.ouser = isSubClassOf(YTUser.CLASS_NAME);
       this.orole = isSubClassOf(ORole.CLASS_NAME);
       this.securityPolicy = OSecurityPolicy.class.getSimpleName().equals(this.name);
       this.indexes = new HashSet<>();

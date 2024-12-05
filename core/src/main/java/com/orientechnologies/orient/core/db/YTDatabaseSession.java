@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.db;
 import com.orientechnologies.common.concur.lock.YTModificationOperationProhibitedException;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.script.YTCommandScriptException;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
@@ -30,12 +30,12 @@ import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.exception.YTSchemaException;
 import com.orientechnologies.orient.core.exception.YTTransactionException;
-import com.orientechnologies.orient.core.hook.ORecordHook;
+import com.orientechnologies.orient.core.hook.YTRecordHook;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.record.YTEdge;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
@@ -534,9 +534,9 @@ public interface YTDatabaseSession extends AutoCloseable {
    * Returns the database configuration settings. If defined, any database configuration overwrites
    * the global one.
    *
-   * @return OContextConfiguration
+   * @return YTContextConfiguration
    */
-  OContextConfiguration getConfiguration();
+  YTContextConfiguration getConfiguration();
 
   /**
    * Closes an opened database, if the database is already closed does nothing, if a transaction is
@@ -649,7 +649,7 @@ public interface YTDatabaseSession extends AutoCloseable {
   /**
    * Returns the current user logged into the database.
    */
-  OSecurityUser getUser();
+  YTSecurityUser getUser();
 
   /**
    * retrieves a class from the schema
@@ -952,33 +952,33 @@ public interface YTDatabaseSession extends AutoCloseable {
   /**
    * Registers a hook to listen all events for Records.
    *
-   * @param iHookImpl ORecordHook implementation
+   * @param iHookImpl YTRecordHook implementation
    */
-  void registerHook(ORecordHook iHookImpl);
+  void registerHook(YTRecordHook iHookImpl);
 
-  void registerHook(final ORecordHook iHookImpl, ORecordHook.HOOK_POSITION iPosition);
+  void registerHook(final YTRecordHook iHookImpl, YTRecordHook.HOOK_POSITION iPosition);
 
   /**
    * Retrieves all the registered hooks.
    *
-   * @return A not-null unmodifiable map of ORecordHook and position instances. If there are no
+   * @return A not-null unmodifiable map of YTRecordHook and position instances. If there are no
    * hooks registered, the Map is empty.
    */
-  Map<ORecordHook, ORecordHook.HOOK_POSITION> getHooks();
+  Map<YTRecordHook, YTRecordHook.HOOK_POSITION> getHooks();
 
   /**
    * Unregisters a previously registered hook.
    *
-   * @param iHookImpl ORecordHook implementation
+   * @param iHookImpl YTRecordHook implementation
    */
-  void unregisterHook(ORecordHook iHookImpl);
+  void unregisterHook(YTRecordHook iHookImpl);
 
   /**
    * Retrieves all the registered listeners.
    *
-   * @return An iterable of ODatabaseListener instances.
+   * @return An iterable of YTDatabaseListener instances.
    */
-  Iterable<ODatabaseListener> getListeners();
+  Iterable<YTDatabaseListener> getListeners();
 
   /**
    * Performs incremental backup of database content to the selected folder. This is thread safe

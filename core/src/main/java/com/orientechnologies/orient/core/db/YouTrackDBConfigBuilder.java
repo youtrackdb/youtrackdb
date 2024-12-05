@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.db;
 
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.config.ONodeConfiguration;
@@ -37,9 +37,9 @@ import java.util.Set;
 
 public class YouTrackDBConfigBuilder {
 
-  private OContextConfiguration configurations = new OContextConfiguration();
+  private YTContextConfiguration configurations = new YTContextConfiguration();
   private final Map<ATTRIBUTES, Object> attributes = new HashMap<>();
-  private final Set<ODatabaseListener> listeners = new HashSet<>();
+  private final Set<YTDatabaseListener> listeners = new HashSet<>();
   private ClassLoader classLoader;
   private final ONodeConfigurationBuilder nodeConfigurationBuilder = ONodeConfiguration.builder();
   private OSecurityConfig securityConfig;
@@ -59,7 +59,7 @@ public class YouTrackDBConfigBuilder {
     return this;
   }
 
-  public YouTrackDBConfigBuilder addListener(ODatabaseListener listener) {
+  public YouTrackDBConfigBuilder addListener(YTDatabaseListener listener) {
     listeners.add(listener);
     return this;
   }
@@ -100,7 +100,7 @@ public class YouTrackDBConfigBuilder {
         users);
   }
 
-  public YouTrackDBConfigBuilder fromContext(final OContextConfiguration contextConfiguration) {
+  public YouTrackDBConfigBuilder fromContext(final YTContextConfiguration contextConfiguration) {
     configurations = contextConfiguration;
     return this;
   }

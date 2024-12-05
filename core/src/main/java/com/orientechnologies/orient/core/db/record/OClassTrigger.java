@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
-import com.orientechnologies.orient.core.hook.ORecordHook;
+import com.orientechnologies.orient.core.hook.YTRecordHook;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
@@ -72,7 +72,7 @@ public class OClassTrigger {
   public static final String ONAFTER_DELETE = "onAfterDelete";
   public static final String PROP_AFTER_DELETE = ONAFTER_DELETE;
 
-  public static ORecordHook.RESULT onRecordBeforeCreate(
+  public static YTRecordHook.RESULT onRecordBeforeCreate(
       final YTDocument iDocument, YTDatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONBEFORE_CREATED, database);
     if (func != null) {
@@ -82,7 +82,7 @@ public class OClassTrigger {
         return OClassTrigger.executeMethod(iDocument, (Object[]) func);
       }
     }
-    return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+    return YTRecordHook.RESULT.RECORD_NOT_CHANGED;
   }
 
   public static void onRecordAfterCreate(
@@ -97,7 +97,7 @@ public class OClassTrigger {
     }
   }
 
-  public static ORecordHook.RESULT onRecordBeforeRead(
+  public static YTRecordHook.RESULT onRecordBeforeRead(
       final YTDocument iDocument, YTDatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONBEFORE_READ, database);
     if (func != null) {
@@ -107,7 +107,7 @@ public class OClassTrigger {
         return OClassTrigger.executeMethod(iDocument, (Object[]) func);
       }
     }
-    return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+    return YTRecordHook.RESULT.RECORD_NOT_CHANGED;
   }
 
   public static void onRecordAfterRead(
@@ -122,7 +122,7 @@ public class OClassTrigger {
     }
   }
 
-  public static ORecordHook.RESULT onRecordBeforeUpdate(
+  public static YTRecordHook.RESULT onRecordBeforeUpdate(
       final YTDocument iDocument, YTDatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONBEFORE_UPDATED, database);
     if (func != null) {
@@ -132,7 +132,7 @@ public class OClassTrigger {
         return OClassTrigger.executeMethod(iDocument, (Object[]) func);
       }
     }
-    return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+    return YTRecordHook.RESULT.RECORD_NOT_CHANGED;
   }
 
   public static void onRecordAfterUpdate(
@@ -147,7 +147,7 @@ public class OClassTrigger {
     }
   }
 
-  public static ORecordHook.RESULT onRecordBeforeDelete(
+  public static YTRecordHook.RESULT onRecordBeforeDelete(
       final YTDocument iDocument, YTDatabaseSessionInternal database) {
     Object func = checkClzAttribute(iDocument, ONBEFORE_DELETE, database);
     if (func != null) {
@@ -157,7 +157,7 @@ public class OClassTrigger {
         return OClassTrigger.executeMethod(iDocument, (Object[]) func);
       }
     }
-    return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+    return YTRecordHook.RESULT.RECORD_NOT_CHANGED;
   }
 
   public static void onRecordAfterDelete(
@@ -247,7 +247,7 @@ public class OClassTrigger {
     }
   }
 
-  private static ORecordHook.RESULT executeMethod(
+  private static YTRecordHook.RESULT executeMethod(
       final YTDocument iDocument, final Object[] clzMethod) {
     if (clzMethod[0] instanceof Class clz && clzMethod[1] instanceof Method method) {
       String result = null;
@@ -258,17 +258,17 @@ public class OClassTrigger {
             new YTDatabaseException("Failed to invoke method " + method.getName()), ex);
       }
       if (result == null) {
-        return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+        return YTRecordHook.RESULT.RECORD_NOT_CHANGED;
       }
-      return ORecordHook.RESULT.valueOf(result);
+      return YTRecordHook.RESULT.valueOf(result);
     }
-    return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+    return YTRecordHook.RESULT.RECORD_NOT_CHANGED;
   }
 
-  private static ORecordHook.RESULT executeFunction(
+  private static YTRecordHook.RESULT executeFunction(
       final YTDocument iDocument, final OFunction func, YTDatabaseSessionInternal database) {
     if (func == null) {
-      return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+      return YTRecordHook.RESULT.RECORD_NOT_CHANGED;
     }
 
     final OScriptManager scriptManager =
@@ -317,9 +317,9 @@ public class OClassTrigger {
         scriptManager.unbind(scriptEngine, binding, null, null);
       }
       if (result == null) {
-        return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+        return YTRecordHook.RESULT.RECORD_NOT_CHANGED;
       }
-      return ORecordHook.RESULT.valueOf(result);
+      return YTRecordHook.RESULT.valueOf(result);
 
     } finally {
       scriptManager.releaseDatabaseEngine(func.getLanguage(database), database.getName(),

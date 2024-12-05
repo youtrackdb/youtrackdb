@@ -6,13 +6,13 @@ import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.script.YTCommandScriptException;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OSharedContext;
+import com.orientechnologies.orient.core.db.YTDatabaseListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YTLiveQueryMonitor;
@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.dictionary.ODictionary;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTTransactionException;
-import com.orientechnologies.orient.core.hook.ORecordHook;
+import com.orientechnologies.orient.core.hook.YTRecordHook;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
@@ -37,8 +37,8 @@ import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTView;
 import com.orientechnologies.orient.core.metadata.security.ORule;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceAction;
 import com.orientechnologies.orient.core.query.OQuery;
 import com.orientechnologies.orient.core.record.YTEdge;
@@ -109,7 +109,7 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   private final Map<String, Object> preopenProperties = new HashMap<>();
   private final Map<ATTRIBUTES, Object> preopenAttributes = new HashMap<>();
   // TODO review for the case of browseListener before open.
-  private final Set<ODatabaseListener> preopenListener = new HashSet<>();
+  private final Set<YTDatabaseListener> preopenListener = new HashSet<>();
   private YTDatabaseSessionInternal databaseOwner;
   private OStorage delegateStorage;
   private ORecordConflictStrategy conflictStrategy;
@@ -286,7 +286,7 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   }
 
   @Override
-  public ORecordHook.RESULT callbackHooks(ORecordHook.TYPE type, YTIdentifiable id) {
+  public YTRecordHook.RESULT callbackHooks(YTRecordHook.TYPE type, YTIdentifiable id) {
     checkOpenness();
     return internal.callbackHooks(type, id);
   }
@@ -318,25 +318,25 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   }
 
   @Override
-  public void registerHook(ORecordHook iHookImpl) {
+  public void registerHook(YTRecordHook iHookImpl) {
     checkOpenness();
     internal.registerHook(iHookImpl);
   }
 
   @Override
-  public void registerHook(ORecordHook iHookImpl, ORecordHook.HOOK_POSITION iPosition) {
+  public void registerHook(YTRecordHook iHookImpl, YTRecordHook.HOOK_POSITION iPosition) {
     checkOpenness();
     internal.registerHook(iHookImpl, iPosition);
   }
 
   @Override
-  public Map<ORecordHook, ORecordHook.HOOK_POSITION> getHooks() {
+  public Map<YTRecordHook, YTRecordHook.HOOK_POSITION> getHooks() {
     checkOpenness();
     return internal.getHooks();
   }
 
   @Override
-  public void unregisterHook(ORecordHook iHookImpl) {
+  public void unregisterHook(YTRecordHook iHookImpl) {
     checkOpenness();
     internal.unregisterHook(iHookImpl);
   }
@@ -347,7 +347,7 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   }
 
   @Override
-  public Iterable<ODatabaseListener> getListeners() {
+  public Iterable<YTDatabaseListener> getListeners() {
     return internal.getListeners();
   }
 
@@ -437,7 +437,7 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   }
 
   @Override
-  public void setUser(OSecurityUser user) {
+  public void setUser(YTSecurityUser user) {
     internal.setUser(user);
   }
 
@@ -592,7 +592,7 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   }
 
   @Override
-  public OSecurityUser getUser() {
+  public YTSecurityUser getUser() {
     if (internal != null) {
       return internal.getUser();
     }
@@ -896,7 +896,7 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
           internal.set(attr.getKey(), attr.getValue());
         }
 
-        for (ODatabaseListener oDatabaseListener : preopenListener) {
+        for (YTDatabaseListener oDatabaseListener : preopenListener) {
           internal.registerListener(oDatabaseListener);
         }
 
@@ -910,7 +910,7 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
           internal.set(attr.getKey(), attr.getValue());
         }
 
-        for (ODatabaseListener oDatabaseListener : preopenListener) {
+        for (YTDatabaseListener oDatabaseListener : preopenListener) {
           internal.registerListener(oDatabaseListener);
         }
       }
@@ -965,7 +965,7 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   }
 
   @Override
-  public OContextConfiguration getConfiguration() {
+  public YTContextConfiguration getConfiguration() {
     checkOpenness();
     return internal.getConfiguration();
   }
@@ -1196,7 +1196,7 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   }
 
   @Override
-  public void registerListener(ODatabaseListener iListener) {
+  public void registerListener(YTDatabaseListener iListener) {
     if (internal != null) {
       internal.registerListener(iListener);
     } else {
@@ -1205,7 +1205,7 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   }
 
   @Override
-  public void unregisterListener(ODatabaseListener iListener) {
+  public void unregisterListener(YTDatabaseListener iListener) {
     checkOpenness();
     internal.unregisterListener(iListener);
   }
@@ -1322,7 +1322,7 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
     }
     builder.addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, true);
 
-    for (ODatabaseListener oDatabaseListener : preopenListener) {
+    for (YTDatabaseListener oDatabaseListener : preopenListener) {
       builder.addListener(oDatabaseListener);
     }
 

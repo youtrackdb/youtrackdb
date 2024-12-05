@@ -18,7 +18,7 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.orient.core.hook.ORecordHookAbstract;
+import com.orientechnologies.orient.core.hook.YTRecordHookAbstract;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -43,7 +43,7 @@ public class HookTxTest extends DocumentDBBaseTest {
   private YTEntity profile;
   private int expectedHookState;
 
-  private final class RecordHook extends ORecordHookAbstract {
+  private final class RecordHook extends YTRecordHookAbstract {
 
     @Override
     @Test(enabled = false)

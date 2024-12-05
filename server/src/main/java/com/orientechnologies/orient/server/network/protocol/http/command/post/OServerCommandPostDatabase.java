@@ -22,8 +22,8 @@ package com.orientechnologies.orient.server.network.protocol.http.command.post;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.engine.local.OEngineLocalPaginated;
 import com.orientechnologies.orient.core.engine.memory.OEngineMemory;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.security.ORole;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -191,9 +191,9 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
     }
 
     json.beginCollection(1, false, "users");
-    OUser user;
+    YTUser user;
     for (YTDocument doc : db.getMetadata().getSecurity().getAllUsers()) {
-      user = new OUser(db, doc);
+      user = new YTUser(db, doc);
       json.beginObject(2, true, null);
       json.writeAttribute(3, false, "name", user.getName(db));
       json.writeAttribute(

@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.OStorage;
@@ -375,7 +375,7 @@ public abstract class OIdentifiableIterator<REC extends YTIdentifiable>
 
     for (int clId : iClusterIds) {
       if (iDatabase.getStorage().isSystemCluster(clId)) {
-        final OSecurityUser dbUser = iDatabase.getUser();
+        final YTSecurityUser dbUser = iDatabase.getUser();
         if (dbUser == null
             || dbUser.allow(iDatabase, ORule.ResourceGeneric.SYSTEM_CLUSTERS, null,
             ORole.PERMISSION_READ)

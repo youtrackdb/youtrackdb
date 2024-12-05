@@ -75,7 +75,7 @@ import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.YTBlob;
@@ -343,10 +343,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     disconnect();
 
     if (userName == null) {
-      userName = OUser.ADMIN;
+      userName = YTUser.ADMIN;
     }
     if (userPassword == null) {
-      userPassword = OUser.ADMIN;
+      userPassword = YTUser.ADMIN;
     }
 
     currentDatabaseUserName = userName;

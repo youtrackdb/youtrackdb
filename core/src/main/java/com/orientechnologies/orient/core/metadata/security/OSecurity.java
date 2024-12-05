@@ -120,18 +120,18 @@ public interface OSecurity {
       final String iRoleName);
 
   @Deprecated
-  OUser authenticate(String iUsername, String iUserPassword);
+  YTUser authenticate(String iUsername, String iUserPassword);
 
   @Deprecated
-  OUser authenticate(final OToken authToken);
+  YTUser authenticate(final OToken authToken);
 
-  OUser getUser(String iUserName);
+  YTUser getUser(String iUserName);
 
-  OUser getUser(final YTRID iUserId);
+  YTUser getUser(final YTRID iUserId);
 
-  OUser createUser(String iUserName, String iUserPassword, String... iRoles);
+  YTUser createUser(String iUserName, String iUserPassword, String... iRoles);
 
-  OUser createUser(String iUserName, String iUserPassword, ORole... iRoles);
+  YTUser createUser(String iUserName, String iUserPassword, ORole... iRoles);
 
   boolean dropUser(String iUserName);
 

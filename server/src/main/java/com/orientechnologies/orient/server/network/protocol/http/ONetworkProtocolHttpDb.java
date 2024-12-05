@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.network.protocol.http;
 
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.server.OClientConnection;
@@ -44,7 +44,7 @@ public class ONetworkProtocolHttpDb extends ONetworkProtocolHttpAbstract {
       final OServerNetworkListener iListener,
       final OServer iServer,
       final Socket iSocket,
-      final OContextConfiguration iConfiguration)
+      final YTContextConfiguration iConfiguration)
       throws IOException {
     server = iServer;
     setName(

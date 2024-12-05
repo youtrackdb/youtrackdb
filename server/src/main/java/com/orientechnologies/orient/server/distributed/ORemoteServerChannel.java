@@ -23,7 +23,7 @@ import com.orientechnologies.common.thread.OThreadPoolExecutors;
 import com.orientechnologies.orient.client.binary.OChannelBinarySynchClient;
 import com.orientechnologies.orient.client.remote.message.ODistributedConnectRequest;
 import com.orientechnologies.orient.client.remote.message.ODistributedConnectResponse;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.metadata.security.OToken;
 import com.orientechnologies.orient.core.metadata.security.binary.OBinaryTokenSerializer;
@@ -61,7 +61,7 @@ public class ORemoteServerChannel {
   private byte[] sessionToken;
   private OToken tokenInstance = null;
   private final OBinaryTokenSerializer tokenDeserializer = new OBinaryTokenSerializer();
-  private final OContextConfiguration contextConfig = new OContextConfiguration();
+  private final YTContextConfiguration contextConfig = new YTContextConfiguration();
   private final Date createdOn = new Date();
 
   private volatile int totalConsecutiveErrors = 0;

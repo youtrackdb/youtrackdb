@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server.distributed.config;
 
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
 import com.orientechnologies.orient.core.db.config.OMulticastConfguration;
@@ -66,7 +66,7 @@ public class ODistributedConfig {
   }
 
   public static YouTrackDBConfig buildConfig(
-      OContextConfiguration contextConfiguration, OServerDistributedConfiguration distributed) {
+      YTContextConfiguration contextConfiguration, OServerDistributedConfiguration distributed) {
 
     YouTrackDBConfigBuilder builder = YouTrackDBConfig.builder().fromContext(contextConfiguration);
 

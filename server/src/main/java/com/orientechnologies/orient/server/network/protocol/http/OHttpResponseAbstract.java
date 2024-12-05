@@ -22,7 +22,7 @@ package com.orientechnologies.orient.server.network.protocol.http;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
@@ -64,7 +64,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
 
   private final String httpVersion;
   private final OutputStream out;
-  private final OContextConfiguration contextConfiguration;
+  private final YTContextConfiguration contextConfiguration;
   private String headers;
   private String[] additionalHeaders;
   private String characterSet;
@@ -96,7 +96,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final String iCallbackFunction,
       final boolean iKeepAlive,
       OClientConnection connection,
-      OContextConfiguration contextConfiguration) {
+      YTContextConfiguration contextConfiguration) {
     streaming = contextConfiguration.getValueAsBoolean(
         YTGlobalConfiguration.NETWORK_HTTP_STREAMING);
     out = iOutStream;
@@ -826,7 +826,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
   }
 
   @Override
-  public OContextConfiguration getContextConfiguration() {
+  public YTContextConfiguration getContextConfiguration() {
     return contextConfiguration;
   }
 

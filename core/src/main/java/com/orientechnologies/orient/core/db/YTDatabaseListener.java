@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 /**
  * Listener Interface for all the events of the Database instances.
  */
-public interface ODatabaseListener {
+public interface YTDatabaseListener {
 
   @Deprecated
   void onCreate(final YTDatabaseSession iDatabase);

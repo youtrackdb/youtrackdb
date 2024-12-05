@@ -26,11 +26,11 @@ import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValu
 import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
@@ -39,11 +39,11 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal
 import com.orientechnologies.orient.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTStorageException;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OTokenAuthInfo;
-import com.orientechnologies.orient.core.security.YTInvalidPasswordException;
 import com.orientechnologies.orient.core.security.OParsedToken;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
+import com.orientechnologies.orient.core.security.YTInvalidPasswordException;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.config.OServerConfigurationManager;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
@@ -96,7 +96,7 @@ public class OServer {
   protected volatile boolean running = false;
   protected volatile boolean rejectRequests = true;
   protected OServerConfigurationManager serverCfg;
-  protected OContextConfiguration contextConfiguration;
+  protected YTContextConfiguration contextConfiguration;
   protected OServerShutdownHook shutdownHook;
   protected Map<String, Class<? extends ONetworkProtocol>> networkProtocols =
       new HashMap<String, Class<? extends ONetworkProtocol>>();
@@ -801,7 +801,7 @@ public class OServer {
 
   // Returns null if the user cannot be authenticated. Otherwise returns the
   // OServerUserConfiguration user.
-  public OSecurityUser authenticateUser(
+  public YTSecurityUser authenticateUser(
       final String iUserName, final String iPassword, final String iResourceToCheck) {
     return databases
         .getSecuritySystem()
@@ -840,7 +840,7 @@ public class OServer {
     return pluginManager != null ? pluginManager.getPlugins() : null;
   }
 
-  public OContextConfiguration getContextConfiguration() {
+  public YTContextConfiguration getContextConfiguration() {
     return contextConfiguration;
   }
 
@@ -932,7 +932,7 @@ public class OServer {
     final YTDatabaseSessionInternal database;
     boolean serverAuth = false;
     database = databases.open(iDbUrl, user, password);
-    if (OSecurityUser.SERVER_USER_TYPE.equals(database.getUser().getUserType())) {
+    if (YTSecurityUser.SERVER_USER_TYPE.equals(database.getUser().getUserType())) {
       serverAuth = true;
     }
     if (serverAuth && data != null) {
@@ -961,7 +961,7 @@ public class OServer {
     final OServerConfiguration cfg = serverCfg.getConfiguration();
 
     // FILL THE CONTEXT CONFIGURATION WITH SERVER'S PARAMETERS
-    contextConfiguration = new OContextConfiguration();
+    contextConfiguration = new YTContextConfiguration();
 
     if (cfg.properties != null) {
       for (OServerEntryConfiguration prop : cfg.properties) {

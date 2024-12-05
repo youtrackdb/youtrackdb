@@ -30,7 +30,7 @@ import com.orientechnologies.orient.core.dictionary.ODictionary;
 import com.orientechnologies.orient.core.enterprise.OEnterpriseEndpoint;
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTTransactionException;
-import com.orientechnologies.orient.core.hook.ORecordHook;
+import com.orientechnologies.orient.core.hook.YTRecordHook;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
@@ -38,8 +38,8 @@ import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTView;
 import com.orientechnologies.orient.core.metadata.security.ORule;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceAction;
 import com.orientechnologies.orient.core.query.OQuery;
 import com.orientechnologies.orient.core.record.YTEdge;
@@ -154,7 +154,7 @@ public interface YTDatabaseSessionInternal extends YTDatabaseSession {
 
   void afterDeleteOperations(final YTIdentifiable id);
 
-  ORecordHook.RESULT callbackHooks(final ORecordHook.TYPE type, final YTIdentifiable id);
+  YTRecordHook.RESULT callbackHooks(final YTRecordHook.TYPE type, final YTIdentifiable id);
 
   @Nonnull
   <RET extends YTRecordAbstract> RET executeReadRecord(final YTRecordId rid);
@@ -560,7 +560,7 @@ public interface YTDatabaseSessionInternal extends YTDatabaseSession {
   /**
    * Set user for current database instance.
    */
-  void setUser(OSecurityUser user);
+  void setUser(YTSecurityUser user);
 
   /**
    * Internal only: replace the storage with a new one.
@@ -829,7 +829,7 @@ public interface YTDatabaseSessionInternal extends YTDatabaseSession {
    * @param iListener the listener to register
    */
   @Deprecated
-  void registerListener(ODatabaseListener iListener);
+  void registerListener(YTDatabaseListener iListener);
 
   /**
    * Unregisters a listener to the database events.
@@ -837,7 +837,7 @@ public interface YTDatabaseSessionInternal extends YTDatabaseSession {
    * @param iListener the listener to unregister
    */
   @Deprecated
-  void unregisterListener(ODatabaseListener iListener);
+  void unregisterListener(YTDatabaseListener iListener);
 
   @Deprecated
   ORecordMetadata getRecordMetadata(final YTRID rid);

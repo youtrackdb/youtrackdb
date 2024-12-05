@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
+import com.orientechnologies.orient.core.hook.YTDocumentHookAbstract;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.OServer;
@@ -159,7 +159,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
     public static CountCallHookServer instance;
   }
 
-  public static class CountCallHook extends ODocumentHookAbstract {
+  public static class CountCallHook extends YTDocumentHookAbstract {
 
     private int beforeCreate = 0;
     private int beforeUpdate = 0;

@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.security.authenticator;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.metadata.security.auth.OTokenAuthInfo;
 import com.orientechnologies.orient.core.metadata.security.auth.OUserPasswordAuthInfo;
@@ -26,7 +26,7 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
   }
 
   @Override
-  public OSecurityUser authenticate(YTDatabaseSessionInternal session, OAuthenticationInfo info) {
+  public YTSecurityUser authenticate(YTDatabaseSessionInternal session, OAuthenticationInfo info) {
     if (info instanceof OUserPasswordAuthInfo) {
       return authenticate(
           session,
@@ -42,7 +42,7 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
         throw new YTSecurityAccessException(session.getName(), "Token not valid");
       }
 
-      OUser user = token.getToken().getUser(session);
+      YTUser user = token.getToken().getUser(session);
       if (user == null && token.getToken().getUserName() != null) {
         OSecurityShared databaseSecurity =
             (OSecurityShared) session.getSharedContext().getSecurity();
@@ -54,18 +54,18 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
   }
 
   @Override
-  public OSecurityUser authenticate(YTDatabaseSessionInternal session, String username,
+  public YTSecurityUser authenticate(YTDatabaseSessionInternal session, String username,
       String password) {
     if (session == null) {
       return null;
     }
 
     String dbName = session.getName();
-    OUser user = OSecurityShared.getUserInternal(session, username);
+    YTUser user = OSecurityShared.getUserInternal(session, username);
     if (user == null) {
       return null;
     }
-    if (user.getAccountStatus(session) != OSecurityUser.STATUSES.ACTIVE) {
+    if (user.getAccountStatus(session) != YTSecurityUser.STATUSES.ACTIVE) {
       throw new YTSecurityAccessException(dbName, "User '" + username + "' is not active");
     }
 
@@ -85,7 +85,7 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
   }
 
   @Override
-  public OSecurityUser getUser(String username, YTDatabaseSessionInternal session) {
+  public YTSecurityUser getUser(String username, YTDatabaseSessionInternal session) {
     return null;
   }
 

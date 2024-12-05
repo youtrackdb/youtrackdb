@@ -22,7 +22,7 @@ package com.orientechnologies.orient.server.network.protocol.http;
 import com.orientechnologies.common.concur.lock.YTLockException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.OQueryDatabaseState;
@@ -31,7 +31,7 @@ import com.orientechnologies.orient.core.exception.YTConcurrentModificationExcep
 import com.orientechnologies.orient.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
@@ -124,7 +124,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
   private final StringBuilder requestContent = new StringBuilder(512);
   protected OClientConnection connection;
   protected OChannelTextServer channel;
-  protected OUser account;
+  protected YTUser account;
   protected OHttpRequest request;
   protected OHttpResponse response;
   protected OHttpNetworkCommandManager cmdManager;
@@ -133,7 +133,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
   private boolean sameSiteCookie;
   private String[] additionalResponseHeaders;
   private String listeningAddress = "?";
-  private OContextConfiguration configuration;
+  private YTContextConfiguration configuration;
 
   public ONetworkProtocolHttpAbstract(OServer server) {
     super(server.getThreadGroup(), "IO-HTTP");
@@ -144,7 +144,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
       final OServerNetworkListener iListener,
       final OServer iServer,
       final Socket iSocket,
-      final OContextConfiguration iConfiguration)
+      final YTContextConfiguration iConfiguration)
       throws IOException {
     configuration = iConfiguration;
 
@@ -368,7 +368,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
     return channel;
   }
 
-  public OUser getAccount() {
+  public YTUser getAccount() {
     return account;
   }
 

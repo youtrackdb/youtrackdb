@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.atLeastOnce;
 
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHook;
@@ -59,13 +59,13 @@ public class OLiveCommandResultListenerTest extends BaseMemoryInternalDatabase {
   @Before
   public void beforeTests() {
     MockitoAnnotations.initMocks(this);
-    Mockito.when(server.getContextConfiguration()).thenReturn(new OContextConfiguration());
+    Mockito.when(server.getContextConfiguration()).thenReturn(new YTContextConfiguration());
 
     OClientConnectionManager manager = new OClientConnectionManager(server);
     protocol = new ONetworkProtocolBinary(server);
     protocol.initVariables(server, channelBinary);
     connection = manager.connect(protocol);
-    OTokenHandlerImpl tokenHandler = new OTokenHandlerImpl(new OContextConfiguration());
+    OTokenHandlerImpl tokenHandler = new OTokenHandlerImpl(new YTContextConfiguration());
     Mockito.when(server.getTokenHandler()).thenReturn(tokenHandler);
     byte[] token = tokenHandler.getSignedBinaryToken(db, db.getUser(), connection.getData());
     connection = manager.connect(protocol, connection, token);

@@ -23,8 +23,8 @@ public class ORestricetedUserCleanUpTest extends DBTestBase {
     OSecurity security = db.getMetadata().getSecurity();
 
     db.begin();
-    OUser auser = security.createUser("auser", "wherever", new String[]{});
-    OUser reader = security.getUser("admin");
+    YTUser auser = security.createUser("auser", "wherever", new String[]{});
+    YTUser reader = security.getUser("admin");
     YTDocument doc = new YTDocument("TestRecord");
     Set<YTIdentifiable> users = new HashSet<YTIdentifiable>();
     users.add(auser.getIdentity(db));

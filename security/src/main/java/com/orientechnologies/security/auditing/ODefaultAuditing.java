@@ -17,13 +17,13 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
+import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.OAuditingOperation;
 import com.orientechnologies.orient.core.security.OAuditingService;
@@ -56,9 +56,9 @@ public class ODefaultAuditing
   private YouTrackDBInternal context;
 
   private final Timer timer = new Timer();
-  private OAuditingHook globalHook;
+  private YTAuditingHook globalHook;
 
-  private final Map<String, OAuditingHook> hooks;
+  private final Map<String, YTAuditingHook> hooks;
 
   private TimerTask retainTask;
 
@@ -119,7 +119,7 @@ public class ODefaultAuditing
   }
 
   public ODefaultAuditing() {
-    hooks = new ConcurrentHashMap<String, OAuditingHook>(20);
+    hooks = new ConcurrentHashMap<String, YTAuditingHook>(20);
   }
 
   @Override
@@ -134,13 +134,13 @@ public class ODefaultAuditing
       return;
     }
 
-    final OAuditingHook hook = defaultHook(iDatabase);
+    final YTAuditingHook hook = defaultHook(iDatabase);
     hooks.put(iDatabase.getName(), hook);
     iDatabase.registerHook(hook);
     iDatabase.registerListener(hook);
   }
 
-  private OAuditingHook defaultHook(final YTDatabaseSessionInternal iDatabase) {
+  private YTAuditingHook defaultHook(final YTDatabaseSessionInternal iDatabase) {
     final File auditingFileConfig = getConfigFile(iDatabase.getName());
     String content = null;
     if (auditingFileConfig != null && auditingFileConfig.exists()) {
@@ -183,7 +183,7 @@ public class ODefaultAuditing
       }
     }
     final YTDocument cfg = new YTDocument().fromJSON(content, "noMap");
-    return new OAuditingHook(cfg, security);
+    return new YTAuditingHook(cfg, security);
   }
 
   private String getContent(File auditingFileConfig) {
@@ -238,7 +238,7 @@ public class ODefaultAuditing
       return;
     }
 
-    OAuditingHook oAuditingHook = hooks.get(iDatabase.getName());
+    YTAuditingHook oAuditingHook = hooks.get(iDatabase.getName());
     if (oAuditingHook == null) {
       oAuditingHook = defaultHook(iDatabase);
       hooks.put(iDatabase.getName(), oAuditingHook);
@@ -249,7 +249,7 @@ public class ODefaultAuditing
 
   @Override
   public void onClose(YTDatabaseSessionInternal iDatabase) {
-    final OAuditingHook oAuditingHook = hooks.get(iDatabase.getName());
+    final YTAuditingHook oAuditingHook = hooks.get(iDatabase.getName());
     if (oAuditingHook != null) {
       iDatabase.unregisterHook(oAuditingHook);
       iDatabase.unregisterListener(oAuditingHook);
@@ -260,7 +260,7 @@ public class ODefaultAuditing
   public void onDrop(YTDatabaseSessionInternal iDatabase) {
     onClose(iDatabase);
 
-    final OAuditingHook oAuditingHook = hooks.get(iDatabase.getName());
+    final YTAuditingHook oAuditingHook = hooks.get(iDatabase.getName());
     if (oAuditingHook != null) {
       oAuditingHook.shutdown(false);
     }
@@ -284,7 +284,7 @@ public class ODefaultAuditing
 
   @Override
   public void onCreateClass(YTDatabaseSessionInternal iDatabase, YTClass iClass) {
-    final OAuditingHook oAuditingHook = hooks.get(iDatabase.getName());
+    final YTAuditingHook oAuditingHook = hooks.get(iDatabase.getName());
 
     if (oAuditingHook != null) {
       oAuditingHook.onCreateClass(iClass);
@@ -293,7 +293,7 @@ public class ODefaultAuditing
 
   @Override
   public void onDropClass(YTDatabaseSessionInternal iDatabase, YTClass iClass) {
-    final OAuditingHook oAuditingHook = hooks.get(iDatabase.getName());
+    final YTAuditingHook oAuditingHook = hooks.get(iDatabase.getName());
 
     if (oAuditingHook != null) {
       oAuditingHook.onDropClass(iClass);
@@ -356,7 +356,7 @@ public class ODefaultAuditing
   /// ///
   // OAuditingService
   public void changeConfig(
-      YTDatabaseSessionInternal session, final OSecurityUser user, final String iDatabaseName,
+      YTDatabaseSessionInternal session, final YTSecurityUser user, final String iDatabaseName,
       final YTDocument cfg)
       throws IOException {
 
@@ -366,7 +366,7 @@ public class ODefaultAuditing
       return;
     }
 
-    hooks.put(iDatabaseName, new OAuditingHook(cfg, security));
+    hooks.put(iDatabaseName, new YTAuditingHook(cfg, security));
 
     updateConfigOnDisk(iDatabaseName, cfg);
 
@@ -392,7 +392,7 @@ public class ODefaultAuditing
    * Primarily used for global logging events (e.g., NODEJOINED, NODELEFT).
    */
   public void log(YTDatabaseSessionInternal session, final OAuditingOperation operation,
-      OSecurityUser user, final String message) {
+      YTSecurityUser user, final String message) {
     log(session, operation, null, user, message);
   }
 
@@ -402,12 +402,12 @@ public class ODefaultAuditing
   public void log(
       YTDatabaseSessionInternal session, final OAuditingOperation operation,
       final String dbName,
-      OSecurityUser user,
+      YTSecurityUser user,
       final String message) {
     // If dbName is null, then we submit the log message to the global auditing hook.
     // Otherwise, we submit it to the hook associated with dbName.
     if (dbName != null) {
-      final OAuditingHook oAuditingHook = hooks.get(dbName);
+      final YTAuditingHook oAuditingHook = hooks.get(dbName);
 
       if (oAuditingHook != null) {
         oAuditingHook.log(session, operation, dbName, user, message);
@@ -479,7 +479,7 @@ public class ODefaultAuditing
   public void active() {
     createClassIfNotExists();
 
-    globalHook = new OAuditingHook(security);
+    globalHook = new YTAuditingHook(security);
 
     retainTask =
         new TimerTask() {

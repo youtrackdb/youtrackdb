@@ -60,7 +60,7 @@ import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityPolicy;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
@@ -431,8 +431,8 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     database.dropCluster(OMetadataDefault.CLUSTER_MANUAL_INDEX_NAME);
 
     final YTSchema schema = database.getMetadata().getSchema();
-    if (schema.existsClass(OUser.CLASS_NAME)) {
-      schema.dropClass(OUser.CLASS_NAME);
+    if (schema.existsClass(YTUser.CLASS_NAME)) {
+      schema.dropClass(YTUser.CLASS_NAME);
     }
     if (schema.existsClass(ORole.CLASS_NAME)) {
       schema.dropClass(ORole.CLASS_NAME);
@@ -505,7 +505,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     final YTSchema schema = database.getMetadata().getSchema();
     final Collection<YTClass> classes = schema.getClasses();
     final YTClass role = schema.getClass(ORole.CLASS_NAME);
-    final YTClass user = schema.getClass(OUser.CLASS_NAME);
+    final YTClass user = schema.getClass(YTUser.CLASS_NAME);
     final YTClass identity = schema.getClass(OIdentity.CLASS_NAME);
     // final YTClass oSecurityPolicy = schema.getClass(OSecurityPolicy.class.getSimpleName());
     final Map<String, YTClass> classesToDrop = new HashMap<>();
@@ -1395,10 +1395,10 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       if (cls != null) {
         assert record instanceof YTDocument;
 
-        if (cls.getName().equals(OUser.CLASS_NAME)) {
+        if (cls.getName().equals(YTUser.CLASS_NAME)) {
           try (var resultSet =
               database.query(
-                  "select from " + OUser.CLASS_NAME + " where name = ?",
+                  "select from " + YTUser.CLASS_NAME + " where name = ?",
                   ((YTDocument) record).<String>getProperty("name"))) {
             if (resultSet.hasNext()) {
               systemRecord = resultSet.next().toElement();

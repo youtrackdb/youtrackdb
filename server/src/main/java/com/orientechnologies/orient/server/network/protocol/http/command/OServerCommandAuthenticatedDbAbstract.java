@@ -28,15 +28,15 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.server.OTokenHandler;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
-import com.orientechnologies.orient.server.network.protocol.http.YTHttpRequestException;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpSession;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
+import com.orientechnologies.orient.server.network.protocol.http.YTHttpRequestException;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -304,7 +304,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
         if (!currentUserId.equals(
             localDatabase.getUser().getIdentity(localDatabase).getIdentity())) {
           YTDocument userDoc = localDatabase.load(currentUserId);
-          localDatabase.setUser(new OUser(localDatabase, userDoc));
+          localDatabase.setUser(new YTUser(localDatabase, userDoc));
         }
       }
     }
@@ -336,7 +336,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
       if (currentUserId != null && !currentUserId.isEmpty() && localDatabase.getUser() != null) {
         if (!currentUserId.equals(localDatabase.getUser().getIdentity(localDatabase).toString())) {
           YTDocument userDoc = localDatabase.load(new YTRecordId(currentUserId));
-          localDatabase.setUser(new OUser(localDatabase, userDoc));
+          localDatabase.setUser(new YTUser(localDatabase, userDoc));
         }
       }
     }

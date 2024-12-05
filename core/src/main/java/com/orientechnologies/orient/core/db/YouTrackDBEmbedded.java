@@ -32,7 +32,7 @@ import com.orientechnologies.common.thread.OThreadPoolExecutors;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.script.OScriptManager;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.document.YTDatabaseSessionEmbedded;
 import com.orientechnologies.orient.core.engine.OEngine;
@@ -741,7 +741,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
         storages.remove(name);
       }
 
-      OContextConfiguration configs = configurations.getConfigurations();
+      YTContextConfiguration configs = configurations.getConfigurations();
       OLocalPaginatedStorage.deleteFilesFromDisc(
           name,
           configs.getValueAsInteger(FILE_DELETE_RETRY),
@@ -813,7 +813,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       synchronized (this) {
         storages.remove(name);
       }
-      OContextConfiguration configs = configurations.getConfigurations();
+      YTContextConfiguration configs = configurations.getConfigurations();
       OLocalPaginatedStorage.deleteFilesFromDisc(
           name,
           configs.getValueAsInteger(FILE_DELETE_RETRY),

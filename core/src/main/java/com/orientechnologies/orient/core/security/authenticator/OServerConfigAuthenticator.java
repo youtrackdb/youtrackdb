@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.security.authenticator;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 
 /**
  * Provides an OSecurityAuthenticator for the users listed in orientdb-server-config.xml.
@@ -36,13 +36,13 @@ public class OServerConfigAuthenticator extends OSecurityAuthenticatorAbstract {
 
   // OSecurityAuthenticator
   // Returns the actual username if successful, null otherwise.
-  public OSecurityUser authenticate(
+  public YTSecurityUser authenticate(
       YTDatabaseSessionInternal session, final String username, final String password) {
     return getSecurity().authenticateServerUser(session, username, password);
   }
 
   // OSecurityAuthenticator
-  public OSecurityUser getUser(final String username, YTDatabaseSessionInternal session) {
+  public YTSecurityUser getUser(final String username, YTDatabaseSessionInternal session) {
     return getSecurity().getServerUser(session, username);
   }
 

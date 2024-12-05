@@ -22,7 +22,7 @@ package com.orientechnologies.orient.enterprise.channel.binary;
 import com.orientechnologies.common.exception.OInvalidBinaryChunkException;
 import com.orientechnologies.common.io.OIOException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
@@ -50,7 +50,7 @@ public abstract class OChannelBinary extends OChannel
   private final int responseTimeout;
   private final int networkTimeout;
 
-  public OChannelBinary(final Socket iSocket, final OContextConfiguration iConfig)
+  public OChannelBinary(final Socket iSocket, final YTContextConfiguration iConfig)
       throws IOException {
     super(iSocket, iConfig);
     socket.setKeepAlive(true);

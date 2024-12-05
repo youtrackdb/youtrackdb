@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
+import com.orientechnologies.orient.core.hook.YTDocumentHookAbstract;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
@@ -71,7 +71,7 @@ public class CheckHookCallCountTest extends DBTestBase {
     db.rollback();
 
     db.registerHook(
-        new ODocumentHookAbstract(db) {
+        new YTDocumentHookAbstract(db) {
 
           {
             setIncludeClasses("TestInHook");
@@ -120,7 +120,7 @@ public class CheckHookCallCountTest extends DBTestBase {
     db.rollback();
   }
 
-  public class TestHook extends ODocumentHookAbstract {
+  public class TestHook extends YTDocumentHookAbstract {
 
     public int readCount;
 

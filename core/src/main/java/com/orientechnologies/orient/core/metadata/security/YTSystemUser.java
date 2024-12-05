@@ -27,7 +27,7 @@ import java.util.List;
 /**
  *
  */
-public class OSystemUser extends OUser {
+public class YTSystemUser extends YTUser {
 
   private String databaseName;
   private String userType;
@@ -39,19 +39,19 @@ public class OSystemUser extends OUser {
   /**
    * Constructor used in unmarshalling.
    */
-  public OSystemUser() {
+  public YTSystemUser() {
   }
 
-  public OSystemUser(YTDatabaseSessionInternal session, final String iName) {
+  public YTSystemUser(YTDatabaseSessionInternal session, final String iName) {
     super(session, iName);
   }
 
-  public OSystemUser(YTDatabaseSessionInternal session, String iUserName,
+  public YTSystemUser(YTDatabaseSessionInternal session, String iUserName,
       final String iUserPassword) {
     super(session, iUserName, iUserPassword);
   }
 
-  public OSystemUser(YTDatabaseSessionInternal session, String iUserName,
+  public YTSystemUser(YTDatabaseSessionInternal session, String iUserName,
       final String iUserPassword,
       String userType) {
     super(session, iUserName, iUserPassword);
@@ -61,14 +61,14 @@ public class OSystemUser extends OUser {
   /**
    * Create the user by reading the source document.
    */
-  public OSystemUser(YTDatabaseSessionInternal session, final YTDocument iSource) {
+  public YTSystemUser(YTDatabaseSessionInternal session, final YTDocument iSource) {
     super(session, iSource);
   }
 
   /**
    * dbName is the name of the source database and is used for filtering roles.
    */
-  public OSystemUser(YTDatabaseSessionInternal session, final YTDocument iSource,
+  public YTSystemUser(YTDatabaseSessionInternal session, final YTDocument iSource,
       final String dbName) {
     databaseName = dbName;
     fromStream(session, iSource);

@@ -24,8 +24,8 @@ import com.orientechnologies.common.exception.YTSystemException;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.OQueryDatabaseState;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.security.OParsedToken;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
@@ -57,7 +57,7 @@ public class OClientConnection {
       Collections.newSetFromMap(new WeakHashMap<ONetworkProtocol, Boolean>());
   private volatile ONetworkProtocol protocol;
   private volatile YTDatabaseSessionInternal database;
-  private volatile OSecurityUser serverUser;
+  private volatile YTSecurityUser serverUser;
   private ONetworkProtocolData data = new ONetworkProtocolData();
   private final OClientConnectionStats stats = new OClientConnectionStats();
   private final Lock lock = new ReentrantLock();
@@ -331,11 +331,11 @@ public class OClientConnection {
     this.database = database;
   }
 
-  public OSecurityUser getServerUser() {
+  public YTSecurityUser getServerUser() {
     return serverUser;
   }
 
-  public void setServerUser(OSecurityUser serverUser) {
+  public void setServerUser(YTSecurityUser serverUser) {
     this.serverUser = serverUser;
   }
 

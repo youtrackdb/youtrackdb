@@ -29,13 +29,13 @@ import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestInternal;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
-import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.OSharedContext;
+import com.orientechnologies.orient.core.db.YTDatabaseListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
@@ -51,7 +51,7 @@ import com.orientechnologies.orient.core.exception.YTSessionNotActivatedExceptio
 import com.orientechnologies.orient.core.exception.YTTransactionBlockedException;
 import com.orientechnologies.orient.core.exception.YTTransactionException;
 import com.orientechnologies.orient.core.exception.YTValidationException;
-import com.orientechnologies.orient.core.hook.ORecordHook;
+import com.orientechnologies.orient.core.hook.YTRecordHook;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
@@ -63,13 +63,13 @@ import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableView;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTView;
-import com.orientechnologies.orient.core.metadata.security.OImmutableUser;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTImmutableUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.query.OQuery;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.ORecordInternal;
@@ -128,28 +128,28 @@ import javax.annotation.Nonnull;
  * Document API entrypoint.
  */
 @SuppressWarnings("unchecked")
-public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabaseListener>
+public abstract class YTDatabaseSessionAbstract extends OListenerManger<YTDatabaseListener>
     implements YTDatabaseSessionInternal {
 
   protected final Map<String, Object> properties = new HashMap<String, Object>();
-  protected Map<ORecordHook, ORecordHook.HOOK_POSITION> unmodifiableHooks;
+  protected Map<YTRecordHook, YTRecordHook.HOOK_POSITION> unmodifiableHooks;
   protected final Set<YTIdentifiable> inHook = new HashSet<YTIdentifiable>();
   protected ORecordSerializer serializer;
   protected String url;
   protected STATUS status;
   protected YTDatabaseSessionInternal databaseOwner;
   protected OMetadataDefault metadata;
-  protected OImmutableUser user;
+  protected YTImmutableUser user;
   protected static final byte recordType = YTDocument.RECORD_TYPE;
-  protected final Map<ORecordHook, ORecordHook.HOOK_POSITION> hooks = new LinkedHashMap<>();
+  protected final Map<YTRecordHook, YTRecordHook.HOOK_POSITION> hooks = new LinkedHashMap<>();
   protected boolean retainRecords = true;
   protected OLocalRecordCache localCache;
   protected OCurrentStorageComponentsFactory componentsFactory;
   protected boolean initialized = false;
   protected OTransactionAbstract currentTx;
 
-  protected final ORecordHook[][] hooksByScope =
-      new ORecordHook[ORecordHook.SCOPE.values().length][];
+  protected final YTRecordHook[][] hooksByScope =
+      new YTRecordHook[YTRecordHook.SCOPE.values().length][];
   protected OSharedContext sharedContext;
 
   private boolean prefetchRecords;
@@ -211,7 +211,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
   }
 
   private void wakeupOnOpenListeners() {
-    for (ODatabaseListener listener : getListenersCopy()) {
+    for (YTDatabaseListener listener : getListenersCopy()) {
       try {
         //noinspection deprecation
         listener.onOpen(getDatabaseOwner());
@@ -230,7 +230,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
   }
 
   private void wakeupOnCloseListeners() {
-    for (ODatabaseListener listener : getListenersCopy()) {
+    for (YTDatabaseListener listener : getListenersCopy()) {
       try {
         listener.onClose(getDatabaseOwner());
       } catch (Exception e) {
@@ -244,7 +244,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
   }
 
   private void wakeupOnDropListeners() {
-    for (ODatabaseListener listener : getListenersCopy()) {
+    for (YTDatabaseListener listener : getListenersCopy()) {
       try {
         activateOnCurrentThread();
         //noinspection deprecation
@@ -433,46 +433,46 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
   /**
    * {@inheritDoc}
    */
-  public OSecurityUser getUser() {
+  public YTSecurityUser getUser() {
     return user;
   }
 
   /**
    * {@inheritDoc}
    */
-  public void setUser(final OSecurityUser user) {
+  public void setUser(final YTSecurityUser user) {
     checkIfActive();
-    if (user instanceof OUser) {
+    if (user instanceof YTUser) {
       final OMetadata metadata = getMetadata();
       if (metadata != null) {
         final OSecurityInternal security = sharedContext.getSecurity();
-        this.user = new OImmutableUser(this, security.getVersion(this), user);
+        this.user = new YTImmutableUser(this, security.getVersion(this), user);
       } else {
-        this.user = new OImmutableUser(this, -1, user);
+        this.user = new YTImmutableUser(this, -1, user);
       }
     } else {
-      this.user = (OImmutableUser) user;
+      this.user = (YTImmutableUser) user;
     }
   }
 
   public void reloadUser() {
     if (user != null) {
       activateOnCurrentThread();
-      if (user.checkIfAllowed(this, ORule.ResourceGeneric.CLASS, OUser.CLASS_NAME,
+      if (user.checkIfAllowed(this, ORule.ResourceGeneric.CLASS, YTUser.CLASS_NAME,
           ORole.PERMISSION_READ)
           != null) {
         OMetadata metadata = getMetadata();
         if (metadata != null) {
           final OSecurityInternal security = sharedContext.getSecurity();
-          final OUser secGetUser = security.getUser(this, user.getName(this));
+          final YTUser secGetUser = security.getUser(this, user.getName(this));
 
           if (secGetUser != null) {
-            user = new OImmutableUser(this, security.getVersion(this), secGetUser);
+            user = new YTImmutableUser(this, security.getVersion(this), secGetUser);
           } else {
-            user = new OImmutableUser(this, -1, new OUser());
+            user = new YTImmutableUser(this, -1, new YTUser());
           }
         } else {
-          user = new OImmutableUser(this, -1, new OUser());
+          user = new YTImmutableUser(this, -1, new YTUser());
         }
       }
     }
@@ -504,16 +504,17 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
   /**
    * {@inheritDoc}
    */
-  public void registerHook(final ORecordHook iHookImpl, final ORecordHook.HOOK_POSITION iPosition) {
+  public void registerHook(final YTRecordHook iHookImpl,
+      final YTRecordHook.HOOK_POSITION iPosition) {
     checkOpenness();
     checkIfActive();
 
-    final Map<ORecordHook, ORecordHook.HOOK_POSITION> tmp =
-        new LinkedHashMap<ORecordHook, ORecordHook.HOOK_POSITION>(hooks);
+    final Map<YTRecordHook, YTRecordHook.HOOK_POSITION> tmp =
+        new LinkedHashMap<YTRecordHook, YTRecordHook.HOOK_POSITION>(hooks);
     tmp.put(iHookImpl, iPosition);
     hooks.clear();
-    for (ORecordHook.HOOK_POSITION p : ORecordHook.HOOK_POSITION.values()) {
-      for (Map.Entry<ORecordHook, ORecordHook.HOOK_POSITION> e : tmp.entrySet()) {
+    for (YTRecordHook.HOOK_POSITION p : YTRecordHook.HOOK_POSITION.values()) {
+      for (Map.Entry<YTRecordHook, YTRecordHook.HOOK_POSITION> e : tmp.entrySet()) {
         if (e.getValue() == p) {
           hooks.put(e.getKey(), e.getValue());
         }
@@ -525,14 +526,14 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
   /**
    * {@inheritDoc}
    */
-  public void registerHook(final ORecordHook iHookImpl) {
-    registerHook(iHookImpl, ORecordHook.HOOK_POSITION.REGULAR);
+  public void registerHook(final YTRecordHook iHookImpl) {
+    registerHook(iHookImpl, YTRecordHook.HOOK_POSITION.REGULAR);
   }
 
   /**
    * {@inheritDoc}
    */
-  public void unregisterHook(final ORecordHook iHookImpl) {
+  public void unregisterHook(final YTRecordHook iHookImpl) {
     checkIfActive();
     if (iHookImpl != null) {
       iHookImpl.onUnregister();
@@ -552,7 +553,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
   /**
    * {@inheritDoc}
    */
-  public Map<ORecordHook, ORecordHook.HOOK_POSITION> getHooks() {
+  public Map<YTRecordHook, YTRecordHook.HOOK_POSITION> getHooks() {
     return unmodifiableHooks;
   }
 
@@ -563,17 +564,17 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
    * @param id   Record received in the callback
    * @return True if the input record is changed, otherwise false
    */
-  public ORecordHook.RESULT callbackHooks(final ORecordHook.TYPE type, final YTIdentifiable id) {
+  public YTRecordHook.RESULT callbackHooks(final YTRecordHook.TYPE type, final YTIdentifiable id) {
     if (id == null || hooks.isEmpty() || id.getIdentity().getClusterId() == 0) {
-      return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+      return YTRecordHook.RESULT.RECORD_NOT_CHANGED;
     }
 
-    final ORecordHook.SCOPE scope = ORecordHook.SCOPE.typeToScope(type);
+    final YTRecordHook.SCOPE scope = YTRecordHook.SCOPE.typeToScope(type);
     final int scopeOrdinal = scope.ordinal();
 
     final YTRID identity = id.getIdentity().copy();
     if (!pushInHook(identity)) {
-      return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+      return YTRecordHook.RESULT.RECORD_NOT_CHANGED;
     }
 
     try {
@@ -581,18 +582,18 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
       try {
         rec = id.getRecord();
       } catch (YTRecordNotFoundException e) {
-        return ORecordHook.RESULT.RECORD_NOT_CHANGED;
+        return YTRecordHook.RESULT.RECORD_NOT_CHANGED;
       }
 
       final OScenarioThreadLocal.RUN_MODE runMode = OScenarioThreadLocal.INSTANCE.getRunMode();
 
       boolean recordChanged = false;
-      for (ORecordHook hook : hooksByScope[scopeOrdinal]) {
+      for (YTRecordHook hook : hooksByScope[scopeOrdinal]) {
         switch (runMode) {
           case DEFAULT: // NON_DISTRIBUTED OR PROXIED DB
             if (isDistributed()
                 && hook.getDistributedExecutionMode()
-                == ORecordHook.DISTRIBUTED_EXECUTION_MODE.TARGET_NODE)
+                == YTRecordHook.DISTRIBUTED_EXECUTION_MODE.TARGET_NODE)
             // SKIP
             {
               continue;
@@ -600,27 +601,27 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
             break; // TARGET NODE
           case RUNNING_DISTRIBUTED:
             if (hook.getDistributedExecutionMode()
-                == ORecordHook.DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE) {
+                == YTRecordHook.DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE) {
               continue;
             }
         }
 
-        final ORecordHook.RESULT res = hook.onTrigger(type, rec);
+        final YTRecordHook.RESULT res = hook.onTrigger(type, rec);
 
-        if (res == ORecordHook.RESULT.RECORD_CHANGED) {
+        if (res == YTRecordHook.RESULT.RECORD_CHANGED) {
           recordChanged = true;
         } else {
-          if (res == ORecordHook.RESULT.SKIP_IO)
+          if (res == YTRecordHook.RESULT.SKIP_IO)
           // SKIP IO OPERATION
           {
             return res;
           } else {
-            if (res == ORecordHook.RESULT.SKIP)
+            if (res == YTRecordHook.RESULT.SKIP)
             // SKIP NEXT HOOKS AND RETURN IT
             {
               return res;
             } else {
-              if (res == ORecordHook.RESULT.RECORD_REPLACED) {
+              if (res == YTRecordHook.RESULT.RECORD_REPLACED) {
                 return res;
               }
             }
@@ -628,8 +629,8 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
         }
       }
       return recordChanged
-          ? ORecordHook.RESULT.RECORD_CHANGED
-          : ORecordHook.RESULT.RECORD_NOT_CHANGED;
+          ? YTRecordHook.RESULT.RECORD_CHANGED
+          : YTRecordHook.RESULT.RECORD_NOT_CHANGED;
     } finally {
       popInHook(identity);
     }
@@ -651,7 +652,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
   }
 
   @Override
-  public OContextConfiguration getConfiguration() {
+  public YTContextConfiguration getConfiguration() {
     checkIfActive();
     if (getStorageInfo() != null) {
       return getStorageInfo().getConfiguration().getContextConfiguration();
@@ -1101,7 +1102,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
     }
 
     // WAKE UP LISTENERS
-    for (ODatabaseListener listener : browseListeners()) {
+    for (YTDatabaseListener listener : browseListeners()) {
       try {
         listener.onBeforeTxBegin(this);
       } catch (Exception e) {
@@ -1341,7 +1342,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
    * {@inheritDoc}
    */
   @Override
-  public Iterable<ODatabaseListener> getListeners() {
+  public Iterable<YTDatabaseListener> getListeners() {
     return getListenersCopy();
   }
 
@@ -1629,7 +1630,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
   }
 
   protected void beforeCommitOperations() {
-    for (ODatabaseListener listener : browseListeners()) {
+    for (YTDatabaseListener listener : browseListeners()) {
       try {
         listener.onBeforeTxCommit(this);
       } catch (Exception e) {
@@ -1652,7 +1653,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
   }
 
   public void afterCommitOperations() {
-    for (ODatabaseListener listener : browseListeners()) {
+    for (YTDatabaseListener listener : browseListeners()) {
       try {
         listener.onAfterTxCommit(this);
       } catch (Exception e) {
@@ -1670,7 +1671,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
   }
 
   protected void beforeRollbackOperations() {
-    for (ODatabaseListener listener : browseListeners()) {
+    for (YTDatabaseListener listener : browseListeners()) {
       try {
         listener.onBeforeTxRollback(this);
       } catch (Exception t) {
@@ -1681,7 +1682,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
   }
 
   protected void afterRollbackOperations() {
-    for (ODatabaseListener listener : browseListeners()) {
+    for (YTDatabaseListener listener : browseListeners()) {
       try {
         listener.onAfterTxRollback(this);
       } catch (Exception t) {
@@ -1746,7 +1747,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
 
   @Override
   public void resetInitialization() {
-    for (ORecordHook h : hooks.keySet()) {
+    for (YTRecordHook h : hooks.keySet()) {
       h.onUnregister();
     }
 
@@ -1822,7 +1823,7 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
   protected void callbackHookFailure(YTRecord record, boolean wasNew, byte[] stream) {
     if (stream != null && stream.length > 0) {
       callbackHooks(
-          wasNew ? ORecordHook.TYPE.CREATE_FAILED : ORecordHook.TYPE.UPDATE_FAILED, record);
+          wasNew ? YTRecordHook.TYPE.CREATE_FAILED : YTRecordHook.TYPE.UPDATE_FAILED, record);
     }
   }
 
@@ -1832,11 +1833,12 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
       final byte[] stream,
       final OStorageOperationResult<Integer> operationResult) {
     if (stream != null && stream.length > 0) {
-      final ORecordHook.TYPE hookType;
+      final YTRecordHook.TYPE hookType;
       if (!operationResult.isMoved()) {
-        hookType = wasNew ? ORecordHook.TYPE.AFTER_CREATE : ORecordHook.TYPE.AFTER_UPDATE;
+        hookType = wasNew ? YTRecordHook.TYPE.AFTER_CREATE : YTRecordHook.TYPE.AFTER_UPDATE;
       } else {
-        hookType = wasNew ? ORecordHook.TYPE.CREATE_REPLICATED : ORecordHook.TYPE.UPDATE_REPLICATED;
+        hookType =
+            wasNew ? YTRecordHook.TYPE.CREATE_REPLICATED : YTRecordHook.TYPE.UPDATE_REPLICATED;
       }
       callbackHooks(hookType, record);
     }
@@ -1845,8 +1847,8 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
   protected void callbackHookFinalize(
       final YTRecord record, final boolean wasNew, final byte[] stream) {
     if (stream != null && stream.length > 0) {
-      final ORecordHook.TYPE hookType;
-      hookType = wasNew ? ORecordHook.TYPE.FINALIZE_CREATION : ORecordHook.TYPE.FINALIZE_UPDATE;
+      final YTRecordHook.TYPE hookType;
+      hookType = wasNew ? YTRecordHook.TYPE.FINALIZE_CREATION : YTRecordHook.TYPE.FINALIZE_UPDATE;
       callbackHooks(hookType, record);
 
       clearDocumentTracking(record);
@@ -1921,22 +1923,22 @@ public abstract class YTDatabaseSessionAbstract extends OListenerManger<ODatabas
   }
 
   private void compileHooks() {
-    final List<ORecordHook>[] intermediateHooksByScope =
-        new List[ORecordHook.SCOPE.values().length];
-    for (ORecordHook.SCOPE scope : ORecordHook.SCOPE.values()) {
+    final List<YTRecordHook>[] intermediateHooksByScope =
+        new List[YTRecordHook.SCOPE.values().length];
+    for (YTRecordHook.SCOPE scope : YTRecordHook.SCOPE.values()) {
       intermediateHooksByScope[scope.ordinal()] = new ArrayList<>();
     }
 
-    for (ORecordHook hook : hooks.keySet()) {
-      for (ORecordHook.SCOPE scope : hook.getScopes()) {
+    for (YTRecordHook hook : hooks.keySet()) {
+      for (YTRecordHook.SCOPE scope : hook.getScopes()) {
         intermediateHooksByScope[scope.ordinal()].add(hook);
       }
     }
 
-    for (ORecordHook.SCOPE scope : ORecordHook.SCOPE.values()) {
+    for (YTRecordHook.SCOPE scope : YTRecordHook.SCOPE.values()) {
       final int ordinal = scope.ordinal();
-      final List<ORecordHook> scopeHooks = intermediateHooksByScope[ordinal];
-      hooksByScope[ordinal] = scopeHooks.toArray(new ORecordHook[0]);
+      final List<YTRecordHook> scopeHooks = intermediateHooksByScope[ordinal];
+      hooksByScope[ordinal] = scopeHooks.toArray(new YTRecordHook[0]);
     }
   }
 

@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.enterprise.channel.binary.YTTokenSecurityException;
 import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
@@ -38,7 +38,7 @@ public class OClientConnectionTest extends BaseMemoryInternalDatabase {
     MockitoAnnotations.initMocks(this);
     Mockito.when(protocol.getServer()).thenReturn(server);
     Mockito.when(server.getClientConnectionManager()).thenReturn(manager);
-    Mockito.when(server.getContextConfiguration()).thenReturn(new OContextConfiguration());
+    Mockito.when(server.getContextConfiguration()).thenReturn(new YTContextConfiguration());
   }
 
   @Test

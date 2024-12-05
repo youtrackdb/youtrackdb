@@ -6,7 +6,7 @@ import static org.junit.Assert.assertFalse;
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YTLiveQueryResultListener;
@@ -71,7 +71,7 @@ public class ORemoteLiveQueryPushTest {
     MockitoAnnotations.initMocks(this);
     storage =
         new OStorageRemote(
-            new ORemoteURLs(new String[]{}, new OContextConfiguration()),
+            new ORemoteURLs(new String[]{}, new YTContextConfiguration()),
             "none",
             null,
             "",

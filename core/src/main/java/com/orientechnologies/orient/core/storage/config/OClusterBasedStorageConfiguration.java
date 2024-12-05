@@ -8,7 +8,6 @@ import com.orientechnologies.common.serialization.types.OStringSerializer;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.common.util.ORawPairObjectInteger;
 import com.orientechnologies.orient.core.config.IndexEngineData;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfigurationUpdateListener;
@@ -16,6 +15,7 @@ import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
 import com.orientechnologies.orient.core.config.OStorageFileConfiguration;
 import com.orientechnologies.orient.core.config.OStoragePaginatedClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStorageSegmentConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.YTSerializationException;
 import com.orientechnologies.orient.core.exception.YTStorageException;
@@ -122,7 +122,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
           UUID
       };
 
-  private OContextConfiguration configuration;
+  private YTContextConfiguration configuration;
   private boolean validation;
 
   private final CellBTreeSingleValueV1<String> btree;
@@ -158,7 +158,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
   }
 
   public void create(
-      final OAtomicOperation atomicOperation, final OContextConfiguration contextConfiguration)
+      final OAtomicOperation atomicOperation, final YTContextConfiguration contextConfiguration)
       throws IOException {
     lock.writeLock().lock();
     try {
@@ -184,7 +184,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
 
   public void create(
       final OAtomicOperation atomicOperation,
-      final OContextConfiguration contextConfiguration,
+      final YTContextConfiguration contextConfiguration,
       final OStorageConfiguration source)
       throws IOException {
     lock.writeLock().lock();
@@ -243,7 +243,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
   }
 
   public void load(
-      final OContextConfiguration configuration, final OAtomicOperation atomicOperation)
+      final YTContextConfiguration configuration, final OAtomicOperation atomicOperation)
       throws YTSerializationException, IOException {
     lock.writeLock().lock();
     try {
@@ -331,7 +331,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
   }
 
   @Override
-  public OContextConfiguration getContextConfiguration() {
+  public YTContextConfiguration getContextConfiguration() {
     lock.readLock().lock();
     try {
       return configuration;

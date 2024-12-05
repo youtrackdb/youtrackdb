@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.config;
 
-import com.orientechnologies.orient.core.hook.ORecordHook;
+import com.orientechnologies.orient.core.hook.YTRecordHook;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElementRef;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
@@ -34,7 +34,7 @@ public class OServerHookConfiguration {
   public String clazz;
 
   @XmlAttribute(name = "position")
-  public String position = ORecordHook.HOOK_POSITION.REGULAR.name();
+  public String position = YTRecordHook.HOOK_POSITION.REGULAR.name();
 
   @XmlElementWrapper
   @XmlElementRef(type = OServerParameterConfiguration.class)

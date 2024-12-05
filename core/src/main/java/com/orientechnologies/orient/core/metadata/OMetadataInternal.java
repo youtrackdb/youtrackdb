@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTImmutableSchema;
 import com.orientechnologies.orient.core.metadata.security.OIdentity;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurity;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,7 +40,7 @@ public interface OMetadataInternal extends OMetadata {
       Collections.unmodifiableSet(
           new HashSet<String>(
               Arrays.asList(
-                  OUser.CLASS_NAME.toLowerCase(Locale.ENGLISH),
+                  YTUser.CLASS_NAME.toLowerCase(Locale.ENGLISH),
                   ORole.CLASS_NAME.toLowerCase(Locale.ENGLISH),
                   OIdentity.CLASS_NAME.toLowerCase(Locale.ENGLISH),
                   OSecurity.RESTRICTED_CLASSNAME.toLowerCase(Locale.ENGLISH),

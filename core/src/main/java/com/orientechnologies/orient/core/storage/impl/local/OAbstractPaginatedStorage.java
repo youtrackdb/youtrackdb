@@ -47,14 +47,14 @@ import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.IndexEngineData;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfigurationUpdateListener;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.YTDatabaseListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
@@ -104,7 +104,7 @@ import com.orientechnologies.orient.core.metadata.OMetadataDefault;
 import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.schema.YTImmutableClass;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.core.query.OQueryAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.ORecordVersionHelper;
@@ -524,11 +524,11 @@ public abstract class OAbstractPaginatedStorage
   public final void open(
       YTDatabaseSessionInternal remote, final String iUserName,
       final String iUserPassword,
-      final OContextConfiguration contextConfiguration) {
+      final YTContextConfiguration contextConfiguration) {
     open(contextConfiguration);
   }
 
-  public final void open(final OContextConfiguration contextConfiguration) {
+  public final void open(final YTContextConfiguration contextConfiguration) {
     checkPageSizeAndRelatedParametersInGlobalConfiguration();
     try {
       stateLock.readLock().lock();
@@ -843,7 +843,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public void create(final OContextConfiguration contextConfiguration) {
+  public void create(final YTContextConfiguration contextConfiguration) {
 
     try {
       stateLock.writeLock().lock();
@@ -882,7 +882,7 @@ public abstract class OAbstractPaginatedStorage
         .info(this, "Storage '%s' is created under YouTrackDB distribution : %s", additionalArgs);
   }
 
-  protected void doCreate(OContextConfiguration contextConfiguration)
+  protected void doCreate(YTContextConfiguration contextConfiguration)
       throws IOException, InterruptedException {
     checkPageSizeAndRelatedParametersInGlobalConfiguration();
 
@@ -2621,7 +2621,7 @@ public abstract class OAbstractPaginatedStorage
               final int binaryFormatVersion = configuration.getBinaryFormatVersion();
               final byte valueSerializerId =
                   indexMetadata.getValueSerializerId(binaryFormatVersion);
-              final OContextConfiguration ctxCfg = configuration.getContextConfiguration();
+              final YTContextConfiguration ctxCfg = configuration.getContextConfiguration();
               final String cfgEncryptionKey =
                   ctxCfg.getValueAsString(YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY);
               int genenrateId = indexEngines.size();
@@ -3974,7 +3974,7 @@ public abstract class OAbstractPaginatedStorage
   public final void reload(YTDatabaseSessionInternal database) {
     try {
       close(database);
-      open(new OContextConfiguration());
+      open(new YTContextConfiguration());
     } catch (final RuntimeException ee) {
       throw logAndPrepareForRethrow(ee);
     } catch (final Error ee) {
@@ -4082,8 +4082,8 @@ public abstract class OAbstractPaginatedStorage
       try {
         final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
         // CALL BEFORE COMMAND
-        final Iterable<ODatabaseListener> listeners = db.getListeners();
-        for (final ODatabaseListener oDatabaseListener : listeners) {
+        final Iterable<YTDatabaseListener> listeners = db.getListeners();
+        for (final YTDatabaseListener oDatabaseListener : listeners) {
           //noinspection deprecation
           oDatabaseListener.onBeforeCommand(iCommand, executor);
         }
@@ -4093,7 +4093,7 @@ public abstract class OAbstractPaginatedStorage
         Object result = executor.execute(params, session);
 
         // CALL AFTER COMMAND
-        for (final ODatabaseListener oDatabaseListener : listeners) {
+        for (final YTDatabaseListener oDatabaseListener : listeners) {
           //noinspection deprecation
           oDatabaseListener.onAfterCommand(iCommand, executor, result);
         }
@@ -4111,7 +4111,7 @@ public abstract class OAbstractPaginatedStorage
         if (YouTrackDBManager.instance().getProfiler().isRecording()) {
           final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
           if (db != null) {
-            final OSecurityUser user = db.getUser();
+            final YTSecurityUser user = db.getUser();
             final String userString = Optional.ofNullable(user).map(Object::toString).orElse(null);
             YouTrackDBManager.instance()
                 .getProfiler()
@@ -4346,7 +4346,7 @@ public abstract class OAbstractPaginatedStorage
   @SuppressWarnings("unused")
   protected abstract OWriteAheadLog createWalFromIBUFiles(
       File directory,
-      final OContextConfiguration contextConfiguration,
+      final YTContextConfiguration contextConfiguration,
       final Locale locale,
       byte[] iv)
       throws IOException;
@@ -4530,7 +4530,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   protected void initConfiguration(
-      final OContextConfiguration contextConfiguration,
+      final YTContextConfiguration contextConfiguration,
       OAtomicOperation atomicOperation)
       throws IOException {
   }
@@ -4542,7 +4542,7 @@ public abstract class OAbstractPaginatedStorage
   protected void preCreateSteps() throws IOException {
   }
 
-  protected abstract void initWalAndDiskCache(OContextConfiguration contextConfiguration)
+  protected abstract void initWalAndDiskCache(YTContextConfiguration contextConfiguration)
       throws IOException, InterruptedException;
 
   protected abstract void postCloseSteps(

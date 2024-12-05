@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.id.YTRecordId;
 import com.orientechnologies.orient.core.metadata.security.OToken;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.metadata.security.jwt.OBinaryTokenPayload;
 import com.orientechnologies.orient.core.metadata.security.jwt.OTokenHeader;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -43,12 +43,12 @@ public class OBinaryToken implements OToken {
   }
 
   @Override
-  public OUser getUser(YTDatabaseSessionInternal db) {
+  public YTUser getUser(YTDatabaseSessionInternal db) {
     if (this.payload.getUserRid() != null) {
       try {
         YTDocument result = db.load(new YTRecordId(this.payload.getUserRid()));
-        if (result.getClassName().equals(OUser.CLASS_NAME)) {
-          return new OUser(db, result);
+        if (result.getClassName().equals(YTUser.CLASS_NAME)) {
+          return new YTUser(db, result);
         }
       } catch (YTRecordNotFoundException e) {
         return null;

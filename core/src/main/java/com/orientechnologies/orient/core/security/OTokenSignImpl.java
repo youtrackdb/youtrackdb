@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.security;
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.exception.YTSystemException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.metadata.security.OToken;
 import com.orientechnologies.orient.core.metadata.security.jwt.OKeyProvider;
@@ -34,7 +34,7 @@ public class OTokenSignImpl implements OTokenSign {
     }
   }
 
-  public OTokenSignImpl(OContextConfiguration config) {
+  public OTokenSignImpl(YTContextConfiguration config) {
     this(
         OTokenSignImpl.readKeyFromConfig(config),
         config.getValueAsString(YTGlobalConfiguration.NETWORK_TOKEN_ENCRYPTION_ALGORITHM));
@@ -127,7 +127,7 @@ public class OTokenSignImpl implements OTokenSign {
     return this.keyProvider.getKeys();
   }
 
-  public static byte[] readKeyFromConfig(OContextConfiguration config) {
+  public static byte[] readKeyFromConfig(YTContextConfiguration config) {
     byte[] key = null;
     String configKey = config.getValueAsString(YTGlobalConfiguration.NETWORK_TOKEN_SECRETKEY);
     if (configKey == null || configKey.length() == 0) {

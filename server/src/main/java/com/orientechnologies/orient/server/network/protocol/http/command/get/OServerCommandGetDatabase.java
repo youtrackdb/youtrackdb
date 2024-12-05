@@ -34,7 +34,7 @@ import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
 import com.orientechnologies.orient.core.metadata.schema.YTProperty;
 import com.orientechnologies.orient.core.metadata.schema.YTPropertyImpl;
 import com.orientechnologies.orient.core.metadata.security.ORole;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.server.OServer;
@@ -341,7 +341,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
       throws IOException {
     json.beginCollection("users");
     for (YTDocument doc : db.getMetadata().getSecurity().getAllUsers()) {
-      OUser user = new OUser(db, doc);
+      YTUser user = new YTUser(db, doc);
       json.beginObject();
       json.writeAttribute("name", user.getName(db));
       json.writeAttribute(

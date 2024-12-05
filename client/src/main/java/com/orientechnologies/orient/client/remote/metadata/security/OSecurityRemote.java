@@ -15,9 +15,9 @@ import com.orientechnologies.orient.core.metadata.security.OSecurityPolicyImpl;
 import com.orientechnologies.orient.core.metadata.security.OSecurityResourceProperty;
 import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityRole.ALLOW_MODES;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
@@ -149,18 +149,18 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public OUser authenticate(YTDatabaseSessionInternal session, String iUsername,
+  public YTUser authenticate(YTDatabaseSessionInternal session, String iUsername,
       String iUserPassword) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OUser createUser(
+  public YTUser createUser(
       final YTDatabaseSessionInternal session,
       final String iUserName,
       final String iUserPassword,
       final String... iRoles) {
-    final OUser user = new OUser(session, iUserName, iUserPassword);
+    final YTUser user = new YTUser(session, iUserName, iUserPassword);
     if (iRoles != null) {
       for (String r : iRoles) {
         user.addRole(session, r);
@@ -170,12 +170,12 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public OUser createUser(
+  public YTUser createUser(
       final YTDatabaseSessionInternal session,
       final String userName,
       final String userPassword,
       final ORole... roles) {
-    final OUser user = new OUser(session, userName, userPassword);
+    final YTUser user = new YTUser(session, userName, userPassword);
 
     if (roles != null) {
       for (ORole r : roles) {
@@ -187,7 +187,7 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public OUser authenticate(YTDatabaseSessionInternal session, OToken authToken) {
+  public YTUser authenticate(YTDatabaseSessionInternal session, OToken authToken) {
     throw new UnsupportedOperationException();
   }
 
@@ -209,27 +209,27 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public OUser getUser(final YTDatabaseSession session, final String iUserName) {
+  public YTUser getUser(final YTDatabaseSession session, final String iUserName) {
     try (YTResultSet result = session.query("select from OUser where name = ? limit 1",
         iUserName)) {
       if (result.hasNext()) {
-        return new OUser(session, (YTDocument) result.next().getElement().get());
+        return new YTUser(session, (YTDocument) result.next().getElement().get());
       }
     }
     return null;
   }
 
-  public OUser getUser(final YTDatabaseSession session, final YTRID iRecordId) {
+  public YTUser getUser(final YTDatabaseSession session, final YTRID iRecordId) {
     if (iRecordId == null) {
       return null;
     }
 
     YTDocument result;
     result = session.load(iRecordId);
-    if (!result.getClassName().equals(OUser.CLASS_NAME)) {
+    if (!result.getClassName().equals(YTUser.CLASS_NAME)) {
       result = null;
     }
-    return new OUser(session, result);
+    return new YTUser(session, result);
   }
 
   public ORole getRole(final YTDatabaseSession session, final YTIdentifiable iRole) {
@@ -348,7 +348,7 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public OUser create(YTDatabaseSessionInternal session) {
+  public YTUser create(YTDatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 
@@ -408,13 +408,13 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public OSecurityUser securityAuthenticate(
+  public YTSecurityUser securityAuthenticate(
       YTDatabaseSessionInternal session, String userName, String password) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OSecurityUser securityAuthenticate(
+  public YTSecurityUser securityAuthenticate(
       YTDatabaseSessionInternal session, OAuthenticationInfo authenticationInfo) {
     throw new UnsupportedOperationException();
   }

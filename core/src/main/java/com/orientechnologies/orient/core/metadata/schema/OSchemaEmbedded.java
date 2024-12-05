@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.metadata.schema;
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
-import com.orientechnologies.orient.core.db.ODatabaseListener;
+import com.orientechnologies.orient.core.db.YTDatabaseListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
@@ -130,7 +130,7 @@ public class OSchemaEmbedded extends OSchemaShared {
         it.next().onCreateClass(database, result);
       }
 
-      for (ODatabaseListener oDatabaseListener : database.getListeners()) {
+      for (YTDatabaseListener oDatabaseListener : database.getListeners()) {
         oDatabaseListener.onCreateClass(database, result);
       }
 
@@ -361,7 +361,7 @@ public class OSchemaEmbedded extends OSchemaShared {
         it.next().onCreateView(database, result);
       }
 
-      for (ODatabaseListener oDatabaseListener : database.getListeners()) {
+      for (YTDatabaseListener oDatabaseListener : database.getListeners()) {
         oDatabaseListener.onCreateView(database, result);
       }
 
@@ -559,7 +559,7 @@ public class OSchemaEmbedded extends OSchemaShared {
         it.next().onCreateClass(database, result);
       }
 
-      for (ODatabaseListener oDatabaseListener : database.getListeners()) {
+      for (YTDatabaseListener oDatabaseListener : database.getListeners()) {
         oDatabaseListener.onCreateClass(database, result);
       }
 
@@ -744,7 +744,7 @@ public class OSchemaEmbedded extends OSchemaShared {
         it.next().onDropClass(database, cls);
       }
 
-      for (ODatabaseListener oDatabaseListener : database.getListeners()) {
+      for (YTDatabaseListener oDatabaseListener : database.getListeners()) {
         oDatabaseListener.onDropClass(database, cls);
       }
     } finally {
@@ -852,7 +852,7 @@ public class OSchemaEmbedded extends OSchemaShared {
         it.next().onDropView(database, cls);
       }
 
-      for (ODatabaseListener oDatabaseListener : database.getListeners()) {
+      for (YTDatabaseListener oDatabaseListener : database.getListeners()) {
         oDatabaseListener.onDropView(database, cls);
       }
     } finally {

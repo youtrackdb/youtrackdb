@@ -26,7 +26,6 @@ import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.metadata.security.OImmutableUser;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.ORule.ResourceGeneric;
@@ -34,8 +33,9 @@ import com.orientechnologies.orient.core.metadata.security.OSecurity;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
-import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
-import com.orientechnologies.orient.core.metadata.security.OSystemUser;
+import com.orientechnologies.orient.core.metadata.security.YTImmutableUser;
+import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.YTSystemUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.security.authenticator.ODatabaseUserAuthenticator;
@@ -228,11 +228,11 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   @Override
-  public OSecurityUser authenticate(
+  public YTSecurityUser authenticate(
       YTDatabaseSessionInternal session, OAuthenticationInfo authenticationInfo) {
     try {
       for (OSecurityAuthenticator sa : enabledAuthenticators) {
-        OSecurityUser principal = sa.authenticate(session, authenticationInfo);
+        YTSecurityUser principal = sa.authenticate(session, authenticationInfo);
 
         if (principal != null) {
           return principal;
@@ -246,7 +246,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   // OSecuritySystem (via OServerSecurity)
-  public OSecurityUser authenticate(
+  public YTSecurityUser authenticate(
       YTDatabaseSessionInternal session, final String username, final String password) {
     try {
       // It's possible for the username to be null or an empty string in the case of SPNEGO
@@ -263,7 +263,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
       }
 
       for (OSecurityAuthenticator sa : enabledAuthenticators) {
-        OSecurityUser principal = sa.authenticate(session, username, password);
+        YTSecurityUser principal = sa.authenticate(session, username, password);
 
         if (principal != null) {
           return principal;
@@ -277,10 +277,10 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     return null; // Indicates authentication failed.
   }
 
-  public OSecurityUser authenticateServerUser(YTDatabaseSessionInternal session,
+  public YTSecurityUser authenticateServerUser(YTDatabaseSessionInternal session,
       final String username,
       final String password) {
-    OSecurityUser user = getServerUser(session, username);
+    YTSecurityUser user = getServerUser(session, username);
 
     if (user != null && user.getPassword(session) != null) {
       if (OSecurityManager.checkPassword(password, user.getPassword(session).trim())) {
@@ -416,7 +416,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
    * Returns the "System User" associated with 'username' from the system database. If not found,
    * returns null. dbName is used to filter the assigned roles. It may be null.
    */
-  public OSecurityUser getSystemUser(final String username, final String dbName) {
+  public YTSecurityUser getSystemUser(final String username, final String dbName) {
     // ** There are cases when we need to retrieve an OUser that is a system user.
     //  if (isEnabled() && !OSystemDatabase.SYSTEM_DB_NAME.equals(dbName)) {
     var systemDb = context.getSystemDatabase();
@@ -426,9 +426,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
               (resultset, session) -> {
                 var sessionInternal = (YTDatabaseSessionInternal) session;
                 if (resultset != null && resultset.hasNext()) {
-                  return new OImmutableUser(sessionInternal,
+                  return new YTImmutableUser(sessionInternal,
                       0,
-                      new OSystemUser(sessionInternal,
+                      new YTSystemUser(sessionInternal,
                           resultset.next().getElement().orElseThrow().getRecord(), dbName));
                 }
                 return null;
@@ -459,7 +459,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
   public boolean isServerUserAuthorized(YTDatabaseSessionInternal session, final String username,
       final String resource) {
-    final OSecurityUser user = getServerUser(session, username);
+    final YTSecurityUser user = getServerUser(session, username);
 
     if (user != null) {
       // TODO: to verify if this logic match previous logic
@@ -556,8 +556,8 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   // OServerSecurity
-  public OSecurityUser getUser(final String username, YTDatabaseSessionInternal session) {
-    OSecurityUser userCfg = null;
+  public YTSecurityUser getUser(final String username, YTDatabaseSessionInternal session) {
+    YTSecurityUser userCfg = null;
 
     // Walk through the list of OSecurityAuthenticators.
     for (OSecurityAuthenticator sa : enabledAuthenticators) {
@@ -570,8 +570,8 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     return userCfg;
   }
 
-  public OSecurityUser getServerUser(YTDatabaseSessionInternal session, final String username) {
-    OSecurityUser systemUser = null;
+  public YTSecurityUser getServerUser(YTDatabaseSessionInternal session, final String username) {
+    YTSecurityUser systemUser = null;
     // This will throw an IllegalArgumentException if iUserName is null or empty.
     // However, a null or empty iUserName is possible with some security implementations.
     if (username != null && !username.isEmpty()) {
@@ -587,8 +587,8 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
       if (userCfg != null) {
         OSecurityRole role = OSecurityShared.createRole(userCfg);
         systemUser =
-            new OImmutableUser(session,
-                username, userCfg.getPassword(), OSecurityUser.SERVER_USER_TYPE, role);
+            new YTImmutableUser(session,
+                username, userCfg.getPassword(), YTSecurityUser.SERVER_USER_TYPE, role);
       }
     }
 
@@ -604,7 +604,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   public void log(
       YTDatabaseSessionInternal session, final OAuditingOperation operation,
       final String dbName,
-      OSecurityUser user,
+      YTSecurityUser user,
       final String message) {
     synchronized (auditingSynch) {
       if (auditingService != null) {
@@ -656,7 +656,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   @Override
-  public void reload(YTDatabaseSessionInternal session, OSecurityUser user, YTDocument configDoc) {
+  public void reload(YTDatabaseSessionInternal session, YTSecurityUser user, YTDocument configDoc) {
     if (configDoc != null) {
       close();
 
@@ -679,7 +679,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     }
   }
 
-  public void reloadComponent(YTDatabaseSessionInternal session, OSecurityUser user,
+  public void reloadComponent(YTDatabaseSessionInternal session, YTSecurityUser user,
       final String name, final YTDocument jsonConfig) {
     if (name == null || name.isEmpty()) {
       throw new YTSecuritySystemException(
@@ -791,7 +791,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   @Override
-  public void onAfterDynamicPlugins(YTDatabaseSessionInternal session, OSecurityUser user) {
+  public void onAfterDynamicPlugins(YTDatabaseSessionInternal session, YTSecurityUser user) {
     if (configDoc != null) {
       loadComponents(session);
 
@@ -1139,11 +1139,11 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   @Override
-  public OSecurityUser authenticateAndAuthorize(
+  public YTSecurityUser authenticateAndAuthorize(
       YTDatabaseSessionInternal session, String iUserName, String iPassword,
       String iResourceToCheck) {
     // Returns the authenticated username, if successful, otherwise null.
-    OSecurityUser user = authenticate(null, iUserName, iPassword);
+    YTSecurityUser user = authenticate(null, iUserName, iPassword);
 
     // Authenticated, now see if the user is authorized.
     if (user != null) {

@@ -21,7 +21,7 @@ public interface OToken {
 
   String getUserName();
 
-  OUser getUser(YTDatabaseSessionInternal db);
+  YTUser getUser(YTDatabaseSessionInternal db);
 
   String getDatabase();
 

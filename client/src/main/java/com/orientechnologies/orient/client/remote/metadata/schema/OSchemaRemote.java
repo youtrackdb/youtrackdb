@@ -2,15 +2,15 @@ package com.orientechnologies.orient.client.remote.metadata.schema;
 
 import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
-import com.orientechnologies.orient.core.db.ODatabaseListener;
+import com.orientechnologies.orient.core.db.YTDatabaseListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
 import com.orientechnologies.orient.core.exception.YTSchemaException;
+import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
+import com.orientechnologies.orient.core.metadata.schema.OViewConfig;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
-import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
 import com.orientechnologies.orient.core.metadata.schema.YTView;
-import com.orientechnologies.orient.core.metadata.schema.OViewConfig;
 import com.orientechnologies.orient.core.metadata.schema.YTViewImpl;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
@@ -163,7 +163,7 @@ public class OSchemaRemote extends OSchemaShared {
         it.next().onCreateClass(database, result);
       }
 
-      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
+      for (Iterator<YTDatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
         it.next().onCreateClass(database, result);
       }
 
@@ -244,7 +244,7 @@ public class OSchemaRemote extends OSchemaShared {
         it.next().onCreateClass(database, result);
       }
 
-      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
+      for (Iterator<YTDatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
         it.next().onCreateClass(database, result);
       }
 
@@ -306,7 +306,7 @@ public class OSchemaRemote extends OSchemaShared {
         it.next().onCreateView(database, result);
       }
 
-      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
+      for (Iterator<YTDatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
         it.next().onCreateView(database, result);
       }
 
@@ -360,7 +360,7 @@ public class OSchemaRemote extends OSchemaShared {
         it.next().onCreateView(database, result);
       }
 
-      for (Iterator<ODatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
+      for (Iterator<YTDatabaseListener> it = database.getListeners().iterator(); it.hasNext(); ) {
         it.next().onCreateView(database, result);
       }
 

@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.metadata.security.OUser;
+import com.orientechnologies.orient.core.metadata.security.YTUser;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.util.Collection;
@@ -76,7 +76,7 @@ public class OLuceneInsertUpdateTransactionTest extends OLuceneBaseTest {
     doc.field("name", "Rome");
     db.save(doc);
 
-    OUser user = new OUser(db, "test", "test");
+    YTUser user = new YTUser(db, "test", "test");
     db.save(user.getDocument(db));
 
     db.commit();

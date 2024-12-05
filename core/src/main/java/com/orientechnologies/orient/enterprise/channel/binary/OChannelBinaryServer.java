@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.enterprise.channel.binary;
 
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -30,7 +30,7 @@ import java.net.Socket;
 
 public class OChannelBinaryServer extends OChannelBinary {
 
-  public OChannelBinaryServer(final Socket iSocket, final OContextConfiguration iConfig)
+  public OChannelBinaryServer(final Socket iSocket, final YTContextConfiguration iConfig)
       throws IOException {
     super(iSocket, iConfig);
 

@@ -78,7 +78,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
   private String charset;
   private final List<OStorageEntryConfiguration> properties = new ArrayList<>();
   private final transient OAbstractPaginatedStorage storage;
-  private OContextConfiguration configuration;
+  private YTContextConfiguration configuration;
   private int version;
   private String name;
   private String schemaRecordId;
@@ -125,7 +125,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
 
       storage = iStorage;
 
-      initConfiguration(new OContextConfiguration());
+      initConfiguration(new YTContextConfiguration());
       clear();
     } finally {
       lock.writeLock().unlock();
@@ -210,7 +210,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
     }
   }
 
-  public void initConfiguration(OContextConfiguration conf) {
+  public void initConfiguration(YTContextConfiguration conf) {
     lock.writeLock().lock();
     try {
       this.configuration = conf;
@@ -285,7 +285,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
     }
   }
 
-  public OContextConfiguration getContextConfiguration() {
+  public YTContextConfiguration getContextConfiguration() {
     lock.readLock().lock();
     try {
       return configuration;
@@ -298,7 +298,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
    * This method load the record information by the internal cluster segment. It's for compatibility
    * with older database than 0.9.25.
    */
-  public OStorageConfigurationImpl load(final OContextConfiguration configuration)
+  public OStorageConfigurationImpl load(final YTContextConfiguration configuration)
       throws YTSerializationException {
     lock.writeLock().lock();
     try {
@@ -897,7 +897,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
     lock.writeLock().lock();
     try {
       clear();
-      initConfiguration(new OContextConfiguration());
+      initConfiguration(new YTContextConfiguration());
     } finally {
       lock.writeLock().unlock();
     }

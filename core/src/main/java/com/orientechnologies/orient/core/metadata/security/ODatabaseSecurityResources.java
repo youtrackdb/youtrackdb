@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.metadata.security;
 /**
  * Contains all the resources used by the Database instance to check permissions
  *
- * @see OUser, OSecurity
+ * @see YTUser , OSecurity
  */
 public class ODatabaseSecurityResources {
 

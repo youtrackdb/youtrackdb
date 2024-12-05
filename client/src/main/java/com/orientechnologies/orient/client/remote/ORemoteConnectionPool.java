@@ -6,7 +6,7 @@ import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.io.OIOException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 
 /**
@@ -22,7 +22,7 @@ public class ORemoteConnectionPool
   }
 
   protected OChannelBinaryAsynchClient createNetworkConnection(
-      String serverURL, final OContextConfiguration clientConfiguration) throws OIOException {
+      String serverURL, final YTContextConfiguration clientConfiguration) throws OIOException {
     if (serverURL == null) {
       throw new IllegalArgumentException("server url is null");
     }
@@ -56,7 +56,7 @@ public class ORemoteConnectionPool
   @Override
   public OChannelBinaryAsynchClient createNewResource(
       final String iKey, final Object... iAdditionalArgs) {
-    return createNetworkConnection(iKey, (OContextConfiguration) iAdditionalArgs[0]);
+    return createNetworkConnection(iKey, (YTContextConfiguration) iAdditionalArgs[0]);
   }
 
   @Override
@@ -83,7 +83,7 @@ public class ORemoteConnectionPool
   public OChannelBinaryAsynchClient acquire(
       final String iServerURL,
       final long timeout,
-      final OContextConfiguration clientConfiguration) {
+      final YTContextConfiguration clientConfiguration) {
     return pool.getResource(iServerURL, timeout, clientConfiguration);
   }
 

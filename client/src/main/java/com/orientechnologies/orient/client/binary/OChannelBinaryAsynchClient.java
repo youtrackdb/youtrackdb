@@ -28,7 +28,7 @@ import com.orientechnologies.orient.client.remote.OStorageRemoteNodeSession;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.message.OError37Response;
 import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.enterprise.channel.OSocketFactory;
@@ -64,7 +64,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
   public OChannelBinaryAsynchClient(
       final String remoteHost,
       final int remotePort,
-      final OContextConfiguration iConfig,
+      final YTContextConfiguration iConfig,
       final int iProtocolVersion)
       throws IOException {
     super(OSocketFactory.instance(iConfig).createSocket(), iConfig);

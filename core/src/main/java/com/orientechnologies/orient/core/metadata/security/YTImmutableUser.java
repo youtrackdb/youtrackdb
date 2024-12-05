@@ -15,7 +15,7 @@ import java.util.Set;
 /**
  * @since 03/11/14
  */
-public class OImmutableUser implements OSecurityUser {
+public class YTImmutableUser implements YTSecurityUser {
 
   private final long version;
 
@@ -28,7 +28,7 @@ public class OImmutableUser implements OSecurityUser {
   private final YTRID rid;
   private final String userType;
 
-  public OImmutableUser(YTDatabaseSessionInternal session, long version, OSecurityUser user) {
+  public YTImmutableUser(YTDatabaseSessionInternal session, long version, YTSecurityUser user) {
     this.version = version;
     this.name = user.getName(session);
     this.password = user.getPassword(session);
@@ -41,11 +41,11 @@ public class OImmutableUser implements OSecurityUser {
     }
   }
 
-  public OImmutableUser(YTDatabaseSessionInternal session, String name, String userType) {
+  public YTImmutableUser(YTDatabaseSessionInternal session, String name, String userType) {
     this(session, name, "", userType, null);
   }
 
-  public OImmutableUser(YTDatabaseSessionInternal session, String name, String password,
+  public YTImmutableUser(YTDatabaseSessionInternal session, String name, String password,
       String userType, OSecurityRole role) {
     this.version = 0;
     this.name = name;
@@ -181,7 +181,7 @@ public class OImmutableUser implements OSecurityUser {
     return name;
   }
 
-  public OUser setName(YTDatabaseSessionInternal session, final String iName) {
+  public YTUser setName(YTDatabaseSessionInternal session, final String iName) {
     throw new UnsupportedOperationException();
   }
 
@@ -189,7 +189,7 @@ public class OImmutableUser implements OSecurityUser {
     return password;
   }
 
-  public OUser setPassword(YTDatabaseSessionInternal session, final String iPassword) {
+  public YTUser setPassword(YTDatabaseSessionInternal session, final String iPassword) {
     throw new UnsupportedOperationException();
   }
 
@@ -205,11 +205,11 @@ public class OImmutableUser implements OSecurityUser {
     return Collections.unmodifiableSet(roles);
   }
 
-  public OUser addRole(YTDatabaseSessionInternal session, final String iRole) {
+  public YTUser addRole(YTDatabaseSessionInternal session, final String iRole) {
     throw new UnsupportedOperationException();
   }
 
-  public OUser addRole(YTDatabaseSessionInternal session, final OSecurityRole iRole) {
+  public YTUser addRole(YTDatabaseSessionInternal session, final OSecurityRole iRole) {
     throw new UnsupportedOperationException();
   }
 

@@ -25,7 +25,7 @@ import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValu
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
 import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
@@ -89,7 +89,7 @@ public abstract class OChannel {
         });
   }
 
-  public OChannel(final Socket iSocket, final OContextConfiguration iConfig) throws IOException {
+  public OChannel(final Socket iSocket, final YTContextConfiguration iConfig) throws IOException {
     socketBufferSize = iConfig.getValueAsInteger(YTGlobalConfiguration.NETWORK_SOCKET_BUFFER_SIZE);
 
     socket = iSocket;
