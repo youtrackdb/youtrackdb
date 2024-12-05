@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.db;
 /**
  *
  */
-public interface OLiveQueryMonitor {
+public interface YTLiveQueryMonitor {
 
   void unSubscribe();
 

@@ -4,10 +4,10 @@ import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.document.YTDatabaseSessionEmbedded;
 import com.orientechnologies.orient.core.exception.YTConfigurationException;
@@ -581,7 +581,7 @@ public class ViewManager {
     item.incrementAndGet();
   }
 
-  private class ViewUpdateListener implements OLiveQueryResultListener {
+  private class ViewUpdateListener implements YTLiveQueryResultListener {
 
     private final String viewName;
 

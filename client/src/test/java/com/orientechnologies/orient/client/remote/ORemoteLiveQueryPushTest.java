@@ -7,9 +7,9 @@ import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTLiveQueryResultListener;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
 import java.io.IOException;
@@ -25,7 +25,7 @@ import org.mockito.MockitoAnnotations;
  */
 public class ORemoteLiveQueryPushTest {
 
-  private static class MockLiveListener implements OLiveQueryResultListener {
+  private static class MockLiveListener implements YTLiveQueryResultListener {
 
     public int countCreate = 0;
     public int countUpdate = 0;

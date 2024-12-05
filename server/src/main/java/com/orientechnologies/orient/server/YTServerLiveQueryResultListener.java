@@ -4,10 +4,10 @@ import com.orientechnologies.common.exception.OErrorCode;
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
-import com.orientechnologies.orient.core.db.OLiveQueryBatchResultListener;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTLiveQueryBatchResultListener;
 import com.orientechnologies.orient.core.exception.YTCoreException;
 import com.orientechnologies.orient.core.exception.YTLiveQueryInterruptedException;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
@@ -20,7 +20,7 @@ import java.util.List;
 /**
  *
  */
-class OServerLiveQueryResultListener implements OLiveQueryBatchResultListener {
+class YTServerLiveQueryResultListener implements YTLiveQueryBatchResultListener {
 
   private final ONetworkProtocolBinary protocol;
   private final OSharedContext sharedContext;
@@ -28,7 +28,7 @@ class OServerLiveQueryResultListener implements OLiveQueryBatchResultListener {
 
   List<OLiveQueryResult> toSend = new ArrayList<>();
 
-  public OServerLiveQueryResultListener(
+  public YTServerLiveQueryResultListener(
       ONetworkProtocolBinary protocol, OSharedContext sharedContext) {
     this.protocol = protocol;
     this.sharedContext = sharedContext;

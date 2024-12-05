@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.server.query;
 
 import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTLiveQueryResultListener;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
@@ -41,7 +41,7 @@ public class RemoteGraphLiveQueryTest extends BaseServerMemoryDatabase {
 
     db.live(
         "select from SecondV",
-        new OLiveQueryResultListener() {
+        new YTLiveQueryResultListener() {
 
           @Override
           public void onUpdate(YTDatabaseSession database, YTResult before, YTResult after) {

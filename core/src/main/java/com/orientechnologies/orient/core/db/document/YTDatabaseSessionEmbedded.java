@@ -34,12 +34,12 @@ import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseStats;
 import com.orientechnologies.orient.core.db.OHookReplacedRecordThreadLocal;
-import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
-import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OSharedContextEmbedded;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTLiveQueryMonitor;
+import com.orientechnologies.orient.core.db.YTLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.record.OClassTrigger;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -80,7 +80,7 @@ import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibraryProxy
 import com.orientechnologies.orient.core.query.live.OLiveQueryHook;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHookV2;
 import com.orientechnologies.orient.core.query.live.OLiveQueryListenerV2;
-import com.orientechnologies.orient.core.query.live.OLiveQueryMonitorEmbedded;
+import com.orientechnologies.orient.core.query.live.YTLiveQueryMonitorEmbedded;
 import com.orientechnologies.orient.core.record.YTEntity;
 import com.orientechnologies.orient.core.record.YTRecord;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
@@ -883,20 +883,20 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
   }
 
   @Override
-  public OLiveQueryMonitor live(String query, OLiveQueryResultListener listener, Object... args) {
+  public YTLiveQueryMonitor live(String query, YTLiveQueryResultListener listener, Object... args) {
     checkOpenness();
     checkIfActive();
 
     OLiveQueryListenerV2 queryListener = new LiveQueryListenerImpl(listener, query, this, args);
     YTDatabaseSessionInternal dbCopy = this.copy();
     this.activateOnCurrentThread();
-    OLiveQueryMonitor monitor = new OLiveQueryMonitorEmbedded(queryListener.getToken(), dbCopy);
+    YTLiveQueryMonitor monitor = new YTLiveQueryMonitorEmbedded(queryListener.getToken(), dbCopy);
     return monitor;
   }
 
   @Override
-  public OLiveQueryMonitor live(
-      String query, OLiveQueryResultListener listener, Map<String, ?> args) {
+  public YTLiveQueryMonitor live(
+      String query, YTLiveQueryResultListener listener, Map<String, ?> args) {
     checkOpenness();
     checkIfActive();
 
@@ -904,7 +904,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
         new LiveQueryListenerImpl(listener, query, this, (Map) args);
     YTDatabaseSessionInternal dbCopy = this.copy();
     this.activateOnCurrentThread();
-    OLiveQueryMonitor monitor = new OLiveQueryMonitorEmbedded(queryListener.getToken(), dbCopy);
+    YTLiveQueryMonitor monitor = new YTLiveQueryMonitorEmbedded(queryListener.getToken(), dbCopy);
     return monitor;
   }
 

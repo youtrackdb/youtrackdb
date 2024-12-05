@@ -22,10 +22,10 @@ package com.orientechnologies.orient.core.sql;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
-import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTLiveQueryMonitor;
+import com.orientechnologies.orient.core.db.YTLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
@@ -53,7 +53,7 @@ import org.junit.Test;
  */
 public class OLiveQueryV2Test {
 
-  class MyLiveQueryListener implements OLiveQueryResultListener {
+  class MyLiveQueryListener implements YTLiveQueryResultListener {
 
     public CountDownLatch latch;
 
@@ -100,7 +100,7 @@ public class OLiveQueryV2Test {
       db.getMetadata().getSchema().createClass("test2");
       MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(2));
 
-      OLiveQueryMonitor monitor = db.live("select from test", listener);
+      YTLiveQueryMonitor monitor = db.live("select from test", listener);
       Assert.assertNotNull(monitor);
 
       db.begin();
@@ -240,7 +240,7 @@ public class OLiveQueryV2Test {
                   final AtomicInteger integer = new AtomicInteger(0);
                   db.live(
                       "live select from test",
-                      new OLiveQueryResultListener() {
+                      new YTLiveQueryResultListener() {
 
                         @Override
                         public void onCreate(YTDatabaseSession database, YTResult data) {
@@ -309,7 +309,7 @@ public class OLiveQueryV2Test {
       db.getMetadata().getSchema().createClass("test2");
       MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(2));
 
-      OLiveQueryMonitor monitor = db.live("select @class, @rid as rid, name from test", listener);
+      YTLiveQueryMonitor monitor = db.live("select @class, @rid as rid, name from test", listener);
       Assert.assertNotNull(monitor);
 
       db.begin();

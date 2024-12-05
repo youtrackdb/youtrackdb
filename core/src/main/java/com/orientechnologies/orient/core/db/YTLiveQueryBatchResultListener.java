@@ -2,10 +2,10 @@ package com.orientechnologies.orient.core.db;
 
 /**
  * Designed to allow live query result listeners to be optimised for batch elaboration. The normal
- * mechanics of the {@link OLiveQueryResultListener} is preserved; In addition, at the end of a
+ * mechanics of the {@link YTLiveQueryResultListener} is preserved; In addition, at the end of a
  * logical batch of invocations to on*() methods, onBatchEnd() is invoked.
  */
-public interface OLiveQueryBatchResultListener extends OLiveQueryResultListener {
+public interface YTLiveQueryBatchResultListener extends YTLiveQueryResultListener {
 
   /**
    * invoked at the end of a logical batch of live query events

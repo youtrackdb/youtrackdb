@@ -4,9 +4,9 @@ import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.OLiveQueryBatchResultListener;
-import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTLiveQueryBatchResultListener;
+import com.orientechnologies.orient.core.db.YTLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
 import com.orientechnologies.orient.core.id.YTRecordId;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
 
   public static final String BEFORE_METADATA_KEY = "$$before$$";
-  private final OLiveQueryResultListener clientListener;
+  private final YTLiveQueryResultListener clientListener;
   private YTDatabaseSessionInternal execDb;
 
   private final OSelectStatement statement;
@@ -42,13 +42,13 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
   private static final Random random = new Random();
 
   public LiveQueryListenerImpl(
-      OLiveQueryResultListener clientListener, String query, YTDatabaseSessionInternal db,
+      YTLiveQueryResultListener clientListener, String query, YTDatabaseSessionInternal db,
       Object[] iArgs) {
     this(clientListener, query, db, toPositionalParams(iArgs));
   }
 
   public LiveQueryListenerImpl(
-      OLiveQueryResultListener clientListener,
+      YTLiveQueryResultListener clientListener,
       String query,
       YTDatabaseSessionInternal db,
       Map<Object, Object> iArgs) {
@@ -167,8 +167,8 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
         }
       }
     }
-    if (clientListener instanceof OLiveQueryBatchResultListener) {
-      ((OLiveQueryBatchResultListener) clientListener).onBatchEnd(execDb);
+    if (clientListener instanceof YTLiveQueryBatchResultListener) {
+      ((YTLiveQueryBatchResultListener) clientListener).onBatchEnd(execDb);
     }
   }
 

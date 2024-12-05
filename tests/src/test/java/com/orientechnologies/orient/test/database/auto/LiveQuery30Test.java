@@ -18,9 +18,9 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
-import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
+import com.orientechnologies.orient.core.db.YTLiveQueryMonitor;
+import com.orientechnologies.orient.core.db.YTLiveQueryResultListener;
 import com.orientechnologies.orient.core.id.YTRID;
 import com.orientechnologies.orient.core.sql.executor.YTResult;
 import java.io.IOException;
@@ -41,7 +41,7 @@ public class LiveQuery30Test extends DocumentDBBaseTest implements OCommandOutpu
   private final CountDownLatch latch = new CountDownLatch(2);
   private final CountDownLatch unLatch = new CountDownLatch(1);
 
-  class MyLiveQueryListener implements OLiveQueryResultListener {
+  class MyLiveQueryListener implements YTLiveQueryResultListener {
 
     public List<OPair<String, YTResult>> ops = new ArrayList<>();
     public int unsubscribe;
@@ -89,7 +89,7 @@ public class LiveQuery30Test extends DocumentDBBaseTest implements OCommandOutpu
 
     MyLiveQueryListener listener = new MyLiveQueryListener();
 
-    OLiveQueryMonitor monitor = database.live("live select from " + className1, listener);
+    YTLiveQueryMonitor monitor = database.live("live select from " + className1, listener);
     Assert.assertNotNull(monitor);
 
     database.command("insert into " + className1 + " set name = 'foo', surname = 'bar'");

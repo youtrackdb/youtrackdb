@@ -29,9 +29,9 @@ import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.client.YTNotSendRequestException;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
-import com.orientechnologies.orient.client.remote.db.document.OLiveQueryMonitorRemote;
 import com.orientechnologies.orient.client.remote.db.document.OTransactionOptimisticClient;
 import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
+import com.orientechnologies.orient.client.remote.db.document.YTLiveQueryMonitorRemote;
 import com.orientechnologies.orient.client.remote.message.OAddClusterRequest;
 import com.orientechnologies.orient.client.remote.message.OAddClusterResponse;
 import com.orientechnologies.orient.client.remote.message.OBeginTransaction38Request;
@@ -113,9 +113,9 @@ import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal;
@@ -2257,7 +2257,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     return null;
   }
 
-  public OLiveQueryMonitor liveQuery(
+  public YTLiveQueryMonitor liveQuery(
       YTDatabaseSessionRemote database,
       String query,
       OLiveQueryClientListener listener,
@@ -2271,10 +2271,10 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
           "Impossible to start the live query, check server log for additional information");
     }
     registerLiveListener(response.getMonitorId(), listener);
-    return new OLiveQueryMonitorRemote(database, response.getMonitorId());
+    return new YTLiveQueryMonitorRemote(database, response.getMonitorId());
   }
 
-  public OLiveQueryMonitor liveQuery(
+  public YTLiveQueryMonitor liveQuery(
       YTDatabaseSessionRemote database,
       String query,
       OLiveQueryClientListener listener,
@@ -2288,7 +2288,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
           "Impossible to start the live query, check server log for additional information");
     }
     registerLiveListener(response.getMonitorId(), listener);
-    return new OLiveQueryMonitorRemote(database, response.getMonitorId());
+    return new YTLiveQueryMonitorRemote(database, response.getMonitorId());
   }
 
   public void unsubscribeLive(YTDatabaseSessionRemote database, int monitorId) {

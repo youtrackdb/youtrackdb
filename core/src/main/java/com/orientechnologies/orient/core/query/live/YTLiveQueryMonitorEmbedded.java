@@ -2,17 +2,17 @@ package com.orientechnologies.orient.core.query.live;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
+import com.orientechnologies.orient.core.db.YTLiveQueryMonitor;
 
 /**
  *
  */
-public class OLiveQueryMonitorEmbedded implements OLiveQueryMonitor {
+public class YTLiveQueryMonitorEmbedded implements YTLiveQueryMonitor {
 
   private final int token;
   private final YTDatabaseSessionInternal db;
 
-  public OLiveQueryMonitorEmbedded(int token, YTDatabaseSessionInternal dbCopy) {
+  public YTLiveQueryMonitorEmbedded(int token, YTDatabaseSessionInternal dbCopy) {
     this.token = token;
     this.db = dbCopy;
   }

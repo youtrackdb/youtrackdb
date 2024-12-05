@@ -989,7 +989,6 @@ public interface YTDatabaseSession extends AutoCloseable {
    *
    * @param path Path to backup folder.
    * @return File name of the backup
-   * @since 2.2
    */
   String incrementalBackup(String path);
 
@@ -1000,7 +999,7 @@ public interface YTDatabaseSession extends AutoCloseable {
    * @param listener the listener that receive the query results
    * @param args     the live query args
    */
-  OLiveQueryMonitor live(String query, OLiveQueryResultListener listener, Map<String, ?> args);
+  YTLiveQueryMonitor live(String query, YTLiveQueryResultListener listener, Map<String, ?> args);
 
   /**
    * Subscribe a query as a live query for future create/update event with the referred conditions
@@ -1009,5 +1008,5 @@ public interface YTDatabaseSession extends AutoCloseable {
    * @param listener the listener that receive the query results
    * @param args     the live query args
    */
-  OLiveQueryMonitor live(String query, OLiveQueryResultListener listener, Object... args);
+  YTLiveQueryMonitor live(String query, YTLiveQueryResultListener listener, Object... args);
 }

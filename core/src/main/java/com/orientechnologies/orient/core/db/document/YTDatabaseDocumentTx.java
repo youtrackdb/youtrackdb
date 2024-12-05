@@ -12,11 +12,11 @@ import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
-import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTLiveQueryMonitor;
+import com.orientechnologies.orient.core.db.YTLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
@@ -1384,14 +1384,14 @@ public class YTDatabaseDocumentTx implements YTDatabaseSessionInternal {
   }
 
   @Override
-  public OLiveQueryMonitor live(String query, OLiveQueryResultListener listener, Object... args) {
+  public YTLiveQueryMonitor live(String query, YTLiveQueryResultListener listener, Object... args) {
     checkOpenness();
     return internal.live(query, listener, args);
   }
 
   @Override
-  public OLiveQueryMonitor live(
-      String query, OLiveQueryResultListener listener, Map<String, ?> args) {
+  public YTLiveQueryMonitor live(
+      String query, YTLiveQueryResultListener listener, Map<String, ?> args) {
     checkOpenness();
     return internal.live(query, listener, args);
   }

@@ -20,10 +20,10 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
-import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTLiveQueryMonitor;
+import com.orientechnologies.orient.core.db.YTLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -74,7 +74,7 @@ public class OLiveQueryTest {
     odb.close();
   }
 
-  class MyLiveQueryListener implements OLiveResultListener, OLiveQueryResultListener {
+  class MyLiveQueryListener implements OLiveResultListener, YTLiveQueryResultListener {
 
     public CountDownLatch latch;
 
@@ -129,7 +129,7 @@ public class OLiveQueryTest {
     db.getMetadata().getSchema().createClass("test2");
     MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(2));
 
-    OLiveQueryMonitor tokens = db.live("live select from test", listener);
+    YTLiveQueryMonitor tokens = db.live("live select from test", listener);
     Integer token = tokens.getMonitorId();
     Assert.assertNotNull(token);
 
@@ -217,7 +217,7 @@ public class OLiveQueryTest {
                 try {
                   otherDb.live(
                       "live select from test",
-                      new OLiveQueryResultListener() {
+                      new YTLiveQueryResultListener() {
 
                         @Override
                         public void onCreate(YTDatabaseSession database, YTResult data) {

@@ -21,10 +21,10 @@ package com.orientechnologies.orient.core.sql.query;
 
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
-import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTLiveQueryMonitor;
+import com.orientechnologies.orient.core.db.YTLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.record.YTRecordAbstract;
 import com.orientechnologies.orient.core.record.impl.YTDocument;
@@ -61,8 +61,8 @@ public class OLiveQuery<T> extends OSQLSynchQuery<T> {
   public <RET> RET execute(@Nonnull YTDatabaseSessionInternal querySession, Object... iArgs) {
     YTDatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
     if (database.isRemote()) {
-      BackwardOLiveQueryResultListener listener = new BackwardOLiveQueryResultListener();
-      OLiveQueryMonitor monitor = database.live(getText(), listener, iArgs);
+      BackwardYTLiveQueryResultListener listener = new BackwardYTLiveQueryResultListener();
+      YTLiveQueryMonitor monitor = database.live(getText(), listener, iArgs);
       listener.token = monitor.getMonitorId();
       YTDocument doc = new YTDocument();
       doc.setProperty("token", listener.token);
@@ -73,7 +73,7 @@ public class OLiveQuery<T> extends OSQLSynchQuery<T> {
     return super.execute(querySession, iArgs);
   }
 
-  private class BackwardOLiveQueryResultListener implements OLiveQueryResultListener {
+  private class BackwardYTLiveQueryResultListener implements YTLiveQueryResultListener {
 
     protected int token;
 

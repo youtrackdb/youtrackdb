@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.sql.executor.YTResult;
 /**
  *
  */
-public interface OLiveQueryResultListener {
+public interface YTLiveQueryResultListener {
 
   void onCreate(YTDatabaseSession database, YTResult data);
 

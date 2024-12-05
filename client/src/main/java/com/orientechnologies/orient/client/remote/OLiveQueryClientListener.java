@@ -4,9 +4,9 @@ import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.YTDatabaseSession;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTLiveQueryResultListener;
 
 /**
  *
@@ -14,9 +14,9 @@ import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
 public class OLiveQueryClientListener {
 
   private final YTDatabaseSession database;
-  private final OLiveQueryResultListener listener;
+  private final YTLiveQueryResultListener listener;
 
-  public OLiveQueryClientListener(YTDatabaseSession database, OLiveQueryResultListener listener) {
+  public OLiveQueryClientListener(YTDatabaseSession database, YTLiveQueryResultListener listener) {
     this.database = database;
     this.listener = listener;
   }

@@ -147,8 +147,8 @@ import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.YTLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.record.YTIdentifiable;
@@ -1866,9 +1866,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeSubscribeLiveQuery(OSubscribeLiveQueryRequest request) {
     ONetworkProtocolBinary protocol = (ONetworkProtocolBinary) connection.getProtocol();
-    OServerLiveQueryResultListener listener =
-        new OServerLiveQueryResultListener(protocol, connection.getDatabase().getSharedContext());
-    OLiveQueryMonitor monitor =
+    YTServerLiveQueryResultListener listener =
+        new YTServerLiveQueryResultListener(protocol, connection.getDatabase().getSharedContext());
+    YTLiveQueryMonitor monitor =
         connection.getDatabase().live(request.getQuery(), listener, request.getParams());
     listener.setMonitorId(monitor.getMonitorId());
     return new OSubscribeLiveQueryResponse(monitor.getMonitorId());

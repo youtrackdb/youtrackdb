@@ -1,16 +1,16 @@
 package com.orientechnologies.orient.client.remote.db.document;
 
-import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
+import com.orientechnologies.orient.core.db.YTLiveQueryMonitor;
 
 /**
  *
  */
-public class OLiveQueryMonitorRemote implements OLiveQueryMonitor {
+public class YTLiveQueryMonitorRemote implements YTLiveQueryMonitor {
 
   private final YTDatabaseSessionRemote database;
   private final int monitorId;
 
-  public OLiveQueryMonitorRemote(YTDatabaseSessionRemote database, int monitorId) {
+  public YTLiveQueryMonitorRemote(YTDatabaseSessionRemote database, int monitorId) {
     this.database = database;
     this.monitorId = monitorId;
   }
