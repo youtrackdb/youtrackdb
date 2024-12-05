@@ -13,19 +13,19 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
-import com.orientechnologies.orient.core.metadata.function.OFunction;
-import com.orientechnologies.orient.core.metadata.function.OFunctionLibrary;
-import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
-import com.orientechnologies.orient.core.metadata.schema.YTProperty;
-import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.sql.executor.YTInternalResultSet;
-import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
+import com.orientechnologies.core.OConstants;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.index.OIndex;
+import com.orientechnologies.core.metadata.OMetadataInternal;
+import com.orientechnologies.core.metadata.function.OFunction;
+import com.orientechnologies.core.metadata.function.OFunctionLibrary;
+import com.orientechnologies.core.metadata.schema.YTClass;
+import com.orientechnologies.core.metadata.schema.YTClass.INDEX_TYPE;
+import com.orientechnologies.core.metadata.schema.YTProperty;
+import com.orientechnologies.core.metadata.schema.YTSchema;
+import com.orientechnologies.core.metadata.schema.YTType;
+import com.orientechnologies.core.sql.executor.YTInternalResultSet;
+import com.orientechnologies.core.sql.executor.YTResultInternal;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;

@@ -31,13 +31,13 @@ options {
 
 PARSER_BEGIN(OrientSql)
 
-package com.orientechnologies.orient.core.sql.parser;
+package com.orientechnologies.core.sql.parser;
 
 import java.io.InputStream;
 import java.util.List;
 import java.util.ArrayList;
-import com.orientechnologies.orient.core.sql.YTCommandSQLParsingException;
-import com.orientechnologies.orient.core.exception.YTQueryParsingException;
+import com.orientechnologies.core.sql.YTCommandSQLParsingException;
+import com.orientechnologies.core.exception.YTQueryParsingException;
 
 /** Orient Database Sql grammar. */
 public class OrientSql {
@@ -4010,12 +4010,12 @@ OAlterClassStatement AlterClassStatement():
 	(
 
 		(
-			<NAME> { jjtThis.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.NAME; }
+			<NAME> { jjtThis.property = com.orientechnologies.core.metadata.schema.YTClass.ATTRIBUTES.NAME; }
 			jjtThis.identifierValue = Identifier()
 		)
 		|
 		(
-			<SHORTNAME> { jjtThis.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.SHORTNAME; }
+			<SHORTNAME> { jjtThis.property = com.orientechnologies.core.metadata.schema.YTClass.ATTRIBUTES.SHORTNAME; }
 			(
 				jjtThis.identifierValue = Identifier()
 				|
@@ -4024,7 +4024,7 @@ OAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<SUPERCLASS> { jjtThis.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.SUPERCLASS; }
+			<SUPERCLASS> { jjtThis.property = com.orientechnologies.core.metadata.schema.YTClass.ATTRIBUTES.SUPERCLASS; }
 			[
 				(
 					<PLUS> {jjtThis.add = true;}
@@ -4043,7 +4043,7 @@ OAlterClassStatement AlterClassStatement():
 		|
 		(
 			<SUPERCLASSES> {
-				jjtThis.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.SUPERCLASSES;
+				jjtThis.property = com.orientechnologies.core.metadata.schema.YTClass.ATTRIBUTES.SUPERCLASSES;
 				jjtThis.identifierListValue = new ArrayList<OIdentifier>();
 			}
 			(
@@ -4060,12 +4060,12 @@ OAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<OVERSIZE> { jjtThis.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.OVERSIZE; }
+			<OVERSIZE> { jjtThis.property = com.orientechnologies.core.metadata.schema.YTClass.ATTRIBUTES.OVERSIZE; }
 			jjtThis.numberValue = Number()
 		)
 		|
 		(
-			<STRICTMODE> { jjtThis.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.STRICTMODE; }
+			<STRICTMODE> { jjtThis.property = com.orientechnologies.core.metadata.schema.YTClass.ATTRIBUTES.STRICTMODE; }
 			(
 				(
 					<TRUE> { jjtThis.booleanValue = true; }
@@ -4078,7 +4078,7 @@ OAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<ADDCLUSTER> { jjtThis.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.ADDCLUSTER; }
+			<ADDCLUSTER> { jjtThis.property = com.orientechnologies.core.metadata.schema.YTClass.ATTRIBUTES.ADDCLUSTER; }
 			(
 				jjtThis.identifierValue = Identifier()
 				|
@@ -4087,7 +4087,7 @@ OAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<REMOVECLUSTER> { jjtThis.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.REMOVECLUSTER; }
+			<REMOVECLUSTER> { jjtThis.property = com.orientechnologies.core.metadata.schema.YTClass.ATTRIBUTES.REMOVECLUSTER; }
 			(
 				jjtThis.identifierValue = Identifier()
 				|
@@ -4096,14 +4096,14 @@ OAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<CUSTOM> { jjtThis.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.CUSTOM; }
+			<CUSTOM> { jjtThis.property = com.orientechnologies.core.metadata.schema.YTClass.ATTRIBUTES.CUSTOM; }
 			jjtThis.customKey = Identifier()
 			<EQ>
 			jjtThis.customValue = Expression()
 		)
 		|
 		(
-			<ABSTRACT> { jjtThis.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.ABSTRACT; }
+			<ABSTRACT> { jjtThis.property = com.orientechnologies.core.metadata.schema.YTClass.ATTRIBUTES.ABSTRACT; }
 			(
 				(
 					<TRUE> { jjtThis.booleanValue = true; }
@@ -4116,7 +4116,7 @@ OAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<CLUSTERSELECTION> { jjtThis.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.CLUSTERSELECTION; }
+			<CLUSTERSELECTION> { jjtThis.property = com.orientechnologies.core.metadata.schema.YTClass.ATTRIBUTES.CLUSTERSELECTION; }
 			(
 				jjtThis.identifierValue = Identifier()
 				|
@@ -4127,7 +4127,7 @@ OAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<DESCRIPTION> { jjtThis.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.DESCRIPTION; }
+			<DESCRIPTION> { jjtThis.property = com.orientechnologies.core.metadata.schema.YTClass.ATTRIBUTES.DESCRIPTION; }
 			(
 				jjtThis.identifierValue = Identifier()
 				|
@@ -4136,7 +4136,7 @@ OAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<ENCRYPTION> { jjtThis.property = com.orientechnologies.orient.core.metadata.schema.YTClass.ATTRIBUTES.ENCRYPTION; }
+			<ENCRYPTION> { jjtThis.property = com.orientechnologies.core.metadata.schema.YTClass.ATTRIBUTES.ENCRYPTION; }
 			(
 				jjtThis.identifierValue = Identifier()
 				|
@@ -4788,16 +4788,16 @@ OAlterRoleStatement AlterRoleStatement():
       ( <SET> <POLICY> lastPolicy = Identifier() <ON> lastSecurityResource = SecurityResourceSegment()
 
         {
-        jjtThis.addOperation(new com.orientechnologies.orient.core.sql.parser.OAlterRoleStatement.Op(
-          com.orientechnologies.orient.core.sql.parser.OAlterRoleStatement.Op.TYPE_ADD,
+        jjtThis.addOperation(new OAlterRoleStatement.Op(
+          OAlterRoleStatement.Op.TYPE_ADD,
           lastSecurityResource, lastPolicy));
         }
       )
       |
       ( <REMOVE> <POLICY> <ON> lastSecurityResource = SecurityResourceSegment()  )
         {
-          jjtThis.addOperation(new com.orientechnologies.orient.core.sql.parser.OAlterRoleStatement.Op(
-            com.orientechnologies.orient.core.sql.parser.OAlterRoleStatement.Op.TYPE_REMOVE,
+          jjtThis.addOperation(new OAlterRoleStatement.Op(
+             OAlterRoleStatement.Op.TYPE_REMOVE,
             lastSecurityResource, null));
         }
     )+
@@ -4817,16 +4817,16 @@ OAlterSystemRoleStatement AlterSystemRoleStatement():
       ( <SET> <POLICY> lastPolicy = Identifier() <ON> lastSecurityResource = SecurityResourceSegment()
 
         {
-        jjtThis.addOperation(new com.orientechnologies.orient.core.sql.parser.OAlterSystemRoleStatement.Op(
-          com.orientechnologies.orient.core.sql.parser.OAlterSystemRoleStatement.Op.TYPE_ADD,
+        jjtThis.addOperation(new OAlterSystemRoleStatement.Op(
+          OAlterSystemRoleStatement.Op.TYPE_ADD,
           lastSecurityResource, lastPolicy));
         }
       )
       |
       ( <REMOVE> <POLICY> <ON> lastSecurityResource = SecurityResourceSegment()  )
         {
-          jjtThis.addOperation(new com.orientechnologies.orient.core.sql.parser.OAlterSystemRoleStatement.Op(
-            com.orientechnologies.orient.core.sql.parser.OAlterSystemRoleStatement.Op.TYPE_REMOVE,
+          jjtThis.addOperation(new OAlterSystemRoleStatement.Op(
+            OAlterSystemRoleStatement.Op.TYPE_REMOVE,
             lastSecurityResource, null));
         }
     )+

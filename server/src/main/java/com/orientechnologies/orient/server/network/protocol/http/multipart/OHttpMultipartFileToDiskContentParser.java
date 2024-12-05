@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.multipart;
 
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
+import com.orientechnologies.core.db.YTDatabaseSession;
+import com.orientechnologies.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import java.io.BufferedOutputStream;

@@ -18,8 +18,8 @@
 
 package com.orientechnologies.lucene.tx;
 
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.db.record.YTIdentifiable;
 import java.util.Collections;
 import java.util.Set;
 import org.apache.lucene.document.Document;

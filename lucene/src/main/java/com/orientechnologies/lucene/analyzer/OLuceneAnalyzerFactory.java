@@ -2,8 +2,8 @@ package com.orientechnologies.lucene.analyzer;
 
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.index.YTIndexException;
+import com.orientechnologies.core.index.OIndexDefinition;
+import com.orientechnologies.core.index.YTIndexException;
 import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.Locale;

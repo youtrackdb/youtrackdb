@@ -3,8 +3,8 @@ package com.orientechnologies.lucene.functions;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.lucene.tests.OLuceneBaseTest;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;

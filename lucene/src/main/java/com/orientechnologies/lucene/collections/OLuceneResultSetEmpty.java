@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.collections;
 
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.db.record.YTIdentifiable;
 import java.util.Collections;
 import java.util.Iterator;
 

@@ -15,12 +15,12 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
+import com.orientechnologies.core.id.YTRID;
+import com.orientechnologies.core.metadata.schema.YTType;
+import com.orientechnologies.core.record.YTRecordAbstract;
+import com.orientechnologies.core.record.impl.YTBlob;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.record.impl.YTRecordBytes;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;

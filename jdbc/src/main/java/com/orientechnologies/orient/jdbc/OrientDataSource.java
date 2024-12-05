@@ -13,13 +13,13 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabasePool;
-import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.util.OURLConnection;
-import com.orientechnologies.orient.core.util.OURLHelper;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.db.ODatabasePool;
+import com.orientechnologies.core.db.ODatabaseType;
+import com.orientechnologies.core.db.YouTrackDB;
+import com.orientechnologies.core.db.YouTrackDBConfig;
+import com.orientechnologies.core.util.OURLConnection;
+import com.orientechnologies.core.util.OURLHelper;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;

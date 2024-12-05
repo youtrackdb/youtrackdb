@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import com.orientechnologies.spatial.shape.OGeometryCollectionShapeBuilder;
 import com.orientechnologies.spatial.shape.OLineStringShapeBuilder;
 import com.orientechnologies.spatial.shape.OMultiLineStringShapeBuilder;

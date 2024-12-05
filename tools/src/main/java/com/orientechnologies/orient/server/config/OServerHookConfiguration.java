@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.config;
 
-import com.orientechnologies.orient.core.hook.YTRecordHook;
+import com.orientechnologies.core.hook.YTRecordHook;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElementRef;
 import jakarta.xml.bind.annotation.XmlElementWrapper;

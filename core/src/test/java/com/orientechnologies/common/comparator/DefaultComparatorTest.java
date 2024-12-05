@@ -1,7 +1,7 @@
 package com.orientechnologies.common.comparator;
 
-import com.orientechnologies.orient.core.index.OCompositeKey;
-import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.core.index.OCompositeKey;
+import com.orientechnologies.core.metadata.schema.YTType;
 import java.util.Comparator;
 import org.junit.Assert;
 import org.junit.Test;

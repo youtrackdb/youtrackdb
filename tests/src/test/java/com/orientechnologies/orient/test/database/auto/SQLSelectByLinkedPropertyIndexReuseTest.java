@@ -3,12 +3,12 @@ package com.orientechnologies.orient.test.database.auto;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.sql.OChainedIndexProxy;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import com.orientechnologies.core.metadata.schema.YTClass;
+import com.orientechnologies.core.metadata.schema.YTSchema;
+import com.orientechnologies.core.metadata.schema.YTType;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.sql.OChainedIndexProxy;
+import com.orientechnologies.core.sql.query.OSQLSynchQuery;
 import java.util.Arrays;
 import java.util.List;
 import org.testng.annotations.AfterClass;

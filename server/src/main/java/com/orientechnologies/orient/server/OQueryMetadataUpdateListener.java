@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.orient.core.config.OStorageConfiguration;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
-import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
-import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
+import com.orientechnologies.core.config.OStorageConfiguration;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.db.OMetadataUpdateListener;
+import com.orientechnologies.core.index.OIndexManagerAbstract;
+import com.orientechnologies.core.metadata.schema.OSchemaShared;
 
 class OQueryMetadataUpdateListener implements OMetadataUpdateListener {
 

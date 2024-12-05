@@ -7,8 +7,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.index.OIndexDefinition;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;

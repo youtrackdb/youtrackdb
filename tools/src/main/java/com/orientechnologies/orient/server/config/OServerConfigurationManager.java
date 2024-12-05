@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.config;
 
 import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.orient.core.exception.YTConfigurationException;
+import com.orientechnologies.core.exception.YTConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

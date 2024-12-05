@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.common.collection;
 
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.sql.parser.OOrderBy;
-import com.orientechnologies.orient.core.sql.parser.OOrderByItem;
+import com.orientechnologies.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.sql.parser.OOrderBy;
+import com.orientechnologies.core.sql.parser.OOrderByItem;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

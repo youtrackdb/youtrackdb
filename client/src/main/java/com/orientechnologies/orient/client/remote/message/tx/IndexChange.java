@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.message.tx;
 
-import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
+import com.orientechnologies.core.tx.OTransactionIndexChanges;
 
 /**
  *

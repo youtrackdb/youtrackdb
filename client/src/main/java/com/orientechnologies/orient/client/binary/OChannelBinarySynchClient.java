@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.client.binary;
 
-import com.orientechnologies.orient.core.config.YTContextConfiguration;
+import com.orientechnologies.core.config.YTContextConfiguration;
 import java.io.IOException;
 
 /**

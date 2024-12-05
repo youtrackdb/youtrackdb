@@ -13,8 +13,8 @@
  */
 package com.orientechnologies.spatial;
 
+import com.orientechnologies.core.metadata.schema.YTSchema;
 import com.orientechnologies.lucene.test.BaseLuceneTest;
-import com.orientechnologies.orient.core.metadata.schema.YTSchema;
 import org.junit.Assert;
 import org.junit.Test;
 

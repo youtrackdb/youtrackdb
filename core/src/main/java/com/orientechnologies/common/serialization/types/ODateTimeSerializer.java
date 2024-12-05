@@ -20,7 +20,7 @@
 
 package com.orientechnologies.common.serialization.types;
 
-import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALChanges;
+import com.orientechnologies.core.storage.impl.local.paginated.wal.OWALChanges;
 import java.nio.ByteBuffer;
 import java.util.Calendar;
 import java.util.Date;

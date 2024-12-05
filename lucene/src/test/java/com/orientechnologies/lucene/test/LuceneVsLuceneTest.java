@@ -21,9 +21,9 @@ package com.orientechnologies.lucene.test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.common.io.OFileUtils;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.sql.executor.YTResultSet;
 import com.orientechnologies.lucene.analyzer.OLucenePerFieldAnalyzerWrapper;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.server.network.http;
 
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

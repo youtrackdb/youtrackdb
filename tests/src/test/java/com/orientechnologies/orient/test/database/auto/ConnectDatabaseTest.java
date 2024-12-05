@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.db.document.YTDatabaseDocumentTx;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;

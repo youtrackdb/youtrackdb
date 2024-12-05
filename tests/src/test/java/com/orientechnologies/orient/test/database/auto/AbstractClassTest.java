@@ -16,13 +16,13 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.orient.core.exception.YTSchemaException;
-import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.db.YouTrackDBConfig;
+import com.orientechnologies.core.db.YouTrackDBConfigBuilder;
+import com.orientechnologies.core.exception.YTSchemaException;
+import com.orientechnologies.core.metadata.schema.YTClass;
+import com.orientechnologies.core.metadata.schema.YTType;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;

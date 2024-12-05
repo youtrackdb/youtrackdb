@@ -14,7 +14,7 @@
 package com.orientechnologies.orient.jdbc;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.OConstants;
+import com.orientechnologies.core.OConstants;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;

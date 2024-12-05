@@ -19,8 +19,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.OConstants;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;

@@ -23,7 +23,10 @@ package com.orientechnologies.orient.core.db;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.record.YTEntity;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.db.YouTrackDB;
+import com.orientechnologies.core.db.YouTrackDBConfig;
+import com.orientechnologies.core.record.YTEntity;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
 import java.io.DataInputStream;

@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.test.database.auto.hooks;
 
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
-import com.orientechnologies.orient.core.hook.YTRecordHook;
-import com.orientechnologies.orient.core.hook.YTRecordHookAbstract;
-import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.core.hook.YTRecordHook;
+import com.orientechnologies.core.hook.YTRecordHookAbstract;
+import com.orientechnologies.core.record.YTEntity;
+import com.orientechnologies.core.record.YTRecord;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

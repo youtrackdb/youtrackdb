@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
 import java.util.Set;
 
 /**

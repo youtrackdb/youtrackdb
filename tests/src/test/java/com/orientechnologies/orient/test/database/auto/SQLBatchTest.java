@@ -15,9 +15,9 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.exception.YTCommandExecutionException;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Optional;

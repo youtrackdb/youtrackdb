@@ -5,8 +5,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.orient.core.config.YTContextConfiguration;
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.config.YTContextConfiguration;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.enterprise.channel.binary.YTTokenSecurityException;
 import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
 import com.orientechnologies.orient.server.token.OTokenHandlerImpl;

@@ -15,11 +15,11 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.sql.OCommandSQL;
+import com.orientechnologies.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

@@ -13,12 +13,12 @@
  */
 package com.orientechnologies.spatial.functions;
 
-import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.sql.parser.OBinaryCompareOperator;
-import com.orientechnologies.orient.core.sql.parser.OExpression;
-import com.orientechnologies.orient.core.sql.parser.OFromClause;
+import com.orientechnologies.core.command.OCommandContext;
+import com.orientechnologies.core.db.YTDatabaseSession;
+import com.orientechnologies.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.sql.parser.OBinaryCompareOperator;
+import com.orientechnologies.core.sql.parser.OExpression;
+import com.orientechnologies.core.sql.parser.OFromClause;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 import com.orientechnologies.spatial.strategy.SpatialQueryBuilderDistanceSphere;
 import java.util.Map;

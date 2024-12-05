@@ -16,11 +16,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.sql.query.OLegacyResultSet;
-import com.orientechnologies.orient.core.sql.query.OLiveQuery;
-import com.orientechnologies.orient.core.sql.query.OLiveResultListener;
+import com.orientechnologies.core.db.record.ORecordOperation;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.sql.query.OLegacyResultSet;
+import com.orientechnologies.core.sql.query.OLiveQuery;
+import com.orientechnologies.core.sql.query.OLiveResultListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

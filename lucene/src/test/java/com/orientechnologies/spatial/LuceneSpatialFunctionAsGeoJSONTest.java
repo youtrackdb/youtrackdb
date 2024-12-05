@@ -14,8 +14,8 @@
 package com.orientechnologies.spatial;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.sql.executor.YTResult;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.sql.executor.YTResult;
+import com.orientechnologies.core.sql.executor.YTResultSet;
 import java.util.HashMap;
 import org.junit.Assert;
 import org.junit.Test;

@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server.query;
 
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
 import org.junit.Test;
 

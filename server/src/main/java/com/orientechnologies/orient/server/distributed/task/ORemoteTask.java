@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.distributed.task;
 
-import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.command.OCommandDistributedReplicateRequest;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.distributed.ODistributedDatabase;
 import com.orientechnologies.orient.server.distributed.ODistributedRequest;

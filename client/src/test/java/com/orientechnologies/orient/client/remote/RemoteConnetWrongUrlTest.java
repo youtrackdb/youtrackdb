@@ -2,10 +2,10 @@ package com.orientechnologies.orient.client.remote;
 
 import static org.junit.Assert.assertNull;
 
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
-import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.db.document.YTDatabaseDocumentTx;
+import com.orientechnologies.core.exception.YTDatabaseException;
 import org.junit.Test;
 
 public class RemoteConnetWrongUrlTest {

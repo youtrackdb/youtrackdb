@@ -16,16 +16,16 @@
 
 package com.orientechnologies.lucene.operator;
 
-import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.sql.OIndexSearchResult;
-import com.orientechnologies.orient.core.sql.OSQLHelper;
-import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
-import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemField;
-import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemVariable;
-import com.orientechnologies.orient.core.sql.operator.OQueryOperatorBetween;
-import com.orientechnologies.orient.core.sql.operator.OQueryOperatorIn;
+import com.orientechnologies.core.command.OCommandContext;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.metadata.schema.YTClass;
+import com.orientechnologies.core.sql.OIndexSearchResult;
+import com.orientechnologies.core.sql.OSQLHelper;
+import com.orientechnologies.core.sql.filter.OSQLFilterCondition;
+import com.orientechnologies.core.sql.filter.OSQLFilterItemField;
+import com.orientechnologies.core.sql.filter.OSQLFilterItemVariable;
+import com.orientechnologies.core.sql.operator.OQueryOperatorBetween;
+import com.orientechnologies.core.sql.operator.OQueryOperatorIn;
 import java.util.Collection;
 import java.util.List;
 

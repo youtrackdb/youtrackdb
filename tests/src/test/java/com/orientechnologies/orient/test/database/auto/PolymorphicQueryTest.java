@@ -20,11 +20,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.profiler.OProfiler;
-import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.sql.executor.YTResult;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import com.orientechnologies.core.YouTrackDBManager;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.sql.executor.YTResult;
+import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;

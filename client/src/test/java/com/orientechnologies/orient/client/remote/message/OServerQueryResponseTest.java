@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
-import com.orientechnologies.orient.core.sql.executor.YTResult;
-import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
+import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
+import com.orientechnologies.core.sql.executor.YTResult;
+import com.orientechnologies.core.sql.executor.YTResultInternal;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import java.io.IOException;
 import java.util.ArrayList;

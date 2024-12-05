@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.server.distributed.config;
 
-import com.orientechnologies.orient.core.config.YTContextConfiguration;
-import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.orient.core.db.config.OMulticastConfguration;
-import com.orientechnologies.orient.core.db.config.ONodeConfigurationBuilder;
-import com.orientechnologies.orient.core.exception.YTConfigurationException;
+import com.orientechnologies.core.config.YTContextConfiguration;
+import com.orientechnologies.core.db.YouTrackDBConfig;
+import com.orientechnologies.core.db.YouTrackDBConfigBuilder;
+import com.orientechnologies.core.db.config.OMulticastConfguration;
+import com.orientechnologies.core.db.config.ONodeConfigurationBuilder;
+import com.orientechnologies.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.server.config.distributed.OServerDistributedConfiguration;
 import com.orientechnologies.orient.server.config.distributed.OServerDistributedNetworkMulticastConfiguration;
 

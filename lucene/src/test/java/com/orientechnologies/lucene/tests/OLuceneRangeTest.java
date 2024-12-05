@@ -2,13 +2,13 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.id.YTRID;
+import com.orientechnologies.core.index.OIndex;
+import com.orientechnologies.core.metadata.schema.YTClass;
+import com.orientechnologies.core.metadata.schema.YTSchema;
+import com.orientechnologies.core.metadata.schema.YTType;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.sql.executor.YTResultSet;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;

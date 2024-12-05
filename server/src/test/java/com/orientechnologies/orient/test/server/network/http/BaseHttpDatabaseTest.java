@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.server.network.http;
 
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import java.nio.file.Paths;
 import org.junit.After;
 import org.junit.Assert;

@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.base;
 
 import com.orientechnologies.common.test.SpeedTestMonoThread;
-import com.orientechnologies.orient.core.YouTrackDBManager;
+import com.orientechnologies.core.YouTrackDBManager;
 import org.testng.annotations.Test;
 
 @Test(enabled = false)

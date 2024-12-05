@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.lucene.functions;
 
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactoryTemplate;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.sql.functions.OSQLFunctionFactoryTemplate;
 
 public class OLuceneFunctionsFactory extends OSQLFunctionFactoryTemplate {
 

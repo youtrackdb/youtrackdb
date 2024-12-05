@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.server.network.protocol;
 
-import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
-import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
-import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerBinary;
-import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetwork;
+import com.orientechnologies.core.command.OCommandRequestText;
+import com.orientechnologies.core.serialization.serializer.record.ORecordSerializer;
+import com.orientechnologies.core.serialization.serializer.record.ORecordSerializerFactory;
+import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerBinary;
+import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetwork;
 
 /**
  * Saves all the important information about the network connection. Useful for monitoring and

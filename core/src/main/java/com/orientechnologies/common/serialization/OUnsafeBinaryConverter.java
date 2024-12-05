@@ -20,7 +20,7 @@
 
 package com.orientechnologies.common.serialization;
 
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
 import java.lang.reflect.Field;
 import java.nio.ByteOrder;
 import java.security.AccessController;

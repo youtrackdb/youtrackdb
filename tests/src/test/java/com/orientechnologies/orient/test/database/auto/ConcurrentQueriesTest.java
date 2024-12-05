@@ -16,8 +16,8 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.concur.YTNeedRetryException;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.db.YTDatabaseSession;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.test.ConcurrentTestHelper;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;

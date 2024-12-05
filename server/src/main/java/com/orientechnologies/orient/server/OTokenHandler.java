@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.security.OToken;
-import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
-import com.orientechnologies.orient.core.security.OParsedToken;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.metadata.security.OToken;
+import com.orientechnologies.core.metadata.security.YTSecurityUser;
+import com.orientechnologies.core.security.OParsedToken;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
 import java.io.IOException;
 import java.security.InvalidKeyException;

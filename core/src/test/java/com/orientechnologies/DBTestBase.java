@@ -1,12 +1,12 @@
 package com.orientechnologies;
 
-import com.orientechnologies.orient.core.db.ODatabasePool;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
+import com.orientechnologies.core.db.ODatabasePool;
+import com.orientechnologies.core.db.ODatabaseType;
+import com.orientechnologies.core.db.YTDatabaseSession;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.db.YouTrackDB;
+import com.orientechnologies.core.db.YouTrackDBConfig;
+import com.orientechnologies.core.db.YouTrackDBConfigBuilder;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.concurrent.ConcurrentHashMap;

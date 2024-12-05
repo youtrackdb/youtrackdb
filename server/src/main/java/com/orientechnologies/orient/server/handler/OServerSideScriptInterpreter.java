@@ -20,11 +20,11 @@
 package com.orientechnologies.orient.server.handler;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.command.OScriptInterceptor;
-import com.orientechnologies.orient.core.command.script.OCommandExecutorScript;
-import com.orientechnologies.orient.core.command.script.OCommandScript;
-import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.exception.YTSecurityException;
+import com.orientechnologies.core.command.OScriptInterceptor;
+import com.orientechnologies.core.command.script.OCommandExecutorScript;
+import com.orientechnologies.core.command.script.OCommandScript;
+import com.orientechnologies.core.db.YouTrackDBInternal;
+import com.orientechnologies.core.exception.YTSecurityException;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;

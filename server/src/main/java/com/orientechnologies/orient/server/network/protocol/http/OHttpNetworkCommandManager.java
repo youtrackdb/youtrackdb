@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.server.network.protocol.http;
 
 import com.orientechnologies.common.util.OPatternConst;
-import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
+import com.orientechnologies.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommand;
 import java.util.HashMap;

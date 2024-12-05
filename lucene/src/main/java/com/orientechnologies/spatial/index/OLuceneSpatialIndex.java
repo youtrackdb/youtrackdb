@@ -15,15 +15,15 @@
 package com.orientechnologies.spatial.index;
 
 import com.orientechnologies.lucene.index.OLuceneIndexNotUnique;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
-import com.orientechnologies.orient.core.index.OIndexMetadata;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
-import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey;
-import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey.OTransactionIndexEntry;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.exception.OInvalidIndexEngineIdException;
+import com.orientechnologies.core.index.OIndexMetadata;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.storage.OStorage;
+import com.orientechnologies.core.tx.OTransactionIndexChanges;
+import com.orientechnologies.core.tx.OTransactionIndexChangesPerKey;
+import com.orientechnologies.core.tx.OTransactionIndexChangesPerKey.OTransactionIndexEntry;
 import com.orientechnologies.spatial.engine.OLuceneSpatialIndexContainer;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 import java.util.LinkedHashMap;

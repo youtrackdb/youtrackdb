@@ -4,8 +4,8 @@ import static com.orientechnologies.orient.enterprise.channel.binary.OChannelBin
 
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
 import com.orientechnologies.orient.client.remote.message.push.OStorageConfigurationPayload;
-import com.orientechnologies.orient.core.config.OStorageConfiguration;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.config.OStorageConfiguration;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;

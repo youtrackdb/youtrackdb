@@ -17,7 +17,7 @@ package com.orientechnologies.orient.server.network;
 
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
-import com.orientechnologies.orient.core.exception.YTConfigurationException;
+import com.orientechnologies.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import java.io.File;
 import java.io.IOException;

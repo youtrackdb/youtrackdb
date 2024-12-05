@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.metadata.schema.YTClass;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;

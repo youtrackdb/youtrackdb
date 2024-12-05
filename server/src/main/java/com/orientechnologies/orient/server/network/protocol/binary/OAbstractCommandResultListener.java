@@ -19,14 +19,14 @@
  */
 package com.orientechnologies.orient.server.network.protocol.binary;
 
+import com.orientechnologies.core.command.OCommandResultListener;
+import com.orientechnologies.core.fetch.OFetchContext;
+import com.orientechnologies.core.fetch.OFetchHelper;
+import com.orientechnologies.core.fetch.OFetchListener;
+import com.orientechnologies.core.fetch.OFetchPlan;
+import com.orientechnologies.core.fetch.remote.ORemoteFetchContext;
+import com.orientechnologies.core.record.YTRecord;
 import com.orientechnologies.orient.client.remote.SimpleValueFetchPlanCommandListener;
-import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.fetch.OFetchContext;
-import com.orientechnologies.orient.core.fetch.OFetchHelper;
-import com.orientechnologies.orient.core.fetch.OFetchListener;
-import com.orientechnologies.orient.core.fetch.OFetchPlan;
-import com.orientechnologies.orient.core.fetch.remote.ORemoteFetchContext;
-import com.orientechnologies.orient.core.record.YTRecord;
 
 /**
  * Abstract class to manage command results.

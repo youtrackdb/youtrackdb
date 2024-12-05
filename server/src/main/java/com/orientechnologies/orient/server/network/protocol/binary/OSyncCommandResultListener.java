@@ -17,18 +17,18 @@
 package com.orientechnologies.orient.server.network.protocol.binary;
 
 import com.orientechnologies.orient.client.remote.OFetchPlanResults;
-import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.YTFetchException;
-import com.orientechnologies.orient.core.fetch.OFetchContext;
-import com.orientechnologies.orient.core.fetch.OFetchHelper;
-import com.orientechnologies.orient.core.fetch.remote.ORemoteFetchContext;
-import com.orientechnologies.orient.core.fetch.remote.ORemoteFetchListener;
-import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.command.OCommandResultListener;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.exception.YTFetchException;
+import com.orientechnologies.core.fetch.OFetchContext;
+import com.orientechnologies.core.fetch.OFetchHelper;
+import com.orientechnologies.core.fetch.remote.ORemoteFetchContext;
+import com.orientechnologies.core.fetch.remote.ORemoteFetchListener;
+import com.orientechnologies.core.id.YTRecordId;
+import com.orientechnologies.core.record.YTRecord;
+import com.orientechnologies.core.record.YTRecordAbstract;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import java.util.HashSet;
 import java.util.Set;
 

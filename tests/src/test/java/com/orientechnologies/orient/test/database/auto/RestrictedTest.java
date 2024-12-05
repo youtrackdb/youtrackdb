@@ -15,20 +15,20 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.YTRecordNotFoundException;
-import com.orientechnologies.orient.core.exception.YTSecurityException;
-import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.metadata.security.ORestrictedOperation;
-import com.orientechnologies.orient.core.metadata.security.ORole;
-import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
-import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.sql.executor.YTResult;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.db.YouTrackDBConfig;
+import com.orientechnologies.core.db.YouTrackDBConfigBuilder;
+import com.orientechnologies.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.exception.YTRecordNotFoundException;
+import com.orientechnologies.core.exception.YTSecurityException;
+import com.orientechnologies.core.id.YTRID;
+import com.orientechnologies.core.metadata.security.ORestrictedOperation;
+import com.orientechnologies.core.metadata.security.ORole;
+import com.orientechnologies.core.metadata.security.OSecurityShared;
+import com.orientechnologies.core.record.YTEntity;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.sql.executor.YTResult;
+import com.orientechnologies.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;

@@ -20,11 +20,11 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.sql.executor.YTResult;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.metadata.schema.YTClass;
+import com.orientechnologies.core.metadata.schema.YTType;
+import com.orientechnologies.core.record.YTVertex;
+import com.orientechnologies.core.sql.executor.YTResult;
+import com.orientechnologies.core.sql.executor.YTResultSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Before;

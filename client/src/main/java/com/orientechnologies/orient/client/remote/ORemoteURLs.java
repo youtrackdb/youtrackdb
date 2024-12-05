@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.client.remote;
 
-import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.CLIENT_CONNECTION_FETCH_HOST_LIST;
+import static com.orientechnologies.core.config.YTGlobalConfiguration.CLIENT_CONNECTION_FETCH_HOST_LIST;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.client.remote.OStorageRemote.CONNECTION_STRATEGY;
-import com.orientechnologies.orient.core.config.YTContextConfiguration;
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.exception.YTConfigurationException;
-import com.orientechnologies.orient.core.exception.YTStorageException;
+import com.orientechnologies.core.config.YTContextConfiguration;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.exception.YTConfigurationException;
+import com.orientechnologies.core.exception.YTStorageException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;

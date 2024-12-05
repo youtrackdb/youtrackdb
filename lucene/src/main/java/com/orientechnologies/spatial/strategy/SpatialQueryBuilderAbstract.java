@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.spatial.strategy;
 
-import com.orientechnologies.orient.core.index.YTIndexEngineException;
+import com.orientechnologies.core.index.YTIndexEngineException;
 import com.orientechnologies.spatial.engine.OLuceneSpatialIndexContainer;
 import com.orientechnologies.spatial.query.OSpatialQueryContext;
 import com.orientechnologies.spatial.shape.OShapeBuilder;

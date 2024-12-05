@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.network.protocol;
 
 import com.orientechnologies.common.thread.OSoftThread;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
-import com.orientechnologies.orient.core.config.YTContextConfiguration;
+import com.orientechnologies.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.enterprise.channel.OChannel;
 import com.orientechnologies.orient.server.OClientConnection;
 import com.orientechnologies.orient.server.OServer;

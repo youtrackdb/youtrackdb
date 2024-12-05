@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.orientechnologies.orient.core.config.YTContextConfiguration;
-import com.orientechnologies.orient.core.security.OParsedToken;
+import com.orientechnologies.core.config.YTContextConfiguration;
+import com.orientechnologies.core.security.OParsedToken;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
 import com.orientechnologies.orient.server.network.protocol.http.multipart.OHttpMultipartBaseInputStream;
 import java.io.InputStream;

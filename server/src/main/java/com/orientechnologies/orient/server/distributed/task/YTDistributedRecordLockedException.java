@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.distributed.task;
 
 import com.orientechnologies.common.concur.YTNeedRetryException;
-import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.core.id.YTRID;
 import com.orientechnologies.orient.server.distributed.ODistributedRequestId;
 
 /**

@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.test.database.auto.hooks;
 
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.db.YTDatabaseSession;
+import com.orientechnologies.core.db.YouTrackDB;
+import com.orientechnologies.core.db.YouTrackDBConfig;
+import com.orientechnologies.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 

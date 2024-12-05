@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
-import com.orientechnologies.orient.core.db.document.OQueryDatabaseState;
-import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
-import com.orientechnologies.orient.core.sql.executor.YTResult;
-import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
-import com.orientechnologies.orient.core.tx.OTransactionAbstract;
+import com.orientechnologies.core.db.document.OQueryDatabaseState;
+import com.orientechnologies.core.record.YTRecord;
+import com.orientechnologies.core.sql.executor.OExecutionPlan;
+import com.orientechnologies.core.sql.executor.YTResult;
+import com.orientechnologies.core.sql.executor.YTResultInternal;
+import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.tx.OTransactionAbstract;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

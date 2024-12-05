@@ -20,7 +20,7 @@
 package com.orientechnologies.common.concur;
 
 import com.orientechnologies.common.exception.OErrorCode;
-import com.orientechnologies.orient.core.exception.YTCoreException;
+import com.orientechnologies.core.exception.YTCoreException;
 
 /**
  * Abstract base exception to extend for all the exception that report to the user it has been

@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.profiler.OProfiler;
-import com.orientechnologies.orient.core.YouTrackDBManager;
+import com.orientechnologies.core.YouTrackDBManager;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 

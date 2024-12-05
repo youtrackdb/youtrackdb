@@ -16,8 +16,8 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.parser.OStringParser;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.serialization.serializer.OStringSerializerHelper;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;

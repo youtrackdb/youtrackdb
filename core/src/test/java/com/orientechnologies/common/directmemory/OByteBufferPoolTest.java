@@ -1,7 +1,7 @@
 package com.orientechnologies.common.directmemory;
 
 import com.orientechnologies.common.directmemory.ODirectMemoryAllocator.Intention;
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;

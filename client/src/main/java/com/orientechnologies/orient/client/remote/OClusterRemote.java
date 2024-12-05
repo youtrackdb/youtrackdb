@@ -19,14 +19,14 @@
  */
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
-import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.orient.core.storage.OCluster;
-import com.orientechnologies.orient.core.storage.OPhysicalPosition;
-import com.orientechnologies.orient.core.storage.ORawBuffer;
-import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.impl.local.OClusterBrowsePage;
-import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
+import com.orientechnologies.core.config.OStorageClusterConfiguration;
+import com.orientechnologies.core.conflict.ORecordConflictStrategy;
+import com.orientechnologies.core.storage.OCluster;
+import com.orientechnologies.core.storage.OPhysicalPosition;
+import com.orientechnologies.core.storage.ORawBuffer;
+import com.orientechnologies.core.storage.OStorage;
+import com.orientechnologies.core.storage.impl.local.OClusterBrowsePage;
+import com.orientechnologies.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
@@ -41,7 +41,7 @@ public class OClusterRemote implements OCluster {
   /*
    * (non-Javadoc)
    *
-   * @see com.orientechnologies.orient.core.storage.OCluster#configure(com.orientechnologies.orient.core.storage.OStorage, int,
+   * @see com.orientechnologies.core.storage.OCluster#configure(com.orientechnologies.core.storage.OStorage, int,
    * java.lang.String, java.lang.String, int, java.lang.Object[])
    */
   public void configure(int iId, String iClusterName) {
@@ -52,8 +52,8 @@ public class OClusterRemote implements OCluster {
   /*
    * (non-Javadoc)
    *
-   * @see com.orientechnologies.orient.core.storage.OCluster#configure(com.orientechnologies.orient.core.storage.OStorage,
-   * com.orientechnologies.orient.core.config.OStorageClusterConfiguration)
+   * @see com.orientechnologies.core.storage.OCluster#configure(com.orientechnologies.core.storage.OStorage,
+   * com.orientechnologies.core.config.OStorageClusterConfiguration)
    */
   public void configure(OStorage iStorage, OStorageClusterConfiguration iConfig) {
     id = iConfig.getId();
@@ -63,7 +63,7 @@ public class OClusterRemote implements OCluster {
   /*
    * (non-Javadoc)
    *
-   * @see com.orientechnologies.orient.core.storage.OCluster#create(int)
+   * @see com.orientechnologies.core.storage.OCluster#create(int)
    */
   public void create(OAtomicOperation atomicOperation) {
   }
@@ -71,7 +71,7 @@ public class OClusterRemote implements OCluster {
   /*
    * (non-Javadoc)
    *
-   * @see com.orientechnologies.orient.core.storage.OCluster#open()
+   * @see com.orientechnologies.core.storage.OCluster#open()
    */
   public void open(OAtomicOperation atomicOperation) {
   }

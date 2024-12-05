@@ -22,7 +22,7 @@ package com.orientechnologies.orient.server;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
 import com.orientechnologies.orient.client.remote.message.OShutdownRequest;
-import com.orientechnologies.orient.core.config.YTContextConfiguration;
+import com.orientechnologies.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.YTNetworkProtocolException;
 import com.orientechnologies.orient.server.config.OServerConfiguration;

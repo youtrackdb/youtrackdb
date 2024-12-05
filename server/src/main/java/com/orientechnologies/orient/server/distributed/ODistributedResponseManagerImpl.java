@@ -21,10 +21,10 @@ package com.orientechnologies.orient.server.distributed;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
-import com.orientechnologies.orient.core.exception.YTConcurrentCreateException;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.YouTrackDBManager;
+import com.orientechnologies.core.command.OCommandDistributedReplicateRequest;
+import com.orientechnologies.core.exception.YTConcurrentCreateException;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.distributed.ODistributedServerLog.DIRECTION;
 import com.orientechnologies.orient.server.distributed.task.YTDistributedOperationException;
 import com.orientechnologies.orient.server.distributed.task.YTDistributedRecordLockedException;

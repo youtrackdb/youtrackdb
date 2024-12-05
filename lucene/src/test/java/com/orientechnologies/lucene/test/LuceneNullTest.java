@@ -1,7 +1,7 @@
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.index.OIndex;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
 

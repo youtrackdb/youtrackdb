@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

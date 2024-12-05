@@ -14,12 +14,12 @@
 package com.orientechnologies.orient.jdbc;
 
 import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.orient.core.exception.YTDatabaseException;
-import com.orientechnologies.orient.core.exception.YTQueryParsingException;
-import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
-import com.orientechnologies.orient.core.sql.executor.YTInternalResultSet;
-import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.exception.YTDatabaseException;
+import com.orientechnologies.core.exception.YTQueryParsingException;
+import com.orientechnologies.core.record.impl.YTRecordBytes;
+import com.orientechnologies.core.sql.executor.YTInternalResultSet;
+import com.orientechnologies.core.sql.executor.YTResultInternal;
+import com.orientechnologies.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.jdbc.OrientJdbcParameterMetadata.ParameterDefinition;
 import java.io.IOException;
 import java.io.InputStream;

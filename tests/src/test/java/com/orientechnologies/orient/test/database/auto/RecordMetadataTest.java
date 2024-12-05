@@ -2,9 +2,9 @@ package com.orientechnologies.orient.test.database.auto;
 
 import static org.testng.Assert.assertEquals;
 
-import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.storage.ORecordMetadata;
+import com.orientechnologies.core.id.YTRID;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.storage.ORecordMetadata;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;

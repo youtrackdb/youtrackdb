@@ -1,8 +1,8 @@
 package com.orientechnologies.lucene.engine;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.storage.OStorage;
+import com.orientechnologies.core.db.ODatabaseType;
+import com.orientechnologies.core.storage.OStorage;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;

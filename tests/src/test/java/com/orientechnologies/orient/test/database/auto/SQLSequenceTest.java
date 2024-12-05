@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
-import com.orientechnologies.orient.core.exception.YTDatabaseException;
-import com.orientechnologies.orient.core.exception.YTSequenceException;
-import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibrary;
-import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.exception.YTCommandExecutionException;
+import com.orientechnologies.core.exception.YTDatabaseException;
+import com.orientechnologies.core.exception.YTSequenceException;
+import com.orientechnologies.core.metadata.sequence.OSequenceLibrary;
+import com.orientechnologies.core.metadata.sequence.YTSequence;
+import com.orientechnologies.core.sql.executor.YTResultSet;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import org.testng.Assert;

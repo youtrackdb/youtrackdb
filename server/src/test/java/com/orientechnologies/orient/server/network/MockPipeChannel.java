@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server.network;
 
-import com.orientechnologies.orient.core.config.YTContextConfiguration;
+import com.orientechnologies.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

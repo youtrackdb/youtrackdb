@@ -21,7 +21,7 @@ package com.orientechnologies.common.log;
 
 import com.orientechnologies.common.parser.OVariableParser;
 import com.orientechnologies.common.parser.OVariableParserListener;
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
 import java.util.Locale;
 
 /**

@@ -3,12 +3,12 @@ package com.orientechnologies.orient.test.database.auto;
 import static org.testng.AssertJUnit.assertTrue;
 
 import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.storage.OPhysicalPosition;
-import com.orientechnologies.orient.core.storage.OStorageOperationResult;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.orientechnologies.core.id.YTRecordId;
+import com.orientechnologies.core.metadata.schema.YTClass;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.storage.OPhysicalPosition;
+import com.orientechnologies.core.storage.OStorageOperationResult;
+import com.orientechnologies.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;

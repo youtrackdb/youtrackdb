@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.YouTrackDBManager;
+import com.orientechnologies.core.YouTrackDBManager;
 import java.io.File;
 import java.io.InputStream;
 import org.junit.After;

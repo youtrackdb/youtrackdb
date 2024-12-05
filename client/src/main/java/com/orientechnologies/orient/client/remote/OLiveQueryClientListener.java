@@ -3,10 +3,10 @@ package com.orientechnologies.orient.client.remote;
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.YTLiveQueryResultListener;
+import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.core.db.YTDatabaseSession;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.db.YTLiveQueryResultListener;
 
 /**
  *

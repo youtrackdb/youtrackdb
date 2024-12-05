@@ -19,7 +19,7 @@
 package com.orientechnologies.lucene.test;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
+import com.orientechnologies.core.metadata.OMetadataInternal;
 import java.io.InputStream;
 import java.util.logging.Level;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;

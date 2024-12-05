@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.test.server.network.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.OConstants;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;

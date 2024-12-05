@@ -1,0 +1,59 @@
+/*
+ *
+ *
+ *  *
+ *  *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  *  you may not use this file except in compliance with the License.
+ *  *  You may obtain a copy of the License at
+ *  *
+ *  *       http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  *  Unless required by applicable law or agreed to in writing, software
+ *  *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  *  See the License for the specific language governing permissions and
+ *  *  limitations under the License.
+ *  *
+ *
+ *
+ */
+package com.orientechnologies.core.collate;
+
+import com.orientechnologies.common.comparator.ODefaultComparator;
+
+/**
+ * Default collate, does not apply conversions.
+ */
+public class ODefaultCollate extends ODefaultComparator implements OCollate {
+
+  public static final String NAME = "default";
+
+  public String getName() {
+    return NAME;
+  }
+
+  public Object transform(final Object obj) {
+    return obj;
+  }
+
+  @Override
+  public int hashCode() {
+    return NAME.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null || obj.getClass() != this.getClass()) {
+      return false;
+    }
+
+    final ODefaultCollate that = (ODefaultCollate) obj;
+
+    return NAME.equals(NAME);
+  }
+
+  @Override
+  public String toString() {
+    return "{" + getClass().getSimpleName() + " : name = " + NAME + "}";
+  }
+}

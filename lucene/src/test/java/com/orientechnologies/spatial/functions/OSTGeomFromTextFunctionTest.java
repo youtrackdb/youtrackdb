@@ -1,7 +1,7 @@
 package com.orientechnologies.spatial.functions;
 
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import com.orientechnologies.spatial.BaseSpatialLuceneTest;
 import java.util.List;
 import org.junit.Assert;

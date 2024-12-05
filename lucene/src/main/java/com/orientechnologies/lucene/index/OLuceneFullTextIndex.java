@@ -17,10 +17,10 @@
 package com.orientechnologies.lucene.index;
 
 import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
-import com.orientechnologies.orient.core.index.OIndexMetadata;
-import com.orientechnologies.orient.core.storage.OStorage;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.exception.OInvalidIndexEngineIdException;
+import com.orientechnologies.core.index.OIndexMetadata;
+import com.orientechnologies.core.storage.OStorage;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.Query;

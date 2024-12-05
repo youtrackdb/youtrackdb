@@ -23,7 +23,7 @@ import com.orientechnologies.common.io.OIOException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
 import com.orientechnologies.orient.client.remote.message.OCloseRequest;
-import com.orientechnologies.orient.core.config.YTContextConfiguration;
+import com.orientechnologies.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
 import java.io.IOException;
 import java.util.Collection;

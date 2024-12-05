@@ -17,8 +17,8 @@ import static com.orientechnologies.orient.jdbc.OrientDbCreationHelper.createSch
 import static com.orientechnologies.orient.jdbc.OrientDbCreationHelper.loadDB;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.db.YouTrackDB;
 import java.io.File;
 import java.util.Properties;
 import javax.sql.DataSource;

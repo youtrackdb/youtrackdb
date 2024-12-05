@@ -1,11 +1,11 @@
 package com.orientechnologies.lucene.engine;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.metadata.schema.YTProperty;
-import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.index.OIndexDefinition;
+import com.orientechnologies.core.metadata.schema.YTClass;
+import com.orientechnologies.core.metadata.schema.YTProperty;
+import com.orientechnologies.core.metadata.schema.YTSchema;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

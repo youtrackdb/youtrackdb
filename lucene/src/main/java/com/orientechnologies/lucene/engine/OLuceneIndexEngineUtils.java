@@ -1,7 +1,7 @@
 package com.orientechnologies.lucene.engine;
 
-import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.command.OCommandContext;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;

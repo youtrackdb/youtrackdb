@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed.task;
 
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
 import com.orientechnologies.orient.server.distributed.ORemoteTaskFactory;
 import java.io.DataInput;
 import java.io.DataOutput;

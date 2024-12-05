@@ -18,12 +18,12 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.id.YTRID;
+import com.orientechnologies.core.index.OIndex;
+import com.orientechnologies.core.metadata.schema.YTClass;
+import com.orientechnologies.core.metadata.schema.YTSchema;
+import com.orientechnologies.core.metadata.schema.YTType;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;

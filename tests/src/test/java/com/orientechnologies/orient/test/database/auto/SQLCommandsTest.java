@@ -15,16 +15,16 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.command.script.OCommandScript;
-import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.storage.cache.local.OWOWCache;
-import com.orientechnologies.orient.core.storage.cluster.OClusterPositionMap;
-import com.orientechnologies.orient.core.storage.cluster.OPaginatedCluster;
-import com.orientechnologies.orient.core.storage.disk.OLocalPaginatedStorage;
+import com.orientechnologies.core.command.script.OCommandScript;
+import com.orientechnologies.core.db.ODatabaseType;
+import com.orientechnologies.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.metadata.schema.YTSchema;
+import com.orientechnologies.core.metadata.schema.YTType;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.storage.cache.local.OWOWCache;
+import com.orientechnologies.core.storage.cluster.OClusterPositionMap;
+import com.orientechnologies.core.storage.cluster.OPaginatedCluster;
+import com.orientechnologies.core.storage.disk.OLocalPaginatedStorage;
 import java.io.File;
 import java.util.Collection;
 import java.util.Locale;

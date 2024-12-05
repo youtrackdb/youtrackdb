@@ -14,8 +14,8 @@
 package com.orientechnologies.spatial;
 
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALChanges;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.storage.impl.local.paginated.wal.OWALChanges;
 import java.nio.ByteBuffer;
 
 /**

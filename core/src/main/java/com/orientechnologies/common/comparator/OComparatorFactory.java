@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.common.comparator;
 
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
 import java.util.Comparator;
 
 /**

@@ -3,15 +3,15 @@ package com.orientechnologies.orient.client.remote.db.document;
 import com.orientechnologies.orient.client.remote.YouTrackDBRemote;
 import com.orientechnologies.orient.client.remote.metadata.schema.OSchemaRemote;
 import com.orientechnologies.orient.client.remote.metadata.security.OSecurityRemote;
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OSharedContext;
-import com.orientechnologies.orient.core.db.OStringCache;
-import com.orientechnologies.orient.core.index.OIndexManagerRemote;
-import com.orientechnologies.orient.core.metadata.function.OFunctionLibraryImpl;
-import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibraryImpl;
-import com.orientechnologies.orient.core.schedule.OSchedulerImpl;
-import com.orientechnologies.orient.core.storage.OStorageInfo;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.db.OSharedContext;
+import com.orientechnologies.core.db.OStringCache;
+import com.orientechnologies.core.index.OIndexManagerRemote;
+import com.orientechnologies.core.metadata.function.OFunctionLibraryImpl;
+import com.orientechnologies.core.metadata.sequence.OSequenceLibraryImpl;
+import com.orientechnologies.core.schedule.OSchedulerImpl;
+import com.orientechnologies.core.storage.OStorageInfo;
 
 /**
  *

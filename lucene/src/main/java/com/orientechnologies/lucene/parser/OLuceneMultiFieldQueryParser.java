@@ -2,7 +2,7 @@ package com.orientechnologies.lucene.parser;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.lucene.builder.OLuceneDateTools;
-import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.core.metadata.schema.YTType;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.lucene.analysis.Analyzer;

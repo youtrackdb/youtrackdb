@@ -1,20 +1,20 @@
 package com.orientechnologies.orient.client.remote.metadata.schema;
 
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.YTSchemaException;
-import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.metadata.schema.YTClassImpl;
-import com.orientechnologies.orient.core.metadata.schema.YTProperty;
-import com.orientechnologies.orient.core.metadata.schema.YTPropertyImpl;
-import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
-import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.metadata.schema.YTView;
-import com.orientechnologies.orient.core.metadata.schema.YTViewImpl;
-import com.orientechnologies.orient.core.metadata.schema.OViewRemovedMetadata;
-import com.orientechnologies.orient.core.metadata.security.ORole;
-import com.orientechnologies.orient.core.metadata.security.ORule;
+import com.orientechnologies.core.db.YTDatabaseSession;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.exception.YTSchemaException;
+import com.orientechnologies.core.index.OIndex;
+import com.orientechnologies.core.metadata.schema.YTClass;
+import com.orientechnologies.core.metadata.schema.YTClassImpl;
+import com.orientechnologies.core.metadata.schema.YTProperty;
+import com.orientechnologies.core.metadata.schema.YTPropertyImpl;
+import com.orientechnologies.core.metadata.schema.OSchemaShared;
+import com.orientechnologies.core.metadata.schema.YTType;
+import com.orientechnologies.core.metadata.schema.YTView;
+import com.orientechnologies.core.metadata.schema.YTViewImpl;
+import com.orientechnologies.core.metadata.schema.OViewRemovedMetadata;
+import com.orientechnologies.core.metadata.security.ORole;
+import com.orientechnologies.core.metadata.security.ORule;
 import java.util.List;
 
 /**

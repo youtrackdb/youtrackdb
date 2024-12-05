@@ -21,7 +21,7 @@ package com.orientechnologies.common.util;
 
 import com.orientechnologies.common.jnr.ONative;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
 
 /**
  * Provides various utilities related to memory management and configuration.

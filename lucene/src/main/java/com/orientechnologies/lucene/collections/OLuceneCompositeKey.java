@@ -18,8 +18,8 @@
 
 package com.orientechnologies.lucene.collections;
 
-import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.index.OCompositeKey;
+import com.orientechnologies.core.command.OCommandContext;
+import com.orientechnologies.core.index.OCompositeKey;
 import java.util.List;
 
 /**

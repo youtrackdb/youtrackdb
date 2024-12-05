@@ -18,7 +18,7 @@
 
 package com.orientechnologies.orient.server.plugin;
 
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 
 /**
  *

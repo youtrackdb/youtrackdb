@@ -83,7 +83,7 @@ import com.orientechnologies.orient.client.remote.message.OShutdownRequest;
 import com.orientechnologies.orient.client.remote.message.OSubscribeRequest;
 import com.orientechnologies.orient.client.remote.message.OUnsubscribeRequest;
 import com.orientechnologies.orient.client.remote.message.OUpdateRecordRequest;
-import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.core.exception.YTDatabaseException;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import java.util.function.Function;
 

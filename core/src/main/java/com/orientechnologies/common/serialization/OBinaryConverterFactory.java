@@ -20,7 +20,7 @@
 
 package com.orientechnologies.common.serialization;
 
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
 
 /**
  * @since 26.07.12

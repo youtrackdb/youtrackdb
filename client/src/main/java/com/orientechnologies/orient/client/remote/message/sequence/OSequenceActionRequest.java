@@ -15,9 +15,9 @@
  */
 package com.orientechnologies.orient.client.remote.message.sequence;
 
-import com.orientechnologies.orient.core.metadata.sequence.YTSequence;
-import com.orientechnologies.orient.core.metadata.sequence.OSequenceAction;
-import com.orientechnologies.orient.core.metadata.sequence.SequenceOrderType;
+import com.orientechnologies.core.metadata.sequence.YTSequence;
+import com.orientechnologies.core.metadata.sequence.OSequenceAction;
+import com.orientechnologies.core.metadata.sequence.SequenceOrderType;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;

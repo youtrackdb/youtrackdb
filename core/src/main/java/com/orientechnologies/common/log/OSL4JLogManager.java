@@ -1,8 +1,8 @@
 package com.orientechnologies.common.log;
 
-import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.storage.OStorage;
+import com.orientechnologies.core.command.OCommandOutputListener;
+import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.core.storage.OStorage;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;

@@ -19,13 +19,13 @@
  */
 package com.orientechnologies.common.util;
 
-import com.orientechnologies.orient.core.config.OStorageFileConfiguration;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.storage.OCluster;
-import com.orientechnologies.orient.core.storage.OPhysicalPosition;
-import com.orientechnologies.orient.core.storage.cache.OPageDataVerificationError;
-import com.orientechnologies.orient.core.storage.index.hashindex.local.OHashTable;
+import com.orientechnologies.core.config.OStorageFileConfiguration;
+import com.orientechnologies.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.metadata.schema.YTType;
+import com.orientechnologies.core.storage.OCluster;
+import com.orientechnologies.core.storage.OPhysicalPosition;
+import com.orientechnologies.core.storage.cache.OPageDataVerificationError;
+import com.orientechnologies.core.storage.index.hashindex.local.OHashTable;
 
 public final class OCommonConst {
 

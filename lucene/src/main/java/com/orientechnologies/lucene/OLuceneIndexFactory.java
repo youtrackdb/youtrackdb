@@ -16,22 +16,22 @@
 
 package com.orientechnologies.lucene;
 
-import static com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE.FULLTEXT;
+import static com.orientechnologies.core.metadata.schema.YTClass.INDEX_TYPE.FULLTEXT;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.lucene.engine.OLuceneFullTextIndexEngine;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
-import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.config.IndexEngineData;
-import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.YTConfigurationException;
-import com.orientechnologies.orient.core.index.OIndexFactory;
-import com.orientechnologies.orient.core.index.OIndexInternal;
-import com.orientechnologies.orient.core.index.OIndexMetadata;
-import com.orientechnologies.orient.core.index.engine.OBaseIndexEngine;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.storage.OStorage;
+import com.orientechnologies.core.YouTrackDBManager;
+import com.orientechnologies.core.config.IndexEngineData;
+import com.orientechnologies.core.db.ODatabaseLifecycleListener;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.exception.YTConfigurationException;
+import com.orientechnologies.core.index.OIndexFactory;
+import com.orientechnologies.core.index.OIndexInternal;
+import com.orientechnologies.core.index.OIndexMetadata;
+import com.orientechnologies.core.index.engine.OBaseIndexEngine;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.storage.OStorage;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;

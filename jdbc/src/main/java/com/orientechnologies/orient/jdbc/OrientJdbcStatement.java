@@ -16,12 +16,12 @@ package com.orientechnologies.orient.jdbc;
 import static java.lang.Boolean.parseBoolean;
 
 import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.exception.YTQueryParsingException;
-import com.orientechnologies.orient.core.sql.executor.YTInternalResultSet;
-import com.orientechnologies.orient.core.sql.executor.YTResult;
-import com.orientechnologies.orient.core.sql.executor.YTResultInternal;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.exception.YTQueryParsingException;
+import com.orientechnologies.core.sql.executor.YTInternalResultSet;
+import com.orientechnologies.core.sql.executor.YTResult;
+import com.orientechnologies.core.sql.executor.YTResultInternal;
+import com.orientechnologies.core.sql.executor.YTResultSet;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;

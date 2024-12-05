@@ -1,15 +1,15 @@
 package com.orientechnologies.orient.server.token;
 
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.metadata.security.OToken;
-import com.orientechnologies.orient.core.metadata.security.YTUser;
-import com.orientechnologies.orient.core.metadata.security.jwt.OJsonWebToken;
-import com.orientechnologies.orient.core.metadata.security.jwt.OJwtPayload;
-import com.orientechnologies.orient.core.metadata.security.jwt.OTokenHeader;
-import com.orientechnologies.orient.core.metadata.security.jwt.OrientJwtHeader;
-import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.id.YTRID;
+import com.orientechnologies.core.metadata.security.OToken;
+import com.orientechnologies.core.metadata.security.YTUser;
+import com.orientechnologies.core.metadata.security.jwt.OJsonWebToken;
+import com.orientechnologies.core.metadata.security.jwt.OJwtPayload;
+import com.orientechnologies.core.metadata.security.jwt.OTokenHeader;
+import com.orientechnologies.core.metadata.security.jwt.OrientJwtHeader;
+import com.orientechnologies.core.record.impl.ODocumentInternal;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 
 /**
  *

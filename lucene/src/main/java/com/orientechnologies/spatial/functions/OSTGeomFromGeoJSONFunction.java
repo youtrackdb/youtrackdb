@@ -14,11 +14,11 @@
 package com.orientechnologies.spatial.functions;
 
 import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.YTCommandExecutionException;
-import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
+import com.orientechnologies.core.command.OCommandContext;
+import com.orientechnologies.core.db.YTDatabaseSession;
+import com.orientechnologies.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.exception.YTCommandExecutionException;
+import com.orientechnologies.core.sql.functions.OSQLFunctionAbstract;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 
 /**

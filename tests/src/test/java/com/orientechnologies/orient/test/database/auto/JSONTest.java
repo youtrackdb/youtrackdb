@@ -15,21 +15,21 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.config.OStorageConfiguration;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.record.TrackedList;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.RidBag;
-import com.orientechnologies.orient.core.exception.YTSerializationException;
-import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
-import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerJSON;
-import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import com.orientechnologies.core.config.OStorageConfiguration;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.core.db.record.TrackedList;
+import com.orientechnologies.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.db.record.ridbag.RidBag;
+import com.orientechnologies.core.exception.YTSerializationException;
+import com.orientechnologies.core.id.YTRID;
+import com.orientechnologies.core.metadata.schema.YTType;
+import com.orientechnologies.core.record.ORecordInternal;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.serialization.serializer.OJSONWriter;
+import com.orientechnologies.core.serialization.serializer.record.string.ORecordSerializerJSON;
+import com.orientechnologies.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
+import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.sql.query.OSQLSynchQuery;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;

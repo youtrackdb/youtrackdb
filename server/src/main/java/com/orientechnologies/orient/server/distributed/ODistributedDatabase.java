@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.tx.OTransactionId;
-import com.orientechnologies.orient.core.tx.OTransactionSequenceStatus;
-import com.orientechnologies.orient.core.tx.OTxMetadataHolder;
-import com.orientechnologies.orient.core.tx.ValidationResult;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.tx.OTransactionId;
+import com.orientechnologies.core.tx.OTransactionSequenceStatus;
+import com.orientechnologies.core.tx.OTxMetadataHolder;
+import com.orientechnologies.core.tx.ValidationResult;
 import com.orientechnologies.orient.server.distributed.task.ORemoteTask;
 import java.util.List;
 import java.util.Optional;

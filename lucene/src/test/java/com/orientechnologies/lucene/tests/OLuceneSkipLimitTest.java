@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.tests;
 
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;

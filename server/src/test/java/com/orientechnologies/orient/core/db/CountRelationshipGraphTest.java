@@ -2,9 +2,12 @@ package com.orientechnologies.orient.core.db;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.YTVertex;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.db.YTDatabaseSession;
+import com.orientechnologies.core.db.YouTrackDB;
+import com.orientechnologies.core.db.YouTrackDBConfig;
+import com.orientechnologies.core.record.ODirection;
+import com.orientechnologies.core.record.YTVertex;
 import com.orientechnologies.orient.server.AbstractRemoteTest;
 import java.util.Iterator;
 import org.junit.Test;

@@ -20,11 +20,11 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.all;
 
 import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.command.script.YTCommandScriptException;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.metadata.function.OFunction;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.command.OBasicCommandContext;
+import com.orientechnologies.core.command.script.YTCommandScriptException;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.metadata.function.OFunction;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequestWrapper;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;

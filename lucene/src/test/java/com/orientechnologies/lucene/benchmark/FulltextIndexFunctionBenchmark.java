@@ -2,12 +2,12 @@ package com.orientechnologies.lucene.benchmark;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.db.ODatabaseType;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.core.db.YouTrackDB;
+import com.orientechnologies.core.db.YouTrackDBConfig;
+import com.orientechnologies.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;

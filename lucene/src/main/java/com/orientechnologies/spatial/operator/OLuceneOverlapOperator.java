@@ -14,13 +14,13 @@
 package com.orientechnologies.spatial.operator;
 
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializer;
-import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
+import com.orientechnologies.core.command.OCommandContext;
+import com.orientechnologies.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.id.YTRID;
+import com.orientechnologies.core.index.OIndex;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.serialization.serializer.record.binary.ODocumentSerializer;
+import com.orientechnologies.core.sql.filter.OSQLFilterCondition;
 import com.orientechnologies.spatial.collections.OSpatialCompositeKey;
 import com.orientechnologies.spatial.strategy.SpatialQueryBuilderAbstract;
 import com.orientechnologies.spatial.strategy.SpatialQueryBuilderOverlap;

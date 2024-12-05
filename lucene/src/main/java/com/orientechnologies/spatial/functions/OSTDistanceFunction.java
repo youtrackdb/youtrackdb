@@ -13,9 +13,9 @@
  */
 package com.orientechnologies.spatial.functions;
 
-import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.command.OCommandContext;
+import com.orientechnologies.core.db.YTDatabaseSession;
+import com.orientechnologies.core.db.record.YTIdentifiable;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 import org.locationtech.spatial4j.shape.Shape;
 

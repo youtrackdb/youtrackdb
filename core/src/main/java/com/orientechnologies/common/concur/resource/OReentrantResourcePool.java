@@ -20,9 +20,9 @@
 package com.orientechnologies.common.concur.resource;
 
 import com.orientechnologies.common.concur.lock.YTLockException;
-import com.orientechnologies.orient.core.OOrientShutdownListener;
-import com.orientechnologies.orient.core.OOrientStartupListener;
-import com.orientechnologies.orient.core.YouTrackDBManager;
+import com.orientechnologies.core.OOrientShutdownListener;
+import com.orientechnologies.core.OOrientStartupListener;
+import com.orientechnologies.core.YouTrackDBManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

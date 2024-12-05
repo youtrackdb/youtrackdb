@@ -11,11 +11,11 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;

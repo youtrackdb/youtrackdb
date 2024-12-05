@@ -16,8 +16,8 @@
 
 package com.orientechnologies.common.serialization.types;
 
-import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALChanges;
-import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALPageChangesPortion;
+import com.orientechnologies.core.storage.impl.local.paginated.wal.OWALChanges;
+import com.orientechnologies.core.storage.impl.local.paginated.wal.OWALPageChangesPortion;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;

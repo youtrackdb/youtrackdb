@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.NETWORK_BINARY_MIN_PROTOCOL_VERSION;
+import static com.orientechnologies.core.config.YTGlobalConfiguration.NETWORK_BINARY_MIN_PROTOCOL_VERSION;
 import static com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol.OLDEST_SUPPORTED_PROTOCOL_VERSION;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.exception.YTDatabaseException;
+import com.orientechnologies.core.exception.YTDatabaseException;
 
 public class OBinaryProtocolHelper {
 

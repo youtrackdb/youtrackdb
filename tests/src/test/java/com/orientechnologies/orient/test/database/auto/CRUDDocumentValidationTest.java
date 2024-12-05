@@ -16,14 +16,14 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.util.OPair;
-import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.exception.YTDatabaseException;
-import com.orientechnologies.orient.core.exception.YTValidationException;
-import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.impl.ODocumentComparator;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.sql.executor.YTResult;
+import com.orientechnologies.core.command.OBasicCommandContext;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.core.exception.YTDatabaseException;
+import com.orientechnologies.core.exception.YTValidationException;
+import com.orientechnologies.core.record.YTEntity;
+import com.orientechnologies.core.record.impl.ODocumentComparator;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.sql.executor.YTResult;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;

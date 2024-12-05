@@ -21,7 +21,7 @@ package com.orientechnologies;
 
 import com.orientechnologies.common.directmemory.OByteBufferPool;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.YouTrackDBManager;
+import com.orientechnologies.core.YouTrackDBManager;
 import org.junit.Assert;
 import org.junit.runner.Result;
 import org.junit.runner.notification.RunListener;

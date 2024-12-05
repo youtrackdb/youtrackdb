@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.server.network.http;
 
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import java.io.IOException;
 import java.util.Collection;
 import org.junit.Assert;

@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.common.parser;
 
-import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.core.command.OCommandContext;
 
 /**
  * Resolve variables by using a context.

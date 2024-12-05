@@ -18,9 +18,9 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.metadata.schema.YTType;
+import com.orientechnologies.core.index.OIndex;
+import com.orientechnologies.core.metadata.schema.YTClass;
+import com.orientechnologies.core.metadata.schema.YTType;
 import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;

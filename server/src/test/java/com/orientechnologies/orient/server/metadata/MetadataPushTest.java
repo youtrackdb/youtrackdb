@@ -6,12 +6,12 @@ import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.db.YouTrackDBConfig;
+import com.orientechnologies.core.YouTrackDBManager;
+import com.orientechnologies.core.db.YTDatabaseSession;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.orientechnologies.core.db.YouTrackDB;
+import com.orientechnologies.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.util.Locale;

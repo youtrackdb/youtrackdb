@@ -23,7 +23,7 @@ import com.orientechnologies.common.concur.lock.YTInterruptedException;
 import com.orientechnologies.common.concur.lock.YTLockException;
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.exception.YTAcquireTimeoutException;
+import com.orientechnologies.core.exception.YTAcquireTimeoutException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

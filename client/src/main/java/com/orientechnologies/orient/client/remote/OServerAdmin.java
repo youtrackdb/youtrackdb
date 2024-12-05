@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal;
-import com.orientechnologies.orient.core.exception.YTStorageException;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.db.ODatabaseType;
+import com.orientechnologies.core.db.YouTrackDBConfig;
+import com.orientechnologies.core.db.document.ODatabaseDocumentTxInternal;
+import com.orientechnologies.core.exception.YTStorageException;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;

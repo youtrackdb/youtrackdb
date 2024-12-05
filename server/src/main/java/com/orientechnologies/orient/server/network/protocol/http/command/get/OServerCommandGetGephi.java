@@ -19,13 +19,13 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.record.ODirection;
-import com.orientechnologies.orient.core.record.YTEdge;
-import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
-import com.orientechnologies.orient.core.sql.executor.YTResult;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.db.YTDatabaseSession;
+import com.orientechnologies.core.record.ODirection;
+import com.orientechnologies.core.record.YTEdge;
+import com.orientechnologies.core.record.YTVertex;
+import com.orientechnologies.core.serialization.serializer.OJSONWriter;
+import com.orientechnologies.core.sql.executor.YTResult;
+import com.orientechnologies.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;

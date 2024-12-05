@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.core.id.YTRID;
 import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;

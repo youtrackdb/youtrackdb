@@ -19,14 +19,14 @@
  */
 package com.orientechnologies.orient.client.remote;
 
-import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.CLIENT_CHANNEL_IDLE_CLOSE;
-import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.CLIENT_CHANNEL_IDLE_TIMEOUT;
-import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.NETWORK_LOCK_TIMEOUT;
+import static com.orientechnologies.core.config.YTGlobalConfiguration.CLIENT_CHANNEL_IDLE_CLOSE;
+import static com.orientechnologies.core.config.YTGlobalConfiguration.CLIENT_CHANNEL_IDLE_TIMEOUT;
+import static com.orientechnologies.core.config.YTGlobalConfiguration.NETWORK_LOCK_TIMEOUT;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
-import com.orientechnologies.orient.core.config.YTContextConfiguration;
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.config.YTContextConfiguration;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

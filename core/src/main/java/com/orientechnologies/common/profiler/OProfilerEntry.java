@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.common.profiler;
 
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;

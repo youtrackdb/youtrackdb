@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.server;
 
 import com.orientechnologies.common.parser.OSystemVariableResolver;
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.security.OSecurityConfig;
-import com.orientechnologies.orient.core.security.OSyslog;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.security.OSecurityConfig;
+import com.orientechnologies.core.security.OSyslog;
 import com.orientechnologies.orient.server.config.OServerConfigurationManager;
 import com.orientechnologies.orient.server.plugin.OServerPluginInfo;
 

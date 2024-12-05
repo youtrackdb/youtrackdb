@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
-import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.sql.parser.ParseException;
+import com.orientechnologies.core.index.OIndexDefinition;
+import com.orientechnologies.core.sql.parser.ParseException;
 import java.util.Collections;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.junit.Before;

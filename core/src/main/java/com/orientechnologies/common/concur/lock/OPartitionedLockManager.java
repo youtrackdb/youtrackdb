@@ -20,7 +20,7 @@
 
 package com.orientechnologies.common.concur.lock;
 
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

@@ -1,8 +1,8 @@
 package com.orientechnologies.common.collection.closabledictionary;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.YouTrackDBManager;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;

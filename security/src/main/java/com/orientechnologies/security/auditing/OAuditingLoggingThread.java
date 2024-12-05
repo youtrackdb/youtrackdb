@@ -13,13 +13,13 @@
  */
 package com.orientechnologies.security.auditing;
 
-import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.security.OAuditingOperation;
-import com.orientechnologies.orient.core.security.OSecuritySystem;
+import com.orientechnologies.core.YouTrackDBManager;
+import com.orientechnologies.core.db.YouTrackDBInternal;
+import com.orientechnologies.core.metadata.schema.YTClass;
+import com.orientechnologies.core.metadata.schema.YTSchema;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.security.OAuditingOperation;
+import com.orientechnologies.core.security.OSecuritySystem;
 import java.util.concurrent.BlockingQueue;
 
 /**

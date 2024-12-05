@@ -1,6 +1,6 @@
 package com.orientechnologies.common.function;
 
-import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
+import com.orientechnologies.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 
 public interface TxConsumer {
 

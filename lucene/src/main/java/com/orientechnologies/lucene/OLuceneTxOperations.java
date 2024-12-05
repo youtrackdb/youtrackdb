@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene;
 
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.db.record.YTIdentifiable;
 import java.util.HashSet;
 import java.util.Set;
 

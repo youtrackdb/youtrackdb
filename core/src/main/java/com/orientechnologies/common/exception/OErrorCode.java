@@ -1,9 +1,9 @@
 package com.orientechnologies.common.exception;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.exception.YTBackupInProgressException;
-import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
-import com.orientechnologies.orient.core.exception.YTQueryParsingException;
+import com.orientechnologies.core.exception.YTBackupInProgressException;
+import com.orientechnologies.core.exception.YTConcurrentModificationException;
+import com.orientechnologies.core.exception.YTQueryParsingException;
 import java.lang.reflect.InvocationTargetException;
 
 /**

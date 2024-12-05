@@ -15,17 +15,17 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.exception.YTConcurrentModificationException;
-import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTBlob;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.record.impl.YTRecordBytes;
-import com.orientechnologies.orient.core.tx.YTRollbackException;
+import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.exception.YTConcurrentModificationException;
+import com.orientechnologies.core.metadata.schema.YTSchema;
+import com.orientechnologies.core.record.ORecordInternal;
+import com.orientechnologies.core.record.YTRecordAbstract;
+import com.orientechnologies.core.record.impl.YTBlob;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.record.impl.YTRecordBytes;
+import com.orientechnologies.core.tx.YTRollbackException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;

@@ -1,11 +1,11 @@
 package com.orientechnologies.lucene.functions;
 
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
-import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
-import com.orientechnologies.orient.core.sql.parser.OExpression;
+import com.orientechnologies.core.command.OCommandContext;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.metadata.OMetadataInternal;
+import com.orientechnologies.core.sql.parser.OExpression;
 import org.apache.lucene.index.memory.MemoryIndex;
 
 /**

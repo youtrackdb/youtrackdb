@@ -22,9 +22,9 @@ package com.orientechnologies.orient.server.handler;
 
 import com.orientechnologies.common.exception.YTException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.YouTrackDBManager;
-import com.orientechnologies.orient.core.exception.YTConfigurationException;
+import com.orientechnologies.core.OConstants;
+import com.orientechnologies.core.YouTrackDBManager;
+import com.orientechnologies.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;

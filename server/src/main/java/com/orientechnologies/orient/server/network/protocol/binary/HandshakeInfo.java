@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server.network.protocol.binary;
 
-import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
-import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
+import com.orientechnologies.core.serialization.serializer.record.ORecordSerializer;
+import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
 
 /**
  *

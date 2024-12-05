@@ -15,16 +15,16 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.command.OCommandExecutor;
-import com.orientechnologies.orient.core.command.OCommandRequestText;
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.db.YTDatabaseListener;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.orient.core.hook.YTDocumentHookAbstract;
-import com.orientechnologies.orient.core.hook.YTRecordHook;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.command.OCommandExecutor;
+import com.orientechnologies.core.command.OCommandRequestText;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.db.YTDatabaseListener;
+import com.orientechnologies.core.db.YTDatabaseSession;
+import com.orientechnologies.core.db.YouTrackDBConfig;
+import com.orientechnologies.core.db.YouTrackDBConfigBuilder;
+import com.orientechnologies.core.hook.YTDocumentHookAbstract;
+import com.orientechnologies.core.hook.YTRecordHook;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;

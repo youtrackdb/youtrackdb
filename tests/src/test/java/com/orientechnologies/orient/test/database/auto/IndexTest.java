@@ -16,28 +16,28 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.index.OCompositeKey;
-import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
-import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.metadata.schema.YTClass.INDEX_TYPE;
-import com.orientechnologies.orient.core.metadata.schema.YTProperty;
-import com.orientechnologies.orient.core.metadata.schema.YTSchema;
-import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.orientechnologies.orient.core.sql.executor.FetchFromIndexStep;
-import com.orientechnologies.orient.core.sql.executor.OExecutionStep;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.core.storage.YTRecordDuplicatedException;
-import com.orientechnologies.orient.core.storage.cache.OWriteCache;
-import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.id.YTRID;
+import com.orientechnologies.core.id.YTRecordId;
+import com.orientechnologies.core.index.OCompositeKey;
+import com.orientechnologies.core.index.OIndex;
+import com.orientechnologies.core.index.OIndexManagerAbstract;
+import com.orientechnologies.core.metadata.schema.YTClass;
+import com.orientechnologies.core.metadata.schema.YTClass.INDEX_TYPE;
+import com.orientechnologies.core.metadata.schema.YTProperty;
+import com.orientechnologies.core.metadata.schema.YTSchema;
+import com.orientechnologies.core.metadata.schema.YTType;
+import com.orientechnologies.core.record.YTEntity;
+import com.orientechnologies.core.record.YTVertex;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.sql.OCommandSQL;
+import com.orientechnologies.core.sql.executor.FetchFromIndexStep;
+import com.orientechnologies.core.sql.executor.OExecutionStep;
+import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.sql.query.OSQLSynchQuery;
+import com.orientechnologies.core.storage.YTRecordDuplicatedException;
+import com.orientechnologies.core.storage.cache.OWriteCache;
+import com.orientechnologies.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -562,7 +562,7 @@ public class IndexTest extends DocumentDBBaseTest {
       testClassDocument.save();
       db.commit();
       // THIS WILL THROW A java.lang.ClassCastException:
-      // com.orientechnologies.orient.core.id.YTRecordId cannot be cast to
+      // com.orientechnologies.core.id.YTRecordId cannot be cast to
       // java.lang.Boolean
       List<YTEntityImpl> result =
           db.query(
@@ -570,7 +570,7 @@ public class IndexTest extends DocumentDBBaseTest {
                   "select from TestClass where testLink.testBoolean = true"));
       Assert.assertEquals(result.size(), 1);
       // THIS WILL THROW A java.lang.ClassCastException:
-      // com.orientechnologies.orient.core.id.YTRecordId cannot be cast to
+      // com.orientechnologies.core.id.YTRecordId cannot be cast to
       // java.lang.String
       result =
           db.query(
@@ -594,7 +594,7 @@ public class IndexTest extends DocumentDBBaseTest {
       db.commit();
 
       // THIS WILL THROW A java.lang.ClassCastException:
-      // com.orientechnologies.orient.core.id.YTRecordId cannot be cast to
+      // com.orientechnologies.core.id.YTRecordId cannot be cast to
       // java.lang.Boolean
       List<YTEntityImpl> result =
           db.query(
@@ -602,7 +602,7 @@ public class IndexTest extends DocumentDBBaseTest {
                   "select from TestClass where testLink.testBoolean = true"));
       Assert.assertEquals(result.size(), 2);
       // THIS WILL THROW A java.lang.ClassCastException:
-      // com.orientechnologies.orient.core.id.YTRecordId cannot be cast to
+      // com.orientechnologies.core.id.YTRecordId cannot be cast to
       // java.lang.String
       result =
           db.query(

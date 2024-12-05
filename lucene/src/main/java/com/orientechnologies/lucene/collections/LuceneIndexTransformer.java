@@ -1,7 +1,7 @@
 package com.orientechnologies.lucene.collections;
 
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.id.YTRID;
+import com.orientechnologies.core.id.YTRID;
 import java.util.stream.Stream;
 
 /**

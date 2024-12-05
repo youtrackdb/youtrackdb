@@ -16,8 +16,8 @@
 
 package com.orientechnologies.lucene.operator;
 
-import com.orientechnologies.orient.core.sql.operator.OQueryOperator;
-import com.orientechnologies.orient.core.sql.operator.OQueryOperatorFactory;
+import com.orientechnologies.core.sql.operator.OQueryOperator;
+import com.orientechnologies.core.sql.operator.OQueryOperatorFactory;
 import java.util.HashSet;
 import java.util.Set;
 

@@ -14,11 +14,11 @@
 package com.orientechnologies.security.password;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.security.OPasswordValidator;
-import com.orientechnologies.orient.core.security.OSecuritySystem;
-import com.orientechnologies.orient.core.security.YTInvalidPasswordException;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.security.OPasswordValidator;
+import com.orientechnologies.core.security.OSecuritySystem;
+import com.orientechnologies.core.security.YTInvalidPasswordException;
 import java.util.regex.Pattern;
 
 /**

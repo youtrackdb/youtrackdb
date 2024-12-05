@@ -16,12 +16,12 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.id.YTRID;
+import com.orientechnologies.core.metadata.schema.YTType;
+import com.orientechnologies.core.record.ORecordInternal;
+import com.orientechnologies.core.record.impl.ODocumentHelper;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;

@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.server.token;
 
-import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.metadata.security.jwt.OJwtPayload;
-import com.orientechnologies.orient.core.metadata.security.jwt.OTokenMetaInfo;
+import com.orientechnologies.core.id.YTRID;
+import com.orientechnologies.core.metadata.security.jwt.OJwtPayload;
+import com.orientechnologies.core.metadata.security.jwt.OTokenMetaInfo;
 import java.io.DataOutputStream;
 import java.io.IOException;
 

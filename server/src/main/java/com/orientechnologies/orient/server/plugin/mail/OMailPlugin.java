@@ -20,10 +20,10 @@
 package com.orientechnologies.orient.server.plugin.mail;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.command.script.OScriptInjection;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.YouTrackDBInternal;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.command.script.OScriptInjection;
+import com.orientechnologies.core.db.YTDatabaseSession;
+import com.orientechnologies.core.db.YouTrackDBInternal;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;

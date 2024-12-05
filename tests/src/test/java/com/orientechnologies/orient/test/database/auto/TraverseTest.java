@@ -16,19 +16,19 @@
 
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.command.OCommandPredicate;
-import com.orientechnologies.orient.core.command.traverse.OTraverse;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.record.YTEntity;
-import com.orientechnologies.orient.core.record.YTVertex;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.sql.executor.YTResult;
-import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import com.orientechnologies.core.command.OBasicCommandContext;
+import com.orientechnologies.core.command.OCommandContext;
+import com.orientechnologies.core.command.OCommandPredicate;
+import com.orientechnologies.core.command.traverse.OTraverse;
+import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.record.YTEntity;
+import com.orientechnologies.core.record.YTVertex;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.sql.executor.YTResult;
+import com.orientechnologies.core.sql.filter.OSQLPredicate;
+import com.orientechnologies.core.sql.query.OSQLSynchQuery;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

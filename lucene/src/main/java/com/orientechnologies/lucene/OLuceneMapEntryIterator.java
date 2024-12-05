@@ -18,8 +18,8 @@ package com.orientechnologies.lucene;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngineAbstract;
-import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.index.OIndexDefinition;
+import com.orientechnologies.core.id.YTRecordId;
+import com.orientechnologies.core.index.OIndexDefinition;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;

@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.sql.executor.YTResultSet;
 
 /**
  *

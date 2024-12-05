@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.core.record.YTRecord;
 import java.util.Set;
 
 public interface OFetchPlanResults {

@@ -1,0 +1,60 @@
+package com.orientechnologies.core.sql.executor;
+
+import com.orientechnologies.common.concur.YTTimeoutException;
+import com.orientechnologies.core.command.OCommandContext;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.index.OIndexInternal;
+import com.orientechnologies.core.sql.executor.resultset.OExecutionStream;
+import com.orientechnologies.core.sql.executor.resultset.OProduceExecutionStream;
+import com.orientechnologies.core.sql.parser.OIndexIdentifier;
+
+/**
+ * Returns the number of records contained in an index
+ */
+public class CountFromIndexStep extends AbstractExecutionStep {
+
+  private final OIndexIdentifier target;
+  private final String alias;
+
+  /**
+   * @param targetIndex      the index name as it is parsed by the SQL parsed
+   * @param alias            the name of the property returned in the result-set
+   * @param ctx              the query context
+   * @param profilingEnabled true to enable the profiling of the execution (for SQL PROFILE)
+   */
+  public CountFromIndexStep(
+      OIndexIdentifier targetIndex, String alias, OCommandContext ctx, boolean profilingEnabled) {
+    super(ctx, profilingEnabled);
+    this.target = targetIndex;
+    this.alias = alias;
+  }
+
+  @Override
+  public OExecutionStream internalStart(OCommandContext ctx) throws YTTimeoutException {
+    if (prev != null) {
+      prev.start(ctx).close(ctx);
+    }
+
+    return new OProduceExecutionStream(this::produce).limit(1);
+  }
+
+  private YTResult produce(OCommandContext ctx) {
+    final YTDatabaseSessionInternal database = ctx.getDatabase();
+    OIndexInternal idx =
+        database
+            .getMetadata()
+            .getIndexManagerInternal()
+            .getIndex(database, target.getIndexName())
+            .getInternal();
+    long size = idx.size(database);
+    YTResultInternal result = new YTResultInternal(database);
+    result.setProperty(alias, size);
+    return result;
+  }
+
+  @Override
+  public String prettyPrint(int depth, int indent) {
+    String spaces = OExecutionStepInternal.getIndent(depth, indent);
+    return spaces + "+ CALCULATE INDEX SIZE: " + target;
+  }
+}

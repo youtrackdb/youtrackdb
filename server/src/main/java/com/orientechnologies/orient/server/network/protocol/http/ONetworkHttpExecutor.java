@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
 
 public interface ONetworkHttpExecutor {
 

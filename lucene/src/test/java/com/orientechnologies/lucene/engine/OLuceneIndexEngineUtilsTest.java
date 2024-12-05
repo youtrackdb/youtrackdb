@@ -2,7 +2,7 @@ package com.orientechnologies.lucene.engine;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;

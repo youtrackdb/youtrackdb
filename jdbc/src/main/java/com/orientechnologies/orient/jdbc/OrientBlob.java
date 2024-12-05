@@ -13,8 +13,8 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.orient.core.record.YTRecordAbstract;
-import com.orientechnologies.orient.core.record.impl.YTBlob;
+import com.orientechnologies.core.record.YTRecordAbstract;
+import com.orientechnologies.core.record.impl.YTBlob;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

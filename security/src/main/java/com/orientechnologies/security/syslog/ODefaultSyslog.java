@@ -19,7 +19,7 @@ import com.cloudbees.syslog.Severity;
 import com.cloudbees.syslog.SyslogMessage;
 import com.cloudbees.syslog.sender.UdpSyslogMessageSender;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.security.OSyslog;
+import com.orientechnologies.core.security.OSyslog;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;

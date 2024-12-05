@@ -16,13 +16,13 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.YTDatabaseDocumentTx;
-import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
-import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
-import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
-import com.orientechnologies.orient.core.hook.YTRecordHook;
+import com.orientechnologies.core.command.OCommandOutputListener;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.db.document.YTDatabaseDocumentTx;
+import com.orientechnologies.core.db.tool.ODatabaseCompare;
+import com.orientechnologies.core.db.tool.ODatabaseExport;
+import com.orientechnologies.core.db.tool.ODatabaseImport;
+import com.orientechnologies.core.hook.YTRecordHook;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;

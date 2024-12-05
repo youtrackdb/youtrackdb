@@ -22,7 +22,7 @@ package com.orientechnologies.common.profiler;
 import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValue;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.common.util.OService;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
 import java.io.PrintStream;
 import java.util.Date;
 import java.util.List;

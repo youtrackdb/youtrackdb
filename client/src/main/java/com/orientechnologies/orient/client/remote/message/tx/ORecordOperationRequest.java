@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.client.remote.message.tx;
 
-import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.id.YTRID;
-import com.orientechnologies.orient.core.id.YTRecordId;
+import com.orientechnologies.core.db.record.ORecordOperation;
+import com.orientechnologies.core.id.YTRID;
+import com.orientechnologies.core.id.YTRecordId;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;

@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server.token;
 
-import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
+import com.orientechnologies.core.metadata.security.YTSecurityUser;
 import com.orientechnologies.orient.server.OServer;
 import org.junit.After;
 import org.junit.Assert;

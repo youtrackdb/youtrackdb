@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.server.network.protocol.http;
 
 import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.orient.core.config.YTContextConfiguration;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.YTRecord;
+import com.orientechnologies.core.config.YTContextConfiguration;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.record.YTRecord;
 import com.orientechnologies.orient.server.OClientConnection;
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.test.database.security;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.YouTrackDB;
-import com.orientechnologies.orient.core.db.YouTrackDBConfig;
+import com.orientechnologies.core.db.YTDatabaseSession;
+import com.orientechnologies.core.db.YouTrackDB;
+import com.orientechnologies.core.db.YouTrackDBConfig;
 import java.io.File;
 import org.junit.Test;
 

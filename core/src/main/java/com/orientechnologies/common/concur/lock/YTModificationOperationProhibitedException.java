@@ -21,7 +21,7 @@
 package com.orientechnologies.common.concur.lock;
 
 import com.orientechnologies.common.exception.YTHighLevelException;
-import com.orientechnologies.orient.core.exception.YTCoreException;
+import com.orientechnologies.core.exception.YTCoreException;
 
 /**
  * Exception is thrown in case DB is locked for modifications but modification request ist trying to

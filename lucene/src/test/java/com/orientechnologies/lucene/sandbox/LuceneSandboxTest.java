@@ -1,8 +1,8 @@
 package com.orientechnologies.lucene.sandbox;
 
+import com.orientechnologies.core.metadata.schema.YTClass;
+import com.orientechnologies.core.sql.executor.YTResultSet;
 import com.orientechnologies.lucene.tests.OLuceneBaseTest;
-import com.orientechnologies.orient.core.metadata.schema.YTClass;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
 import org.apache.lucene.codecs.simpletext.SimpleTextCodec;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;

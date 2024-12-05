@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.common.io;
 
-import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
+import com.orientechnologies.core.serialization.serializer.OStringSerializerHelper;
 
 public class OUtils {
 

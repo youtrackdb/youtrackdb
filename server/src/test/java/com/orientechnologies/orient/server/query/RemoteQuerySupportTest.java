@@ -1,18 +1,18 @@
 package com.orientechnologies.orient.server.query;
 
-import static com.orientechnologies.orient.core.config.YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE;
+import static com.orientechnologies.core.config.YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.orient.core.exception.YTDatabaseException;
-import com.orientechnologies.orient.core.exception.YTSerializationException;
-import com.orientechnologies.orient.core.id.YTRecordId;
-import com.orientechnologies.orient.core.metadata.schema.YTType;
-import com.orientechnologies.orient.core.record.YTRecord;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.sql.executor.YTResult;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.exception.YTDatabaseException;
+import com.orientechnologies.core.exception.YTSerializationException;
+import com.orientechnologies.core.id.YTRecordId;
+import com.orientechnologies.core.metadata.schema.YTType;
+import com.orientechnologies.core.record.YTRecord;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.sql.executor.YTResult;
+import com.orientechnologies.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
 import com.orientechnologies.orient.server.OClientConnection;
 import java.util.ArrayList;

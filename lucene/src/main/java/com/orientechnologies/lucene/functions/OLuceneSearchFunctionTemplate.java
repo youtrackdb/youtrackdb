@@ -2,14 +2,14 @@ package com.orientechnologies.lucene.functions;
 
 import com.orientechnologies.lucene.collections.OLuceneResultSet;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
-import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.YTIdentifiable;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.sql.functions.OIndexableSQLFunction;
-import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
-import com.orientechnologies.orient.core.sql.parser.OBinaryCompareOperator;
-import com.orientechnologies.orient.core.sql.parser.OExpression;
-import com.orientechnologies.orient.core.sql.parser.OFromClause;
+import com.orientechnologies.core.command.OCommandContext;
+import com.orientechnologies.core.db.record.YTIdentifiable;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.sql.functions.OIndexableSQLFunction;
+import com.orientechnologies.core.sql.functions.OSQLFunctionAbstract;
+import com.orientechnologies.core.sql.parser.OBinaryCompareOperator;
+import com.orientechnologies.core.sql.parser.OExpression;
+import com.orientechnologies.core.sql.parser.OFromClause;
 import java.util.Map;
 
 /**

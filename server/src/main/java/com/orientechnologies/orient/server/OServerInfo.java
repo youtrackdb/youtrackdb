@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
-import com.orientechnologies.orient.core.storage.OStorage;
-import com.orientechnologies.orient.core.storage.disk.OLocalPaginatedStorage;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.serialization.serializer.OJSONWriter;
+import com.orientechnologies.core.storage.OStorage;
+import com.orientechnologies.core.storage.disk.OLocalPaginatedStorage;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
 import java.io.IOException;

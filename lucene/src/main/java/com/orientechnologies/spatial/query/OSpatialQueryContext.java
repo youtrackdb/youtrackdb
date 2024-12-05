@@ -14,7 +14,7 @@
 package com.orientechnologies.spatial.query;
 
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
-import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.core.command.OCommandContext;
 import java.util.List;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;

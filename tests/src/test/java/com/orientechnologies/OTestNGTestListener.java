@@ -21,7 +21,7 @@ package com.orientechnologies;
 
 import com.orientechnologies.common.directmemory.OByteBufferPool;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.YouTrackDBManager;
+import com.orientechnologies.core.YouTrackDBManager;
 import org.testng.Assert;
 import org.testng.ISuite;
 import org.testng.ISuiteListener;

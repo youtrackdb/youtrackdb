@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.orient.core.config.YTContextConfiguration;
+import com.orientechnologies.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

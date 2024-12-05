@@ -19,21 +19,21 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseStats;
-import com.orientechnologies.orient.core.db.YTDatabaseSession;
-import com.orientechnologies.orient.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.sql.OSQLEngine;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
-import com.orientechnologies.orient.core.sql.parser.ODDLStatement;
-import com.orientechnologies.orient.core.sql.parser.OFetchPlan;
-import com.orientechnologies.orient.core.sql.parser.OLimit;
-import com.orientechnologies.orient.core.sql.parser.OMatchStatement;
-import com.orientechnologies.orient.core.sql.parser.OSelectStatement;
-import com.orientechnologies.orient.core.sql.parser.OStatement;
-import com.orientechnologies.orient.core.sql.parser.OTraverseStatement;
+import com.orientechnologies.core.command.OBasicCommandContext;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.db.ODatabaseStats;
+import com.orientechnologies.core.db.YTDatabaseSession;
+import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.sql.OSQLEngine;
+import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.sql.parser.ODDLStatement;
+import com.orientechnologies.core.sql.parser.OFetchPlan;
+import com.orientechnologies.core.sql.parser.OLimit;
+import com.orientechnologies.core.sql.parser.OMatchStatement;
+import com.orientechnologies.core.sql.parser.OSelectStatement;
+import com.orientechnologies.core.sql.parser.OStatement;
+import com.orientechnologies.core.sql.parser.OTraverseStatement;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAuthenticatedDbAbstract;

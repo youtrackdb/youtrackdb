@@ -21,7 +21,7 @@ package com.orientechnologies.common.concur.lock;
 
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

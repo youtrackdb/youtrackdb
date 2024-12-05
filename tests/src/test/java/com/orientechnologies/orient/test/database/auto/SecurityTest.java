@@ -16,21 +16,21 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.orient.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.core.db.YouTrackDBConfig;
-import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.orient.core.exception.YTSecurityAccessException;
-import com.orientechnologies.orient.core.exception.YTSecurityException;
-import com.orientechnologies.orient.core.exception.YTValidationException;
-import com.orientechnologies.orient.core.metadata.security.ORole;
-import com.orientechnologies.orient.core.metadata.security.OSecurity;
-import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
-import com.orientechnologies.orient.core.metadata.security.YTSecurityUser;
-import com.orientechnologies.orient.core.metadata.security.YTUser;
-import com.orientechnologies.orient.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.orientechnologies.orient.core.sql.executor.YTResult;
-import com.orientechnologies.orient.core.sql.executor.YTResultSet;
+import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.orientechnologies.core.db.YouTrackDBConfig;
+import com.orientechnologies.core.db.YouTrackDBConfigBuilder;
+import com.orientechnologies.core.exception.YTSecurityAccessException;
+import com.orientechnologies.core.exception.YTSecurityException;
+import com.orientechnologies.core.exception.YTValidationException;
+import com.orientechnologies.core.metadata.security.ORole;
+import com.orientechnologies.core.metadata.security.OSecurity;
+import com.orientechnologies.core.metadata.security.OSecurityRole;
+import com.orientechnologies.core.metadata.security.YTSecurityUser;
+import com.orientechnologies.core.metadata.security.YTUser;
+import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.orientechnologies.core.sql.OCommandSQL;
+import com.orientechnologies.core.sql.executor.YTResult;
+import com.orientechnologies.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -73,7 +73,7 @@ public class SecurityTest extends DocumentDBBaseTest {
               || e.getCause() != null
               && e.getCause()
               .toString()
-              .contains("com.orientechnologies.orient.core.exception.YTSecurityAccessException"));
+              .contains("com.orientechnologies.core.exception.YTSecurityAccessException"));
     }
   }
 
