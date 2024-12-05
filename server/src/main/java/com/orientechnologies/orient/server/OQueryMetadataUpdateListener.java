@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.core.config.OStorageConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.OMetadataUpdateListener;
-import com.orientechnologies.core.index.OIndexManagerAbstract;
-import com.orientechnologies.core.metadata.schema.OSchemaShared;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.OMetadataUpdateListener;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexManagerAbstract;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.OSchemaShared;
 
 class OQueryMetadataUpdateListener implements OMetadataUpdateListener {
 

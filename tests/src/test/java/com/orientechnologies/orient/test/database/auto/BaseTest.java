@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.ODatabaseType;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
 import com.orientechnologies.orient.server.OServer;
 import java.util.Locale;
 import org.testng.SkipException;
@@ -209,7 +209,7 @@ public abstract class BaseTest<T extends YTDatabaseSessionInternal> {
   }
 
   protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "SILENT");
+    builder.addConfig(GlobalConfiguration.NON_TX_READS_WARNING_MODE, "SILENT");
     return builder.build();
   }
 

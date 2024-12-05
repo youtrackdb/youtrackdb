@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTEntity;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,7 +30,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     clazz.createProperty(database, "prop2", YTType.INTEGER);
     clazz.createProperty(database, "prop3", YTType.INTEGER);
 
-    final YTEntityImpl metadata = new YTEntityImpl();
+    final EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
@@ -40,7 +40,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
         metadata, new String[]{"prop1", "prop2", "prop3"});
 
     for (int i = 0; i < 20; i++) {
-      YTEntityImpl document = new YTEntityImpl("compositeIndexNullPointQueryClass");
+      EntityImpl document = new EntityImpl("compositeIndexNullPointQueryClass");
       document.field("prop1", i / 10);
       document.field("prop2", i / 5);
 
@@ -54,16 +54,16 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     }
 
     String query = "select from compositeIndexNullPointQueryClass where prop1 = 1 and prop2 = 2";
-    List<YTEntity> result =
+    List<Entity> result =
         database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
     Assert.assertEquals(result.size(), 5);
     for (int k = 0; k < 5; k++) {
-      YTEntity document = result.get(k);
+      Entity document = result.get(k);
       Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
       Assert.assertEquals(document.<Object>getProperty("prop2"), 2);
     }
 
-    YTEntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -75,7 +75,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     result = database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 2);
-    for (YTEntity document : result) {
+    for (Entity document : result) {
       Assert.assertNull(document.getProperty("prop3"));
     }
 
@@ -93,7 +93,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     clazz.createProperty(database, "prop2", YTType.INTEGER);
     clazz.createProperty(database, "prop3", YTType.INTEGER);
 
-    final YTEntityImpl metadata = new YTEntityImpl();
+    final EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
@@ -105,7 +105,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     database.begin();
 
     for (int i = 0; i < 20; i++) {
-      YTEntityImpl document = new YTEntityImpl("compositeIndexNullPointQueryInTxClass");
+      EntityImpl document = new EntityImpl("compositeIndexNullPointQueryInTxClass");
       document.field("prop1", i / 10);
       document.field("prop2", i / 5);
 
@@ -120,16 +120,16 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
     String query =
         "select from compositeIndexNullPointQueryInTxClass where prop1 = 1 and prop2 = 2";
-    List<YTEntity> result =
+    List<Entity> result =
         database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
     Assert.assertEquals(result.size(), 5);
     for (int k = 0; k < 5; k++) {
-      YTEntity document = result.get(k);
+      Entity document = result.get(k);
       Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
       Assert.assertEquals(document.<Object>getProperty("prop2"), 2);
     }
 
-    YTEntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -141,7 +141,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     result = database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 2);
-    for (YTEntity document : result) {
+    for (Entity document : result) {
       Assert.assertNull(document.getProperty("prop3"));
     }
 
@@ -163,7 +163,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     clazz.createProperty(database, "prop2", YTType.INTEGER);
     clazz.createProperty(database, "prop3", YTType.INTEGER);
 
-    final YTEntityImpl metadata = new YTEntityImpl();
+    final EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
@@ -175,7 +175,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     database.begin();
 
     for (int i = 0; i < 20; i++) {
-      YTEntityImpl document = new YTEntityImpl("compositeIndexNullPointQueryInMiddleTxClass");
+      EntityImpl document = new EntityImpl("compositeIndexNullPointQueryInMiddleTxClass");
       document.field("prop1", i / 10);
       document.field("prop2", i / 5);
 
@@ -188,17 +188,17 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
     String query =
         "select from compositeIndexNullPointQueryInMiddleTxClass where prop1 = 1 and prop2 = 2";
-    List<YTEntity> result =
+    List<Entity> result =
         database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
     Assert.assertEquals(result.size(), 5);
 
     for (int k = 0; k < 5; k++) {
-      YTEntity document = result.get(k);
+      Entity document = result.get(k);
       Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
       Assert.assertEquals(document.<Object>getProperty("prop2"), 2);
     }
 
-    YTEntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -210,7 +210,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     result = database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 2);
-    for (YTEntity document : result) {
+    for (Entity document : result) {
       Assert.assertNull(document.getProperty("prop3"));
     }
 
@@ -230,7 +230,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     clazz.createProperty(database, "prop2", YTType.INTEGER);
     clazz.createProperty(database, "prop3", YTType.INTEGER);
 
-    final YTEntityImpl metadata = new YTEntityImpl();
+    final EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
@@ -241,7 +241,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
         null, new String[]{"prop1", "prop2", "prop3"});
 
     for (int i = 0; i < 20; i++) {
-      YTEntityImpl document = new YTEntityImpl("compositeIndexNullRangeQueryClass");
+      EntityImpl document = new EntityImpl("compositeIndexNullRangeQueryClass");
       document.field("prop1", i / 10);
       document.field("prop2", i / 5);
 
@@ -255,17 +255,17 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     }
 
     String query = "select from compositeIndexNullRangeQueryClass where prop1 = 1 and prop2 > 2";
-    List<YTEntity> result =
+    List<Entity> result =
         database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 5);
     for (int k = 0; k < 5; k++) {
-      YTEntity document = result.get(k);
+      Entity document = result.get(k);
       Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
       Assert.assertTrue(document.<Integer>getProperty("prop2") > 2);
     }
 
-    YTEntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -276,7 +276,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(result.size(), 10);
     for (int k = 0; k < 10; k++) {
-      YTEntity document = result.get(k);
+      Entity document = result.get(k);
       Assert.assertTrue(document.<Integer>getProperty("prop1") > 0);
     }
   }
@@ -292,7 +292,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     clazz.createProperty(database, "prop2", YTType.INTEGER);
     clazz.createProperty(database, "prop3", YTType.INTEGER);
 
-    final YTEntityImpl metadata = new YTEntityImpl();
+    final EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
@@ -304,7 +304,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
     database.begin();
     for (int i = 0; i < 20; i++) {
-      YTEntityImpl document = new YTEntityImpl("compositeIndexNullRangeQueryInMiddleTxClass");
+      EntityImpl document = new EntityImpl("compositeIndexNullRangeQueryInMiddleTxClass");
       document.field("prop1", i / 10);
       document.field("prop2", i / 5);
 
@@ -317,17 +317,17 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
     String query =
         "select from compositeIndexNullRangeQueryInMiddleTxClass where prop1 = 1 and prop2 > 2";
-    List<YTEntity> result =
+    List<Entity> result =
         database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 5);
     for (int k = 0; k < 5; k++) {
-      YTEntity document = result.get(k);
+      Entity document = result.get(k);
       Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
       Assert.assertTrue(document.<Integer>getProperty("prop2") > 2);
     }
 
-    YTEntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -338,7 +338,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(result.size(), 10);
     for (int k = 0; k < 10; k++) {
-      YTEntity document = result.get(k);
+      Entity document = result.get(k);
       Assert.assertTrue(document.<Integer>getProperty("prop1") > 0);
     }
 
@@ -352,7 +352,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     clazz.createProperty(database, "prop2", YTType.INTEGER);
     clazz.createProperty(database, "prop3", YTType.INTEGER);
 
-    final YTEntityImpl metadata = new YTEntityImpl();
+    final EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
@@ -363,7 +363,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
         null, new String[]{"prop1", "prop2", "prop3"});
 
     for (int i = 0; i < 20; i++) {
-      YTEntityImpl document = new YTEntityImpl("compositeIndexNullPointQueryNullInTheMiddleClass");
+      EntityImpl document = new EntityImpl("compositeIndexNullPointQueryNullInTheMiddleClass");
       document.field("prop1", i / 10);
 
       if (i % 2 == 0) {
@@ -378,15 +378,15 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     }
 
     String query = "select from compositeIndexNullPointQueryNullInTheMiddleClass where prop1 = 1";
-    List<YTEntity> result =
+    List<Entity> result =
         database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
     Assert.assertEquals(result.size(), 10);
     for (int k = 0; k < 10; k++) {
-      YTEntity document = result.get(k);
+      Entity document = result.get(k);
       Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
     }
 
-    YTEntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -398,7 +398,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     result = database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 5);
-    for (YTEntity document : result) {
+    for (Entity document : result) {
       Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
       Assert.assertNull(document.getProperty("prop2"));
     }
@@ -435,7 +435,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     clazz.createProperty(database, "prop2", YTType.INTEGER);
     clazz.createProperty(database, "prop3", YTType.INTEGER);
 
-    final YTEntityImpl metadata = new YTEntityImpl();
+    final EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
@@ -448,8 +448,8 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     database.begin();
 
     for (int i = 0; i < 20; i++) {
-      YTEntityImpl document =
-          new YTEntityImpl("compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass");
+      EntityImpl document =
+          new EntityImpl("compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass");
       document.field("prop1", i / 10);
 
       if (i % 2 == 0) {
@@ -463,15 +463,15 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
     String query =
         "select from compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass where prop1 = 1";
-    List<YTEntity> result =
+    List<Entity> result =
         database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
     Assert.assertEquals(result.size(), 10);
     for (int k = 0; k < 10; k++) {
-      YTEntity document = result.get(k);
+      Entity document = result.get(k);
       Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
     }
 
-    YTEntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -483,7 +483,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     result = database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 5);
-    for (YTEntity document : result) {
+    for (Entity document : result) {
       Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
       Assert.assertNull(document.getProperty("prop2"));
     }
@@ -517,7 +517,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     clazz.createProperty(database, "prop2", YTType.INTEGER);
     clazz.createProperty(database, "prop3", YTType.INTEGER);
 
-    final YTEntityImpl metadata = new YTEntityImpl();
+    final EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
@@ -527,7 +527,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
         metadata, new String[]{"prop1", "prop2", "prop3"});
 
     for (int i = 0; i < 20; i++) {
-      YTEntityImpl document = new YTEntityImpl("compositeIndexNullRangeQueryNullInTheMiddleClass");
+      EntityImpl document = new EntityImpl("compositeIndexNullRangeQueryNullInTheMiddleClass");
       document.field("prop1", i / 10);
 
       if (i % 2 == 0) {
@@ -543,15 +543,15 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
     final String query =
         "select from compositeIndexNullRangeQueryNullInTheMiddleClass where prop1 > 0";
-    List<YTEntity> result =
+    List<Entity> result =
         database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
     Assert.assertEquals(result.size(), 10);
     for (int k = 0; k < 10; k++) {
-      YTEntity document = result.get(k);
+      Entity document = result.get(k);
       Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
     }
 
-    YTEntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -570,7 +570,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
     clazz.createProperty(database, "prop2", YTType.INTEGER);
     clazz.createProperty(database, "prop3", YTType.INTEGER);
 
-    final YTEntityImpl metadata = new YTEntityImpl();
+    final EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
@@ -580,8 +580,8 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
         metadata, new String[]{"prop1", "prop2", "prop3"});
 
     for (int i = 0; i < 20; i++) {
-      YTEntityImpl document =
-          new YTEntityImpl("compositeIndexNullRangeQueryNullInTheMiddleInMiddleTxClass");
+      EntityImpl document =
+          new EntityImpl("compositeIndexNullRangeQueryNullInTheMiddleInMiddleTxClass");
       document.field("prop1", i / 10);
 
       if (i % 2 == 0) {
@@ -597,15 +597,15 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
     final String query =
         "select from compositeIndexNullRangeQueryNullInTheMiddleInMiddleTxClass where prop1 > 0";
-    List<YTEntity> result =
+    List<Entity> result =
         database.query(query).stream().map((r) -> r.toEntity()).collect(Collectors.toList());
     Assert.assertEquals(result.size(), 10);
     for (int k = 0; k < 10; k++) {
-      YTEntity document = result.get(k);
+      Entity document = result.get(k);
       Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
     }
 
-    YTEntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")

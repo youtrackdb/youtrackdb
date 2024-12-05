@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import java.util.Set;
 
 /**

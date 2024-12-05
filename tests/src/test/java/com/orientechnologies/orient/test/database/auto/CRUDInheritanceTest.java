@@ -15,11 +15,11 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTProperty;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTEntity;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -57,14 +57,14 @@ public class CRUDInheritanceTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testCreate")
   public void queryByBaseType() {
-    final List<YTEntityImpl> result = executeQuery("select from Company where name.length() > 0");
+    final List<EntityImpl> result = executeQuery("select from Company where name.length() > 0");
 
     Assert.assertFalse(result.isEmpty());
     Assert.assertEquals(result.size(), TOT_COMPANY_RECORDS);
 
     int companyRecords = 0;
-    YTEntityImpl account;
-    for (YTEntityImpl entries : result) {
+    EntityImpl account;
+    for (EntityImpl entries : result) {
       account = entries;
 
       if ("Company".equals(account.getClassName())) {
@@ -79,12 +79,12 @@ public class CRUDInheritanceTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "queryByBaseType")
   public void queryPerSuperType() {
-    final List<YTEntityImpl> result = executeQuery("select * from Company where name.length() > 0");
+    final List<EntityImpl> result = executeQuery("select * from Company where name.length() > 0");
 
     Assert.assertEquals(result.size(), TOT_COMPANY_RECORDS);
 
-    YTEntity account;
-    for (YTEntityImpl entries : result) {
+    Entity account;
+    for (EntityImpl entries : result) {
       account = entries;
       Assert.assertNotSame(account.<String>getProperty("name").length(), 0);
     }
@@ -95,7 +95,7 @@ public class CRUDInheritanceTest extends DocumentDBBaseTest {
     // DELETE ALL THE RECORD IN THE CLUSTER
     database.begin();
     var companyClusterIterator = database.browseClass("Company");
-    for (YTEntity obj : companyClusterIterator) {
+    for (Entity obj : companyClusterIterator) {
       if (obj.<Integer>getProperty("id") == 1) {
         database.delete(obj);
         break;
@@ -126,15 +126,15 @@ public class CRUDInheritanceTest extends DocumentDBBaseTest {
   public void testIdFieldInheritanceFirstSubClass() {
     createInheritanceTestClass();
 
-    YTEntity a = database.newInstance("InheritanceTestBaseClass");
-    YTEntity b = database.newInstance("InheritanceTestClass");
+    Entity a = database.newInstance("InheritanceTestBaseClass");
+    Entity b = database.newInstance("InheritanceTestClass");
 
     database.begin();
     database.save(a);
     database.save(b);
     database.commit();
 
-    final List<YTEntityImpl> result1 = executeQuery("select from InheritanceTestBaseClass");
+    final List<EntityImpl> result1 = executeQuery("select from InheritanceTestBaseClass");
     Assert.assertEquals(2, result1.size());
   }
 

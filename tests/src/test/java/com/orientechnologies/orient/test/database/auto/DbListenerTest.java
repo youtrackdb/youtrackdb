@@ -15,16 +15,16 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.command.OCommandExecutor;
-import com.orientechnologies.core.command.OCommandRequestText;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YTDatabaseListener;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.core.hook.YTDocumentHookAbstract;
-import com.orientechnologies.core.hook.YTRecordHook;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandExecutor;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseListener;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
+import com.jetbrains.youtrack.db.internal.core.hook.YTDocumentHookAbstract;
+import com.jetbrains.youtrack.db.internal.core.hook.YTRecordHook;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,7 +57,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
 
   public static class DocumentChangeListener {
 
-    final Map<YTEntityImpl, List<String>> changes = new HashMap<YTEntityImpl, List<String>>();
+    final Map<EntityImpl, List<String>> changes = new HashMap<EntityImpl, List<String>>();
 
     public DocumentChangeListener(final YTDatabaseSession db) {
       db.registerHook(
@@ -69,7 +69,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
             }
 
             @Override
-            public void onRecordAfterUpdate(YTEntityImpl iDocument) {
+            public void onRecordAfterUpdate(EntityImpl iDocument) {
               List<String> changedFields = new ArrayList<>();
               Collections.addAll(changedFields, iDocument.getDirtyFields());
               changes.put(iDocument, changedFields);
@@ -77,7 +77,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
           });
     }
 
-    public Map<YTEntityImpl, List<String>> getChanges() {
+    public Map<EntityImpl, List<String>> getChanges() {
       return changes;
     }
   }
@@ -166,7 +166,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 1);
 
     database
-        .<YTEntityImpl>newInstance().save();
+        .<EntityImpl>newInstance().save();
     database.commit();
     Assert.assertEquals(onBeforeTxCommit, baseOnBeforeTxCommit + 1);
     Assert.assertEquals(onAfterTxCommit, baseOnAfterTxCommit + 1);
@@ -174,7 +174,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     database.begin();
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 2);
 
-    database.<YTEntityImpl>newInstance().save();
+    database.<EntityImpl>newInstance().save();
     database.rollback();
     Assert.assertEquals(onBeforeTxRollback, 1);
     Assert.assertEquals(onAfterTxRollback, 1);
@@ -196,7 +196,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 1);
 
     database
-        .<YTEntityImpl>newInstance()
+        .<EntityImpl>newInstance()
         .save();
     var baseOnBeforeTxCommit = onBeforeTxCommit;
     var baseOnAfterTxCommit = onAfterTxCommit;
@@ -208,7 +208,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 2);
 
     database
-        .<YTEntityImpl>newInstance()
+        .<EntityImpl>newInstance()
         .save();
     var baseOnBeforeTxRollback = onBeforeTxRollback;
     var baseOnAfterTxRollback = onAfterTxRollback;
@@ -229,9 +229,9 @@ public class DbListenerTest extends DocumentDBBaseTest {
     database = createSessionInstance();
 
     database.begin();
-    YTEntityImpl rec =
+    EntityImpl rec =
         database
-            .<YTEntityImpl>newInstance()
+            .<EntityImpl>newInstance()
             .field("name", "Jay");
     rec.save();
     database.commit();
@@ -248,7 +248,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
 
   @Override
   protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    builder.addConfig(GlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
     return builder.build();
   }
 

@@ -1,16 +1,16 @@
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.common.exception.OErrorCode;
-import com.orientechnologies.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.OErrorCode;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
-import com.orientechnologies.core.db.OSharedContext;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YTLiveQueryBatchResultListener;
-import com.orientechnologies.core.exception.YTCoreException;
-import com.orientechnologies.core.exception.YTLiveQueryInterruptedException;
-import com.orientechnologies.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.db.OSharedContext;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryBatchResultListener;
+import com.jetbrains.youtrack.db.internal.core.exception.YTCoreException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTLiveQueryInterruptedException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
 import java.io.IOException;
 import java.util.ArrayList;

@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
 import javax.annotation.Nonnull;
 
 /**

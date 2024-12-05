@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -56,7 +56,7 @@ public class DbClosedTest extends DocumentDBBaseTest {
       return;
     }
 
-    final int max = YTGlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.getValueAsInteger();
+    final int max = GlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.getValueAsInteger();
     for (int i = 0; i < max * 2; ++i) {
       final YTDatabaseSession db = acquireSession();
       db.close();

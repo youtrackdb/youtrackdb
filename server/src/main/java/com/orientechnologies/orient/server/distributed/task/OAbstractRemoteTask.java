@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed.task;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.orientechnologies.orient.server.distributed.ORemoteTaskFactory;
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -40,7 +40,7 @@ public abstract class OAbstractRemoteTask implements ORemoteTask {
 
   @Override
   public long getDistributedTimeout() {
-    return YTGlobalConfiguration.DISTRIBUTED_CRUD_TASK_SYNCH_TIMEOUT.getValueAsLong();
+    return GlobalConfiguration.DISTRIBUTED_CRUD_TASK_SYNCH_TIMEOUT.getValueAsLong();
   }
 
   @Override

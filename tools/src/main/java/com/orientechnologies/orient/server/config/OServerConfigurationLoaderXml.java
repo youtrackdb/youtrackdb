@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.server.config;
 
-import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
@@ -86,11 +86,11 @@ public class OServerConfigurationLoaderXml {
       }
 
       // AUTO CONFIGURE SYSTEM CONFIGURATION
-      YTGlobalConfiguration config;
+      GlobalConfiguration config;
       if (obj.properties != null) {
         for (OServerEntryConfiguration prop : obj.properties) {
           try {
-            config = YTGlobalConfiguration.findByKey(prop.name);
+            config = GlobalConfiguration.findByKey(prop.name);
             if (config != null) {
               config.setValue(prop.value);
             }

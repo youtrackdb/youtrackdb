@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.index.OCompositeKey;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -54,7 +54,7 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
         };
 
     database.begin();
-    YTEntityImpl doc1 = new YTEntityImpl("ByteArrayKeyTest");
+    EntityImpl doc1 = new EntityImpl("ByteArrayKeyTest");
     doc1.field("byteArrayKey", key1);
     doc1.save();
 
@@ -64,7 +64,7 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
             9,
             0, 2
         };
-    YTEntityImpl doc2 = new YTEntityImpl("ByteArrayKeyTest");
+    EntityImpl doc2 = new EntityImpl("ByteArrayKeyTest");
     doc2.field("byteArrayKey", key2);
     doc2.save();
     database.commit();
@@ -86,12 +86,12 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
     byte[] key2 = new byte[]{4, 5, 6};
 
     database.begin();
-    YTEntityImpl doc1 = new YTEntityImpl("CompositeByteArrayKeyTest");
+    EntityImpl doc1 = new EntityImpl("CompositeByteArrayKeyTest");
     doc1.field("byteArrayKey", key1);
     doc1.field("intKey", 1);
     doc1.save();
 
-    YTEntityImpl doc2 = new YTEntityImpl("CompositeByteArrayKeyTest");
+    EntityImpl doc2 = new EntityImpl("CompositeByteArrayKeyTest");
     doc2.field("byteArrayKey", key2);
     doc2.field("intKey", 2);
     doc2.save();
@@ -117,12 +117,12 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
     byte[] key2 = new byte[]{10, 11, 12};
 
     database.begin();
-    YTEntityImpl doc1 = new YTEntityImpl("CompositeByteArrayKeyTest");
+    EntityImpl doc1 = new EntityImpl("CompositeByteArrayKeyTest");
     doc1.field("byteArrayKey", key1);
     doc1.field("intKey", 1);
     doc1.save();
 
-    YTEntityImpl doc2 = new YTEntityImpl("CompositeByteArrayKeyTest");
+    EntityImpl doc2 = new EntityImpl("CompositeByteArrayKeyTest");
     doc2.field("byteArrayKey", key2);
     doc2.field("intKey", 2);
     doc2.save();

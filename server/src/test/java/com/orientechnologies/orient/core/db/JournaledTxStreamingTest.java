@@ -22,11 +22,11 @@ package com.orientechnologies.orient.core.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.record.YTEntity;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
 import java.io.DataInputStream;
@@ -105,7 +105,7 @@ public class JournaledTxStreamingTest {
     for (int i = 0; i < ITERATIONS; ++i) {
       db.begin();
       txs.addLast(db.getTransaction().getClientTransactionId());
-      YTEntity rec = db.newInstance();
+      Entity rec = db.newInstance();
       db.save(rec, db.getClusterNameById(db.getDefaultClusterId()));
       db.commit();
     }

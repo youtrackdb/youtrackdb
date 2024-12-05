@@ -13,25 +13,25 @@
  */
 package com.orientechnologies.security.auditing;
 
-import com.orientechnologies.common.parser.OVariableParser;
-import com.orientechnologies.common.parser.OVariableParserListener;
-import com.orientechnologies.core.command.OCommandExecutor;
-import com.orientechnologies.core.command.OCommandRequestText;
-import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.core.db.OSystemDatabase;
-import com.orientechnologies.core.db.YTDatabaseListener;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.hook.YTRecordHookAbstract;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTImmutableClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.metadata.security.YTSecurityUser;
-import com.orientechnologies.core.record.YTRecord;
-import com.orientechnologies.core.record.impl.ODocumentInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.security.OAuditingOperation;
-import com.orientechnologies.core.security.OSecuritySystem;
+import com.jetbrains.youtrack.db.internal.common.parser.OVariableParser;
+import com.jetbrains.youtrack.db.internal.common.parser.OVariableParserListener;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandExecutor;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.OSystemDatabase;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseListener;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.hook.YTRecordHookAbstract;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTImmutableClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.security.OAuditingOperation;
+import com.jetbrains.youtrack.db.internal.core.security.OSecuritySystem;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -51,8 +51,8 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
       new HashMap<String, OAuditingClassConfig>(20);
   private final OAuditingLoggingThread auditingThread;
 
-  private final Map<YTDatabaseSession, List<YTEntityImpl>> operations = new ConcurrentHashMap<>();
-  private volatile LinkedBlockingQueue<YTEntityImpl> auditingQueue;
+  private final Map<YTDatabaseSession, List<EntityImpl>> operations = new ConcurrentHashMap<>();
+  private volatile LinkedBlockingQueue<EntityImpl> auditingQueue;
   private final Set<OAuditingCommandConfig> commands = new HashSet<OAuditingCommandConfig>();
   private boolean onGlobalCreate;
   private boolean onGlobalRead;
@@ -60,14 +60,14 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
   private boolean onGlobalDelete;
   private OAuditingClassConfig defaultConfig = new OAuditingClassConfig();
   private OAuditingSchemaConfig schemaConfig;
-  private YTEntityImpl iConfiguration;
+  private EntityImpl iConfiguration;
 
   private static class OAuditingCommandConfig {
 
     public String regex;
     public String message;
 
-    public OAuditingCommandConfig(final YTEntityImpl cfg) {
+    public OAuditingCommandConfig(final EntityImpl cfg) {
       regex = cfg.field("regex");
       message = cfg.field("message");
     }
@@ -89,7 +89,7 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
     public OAuditingClassConfig() {
     }
 
-    public OAuditingClassConfig(final YTEntityImpl cfg) {
+    public OAuditingClassConfig(final EntityImpl cfg) {
       if (cfg.containsField("polymorphic")) {
         polymorphic = cfg.field("polymorphic");
       }
@@ -140,7 +140,7 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
     private boolean onDropClassEnabled = false;
     private final String onDropClassMessage;
 
-    public OAuditingSchemaConfig(final YTEntityImpl cfg) {
+    public OAuditingSchemaConfig(final EntityImpl cfg) {
       if (cfg.containsField("onCreateClassEnabled")) {
         onCreateClassEnabled = cfg.field("onCreateClassEnabled");
       }
@@ -179,23 +179,23 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
 
   /// / YTAuditingHook
   public YTAuditingHook(final String iConfiguration) {
-    this(new YTEntityImpl().fromJSON(iConfiguration, "noMap"), null);
+    this(new EntityImpl().fromJSON(iConfiguration, "noMap"), null);
   }
 
   public YTAuditingHook(final String iConfiguration, final OSecuritySystem system) {
-    this(new YTEntityImpl().fromJSON(iConfiguration, "noMap"), system);
+    this(new EntityImpl().fromJSON(iConfiguration, "noMap"), system);
   }
 
-  public YTAuditingHook(final YTEntityImpl iConfiguration) {
+  public YTAuditingHook(final EntityImpl iConfiguration) {
     this(iConfiguration, null);
   }
 
-  public YTAuditingHook(final YTEntityImpl iConfiguration, final OSecuritySystem system) {
+  public YTAuditingHook(final EntityImpl iConfiguration, final OSecuritySystem system) {
     this.iConfiguration = iConfiguration;
 
     onGlobalCreate = onGlobalRead = onGlobalUpdate = onGlobalDelete = false;
 
-    final YTEntityImpl classesCfg = iConfiguration.field("classes");
+    final EntityImpl classesCfg = iConfiguration.field("classes");
     if (classesCfg != null) {
       for (String c : classesCfg.fieldNames()) {
         final OAuditingClassConfig cfg = new OAuditingClassConfig(classesCfg.field(c));
@@ -220,21 +220,21 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
       }
     }
 
-    final Iterable<YTEntityImpl> commandCfg = iConfiguration.field("commands");
+    final Iterable<EntityImpl> commandCfg = iConfiguration.field("commands");
 
     if (commandCfg != null) {
 
-      for (YTEntityImpl cfg : commandCfg) {
+      for (EntityImpl cfg : commandCfg) {
         commands.add(new OAuditingCommandConfig(cfg));
       }
     }
 
-    final YTEntityImpl schemaCfgDoc = iConfiguration.field("schema");
+    final EntityImpl schemaCfgDoc = iConfiguration.field("schema");
     if (schemaCfgDoc != null) {
       schemaConfig = new OAuditingSchemaConfig(schemaCfgDoc);
     }
 
-    auditingQueue = new LinkedBlockingQueue<YTEntityImpl>();
+    auditingQueue = new LinkedBlockingQueue<EntityImpl>();
     auditingThread =
         new OAuditingLoggingThread(
             ODatabaseRecordThreadLocal.instance().get().getName(),
@@ -246,7 +246,7 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
   }
 
   public YTAuditingHook(final OSecuritySystem server) {
-    auditingQueue = new LinkedBlockingQueue<YTEntityImpl>();
+    auditingQueue = new LinkedBlockingQueue<EntityImpl>();
     auditingThread =
         new OAuditingLoggingThread(
             OSystemDatabase.SYSTEM_DB_NAME, auditingQueue, server.getContext(), server);
@@ -289,13 +289,13 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
   @Override
   public void onAfterTxCommit(YTDatabaseSession iDatabase) {
 
-    List<YTEntityImpl> oDocuments = null;
+    List<EntityImpl> oDocuments = null;
 
     synchronized (operations) {
       oDocuments = operations.remove(iDatabase);
     }
     if (oDocuments != null) {
-      for (YTEntityImpl oDocument : oDocuments) {
+      for (EntityImpl oDocument : oDocuments) {
         auditingQueue.offer(oDocument);
       }
     }
@@ -321,12 +321,12 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
     return false;
   }
 
-  public YTEntityImpl getConfiguration() {
+  public EntityImpl getConfiguration() {
     return iConfiguration;
   }
 
   @Override
-  public void onRecordAfterCreate(final YTRecord iRecord) {
+  public void onRecordAfterCreate(final Record iRecord) {
     if (!onGlobalCreate) {
       return;
     }
@@ -335,7 +335,7 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
   }
 
   @Override
-  public void onRecordAfterRead(final YTRecord iRecord) {
+  public void onRecordAfterRead(final Record iRecord) {
     if (!onGlobalRead) {
       return;
     }
@@ -344,9 +344,9 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
   }
 
   @Override
-  public void onRecordAfterUpdate(final YTRecord iRecord) {
+  public void onRecordAfterUpdate(final Record iRecord) {
 
-    if (iRecord instanceof YTEntityImpl doc) {
+    if (iRecord instanceof EntityImpl doc) {
       YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(db, doc);
 
@@ -364,7 +364,7 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
   }
 
   @Override
-  public void onRecordAfterDelete(final YTRecord iRecord) {
+  public void onRecordAfterDelete(final Record iRecord) {
     if (!onGlobalDelete) {
       return;
     }
@@ -386,7 +386,7 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
       if (command.matches(cfg.regex)) {
         final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
 
-        final YTEntityImpl doc =
+        final EntityImpl doc =
             createLogDocument(db
                 , OAuditingOperation.COMMAND,
                 db.getName(),
@@ -416,7 +416,7 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
             });
   }
 
-  protected void log(final OAuditingOperation operation, final YTRecord iRecord) {
+  protected void log(final OAuditingOperation operation, final Record iRecord) {
     if (auditingQueue == null)
     // LOGGING THREAD INACTIVE, SKIP THE LOG
     {
@@ -430,7 +430,7 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
       return;
     }
 
-    YTEntityImpl changes = null;
+    EntityImpl changes = null;
     String note = null;
 
     switch (operation) {
@@ -450,11 +450,11 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
         }
         note = cfg.onUpdateMessage;
 
-        if (iRecord instanceof YTEntityImpl doc && cfg.onUpdateChanges) {
-          changes = new YTEntityImpl();
+        if (iRecord instanceof EntityImpl doc && cfg.onUpdateChanges) {
+          changes = new EntityImpl();
 
           for (String f : doc.getDirtyFields()) {
-            YTEntityImpl fieldChanges = new YTEntityImpl();
+            EntityImpl fieldChanges = new EntityImpl();
             fieldChanges.field("from", doc.getOriginalValue(f));
             fieldChanges.field("to", (Object) doc.rawField(f));
             changes.field(f, fieldChanges, YTType.EMBEDDED);
@@ -473,7 +473,7 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
 
     final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
 
-    final YTEntityImpl doc =
+    final EntityImpl doc =
         createLogDocument(db, operation, db.getName(), db.getUser(), formatNote(iRecord, note));
     doc.field("record", iRecord.getIdentity());
     if (changes != null) {
@@ -482,9 +482,9 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
 
     if (db.getTransaction().isActive()) {
       synchronized (operations) {
-        List<YTEntityImpl> oDocuments = operations.get(db);
+        List<EntityImpl> oDocuments = operations.get(db);
         if (oDocuments == null) {
-          oDocuments = new ArrayList<YTEntityImpl>();
+          oDocuments = new ArrayList<EntityImpl>();
           operations.put(db, oDocuments);
         }
         oDocuments.add(doc);
@@ -494,7 +494,7 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
     }
   }
 
-  private String formatNote(final YTRecord iRecord, final String iNote) {
+  private String formatNote(final Record iRecord, final String iNote) {
     if (iNote == null) {
       return null;
     }
@@ -508,9 +508,9 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
               @Override
               public Object resolve(final String iVariable) {
                 if (iVariable.startsWith("field.")) {
-                  if (iRecord instanceof YTEntityImpl) {
+                  if (iRecord instanceof EntityImpl) {
                     final String fieldName = iVariable.substring("field.".length());
-                    return ((YTEntityImpl) iRecord).field(fieldName);
+                    return ((EntityImpl) iRecord).field(fieldName);
                   }
                 }
                 return null;
@@ -518,11 +518,11 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
             });
   }
 
-  private OAuditingClassConfig getAuditConfiguration(final YTRecord iRecord) {
+  private OAuditingClassConfig getAuditConfiguration(final Record iRecord) {
     OAuditingClassConfig cfg = null;
 
-    if (iRecord instanceof YTEntityImpl) {
-      YTClass cls = ((YTEntityImpl) iRecord).getSchemaClass();
+    if (iRecord instanceof EntityImpl) {
+      YTClass cls = ((EntityImpl) iRecord).getSchemaClass();
       if (cls != null) {
 
         if (cls.getName().equals(ODefaultAuditing.AUDITING_LOG_CLASSNAME))
@@ -623,7 +623,7 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
 
     final YTSecurityUser user = db.getUser();
 
-    final YTEntityImpl doc = createLogDocument(db, operation, db.getName(), user, note);
+    final EntityImpl doc = createLogDocument(db, operation, db.getName(), user, note);
 
     auditingQueue.offer(doc);
   }
@@ -652,14 +652,14 @@ public class YTAuditingHook extends YTRecordHookAbstract implements YTDatabaseLi
     }
   }
 
-  private static YTEntityImpl createLogDocument(
+  private static EntityImpl createLogDocument(
       YTDatabaseSessionInternal session, final OAuditingOperation operation,
       final String dbName,
       YTSecurityUser user,
       final String message) {
-    YTEntityImpl doc = null;
+    EntityImpl doc = null;
 
-    doc = new YTEntityImpl();
+    doc = new EntityImpl();
     doc.field("date", System.currentTimeMillis());
     doc.field("operation", operation.getByte());
 

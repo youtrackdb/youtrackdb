@@ -2,10 +2,10 @@ package com.orientechnologies.lucene.functions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.lucene.test.BaseLuceneTest;
-import com.orientechnologies.core.exception.YTCommandExecutionException;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -130,7 +130,7 @@ public class OLuceneSearchOnIndexFunctionTest extends BaseLuceneTest {
     final String query = "SELECT from Song where SEARCH_INDEX('Song.title', '*EVE*', ?) = true";
 
     db.query(query, "{'allowLeadingWildcard': true}").close();
-    db.query(query, new YTEntityImpl("allowLeadingWildcard", Boolean.TRUE)).close();
+    db.query(query, new EntityImpl("allowLeadingWildcard", Boolean.TRUE)).close();
 
     Map<String, Object> mdMap = new HashMap();
     mdMap.put("allowLeadingWildcard", true);

@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.core.command.OCommandResultListener;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 
 public interface SimpleValueFetchPlanCommandListener extends OCommandResultListener {
 
-  void linkdedBySimpleValue(YTEntityImpl doc);
+  void linkdedBySimpleValue(EntityImpl doc);
 }

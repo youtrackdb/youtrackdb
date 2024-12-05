@@ -15,15 +15,15 @@
 package com.orientechnologies.spatial.index;
 
 import com.orientechnologies.lucene.index.OLuceneIndexNotUnique;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.exception.OInvalidIndexEngineIdException;
-import com.orientechnologies.core.index.OIndexMetadata;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.storage.OStorage;
-import com.orientechnologies.core.tx.OTransactionIndexChanges;
-import com.orientechnologies.core.tx.OTransactionIndexChangesPerKey;
-import com.orientechnologies.core.tx.OTransactionIndexChangesPerKey.OTransactionIndexEntry;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.OInvalidIndexEngineIdException;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexMetadata;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChangesPerKey;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChangesPerKey.OTransactionIndexEntry;
 import com.orientechnologies.spatial.engine.OLuceneSpatialIndexContainer;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 import java.util.LinkedHashMap;
@@ -74,8 +74,8 @@ public class OLuceneSpatialIndex extends OLuceneIndexNotUnique {
   @Override
   protected Object encodeKey(Object key) {
 
-    if (key instanceof YTEntityImpl) {
-      Shape shape = shapeFactory.fromDoc((YTEntityImpl) key);
+    if (key instanceof EntityImpl) {
+      Shape shape = shapeFactory.fromDoc((EntityImpl) key);
       return shapeFactory.toGeometry(shape);
     }
     return key;

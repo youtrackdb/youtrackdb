@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.common.util.OPair;
+import com.jetbrains.youtrack.db.internal.common.util.OCallable;
+import com.jetbrains.youtrack.db.internal.common.util.OPair;
 import com.orientechnologies.orient.server.distributed.task.ORemoteTask;
 import java.util.Collection;
 import java.util.Set;

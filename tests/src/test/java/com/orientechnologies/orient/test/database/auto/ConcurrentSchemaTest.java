@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.orientechnologies.orient.test.ConcurrentTestHelper;
 import com.orientechnologies.orient.test.TestFactory;
 import java.util.concurrent.Callable;

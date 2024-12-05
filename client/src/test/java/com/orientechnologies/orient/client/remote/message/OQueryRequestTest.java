@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.DBTestBase;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
+import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;

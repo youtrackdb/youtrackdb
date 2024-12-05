@@ -19,22 +19,22 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.common.serialization.types.OBinarySerializer;
-import com.orientechnologies.common.serialization.types.OIntegerSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OCollectionNetworkSerializer;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializer;
-import com.orientechnologies.core.storage.ridbag.sbtree.Change;
-import com.orientechnologies.core.storage.ridbag.sbtree.ChangeSerializationHelper;
-import com.orientechnologies.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.Change;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.ChangeSerializationHelper;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 import java.util.Map;
 

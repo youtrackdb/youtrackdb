@@ -19,18 +19,18 @@
  */
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.exception.YTSystemException;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.document.OQueryDatabaseState;
-import com.orientechnologies.core.metadata.security.OToken;
-import com.orientechnologies.core.metadata.security.YTSecurityUser;
-import com.orientechnologies.core.security.OParsedToken;
-import com.orientechnologies.core.sql.executor.OExecutionPlan;
-import com.orientechnologies.core.sql.executor.OInternalExecutionPlan;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTSystemException;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.OQueryDatabaseState;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.OToken;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
+import com.jetbrains.youtrack.db.internal.core.security.OParsedToken;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.OInternalExecutionPlan;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinary;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTTokenSecurityException;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
-import com.orientechnologies.orient.enterprise.channel.binary.YTTokenSecurityException;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocol;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
 import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;

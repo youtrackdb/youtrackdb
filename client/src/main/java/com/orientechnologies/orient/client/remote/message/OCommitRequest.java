@@ -19,17 +19,17 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +39,7 @@ public final class OCommitRequest implements OBinaryRequest<OCommitResponse> {
   private long txId;
   private boolean usingLong;
   private List<ORecordOperationRequest> operations;
-  private YTEntityImpl indexChanges;
+  private EntityImpl indexChanges;
 
   public OCommitRequest() {
   }
@@ -80,7 +80,7 @@ public final class OCommitRequest implements OBinaryRequest<OCommitResponse> {
       }
     } while (hasEntry == 1);
 
-    indexChanges = new YTEntityImpl(channel.readBytes());
+    indexChanges = new EntityImpl(channel.readBytes());
   }
 
   @Override
@@ -93,7 +93,7 @@ public final class OCommitRequest implements OBinaryRequest<OCommitResponse> {
     return "Transaction commit";
   }
 
-  public YTEntityImpl getIndexChanges() {
+  public EntityImpl getIndexChanges() {
     return indexChanges;
   }
 

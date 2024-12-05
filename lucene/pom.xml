@@ -194,7 +194,7 @@
           <properties>
             <property>
               <name>listener</name>
-              <value>com.orientechnologies.OJUnitTestListener</value>
+              <value>com.jetbrains.youtrack.db.internal.JUnitTestListener</value>
             </property>
           </properties>
         </configuration>
@@ -248,7 +248,7 @@
           -Dstorage.makeFullCheckpointAfterClusterCreate=false -Dstorage.wal.syncOnPageFlush=false
           -Dstorage.configuration.syncOnUpdate=false
           -Dmemory.directMemory.trackMode=true
-          -Djava.util.logging.manager=com.orientechnologies.common.log.ShutdownLogManager
+          -Djava.util.logging.manager=com.jetbrains.youtrack.db.internal.common.log.ShutdownLogManager
           -Dstorage.diskCache.checksumMode=storeAndThrow
           -Dsecurity.warningDefaultUsers=false
           -Dfile.log.deletion=false

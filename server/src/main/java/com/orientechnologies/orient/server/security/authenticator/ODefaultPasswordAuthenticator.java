@@ -23,6 +23,7 @@ package com.orientechnologies.orient.server.security.authenticator;
  * This exist only for backward compatibility for the package name configured in the security.json
  */
 public class ODefaultPasswordAuthenticator
-    extends com.orientechnologies.core.security.authenticator.ODefaultPasswordAuthenticator {
+    extends
+    com.jetbrains.youtrack.db.internal.core.security.authenticator.ODefaultPasswordAuthenticator {
 
 }

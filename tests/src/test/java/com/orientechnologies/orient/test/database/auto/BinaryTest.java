@@ -15,12 +15,12 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTRecordAbstract;
-import com.orientechnologies.core.record.impl.YTBlob;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.record.impl.YTRecordBytes;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -38,7 +38,7 @@ public class BinaryTest extends DocumentDBBaseTest {
   @Test
   public void testMixedCreateEmbedded() {
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl();
+    EntityImpl doc = new EntityImpl();
     doc.field("binary", "Binary data".getBytes());
 
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
@@ -53,7 +53,7 @@ public class BinaryTest extends DocumentDBBaseTest {
   @Test
   public void testBasicCreateExternal() {
     database.begin();
-    YTBlob record = new YTRecordBytes(database, "This is a test".getBytes());
+    Blob record = new RecordBytes(database, "This is a test".getBytes());
     record.save();
     database.commit();
 
@@ -62,7 +62,7 @@ public class BinaryTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testBasicCreateExternal")
   public void testBasicReadExternal() {
-    YTRecordAbstract record = database.load(rid);
+    RecordAbstract record = database.load(rid);
 
     Assert.assertEquals("This is a test", new String(record.toStream()));
   }
@@ -71,8 +71,8 @@ public class BinaryTest extends DocumentDBBaseTest {
   public void testMixedCreateExternal() {
     database.begin();
 
-    YTEntityImpl doc = new YTEntityImpl();
-    doc.field("binary", new YTRecordBytes(database, "Binary data".getBytes()));
+    EntityImpl doc = new EntityImpl();
+    doc.field("binary", new RecordBytes(database, "Binary data".getBytes()));
 
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
@@ -82,8 +82,8 @@ public class BinaryTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testMixedCreateExternal")
   public void testMixedReadExternal() {
-    YTEntityImpl doc = rid.getRecord();
+    EntityImpl doc = rid.getRecord();
     Assert.assertEquals("Binary data",
-        new String(((YTRecordAbstract) doc.field("binary")).toStream()));
+        new String(((RecordAbstract) doc.field("binary")).toStream()));
   }
 }

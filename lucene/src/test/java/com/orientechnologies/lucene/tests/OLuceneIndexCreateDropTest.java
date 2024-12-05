@@ -20,9 +20,9 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import org.junit.Before;
 import org.junit.Test;
 

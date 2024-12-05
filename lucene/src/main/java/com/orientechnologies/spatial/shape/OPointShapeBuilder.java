@@ -13,13 +13,13 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTProperty;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.List;
 import org.locationtech.jts.geom.Geometry;
@@ -49,7 +49,7 @@ public class OPointShapeBuilder extends OShapeBuilder<Point> {
     coordinates.setMin(db, "2");
     coordinates.setMax(db, "2");
 
-    if (YTGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
+    if (GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
       YTClass pointz = schema.createAbstractClass(NAME + "Z", superClass(db));
       YTProperty coordinatesz = pointz.createProperty(db, COORDINATES, YTType.EMBEDDEDLIST,
           YTType.DOUBLE);
@@ -59,7 +59,7 @@ public class OPointShapeBuilder extends OShapeBuilder<Point> {
   }
 
   @Override
-  public Point fromDoc(YTEntityImpl document) {
+  public Point fromDoc(EntityImpl document) {
     validate(document);
     List<Number> coordinates = document.field(COORDINATES);
     if (coordinates.size() == 2) {
@@ -74,9 +74,9 @@ public class OPointShapeBuilder extends OShapeBuilder<Point> {
   }
 
   @Override
-  public YTEntityImpl toDoc(final Point shape) {
+  public EntityImpl toDoc(final Point shape) {
 
-    YTEntityImpl doc = new YTEntityImpl(NAME);
+    EntityImpl doc = new EntityImpl(NAME);
     doc.field(
         COORDINATES,
         new ArrayList<Double>() {
@@ -89,12 +89,12 @@ public class OPointShapeBuilder extends OShapeBuilder<Point> {
   }
 
   @Override
-  protected YTEntityImpl toDoc(Point parsed, Geometry geometry) {
+  protected EntityImpl toDoc(Point parsed, Geometry geometry) {
     if (geometry == null || Double.isNaN(geometry.getCoordinate().getZ())) {
       return toDoc(parsed);
     }
 
-    YTEntityImpl doc = new YTEntityImpl(NAME + "Z");
+    EntityImpl doc = new EntityImpl(NAME + "Z");
     doc.field(
         COORDINATES,
         new ArrayList<Double>() {
@@ -108,7 +108,7 @@ public class OPointShapeBuilder extends OShapeBuilder<Point> {
   }
 
   @Override
-  public String asText(YTEntityImpl document) {
+  public String asText(EntityImpl document) {
     if (document.getClassName().equals("OPointZ")) {
       List<Double> coordinates = document.getProperty("coordinates");
       return "POINT Z ("

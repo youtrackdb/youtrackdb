@@ -1,7 +1,7 @@
 package com.orientechnologies.spatial.functions;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.spatial.BaseSpatialLuceneTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,8 +13,8 @@ public class OSTAsTextFunctionTest extends BaseSpatialLuceneTest {
 
   @Test
   public void test() {
-    boolean prevValue = YTGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean();
-    YTGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.setValue(true);
+    boolean prevValue = GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean();
+    GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.setValue(true);
 
     String[] values = {
         "POINT (100.1 80.2)",
@@ -31,7 +31,7 @@ public class OSTAsTextFunctionTest extends BaseSpatialLuceneTest {
       OSTAsTextFunction func2 = new OSTAsTextFunction();
 
       for (String value : values) {
-        YTEntityImpl item = (YTEntityImpl) func.execute(null, null, null, new Object[]{value},
+        EntityImpl item = (EntityImpl) func.execute(null, null, null, new Object[]{value},
             null);
 
         String result = (String) func2.execute(null, null, null, new Object[]{item}, null);
@@ -40,7 +40,7 @@ public class OSTAsTextFunctionTest extends BaseSpatialLuceneTest {
       }
 
     } finally {
-      YTGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.setValue(prevValue);
+      GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.setValue(prevValue);
     }
   }
 }

@@ -1,20 +1,20 @@
 package com.orientechnologies.orient.client.remote.metadata.schema;
 
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.exception.YTSchemaException;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTClassImpl;
-import com.orientechnologies.core.metadata.schema.YTProperty;
-import com.orientechnologies.core.metadata.schema.YTPropertyImpl;
-import com.orientechnologies.core.metadata.schema.OSchemaShared;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.metadata.schema.YTView;
-import com.orientechnologies.core.metadata.schema.YTViewImpl;
-import com.orientechnologies.core.metadata.schema.OViewRemovedMetadata;
-import com.orientechnologies.core.metadata.security.ORole;
-import com.orientechnologies.core.metadata.security.ORule;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSchemaException;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClassImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTPropertyImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.OSchemaShared;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTView;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTViewImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.OViewRemovedMetadata;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
 import java.util.List;
 
 /**

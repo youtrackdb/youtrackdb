@@ -18,12 +18,12 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
 
     int size = 1000;
     for (int i = 0; i < size; i++) {
-      YTEntityImpl city = new YTEntityImpl("City");
+      EntityImpl city = new EntityImpl("City");
       city.field("name", "Rome " + i);
 
       db.begin();

@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command;
 
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.OStringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -99,12 +99,12 @@ public abstract class OServerCommandAbstract implements OServerCommand {
       final Object iContent,
       final String iHeaders)
       throws IOException {
-    YTEntityImpl response = new YTEntityImpl();
-    YTEntityImpl error = new YTEntityImpl();
+    EntityImpl response = new EntityImpl();
+    EntityImpl error = new EntityImpl();
     error.field("code", iCode);
     error.field("reason", iReason);
     error.field("content", iContent);
-    List<YTEntityImpl> errors = new ArrayList<YTEntityImpl>();
+    List<EntityImpl> errors = new ArrayList<EntityImpl>();
     errors.add(error);
     response.field("errors", errors);
     iResponse.send(

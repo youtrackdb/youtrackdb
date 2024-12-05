@@ -19,17 +19,17 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializer;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 import java.util.Map;
 
@@ -65,7 +65,7 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
       this.recordsPerPage = 100;
     }
     this.operationType = operationType;
-    YTEntityImpl parms = new YTEntityImpl();
+    EntityImpl parms = new EntityImpl();
     parms.field("params", this.params);
 
     paramsBytes = OMessageHelper.getRecordBytes(session, parms, serializer);
@@ -81,7 +81,7 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
     this.language = language;
     this.statement = iCommand;
     this.params = namedParams;
-    YTEntityImpl parms = new YTEntityImpl(session);
+    EntityImpl parms = new EntityImpl(session);
     parms.field("params", this.params);
 
     paramsBytes = OMessageHelper.getRecordBytes(session, parms, serializer);
@@ -154,7 +154,7 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
   public Map<String, Object> getParams(YTDatabaseSessionInternal db) {
     if (params == null && this.paramsBytes != null) {
       // params
-      YTEntityImpl paramsDoc = new YTEntityImpl();
+      EntityImpl paramsDoc = new EntityImpl();
       paramsDoc.setTrackingChanges(false);
       serializer.fromStream(db, this.paramsBytes, paramsDoc, null);
       this.params = paramsDoc.field("params");

@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.base;
 
-import com.orientechnologies.common.test.SpeedTestMonoThread;
-import com.orientechnologies.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.common.test.SpeedTestMonoThread;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import org.testng.annotations.Test;
 
 @Test(enabled = false)

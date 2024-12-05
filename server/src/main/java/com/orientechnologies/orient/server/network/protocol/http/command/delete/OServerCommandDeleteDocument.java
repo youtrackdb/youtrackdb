@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.delete;
 
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.record.ORecordInternal;
-import com.orientechnologies.core.record.impl.ODocumentInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -54,7 +54,7 @@ public class OServerCommandDeleteDocument extends OServerCommandDocumentAbstract
 
       db.executeInTx(
           () -> {
-            final YTEntityImpl doc = recordId.getRecord();
+            final EntityImpl doc = recordId.getRecord();
 
             // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
             if (iRequest.getContent() != null)

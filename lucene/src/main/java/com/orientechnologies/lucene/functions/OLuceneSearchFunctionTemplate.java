@@ -2,14 +2,14 @@ package com.orientechnologies.lucene.functions;
 
 import com.orientechnologies.lucene.collections.OLuceneResultSet;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
-import com.orientechnologies.core.command.OCommandContext;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.functions.OIndexableSQLFunction;
-import com.orientechnologies.core.sql.functions.OSQLFunctionAbstract;
-import com.orientechnologies.core.sql.parser.OBinaryCompareOperator;
-import com.orientechnologies.core.sql.parser.OExpression;
-import com.orientechnologies.core.sql.parser.OFromClause;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.OIndexableSQLFunction;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionAbstract;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
 import java.util.Map;
 
 /**
@@ -75,16 +75,16 @@ public abstract class OLuceneSearchFunctionTemplate extends OSQLFunctionAbstract
 
   protected Map<String, ?> getMetadata(OExpression metadata, OCommandContext ctx) {
     final Object md = metadata.execute((YTIdentifiable) null, ctx);
-    if (md instanceof YTEntityImpl document) {
+    if (md instanceof EntityImpl document) {
       return document.toMap();
     } else if (md instanceof Map map) {
       return map;
     } else if (md instanceof String) {
-      var doc = new YTEntityImpl();
+      var doc = new EntityImpl();
       doc.fromJSON((String) md);
       return doc.toMap();
     } else {
-      var doc = new YTEntityImpl();
+      var doc = new EntityImpl();
       doc.fromJSON(metadata.toString());
       return doc.toMap();
     }

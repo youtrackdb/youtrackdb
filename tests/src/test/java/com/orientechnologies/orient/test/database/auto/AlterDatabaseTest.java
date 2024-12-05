@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.db.YouTrackDBConfigBuilder;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
 import java.io.IOException;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -37,7 +37,7 @@ public class AlterDatabaseTest extends DocumentDBBaseTest {
 
   @Override
   protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    builder.addConfig(GlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
     return builder.build();
   }
 

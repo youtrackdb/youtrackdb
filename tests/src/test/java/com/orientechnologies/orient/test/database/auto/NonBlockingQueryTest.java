@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.command.OCommandResultListener;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.query.OSQLNonBlockingQuery;
-import com.orientechnologies.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLNonBlockingQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -45,7 +45,7 @@ public class NonBlockingQueryTest extends DocumentDBBaseTest {
     db.commit();
     YTDatabaseSessionInternal newDb = db.copy();
 
-    List<YTEntityImpl> result = newDb.query(new OSQLSynchQuery<YTEntityImpl>("Select from Foo"));
+    List<EntityImpl> result = newDb.query(new OSQLSynchQuery<EntityImpl>("Select from Foo"));
     Assert.assertEquals(result.size(), 1);
     Assert.assertEquals(result.get(0).field("a"), "bar");
     newDb.close();

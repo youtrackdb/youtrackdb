@@ -19,30 +19,30 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.command.OCommandRequestText;
-import com.orientechnologies.core.command.OCommandResultListener;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.exception.YTStorageException;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTRecord;
-import com.orientechnologies.core.record.YTRecordAbstract;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializer;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
-import com.orientechnologies.core.serialization.serializer.record.string.ORecordSerializerStringAbstract;
-import com.orientechnologies.core.sql.query.OBasicLegacyResultSet;
-import com.orientechnologies.core.type.ODocumentWrapper;
+import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.ORecordSerializerStringAbstract;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OBasicLegacyResultSet;
+import com.jetbrains.youtrack.db.internal.core.type.ODocumentWrapper;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OFetchPlanResults;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.SimpleValueFetchPlanCommandListener;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -114,7 +114,7 @@ public final class OCommandResponse implements OBinaryResponse {
           serializer);
       if (listener instanceof OFetchPlanResults) {
         // SEND FETCHED RECORDS TO LOAD IN CLIENT CACHE
-        for (YTRecord rec : ((OFetchPlanResults) listener).getFetchedRecordsToSend()) {
+        for (Record rec : ((OFetchPlanResults) listener).getFetchedRecordsToSend()) {
           channel.writeByte((byte) 2); // CLIENT CACHE RECORD. IT
           // ISN'T PART OF THE
           // RESULT SET
@@ -150,7 +150,7 @@ public final class OCommandResponse implements OBinaryResponse {
         if (listener != null) {
           listener.result(session, result);
         }
-        if (identifiable instanceof YTRecord record) {
+        if (identifiable instanceof Record record) {
           if (record.isNotBound(session)) {
             identifiable = session.bindToSession(record);
           }
@@ -161,7 +161,7 @@ public final class OCommandResponse implements OBinaryResponse {
         if (result instanceof ODocumentWrapper) {
           // RECORD
           channel.writeByte((byte) 'r');
-          final YTEntityImpl doc = ((ODocumentWrapper) result).getDocument(session);
+          final EntityImpl doc = ((ODocumentWrapper) result).getDocument(session);
           if (listener != null) {
             listener.result(session, doc);
           }
@@ -256,7 +256,7 @@ public final class OCommandResponse implements OBinaryResponse {
 
     if (protocolVersion >= OChannelBinaryProtocol.PROTOCOL_VERSION_35) {
       channel.writeByte((byte) 'w');
-      YTEntityImpl document = new YTEntityImpl();
+      EntityImpl document = new EntityImpl();
       document.field("result", result);
       OMessageHelper.writeIdentifiable(session, channel, document, recordSerializer);
       if (listener != null) {
@@ -266,7 +266,7 @@ public final class OCommandResponse implements OBinaryResponse {
       channel.writeByte((byte) 'a');
       final StringBuilder value = new StringBuilder(64);
       if (listener != null) {
-        YTEntityImpl document = new YTEntityImpl();
+        EntityImpl document = new EntityImpl();
         document.field("result", result);
         listener.linkdedBySimpleValue(document);
       }
@@ -283,7 +283,7 @@ public final class OCommandResponse implements OBinaryResponse {
     try {
       // Collection of prefetched temporary record (nested projection record), to refer for avoid
       // garbage collection.
-      List<YTRecord> temporaryResults = new ArrayList<YTRecord>();
+      List<Record> temporaryResults = new ArrayList<Record>();
 
       boolean addNextRecord = true;
       if (asynch) {
@@ -291,8 +291,8 @@ public final class OCommandResponse implements OBinaryResponse {
 
         // ASYNCH: READ ONE RECORD AT TIME
         while ((status = network.readByte()) > 0) {
-          final YTRecordAbstract record =
-              (YTRecordAbstract) OMessageHelper.readIdentifiable(db, network, serializer);
+          final RecordAbstract record =
+              (RecordAbstract) OMessageHelper.readIdentifiable(db, network, serializer);
           if (record == null) {
             continue;
           }
@@ -330,7 +330,7 @@ public final class OCommandResponse implements OBinaryResponse {
       } else {
         result = readSynchResult(network, database, temporaryResults);
         if (live) {
-          final YTEntityImpl doc = ((List<YTEntityImpl>) result).get(0);
+          final EntityImpl doc = ((List<EntityImpl>) result).get(0);
           final Integer token = doc.field("token");
           final Boolean unsubscribe = doc.field("unsubscribe");
           if (token != null) {
@@ -391,7 +391,7 @@ public final class OCommandResponse implements OBinaryResponse {
   private Object readSynchResult(
       final OChannelDataInput network,
       final YTDatabaseSessionInternal database,
-      List<YTRecord> temporaryResults)
+      List<Record> temporaryResults)
       throws IOException {
     ORecordSerializer serializer = ORecordSerializerNetworkV37Client.INSTANCE;
     final Object result;
@@ -404,7 +404,7 @@ public final class OCommandResponse implements OBinaryResponse {
 
       case 'r':
         result = OMessageHelper.readIdentifiable(database, network, serializer);
-        if (result instanceof YTRecordAbstract record) {
+        if (result instanceof RecordAbstract record) {
           var cachedRecord = database.getLocalCache().findRecord(record.getIdentity());
           if (cachedRecord != record) {
             if (cachedRecord != null) {
@@ -424,7 +424,7 @@ public final class OCommandResponse implements OBinaryResponse {
         for (int i = 0; i < tot; ++i) {
           final YTIdentifiable resultItem = OMessageHelper.readIdentifiable(database, network,
               serializer);
-          if (resultItem instanceof YTRecordAbstract record) {
+          if (resultItem instanceof RecordAbstract record) {
             var rid = record.getIdentity();
             var cacheRecord = database.getLocalCache().findRecord(rid);
 
@@ -454,7 +454,7 @@ public final class OCommandResponse implements OBinaryResponse {
             continue;
           }
           if (status == 1) {
-            if (record instanceof YTRecordAbstract rec) {
+            if (record instanceof RecordAbstract rec) {
               var cachedRecord = database.getLocalCache().findRecord(rec.getIdentity());
 
               if (cachedRecord != rec) {
@@ -476,8 +476,8 @@ public final class OCommandResponse implements OBinaryResponse {
       case 'w':
         final YTIdentifiable record = OMessageHelper.readIdentifiable(database, network,
             serializer);
-        // ((YTEntityImpl) record).setLazyLoad(false);
-        result = ((YTEntityImpl) record).field("result");
+        // ((EntityImpl) record).setLazyLoad(false);
+        result = ((EntityImpl) record).field("result");
         break;
 
       default:
@@ -488,8 +488,8 @@ public final class OCommandResponse implements OBinaryResponse {
     // LOAD THE FETCHED RECORDS IN CACHE
     byte status;
     while ((status = network.readByte()) > 0) {
-      YTRecordAbstract record =
-          (YTRecordAbstract) OMessageHelper.readIdentifiable(database, network, serializer);
+      RecordAbstract record =
+          (RecordAbstract) OMessageHelper.readIdentifiable(database, network, serializer);
       if (record != null && status == 2) {
         // PUT IN THE CLIENT LOCAL CACHE
         var cachedRecord = database.getLocalCache().findRecord(record.getIdentity());

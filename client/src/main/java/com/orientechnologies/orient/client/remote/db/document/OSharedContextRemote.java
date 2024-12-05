@@ -3,15 +3,15 @@ package com.orientechnologies.orient.client.remote.db.document;
 import com.orientechnologies.orient.client.remote.YouTrackDBRemote;
 import com.orientechnologies.orient.client.remote.metadata.schema.OSchemaRemote;
 import com.orientechnologies.orient.client.remote.metadata.security.OSecurityRemote;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.OSharedContext;
-import com.orientechnologies.core.db.OStringCache;
-import com.orientechnologies.core.index.OIndexManagerRemote;
-import com.orientechnologies.core.metadata.function.OFunctionLibraryImpl;
-import com.orientechnologies.core.metadata.sequence.OSequenceLibraryImpl;
-import com.orientechnologies.core.schedule.OSchedulerImpl;
-import com.orientechnologies.core.storage.OStorageInfo;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.OSharedContext;
+import com.jetbrains.youtrack.db.internal.core.db.OStringCache;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexManagerRemote;
+import com.jetbrains.youtrack.db.internal.core.metadata.function.OFunctionLibraryImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.OSequenceLibraryImpl;
+import com.jetbrains.youtrack.db.internal.core.schedule.OSchedulerImpl;
+import com.jetbrains.youtrack.db.internal.core.storage.OStorageInfo;
 
 /**
  *
@@ -23,7 +23,7 @@ public class OSharedContextRemote extends OSharedContext {
         new OStringCache(
             orientDBRemote
                 .getContextConfiguration()
-                .getValueAsInteger(YTGlobalConfiguration.DB_STRING_CAHCE_SIZE));
+                .getValueAsInteger(GlobalConfiguration.DB_STRING_CAHCE_SIZE));
     this.youtrackDB = orientDBRemote;
     this.storage = storage;
     schema = new OSchemaRemote();

@@ -18,10 +18,10 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTVertex;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class LuceneGraphTXTest extends BaseLuceneTest {
   @Test
   public void graphTxTest() throws Exception {
 
-    YTVertex v = db.newVertex("City");
+    Vertex v = db.newVertex("City");
     v.setProperty("name", "London");
 
     db.begin();

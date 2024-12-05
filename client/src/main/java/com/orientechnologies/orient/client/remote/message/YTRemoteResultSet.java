@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
-import com.orientechnologies.core.db.document.OQueryDatabaseState;
-import com.orientechnologies.core.record.YTRecord;
-import com.orientechnologies.core.sql.executor.OExecutionPlan;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultInternal;
-import com.orientechnologies.core.sql.executor.YTResultSet;
-import com.orientechnologies.core.tx.OTransactionAbstract;
+import com.jetbrains.youtrack.db.internal.core.db.document.OQueryDatabaseState;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionAbstract;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -79,7 +79,7 @@ public class YTRemoteResultSet implements YTResultSet {
     YTResult internal = currentPage.remove(0);
 
     if (internal.isRecord() && db != null && db.getTransaction().isActive()) {
-      YTRecord record = db.getTransaction().getRecord(internal.getIdentity().orElseThrow());
+      Record record = db.getTransaction().getRecord(internal.getIdentity().orElseThrow());
       if (record != null && record != OTransactionAbstract.DELETED_RECORD) {
         internal = new YTResultInternal(db, record);
       }

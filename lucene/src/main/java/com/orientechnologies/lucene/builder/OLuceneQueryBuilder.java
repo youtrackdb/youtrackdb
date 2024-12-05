@@ -18,13 +18,13 @@
 
 package com.orientechnologies.lucene.builder;
 
-import com.orientechnologies.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
 import com.orientechnologies.lucene.analyzer.OLuceneAnalyzerFactory;
 import com.orientechnologies.lucene.parser.OLuceneMultiFieldQueryParser;
-import com.orientechnologies.core.index.OCompositeKey;
-import com.orientechnologies.core.index.OIndexDefinition;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.sql.parser.ParseException;
+import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;

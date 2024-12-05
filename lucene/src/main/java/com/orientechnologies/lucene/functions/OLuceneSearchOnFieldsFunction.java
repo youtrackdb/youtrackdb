@@ -6,19 +6,19 @@ import com.orientechnologies.lucene.builder.OLuceneQueryBuilder;
 import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
-import com.orientechnologies.core.command.OCommandContext;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.exception.YTRecordNotFoundException;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.metadata.OMetadataInternal;
-import com.orientechnologies.core.record.YTEntity;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultInternal;
-import com.orientechnologies.core.sql.parser.OBinaryCompareOperator;
-import com.orientechnologies.core.sql.parser.OExpression;
-import com.orientechnologies.core.sql.parser.OFromClause;
-import com.orientechnologies.core.sql.parser.OFromItem;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.metadata.OMetadataInternal;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromItem;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +64,7 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
     }
     YTResult result = (YTResult) iThis;
 
-    YTEntity element = result.toEntity();
+    Entity element = result.toEntity();
     if (!element.getSchemaType().isPresent()) {
       return false;
     }

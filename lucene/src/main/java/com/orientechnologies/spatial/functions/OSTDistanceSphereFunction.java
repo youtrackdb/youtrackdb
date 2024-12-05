@@ -13,12 +13,12 @@
  */
 package com.orientechnologies.spatial.functions;
 
-import com.orientechnologies.core.command.OCommandContext;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.sql.parser.OBinaryCompareOperator;
-import com.orientechnologies.core.sql.parser.OExpression;
-import com.orientechnologies.core.sql.parser.OFromClause;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 import com.orientechnologies.spatial.strategy.SpatialQueryBuilderDistanceSphere;
 import java.util.Map;

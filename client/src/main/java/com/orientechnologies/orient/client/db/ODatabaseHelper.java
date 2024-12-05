@@ -19,14 +19,14 @@
  */
 package com.orientechnologies.orient.client.db;
 
-import com.orientechnologies.common.parser.OSystemVariableResolver;
+import com.jetbrains.youtrack.db.internal.common.parser.OSystemVariableResolver;
+import com.jetbrains.youtrack.db.internal.core.OConstants;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.client.remote.OEngineRemote;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.core.OConstants;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.exception.YTConfigurationException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;

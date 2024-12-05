@@ -18,8 +18,8 @@
 
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.common.concur.YTNeedRetryException;
-import com.orientechnologies.common.exception.YTHighLevelException;
+import com.jetbrains.youtrack.db.internal.common.concur.YTNeedRetryException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTHighLevelException;
 
 /**
  * Cluster id was reassigned during the operation. The client should catch this exception and retry

@@ -13,13 +13,13 @@
  */
 package com.orientechnologies.security.auditing;
 
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.db.YouTrackDBInternal;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.security.OAuditingOperation;
-import com.orientechnologies.core.security.OSecuritySystem;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.security.OAuditingOperation;
+import com.jetbrains.youtrack.db.internal.core.security.OSecuritySystem;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -28,7 +28,7 @@ import java.util.concurrent.BlockingQueue;
 public class OAuditingLoggingThread extends Thread {
 
   private final String databaseName;
-  private final BlockingQueue<YTEntityImpl> auditingQueue;
+  private final BlockingQueue<EntityImpl> auditingQueue;
   private volatile boolean running = true;
   private volatile boolean waitForAllLogs = true;
   private final YouTrackDBInternal context;
@@ -83,7 +83,7 @@ public class OAuditingLoggingThread extends Thread {
           break;
         }
 
-        final YTEntityImpl log = auditingQueue.take();
+        final EntityImpl log = auditingQueue.take();
 
         log.setClassName(className);
 

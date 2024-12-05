@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.common.parser.OSystemVariableResolver;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.security.OSecurityConfig;
-import com.orientechnologies.core.security.OSyslog;
+import com.jetbrains.youtrack.db.internal.common.parser.OSystemVariableResolver;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.security.OSecurityConfig;
+import com.jetbrains.youtrack.db.internal.core.security.OSyslog;
 import com.orientechnologies.orient.server.config.OServerConfigurationManager;
 import com.orientechnologies.orient.server.plugin.OServerPluginInfo;
 
@@ -41,7 +41,7 @@ public class OServerSecurityConfig implements OSecurityConfig {
     String ssf =
         server
             .getContextConfiguration()
-            .getValueAsString(YTGlobalConfiguration.SERVER_SECURITY_FILE);
+            .getValueAsString(GlobalConfiguration.SERVER_SECURITY_FILE);
     if (ssf != null) {
       configFile = ssf;
     }

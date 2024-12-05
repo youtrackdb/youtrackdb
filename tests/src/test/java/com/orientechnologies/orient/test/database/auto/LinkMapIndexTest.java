@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -64,10 +64,10 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     Map<String, YTRID> map = new HashMap<>();
@@ -75,7 +75,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final YTEntityImpl document = new YTEntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
@@ -117,10 +117,10 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
@@ -131,7 +131,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
       map.put("key1", docOne.getIdentity());
       map.put("key2", docTwo.getIdentity());
 
-      final YTEntityImpl document = new YTEntityImpl("LinkMapIndexTestClass");
+      final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
       document.field("linkMap", map);
       document.save();
       database.commit();
@@ -177,13 +177,13 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     Map<String, YTRID> mapOne = new HashMap<>();
@@ -191,7 +191,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     mapOne.put("key1", docOne.getIdentity());
     mapOne.put("key2", docTwo.getIdentity());
 
-    final YTEntityImpl document = new YTEntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
     document.field("linkMap", mapOne);
     document.save();
 
@@ -240,10 +240,10 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     try {
@@ -252,7 +252,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
       mapTwo.put("key3", docOne.getIdentity());
       mapTwo.put("key2", docTwo.getIdentity());
 
-      final YTEntityImpl document = new YTEntityImpl("LinkMapIndexTestClass");
+      final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
       document.field("linkMap", mapTwo);
       document.save();
 
@@ -298,13 +298,13 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     Map<String, YTRID> mapOne = new HashMap<>();
@@ -312,7 +312,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     mapOne.put("key1", docOne.getIdentity());
     mapOne.put("key2", docTwo.getIdentity());
 
-    YTEntityImpl document = new YTEntityImpl("LinkMapIndexTestClass");
+    EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
     document.field("linkMap", mapOne);
     document.save();
     database.commit();
@@ -364,13 +364,13 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     Map<String, YTRID> map = new HashMap<>();
@@ -378,7 +378,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final YTEntityImpl document = new YTEntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
@@ -427,13 +427,13 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     Map<String, YTRID> map = new HashMap<>();
@@ -441,14 +441,14 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final YTEntityImpl document = new YTEntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
 
     try {
       database.begin();
-      final YTEntityImpl loadedDocument = database.load(document.getIdentity());
+      final EntityImpl loadedDocument = database.load(document.getIdentity());
       loadedDocument.<Map<String, YTRID>>field("linkMap").put("key3", docThree.getIdentity());
       loadedDocument.save();
       database.commit();
@@ -495,13 +495,13 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     Map<String, YTRID> map = new HashMap<>();
@@ -509,13 +509,13 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final YTEntityImpl document = new YTEntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
 
     database.begin();
-    final YTEntityImpl loadedDocument = database.load(document.getIdentity());
+    final EntityImpl loadedDocument = database.load(document.getIdentity());
     loadedDocument.<Map<String, YTRID>>field("linkMap").put("key3", docThree.getIdentity());
     loadedDocument.save();
     database.rollback();
@@ -556,13 +556,13 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     Map<String, YTRID> map = new HashMap<>();
@@ -570,7 +570,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final YTEntityImpl document = new YTEntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
@@ -618,13 +618,13 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     Map<String, YTRID> map = new HashMap<>();
@@ -632,14 +632,14 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final YTEntityImpl document = new YTEntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
 
     try {
       database.begin();
-      final YTEntityImpl loadedDocument = database.load(document.getIdentity());
+      final EntityImpl loadedDocument = database.load(document.getIdentity());
       loadedDocument.<Map<String, YTRID>>field("linkMap").put("key2", docThree.getIdentity());
       loadedDocument.save();
       database.commit();
@@ -685,13 +685,13 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     Map<String, YTRID> map = new HashMap<>();
@@ -699,13 +699,13 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final YTEntityImpl document = new YTEntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
 
     database.begin();
-    final YTEntityImpl loadedDocument = database.load(document.getIdentity());
+    final EntityImpl loadedDocument = database.load(document.getIdentity());
     loadedDocument.<Map<String, YTRID>>field("linkMap").put("key2", docThree.getIdentity());
     loadedDocument.save();
     database.rollback();
@@ -746,13 +746,13 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     Map<String, YTRID> map = new HashMap<>();
@@ -761,7 +761,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     map.put("key2", docTwo.getIdentity());
     map.put("key3", docThree.getIdentity());
 
-    final YTEntityImpl document = new YTEntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
@@ -806,13 +806,13 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     Map<String, YTRID> map = new HashMap<>();
@@ -821,14 +821,14 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     map.put("key2", docTwo.getIdentity());
     map.put("key3", docThree.getIdentity());
 
-    final YTEntityImpl document = new YTEntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
 
     try {
       database.begin();
-      final YTEntityImpl loadedDocument = database.load(document.getIdentity());
+      final EntityImpl loadedDocument = database.load(document.getIdentity());
       loadedDocument.<Map<String, YTRID>>field("linkMap").remove("key2");
       loadedDocument.save();
       database.commit();
@@ -873,13 +873,13 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     Map<String, YTRID> map = new HashMap<>();
@@ -888,13 +888,13 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     map.put("key2", docTwo.getIdentity());
     map.put("key3", docThree.getIdentity());
 
-    final YTEntityImpl document = new YTEntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
 
     database.begin();
-    final YTEntityImpl loadedDocument = database.load(document.getIdentity());
+    final EntityImpl loadedDocument = database.load(document.getIdentity());
     loadedDocument.<Map<String, YTRID>>field("linkMap").remove("key2");
     loadedDocument.save();
     database.rollback();
@@ -936,13 +936,13 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     Map<String, YTRID> map = new HashMap<>();
@@ -950,7 +950,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final YTEntityImpl document = new YTEntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
@@ -970,10 +970,10 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     Map<String, YTRID> map = new HashMap<>();
@@ -981,7 +981,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final YTEntityImpl document = new YTEntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
@@ -1006,10 +1006,10 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     Map<String, YTRID> map = new HashMap<>();
@@ -1017,7 +1017,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    final YTEntityImpl document = new YTEntityImpl("LinkMapIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
@@ -1061,10 +1061,10 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
   public void testIndexMapSQL() {
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     Map<String, YTRID> map = new HashMap<>();
@@ -1072,14 +1072,14 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     map.put("key1", docOne.getIdentity());
     map.put("key2", docTwo.getIdentity());
 
-    YTEntityImpl document = new YTEntityImpl("LinkMapIndexTestClass");
+    EntityImpl document = new EntityImpl("LinkMapIndexTestClass");
     document.field("linkMap", map);
     document.save();
     database.commit();
 
-    final List<YTEntityImpl> resultByKey =
+    final List<EntityImpl> resultByKey =
         database.query(
-            new OSQLSynchQuery<YTEntityImpl>(
+            new OSQLSynchQuery<EntityImpl>(
                 "select * from LinkMapIndexTestClass where linkMap containskey ?"),
             "key1");
     Assert.assertNotNull(resultByKey);
@@ -1088,7 +1088,7 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     document = database.bindToSession(document);
     Assert.assertEquals(map, document.field("linkMap"));
 
-    final List<YTEntityImpl> resultByValue =
+    final List<EntityImpl> resultByValue =
         executeQuery(
             "select * from LinkMapIndexTestClass where linkMap  containsvalue ?",
             docOne.getIdentity());

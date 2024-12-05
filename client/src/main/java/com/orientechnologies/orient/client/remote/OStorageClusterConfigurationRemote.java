@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.core.config.OStorageClusterConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageClusterConfiguration;
 
 public class OStorageClusterConfigurationRemote implements OStorageClusterConfiguration {
 

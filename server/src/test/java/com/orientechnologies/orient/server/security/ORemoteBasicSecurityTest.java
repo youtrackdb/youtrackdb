@@ -2,12 +2,12 @@ package com.orientechnologies.orient.server.security;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.OServer;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -35,7 +35,7 @@ public class ORemoteBasicSecurityTest {
       NotCompliantMBeanException,
       ClassNotFoundException,
       MalformedObjectNameException {
-    YTGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
+    GlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
     server = OServer.startFromClasspathConfig("abstract-orientdb-server-config.xml");
 
     YouTrackDB youTrackDB =
@@ -46,7 +46,7 @@ public class ORemoteBasicSecurityTest {
     try (YTDatabaseSession session = youTrackDB.open("test", "admin", "admin")) {
       session.createClass("one");
       session.begin();
-      session.save(new YTEntityImpl("one"));
+      session.save(new EntityImpl("one"));
       session.commit();
     }
     youTrackDB.close();
@@ -59,7 +59,7 @@ public class ORemoteBasicSecurityTest {
         YouTrackDBConfig.defaultConfig())) {
       try (YTDatabaseSession writer = writerOrient.open("test", "writer", "writer")) {
         writer.begin();
-        writer.save(new YTEntityImpl("one"));
+        writer.save(new EntityImpl("one"));
         writer.commit();
         try (YTResultSet rs = writer.query("select from one")) {
           assertEquals(rs.stream().count(), 2);

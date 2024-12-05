@@ -19,14 +19,15 @@
  */
 package com.orientechnologies.orient.server.network.protocol.binary;
 
-import com.orientechnologies.common.concur.YTOfflineNodeException;
-import com.orientechnologies.common.concur.lock.YTInterruptedException;
-import com.orientechnologies.common.concur.lock.YTLockException;
-import com.orientechnologies.common.exception.OErrorCode;
-import com.orientechnologies.common.exception.OInvalidBinaryChunkException;
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.io.OIOException;
-import com.orientechnologies.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.concur.YTOfflineNodeException;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.YTInterruptedException;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.YTLockException;
+import com.jetbrains.youtrack.db.internal.common.exception.OErrorCode;
+import com.jetbrains.youtrack.db.internal.common.exception.OInvalidBinaryChunkException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.io.OIOException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
@@ -35,32 +36,31 @@ import com.orientechnologies.orient.client.remote.message.OBinaryPushRequest;
 import com.orientechnologies.orient.client.remote.message.OBinaryPushResponse;
 import com.orientechnologies.orient.client.remote.message.OError37Response;
 import com.orientechnologies.orient.client.remote.message.OErrorResponse;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.exception.YTCoreException;
-import com.orientechnologies.core.exception.YTDatabaseException;
-import com.orientechnologies.core.exception.YTSecurityAccessException;
-import com.orientechnologies.core.exception.YTSerializationException;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.record.ORecordInternal;
-import com.orientechnologies.core.record.YTRecordAbstract;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializer;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializerFactory;
-import com.orientechnologies.core.serialization.serializer.record.OSerializationThreadLocal;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
-import com.orientechnologies.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
-import com.orientechnologies.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryServer;
-import com.orientechnologies.orient.enterprise.channel.binary.YTNetworkProtocolException;
-import com.orientechnologies.orient.enterprise.channel.binary.YTTokenSecurityException;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.YTCoreException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityAccessException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSerializationException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializerFactory;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.OSerializationThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinary;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryServer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTNetworkProtocolException;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTTokenSecurityException;
 import com.orientechnologies.orient.server.OClientConnection;
 import com.orientechnologies.orient.server.OConnectionBinaryExecutor;
 import com.orientechnologies.orient.server.OServer;
@@ -116,12 +116,12 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
         Level.parse(
             server
                 .getContextConfiguration()
-                .getValueAsString(YTGlobalConfiguration.SERVER_LOG_DUMP_CLIENT_EXCEPTION_LEVEL));
+                .getValueAsString(GlobalConfiguration.SERVER_LOG_DUMP_CLIENT_EXCEPTION_LEVEL));
     logClientFullStackTrace =
         server
             .getContextConfiguration()
             .getValueAsBoolean(
-                YTGlobalConfiguration.SERVER_LOG_DUMP_CLIENT_EXCEPTION_FULLSTACKTRACE);
+                GlobalConfiguration.SERVER_LOG_DUMP_CLIENT_EXCEPTION_FULLSTACKTRACE);
   }
 
   /**
@@ -974,16 +974,16 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
   }
 
   public static byte[] getRecordBytes(OClientConnection connection,
-      final YTRecordAbstract iRecord) {
+      final RecordAbstract iRecord) {
     final byte[] stream;
     String dbSerializerName = null;
     if (ODatabaseRecordThreadLocal.instance().getIfDefined() != null) {
       dbSerializerName = (iRecord.getSession()).getSerializer().toString();
     }
     String name = connection.getData().getSerializationImpl();
-    if (ORecordInternal.getRecordType(iRecord) == YTEntityImpl.RECORD_TYPE
+    if (ORecordInternal.getRecordType(iRecord) == EntityImpl.RECORD_TYPE
         && (dbSerializerName == null || !dbSerializerName.equals(name))) {
-      ((YTEntityImpl) iRecord).deserializeFields();
+      ((EntityImpl) iRecord).deserializeFields();
       ORecordSerializer ser = ORecordSerializerFactory.instance().getFormat(name);
       stream = ser.toStream(connection.getDatabase(), iRecord);
     } else {
@@ -994,7 +994,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
   }
 
   private static void writeRecord(
-      OChannelBinary channel, OClientConnection connection, final YTRecordAbstract iRecord)
+      OChannelBinary channel, OClientConnection connection, final RecordAbstract iRecord)
       throws IOException {
     channel.writeShort((short) 0);
     channel.writeByte(ORecordInternal.getRecordType(iRecord));

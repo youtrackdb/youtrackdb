@@ -19,9 +19,9 @@
 
 package com.orientechnologies;
 
-import com.orientechnologies.common.directmemory.OByteBufferPool;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.common.directmemory.OByteBufferPool;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import org.testng.Assert;
 import org.testng.ISuite;
 import org.testng.ISuiteListener;

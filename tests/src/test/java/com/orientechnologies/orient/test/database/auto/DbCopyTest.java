@@ -15,13 +15,13 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.command.OCommandOutputListener;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
@@ -38,7 +38,7 @@ public class DbCopyTest extends DocumentDBBaseTest implements OCommandOutputList
 
   @Override
   protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    builder.addConfig(GlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
     return builder.build();
   }
 
@@ -55,7 +55,7 @@ public class DbCopyTest extends DocumentDBBaseTest implements OCommandOutputList
             otherDB.activateOnCurrentThread();
             for (int i = 0; i < 5; i++) {
               otherDB.begin();
-              YTEntityImpl doc = otherDB.newInstance(className);
+              EntityImpl doc = otherDB.newInstance(className);
               doc.field("num", i);
               doc.save();
               otherDB.commit();
@@ -72,7 +72,7 @@ public class DbCopyTest extends DocumentDBBaseTest implements OCommandOutputList
 
     for (int i = 0; i < 20; i++) {
       database.begin();
-      YTEntityImpl doc = database.newInstance(className);
+      EntityImpl doc = database.newInstance(className);
       doc.field("num", i);
       doc.save();
       database.commit();

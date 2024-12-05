@@ -15,25 +15,25 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.command.OCommandOutputListener;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.ODatabaseType;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.core.db.tool.ODatabaseCompare;
-import com.orientechnologies.core.db.tool.ODatabaseExport;
-import com.orientechnologies.core.db.tool.ODatabaseImport;
-import com.orientechnologies.core.hook.YTRecordHook;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
+import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseCompare;
+import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseExport;
+import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseImport;
+import com.jetbrains.youtrack.db.internal.core.hook.YTRecordHook;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -139,7 +139,7 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
 
     final YouTrackDBConfig config =
         new YouTrackDBConfigBuilder()
-            .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, true)
+            .addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, true)
             .build();
     try (final YouTrackDB youTrackDB = new YouTrackDB("embedded:" + localTesPath.getPath(),
         config)) {
@@ -157,7 +157,7 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
         final List<YTRID> ridsToDelete = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
           session.begin();
-          final YTEntityImpl document = new YTEntityImpl(childCls);
+          final EntityImpl document = new EntityImpl(childCls);
           document.save();
           session.commit();
 
@@ -170,14 +170,14 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
           session.commit();
         }
 
-        final YTEntityImpl rootDocument = new YTEntityImpl(rootCls);
-        final ArrayList<YTEntityImpl> documents = new ArrayList<>();
+        final EntityImpl rootDocument = new EntityImpl(rootCls);
+        final ArrayList<EntityImpl> documents = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
           session.begin();
-          final YTEntityImpl embeddedDocument = new YTEntityImpl();
+          final EntityImpl embeddedDocument = new EntityImpl();
 
-          final YTEntityImpl doc = new YTEntityImpl(childCls);
+          final EntityImpl doc = new EntityImpl(childCls);
           doc.save();
           session.commit();
 
@@ -203,12 +203,12 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
             new ODatabaseImport(session, exportPath.getPath(), System.out::println);
         databaseImport.run();
 
-        final Iterator<YTEntityImpl> classIterator = session.browseClass("RootClass");
-        final YTEntityImpl rootDocument = classIterator.next();
+        final Iterator<EntityImpl> classIterator = session.browseClass("RootClass");
+        final EntityImpl rootDocument = classIterator.next();
 
-        final List<YTEntityImpl> documents = rootDocument.field("embeddedList");
+        final List<EntityImpl> documents = rootDocument.field("embeddedList");
         for (int i = 0; i < 10; i++) {
-          final YTEntityImpl embeddedDocument = documents.get(i);
+          final EntityImpl embeddedDocument = documents.get(i);
 
           embeddedDocument.setLazyLoad(false);
           final YTRecordId link = embeddedDocument.getProperty("link");

@@ -3,11 +3,11 @@ package com.orientechnologies.orient.console;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.record.YTRecord;
-import com.orientechnologies.core.record.impl.YTRecordBytes;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -47,7 +47,7 @@ public class OConsoleDatabaseAppTest {
       db.addBlobCluster("blobTest");
 
       db.begin();
-      YTRecord record = db.save(new YTRecordBytes("blobContent".getBytes()), "blobTest");
+      Record record = db.save(new RecordBytes("blobContent".getBytes()), "blobTest");
       db.commit();
       builder.setLength(0);
       app.select(" from " + record.getIdentity() + " limit -1 ");

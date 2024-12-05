@@ -18,8 +18,8 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.junit.Assert;
@@ -49,7 +49,7 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
                 + "\"}")
         .close();
 
-    YTEntityImpl doc = new YTEntityImpl("Song");
+    EntityImpl doc = new EntityImpl("Song");
 
     doc.field("title", "Local");
     doc.field("author", "Local");

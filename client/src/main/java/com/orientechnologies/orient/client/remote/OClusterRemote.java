@@ -19,14 +19,14 @@
  */
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.core.config.OStorageClusterConfiguration;
-import com.orientechnologies.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.core.storage.OCluster;
-import com.orientechnologies.core.storage.OPhysicalPosition;
-import com.orientechnologies.core.storage.ORawBuffer;
-import com.orientechnologies.core.storage.OStorage;
-import com.orientechnologies.core.storage.impl.local.OClusterBrowsePage;
-import com.orientechnologies.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageClusterConfiguration;
+import com.jetbrains.youtrack.db.internal.core.conflict.ORecordConflictStrategy;
+import com.jetbrains.youtrack.db.internal.core.storage.OCluster;
+import com.jetbrains.youtrack.db.internal.core.storage.OPhysicalPosition;
+import com.jetbrains.youtrack.db.internal.core.storage.ORawBuffer;
+import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OClusterBrowsePage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 

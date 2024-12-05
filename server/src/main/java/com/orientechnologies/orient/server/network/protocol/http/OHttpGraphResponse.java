@@ -19,20 +19,20 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.exception.YTRecordNotFoundException;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.record.ODirection;
-import com.orientechnologies.core.record.YTEdge;
-import com.orientechnologies.core.record.YTEntity;
-import com.orientechnologies.core.record.YTVertex;
-import com.orientechnologies.core.record.impl.YTVertexInternal;
-import com.orientechnologies.core.serialization.serializer.OJSONWriter;
-import com.orientechnologies.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
+import com.jetbrains.youtrack.db.internal.common.util.OCallable;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.record.Edge;
+import com.jetbrains.youtrack.db.internal.core.record.ODirection;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OJSONWriter;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -98,7 +98,7 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
 
     try {
       // DIVIDE VERTICES FROM EDGES
-      final Set<YTVertex> vertices = new HashSet<>();
+      final Set<Vertex> vertices = new HashSet<>();
 
       Set<YTRID> edgeRids = new HashSet<YTRID>();
       boolean lightweightFound = false;
@@ -124,11 +124,11 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
         }
         entry = ((YTIdentifiable) entry).getRecord();
 
-        if (entry instanceof YTEntity element) {
+        if (entry instanceof Entity element) {
           if (element.isVertex()) {
             vertices.add(element.asVertex().get());
           } else if (element.isEdge()) {
-            YTEdge edge = element.asEdge().get();
+            Edge edge = element.asEdge().get();
             vertices.add(edge.getTo());
             vertices.add(edge.getFrom());
             if (edge.getIdentity() != null) {
@@ -151,15 +151,15 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
 
       // WRITE VERTICES
       json.beginCollection("vertices");
-      for (YTVertex vertex : vertices) {
+      for (Vertex vertex : vertices) {
         json.beginObject();
 
         json.writeAttribute("@rid", vertex.getIdentity());
         json.writeAttribute("@class", vertex.getSchemaType().get().getName());
 
         // ADD ALL THE PROPERTIES
-        for (String field : ((YTVertexInternal) vertex).getPropertyNamesInternal()) {
-          final Object v = ((YTVertexInternal) vertex).getPropertyInternal(field);
+        for (String field : ((VertexInternal) vertex).getPropertyNamesInternal()) {
+          final Object v = ((VertexInternal) vertex).getPropertyInternal(field);
           if (v != null) {
             json.writeAttribute(field, v);
           }
@@ -177,9 +177,9 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
       json.beginCollection("edges");
 
       if (edgeRids.isEmpty()) {
-        for (YTVertex vertex : vertices) {
-          for (YTEdge e : vertex.getEdges(ODirection.OUT)) {
-            YTEdge edge = e;
+        for (Vertex vertex : vertices) {
+          for (Edge e : vertex.getEdges(ODirection.OUT)) {
+            Edge edge = e;
             if (edgeRids.contains(e.getIdentity())
                 && e.getIdentity() != null /* only for non-lighweight */) {
               continue;
@@ -199,8 +199,8 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
       } else {
         for (YTRID edgeRid : edgeRids) {
           try {
-            YTEntity elem = edgeRid.getRecord();
-            YTEdge edge = elem.asEdge().orElse(null);
+            Entity elem = edgeRid.getRecord();
+            Edge edge = elem.asEdge().orElse(null);
 
             if (edge != null) {
               printEdge(json, edge);
@@ -245,7 +245,7 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
     }
   }
 
-  private void printEdge(OJSONWriter json, YTEdge edge) throws IOException {
+  private void printEdge(OJSONWriter json, Edge edge) throws IOException {
     json.beginObject();
     json.writeAttribute("@rid", edge.getIdentity());
     json.writeAttribute("@class", edge.getSchemaType().map(x -> x.getName()).orElse(null));

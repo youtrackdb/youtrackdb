@@ -18,14 +18,14 @@
 
 package com.orientechnologies.lucene.tests;
 
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -56,7 +56,7 @@ public class OLuceneInsertUpdateTest extends OLuceneBaseTest {
 
     YTSchema schema = db.getMetadata().getSchema();
 
-    YTEntityImpl doc = new YTEntityImpl("City");
+    EntityImpl doc = new EntityImpl("City");
     doc.field("name", "Rome");
 
     db.begin();

@@ -16,12 +16,12 @@ package com.orientechnologies.spatial;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.text.ParseException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -60,8 +60,8 @@ public class LuceneSpatialFunctionAsTextTest extends BaseSpatialLuceneTest {
     createLocation("OGeometryCollection", geometryCollection());
   }
 
-  protected void createLocation(String name, YTEntityImpl geometry) {
-    YTEntityImpl doc = new YTEntityImpl("Location");
+  protected void createLocation(String name, EntityImpl geometry) {
+    EntityImpl doc = new EntityImpl("Location");
     doc.field("name", name);
     doc.field("geometry", geometry);
 

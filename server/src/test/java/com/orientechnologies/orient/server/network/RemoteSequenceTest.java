@@ -2,8 +2,8 @@ package com.orientechnologies.orient.server.network;
 
 import static org.junit.Assert.assertNotEquals;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
 import org.junit.Test;
 
@@ -32,10 +32,10 @@ public class RemoteSequenceTest extends BaseServerMemoryDatabase {
     database.reload();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("CV1");
+    EntityImpl doc = new EntityImpl("CV1");
     doc.field("testID", 1);
     database.save(doc);
-    YTEntityImpl doc1 = new YTEntityImpl("CV1");
+    EntityImpl doc1 = new EntityImpl("CV1");
     doc1.field("testID", 1);
     database.save(doc1);
     assertNotEquals(doc1.field("uniqueID"), doc.field("uniqueID"));

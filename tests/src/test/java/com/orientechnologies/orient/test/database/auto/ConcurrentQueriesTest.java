@@ -15,9 +15,9 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.concur.YTNeedRetryException;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.common.concur.YTNeedRetryException;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.test.ConcurrentTestHelper;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
@@ -81,7 +81,7 @@ public class ConcurrentQueriesTest extends DocumentDBBaseTest {
 
     for (int i = 0; i < 1000; ++i) {
       database.begin();
-      database.<YTEntityImpl>newInstance("Concurrent").field("test", i).save();
+      database.<EntityImpl>newInstance("Concurrent").field("test", i).save();
       database.commit();
     }
   }

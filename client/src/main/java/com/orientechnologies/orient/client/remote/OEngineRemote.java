@@ -16,10 +16,10 @@
 
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.core.db.YouTrackDBInternal;
-import com.orientechnologies.core.engine.OEngineAbstract;
-import com.orientechnologies.core.exception.YTStorageException;
-import com.orientechnologies.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
+import com.jetbrains.youtrack.db.internal.core.engine.OEngineAbstract;
+import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
+import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
 
 /**
  * Remote engine implementation.

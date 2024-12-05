@@ -1,15 +1,15 @@
 package com.orientechnologies.orient.server.token;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.metadata.security.OToken;
-import com.orientechnologies.core.metadata.security.YTUser;
-import com.orientechnologies.core.metadata.security.jwt.OJsonWebToken;
-import com.orientechnologies.core.metadata.security.jwt.OJwtPayload;
-import com.orientechnologies.core.metadata.security.jwt.OTokenHeader;
-import com.orientechnologies.core.metadata.security.jwt.OrientJwtHeader;
-import com.orientechnologies.core.record.impl.ODocumentInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.OToken;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTUser;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.OJsonWebToken;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.OJwtPayload;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.OTokenHeader;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.OrientJwtHeader;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
 
 /**
  *
@@ -90,7 +90,7 @@ public class JsonWebToken implements OJsonWebToken, OToken {
   @Override
   public YTUser getUser(YTDatabaseSessionInternal db) {
     YTRID userRid = payload.getUserRid();
-    YTEntityImpl result;
+    EntityImpl result;
     result = db.load(userRid);
     if (!ODocumentInternal.getImmutableSchemaClass(result).isOuser()) {
       result = null;

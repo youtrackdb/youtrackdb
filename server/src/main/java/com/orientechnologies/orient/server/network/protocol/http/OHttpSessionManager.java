@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.orientechnologies.common.concur.resource.OSharedResourceAbstract;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.common.concur.resource.OSharedResourceAbstract;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.orientechnologies.orient.server.OServer;
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -44,7 +44,7 @@ public class OHttpSessionManager extends OSharedResourceAbstract {
     expirationTime =
         server
             .getContextConfiguration()
-            .getValueAsInteger(YTGlobalConfiguration.NETWORK_HTTP_SESSION_EXPIRE_TIMEOUT)
+            .getValueAsInteger(GlobalConfiguration.NETWORK_HTTP_SESSION_EXPIRE_TIMEOUT)
             * 1000;
 
     YouTrackDBManager.instance()

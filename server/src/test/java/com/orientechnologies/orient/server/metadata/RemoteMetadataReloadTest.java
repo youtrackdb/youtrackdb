@@ -4,12 +4,12 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.util.Locale;

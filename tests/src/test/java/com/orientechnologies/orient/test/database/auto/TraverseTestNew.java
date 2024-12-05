@@ -15,13 +15,13 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.record.YTEdge;
-import com.orientechnologies.core.record.YTVertex;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.Edge;
+import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,9 +36,9 @@ import org.testng.annotations.Test;
 public class TraverseTestNew extends DocumentDBBaseTest {
 
   private int totalElements = 0;
-  private YTVertex tomCruise;
-  private YTVertex megRyan;
-  private YTVertex nicoleKidman;
+  private Vertex tomCruise;
+  private Vertex megRyan;
+  private Vertex nicoleKidman;
 
   @Parameters(value = "remote")
   public TraverseTestNew(boolean remote) {
@@ -67,7 +67,7 @@ public class TraverseTestNew extends DocumentDBBaseTest {
 
     totalElements++;
 
-    YTVertex topGun = database.newVertex("Movie");
+    Vertex topGun = database.newVertex("Movie");
     topGun.setProperty("name", "Top Gun");
     topGun.setProperty("year", 1986);
 
@@ -76,7 +76,7 @@ public class TraverseTestNew extends DocumentDBBaseTest {
     database.commit();
 
     totalElements++;
-    YTVertex missionImpossible = database.newVertex("Movie");
+    Vertex missionImpossible = database.newVertex("Movie");
     missionImpossible.setProperty("name", "Mission: Impossible");
     missionImpossible.setProperty("year", 1996);
 
@@ -85,7 +85,7 @@ public class TraverseTestNew extends DocumentDBBaseTest {
     database.commit();
 
     totalElements++;
-    YTVertex youHaveGotMail = database.newVertex("Movie");
+    Vertex youHaveGotMail = database.newVertex("Movie");
     youHaveGotMail.setProperty("name", "You've Got Mail");
     youHaveGotMail.setProperty("year", 1998);
 
@@ -121,7 +121,7 @@ public class TraverseTestNew extends DocumentDBBaseTest {
     database.commit();
 
     totalElements++;
-    YTEdge e = database.newEdge(tomCruise, nicoleKidman, "married");
+    Edge e = database.newEdge(tomCruise, nicoleKidman, "married");
     e.setProperty("year", 1990);
 
     database.begin();
@@ -209,7 +209,7 @@ public class TraverseTestNew extends DocumentDBBaseTest {
     Assert.assertTrue(result2.hasNext());
     int size2 = 0;
     while (result2.hasNext()) {
-      YTEntityImpl d = result2.next().getEntity().get().getRecord();
+      EntityImpl d = result2.next().getEntity().get().getRecord();
       Assert.assertEquals(d.getClassName(), "Movie");
       size2++;
     }
@@ -222,7 +222,7 @@ public class TraverseTestNew extends DocumentDBBaseTest {
     Assert.assertTrue(result3.hasNext());
     int size3 = 0;
     while (result3.hasNext()) {
-      YTEntityImpl d = result3.next().getEntity().get().getRecord();
+      EntityImpl d = result3.next().getEntity().get().getRecord();
       Assert.assertEquals(d.getClassName(), "Movie");
       size3++;
     }

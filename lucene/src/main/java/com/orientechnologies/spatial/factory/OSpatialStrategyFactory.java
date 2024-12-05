@@ -13,10 +13,10 @@
  */
 package com.orientechnologies.spatial.factory;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.index.OIndexDefinition;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTProperty;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
 import com.orientechnologies.spatial.shape.OShapeBuilder;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.bbox.BBoxStrategy;

@@ -2,13 +2,13 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -48,7 +48,7 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
     for (int i = 0; i < 10; i++) {
       db.begin();
       db.save(
-          new YTEntityImpl("Person")
+          new EntityImpl("Person")
               .field("name", names.get(i))
               .field("surname", "Reese")
               // from today back one day a time

@@ -4,17 +4,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.remote.message.push.OStorageConfigurationPayload;
-import com.orientechnologies.core.config.OStorageClusterConfiguration;
-import com.orientechnologies.core.config.OStorageConfiguration;
-import com.orientechnologies.core.config.OStorageEntryConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageClusterConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageEntryConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,7 +52,7 @@ public class ORemotePushMessagesTest extends DBTestBase {
     var session = (YTDatabaseSessionInternal) youTrackDB.open("test", "admin", "admin");
 
     session.begin();
-    YTEntityImpl schema =
+    EntityImpl schema =
         session.getSharedContext().getSchema().toStream(session).copy();
     session.commit();
 
@@ -74,7 +74,7 @@ public class ORemotePushMessagesTest extends DBTestBase {
           "create database test memory users (admin identified by 'admin' role admin)");
       try (YTDatabaseSession session = youTrackDB.open("test", "admin", "admin")) {
         session.begin();
-        YTEntityImpl schema =
+        EntityImpl schema =
             ((YTDatabaseSessionInternal) session).getSharedContext().getIndexManager()
                 .toStream((YTDatabaseSessionInternal) session);
 

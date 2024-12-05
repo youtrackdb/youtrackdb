@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.ODatabaseType;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.db.document.ODatabaseDocumentTxInternal;
-import com.orientechnologies.core.exception.YTStorageException;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.document.ODatabaseDocumentTxInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
@@ -136,7 +136,7 @@ public class OServerAdmin {
    * @throws IOException
    */
   @Deprecated
-  public synchronized YTEntityImpl getServerInfo() throws IOException {
+  public synchronized EntityImpl getServerInfo() throws IOException {
     checkConnected();
     return remote.getServerInfo(user, password);
   }
@@ -202,7 +202,7 @@ public class OServerAdmin {
       storageMode = ODatabaseType.valueOf(iStorageMode.toUpperCase());
     }
     YouTrackDBConfig config =
-        YouTrackDBConfig.builder().addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, true)
+        YouTrackDBConfig.builder().addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, true)
             .build();
     if (backupPath != null) {
       remote.restore(iDatabaseName, user, password, storageMode, backupPath, null);
@@ -320,7 +320,7 @@ public class OServerAdmin {
    *
    * @return the JSON containing the current cluster structure
    */
-  public YTEntityImpl clusterStatus() {
+  public EntityImpl clusterStatus() {
     checkConnected();
     return remote.getClusterStatus(user, password);
   }
@@ -330,14 +330,14 @@ public class OServerAdmin {
     return remote.getGlobalConfigurations(user, password);
   }
 
-  public synchronized String getGlobalConfiguration(final YTGlobalConfiguration config)
+  public synchronized String getGlobalConfiguration(final GlobalConfiguration config)
       throws IOException {
     checkConnected();
     return remote.getGlobalConfiguration(user, password, config);
   }
 
   public synchronized OServerAdmin setGlobalConfiguration(
-      final YTGlobalConfiguration config, final Object iValue) throws IOException {
+      final GlobalConfiguration config, final Object iValue) throws IOException {
     checkConnected();
     remote.setGlobalConfiguration(user, password, config, iValue.toString());
     return this;

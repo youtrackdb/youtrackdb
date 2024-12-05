@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.message.tx;
 
-import com.orientechnologies.core.tx.OTransactionIndexChanges;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges;
 
 /**
  *

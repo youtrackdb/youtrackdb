@@ -18,8 +18,8 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.DBTestBase;
-import com.orientechnologies.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
 import java.io.IOException;
 import java.io.InputStream;
 

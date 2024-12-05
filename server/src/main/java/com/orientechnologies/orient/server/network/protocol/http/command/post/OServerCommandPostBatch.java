@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandDocumentAbstract;
@@ -85,7 +85,7 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
 
     iRequest.getData().commandInfo = "Execute multiple requests in one shot";
 
-    YTEntityImpl batch = null;
+    EntityImpl batch = null;
     Object lastResult = null;
     try (YTDatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
 
@@ -100,7 +100,7 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
         db.rollback(true);
       }
 
-      batch = new YTEntityImpl();
+      batch = new EntityImpl();
       batch.fromJSON(iRequest.getContent());
 
       Boolean tx = batch.field("transaction");
@@ -132,17 +132,17 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
 
         if (type.equals("c")) {
           // CREATE
-          final YTEntityImpl doc = getRecord(operation);
+          final EntityImpl doc = getRecord(operation);
           doc.save();
           lastResult = doc;
         } else if (type.equals("u")) {
           // UPDATE
-          final YTEntityImpl doc = getRecord(operation);
+          final EntityImpl doc = getRecord(operation);
           doc.save();
           lastResult = doc;
         } else if (type.equals("d")) {
           // DELETE
-          final YTEntityImpl doc = getRecord(operation);
+          final EntityImpl doc = getRecord(operation);
           db.delete(doc.getIdentity());
           lastResult = doc.getIdentity();
         } else if (type.equals("cmd")) {
@@ -253,16 +253,16 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
     return false;
   }
 
-  public YTEntityImpl getRecord(Map<Object, Object> operation) {
+  public EntityImpl getRecord(Map<Object, Object> operation) {
     Object record = operation.get("record");
 
-    YTEntityImpl doc;
+    EntityImpl doc;
     if (record instanceof Map<?, ?>)
     // CONVERT MAP IN DOCUMENT
     {
-      doc = new YTEntityImpl((Map<String, Object>) record);
+      doc = new EntityImpl((Map<String, Object>) record);
     } else {
-      doc = (YTEntityImpl) record;
+      doc = (EntityImpl) record;
     }
     return doc;
   }

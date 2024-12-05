@@ -13,11 +13,11 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.List;
 import org.locationtech.jts.geom.Geometry;
@@ -49,7 +49,7 @@ public class OMultiPolygonShapeBuilder extends OPolygonShapeBuilder {
   }
 
   @Override
-  public JtsGeometry fromDoc(YTEntityImpl document) {
+  public JtsGeometry fromDoc(EntityImpl document) {
     validate(document);
     List<List<List<List<Number>>>> coordinates = document.field("coordinates");
 
@@ -63,9 +63,9 @@ public class OMultiPolygonShapeBuilder extends OPolygonShapeBuilder {
   }
 
   @Override
-  public YTEntityImpl toDoc(JtsGeometry shape) {
+  public EntityImpl toDoc(JtsGeometry shape) {
 
-    YTEntityImpl doc = new YTEntityImpl(getName());
+    EntityImpl doc = new EntityImpl(getName());
     MultiPolygon multiPolygon = (MultiPolygon) shape.getGeom();
     List<List<List<List<Double>>>> polyCoordinates = new ArrayList<List<List<List<Double>>>>();
     int n = multiPolygon.getNumGeometries();

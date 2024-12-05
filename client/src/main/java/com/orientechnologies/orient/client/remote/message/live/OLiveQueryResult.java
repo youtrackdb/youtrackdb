@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.message.live;
 
-import com.orientechnologies.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 
 /**
  *

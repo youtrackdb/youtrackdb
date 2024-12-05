@@ -15,14 +15,14 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.util.OPair;
-import com.orientechnologies.core.command.OCommandOutputListener;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTLiveQueryMonitor;
-import com.orientechnologies.core.db.YTLiveQueryResultListener;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.util.OPair;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryMonitor;
+import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryResultListener;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

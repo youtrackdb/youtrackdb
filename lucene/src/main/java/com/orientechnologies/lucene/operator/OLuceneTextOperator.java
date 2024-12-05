@@ -16,28 +16,28 @@
 
 package com.orientechnologies.lucene.operator;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.util.ORawPair;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
 import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
-import com.orientechnologies.core.command.OCommandContext;
-import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.exception.YTRecordNotFoundException;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.binary.ODocumentSerializer;
-import com.orientechnologies.core.sql.OIndexSearchResult;
-import com.orientechnologies.core.sql.filter.OSQLFilterCondition;
-import com.orientechnologies.core.sql.filter.OSQLFilterItemField;
-import com.orientechnologies.core.sql.operator.OIndexReuseType;
-import com.orientechnologies.core.sql.operator.OQueryTargetOperator;
-import com.orientechnologies.core.sql.parser.ParseException;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ODocumentSerializer;
+import com.jetbrains.youtrack.db.internal.core.sql.OIndexSearchResult;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterCondition;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItemField;
+import com.jetbrains.youtrack.db.internal.core.sql.operator.OIndexReuseType;
+import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryTargetOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -117,7 +117,7 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
   @Override
   public Object evaluateRecord(
       YTIdentifiable iRecord,
-      YTEntityImpl iCurrentResult,
+      EntityImpl iCurrentResult,
       OSQLFilterCondition iCondition,
       Object iLeft,
       Object iRight,
@@ -229,13 +229,13 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
 
   protected OLuceneFullTextIndex involvedIndex(
       YTDatabaseSessionInternal session, YTIdentifiable iRecord,
-      YTEntityImpl iCurrentResult,
+      EntityImpl iCurrentResult,
       OSQLFilterCondition iCondition,
       Object iLeft,
       Object iRight) {
 
     try {
-      YTEntityImpl doc = iRecord.getRecord();
+      EntityImpl doc = iRecord.getRecord();
       if (doc.getClassName() != null) {
         YTClass cls = getDatabase().getMetadata().getSchema().getClass(doc.getClassName());
 

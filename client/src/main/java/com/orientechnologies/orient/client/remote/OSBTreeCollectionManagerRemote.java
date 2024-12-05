@@ -20,17 +20,17 @@
 
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.common.concur.resource.OCloseable;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.OOrientShutdownListener;
-import com.orientechnologies.core.OOrientStartupListener;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.db.record.ridbag.RidBag;
-import com.orientechnologies.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
-import com.orientechnologies.core.storage.index.sbtreebonsai.local.OSBTreeBonsai;
-import com.orientechnologies.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
-import com.orientechnologies.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.common.concur.resource.OCloseable;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.OOrientShutdownListener;
+import com.jetbrains.youtrack.db.internal.core.OOrientStartupListener;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
+import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.OSBTreeBonsai;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;

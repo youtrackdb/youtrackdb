@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -72,13 +72,13 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl document = new YTEntityImpl("LinkSetIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
     final Set<YTIdentifiable> linkSet = new HashSet<>();
     linkSet.add(docOne);
     linkSet.add(docTwo);
@@ -108,16 +108,16 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
     try {
       database.begin();
-      final YTEntityImpl document = new YTEntityImpl("LinkSetIndexTestClass");
+      final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
       final Set<YTIdentifiable> linkSet = new HashSet<>();
       linkSet.add(database.bindToSession(docOne));
       linkSet.add(database.bindToSession(docTwo));
@@ -151,16 +151,16 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl document = new YTEntityImpl("LinkSetIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
     final Set<YTIdentifiable> linkSetOne = new HashSet<>();
     linkSetOne.add(docOne);
     linkSetOne.add(docTwo);
@@ -197,16 +197,16 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl document = new YTEntityImpl("LinkSetIndexTestClass");
+    EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
     final Set<YTIdentifiable> linkSetOne = new HashSet<>();
     linkSetOne.add(docOne);
     linkSetOne.add(docTwo);
@@ -252,20 +252,20 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     final Set<YTIdentifiable> linkSetOne = new HashSet<>();
     linkSetOne.add(docOne);
     linkSetOne.add(docTwo);
 
-    YTEntityImpl document = new YTEntityImpl("LinkSetIndexTestClass");
+    EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
     document.field("linkSet", linkSetOne);
     document.save();
     database.commit();
@@ -302,16 +302,16 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl document = new YTEntityImpl("LinkSetIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
     final Set<YTIdentifiable> linkSet = new HashSet<>();
     linkSet.add(docOne);
     linkSet.add(docTwo);
@@ -352,16 +352,16 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save();
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save();
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save();
 
-    final YTEntityImpl document = new YTEntityImpl("LinkSetIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
     final Set<YTIdentifiable> linkSet = new HashSet<>();
     linkSet.add(docOne);
     linkSet.add(docTwo);
@@ -372,7 +372,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
 
     try {
       database.begin();
-      YTEntityImpl loadedDocument = database.load(document.getIdentity());
+      EntityImpl loadedDocument = database.load(document.getIdentity());
       loadedDocument.<Set<YTIdentifiable>>field("linkSet").add(database.bindToSession(docThree));
       loadedDocument.save();
       database.commit();
@@ -403,16 +403,16 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl document = new YTEntityImpl("LinkSetIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
     final Set<YTIdentifiable> linkSet = new HashSet<>();
     linkSet.add(docOne);
     linkSet.add(docTwo);
@@ -422,7 +422,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    YTEntityImpl loadedDocument = database.load(document.getIdentity());
+    EntityImpl loadedDocument = database.load(document.getIdentity());
     loadedDocument.<Set<YTIdentifiable>>field("linkSet").add(database.bindToSession(docThree));
     loadedDocument.save();
     database.rollback();
@@ -448,13 +448,13 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl document = new YTEntityImpl("LinkSetIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
     final Set<YTIdentifiable> linkSet = new HashSet<>();
     linkSet.add(docOne);
     linkSet.add(docTwo);
@@ -464,7 +464,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
 
     try {
       database.begin();
-      YTEntityImpl loadedDocument = database.load(document.getIdentity());
+      EntityImpl loadedDocument = database.load(document.getIdentity());
       loadedDocument.<Set<YTIdentifiable>>field("linkSet").remove(docTwo);
       loadedDocument.save();
       database.commit();
@@ -493,13 +493,13 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl document = new YTEntityImpl("LinkSetIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
     final Set<YTIdentifiable> linkSet = new HashSet<>();
     linkSet.add(docOne);
     linkSet.add(docTwo);
@@ -508,7 +508,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    YTEntityImpl loadedDocument = database.load(document.getIdentity());
+    EntityImpl loadedDocument = database.load(document.getIdentity());
     loadedDocument.<Set<YTIdentifiable>>field("linkSet").remove(docTwo);
     loadedDocument.save();
     database.rollback();
@@ -534,13 +534,13 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl document = new YTEntityImpl("LinkSetIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
     final Set<YTIdentifiable> linkSet = new HashSet<>();
     linkSet.add(docOne);
     linkSet.add(docTwo);
@@ -575,13 +575,13 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl document = new YTEntityImpl("LinkSetIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
 
     final Set<YTIdentifiable> linkSet = new HashSet<>();
     linkSet.add(docOne);
@@ -603,13 +603,13 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl document = new YTEntityImpl("LinkSetIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
 
     final Set<YTIdentifiable> linkSet = new HashSet<>();
     linkSet.add(docOne);
@@ -636,13 +636,13 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl document = new YTEntityImpl("LinkSetIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
     final Set<YTIdentifiable> linkSet = new HashSet<>();
 
     linkSet.add(docOne);
@@ -677,16 +677,16 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl document = new YTEntityImpl("LinkSetIndexTestClass");
+    EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
     final Set<YTIdentifiable> linkSetOne = new HashSet<>();
     linkSetOne.add(docOne);
     linkSetOne.add(docTwo);
@@ -694,7 +694,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     document.field("linkSet", linkSetOne);
     document.save();
 
-    document = new YTEntityImpl("LinkSetIndexTestClass");
+    document = new EntityImpl("LinkSetIndexTestClass");
     final Set<YTIdentifiable> linkSet = new HashSet<>();
     linkSet.add(docThree);
     linkSet.add(docTwo);

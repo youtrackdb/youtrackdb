@@ -13,9 +13,9 @@
  */
 package com.orientechnologies.spatial.shape.legacy;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.index.OCompositeKey;
-import com.orientechnologies.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.shape.Point;
 

@@ -20,11 +20,11 @@
 
 package com.orientechnologies.orient.server.handler;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.OConstants;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.OConstants;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;

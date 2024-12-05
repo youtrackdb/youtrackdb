@@ -19,25 +19,25 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryAsyncRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.record.YTRecord;
-import com.orientechnologies.core.record.YTRecordAbstract;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializer;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 
 public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordResponse> {
 
-  private YTRecordAbstract content;
+  private RecordAbstract content;
   private byte[] rawContent;
   private YTRecordId rid;
   private byte recordType;
@@ -66,7 +66,7 @@ public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordRe
     this.recordType = iRecordType;
   }
 
-  public OCreateRecordRequest(YTRecordAbstract iContent, YTRecordId iRid, byte iRecordType) {
+  public OCreateRecordRequest(RecordAbstract iContent, YTRecordId iRid, byte iRecordType) {
     this.content = iContent;
     this.rid = iRid;
     this.recordType = iRecordType;
@@ -102,7 +102,7 @@ public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordRe
     return rid;
   }
 
-  public YTRecord getContent() {
+  public Record getContent() {
     return content;
   }
 

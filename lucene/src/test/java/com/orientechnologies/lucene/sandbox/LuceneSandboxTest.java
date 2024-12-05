@@ -1,7 +1,7 @@
 package com.orientechnologies.lucene.sandbox;
 
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.orientechnologies.lucene.tests.OLuceneBaseTest;
 import org.apache.lucene.codecs.simpletext.SimpleTextCodec;
 import org.apache.lucene.document.Document;

@@ -17,11 +17,13 @@
 package com.orientechnologies.orient.client.remote;
 
 import static com.orientechnologies.orient.client.remote.OStorageRemote.ADDRESS_SEPARATOR;
-import static com.orientechnologies.core.config.YTGlobalConfiguration.NETWORK_SOCKET_RETRY;
+import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.NETWORK_SOCKET_RETRY;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.thread.OThreadPoolExecutors;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.thread.OThreadPoolExecutors;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
 import com.orientechnologies.orient.client.remote.OStorageRemote.CONNECTION_STRATEGY;
 import com.orientechnologies.orient.client.remote.db.document.OSharedContextRemote;
@@ -52,31 +54,29 @@ import com.orientechnologies.orient.client.remote.message.OServerQueryResponse;
 import com.orientechnologies.orient.client.remote.message.OSetGlobalConfigurationRequest;
 import com.orientechnologies.orient.client.remote.message.OSetGlobalConfigurationResponse;
 import com.orientechnologies.orient.client.remote.message.YTRemoteResultSet;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.command.OCommandOutputListener;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.OCachedDatabasePoolFactory;
-import com.orientechnologies.core.db.OCachedDatabasePoolFactoryImpl;
-import com.orientechnologies.core.db.ODatabasePoolImpl;
-import com.orientechnologies.core.db.ODatabasePoolInternal;
-import com.orientechnologies.core.db.ODatabaseTask;
-import com.orientechnologies.core.db.ODatabaseType;
-import com.orientechnologies.core.db.OSharedContext;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.db.YouTrackDBInternal;
-import com.orientechnologies.core.exception.YTDatabaseException;
-import com.orientechnologies.core.exception.YTStorageException;
-import com.orientechnologies.core.metadata.security.auth.OAuthenticationInfo;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.security.OCredentialInterceptor;
-import com.orientechnologies.core.security.OSecurityManager;
-import com.orientechnologies.core.security.OSecuritySystem;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
-import com.orientechnologies.core.sql.executor.YTResultSet;
-import com.orientechnologies.core.storage.OStorage;
-import com.orientechnologies.orient.enterprise.channel.binary.YTTokenSecurityException;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.OCachedDatabasePoolFactory;
+import com.jetbrains.youtrack.db.internal.core.db.OCachedDatabasePoolFactoryImpl;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabasePoolImpl;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabasePoolInternal;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseTask;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.OSharedContext;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.OAuthenticationInfo;
+import com.jetbrains.youtrack.db.internal.core.security.OCredentialInterceptor;
+import com.jetbrains.youtrack.db.internal.core.security.OSecurityManager;
+import com.jetbrains.youtrack.db.internal.core.security.OSecuritySystem;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTTokenSecurityException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -128,7 +128,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
     int size =
         this.configurations
             .getConfigurations()
-            .getValueAsInteger(YTGlobalConfiguration.EXECUTOR_POOL_MAX_SIZE);
+            .getValueAsInteger(GlobalConfiguration.EXECUTOR_POOL_MAX_SIZE);
     if (size == -1) {
       size = Runtime.getRuntime().availableProcessors() / 2;
     }
@@ -143,11 +143,11 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
 
   protected OCachedDatabasePoolFactory createCachedDatabasePoolFactory(YouTrackDBConfig config) {
     int capacity =
-        config.getConfigurations().getValueAsInteger(YTGlobalConfiguration.DB_CACHED_POOL_CAPACITY);
+        config.getConfigurations().getValueAsInteger(GlobalConfiguration.DB_CACHED_POOL_CAPACITY);
     long timeout =
         config
             .getConfigurations()
-            .getValueAsInteger(YTGlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT);
+            .getValueAsInteger(GlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT);
     return new OCachedDatabasePoolFactoryImpl(this, capacity, timeout);
   }
 
@@ -219,7 +219,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
     if (!keys.isEmpty()) {
       List<String> entries = new ArrayList<String>();
       for (String key : keys) {
-        YTGlobalConfiguration globalKey = YTGlobalConfiguration.findByKey(key);
+        GlobalConfiguration globalKey = GlobalConfiguration.findByKey(key);
         entries.add(String.format("\"%s\": :%s", key, globalKey.name()));
         parameters.put(globalKey.name(), config.getConfigurations().getValue(globalKey));
       }
@@ -262,16 +262,16 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
     remote.shutdown();
   }
 
-  public YTEntityImpl getServerInfo(String username, String password) {
+  public EntityImpl getServerInfo(String username, String password) {
     OServerInfoRequest request = new OServerInfoRequest();
     OServerInfoResponse response = connectAndSend(null, username, password, request);
-    YTEntityImpl res = new YTEntityImpl();
+    EntityImpl res = new EntityImpl();
     res.fromJSON(response.getResult());
 
     return res;
   }
 
-  public YTEntityImpl getClusterStatus(String username, String password) {
+  public EntityImpl getClusterStatus(String username, String password) {
     ODistributedStatusRequest request = new ODistributedStatusRequest();
     ODistributedStatusResponse response = connectAndSend(null, username, password, request);
 
@@ -281,14 +281,14 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
   }
 
   public String getGlobalConfiguration(
-      String username, String password, YTGlobalConfiguration config) {
+      String username, String password, GlobalConfiguration config) {
     OGetGlobalConfigurationRequest request = new OGetGlobalConfigurationRequest(config.getKey());
     OGetGlobalConfigurationResponse response = connectAndSend(null, username, password, request);
     return response.getValue();
   }
 
   public void setGlobalConfiguration(
-      String username, String password, YTGlobalConfiguration config, String iConfigValue) {
+      String username, String password, GlobalConfiguration config, String iConfigValue) {
     String value = iConfigValue != null ? iConfigValue : "";
     OSetGlobalConfigurationRequest request =
         new OSetGlobalConfigurationRequest(config.getKey(), value);
@@ -593,7 +593,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
       Object... params) {
     int recordsPerPage =
         getContextConfiguration()
-            .getValueAsInteger(YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE);
+            .getValueAsInteger(GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE);
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
@@ -620,7 +620,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
       Map<String, Object> params) {
     int recordsPerPage =
         getContextConfiguration()
-            .getValueAsInteger(YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE);
+            .getValueAsInteger(GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE);
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }

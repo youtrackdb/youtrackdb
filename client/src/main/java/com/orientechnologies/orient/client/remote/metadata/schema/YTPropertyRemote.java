@@ -1,24 +1,24 @@
 package com.orientechnologies.orient.client.remote.metadata.schema;
 
-import com.orientechnologies.common.comparator.OCaseInsentiveComparator;
-import com.orientechnologies.common.util.OCollections;
-import com.orientechnologies.core.collate.ODefaultCollate;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.index.OIndexDefinition;
-import com.orientechnologies.core.index.OIndexManagerAbstract;
-import com.orientechnologies.core.index.OPropertyIndexDefinition;
-import com.orientechnologies.core.metadata.schema.OGlobalProperty;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTClass.INDEX_TYPE;
-import com.orientechnologies.core.metadata.schema.YTClassImpl;
-import com.orientechnologies.core.metadata.schema.YTProperty;
-import com.orientechnologies.core.metadata.schema.YTPropertyImpl;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.metadata.security.ORole;
-import com.orientechnologies.core.metadata.security.ORule;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.common.comparator.OCaseInsentiveComparator;
+import com.jetbrains.youtrack.db.internal.common.util.OCollections;
+import com.jetbrains.youtrack.db.internal.core.collate.ODefaultCollate;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexManagerAbstract;
+import com.jetbrains.youtrack.db.internal.core.index.OPropertyIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.OGlobalProperty;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.INDEX_TYPE;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClassImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTPropertyImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 
 /**
@@ -302,13 +302,13 @@ public class YTPropertyRemote extends YTPropertyImpl {
   }
 
   @Override
-  public OIndex createIndex(YTDatabaseSession session, String iType, YTEntityImpl metadata) {
+  public OIndex createIndex(YTDatabaseSession session, String iType, EntityImpl metadata) {
     return owner.createIndex(session,
         getFullName(), iType, null, metadata, new String[]{globalRef.getName()});
   }
 
   @Override
-  public OIndex createIndex(YTDatabaseSession session, INDEX_TYPE iType, YTEntityImpl metadata) {
+  public OIndex createIndex(YTDatabaseSession session, INDEX_TYPE iType, EntityImpl metadata) {
     return createIndex(session, iType.name(), metadata);
   }
 

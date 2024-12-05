@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.server.distributed.operation;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.command.OCommandDistributedReplicateRequest;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.distributed.ODistributedRequestId;
 import com.orientechnologies.orient.server.distributed.ODistributedServerManager;
@@ -79,7 +79,7 @@ public class NodeOperationTask implements ORemoteTask {
 
   @Override
   public long getDistributedTimeout() {
-    return YTGlobalConfiguration.DISTRIBUTED_HEARTBEAT_TIMEOUT.getValueAsLong();
+    return GlobalConfiguration.DISTRIBUTED_HEARTBEAT_TIMEOUT.getValueAsLong();
   }
 
   @Override

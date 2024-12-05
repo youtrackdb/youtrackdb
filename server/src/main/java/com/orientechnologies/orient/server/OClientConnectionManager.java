@@ -19,16 +19,16 @@
  */
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValue;
-import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.command.OCommandRequestText;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.security.OParsedToken;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.YTTokenSecurityException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.profiler.OAbstractProfiler.OProfilerHookValue;
+import com.jetbrains.youtrack.db.internal.common.profiler.OProfiler.METRIC_TYPE;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.security.OParsedToken;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTTokenSecurityException;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocol;
 import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
 import com.orientechnologies.orient.server.plugin.OServerPluginHelper;
@@ -59,7 +59,7 @@ public class OClientConnectionManager {
   private final OServer server;
 
   public OClientConnectionManager(OServer server) {
-    final int delay = YTGlobalConfiguration.SERVER_CHANNEL_CLEAN_DELAY.getValueAsInteger();
+    final int delay = GlobalConfiguration.SERVER_CHANNEL_CLEAN_DELAY.getValueAsInteger();
 
     timerTask =
         YouTrackDBManager.instance()
@@ -459,7 +459,7 @@ public class OClientConnectionManager {
         protocol.join(
             server
                 .getContextConfiguration()
-                .getValueAsInteger(YTGlobalConfiguration.SERVER_CHANNEL_CLEAN_DELAY));
+                .getValueAsInteger(GlobalConfiguration.SERVER_CHANNEL_CLEAN_DELAY));
         if (protocol.isAlive()) {
           protocol.interrupt();
           protocol.join();

@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.thread.OThreadPoolExecutors;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.thread.OThreadPoolExecutors;
 import com.orientechnologies.orient.client.remote.message.OBinaryPushRequest;
 import com.orientechnologies.orient.client.remote.message.OBinaryPushResponse;
 import com.orientechnologies.orient.client.remote.message.OPushDistributedConfigurationRequest;
@@ -10,12 +10,12 @@ import com.orientechnologies.orient.client.remote.message.OPushIndexManagerReque
 import com.orientechnologies.orient.client.remote.message.OPushSchemaRequest;
 import com.orientechnologies.orient.client.remote.message.OPushSequencesRequest;
 import com.orientechnologies.orient.client.remote.message.OPushStorageConfigurationRequest;
-import com.orientechnologies.core.config.OStorageConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.OMetadataUpdateListener;
-import com.orientechnologies.core.index.OIndexManagerAbstract;
-import com.orientechnologies.core.index.OIndexManagerShared;
-import com.orientechnologies.core.metadata.schema.OSchemaShared;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.OMetadataUpdateListener;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexManagerAbstract;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexManagerShared;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.OSchemaShared;
 import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
 import java.io.IOException;
 import java.lang.ref.WeakReference;

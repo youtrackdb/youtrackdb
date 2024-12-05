@@ -20,13 +20,13 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.stream.Collectors;
@@ -50,7 +50,7 @@ public class OLuceneTransactionEmbeddedQueryTest extends OLuceneBaseTest {
 
   @Test
   public void testRollback() {
-    YTEntityImpl doc = new YTEntityImpl("c1");
+    EntityImpl doc = new EntityImpl("c1");
     doc.field("p1", new String[]{"abc"});
     db.begin();
     db.save(doc);
@@ -72,7 +72,7 @@ public class OLuceneTransactionEmbeddedQueryTest extends OLuceneBaseTest {
   public void txRemoveTest() {
     db.begin();
 
-    YTEntityImpl doc = new YTEntityImpl("c1");
+    EntityImpl doc = new EntityImpl("c1");
     doc.field("p1", new String[]{"abc"});
 
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
@@ -136,7 +136,7 @@ public class OLuceneTransactionEmbeddedQueryTest extends OLuceneBaseTest {
 
     db.begin();
 
-    YTEntityImpl doc = new YTEntityImpl("c1");
+    EntityImpl doc = new EntityImpl("c1");
     doc.field("p1", new String[]{"update removed", "update fixed"});
 
     db.save(doc);
@@ -200,10 +200,10 @@ public class OLuceneTransactionEmbeddedQueryTest extends OLuceneBaseTest {
     db.begin();
     Assert.assertEquals(index.getInternal().size(db), 0);
 
-    YTEntityImpl doc = new YTEntityImpl("c1");
+    EntityImpl doc = new EntityImpl("c1");
     doc.field("p1", new String[]{"abc"});
 
-    YTEntityImpl doc1 = new YTEntityImpl("c1");
+    EntityImpl doc1 = new EntityImpl("c1");
     doc1.field("p1", new String[]{"abc"});
 
     db.save(doc1);

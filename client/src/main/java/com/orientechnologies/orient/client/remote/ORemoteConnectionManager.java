@@ -19,14 +19,14 @@
  */
 package com.orientechnologies.orient.client.remote;
 
-import static com.orientechnologies.core.config.YTGlobalConfiguration.CLIENT_CHANNEL_IDLE_CLOSE;
-import static com.orientechnologies.core.config.YTGlobalConfiguration.CLIENT_CHANNEL_IDLE_TIMEOUT;
-import static com.orientechnologies.core.config.YTGlobalConfiguration.NETWORK_LOCK_TIMEOUT;
+import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.CLIENT_CHANNEL_IDLE_CLOSE;
+import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.CLIENT_CHANNEL_IDLE_TIMEOUT;
+import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.NETWORK_LOCK_TIMEOUT;
 
-import com.orientechnologies.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -93,7 +93,7 @@ public class ORemoteConnectionManager {
 
       if (clientConfiguration != null) {
         final Object max =
-            clientConfiguration.getValue(YTGlobalConfiguration.CLIENT_CHANNEL_MAX_POOL);
+            clientConfiguration.getValue(GlobalConfiguration.CLIENT_CHANNEL_MAX_POOL);
         if (max != null) {
           maxPool = Integer.parseInt(max.toString());
         }

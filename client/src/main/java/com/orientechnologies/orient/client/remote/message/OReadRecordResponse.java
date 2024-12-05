@@ -19,16 +19,16 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.record.YTRecordAbstract;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializer;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
-import com.orientechnologies.core.storage.ORawBuffer;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
+import com.jetbrains.youtrack.db.internal.core.storage.ORawBuffer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 import java.util.Set;
 
@@ -37,14 +37,14 @@ public final class OReadRecordResponse implements OBinaryResponse {
   private byte recordType;
   private int version;
   private byte[] record;
-  private Set<YTRecordAbstract> recordsToSend;
+  private Set<RecordAbstract> recordsToSend;
   private ORawBuffer result;
 
   public OReadRecordResponse() {
   }
 
   public OReadRecordResponse(
-      byte recordType, int version, byte[] record, Set<YTRecordAbstract> recordsToSend) {
+      byte recordType, int version, byte[] record, Set<RecordAbstract> recordsToSend) {
     this.recordType = recordType;
     this.version = version;
     this.record = record;
@@ -65,7 +65,7 @@ public final class OReadRecordResponse implements OBinaryResponse {
         network.writeVersion(version);
         network.writeBytes(record);
       }
-      for (YTRecordAbstract d : recordsToSend) {
+      for (RecordAbstract d : recordsToSend) {
         if (d.getIdentity().isValid()) {
           network.writeByte((byte) 2); // CLIENT CACHE
           // RECORD. IT ISN'T PART OF THE RESULT SET
@@ -92,9 +92,9 @@ public final class OReadRecordResponse implements OBinaryResponse {
     buffer = new ORawBuffer(bytes, recVersion, type);
 
     // TODO: This should not be here, move it in a callback or similar
-    YTRecordAbstract record;
+    RecordAbstract record;
     while (network.readByte() == 2) {
-      record = (YTRecordAbstract) OMessageHelper.readIdentifiable(db, network, serializer);
+      record = (RecordAbstract) OMessageHelper.readIdentifiable(db, network, serializer);
 
       if (db != null && record != null) {
         var cacheRecord = db.getLocalCache().findRecord(record.getIdentity());

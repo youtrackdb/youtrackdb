@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.record.YTRecord;
+import com.jetbrains.youtrack.db.internal.common.util.OCallable;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.orientechnologies.orient.server.OClientConnection;
 import java.io.IOException;
 import java.io.InputStream;
@@ -98,9 +98,9 @@ public interface OHttpResponse {
       YTDatabaseSessionInternal databaseDocumentInternal)
       throws IOException;
 
-  void writeRecord(YTRecord iRecord) throws IOException;
+  void writeRecord(Record iRecord) throws IOException;
 
-  void writeRecord(YTRecord iRecord, String iFetchPlan, String iFormat) throws IOException;
+  void writeRecord(Record iRecord, String iFetchPlan, String iFormat) throws IOException;
 
   void sendStream(int iCode, String iReason, String iContentType, InputStream iContent, long iSize)
       throws IOException;

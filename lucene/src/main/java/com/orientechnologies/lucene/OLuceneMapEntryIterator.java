@@ -16,10 +16,10 @@
 
 package com.orientechnologies.lucene;
 
-import com.orientechnologies.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngineAbstract;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.index.OIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;

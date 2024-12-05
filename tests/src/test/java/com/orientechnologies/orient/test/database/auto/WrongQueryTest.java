@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.sql.YTCommandSQLParsingException;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import org.testng.Assert;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;

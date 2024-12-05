@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http;
 
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.server.OClientConnection;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.network.OServerNetworkListener;
@@ -60,7 +60,7 @@ public class ONetworkProtocolHttpDb extends ONetworkProtocolHttpAbstract {
     cmdManager.registerCommand(new OServerCommandPostUploadSingleFile());
 
     connection.getData().serverInfo =
-        iConfiguration.getValueAsString(YTGlobalConfiguration.NETWORK_HTTP_SERVER_INFO);
+        iConfiguration.getValueAsString(GlobalConfiguration.NETWORK_HTTP_SERVER_INFO);
   }
 
   @Override

@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.core.id.ChangeableRecordId;
-import com.orientechnologies.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
 import com.orientechnologies.orient.server.distributed.task.ORemoteTask;
 import java.io.DataInput;
 import java.io.DataOutput;

@@ -2,10 +2,10 @@ package com.orientechnologies.orient.core.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.record.YTVertex;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.orientechnologies.orient.server.AbstractRemoteTest;
 import org.junit.Test;
 
@@ -42,7 +42,7 @@ public class YTSequenceRemoteTest extends AbstractRemoteTest {
 
     db.begin();
     for (int i = 0; i < 10; i++) {
-      YTVertex person = db.newVertex("Person");
+      Vertex person = db.newVertex("Person");
       person.setProperty("name", "Foo" + i);
       person.setProperty("id", 1000 + i);
       person.save();
@@ -65,7 +65,7 @@ public class YTSequenceRemoteTest extends AbstractRemoteTest {
     db.begin();
 
     for (int i = 0; i < 10; i++) {
-      YTVertex person = db.newVertex("Person");
+      Vertex person = db.newVertex("Person");
       person.setProperty("name", "Foo" + i);
       person.save();
     }

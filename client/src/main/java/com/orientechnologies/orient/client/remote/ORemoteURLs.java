@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.client.remote;
 
-import static com.orientechnologies.core.config.YTGlobalConfiguration.CLIENT_CONNECTION_FETCH_HOST_LIST;
+import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.CLIENT_CONNECTION_FETCH_HOST_LIST;
 
-import com.orientechnologies.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.orientechnologies.orient.client.remote.OStorageRemote.CONNECTION_STRATEGY;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.exception.YTConfigurationException;
-import com.orientechnologies.core.exception.YTStorageException;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
@@ -76,13 +76,13 @@ public class ORemoteURLs {
 
     // REGISTER THE REMOTE SERVER+PORT
     if (!host.contains(":")) {
-      if (clientConfiguration.getValueAsBoolean(YTGlobalConfiguration.CLIENT_USE_SSL)) {
+      if (clientConfiguration.getValueAsBoolean(GlobalConfiguration.CLIENT_USE_SSL)) {
         host += ":" + DEFAULT_SSL_PORT;
       } else {
         host += ":" + DEFAULT_PORT;
       }
     } else if (host.split(":").length < 2 || host.split(":")[1].trim().length() == 0) {
-      if (clientConfiguration.getValueAsBoolean(YTGlobalConfiguration.CLIENT_USE_SSL)) {
+      if (clientConfiguration.getValueAsBoolean(GlobalConfiguration.CLIENT_USE_SSL)) {
         host += DEFAULT_SSL_PORT;
       } else {
         host += DEFAULT_PORT;
@@ -137,7 +137,7 @@ public class ORemoteURLs {
 
     if (serverURLs.size() == 1
         && contextConfiguration.getValueAsBoolean(
-        YTGlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_ENABLED)) {
+        GlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_ENABLED)) {
       List<String> toAdd = fetchHostsFromDns(lastHost, contextConfiguration);
       serverURLs.addAll(toAdd);
     }
@@ -158,7 +158,7 @@ public class ORemoteURLs {
             "Retrieving URLs from DNS '%s' (timeout=%d)...",
             primaryServer,
             contextConfiguration.getValueAsInteger(
-                YTGlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_TIMEOUT));
+                GlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_TIMEOUT));
 
     List<String> toAdd = new ArrayList<>();
     try {
@@ -167,7 +167,7 @@ public class ORemoteURLs {
       env.put(
           "com.sun.jndi.ldap.connect.timeout",
           contextConfiguration.getValueAsString(
-              YTGlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_TIMEOUT));
+              GlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_TIMEOUT));
 
       final DirContext ictx = new InitialDirContext(env);
       final String hostName =

@@ -16,7 +16,7 @@
 
 package com.orientechnologies.lucene.exception;
 
-import com.orientechnologies.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 
 public class YTLuceneIndexException extends YTException {
 

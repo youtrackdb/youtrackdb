@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.exception.YTRecordNotFoundException;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.record.YTRecord;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -42,7 +42,7 @@ public class OServerCommandGetDocument extends OServerCommandAuthenticatedDbAbst
 
     iRequest.getData().commandInfo = "Load document";
 
-    final YTRecord rec;
+    final Record rec;
 
     final int parametersPos = urlParts[2].indexOf('?');
     final String rid = parametersPos > -1 ? urlParts[2].substring(0, parametersPos) : urlParts[2];

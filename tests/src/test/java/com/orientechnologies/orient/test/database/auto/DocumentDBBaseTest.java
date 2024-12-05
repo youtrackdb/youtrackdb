@@ -1,19 +1,19 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.ODirection;
-import com.orientechnologies.core.record.YTEdge;
-import com.orientechnologies.core.record.YTEntity;
-import com.orientechnologies.core.record.YTVertex;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.FetchFromIndexStep;
-import com.orientechnologies.core.sql.executor.OExecutionPlan;
-import com.orientechnologies.core.sql.executor.OExecutionStep;
-import com.orientechnologies.core.sql.executor.OExecutionStepInternal;
-import com.orientechnologies.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Edge;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.ODirection;
+import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.FetchFromIndexStep;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionStep;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionStepInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -64,46 +64,46 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
     return (YTDatabaseSessionInternal) session;
   }
 
-  protected List<YTEntityImpl> executeQuery(String sql, YTDatabaseSessionInternal db,
+  protected List<EntityImpl> executeQuery(String sql, YTDatabaseSessionInternal db,
       Object... args) {
     return db.query(sql, args).stream()
         .map(YTResult::toEntity)
-        .map(element -> (YTEntityImpl) element)
+        .map(element -> (EntityImpl) element)
         .toList();
   }
 
-  protected List<YTEntityImpl> executeQuery(String sql, YTDatabaseSessionInternal db, Map args) {
+  protected List<EntityImpl> executeQuery(String sql, YTDatabaseSessionInternal db, Map args) {
     return db.query(sql, args).stream()
         .map(YTResult::toEntity)
-        .map(element -> (YTEntityImpl) element)
+        .map(element -> (EntityImpl) element)
         .toList();
   }
 
-  protected List<YTEntityImpl> executeQuery(String sql, YTDatabaseSessionInternal db) {
+  protected List<EntityImpl> executeQuery(String sql, YTDatabaseSessionInternal db) {
     return db.query(sql).stream()
         .map(YTResult::toEntity)
-        .map(element -> (YTEntityImpl) element)
+        .map(element -> (EntityImpl) element)
         .toList();
   }
 
-  protected List<YTEntityImpl> executeQuery(String sql, Object... args) {
+  protected List<EntityImpl> executeQuery(String sql, Object... args) {
     return database.query(sql, args).stream()
         .map(YTResult::toEntity)
-        .map(element -> (YTEntityImpl) element)
+        .map(element -> (EntityImpl) element)
         .toList();
   }
 
-  protected List<YTEntityImpl> executeQuery(String sql, Map<?, ?> args) {
+  protected List<EntityImpl> executeQuery(String sql, Map<?, ?> args) {
     return database.query(sql, args).stream()
         .map(YTResult::toEntity)
-        .map(element -> (YTEntityImpl) element)
+        .map(element -> (EntityImpl) element)
         .toList();
   }
 
-  protected List<YTEntityImpl> executeQuery(String sql) {
+  protected List<EntityImpl> executeQuery(String sql) {
     return database.query(sql).stream()
         .map(YTResult::toEntity)
-        .map(element -> (YTEntityImpl) element)
+        .map(element -> (EntityImpl) element)
         .toList();
   }
 
@@ -135,7 +135,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
       follower2.setProperty("followings", Collections.singleton(bObama));
       follower2.setProperty("followers", Collections.emptySet());
 
-      var followers = new HashSet<YTEntity>();
+      var followers = new HashSet<Entity>();
       followers.add(follower1);
       followers.add(follower2);
 
@@ -256,7 +256,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
         });
   }
 
-  private YTEntity addRome() {
+  private Entity addRome() {
     return database.computeInTx(
         () -> {
           var italy = addItaly();
@@ -269,7 +269,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
         });
   }
 
-  private YTEntity addItaly() {
+  private Entity addItaly() {
     return database.computeInTx(
         () -> {
           var italy = database.newEntity("Country");
@@ -302,7 +302,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
       company.setProperty("employees", 100000 + i);
       company.setProperty("salary", 1000000000.0f + i);
 
-      var addresses = new ArrayList<YTEntity>();
+      var addresses = new ArrayList<Entity>();
       addresses.add(database.bindToSession(address));
       company.setProperty("addresses", addresses);
       database.save(company);
@@ -310,7 +310,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
     }
   }
 
-  protected YTEntity createRedmondAddress() {
+  protected Entity createRedmondAddress() {
     database.begin();
     var washington = database.newInstance("Country");
     washington.setProperty("name", "Washington");
@@ -409,7 +409,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
         .setMin(database, "3")
         .setMax(database, "30")
         .createIndex(database, YTClass.INDEX_TYPE.UNIQUE,
-            new YTEntityImpl().field("ignoreNullValues", true));
+            new EntityImpl().field("ignoreNullValues", true));
     cls.createProperty(database, "followings", YTType.LINKSET, cls);
     cls.createProperty(database, "followers", YTType.LINKSET, cls);
     cls.createProperty(database, "name", YTType.STRING)
@@ -615,8 +615,8 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
     result = database.query("select from GraphVehicle").stream().toList();
     Assert.assertEquals(result.size(), 2);
 
-    YTEdge edge1 = null;
-    YTEdge edge2 = null;
+    Edge edge1 = null;
+    Edge edge2 = null;
 
     for (YTResult v : result) {
       Assert.assertTrue(v.getEntity().get().getSchemaType().get().isSubClassOf("GraphVehicle"));
@@ -625,21 +625,21 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
           && v.getEntity().get().getSchemaType().get().getName().equals("GraphCar")) {
         Assert.assertEquals(
             CollectionUtils.size(
-                database.<YTVertex>load(v.getIdentity().get()).getEdges(ODirection.OUT)),
+                database.<Vertex>load(v.getIdentity().get()).getEdges(ODirection.OUT)),
             1);
         edge1 =
             database
-                .<YTVertex>load(v.getIdentity().get())
+                .<Vertex>load(v.getIdentity().get())
                 .getEdges(ODirection.OUT)
                 .iterator()
                 .next();
       } else {
         Assert.assertEquals(
             CollectionUtils.size(
-                database.<YTVertex>load(v.getIdentity().get()).getEdges(ODirection.IN)),
+                database.<Vertex>load(v.getIdentity().get()).getEdges(ODirection.IN)),
             1);
         edge2 =
-            database.<YTVertex>load(v.getIdentity().get()).getEdges(ODirection.IN).iterator()
+            database.<Vertex>load(v.getIdentity().get()).getEdges(ODirection.IN).iterator()
                 .next();
       }
     }

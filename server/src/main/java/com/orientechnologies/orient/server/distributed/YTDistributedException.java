@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.common.exception.YTSystemException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTSystemException;
 
 /**
  * Exception thrown during distributed operation between cluster nodes.

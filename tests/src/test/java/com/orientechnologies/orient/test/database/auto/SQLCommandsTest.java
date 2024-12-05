@@ -15,16 +15,16 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.command.script.OCommandScript;
-import com.orientechnologies.core.db.ODatabaseType;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.storage.cache.local.OWOWCache;
-import com.orientechnologies.core.storage.cluster.OClusterPositionMap;
-import com.orientechnologies.core.storage.cluster.OPaginatedCluster;
-import com.orientechnologies.core.storage.disk.OLocalPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.command.script.OCommandScript;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.local.OWOWCache;
+import com.jetbrains.youtrack.db.internal.core.storage.cluster.OClusterPositionMap;
+import com.jetbrains.youtrack.db.internal.core.storage.cluster.OPaginatedCluster;
+import com.jetbrains.youtrack.db.internal.core.storage.disk.OLocalPaginatedStorage;
 import java.io.File;
 import java.util.Collection;
 import java.util.Locale;
@@ -107,9 +107,9 @@ public class SQLCommandsTest extends DocumentDBBaseTest {
     Object result = database.command(new OCommandScript("sql", cmd)).execute(database);
 
     Assert.assertTrue(result instanceof YTIdentifiable);
-    Assert.assertTrue(((YTIdentifiable) result).getRecord() instanceof YTEntityImpl);
+    Assert.assertTrue(((YTIdentifiable) result).getRecord() instanceof EntityImpl);
     Assert.assertTrue(
-        database.bindToSession((YTEntityImpl) ((YTIdentifiable) result).getRecord())
+        database.bindToSession((EntityImpl) ((YTIdentifiable) result).getRecord())
             .field("script"));
   }
 

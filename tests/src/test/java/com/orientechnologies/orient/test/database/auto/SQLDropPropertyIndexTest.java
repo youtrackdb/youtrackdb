@@ -15,13 +15,13 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.exception.YTCommandExecutionException;
-import com.orientechnologies.core.index.OCompositeIndexDefinition;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.index.OIndexDefinition;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.index.OCompositeIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import java.util.Arrays;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;

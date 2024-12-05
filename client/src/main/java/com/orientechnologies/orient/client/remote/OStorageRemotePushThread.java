@@ -1,15 +1,15 @@
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.io.OIOException;
-import com.orientechnologies.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.io.OIOException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
 import com.orientechnologies.orient.client.remote.message.OBinaryPushRequest;
 import com.orientechnologies.orient.client.remote.message.OBinaryPushResponse;
 import com.orientechnologies.orient.client.remote.message.OSubscribeRequest;
 import com.orientechnologies.orient.client.remote.message.OSubscribeResponse;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinary;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;

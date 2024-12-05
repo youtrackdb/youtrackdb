@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -76,7 +76,7 @@ public class FetchPlanComplexNestedLevelsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryAll2() {
-    final List<YTEntityImpl> result =
+    final List<EntityImpl> result =
         executeQuery(
             "select @this.toJSON('fetchPlan:*:2') as json from (select from PersonTest where"
                 + " name='A')");
@@ -86,7 +86,7 @@ public class FetchPlanComplexNestedLevelsTest extends DocumentDBBaseTest {
 
     Assert.assertNotNull(json);
 
-    final YTEntityImpl parsed = new YTEntityImpl();
+    final EntityImpl parsed = new EntityImpl();
     parsed.fromJSON(json);
 
     Assert.assertNotNull(parsed.rawField("out_FollowTest.in.out_FollowTest"));
@@ -94,7 +94,7 @@ public class FetchPlanComplexNestedLevelsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryOutWildcard2() {
-    final List<YTEntityImpl> result =
+    final List<EntityImpl> result =
         executeQuery("select @this.toJSON('fetchPlan:out_*:2') as json from (select from PersonTest"
             + " where name='A')");
 
@@ -103,7 +103,7 @@ public class FetchPlanComplexNestedLevelsTest extends DocumentDBBaseTest {
 
     Assert.assertNotNull(json);
 
-    final YTEntityImpl parsed = new YTEntityImpl();
+    final EntityImpl parsed = new EntityImpl();
     parsed.fromJSON(json);
 
     Assert.assertNotNull(parsed.rawField("out_FollowTest.in.out_FollowTest"));
@@ -111,7 +111,7 @@ public class FetchPlanComplexNestedLevelsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryOutOneLevelOnly() {
-    final List<YTEntityImpl> result =
+    final List<EntityImpl> result =
         executeQuery(
             "select @this.toJSON('fetchPlan:[0]out_*:0') as json from (select from PersonTest"
                 + " where name='A')");
@@ -129,7 +129,7 @@ public class FetchPlanComplexNestedLevelsTest extends DocumentDBBaseTest {
 
   @Test
   public void startZeroGetOutStar2() {
-    final List<YTEntityImpl> result =
+    final List<EntityImpl> result =
         executeQuery(
             "select @this.toJSON('fetchPlan:[0]out_*:2') as json from (select from PersonTest"
                 + " where name='A')");
@@ -145,7 +145,7 @@ public class FetchPlanComplexNestedLevelsTest extends DocumentDBBaseTest {
 
   @Test
   public void start2GetOutStar2() {
-    final List<YTEntityImpl> result =
+    final List<EntityImpl> result =
         executeQuery(
             "select @this.toJSON('fetchPlan:[2]out_*:2') as json from (select from PersonTest"
                 + " where name='A')");

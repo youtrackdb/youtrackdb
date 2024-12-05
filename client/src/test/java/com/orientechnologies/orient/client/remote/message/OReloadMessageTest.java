@@ -2,10 +2,10 @@ package com.orientechnologies.orient.client.remote.message;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DBTestBase;
 import com.orientechnologies.orient.client.remote.message.push.OStorageConfigurationPayload;
-import com.orientechnologies.core.config.OStorageConfiguration;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
 import java.io.IOException;
 import org.junit.Test;
 

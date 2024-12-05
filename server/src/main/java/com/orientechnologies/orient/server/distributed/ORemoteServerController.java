@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import java.io.IOException;
 
 /**
@@ -61,7 +61,7 @@ public class ORemoteServerController {
 
     requestChannels =
         new ORemoteServerChannel
-            [YTGlobalConfiguration.DISTRIBUTED_REQUEST_CHANNELS.getValueAsInteger()];
+            [GlobalConfiguration.DISTRIBUTED_REQUEST_CHANNELS.getValueAsInteger()];
     for (int i = 0; i < requestChannels.length; ++i) {
       requestChannels[i] =
           new ORemoteServerChannel(
@@ -72,7 +72,7 @@ public class ORemoteServerController {
 
     responseChannels =
         new ORemoteServerChannel
-            [YTGlobalConfiguration.DISTRIBUTED_RESPONSE_CHANNELS.getValueAsInteger()];
+            [GlobalConfiguration.DISTRIBUTED_RESPONSE_CHANNELS.getValueAsInteger()];
     for (int i = 0; i < responseChannels.length; ++i) {
       responseChannels[i] =
           new ORemoteServerChannel(

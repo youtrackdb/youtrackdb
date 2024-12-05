@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.util.OCallable;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
 import com.orientechnologies.orient.server.OClientConnection;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

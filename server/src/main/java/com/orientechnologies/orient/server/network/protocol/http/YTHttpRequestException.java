@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.orientechnologies.common.exception.YTSystemException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTSystemException;
 
 public class YTHttpRequestException extends YTSystemException {
 

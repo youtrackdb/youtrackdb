@@ -1,7 +1,7 @@
 package com.orientechnologies.spatial.functions;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.spatial.BaseSpatialLuceneTest;
 import java.util.List;
 import org.junit.Assert;
@@ -14,23 +14,23 @@ public class OSTGeomFromTextFunctionTest extends BaseSpatialLuceneTest {
 
   @Test
   public void test() {
-    boolean prevValue = YTGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean();
-    YTGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.setValue(true);
+    boolean prevValue = GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean();
+    GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.setValue(true);
     try {
       OSTGeomFromTextFunction func = new OSTGeomFromTextFunction();
-      YTEntityImpl item =
-          (YTEntityImpl) func.execute(null, null, null, new Object[]{"POINT (100.0 80.0)"}, null);
+      EntityImpl item =
+          (EntityImpl) func.execute(null, null, null, new Object[]{"POINT (100.0 80.0)"}, null);
       Assert.assertEquals("OPoint", item.getClassName());
       Assert.assertEquals(2, ((List) item.getProperty("coordinates")).size());
 
       item =
-          (YTEntityImpl) func.execute(null, null, null, new Object[]{"POINT Z(100.0 80.0 10)"},
+          (EntityImpl) func.execute(null, null, null, new Object[]{"POINT Z(100.0 80.0 10)"},
               null);
       Assert.assertEquals("OPointZ", item.getClassName());
       Assert.assertEquals(3, ((List) item.getProperty("coordinates")).size());
 
       item =
-          (YTEntityImpl)
+          (EntityImpl)
               func.execute(
                   null,
                   null,
@@ -43,7 +43,7 @@ public class OSTGeomFromTextFunctionTest extends BaseSpatialLuceneTest {
           Double.isNaN(((List<List<Double>>) item.getProperty("coordinates")).get(0).get(2)));
 
       item =
-          (YTEntityImpl)
+          (EntityImpl)
               func.execute(
                   null,
                   null,
@@ -58,7 +58,7 @@ public class OSTGeomFromTextFunctionTest extends BaseSpatialLuceneTest {
               ((List<List<List<Double>>>) item.getProperty("coordinates")).get(0).get(0).get(2)));
 
       item =
-          (YTEntityImpl)
+          (EntityImpl)
               func.execute(
                   null,
                   null,
@@ -72,7 +72,7 @@ public class OSTGeomFromTextFunctionTest extends BaseSpatialLuceneTest {
           Double.isNaN(
               ((List<List<List<Double>>>) item.getProperty("coordinates")).get(0).get(0).get(2)));
     } finally {
-      YTGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.setValue(prevValue);
+      GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.setValue(prevValue);
     }
   }
 }

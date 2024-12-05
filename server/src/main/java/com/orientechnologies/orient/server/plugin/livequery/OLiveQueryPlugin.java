@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.server.plugin.livequery;
 
-import com.orientechnologies.core.db.ODatabaseLifecycleListener;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseLifecycleListener;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;
@@ -86,6 +86,6 @@ public class OLiveQueryPlugin extends OServerPluginAbstract implements ODatabase
   }
 
   @Override
-  public void onLocalNodeConfigurationRequest(YTEntityImpl iConfiguration) {
+  public void onLocalNodeConfigurationRequest(EntityImpl iConfiguration) {
   }
 }

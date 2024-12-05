@@ -1,0 +1,123 @@
+/*
+ *
+ *
+ *  *
+ *  *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  *  you may not use this file except in compliance with the License.
+ *  *  You may obtain a copy of the License at
+ *  *
+ *  *       http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  *  Unless required by applicable law or agreed to in writing, software
+ *  *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  *  See the License for the specific language governing permissions and
+ *  *  limitations under the License.
+ *  *
+ *
+ *
+ */
+package com.jetbrains.youtrack.db.internal.core.record;
+
+import com.jetbrains.youtrack.db.internal.common.exception.YTSystemException;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.RecordFlat;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
+import com.jetbrains.youtrack.db.internal.core.record.impl.ViewEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.VertexEntityImpl;
+
+/**
+ * Record factory. To use your own record implementation use the declareRecordType() method. Example
+ * of registration of the record MyRecord:
+ *
+ * <p><code>
+ * declareRecordType('m', "myrecord", MyRecord.class);
+ * </code>
+ */
+@SuppressWarnings("unchecked")
+public class ORecordFactoryManager {
+
+  protected final String[] recordTypeNames = new String[Byte.MAX_VALUE];
+  protected final Class<? extends Record>[] recordTypes = new Class[Byte.MAX_VALUE];
+  protected final ORecordFactory[] recordFactories = new ORecordFactory[Byte.MAX_VALUE];
+
+  public interface ORecordFactory {
+
+    Record newRecord(YTRID rid, YTDatabaseSessionInternal database);
+  }
+
+  public ORecordFactoryManager() {
+    declareRecordType(
+        EntityImpl.RECORD_TYPE,
+        "document",
+        EntityImpl.class,
+        (rid, database) -> {
+          var cluster = rid.getClusterId();
+          if (database != null && cluster >= 0) {
+            if (database.isClusterVertex(cluster)) {
+              return new VertexEntityImpl(database, rid);
+            } else if (database.isClusterEdge(cluster)) {
+              return new EdgeEntityImpl(database, rid);
+            } else if (database.isClusterView(cluster)) {
+              return new ViewEntityImpl(database, rid);
+            }
+          }
+          return new EntityImpl(database, rid);
+        });
+    declareRecordType(
+        Blob.RECORD_TYPE, "bytes", Blob.class, (rid, database) -> new RecordBytes(rid));
+    declareRecordType(
+        RecordFlat.RECORD_TYPE,
+        "flat",
+        RecordFlat.class,
+        (rid, database) -> new RecordFlat(rid));
+  }
+
+  public String getRecordTypeName(final byte iRecordType) {
+    String name = recordTypeNames[iRecordType];
+    if (name == null) {
+      throw new IllegalArgumentException("Unsupported record type: " + iRecordType);
+    }
+    return name;
+  }
+
+  public Record newInstance(YTRID rid, YTDatabaseSessionInternal database) {
+    try {
+      return getFactory(database.getRecordType()).newRecord(rid, database);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Unsupported record type: " + database.getRecordType(), e);
+    }
+  }
+
+  public RecordAbstract newInstance(
+      final byte iRecordType, YTRID rid, YTDatabaseSessionInternal database) {
+    try {
+      return (RecordAbstract) getFactory(iRecordType).newRecord(rid, database);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Unsupported record type: " + iRecordType, e);
+    }
+  }
+
+  public void declareRecordType(
+      byte iByte, String iName, Class<? extends Record> iClass, final ORecordFactory iFactory) {
+    if (recordTypes[iByte] != null) {
+      throw new YTSystemException(
+          "Record type byte '" + iByte + "' already in use : " + recordTypes[iByte].getName());
+    }
+    recordTypeNames[iByte] = iName;
+    recordTypes[iByte] = iClass;
+    recordFactories[iByte] = iFactory;
+  }
+
+  protected ORecordFactory getFactory(final byte iRecordType) {
+    final ORecordFactory factory = recordFactories[iRecordType];
+    if (factory == null) {
+      throw new IllegalArgumentException("Record type '" + iRecordType + "' is not supported");
+    }
+    return factory;
+  }
+}

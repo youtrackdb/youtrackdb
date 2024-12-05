@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.db.document;
 
-import com.orientechnologies.core.db.YTLiveQueryMonitor;
+import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryMonitor;
 
 /**
  *

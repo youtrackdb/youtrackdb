@@ -13,14 +13,14 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.ODatabaseType;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.util.OURLConnection;
-import com.orientechnologies.core.util.OURLHelper;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.util.OURLConnection;
+import com.jetbrains.youtrack.db.internal.core.util.OURLHelper;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
@@ -339,7 +339,7 @@ public class OrientJdbcConnection implements Connection {
   }
 
   public int getNetworkTimeout() throws SQLException {
-    return YTGlobalConfiguration.NETWORK_SOCKET_TIMEOUT.getValueAsInteger();
+    return GlobalConfiguration.NETWORK_SOCKET_TIMEOUT.getValueAsInteger();
   }
 
   /**
@@ -353,7 +353,7 @@ public class OrientJdbcConnection implements Connection {
   }
 
   public void setNetworkTimeout(Executor arg0, int arg1) throws SQLException {
-    YTGlobalConfiguration.NETWORK_SOCKET_TIMEOUT.setValue(arg1);
+    GlobalConfiguration.NETWORK_SOCKET_TIMEOUT.setValue(arg1);
   }
 
   public Properties getInfo() {

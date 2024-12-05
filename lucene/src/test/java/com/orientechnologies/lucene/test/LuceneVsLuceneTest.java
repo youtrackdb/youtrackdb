@@ -20,9 +20,9 @@ package com.orientechnologies.lucene.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.orientechnologies.lucene.analyzer.OLucenePerFieldAnalyzerWrapper;
 import java.io.File;
 import java.io.IOException;
@@ -86,7 +86,7 @@ public class LuceneVsLuceneTest extends BaseLuceneTest {
   @Test
   public void testLuceneVsLucene() throws IOException, ParseException {
 
-    for (YTEntityImpl oDocument : db.browseClass("Song")) {
+    for (EntityImpl oDocument : db.browseClass("Song")) {
 
       String title = oDocument.field("title");
       if (title != null) {

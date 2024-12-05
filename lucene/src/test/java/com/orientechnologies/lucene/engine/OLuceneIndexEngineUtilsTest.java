@@ -2,7 +2,7 @@ package com.orientechnologies.lucene.engine;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +17,7 @@ public class OLuceneIndexEngineUtilsTest {
     metadata.put(
         "sort",
         Collections.singletonList(
-            new YTEntityImpl()
+            new EntityImpl()
                 .field("field", "score")
                 .field("reverse", false)
                 .field("type", "INT")
@@ -36,8 +36,8 @@ public class OLuceneIndexEngineUtilsTest {
   @Test
   public void buildIntSortField() throws Exception {
 
-    final YTEntityImpl sortConf =
-        new YTEntityImpl().field("field", "score").field("reverse", true).field("type", "INT");
+    final EntityImpl sortConf =
+        new EntityImpl().field("field", "score").field("reverse", true).field("type", "INT");
 
     final SortField sortField = OLuceneIndexEngineUtils.buildSortField(sortConf);
 
@@ -49,7 +49,7 @@ public class OLuceneIndexEngineUtilsTest {
   @Test
   public void buildDocSortField() throws Exception {
 
-    final YTEntityImpl sortConf = new YTEntityImpl().field("type", "DOC");
+    final EntityImpl sortConf = new EntityImpl().field("type", "DOC");
 
     final SortField sortField = OLuceneIndexEngineUtils.buildSortField(sortConf);
 

@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.record.ORecordInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -41,7 +41,7 @@ public class OServerCommandPostDocument extends OServerCommandDocumentAbstract {
 
     YTDatabaseSession db = null;
 
-    YTEntityImpl d;
+    EntityImpl d;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);
@@ -49,7 +49,7 @@ public class OServerCommandPostDocument extends OServerCommandDocumentAbstract {
       d =
           db.computeInTx(
               () -> {
-                YTEntityImpl doc = new YTEntityImpl();
+                EntityImpl doc = new EntityImpl();
                 doc.fromJSON(iRequest.getContent());
                 ORecordInternal.setVersion(doc, 0);
 

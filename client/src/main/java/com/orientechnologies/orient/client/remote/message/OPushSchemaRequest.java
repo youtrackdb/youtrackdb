@@ -1,26 +1,26 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import static com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol.REQUEST_PUSH_SCHEMA;
+import static com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol.REQUEST_PUSH_SCHEMA;
 
-import com.orientechnologies.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.exception.YTDatabaseException;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 
 public class OPushSchemaRequest implements OBinaryPushRequest<OBinaryPushResponse> {
 
-  private YTEntityImpl schema;
+  private EntityImpl schema;
 
   public OPushSchemaRequest() {
   }
 
-  public OPushSchemaRequest(YTEntityImpl schema) {
+  public OPushSchemaRequest(EntityImpl schema) {
     this.schema = schema;
   }
 
@@ -39,7 +39,7 @@ public class OPushSchemaRequest implements OBinaryPushRequest<OBinaryPushRespons
   @Override
   public void read(YTDatabaseSessionInternal db, OChannelDataInput network) throws IOException {
     byte[] bytes = network.readBytes();
-    this.schema = (YTEntityImpl) ORecordSerializerNetworkV37Client.INSTANCE.fromStream(db, bytes,
+    this.schema = (EntityImpl) ORecordSerializerNetworkV37Client.INSTANCE.fromStream(db, bytes,
         null);
   }
 
@@ -59,7 +59,7 @@ public class OPushSchemaRequest implements OBinaryPushRequest<OBinaryPushRespons
     return REQUEST_PUSH_SCHEMA;
   }
 
-  public YTEntityImpl getSchema() {
+  public EntityImpl getSchema() {
     return schema;
   }
 }

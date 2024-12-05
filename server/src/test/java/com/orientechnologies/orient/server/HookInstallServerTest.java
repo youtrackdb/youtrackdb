@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.hook.YTDocumentHookAbstract;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.hook.YTDocumentHookAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.server.config.OServerConfigurationManager;
 import com.orientechnologies.orient.server.config.OServerHookConfiguration;
@@ -36,7 +36,7 @@ public class HookInstallServerTest {
     }
 
     @Override
-    public void onRecordAfterCreate(YTEntityImpl iDocument) {
+    public void onRecordAfterCreate(EntityImpl iDocument) {
       count++;
     }
   }
@@ -107,7 +107,7 @@ public class HookInstallServerTest {
           some.createClassIfNotExist("Test");
 
           some.executeInTx(() -> {
-            some.save(new YTEntityImpl("Test").field("entry", id));
+            some.save(new EntityImpl("Test").field("entry", id));
             some.commit();
           });
         }

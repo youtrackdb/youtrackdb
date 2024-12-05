@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.server.security;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.exception.YTSecurityException;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.OServer;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -33,7 +33,7 @@ public class ORemoteScriptSecurityTest {
       NotCompliantMBeanException,
       ClassNotFoundException,
       MalformedObjectNameException {
-    YTGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
+    GlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
     server = OServer.startFromClasspathConfig("abstract-orientdb-server-config.xml");
 
     YouTrackDB youTrackDB =

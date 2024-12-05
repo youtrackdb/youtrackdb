@@ -2,10 +2,10 @@ package com.orientechnologies.lucene.index;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
 import com.orientechnologies.lucene.test.BaseLuceneTest;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import java.util.logging.Level;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;

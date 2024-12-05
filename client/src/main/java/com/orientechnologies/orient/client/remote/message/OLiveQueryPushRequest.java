@@ -1,14 +1,14 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.common.exception.OErrorCode;
+import com.jetbrains.youtrack.db.internal.common.exception.OErrorCode;
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

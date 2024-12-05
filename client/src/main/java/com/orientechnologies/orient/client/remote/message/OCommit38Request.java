@@ -1,23 +1,23 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.ORecordOperation;
-import com.orientechnologies.core.record.ORecordInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializer;
-import com.orientechnologies.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
-import com.orientechnologies.core.tx.OTransactionIndexChanges;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
+import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.message.tx.IndexChange;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,10 +62,10 @@ public class OCommit38Request implements OBinaryRequest<OCommit37Response> {
             request.setContentChanged(ORecordInternal.isContentChanged(txEntry.record));
             break;
           case ORecordOperation.UPDATED:
-            if (YTEntityImpl.RECORD_TYPE == ORecordInternal.getRecordType(txEntry.record)) {
+            if (EntityImpl.RECORD_TYPE == ORecordInternal.getRecordType(txEntry.record)) {
               request.setRecordType(ODocumentSerializerDelta.DELTA_RECORD_TYPE);
               ODocumentSerializerDelta delta = ODocumentSerializerDelta.instance();
-              request.setRecord(delta.serializeDelta((YTEntityImpl) txEntry.record));
+              request.setRecord(delta.serializeDelta((EntityImpl) txEntry.record));
               request.setContentChanged(ORecordInternal.isContentChanged(txEntry.record));
             } else {
               request.setRecordType(ORecordInternal.getRecordType(txEntry.record));

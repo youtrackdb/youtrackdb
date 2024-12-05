@@ -23,6 +23,7 @@ package com.orientechnologies.orient.server.security.authenticator;
  * This exist only for backward compatibility for the package name configured in the security.json
  */
 public class OServerConfigAuthenticator
-    extends com.orientechnologies.core.security.authenticator.OServerConfigAuthenticator {
+    extends
+    com.jetbrains.youtrack.db.internal.core.security.authenticator.OServerConfigAuthenticator {
 
 }

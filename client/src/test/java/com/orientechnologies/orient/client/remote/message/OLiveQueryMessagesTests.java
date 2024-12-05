@@ -2,11 +2,11 @@ package com.orientechnologies.orient.client.remote.message;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.DBTestBase;
-import com.orientechnologies.common.exception.OErrorCode;
+import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.common.exception.OErrorCode;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
-import com.orientechnologies.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;

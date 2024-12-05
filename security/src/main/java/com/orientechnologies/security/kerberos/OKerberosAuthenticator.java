@@ -13,16 +13,16 @@
  */
 package com.orientechnologies.security.kerberos;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.parser.OSystemVariableResolver;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.metadata.security.YTImmutableUser;
-import com.orientechnologies.core.metadata.security.YTSecurityUser;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.security.OSecuritySystem;
-import com.orientechnologies.core.security.authenticator.OSecurityAuthenticatorAbstract;
-import com.orientechnologies.core.security.kerberos.OKrb5ClientLoginModuleConfig;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.parser.OSystemVariableResolver;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTImmutableUser;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.security.OSecuritySystem;
+import com.jetbrains.youtrack.db.internal.core.security.authenticator.OSecurityAuthenticatorAbstract;
+import com.jetbrains.youtrack.db.internal.core.security.kerberos.OKrb5ClientLoginModuleConfig;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.security.YTSecurityAuthenticatorException;
 import java.nio.charset.StandardCharsets;
@@ -192,7 +192,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
   }
 
   // OSecurityAuthenticator
-  public void config(YTDatabaseSessionInternal session, final YTEntityImpl kerbConfig,
+  public void config(YTDatabaseSessionInternal session, final EntityImpl kerbConfig,
       OSecuritySystem security) {
     super.config(session, kerbConfig, security);
 
@@ -204,7 +204,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
 
     // service
     if (kerbConfig.containsField("service")) {
-      YTEntityImpl serviceDoc = kerbConfig.field("service");
+      EntityImpl serviceDoc = kerbConfig.field("service");
 
       if (serviceDoc.containsField("ktname")) {
         serviceKTName = OSystemVariableResolver.resolveSystemVariables(serviceDoc.field("ktname"));
@@ -221,7 +221,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
 
     // SPNEGO
     if (kerbConfig.containsField("spnego")) {
-      YTEntityImpl spnegoDoc = kerbConfig.field("spnego");
+      EntityImpl spnegoDoc = kerbConfig.field("spnego");
 
       if (spnegoDoc.containsField("ktname")) {
         spnegoKTName = OSystemVariableResolver.resolveSystemVariables(spnegoDoc.field("ktname"));
@@ -238,7 +238,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
 
     // client
     if (kerbConfig.containsField("client")) {
-      YTEntityImpl clientDoc = kerbConfig.field("client");
+      EntityImpl clientDoc = kerbConfig.field("client");
 
       if (clientDoc.containsField("useTicketCache")) {
         clientUseTicketCache = clientDoc.field("useTicketCache", YTType.BOOLEAN);

@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.DBTestBase;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultInternal;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.test.database.auto.hooks;
 
-import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.exception.YTRecordNotFoundException;
-import com.orientechnologies.core.hook.YTRecordHook;
-import com.orientechnologies.core.hook.YTRecordHookAbstract;
-import com.orientechnologies.core.record.YTEntity;
-import com.orientechnologies.core.record.YTRecord;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.hook.YTRecordHook;
+import com.jetbrains.youtrack.db.internal.core.hook.YTRecordHookAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -28,9 +28,9 @@ public class BrokenMapHook extends YTRecordHookAbstract implements YTRecordHook 
     return DISTRIBUTED_EXECUTION_MODE.BOTH;
   }
 
-  public RESULT onRecordBeforeCreate(YTRecord record) {
+  public RESULT onRecordBeforeCreate(Record record) {
     Date now = new Date();
-    YTEntity element = (YTEntity) record;
+    Entity element = (Entity) record;
 
     if (element.getProperty("myMap") != null) {
       HashMap<String, Object> myMap = new HashMap<>(element.getProperty("myMap"));
@@ -45,10 +45,10 @@ public class BrokenMapHook extends YTRecordHookAbstract implements YTRecordHook 
     return RESULT.RECORD_CHANGED;
   }
 
-  public RESULT onRecordBeforeUpdate(YTRecord newRecord) {
-    YTEntity newElement = (YTEntity) newRecord;
+  public RESULT onRecordBeforeUpdate(Record newRecord) {
+    Entity newElement = (Entity) newRecord;
     try {
-      YTEntity oldElement = database.load(newElement.getIdentity());
+      Entity oldElement = database.load(newElement.getIdentity());
 
       var newPropertyNames = newElement.getPropertyNames();
       var oldPropertyNames = oldElement.getPropertyNames();

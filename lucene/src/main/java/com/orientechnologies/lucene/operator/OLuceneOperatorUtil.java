@@ -16,16 +16,16 @@
 
 package com.orientechnologies.lucene.operator;
 
-import com.orientechnologies.core.command.OCommandContext;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.sql.OIndexSearchResult;
-import com.orientechnologies.core.sql.OSQLHelper;
-import com.orientechnologies.core.sql.filter.OSQLFilterCondition;
-import com.orientechnologies.core.sql.filter.OSQLFilterItemField;
-import com.orientechnologies.core.sql.filter.OSQLFilterItemVariable;
-import com.orientechnologies.core.sql.operator.OQueryOperatorBetween;
-import com.orientechnologies.core.sql.operator.OQueryOperatorIn;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.sql.OIndexSearchResult;
+import com.jetbrains.youtrack.db.internal.core.sql.OSQLHelper;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterCondition;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItemField;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItemVariable;
+import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperatorBetween;
+import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperatorIn;
 import java.util.Collection;
 import java.util.List;
 

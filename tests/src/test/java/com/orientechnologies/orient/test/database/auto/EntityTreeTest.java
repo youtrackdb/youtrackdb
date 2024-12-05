@@ -15,14 +15,14 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -56,7 +56,7 @@ public class EntityTreeTest extends DocumentDBBaseTest {
 
   @Override
   protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    builder.addConfig(GlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
     return builder.build();
   }
 
@@ -76,7 +76,7 @@ public class EntityTreeTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "testPersonSaving")
   public void testCityEquality() {
     database.begin();
-    List<YTEntityImpl> resultset =
+    List<EntityImpl> resultset =
         executeQuery("select from profile where location.city.name = 'Rome'");
     Assert.assertEquals(resultset.size(), 2);
 
@@ -136,11 +136,11 @@ public class EntityTreeTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "testSaveMultiCircular")
   public void testQueryMultiCircular() {
     database.begin();
-    List<YTEntityImpl> result =
+    List<EntityImpl> result =
         executeQuery("select * from Profile where name = 'Barack' and surname = 'Obama'");
 
     Assert.assertEquals(result.size(), 1);
-    for (YTEntityImpl profile : result) {
+    for (EntityImpl profile : result) {
       final Collection<YTIdentifiable> followers = profile.field("followers");
       if (followers != null) {
         for (YTIdentifiable follower : followers) {

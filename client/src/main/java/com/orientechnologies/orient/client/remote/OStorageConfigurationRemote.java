@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.client.remote;
 
 import com.orientechnologies.orient.client.remote.message.push.OStorageConfigurationPayload;
-import com.orientechnologies.core.config.IndexEngineData;
-import com.orientechnologies.core.config.OStorageClusterConfiguration;
-import com.orientechnologies.core.config.OStorageConfiguration;
-import com.orientechnologies.core.config.OStorageEntryConfiguration;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
+import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageClusterConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageEntryConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;

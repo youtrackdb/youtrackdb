@@ -4,15 +4,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.atLeastOnce;
 
-import com.orientechnologies.core.command.OCommandResultListener;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.ORecordOperation;
-import com.orientechnologies.core.query.live.OLiveQueryHook;
-import com.orientechnologies.core.query.live.OLiveQueryListener;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetwork;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryServer;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
+import com.jetbrains.youtrack.db.internal.core.query.live.OLiveQueryHook;
+import com.jetbrains.youtrack.db.internal.core.query.live.OLiveQueryListener;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetwork;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryServer;
 import com.orientechnologies.orient.server.network.protocol.binary.OLiveCommandResultListener;
 import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
 import com.orientechnologies.orient.server.token.OTokenHandlerImpl;
@@ -78,7 +78,7 @@ public class OLiveCommandResultListenerTest extends BaseMemoryInternalDatabase {
   public void testSimpleMessageSend() throws IOException {
     OLiveCommandResultListener listener =
         new OLiveCommandResultListener(server, connection, new TestResultListener());
-    ORecordOperation op = new ORecordOperation(new YTEntityImpl(), ORecordOperation.CREATED);
+    ORecordOperation op = new ORecordOperation(new EntityImpl(), ORecordOperation.CREATED);
     listener.onLiveResult(10, op);
     Mockito.verify(channelBinary, atLeastOnce()).writeBytes(Mockito.any(byte[].class));
   }
@@ -91,7 +91,7 @@ public class OLiveCommandResultListenerTest extends BaseMemoryInternalDatabase {
         new OLiveCommandResultListener(server, connection, new TestResultListener());
     OLiveQueryHook.subscribe(10, rawListener, db);
     assertTrue(OLiveQueryHook.getOpsReference(db).getQueueThread().hasToken(10));
-    ORecordOperation op = new ORecordOperation(new YTEntityImpl(), ORecordOperation.CREATED);
+    ORecordOperation op = new ORecordOperation(new EntityImpl(), ORecordOperation.CREATED);
     listener.onLiveResult(10, op);
     assertFalse(OLiveQueryHook.getOpsReference(db).getQueueThread().hasToken(10));
   }

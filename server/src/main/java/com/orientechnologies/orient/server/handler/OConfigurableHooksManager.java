@@ -20,13 +20,13 @@
 
 package com.orientechnologies.orient.server.handler;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.db.ODatabaseLifecycleListener;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.hook.YTRecordHook;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseLifecycleListener;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.hook.YTRecordHook;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.config.OServerHookConfiguration;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -132,7 +132,7 @@ public class OConfigurableHooksManager implements ODatabaseLifecycleListener {
   }
 
   @Override
-  public void onLocalNodeConfigurationRequest(YTEntityImpl iConfiguration) {
+  public void onLocalNodeConfigurationRequest(EntityImpl iConfiguration) {
   }
 
   public String getName() {

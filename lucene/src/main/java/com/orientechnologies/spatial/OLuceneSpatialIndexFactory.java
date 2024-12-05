@@ -15,22 +15,22 @@ package com.orientechnologies.spatial;
 
 import static com.orientechnologies.lucene.OLuceneIndexFactory.LUCENE_ALGORITHM;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.serialization.types.OBinarySerializer;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.config.IndexEngineData;
-import com.orientechnologies.core.db.ODatabaseLifecycleListener;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.exception.YTConfigurationException;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.index.OIndexFactory;
-import com.orientechnologies.core.index.OIndexInternal;
-import com.orientechnologies.core.index.OIndexMetadata;
-import com.orientechnologies.core.index.engine.OBaseIndexEngine;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseLifecycleListener;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexFactory;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexInternal;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexMetadata;
+import com.jetbrains.youtrack.db.internal.core.index.engine.OBaseIndexEngine;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
 import com.orientechnologies.spatial.engine.OLuceneSpatialIndexEngineDelegator;
 import com.orientechnologies.spatial.index.OLuceneSpatialIndex;
 import com.orientechnologies.spatial.shape.OShapeFactory;
@@ -106,7 +106,7 @@ public class OLuceneSpatialIndexFactory implements OIndexFactory, ODatabaseLifec
     }
 
     if (metadata == null) {
-      var metadataDoc = new YTEntityImpl();
+      var metadataDoc = new EntityImpl();
       metadataDoc.field("analyzer", StandardAnalyzer.class.getName());
       im.setMetadata(metadataDoc);
     }
@@ -171,6 +171,6 @@ public class OLuceneSpatialIndexFactory implements OIndexFactory, ODatabaseLifec
   }
 
   @Override
-  public void onLocalNodeConfigurationRequest(YTEntityImpl iConfiguration) {
+  public void onLocalNodeConfigurationRequest(EntityImpl iConfiguration) {
   }
 }

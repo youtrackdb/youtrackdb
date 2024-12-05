@@ -23,9 +23,9 @@ import static com.orientechnologies.lucene.builder.OLuceneIndexType.createFields
 import static com.orientechnologies.lucene.builder.OLuceneIndexType.createIdField;
 import static com.orientechnologies.lucene.builder.OLuceneIndexType.createOldIdField;
 
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.index.OCompositeKey;
-import com.orientechnologies.core.index.OIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

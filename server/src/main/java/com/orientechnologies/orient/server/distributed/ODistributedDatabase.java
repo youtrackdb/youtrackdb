@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.tx.OTransactionId;
-import com.orientechnologies.core.tx.OTransactionSequenceStatus;
-import com.orientechnologies.core.tx.OTxMetadataHolder;
-import com.orientechnologies.core.tx.ValidationResult;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionId;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionSequenceStatus;
+import com.jetbrains.youtrack.db.internal.core.tx.OTxMetadataHolder;
+import com.jetbrains.youtrack.db.internal.core.tx.ValidationResult;
 import com.orientechnologies.orient.server.distributed.task.ORemoteTask;
 import java.util.List;
 import java.util.Optional;

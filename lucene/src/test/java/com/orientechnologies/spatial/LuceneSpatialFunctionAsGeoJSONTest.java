@@ -13,9 +13,9 @@
  */
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.DBTestBase;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.HashMap;
 import org.junit.Assert;
 import org.junit.Test;

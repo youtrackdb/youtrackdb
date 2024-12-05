@@ -16,29 +16,29 @@
 
 package com.orientechnologies.lucene.index;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.listener.OProgressListener;
-import com.orientechnologies.common.util.ORawPair;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
+import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
 import com.orientechnologies.lucene.OLuceneIndex;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.exception.OInvalidIndexEngineIdException;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.index.IndexStreamSecurityDecorator;
-import com.orientechnologies.core.index.OCompositeKey;
-import com.orientechnologies.core.index.OIndexAbstract;
-import com.orientechnologies.core.index.OIndexMetadata;
-import com.orientechnologies.core.index.YTIndexException;
-import com.orientechnologies.core.record.YTRecord;
-import com.orientechnologies.core.storage.OStorage;
-import com.orientechnologies.core.storage.impl.local.OAbstractPaginatedStorage;
-import com.orientechnologies.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
-import com.orientechnologies.core.tx.OTransaction;
-import com.orientechnologies.core.tx.OTransactionIndexChanges;
-import com.orientechnologies.core.tx.OTransactionIndexChangesPerKey;
-import com.orientechnologies.core.tx.OTransactionIndexChangesPerKey.OTransactionIndexEntry;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.OInvalidIndexEngineIdException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.index.IndexStreamSecurityDecorator;
+import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexAbstract;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexMetadata;
+import com.jetbrains.youtrack.db.internal.core.index.YTIndexException;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransaction;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChangesPerKey;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChangesPerKey.OTransactionIndexEntry;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -305,9 +305,9 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
     final YTRID rid = value.getIdentity();
 
     if (!rid.isValid()) {
-      if (value instanceof YTRecord) {
+      if (value instanceof Record) {
         // EARLY SAVE IT
-        ((YTRecord) value).save();
+        ((Record) value).save();
       } else {
         throw new IllegalArgumentException(
             "Cannot store non persistent RID as index value for key '" + key + "'");

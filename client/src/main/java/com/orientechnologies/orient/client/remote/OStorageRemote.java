@@ -18,15 +18,17 @@
  */
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.common.concur.YTOfflineNodeException;
-import com.orientechnologies.common.concur.lock.YTInterruptedException;
-import com.orientechnologies.common.concur.lock.YTModificationOperationProhibitedException;
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.io.OIOException;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.thread.OThreadPoolExecutors;
-import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.common.util.OCommonConst;
+import com.jetbrains.youtrack.db.internal.common.concur.YTOfflineNodeException;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.YTInterruptedException;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.YTModificationOperationProhibitedException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.io.OIOException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.thread.OThreadPoolExecutors;
+import com.jetbrains.youtrack.db.internal.common.util.OCallable;
+import com.jetbrains.youtrack.db.internal.common.util.OCommonConst;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.YTNotSendRequestException;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
 import com.orientechnologies.orient.client.remote.db.document.OTransactionOptimisticClient;
@@ -104,54 +106,52 @@ import com.orientechnologies.orient.client.remote.message.OSubscribeStorageConfi
 import com.orientechnologies.orient.client.remote.message.OUnsubscribeLiveQueryRequest;
 import com.orientechnologies.orient.client.remote.message.OUnsubscribeRequest;
 import com.orientechnologies.orient.client.remote.message.YTRemoteResultSet;
-import com.orientechnologies.core.command.OCommandOutputListener;
-import com.orientechnologies.core.command.OCommandRequestAsynch;
-import com.orientechnologies.core.command.OCommandRequestText;
-import com.orientechnologies.core.config.OStorageClusterConfiguration;
-import com.orientechnologies.core.config.OStorageConfiguration;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.core.db.OSharedContext;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YTLiveQueryMonitor;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.db.YouTrackDBInternal;
-import com.orientechnologies.core.db.document.ODatabaseDocumentTxInternal;
-import com.orientechnologies.core.db.record.OCurrentStorageComponentsFactory;
-import com.orientechnologies.core.db.record.ORecordOperation;
-import com.orientechnologies.core.exception.YTDatabaseException;
-import com.orientechnologies.core.exception.YTSecurityException;
-import com.orientechnologies.core.exception.YTStorageException;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.metadata.security.OTokenException;
-import com.orientechnologies.core.record.ORecordInternal;
-import com.orientechnologies.core.record.ORecordVersionHelper;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.security.OCredentialInterceptor;
-import com.orientechnologies.core.security.OSecurityManager;
-import com.orientechnologies.core.serialization.serializer.OStringSerializerHelper;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializerFactory;
-import com.orientechnologies.core.sql.query.OLiveQuery;
-import com.orientechnologies.core.storage.OCluster;
-import com.orientechnologies.core.storage.OPhysicalPosition;
-import com.orientechnologies.core.storage.ORawBuffer;
-import com.orientechnologies.core.storage.ORecordCallback;
-import com.orientechnologies.core.storage.ORecordMetadata;
-import com.orientechnologies.core.storage.OStorage;
-import com.orientechnologies.core.storage.OStorageProxy;
-import com.orientechnologies.core.storage.cluster.OPaginatedCluster;
-import com.orientechnologies.core.storage.impl.local.paginated.ORecordSerializationContext;
-import com.orientechnologies.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
-import com.orientechnologies.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
-import com.orientechnologies.core.tx.OTransactionInternal;
-import com.orientechnologies.core.tx.OTransactionOptimistic;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.YTDistributedRedirectException;
-import com.orientechnologies.orient.enterprise.channel.binary.YTTokenSecurityException;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestAsynch;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageClusterConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.conflict.ORecordConflictStrategy;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.OSharedContext;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryMonitor;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.ODatabaseDocumentTxInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.OCurrentStorageComponentsFactory;
+import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
+import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.OTokenException;
+import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.ORecordVersionHelper;
+import com.jetbrains.youtrack.db.internal.core.security.OCredentialInterceptor;
+import com.jetbrains.youtrack.db.internal.core.security.OSecurityManager;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializerFactory;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OLiveQuery;
+import com.jetbrains.youtrack.db.internal.core.storage.OCluster;
+import com.jetbrains.youtrack.db.internal.core.storage.OPhysicalPosition;
+import com.jetbrains.youtrack.db.internal.core.storage.ORawBuffer;
+import com.jetbrains.youtrack.db.internal.core.storage.ORecordCallback;
+import com.jetbrains.youtrack.db.internal.core.storage.ORecordMetadata;
+import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.OStorageProxy;
+import com.jetbrains.youtrack.db.internal.core.storage.cluster.OPaginatedCluster;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.ORecordSerializationContext;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionInternal;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinary;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTDistributedRedirectException;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTTokenSecurityException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -200,7 +200,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   private final ORemoteURLs serverURLs;
   private final Map<String, OCluster> clusterMap = new ConcurrentHashMap<String, OCluster>();
   private final ExecutorService asynchExecutor;
-  private final YTEntityImpl clusterConfiguration = new YTEntityImpl();
+  private final EntityImpl clusterConfiguration = new EntityImpl();
   private final AtomicInteger users = new AtomicInteger(0);
   private final YTContextConfiguration clientConfiguration;
   private final int connectionRetry;
@@ -273,9 +273,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       clientConfiguration = new YTContextConfiguration();
     }
     connectionRetry =
-        clientConfiguration.getValueAsInteger(YTGlobalConfiguration.NETWORK_SOCKET_RETRY);
+        clientConfiguration.getValueAsInteger(GlobalConfiguration.NETWORK_SOCKET_RETRY);
     connectionRetryDelay =
-        clientConfiguration.getValueAsInteger(YTGlobalConfiguration.NETWORK_SOCKET_RETRY_DELAY);
+        clientConfiguration.getValueAsInteger(GlobalConfiguration.NETWORK_SOCKET_RETRY_DELAY);
     serverURLs = hosts;
 
     asynchExecutor = OThreadPoolExecutors.newSingleThreadScheduledPool("OStorageRemote Async");
@@ -642,7 +642,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
           session.connectionUserPassword = iUserPassword;
         }
 
-        String strategy = conf.getValueAsString(YTGlobalConfiguration.CLIENT_CONNECTION_STRATEGY);
+        String strategy = conf.getValueAsString(GlobalConfiguration.CLIENT_CONNECTION_STRATEGY);
         if (strategy != null) {
           connectionStrategy = CONNECTION_STRATEGY.valueOf(strategy.toUpperCase(Locale.ENGLISH));
         }
@@ -1084,7 +1084,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public ORemoteQueryResult query(YTDatabaseSessionRemote db, String query, Object[] args) {
-    int recordsPerPage = YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+    int recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
@@ -1119,7 +1119,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public ORemoteQueryResult query(YTDatabaseSessionRemote db, String query, Map args) {
-    int recordsPerPage = YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+    int recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
@@ -1155,7 +1155,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public ORemoteQueryResult command(YTDatabaseSessionRemote db, String query, Object[] args) {
-    int recordsPerPage = YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+    int recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
@@ -1191,7 +1191,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public ORemoteQueryResult command(YTDatabaseSessionRemote db, String query, Map args) {
-    int recordsPerPage = YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+    int recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
@@ -1227,7 +1227,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
   public ORemoteQueryResult execute(
       YTDatabaseSessionRemote db, String language, String query, Object[] args) {
-    int recordsPerPage = YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+    int recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
@@ -1266,7 +1266,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
   public ORemoteQueryResult execute(
       YTDatabaseSessionRemote db, String language, String query, Map args) {
-    int recordsPerPage = YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+    int recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
@@ -1308,7 +1308,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public void fetchNextPage(YTDatabaseSessionRemote database, YTRemoteResultSet rs) {
-    int recordsPerPage = YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
+    int recordsPerPage = GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     if (recordsPerPage <= 0) {
       recordsPerPage = 100;
     }
@@ -1563,7 +1563,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     throw new UnsupportedOperationException("getVersion");
   }
 
-  public YTEntityImpl getClusterConfiguration() {
+  public EntityImpl getClusterConfiguration() {
     return clusterConfiguration;
   }
 
@@ -1799,7 +1799,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
                   connectionRetryDelay,
                   configuration
                       .getContextConfiguration()
-                      .getValueAsLong(YTGlobalConfiguration.NETWORK_REQUEST_TIMEOUT));
+                      .getValueAsLong(GlobalConfiguration.NETWORK_REQUEST_TIMEOUT));
           pushThread.start();
           subscribeStorageConfiguration(session);
           subscribeDistributedConfiguration(session);
@@ -2003,13 +2003,13 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         .warn(
             this,
             "DB is frozen will wait for "
-                + clientConfiguration.getValue(YTGlobalConfiguration.CLIENT_DB_RELEASE_WAIT_TIMEOUT)
+                + clientConfiguration.getValue(GlobalConfiguration.CLIENT_DB_RELEASE_WAIT_TIMEOUT)
                 + " ms. and then retry.");
     retry = true;
     try {
       Thread.sleep(
           clientConfiguration.getValueAsInteger(
-              YTGlobalConfiguration.CLIENT_DB_RELEASE_WAIT_TIMEOUT));
+              GlobalConfiguration.CLIENT_DB_RELEASE_WAIT_TIMEOUT));
     } catch (InterruptedException ie) {
       retry = false;
 
@@ -2130,7 +2130,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
             request,
             "Error sending import request",
             0,
-            clientConfiguration.getValueAsInteger(YTGlobalConfiguration.NETWORK_REQUEST_TIMEOUT));
+            clientConfiguration.getValueAsInteger(GlobalConfiguration.NETWORK_REQUEST_TIMEOUT));
 
     for (String message : response.getMessages()) {
       listener.onMessage(message);
@@ -2244,14 +2244,14 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public OBinaryPushResponse executeUpdateSchema(OPushSchemaRequest request) {
-    YTEntityImpl schema = request.getSchema();
+    EntityImpl schema = request.getSchema();
     ORecordInternal.setIdentity(schema, new YTRecordId(configuration.getSchemaRecordId()));
     YTDatabaseSessionRemote.updateSchema(this, schema);
     return null;
   }
 
   public OBinaryPushResponse executeUpdateIndexManager(OPushIndexManagerRequest request) {
-    YTEntityImpl indexManager = request.getIndexManager();
+    EntityImpl indexManager = request.getIndexManager();
     ORecordInternal.setIdentity(indexManager, new YTRecordId(configuration.getIndexMgrRecordId()));
     YTDatabaseSessionRemote.updateIndexManager(this, indexManager);
     return null;

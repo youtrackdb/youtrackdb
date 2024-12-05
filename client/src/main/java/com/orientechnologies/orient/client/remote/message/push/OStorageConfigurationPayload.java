@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.client.remote.message.push;
 
 import com.orientechnologies.orient.client.remote.OStorageClusterConfigurationRemote;
-import com.orientechnologies.core.config.OStorageClusterConfiguration;
-import com.orientechnologies.core.config.OStorageConfiguration;
-import com.orientechnologies.core.config.OStorageEntryConfiguration;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageClusterConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageEntryConfiguration;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

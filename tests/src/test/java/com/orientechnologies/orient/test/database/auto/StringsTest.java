@@ -15,9 +15,9 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.parser.OStringParser;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.OStringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.common.parser.OStringParser;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -93,10 +93,10 @@ public class StringsTest {
   }
 
   public void testDocumentSelfReference() {
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
     document.field("selfref", document);
 
-    YTEntityImpl docTwo = new YTEntityImpl();
+    EntityImpl docTwo = new EntityImpl();
     docTwo.field("ref", document);
     document.field("ref", docTwo);
 

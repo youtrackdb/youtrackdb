@@ -1,17 +1,17 @@
 package com.orientechnologies.orient.client.remote.message;
 
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializer;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 import java.util.Map;
 
@@ -45,7 +45,7 @@ public class OSubscribeLiveQueryRequest implements OBinaryRequest<OSubscribeLive
     ORecordSerializerNetworkV37Client serializer = new ORecordSerializerNetworkV37Client();
     network.writeString(query);
     // params
-    YTEntityImpl parms = new YTEntityImpl();
+    EntityImpl parms = new EntityImpl();
     parms.field("params", this.params);
 
     byte[] bytes = OMessageHelper.getRecordBytes(database, parms, serializer);
@@ -58,7 +58,7 @@ public class OSubscribeLiveQueryRequest implements OBinaryRequest<OSubscribeLive
       ORecordSerializer serializer)
       throws IOException {
     this.query = channel.readString();
-    YTEntityImpl paramsDoc = new YTEntityImpl();
+    EntityImpl paramsDoc = new EntityImpl();
     byte[] bytes = channel.readBytes();
     serializer.fromStream(db, bytes, paramsDoc, null);
     this.params = paramsDoc.field("params");

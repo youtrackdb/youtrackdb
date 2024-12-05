@@ -18,12 +18,12 @@
 
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Before;
@@ -53,18 +53,18 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
     db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
   }
 
-  protected YTEntityImpl newCity(String name, final Double longitude, final Double latitude) {
+  protected EntityImpl newCity(String name, final Double longitude, final Double latitude) {
 
-    YTEntityImpl location = newPoint(longitude, latitude);
+    EntityImpl location = newPoint(longitude, latitude);
 
-    YTEntityImpl city = new YTEntityImpl("City");
+    EntityImpl city = new EntityImpl("City");
     city.field("name", name);
     city.field("location", location);
     return city;
   }
 
-  private YTEntityImpl newPoint(final Double longitude, final Double latitude) {
-    YTEntityImpl location = new YTEntityImpl("OPoint");
+  private EntityImpl newPoint(final Double longitude, final Double latitude) {
+    EntityImpl location = new EntityImpl("OPoint");
     location.field(
         "coordinates",
         new ArrayList<Double>() {
@@ -79,7 +79,7 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
   @Test
   public void testIndexingTxPoint() {
 
-    YTEntityImpl rome = newCity("Rome", 12.5, 41.9);
+    EntityImpl rome = newCity("Rome", 12.5, 41.9);
 
     db.begin();
 
@@ -105,7 +105,7 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
   @Test
   public void testIndexingUpdateTxPoint() {
 
-    YTEntityImpl rome = newCity("Rome", -0.1275, 51.507222);
+    EntityImpl rome = newCity("Rome", -0.1275, 51.507222);
 
     db.begin();
     rome = db.save(rome);
@@ -137,8 +137,8 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
   @Test
   public void testIndexingComplexUpdateTxPoint() {
 
-    YTEntityImpl rome = newCity("Rome", 12.5, 41.9);
-    YTEntityImpl london = newCity("London", -0.1275, 51.507222);
+    EntityImpl rome = newCity("Rome", 12.5, 41.9);
+    EntityImpl london = newCity("London", -0.1275, 51.507222);
 
     db.begin();
     rome = db.save(rome);

@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -57,9 +57,9 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
     database.begin();
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
-    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
-    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
+    new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
+    new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     database.commit();
 
@@ -73,7 +73,7 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
     Set<YTIdentifiable> resultTwo = new HashSet<>();
@@ -99,11 +99,11 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
     database.begin();
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    YTEntityImpl documentOne = new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
+    EntityImpl documentOne = new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     documentOne.save();
-    YTEntityImpl documentTwo = new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
+    EntityImpl documentTwo = new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     documentTwo.save();
-    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     database.commit();
 
@@ -146,10 +146,10 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
     database.begin();
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    YTEntityImpl documentOne = new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
+    EntityImpl documentOne = new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     documentOne.save();
-    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
-    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
+    new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
     database.commit();
 
     Assert.assertNull(database.getTransaction().getIndexChanges(INDEX));
@@ -189,14 +189,14 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
 
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    final YTEntityImpl document = new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
+    final EntityImpl document = new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
 
     document.field(PROPERTY_NAME, 0);
     document.field(PROPERTY_NAME, 1);
     document.save();
 
-    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
     Set<YTIdentifiable> result = new HashSet<>();
@@ -222,8 +222,8 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
 
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
-    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
+    new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
     Set<YTIdentifiable> result = new HashSet<>();
@@ -234,7 +234,7 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
+    new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
     database.commit();
 
     stream = index.getInternal().streamEntries(database, Arrays.asList(1, 2), true);
@@ -252,9 +252,9 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
 
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    YTEntityImpl document = new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
+    EntityImpl document = new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
-    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     document.delete();
 
@@ -282,9 +282,9 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
 
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    YTEntityImpl document = new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
+    EntityImpl document = new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
-    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     document.delete();
 
@@ -312,9 +312,9 @@ public class IndexTxAwareMultiValueGetValuesTest extends DocumentDBBaseTest {
 
     final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
-    YTEntityImpl document = new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
+    EntityImpl document = new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
-    new YTEntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
+    new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     document.removeField(PROPERTY_NAME);
     document.save();

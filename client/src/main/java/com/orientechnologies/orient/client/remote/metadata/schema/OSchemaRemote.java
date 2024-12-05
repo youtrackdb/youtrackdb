@@ -1,20 +1,20 @@
 package com.orientechnologies.orient.client.remote.metadata.schema;
 
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.db.ODatabaseLifecycleListener;
-import com.orientechnologies.core.db.YTDatabaseListener;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.viewmanager.ViewCreationListener;
-import com.orientechnologies.core.exception.YTSchemaException;
-import com.orientechnologies.core.metadata.schema.OSchemaShared;
-import com.orientechnologies.core.metadata.schema.OViewConfig;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTClassImpl;
-import com.orientechnologies.core.metadata.schema.YTView;
-import com.orientechnologies.core.metadata.schema.YTViewImpl;
-import com.orientechnologies.core.metadata.security.ORole;
-import com.orientechnologies.core.metadata.security.ORule;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseLifecycleListener;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseListener;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.viewmanager.ViewCreationListener;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSchemaException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.OSchemaShared;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.OViewConfig;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClassImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTView;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTViewImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -493,7 +493,7 @@ public class OSchemaRemote extends OSchemaShared {
         "'Internal' schema modification methods can be used only inside of embedded database");
   }
 
-  public void update(YTDatabaseSessionInternal session, YTEntityImpl schema) {
+  public void update(YTDatabaseSessionInternal session, EntityImpl schema) {
     if (!skipPush.get()) {
       fromStream(session, schema);
       this.snapshot = null;

@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
 
 public class OServerMain {
 

@@ -1,28 +1,28 @@
 package com.orientechnologies.orient.client.remote.metadata.security;
 
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.TrackedSet;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.metadata.function.OFunction;
-import com.orientechnologies.core.metadata.schema.YTImmutableClass;
-import com.orientechnologies.core.metadata.security.ORestrictedOperation;
-import com.orientechnologies.core.metadata.security.ORole;
-import com.orientechnologies.core.metadata.security.OSecurityInternal;
-import com.orientechnologies.core.metadata.security.OSecurityPolicy;
-import com.orientechnologies.core.metadata.security.OSecurityPolicyImpl;
-import com.orientechnologies.core.metadata.security.OSecurityResourceProperty;
-import com.orientechnologies.core.metadata.security.OSecurityRole;
-import com.orientechnologies.core.metadata.security.OSecurityRole.ALLOW_MODES;
-import com.orientechnologies.core.metadata.security.OToken;
-import com.orientechnologies.core.metadata.security.YTSecurityUser;
-import com.orientechnologies.core.metadata.security.YTUser;
-import com.orientechnologies.core.metadata.security.auth.OAuthenticationInfo;
-import com.orientechnologies.core.record.YTRecord;
-import com.orientechnologies.core.record.impl.ODocumentInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.metadata.function.OFunction;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTImmutableClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.ORestrictedOperation;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityPolicy;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityPolicyImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityResourceProperty;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityRole;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityRole.ALLOW_MODES;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.OToken;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTUser;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.OAuthenticationInfo;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +44,7 @@ public class OSecurityRemote implements OSecurityInternal {
   @Override
   public YTIdentifiable allowRole(
       final YTDatabaseSession session,
-      final YTEntityImpl iDocument,
+      final EntityImpl iDocument,
       final ORestrictedOperation iOperation,
       final String iRoleName) {
     final YTRID role = getRoleRID(session, iRoleName);
@@ -58,7 +58,7 @@ public class OSecurityRemote implements OSecurityInternal {
   @Override
   public YTIdentifiable allowUser(
       final YTDatabaseSession session,
-      final YTEntityImpl iDocument,
+      final EntityImpl iDocument,
       final ORestrictedOperation iOperation,
       final String iUserName) {
     final YTRID user = getUserRID(session, iUserName);
@@ -72,7 +72,7 @@ public class OSecurityRemote implements OSecurityInternal {
   @Override
   public YTIdentifiable denyUser(
       final YTDatabaseSessionInternal session,
-      final YTEntityImpl iDocument,
+      final EntityImpl iDocument,
       final ORestrictedOperation iOperation,
       final String iUserName) {
     final YTRID user = getUserRID(session, iUserName);
@@ -86,7 +86,7 @@ public class OSecurityRemote implements OSecurityInternal {
   @Override
   public YTIdentifiable denyRole(
       final YTDatabaseSessionInternal session,
-      final YTEntityImpl iDocument,
+      final EntityImpl iDocument,
       final ORestrictedOperation iOperation,
       final String iRoleName) {
     final YTRID role = getRoleRID(session, iRoleName);
@@ -99,7 +99,7 @@ public class OSecurityRemote implements OSecurityInternal {
 
   @Override
   public YTIdentifiable allowIdentity(
-      YTDatabaseSession session, YTEntityImpl iDocument, String iAllowFieldName,
+      YTDatabaseSession session, EntityImpl iDocument, String iAllowFieldName,
       YTIdentifiable iId) {
     Set<YTIdentifiable> field = iDocument.field(iAllowFieldName);
     if (field == null) {
@@ -140,7 +140,7 @@ public class OSecurityRemote implements OSecurityInternal {
 
   @Override
   public YTIdentifiable disallowIdentity(
-      YTDatabaseSessionInternal session, YTEntityImpl iDocument, String iAllowFieldName,
+      YTDatabaseSessionInternal session, EntityImpl iDocument, String iAllowFieldName,
       YTIdentifiable iId) {
     Set<YTIdentifiable> field = iDocument.field(iAllowFieldName);
     if (field != null) {
@@ -214,7 +214,7 @@ public class OSecurityRemote implements OSecurityInternal {
     try (YTResultSet result = session.query("select from OUser where name = ? limit 1",
         iUserName)) {
       if (result.hasNext()) {
-        return new YTUser(session, (YTEntityImpl) result.next().getEntity().get());
+        return new YTUser(session, (EntityImpl) result.next().getEntity().get());
       }
     }
     return null;
@@ -225,7 +225,7 @@ public class OSecurityRemote implements OSecurityInternal {
       return null;
     }
 
-    YTEntityImpl result;
+    EntityImpl result;
     result = session.load(iRecordId);
     if (!result.getClassName().equals(YTUser.CLASS_NAME)) {
       result = null;
@@ -234,7 +234,7 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   public ORole getRole(final YTDatabaseSession session, final YTIdentifiable iRole) {
-    final YTEntityImpl doc = session.load(iRole.getIdentity());
+    final EntityImpl doc = session.load(iRole.getIdentity());
     YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
     if (clazz != null && clazz.isOrole()) {
       return new ORole(session, doc);
@@ -251,23 +251,23 @@ public class OSecurityRemote implements OSecurityInternal {
     try (final YTResultSet result =
         session.query("select from ORole where name = ? limit 1", iRoleName)) {
       if (result.hasNext()) {
-        return new ORole(session, (YTEntityImpl) result.next().getEntity().get());
+        return new ORole(session, (EntityImpl) result.next().getEntity().get());
       }
     }
 
     return null;
   }
 
-  public List<YTEntityImpl> getAllUsers(final YTDatabaseSession session) {
+  public List<EntityImpl> getAllUsers(final YTDatabaseSession session) {
     try (YTResultSet rs = session.query("select from OUser")) {
-      return rs.stream().map((e) -> (YTEntityImpl) e.getEntity().get())
+      return rs.stream().map((e) -> (EntityImpl) e.getEntity().get())
           .collect(Collectors.toList());
     }
   }
 
-  public List<YTEntityImpl> getAllRoles(final YTDatabaseSession session) {
+  public List<EntityImpl> getAllRoles(final YTDatabaseSession session) {
     try (YTResultSet rs = session.query("select from ORole")) {
-      return rs.stream().map((e) -> (YTEntityImpl) e.getEntity().get())
+      return rs.stream().map((e) -> (EntityImpl) e.getEntity().get())
           .collect(Collectors.toList());
     }
   }
@@ -365,33 +365,33 @@ public class OSecurityRemote implements OSecurityInternal {
 
   @Override
   public Set<String> getFilteredProperties(YTDatabaseSessionInternal session,
-      YTEntityImpl document) {
+      EntityImpl document) {
     return Collections.emptySet();
   }
 
   @Override
-  public boolean isAllowedWrite(YTDatabaseSessionInternal session, YTEntityImpl document,
+  public boolean isAllowedWrite(YTDatabaseSessionInternal session, EntityImpl document,
       String propertyName) {
     return true;
   }
 
   @Override
-  public boolean canCreate(YTDatabaseSessionInternal session, YTRecord record) {
+  public boolean canCreate(YTDatabaseSessionInternal session, Record record) {
     return true;
   }
 
   @Override
-  public boolean canRead(YTDatabaseSessionInternal session, YTRecord record) {
+  public boolean canRead(YTDatabaseSessionInternal session, Record record) {
     return true;
   }
 
   @Override
-  public boolean canUpdate(YTDatabaseSessionInternal session, YTRecord record) {
+  public boolean canUpdate(YTDatabaseSessionInternal session, Record record) {
     return true;
   }
 
   @Override
-  public boolean canDelete(YTDatabaseSessionInternal session, YTRecord record) {
+  public boolean canDelete(YTDatabaseSessionInternal session, Record record) {
     return true;
   }
 

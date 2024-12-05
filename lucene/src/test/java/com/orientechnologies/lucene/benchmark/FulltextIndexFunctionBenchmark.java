@@ -1,13 +1,13 @@
 package com.orientechnologies.lucene.benchmark;
 
-import com.orientechnologies.DBTestBase;
-import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.core.db.ODatabaseType;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;

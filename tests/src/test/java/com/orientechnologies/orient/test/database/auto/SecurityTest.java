@@ -15,22 +15,22 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.core.exception.YTSecurityAccessException;
-import com.orientechnologies.core.exception.YTSecurityException;
-import com.orientechnologies.core.exception.YTValidationException;
-import com.orientechnologies.core.metadata.security.ORole;
-import com.orientechnologies.core.metadata.security.OSecurity;
-import com.orientechnologies.core.metadata.security.OSecurityRole;
-import com.orientechnologies.core.metadata.security.YTSecurityUser;
-import com.orientechnologies.core.metadata.security.YTUser;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.OCommandSQL;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityAccessException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTValidationException;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurity;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityRole;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTUser;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -52,7 +52,7 @@ public class SecurityTest extends DocumentDBBaseTest {
 
   @Override
   protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    builder.addConfig(GlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
     return builder.build();
   }
 
@@ -82,7 +82,7 @@ public class SecurityTest extends DocumentDBBaseTest {
 
     try {
       database.begin();
-      new YTEntityImpl().save("internal");
+      new EntityImpl().save("internal");
       database.commit();
 
       Assert.fail();
@@ -101,7 +101,7 @@ public class SecurityTest extends DocumentDBBaseTest {
       database.createClassIfNotExist("Profile");
 
       database.begin();
-      new YTEntityImpl("Profile")
+      new EntityImpl("Profile")
           .fields(
               "nick",
               "error",

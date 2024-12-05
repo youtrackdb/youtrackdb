@@ -1,6 +1,6 @@
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 

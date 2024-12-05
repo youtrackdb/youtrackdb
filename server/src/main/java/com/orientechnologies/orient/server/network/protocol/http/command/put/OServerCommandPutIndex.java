@@ -19,13 +19,13 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.put;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.index.OIndexDefinition;
-import com.orientechnologies.core.record.YTRecord;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -65,7 +65,7 @@ public class OServerCommandPutIndex extends OServerCommandDocumentAbstract {
           throw new IllegalArgumentException("Index's entry value is null");
         }
 
-        var doc = new YTEntityImpl();
+        var doc = new EntityImpl();
         doc.fromJSON(iRequest.getContent());
         record = doc;
       }
@@ -84,8 +84,8 @@ public class OServerCommandPutIndex extends OServerCommandDocumentAbstract {
 
       final boolean existent = record.getIdentity().isPersistent();
 
-      if (existent && record instanceof YTRecord) {
-        ((YTRecord) record).save();
+      if (existent && record instanceof Record) {
+        ((Record) record).save();
       }
 
       index.put(db, key, record);

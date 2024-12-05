@@ -3,13 +3,13 @@ package com.orientechnologies.orient.server;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.config.OServerUserConfiguration;
 import java.io.File;
@@ -65,7 +65,7 @@ public class OServerDatabaseOperationsTest {
 
     try (YTDatabaseSession session = server.openDatabase(
         OServerDatabaseOperationsTest.class.getSimpleName())) {
-      YTEntityImpl securityConfig = new YTEntityImpl();
+      EntityImpl securityConfig = new EntityImpl();
       securityConfig.fromJSON(
           OIOUtils.readStreamAsString(
               this.getClass().getClassLoader().getResourceAsStream("security.json")),

@@ -13,14 +13,14 @@
  */
 package com.orientechnologies.spatial.operator;
 
-import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.core.command.OCommandContext;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.binary.ODocumentSerializer;
-import com.orientechnologies.core.sql.filter.OSQLFilterCondition;
+import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ODocumentSerializer;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterCondition;
 import com.orientechnologies.spatial.collections.OSpatialCompositeKey;
 import com.orientechnologies.spatial.strategy.SpatialQueryBuilderAbstract;
 import com.orientechnologies.spatial.strategy.SpatialQueryBuilderOverlap;
@@ -58,13 +58,13 @@ public class OLuceneOverlapOperator extends OLuceneSpatialOperator {
   @Override
   public Object evaluateRecord(
       YTIdentifiable iRecord,
-      YTEntityImpl iCurrentResult,
+      EntityImpl iCurrentResult,
       OSQLFilterCondition iCondition,
       Object iLeft,
       Object iRight,
       OCommandContext iContext,
       final ODocumentSerializer serializer) {
-    Shape shape = factory.fromDoc((YTEntityImpl) iLeft);
+    Shape shape = factory.fromDoc((EntityImpl) iLeft);
 
     // TODO { 'shape' : { 'type' : 'LineString' , 'coordinates' : [[1,2],[4,6]]} }
     // TODO is not translated in map but in array[ { 'type' : 'LineString' , 'coordinates' :

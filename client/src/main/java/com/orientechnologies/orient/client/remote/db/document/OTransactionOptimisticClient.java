@@ -1,22 +1,22 @@
 package com.orientechnologies.orient.client.remote.db.document;
 
-import com.orientechnologies.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperation38Response;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.ORecordOperation;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.exception.YTDatabaseException;
-import com.orientechnologies.core.hook.YTRecordHook;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.record.ORecordInternal;
-import com.orientechnologies.core.record.YTRecordAbstract;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
-import com.orientechnologies.core.tx.OTransactionIndexChanges.OPERATION;
-import com.orientechnologies.core.tx.OTransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
+import com.jetbrains.youtrack.db.internal.core.hook.YTRecordHook;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges.OPERATION;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionOptimistic;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,7 +45,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
         txGeneratedRealRecordIdMap.put(operation.getId().copy(), operation.getOldId());
       }
 
-      YTRecordAbstract record = null;
+      RecordAbstract record = null;
       ORecordOperation op = oldEntries.get(operation.getOldId());
       if (op != null) {
         record = op.record;
@@ -65,7 +65,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
         ORecordInternal.unsetDirty(record);
       }
       if (operation.getType() == ORecordOperation.UPDATED
-          && operation.getRecordType() == YTEntityImpl.RECORD_TYPE) {
+          && operation.getRecordType() == EntityImpl.RECORD_TYPE) {
         record.incrementLoading();
         try {
           record.setup(db);
@@ -73,7 +73,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
           record.fromStream(operation.getOriginal());
           ODocumentSerializerDelta deltaSerializer = ODocumentSerializerDelta.instance();
           deltaSerializer.deserializeDelta(db, operation.getRecord(),
-              (YTEntityImpl) record);
+              (EntityImpl) record);
         } finally {
           record.decrementLoading();
         }
@@ -113,14 +113,14 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
   }
 
   public void addRecord(
-      YTRecordAbstract iRecord, final byte iStatus, final String iClusterName, boolean callHook) {
+      RecordAbstract iRecord, final byte iStatus, final String iClusterName, boolean callHook) {
     try {
       if (callHook) {
         switch (iStatus) {
           case ORecordOperation.CREATED: {
             YTIdentifiable res = database.beforeCreateOperations(iRecord, iClusterName);
             if (res != null) {
-              iRecord = (YTRecordAbstract) res;
+              iRecord = (RecordAbstract) res;
               changed = true;
             }
           }
@@ -128,7 +128,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
           case ORecordOperation.UPDATED: {
             YTIdentifiable res = database.beforeUpdateOperations(iRecord, iClusterName);
             if (res != null) {
-              iRecord = (YTRecordAbstract) res;
+              iRecord = (RecordAbstract) res;
               changed = true;
             }
           }

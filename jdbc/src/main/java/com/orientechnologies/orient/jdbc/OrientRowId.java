@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import java.sql.RowId;
 
 public class OrientRowId implements RowId {

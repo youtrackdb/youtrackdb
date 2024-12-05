@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.server.network.http;
 
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -36,10 +36,10 @@ public class HttpFunctionTest extends BaseHttpDatabaseTest {
 
     Assert.assertNotNull(response);
 
-    var responseDoc = new YTEntityImpl();
+    var responseDoc = new EntityImpl();
     responseDoc.fromJSON(response);
-    YTEntityImpl result =
-        ((List<YTEntityImpl>) responseDoc.field("result")).get(0);
+    EntityImpl result =
+        ((List<EntityImpl>) responseDoc.field("result")).get(0);
 
     Assert.assertEquals(result.field("value"), "Hello Jay Miner");
   }

@@ -13,13 +13,13 @@
  */
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -158,7 +158,7 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
             + " 62.27814559876582,-160.77392578125 61.53316997618228,-162.53173828125"
             + " 61.4597705702975,-162.861328125 61.762728830472696,-163.14697265625"
             + " 62.12443624549497,-162.5537109375 62.11416112594049))' ";
-    List<YTEntityImpl> docs = db.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> docs = db.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(docs.size(), 1);
 
@@ -206,7 +206,7 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
             + " 19.25929414046391,-156.0113525390625 19.54943746814108,-156.192626953125"
             + " 19.766703551716972,-155.950927734375 19.921712747556207,-155.9344482421875"
             + " 20.13847031245115,-155.928955078125 20.25704380463238)))' ";
-    docs = db.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    docs = db.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(docs.size(), 1);
   }
@@ -214,9 +214,9 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
   @Test
   public void testIndexingMultiPolygon() throws IOException {
 
-    YTEntityImpl location = loadMultiPolygon();
+    EntityImpl location = loadMultiPolygon();
 
-    YTEntityImpl italy = new YTEntityImpl("Place");
+    EntityImpl italy = new EntityImpl("Place");
     italy.field("name", "Italy");
     italy.field("location", location);
 

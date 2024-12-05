@@ -1,22 +1,22 @@
 package com.orientechnologies.lucene.functions;
 
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.orientechnologies.lucene.builder.OLuceneQueryBuilder;
 import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
-import com.orientechnologies.core.command.OCommandContext;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.record.YTEntity;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.parser.OBinaryCompareOperator;
-import com.orientechnologies.core.sql.parser.OExpression;
-import com.orientechnologies.core.sql.parser.OFromClause;
-import com.orientechnologies.core.sql.parser.OFromItem;
-import com.orientechnologies.core.sql.parser.OIdentifier;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -50,8 +50,8 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
       Object iCurrentResult,
       Object[] params,
       OCommandContext ctx) {
-    YTEntity element =
-        iThis instanceof YTEntity ? (YTEntity) iThis : ((YTResult) iThis).toEntity();
+    Entity element =
+        iThis instanceof Entity ? (Entity) iThis : ((YTResult) iThis).toEntity();
 
     String indexName = (String) params[0];
 

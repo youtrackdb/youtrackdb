@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.orientechnologies.lucene.test.BaseLuceneTest;
 import org.junit.Assert;
 import org.junit.Test;

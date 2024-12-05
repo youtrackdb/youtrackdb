@@ -18,18 +18,18 @@
 
 package com.orientechnologies.lucene.tests;
 
-import static com.orientechnologies.core.metadata.schema.YTClass.INDEX_TYPE.FULLTEXT;
+import static com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.INDEX_TYPE.FULLTEXT;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.lucene.OLuceneIndexFactory;
-import com.orientechnologies.core.db.tool.ODatabaseExport;
-import com.orientechnologies.core.db.tool.ODatabaseImport;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseExport;
+import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseImport;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.zip.GZIPInputStream;
@@ -51,7 +51,7 @@ public class OLuceneExportImportTest extends OLuceneBaseTest {
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
 
-    YTEntityImpl doc = new YTEntityImpl("City");
+    EntityImpl doc = new EntityImpl("City");
     doc.field("name", "Rome");
 
     db.begin();

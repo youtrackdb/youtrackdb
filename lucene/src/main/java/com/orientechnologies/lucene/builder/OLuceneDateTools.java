@@ -1,7 +1,7 @@
 package com.orientechnologies.lucene.builder;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.util.ODateHelper;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.util.ODateHelper;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;

@@ -6,20 +6,20 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.core.db.ODatabasePool;
-import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.core.db.ODatabaseType;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.exception.YTStorageException;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabasePool;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.util.List;
@@ -46,7 +46,7 @@ public class YouTrackDBRemoteTest {
   public void before() throws Exception {
     ODatabaseRecordThreadLocal.instance().remove();
 
-    YTGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
+    GlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
     server = new OServer(false);
     server.setServerRootDirectory(SERVER_DIRECTORY);
     server.startup(
@@ -58,8 +58,8 @@ public class YouTrackDBRemoteTest {
 
     YouTrackDBConfig config =
         YouTrackDBConfig.builder()
-            .addConfig(YTGlobalConfiguration.DB_CACHED_POOL_CAPACITY, 2)
-            .addConfig(YTGlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT, 300_000)
+            .addConfig(GlobalConfiguration.DB_CACHED_POOL_CAPACITY, 2)
+            .addConfig(GlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT, 300_000)
             .build();
 
     factory = new YouTrackDB("remote:localhost", "root", "root", config);
@@ -74,7 +74,7 @@ public class YouTrackDBRemoteTest {
     YTDatabaseSessionInternal db = (YTDatabaseSessionInternal) factory.open("test", "admin",
         "admin");
     db.begin();
-    db.save(new YTEntityImpl(), db.getClusterNameById(db.getDefaultClusterId()));
+    db.save(new EntityImpl(), db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
     db.close();
   }
@@ -104,7 +104,7 @@ public class YouTrackDBRemoteTest {
     ODatabasePool pool = new ODatabasePool(factory, "test", "admin", "admin");
     YTDatabaseSessionInternal db = (YTDatabaseSessionInternal) pool.acquire();
     db.begin();
-    db.save(new YTEntityImpl(), db.getClusterNameById(db.getDefaultClusterId()));
+    db.save(new EntityImpl(), db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
     db.close();
     pool.close();
@@ -222,7 +222,7 @@ public class YouTrackDBRemoteTest {
         "noUser",
         ODatabaseType.MEMORY,
         YouTrackDBConfig.builder()
-            .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+            .addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
             .build());
     try (YTDatabaseSession session = factory.open("noUser", "root", "root")) {
       assertEquals(0, session.query("select from OUser").stream().count());
@@ -235,7 +235,7 @@ public class YouTrackDBRemoteTest {
         "noUser",
         ODatabaseType.MEMORY,
         YouTrackDBConfig.builder()
-            .addConfig(YTGlobalConfiguration.CREATE_DEFAULT_USERS, true)
+            .addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, true)
             .build());
     try (YTDatabaseSession session = factory.open("noUser", "root", "root")) {
       assertEquals(3, session.query("select from OUser").stream().count());

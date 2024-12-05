@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.plugin;
 
-import com.orientechnologies.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
 import java.util.HashMap;

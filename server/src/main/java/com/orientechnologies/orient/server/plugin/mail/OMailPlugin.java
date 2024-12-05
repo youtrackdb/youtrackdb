@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.server.plugin.mail;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.command.script.OScriptInjection;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YouTrackDBInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.command.script.OScriptInjection;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;
@@ -42,7 +42,7 @@ public class OMailPlugin extends OServerPluginAbstract
   private static final String CONFIG_PROFILE_PREFIX = "profile.";
   private static final String CONFIG_MAIL_PREFIX = "mail.";
 
-  private YTEntityImpl configuration;
+  private EntityImpl configuration;
 
   private final Map<String, OMailProfile> profiles = new HashMap<String, OMailProfile>();
 
@@ -99,11 +99,11 @@ public class OMailPlugin extends OServerPluginAbstract
   }
 
   @Override
-  public YTEntityImpl getConfig() {
+  public EntityImpl getConfig() {
     return configuration;
   }
 
   @Override
-  public void changeConfig(YTEntityImpl document) {
+  public void changeConfig(EntityImpl document) {
   }
 }

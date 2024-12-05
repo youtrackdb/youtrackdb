@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.security.ldap;
 
-import com.orientechnologies.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.PrivilegedAction;

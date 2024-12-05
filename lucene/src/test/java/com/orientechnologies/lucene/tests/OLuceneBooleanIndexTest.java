@@ -20,11 +20,11 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTVertex;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Before;
@@ -45,7 +45,7 @@ public class OLuceneBooleanIndexTest extends OLuceneBaseTest {
         .close();
 
     for (int i = 0; i < 1000; i++) {
-      YTVertex person = db.newVertex("Person");
+      Vertex person = db.newVertex("Person");
       person.setProperty("isDeleted", i % 2 == 0);
       db.begin();
       db.save(person);

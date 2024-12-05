@@ -13,12 +13,12 @@
  */
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
@@ -248,7 +248,7 @@ public class LuceneSpatialMultiLineStringTest extends BaseSpatialLuceneTest {
 
   protected void testQueryMultiLineString() {
     String query = "select * from Place where location && 'POINT(-157.9159477 21.3433168)' ";
-    List<YTEntityImpl> docs = db.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> docs = db.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(docs.size(), 1);
   }

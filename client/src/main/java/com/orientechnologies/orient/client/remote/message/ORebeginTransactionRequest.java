@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.ORecordOperation;
-import com.orientechnologies.core.tx.OTransactionIndexChanges;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
 import java.util.Map;
 
 /**

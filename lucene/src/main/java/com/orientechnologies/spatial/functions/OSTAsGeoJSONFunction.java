@@ -13,11 +13,11 @@
  */
 package com.orientechnologies.spatial.functions;
 
-import com.orientechnologies.core.command.OCommandContext;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.functions.OSQLFunctionAbstract;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionAbstract;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 
 /**
@@ -40,7 +40,7 @@ public class OSTAsGeoJSONFunction extends OSQLFunctionAbstract {
       Object iCurrentResult,
       Object[] iParams,
       OCommandContext iContext) {
-    return factory.asGeoJson((YTEntityImpl) iParams[0]);
+    return factory.asGeoJson((EntityImpl) iParams[0]);
   }
 
   @Override

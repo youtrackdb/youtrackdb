@@ -6,12 +6,12 @@ import static org.junit.Assert.assertFalse;
 import com.orientechnologies.orient.client.remote.ORemoteConnectionManager;
 import com.orientechnologies.orient.client.remote.ORemoteConnectionPool;
 import com.orientechnologies.orient.client.remote.YouTrackDBRemote;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.db.YouTrackDBInternal;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import javax.management.InstanceAlreadyExistsException;
@@ -49,8 +49,8 @@ public class SocketIdleCleanupIT {
   public void test() throws InterruptedException {
     YouTrackDBConfig config =
         YouTrackDBConfig.builder()
-            .addConfig(YTGlobalConfiguration.CLIENT_CHANNEL_IDLE_CLOSE, true)
-            .addConfig(YTGlobalConfiguration.CLIENT_CHANNEL_IDLE_TIMEOUT, 1)
+            .addConfig(GlobalConfiguration.CLIENT_CHANNEL_IDLE_CLOSE, true)
+            .addConfig(GlobalConfiguration.CLIENT_CHANNEL_IDLE_TIMEOUT, 1)
             .build();
     YouTrackDB orientdb = new YouTrackDB("remote:localhost", "root", "root", config);
     orientdb.execute("create database test memory users (admin identified by 'admin' role admin)");

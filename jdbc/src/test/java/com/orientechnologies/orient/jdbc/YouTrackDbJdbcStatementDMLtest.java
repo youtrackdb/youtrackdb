@@ -15,9 +15,9 @@ package com.orientechnologies.orient.jdbc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.ResultSet;

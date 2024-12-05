@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.put;
 
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.exception.YTRecordNotFoundException;
-import com.orientechnologies.core.id.ChangeableRecordId;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.record.ORecordInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -60,13 +60,13 @@ public class OServerCommandPutDocument extends OServerCommandDocumentAbstract {
         recordId = new ChangeableRecordId();
       }
 
-      YTEntityImpl d =
+      EntityImpl d =
           db.computeInTx(
               () -> {
                 var txRecordId = recordId;
-                final YTEntityImpl doc;
+                final EntityImpl doc;
                 // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
-                doc = new YTEntityImpl();
+                doc = new EntityImpl();
                 doc.fromJSON(iRequest.getContent());
                 doc.setTrackingChanges(false);
 
@@ -84,7 +84,7 @@ public class OServerCommandPutDocument extends OServerCommandDocumentAbstract {
                   throw new IllegalArgumentException("Invalid Record ID in request: " + txRecordId);
                 }
 
-                final YTEntityImpl currentDocument;
+                final EntityImpl currentDocument;
                 try {
                   currentDocument = db.load(txRecordId);
                 } catch (YTRecordNotFoundException rnf) {

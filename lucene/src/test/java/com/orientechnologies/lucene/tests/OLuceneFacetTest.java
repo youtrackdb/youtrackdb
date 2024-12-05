@@ -18,11 +18,11 @@
 
 package com.orientechnologies.lucene.tests;
 
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTEntity;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Assert;
@@ -48,25 +48,25 @@ public class OLuceneFacetTest extends OLuceneBaseTest {
                 + " METADATA { 'facetFields' : ['category']}")
         .close();
 
-    YTEntityImpl doc = new YTEntityImpl("Item");
+    EntityImpl doc = new EntityImpl("Item");
     doc.field("name", "Pioneer");
     doc.field("category", "Electronic/HiFi");
 
     db.save(doc);
 
-    doc = new YTEntityImpl("Item");
+    doc = new EntityImpl("Item");
     doc.field("name", "Hitachi");
     doc.field("category", "Electronic/HiFi");
 
     db.save(doc);
 
-    doc = new YTEntityImpl("Item");
+    doc = new EntityImpl("Item");
     doc.field("name", "Philips");
     doc.field("category", "Electronic/HiFi");
 
     db.save(doc);
 
-    doc = new YTEntityImpl("Item");
+    doc = new EntityImpl("Item");
     doc.field("name", "HP");
     doc.field("category", "Electronic/Computer");
 
@@ -79,27 +79,27 @@ public class OLuceneFacetTest extends OLuceneBaseTest {
   @Ignore
   public void baseFacetTest() {
 
-    List<YTEntity> result =
+    List<Entity> result =
         db.command("select *,$facet from Item where name lucene '(name:P*)' limit 1 ").stream()
             .map((o) -> o.toEntity())
             .collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 1);
 
-    List<YTEntityImpl> facets = result.get(0).getProperty("$facet");
+    List<EntityImpl> facets = result.get(0).getProperty("$facet");
 
     Assert.assertEquals(facets.size(), 1);
 
-    YTEntityImpl facet = facets.get(0);
+    EntityImpl facet = facets.get(0);
     Assert.assertEquals(facet.<Object>field("childCount"), 1);
     Assert.assertEquals(facet.<Object>field("value"), 2);
     Assert.assertEquals(facet.field("dim"), "category");
 
-    List<YTEntityImpl> labelsValues = facet.field("labelsValue");
+    List<EntityImpl> labelsValues = facet.field("labelsValue");
 
     Assert.assertEquals(labelsValues.size(), 1);
 
-    YTEntityImpl labelValues = labelsValues.get(0);
+    EntityImpl labelValues = labelsValues.get(0);
 
     Assert.assertEquals(labelValues.<Object>field("value"), 2);
     Assert.assertEquals(labelValues.field("label"), "Electronic");

@@ -3,18 +3,18 @@ package com.orientechnologies.orient.test.database.auto;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.db.record.ridbag.RidBag;
-import com.orientechnologies.core.exception.YTConcurrentModificationException;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.record.ORecordInternal;
-import com.orientechnologies.core.record.YTRecordAbstract;
-import com.orientechnologies.core.record.impl.ODocumentHelper;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.storage.OStorageProxy;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConcurrentModificationException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.storage.OStorageProxy;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -128,7 +128,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
       rids.add(identifiable);
     }
 
-    YTEntityImpl doc = new YTEntityImpl();
+    EntityImpl doc = new EntityImpl();
     doc.field("ridbag", bag);
     database.begin();
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
@@ -203,7 +203,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
       rids.add(identifiable);
     }
 
-    YTEntityImpl doc = new YTEntityImpl();
+    EntityImpl doc = new EntityImpl();
     doc.field("ridbag", bag);
     database.begin();
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
@@ -247,7 +247,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     assertEmbedded(bag.isEmbedded());
 
-    YTEntityImpl doc = new YTEntityImpl();
+    EntityImpl doc = new EntityImpl();
     doc.field("ridbag", bag);
     database.begin();
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
@@ -287,7 +287,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
       rids.add(identifiable);
     }
 
-    doc = new YTEntityImpl();
+    doc = new EntityImpl();
     RidBag otherBag = new RidBag(database);
     for (YTIdentifiable id : bag) {
       otherBag.add(id);
@@ -329,7 +329,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     bag.add(new YTRecordId("#77:6"));
     assertEmbedded(bag.isEmbedded());
 
-    YTEntityImpl doc = new YTEntityImpl();
+    EntityImpl doc = new EntityImpl();
     doc.field("ridbag", bag);
 
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
@@ -387,7 +387,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     }
 
     assertEmbedded(bag.isEmbedded());
-    doc = new YTEntityImpl();
+    doc = new EntityImpl();
 
     final RidBag otherBag = new RidBag(database);
     for (YTIdentifiable id : bag) {
@@ -457,7 +457,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     rids.add(new YTRecordId("#77:6"));
     assertEmbedded(bag.isEmbedded());
 
-    YTEntityImpl doc = new YTEntityImpl();
+    EntityImpl doc = new EntityImpl();
     doc.field("ridbag", bag);
 
     database.begin();
@@ -534,7 +534,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
   }
 
   public void testContentChange() {
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
     RidBag ridBag = new RidBag(database);
     document.field("ridBag", ridBag);
 
@@ -561,7 +561,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    YTEntityImpl copy = new YTEntityImpl();
+    EntityImpl copy = new EntityImpl();
     ORecordInternal.unsetDirty(copy);
     document = database.bindToSession(document);
     ridBag = document.field("ridBag");
@@ -637,7 +637,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     rids.add(new YTRecordId("#77:4"));
     assertEmbedded(bag.isEmbedded());
 
-    YTEntityImpl doc = new YTEntityImpl();
+    EntityImpl doc = new EntityImpl();
     doc.field("ridbag", bag);
 
     database.begin();
@@ -687,7 +687,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
       rids.add(identifiable);
     }
 
-    doc = new YTEntityImpl();
+    doc = new EntityImpl();
     final RidBag otherBag = new RidBag(database);
     for (YTIdentifiable id : bag) {
       otherBag.add(id);
@@ -714,10 +714,10 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
   }
 
   public void testCycle() {
-    YTEntityImpl docOne = new YTEntityImpl();
+    EntityImpl docOne = new EntityImpl();
     RidBag ridBagOne = new RidBag(database);
 
-    YTEntityImpl docTwo = new YTEntityImpl();
+    EntityImpl docTwo = new EntityImpl();
     RidBag ridBagTwo = new RidBag(database);
 
     docOne.field("ridBag", ridBagOne);
@@ -780,7 +780,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     assertEmbedded(bag.isEmbedded());
 
-    YTEntityImpl doc = new YTEntityImpl();
+    EntityImpl doc = new EntityImpl();
     doc.field("ridbag", bag);
 
     database.begin();
@@ -888,7 +888,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
       rids.add(identifiable);
     }
 
-    doc = new YTEntityImpl();
+    doc = new EntityImpl();
 
     final RidBag otherBag = new RidBag(database);
     for (YTIdentifiable id : bag) {
@@ -969,7 +969,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     expected.add(new YTRecordId("#77:21"));
     expected.add(new YTRecordId("#77:22"));
 
-    YTEntityImpl doc = new YTEntityImpl();
+    EntityImpl doc = new EntityImpl();
 
     final RidBag bag = new RidBag(database);
     bag.addAll(expected);
@@ -1001,11 +1001,11 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
   }
 
   public void testSaveInBackOrder() throws Exception {
-    YTEntityImpl docA = new YTEntityImpl().field("name", "A");
+    EntityImpl docA = new EntityImpl().field("name", "A");
 
     database.begin();
-    YTEntityImpl docB =
-        new YTEntityImpl()
+    EntityImpl docB =
+        new EntityImpl()
             .field("name", "B");
     docB.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
@@ -1036,7 +1036,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
   }
 
   public void testMassiveChanges() {
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
     RidBag bag = new RidBag(database);
     assertEmbedded(bag.isEmbedded());
 
@@ -1076,12 +1076,12 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
   public void testSimultaneousIterationAndRemove() {
     database.begin();
     RidBag ridBag = new RidBag(database);
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
     document.field("ridBag", ridBag);
     assertEmbedded(ridBag.isEmbedded());
 
     for (int i = 0; i < 10; i++) {
-      YTEntityImpl docToAdd = new YTEntityImpl();
+      EntityImpl docToAdd = new EntityImpl();
       docToAdd.save();
       ridBag.add(docToAdd);
     }
@@ -1106,7 +1106,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     assertEmbedded(ridBag.isEmbedded());
 
     for (int i = 0; i < 10; i++) {
-      YTEntityImpl docToAdd = new YTEntityImpl();
+      EntityImpl docToAdd = new EntityImpl();
 
       database.begin();
       docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
@@ -1119,7 +1119,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     assertEmbedded(ridBag.isEmbedded());
 
     for (int i = 0; i < 10; i++) {
-      YTEntityImpl docToAdd = new YTEntityImpl();
+      EntityImpl docToAdd = new EntityImpl();
 
       database.begin();
       docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
@@ -1159,14 +1159,14 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
   public void testAddMixedValues() {
     database.begin();
     RidBag ridBag = new RidBag(database);
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
     document.field("ridBag", ridBag);
     assertEmbedded(ridBag.isEmbedded());
 
     List<YTIdentifiable> itemsToAdd = new ArrayList<>();
 
     for (int i = 0; i < 10; i++) {
-      YTEntityImpl docToAdd = new YTEntityImpl();
+      EntityImpl docToAdd = new EntityImpl();
       ridBag = document.field("ridBag");
       docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
 
@@ -1182,7 +1182,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     for (int i = 0; i < 10; i++) {
       database.begin();
-      YTEntityImpl docToAdd = new YTEntityImpl();
+      EntityImpl docToAdd = new EntityImpl();
 
       docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
 
@@ -1199,7 +1199,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     for (int i = 0; i < 10; i++) {
       database.begin();
-      YTEntityImpl docToAdd = new YTEntityImpl();
+      EntityImpl docToAdd = new EntityImpl();
       docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
 
       document = database.bindToSession(document);
@@ -1217,7 +1217,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     document = database.bindToSession(document);
     ridBag = document.field("ridBag");
     for (int i = 0; i < 10; i++) {
-      YTEntityImpl docToAdd = new YTEntityImpl();
+      EntityImpl docToAdd = new EntityImpl();
       docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
 
       for (int k = 0; k < 2; k++) {
@@ -1226,7 +1226,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
       }
     }
     for (int i = 0; i < 10; i++) {
-      YTEntityImpl docToAdd = new YTEntityImpl();
+      EntityImpl docToAdd = new EntityImpl();
       docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
       ridBag.add(docToAdd);
       itemsToAdd.add(docToAdd);
@@ -1255,21 +1255,21 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
   }
 
   public void testFromEmbeddedToSBTreeAndBack() throws IOException {
-    YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(7);
-    YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(-1);
+    GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(7);
+    GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(-1);
 
     if (database.getStorage() instanceof OStorageProxy) {
       OServerAdmin server = new OServerAdmin(database.getURL()).connect("root", SERVER_PASSWORD);
       server.setGlobalConfiguration(
-          YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, 7);
+          GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, 7);
       server.setGlobalConfiguration(
-          YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD, -1);
+          GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD, -1);
       server.close();
     }
 
     database.begin();
     RidBag ridBag = new RidBag(database);
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
     document.field("ridBag", ridBag);
 
     Assert.assertTrue(ridBag.isEmbedded());
@@ -1284,7 +1284,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     List<YTIdentifiable> addedItems = new ArrayList<>();
     for (int i = 0; i < 6; i++) {
-      YTEntityImpl docToAdd = new YTEntityImpl();
+      EntityImpl docToAdd = new EntityImpl();
 
       database.begin();
       docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
@@ -1305,7 +1305,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     database.rollback();
 
     database.begin();
-    YTEntityImpl docToAdd = new YTEntityImpl();
+    EntityImpl docToAdd = new EntityImpl();
     docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
     database.begin();
@@ -1378,20 +1378,20 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
   }
 
   public void testFromEmbeddedToSBTreeAndBackTx() throws IOException {
-    YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(7);
-    YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(-1);
+    GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(7);
+    GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(-1);
 
     if (database.isRemote()) {
       OServerAdmin server = new OServerAdmin(database.getURL()).connect("root", SERVER_PASSWORD);
       server.setGlobalConfiguration(
-          YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, 7);
+          GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, 7);
       server.setGlobalConfiguration(
-          YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD, -1);
+          GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD, -1);
       server.close();
     }
 
     RidBag ridBag = new RidBag(database);
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
     document.field("ridBag", ridBag);
 
     Assert.assertTrue(ridBag.isEmbedded());
@@ -1409,7 +1409,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     ridBag = document.field("ridBag");
     for (int i = 0; i < 6; i++) {
 
-      YTEntityImpl docToAdd = new YTEntityImpl();
+      EntityImpl docToAdd = new EntityImpl();
 
       docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
       ridBag.add(docToAdd);
@@ -1423,7 +1423,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     ridBag = document.field("ridBag");
     Assert.assertTrue(ridBag.isEmbedded());
 
-    YTEntityImpl docToAdd = new YTEntityImpl();
+    EntityImpl docToAdd = new EntityImpl();
 
     docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
@@ -1501,11 +1501,11 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     List<YTIdentifiable> docsToAdd = new ArrayList<YTIdentifiable>();
 
     RidBag ridBag = new RidBag(database);
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
     document.field("ridBag", ridBag);
 
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl docToAdd = new YTEntityImpl();
+      EntityImpl docToAdd = new EntityImpl();
       docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
       ridBag = document.field("ridBag");
       ridBag.add(docToAdd);
@@ -1526,7 +1526,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     ridBag = document.field("ridBag");
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl docToAdd = new YTEntityImpl();
+      EntityImpl docToAdd = new EntityImpl();
       docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
       ridBag.add(docToAdd);
 
@@ -1534,7 +1534,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     }
 
     for (int i = 5; i < 10; i++) {
-      YTEntityImpl docToAdd = docsToAdd.get(i).getRecord();
+      EntityImpl docToAdd = docsToAdd.get(i).getRecord();
       docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
     }
 
@@ -1574,13 +1574,13 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
   @Test
   public void testSizeNotChangeAfterRemoveNotExistentElement() {
-    final YTEntityImpl bob = new YTEntityImpl();
+    final EntityImpl bob = new EntityImpl();
 
     database.begin();
-    final YTEntityImpl fred = new YTEntityImpl();
+    final EntityImpl fred = new EntityImpl();
     fred.save(database.getClusterNameById(database.getDefaultClusterId()));
-    final YTEntityImpl jim =
-        new YTEntityImpl();
+    final EntityImpl jim =
+        new EntityImpl();
     jim.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
@@ -1601,7 +1601,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     RidBag teamMates = new RidBag(database);
 
     database.begin();
-    final YTEntityImpl bob = new YTEntityImpl();
+    final EntityImpl bob = new EntityImpl();
     bob.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
@@ -1621,7 +1621,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     RidBag ridBag = new RidBag(database);
     int size = 0;
     for (int i = 0; i < 10; i++) {
-      YTEntityImpl docToAdd = new YTEntityImpl();
+      EntityImpl docToAdd = new EntityImpl();
       docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
 
       for (int k = 0; k < 2; k++) {
@@ -1632,7 +1632,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     }
 
     Assert.assertEquals(ridBag.size(), size);
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
     document.field("ridBag", ridBag);
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
@@ -1644,7 +1644,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     final List<YTIdentifiable> newDocs = new ArrayList<YTIdentifiable>();
     for (int i = 0; i < 10; i++) {
-      YTEntityImpl docToAdd = new YTEntityImpl();
+      EntityImpl docToAdd = new EntityImpl();
 
       docToAdd.save(database.getClusterNameById(database.getDefaultClusterId()));
       for (int k = 0; k < 2; k++) {
@@ -1711,12 +1711,12 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
   @Test
   public void testJsonSerialization() {
     database.begin();
-    final YTEntityImpl externalDoc = new YTEntityImpl();
+    final EntityImpl externalDoc = new EntityImpl();
 
     final RidBag highLevelRidBag = new RidBag(database);
 
     for (int i = 0; i < 10; i++) {
-      var doc = new YTEntityImpl();
+      var doc = new EntityImpl();
       doc.save(database.getClusterNameById(database.getDefaultClusterId()));
 
       highLevelRidBag.add(doc);
@@ -1724,7 +1724,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     externalDoc.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl testDocument = new YTEntityImpl();
+    EntityImpl testDocument = new EntityImpl();
     testDocument.field("type", "testDocument");
     testDocument.field("ridBag", highLevelRidBag);
     testDocument.field("externalDoc", externalDoc);
@@ -1736,9 +1736,9 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     database.begin();
 
     testDocument = database.bindToSession(testDocument);
-    final String json = testDocument.toJSON(YTRecordAbstract.OLD_FORMAT_WITH_LATE_TYPES);
+    final String json = testDocument.toJSON(RecordAbstract.OLD_FORMAT_WITH_LATE_TYPES);
 
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     doc.fromJSON(json);
 
     Assert.assertTrue(

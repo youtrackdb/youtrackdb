@@ -18,13 +18,13 @@
 
 package com.orientechnologies.lucene.tests;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTVertex;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,7 +49,7 @@ public class OLuceneMassiveInsertDeleteTest extends OLuceneBaseTest {
 
     int size = 1000;
     for (int i = 0; i < size; i++) {
-      YTVertex city = db.newVertex("City");
+      Vertex city = db.newVertex("City");
       city.setProperty("name", "Rome " + i);
 
       db.begin();

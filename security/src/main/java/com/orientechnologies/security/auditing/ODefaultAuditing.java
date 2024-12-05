@@ -13,21 +13,21 @@
  */
 package com.orientechnologies.security.auditing;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.db.ODatabaseLifecycleListener;
-import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.core.db.OSystemDatabase;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YouTrackDBInternal;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.metadata.security.YTSecurityUser;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.security.OAuditingOperation;
-import com.orientechnologies.core.security.OAuditingService;
-import com.orientechnologies.core.security.OSecuritySystem;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseLifecycleListener;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.OSystemDatabase;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.security.OAuditingOperation;
+import com.jetbrains.youtrack.db.internal.core.security.OAuditingService;
+import com.jetbrains.youtrack.db.internal.core.security.OSecuritySystem;
 import com.orientechnologies.orient.server.OServerAware;
 import com.orientechnologies.orient.server.distributed.ODistributedLifecycleListener;
 import com.orientechnologies.orient.server.distributed.ODistributedServerManager;
@@ -81,7 +81,7 @@ public class ODefaultAuditing
     private boolean onNodeLeftEnabled = false;
     private String onNodeLeftMessage = "The node ${node} has left";
 
-    public OAuditingDistribConfig(final YTEntityImpl cfg) {
+    public OAuditingDistribConfig(final EntityImpl cfg) {
       if (cfg.containsField("onNodeJoinedEnabled")) {
         onNodeJoinedEnabled = cfg.field("onNodeJoinedEnabled");
       }
@@ -182,7 +182,7 @@ public class ODefaultAuditing
         }
       }
     }
-    final YTEntityImpl cfg = new YTEntityImpl().fromJSON(content, "noMap");
+    final EntityImpl cfg = new EntityImpl().fromJSON(content, "noMap");
     return new YTAuditingHook(cfg, security);
   }
 
@@ -301,10 +301,10 @@ public class ODefaultAuditing
   }
 
   @Override
-  public void onLocalNodeConfigurationRequest(YTEntityImpl iConfiguration) {
+  public void onLocalNodeConfigurationRequest(EntityImpl iConfiguration) {
   }
 
-  protected void updateConfigOnDisk(final String iDatabaseName, final YTEntityImpl cfg)
+  protected void updateConfigOnDisk(final String iDatabaseName, final EntityImpl cfg)
       throws IOException {
     final File auditingFileConfig = getConfigFile(iDatabaseName);
     if (auditingFileConfig != null) {
@@ -357,7 +357,7 @@ public class ODefaultAuditing
   // OAuditingService
   public void changeConfig(
       YTDatabaseSessionInternal session, final YTSecurityUser user, final String iDatabaseName,
-      final YTEntityImpl cfg)
+      final EntityImpl cfg)
       throws IOException {
 
     // This should never happen, but just in case...
@@ -376,7 +376,7 @@ public class ODefaultAuditing
             "The auditing configuration for the database '%s' has been changed", iDatabaseName));
   }
 
-  public YTEntityImpl getConfig(final String iDatabaseName) {
+  public EntityImpl getConfig(final String iDatabaseName) {
     return hooks.get(iDatabaseName).getConfiguration();
   }
 
@@ -526,7 +526,7 @@ public class ODefaultAuditing
             }));
   }
 
-  public void config(YTDatabaseSessionInternal session, final YTEntityImpl jsonConfig,
+  public void config(YTDatabaseSessionInternal session, final EntityImpl jsonConfig,
       OSecuritySystem security) {
     context = security.getContext();
     this.security = security;
@@ -540,12 +540,12 @@ public class ODefaultAuditing
       }
 
       if (jsonConfig.containsField("distributed")) {
-        YTEntityImpl distribDoc = jsonConfig.field("distributed");
+        EntityImpl distribDoc = jsonConfig.field("distributed");
         distribConfig = new OAuditingDistribConfig(distribDoc);
       }
 
       if (jsonConfig.containsField("systemImport")) {
-        YTEntityImpl sysImport = jsonConfig.field("systemImport");
+        EntityImpl sysImport = jsonConfig.field("systemImport");
 
         systemDbImporter = new OSystemDBImporter(context, sysImport);
       }

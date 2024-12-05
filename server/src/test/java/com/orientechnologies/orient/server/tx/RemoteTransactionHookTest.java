@@ -2,16 +2,16 @@ package com.orientechnologies.orient.server.tx;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.DBTestBase;
-import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.db.ODatabaseType;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.hook.YTDocumentHookAbstract;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.hook.YTDocumentHookAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerHookConfiguration;
 import java.io.File;
@@ -78,7 +78,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
     db.registerHook(calls);
 
     db.begin();
-    YTEntityImpl doc = new YTEntityImpl("SomeTx");
+    EntityImpl doc = new EntityImpl("SomeTx");
     doc.setProperty("name", "some");
     db.save(doc);
     db.command("insert into SomeTx set name='aa' ").close();
@@ -106,7 +106,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
     database.registerHook(calls);
     database.createClassIfNotExist("SomeTx");
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("SomeTx");
+    EntityImpl doc = new EntityImpl("SomeTx");
     doc.setProperty("name", "some");
     database.save(doc);
     database.command("insert into SomeTx set name='aa' ").close();
@@ -132,7 +132,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
   public void testCalledInTxServer() {
     db.begin();
     CountCallHookServer calls = CountCallHookServer.instance;
-    YTEntityImpl doc = new YTEntityImpl("SomeTx");
+    EntityImpl doc = new EntityImpl("SomeTx");
     doc.setProperty("name", "some");
     db.save(doc);
     db.command("insert into SomeTx set name='aa' ").close();
@@ -178,35 +178,35 @@ public class RemoteTransactionHookTest extends DBTestBase {
     }
 
     @Override
-    public RESULT onRecordBeforeCreate(YTEntityImpl iDocument) {
+    public RESULT onRecordBeforeCreate(EntityImpl iDocument) {
       beforeCreate++;
       return RESULT.RECORD_NOT_CHANGED;
     }
 
     @Override
-    public void onRecordAfterCreate(YTEntityImpl iDocument) {
+    public void onRecordAfterCreate(EntityImpl iDocument) {
       afterCreate++;
     }
 
     @Override
-    public RESULT onRecordBeforeUpdate(YTEntityImpl iDocument) {
+    public RESULT onRecordBeforeUpdate(EntityImpl iDocument) {
       beforeUpdate++;
       return RESULT.RECORD_NOT_CHANGED;
     }
 
     @Override
-    public void onRecordAfterUpdate(YTEntityImpl iDocument) {
+    public void onRecordAfterUpdate(EntityImpl iDocument) {
       afterUpdate++;
     }
 
     @Override
-    public RESULT onRecordBeforeDelete(YTEntityImpl iDocument) {
+    public RESULT onRecordBeforeDelete(EntityImpl iDocument) {
       beforeDelete++;
       return RESULT.RECORD_NOT_CHANGED;
     }
 
     @Override
-    public void onRecordAfterDelete(YTEntityImpl iDocument) {
+    public void onRecordAfterDelete(EntityImpl iDocument) {
       afterDelete++;
     }
 

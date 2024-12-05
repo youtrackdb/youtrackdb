@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import java.util.Map;
 
 public class OSendTransactionStateResponse extends OBeginTransactionResponse {

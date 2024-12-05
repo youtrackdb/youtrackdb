@@ -19,74 +19,74 @@
  */
 package com.orientechnologies.orient.console;
 
-import static com.orientechnologies.core.config.YTGlobalConfiguration.WARNING_DEFAULT_USERS;
+import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.WARNING_DEFAULT_USERS;
 
-import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.common.console.OConsoleApplication;
-import com.orientechnologies.common.console.OConsoleProperties;
-import com.orientechnologies.common.console.TTYConsoleReader;
-import com.orientechnologies.common.console.annotation.ConsoleCommand;
-import com.orientechnologies.common.console.annotation.ConsoleParameter;
-import com.orientechnologies.common.exception.YTSystemException;
-import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.common.io.OIOException;
-import com.orientechnologies.common.listener.OProgressListener;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.OConstants;
-import com.orientechnologies.core.OSignalHandler;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.command.OBasicCommandContext;
-import com.orientechnologies.core.command.OCommandOutputListener;
-import com.orientechnologies.core.command.script.OCommandExecutorScript;
-import com.orientechnologies.core.command.script.OCommandScript;
-import com.orientechnologies.core.config.OStorageConfiguration;
-import com.orientechnologies.core.config.OStorageEntryConfiguration;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.ODatabaseType;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.core.db.YouTrackDBInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.db.tool.OBonsaiTreeRepair;
-import com.orientechnologies.core.db.tool.ODatabaseCompare;
-import com.orientechnologies.core.db.tool.ODatabaseExport;
-import com.orientechnologies.core.db.tool.ODatabaseExportException;
-import com.orientechnologies.core.db.tool.ODatabaseImport;
-import com.orientechnologies.core.db.tool.ODatabaseRepair;
-import com.orientechnologies.core.db.tool.OGraphRepair;
-import com.orientechnologies.core.db.tool.YTDatabaseImportException;
-import com.orientechnologies.core.exception.YTCommandExecutionException;
-import com.orientechnologies.core.exception.YTConfigurationException;
-import com.orientechnologies.core.exception.YTDatabaseException;
-import com.orientechnologies.core.exception.YTRetryQueryException;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.index.OIndexDefinition;
-import com.orientechnologies.core.iterator.OIdentifiableIterator;
-import com.orientechnologies.core.iterator.ORecordIteratorCluster;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTProperty;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.metadata.security.YTUser;
-import com.orientechnologies.core.record.YTRecord;
-import com.orientechnologies.core.record.YTRecordAbstract;
-import com.orientechnologies.core.record.impl.YTBlob;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.security.OSecurityManager;
-import com.orientechnologies.core.serialization.serializer.OStringSerializerHelper;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializer;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializerFactory;
-import com.orientechnologies.core.serialization.serializer.record.string.ORecordSerializerStringAbstract;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
-import com.orientechnologies.core.sql.filter.OSQLPredicate;
-import com.orientechnologies.core.storage.OStorage;
-import com.orientechnologies.core.storage.impl.local.OAbstractPaginatedStorage;
-import com.orientechnologies.core.util.OURLConnection;
-import com.orientechnologies.core.util.OURLHelper;
+import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
+import com.jetbrains.youtrack.db.internal.common.console.OConsoleApplication;
+import com.jetbrains.youtrack.db.internal.common.console.OConsoleProperties;
+import com.jetbrains.youtrack.db.internal.common.console.TTYConsoleReader;
+import com.jetbrains.youtrack.db.internal.common.console.annotation.ConsoleCommand;
+import com.jetbrains.youtrack.db.internal.common.console.annotation.ConsoleParameter;
+import com.jetbrains.youtrack.db.internal.common.exception.YTSystemException;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.OIOException;
+import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.OConstants;
+import com.jetbrains.youtrack.db.internal.core.OSignalHandler;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.command.script.OCommandExecutorScript;
+import com.jetbrains.youtrack.db.internal.core.command.script.OCommandScript;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageEntryConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.tool.OBonsaiTreeRepair;
+import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseCompare;
+import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseExport;
+import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseExportException;
+import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseImport;
+import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseRepair;
+import com.jetbrains.youtrack.db.internal.core.db.tool.OGraphRepair;
+import com.jetbrains.youtrack.db.internal.core.db.tool.YTDatabaseImportException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTRetryQueryException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.iterator.OIdentifiableIterator;
+import com.jetbrains.youtrack.db.internal.core.iterator.ORecordIteratorCluster;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTUser;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.security.OSecurityManager;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializerFactory;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.ORecordSerializerStringAbstract;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLPredicate;
+import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.util.OURLConnection;
+import com.jetbrains.youtrack.db.internal.core.util.OURLHelper;
 import com.orientechnologies.orient.client.remote.ODatabaseImportRemote;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
@@ -124,7 +124,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
   protected YTDatabaseSessionInternal currentDatabase;
   protected String currentDatabaseName;
-  protected YTRecordAbstract currentRecord;
+  protected RecordAbstract currentRecord;
   protected int currentRecordIdx;
   protected List<YTIdentifiable> currentResultSet;
   protected Object currentResult;
@@ -271,7 +271,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     message("OK");
 
-    final YTEntityImpl distribCfg = getDistributedConfiguration();
+    final EntityImpl distribCfg = getDistributedConfiguration();
     if (distribCfg != null) {
       listServers();
     }
@@ -460,14 +460,14 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   public void listConnections() throws IOException {
     checkForRemoteServer();
     YouTrackDBRemote remote = (YouTrackDBRemote) YouTrackDBInternal.extract(youTrackDB);
-    final YTEntityImpl serverInfo =
+    final EntityImpl serverInfo =
         remote.getServerInfo(currentDatabaseUserName, currentDatabaseUserPassword);
 
     final List<YTIdentifiable> resultSet = new ArrayList<YTIdentifiable>();
 
     final List<Map<String, Object>> connections = serverInfo.field("connections");
     for (Map<String, Object> conn : connections) {
-      final YTEntityImpl row = new YTEntityImpl();
+      final EntityImpl row = new EntityImpl();
 
       String commandDetail = (String) conn.get("commandInfo");
 
@@ -500,8 +500,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
         new Comparator<YTIdentifiable>() {
           @Override
           public int compare(final YTIdentifiable o1, final YTIdentifiable o2) {
-            final String o1s = ((YTEntityImpl) o1).field("LAST_OPERATION_ON");
-            final String o2s = ((YTEntityImpl) o2).field("LAST_OPERATION_ON");
+            final String o1s = ((EntityImpl) o1).field("LAST_OPERATION_ON");
+            final String o2s = ((EntityImpl) o2).field("LAST_OPERATION_ON");
             return o2s.compareTo(o1s);
           }
         });
@@ -707,8 +707,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
       String iCommandText) {
     Object result = sqlCommand("explain", iCommandText, "\n", false);
-    if (result != null && result instanceof YTEntityImpl) {
-      message(((YTEntityImpl) result).getProperty("executionPlanAsString"));
+    if (result != null && result instanceof EntityImpl) {
+      message(((EntityImpl) result).getProperty("executionPlanAsString"));
     } else if (result != null
         && result instanceof List
         && ((List) result).size() == 1
@@ -717,8 +717,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     } else if (result != null
         && result instanceof List
         && ((List) result).size() == 1
-        && ((List) result).get(0) instanceof YTEntityImpl) {
-      message(((YTEntityImpl) (((List) result).get(0))).getProperty("executionPlanAsString"));
+        && ((List) result).get(0) instanceof EntityImpl) {
+      message(((EntityImpl) (((List) result).get(0))).getProperty("executionPlanAsString"));
     }
   }
 
@@ -786,8 +786,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
           "Switches off storage profiling for issued set of commands and "
               + "returns reslut of profiling.")
   public void profileStorageOff() {
-    final Collection<YTEntityImpl> result =
-        (Collection<YTEntityImpl>)
+    final Collection<EntityImpl> result =
+        (Collection<EntityImpl>)
             sqlCommand(
                 "profile", " storage off", "\nProfiling of storage is switched off\n", false);
 
@@ -799,10 +799,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       return;
     }
 
-    final Iterator<YTEntityImpl> profilerIterator = result.iterator();
+    final Iterator<EntityImpl> profilerIterator = result.iterator();
 
     if (profilerIterator.hasNext()) {
-      final YTEntityImpl profilerDocument = profilerIterator.next();
+      final EntityImpl profilerDocument = profilerIterator.next();
       if (profilerDocument == null) {
         message(profilingWasNotSwitchedOn);
       } else {
@@ -1438,7 +1438,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       final OServerConfigurationManager serverCfg = new OServerConfigurationManager(serverCfgFile);
 
       final String defAlgo =
-          YTGlobalConfiguration.SECURITY_USER_PASSWORD_DEFAULT_ALGORITHM.getValueAsString();
+          GlobalConfiguration.SECURITY_USER_PASSWORD_DEFAULT_ALGORITHM.getValueAsString();
 
       final String hashedPassword = OSecurityManager.createHash(iServerUserPasswd, defAlgo, true);
 
@@ -1730,39 +1730,39 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     message("\n\nDATABASE PROPERTIES");
 
     if (dbCfg.getProperties() != null) {
-      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
+      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
       if (dbCfg.getName() != null) {
-        resultSet.add(new YTEntityImpl().field("NAME", "Name").field("VALUE", dbCfg.getName()));
+        resultSet.add(new EntityImpl().field("NAME", "Name").field("VALUE", dbCfg.getName()));
       }
 
-      resultSet.add(new YTEntityImpl().field("NAME", "Version").field("VALUE", dbCfg.getVersion()));
+      resultSet.add(new EntityImpl().field("NAME", "Version").field("VALUE", dbCfg.getVersion()));
       resultSet.add(
-          new YTEntityImpl()
+          new EntityImpl()
               .field("NAME", "Conflict-Strategy")
               .field("VALUE", dbCfg.getConflictStrategy()));
       resultSet.add(
-          new YTEntityImpl().field("NAME", "Date-Format").field("VALUE", dbCfg.getDateFormat()));
+          new EntityImpl().field("NAME", "Date-Format").field("VALUE", dbCfg.getDateFormat()));
       resultSet.add(
-          new YTEntityImpl()
+          new EntityImpl()
               .field("NAME", "Datetime-Format")
               .field("VALUE", dbCfg.getDateTimeFormat()));
       resultSet.add(
-          new YTEntityImpl().field("NAME", "Timezone").field("VALUE", dbCfg.getTimeZone().getID()));
+          new EntityImpl().field("NAME", "Timezone").field("VALUE", dbCfg.getTimeZone().getID()));
       resultSet.add(
-          new YTEntityImpl().field("NAME", "Locale-Country")
+          new EntityImpl().field("NAME", "Locale-Country")
               .field("VALUE", dbCfg.getLocaleCountry()));
       resultSet.add(
-          new YTEntityImpl()
+          new EntityImpl()
               .field("NAME", "Locale-Language")
               .field("VALUE", dbCfg.getLocaleLanguage()));
-      resultSet.add(new YTEntityImpl().field("NAME", "Charset").field("VALUE", dbCfg.getCharset()));
+      resultSet.add(new EntityImpl().field("NAME", "Charset").field("VALUE", dbCfg.getCharset()));
       resultSet.add(
-          new YTEntityImpl()
+          new EntityImpl()
               .field("NAME", "Schema-RID")
               .field("VALUE", dbCfg.getSchemaRecordId(), YTType.LINK));
       resultSet.add(
-          new YTEntityImpl()
+          new EntityImpl()
               .field("NAME", "Index-Manager-RID")
               .field("VALUE", dbCfg.getIndexMgrRecordId(), YTType.LINK));
 
@@ -1777,10 +1777,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       if (!dbCfg.getProperties().isEmpty()) {
         message("\n\nDATABASE CUSTOM PROPERTIES:");
 
-        final List<YTEntityImpl> dbResultSet = new ArrayList<YTEntityImpl>();
+        final List<EntityImpl> dbResultSet = new ArrayList<EntityImpl>();
 
         for (OStorageEntryConfiguration cfg : dbCfg.getProperties()) {
-          dbResultSet.add(new YTEntityImpl().field("NAME", cfg.name).field("VALUE", cfg.value));
+          dbResultSet.add(new EntityImpl().field("NAME", cfg.name).field("VALUE", cfg.value));
         }
 
         final OTableFormatter dbFormatter = new OTableFormatter(this);
@@ -1866,11 +1866,11 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     if (cls.properties(currentDatabase).size() > 0) {
       message("\n\nPROPERTIES");
 
-      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
+      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
       for (final YTProperty p : cls.properties(currentDatabase)) {
         try {
-          final YTEntityImpl row = new YTEntityImpl();
+          final EntityImpl row = new EntityImpl();
           resultSet.add(row);
 
           row.field("NAME", p.getName());
@@ -1901,10 +1901,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     if (!indexes.isEmpty()) {
       message("\n\nINDEXES (" + indexes.size() + " altogether)");
 
-      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
+      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
       for (final OIndex index : indexes) {
-        final YTEntityImpl row = new YTEntityImpl();
+        final EntityImpl row = new EntityImpl();
         resultSet.add(row);
 
         row.field("NAME", index.getName());
@@ -1926,11 +1926,11 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     if (cls.getCustomKeys().size() > 0) {
       message("\n\nCUSTOM ATTRIBUTES");
 
-      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
+      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
       for (final String k : cls.getCustomKeys()) {
         try {
-          final YTEntityImpl row = new YTEntityImpl();
+          final EntityImpl row = new EntityImpl();
           resultSet.add(row);
 
           row.field("NAME", k);
@@ -2000,11 +2000,11 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     if (prop.getCustomKeys().size() > 0) {
       message("\n\nCUSTOM ATTRIBUTES");
 
-      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
+      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
       for (final String k : prop.getCustomKeys()) {
         try {
-          final YTEntityImpl row = new YTEntityImpl();
+          final EntityImpl row = new EntityImpl();
           resultSet.add(row);
 
           row.field("NAME", k);
@@ -2025,10 +2025,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     if (!indexes.isEmpty()) {
       message("\n\nINDEXES (" + indexes.size() + " altogether)");
 
-      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
+      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
       for (final OIndex index : indexes) {
-        final YTEntityImpl row = new YTEntityImpl();
+        final EntityImpl row = new EntityImpl();
         resultSet.add(row);
 
         row.field("NAME", index.getName());
@@ -2055,7 +2055,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     if (currentDatabaseName != null) {
       message("\n\nINDEXES");
 
-      final List<YTEntityImpl> resultSet = new ArrayList<>();
+      final List<EntityImpl> resultSet = new ArrayList<>();
 
       int totalIndexes = 0;
       long totalRecords = 0;
@@ -2068,7 +2068,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       long totalIndexedRecords = 0;
 
       for (final OIndex index : indexes) {
-        final YTEntityImpl row = new YTEntityImpl();
+        final EntityImpl row = new EntityImpl();
         resultSet.add(row);
 
         final long indexSize = index.getSize(
@@ -2114,7 +2114,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
       formatter.setColumnAlignment("RECORDS", OTableFormatter.ALIGNMENT.RIGHT);
 
-      final YTEntityImpl footer = new YTEntityImpl();
+      final EntityImpl footer = new EntityImpl();
       footer.field("NAME", "TOTAL");
       footer.field("RECORDS", totalIndexedRecords);
       formatter.setFooter(footer);
@@ -2140,7 +2140,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     if (currentDatabaseName != null) {
       message("\n\nCLUSTERS (collections)");
 
-      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
+      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
       int clusterId;
       long totalElements = 0;
@@ -2151,10 +2151,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       final List<String> clusters = new ArrayList<String>(currentDatabase.getClusterNames());
       Collections.sort(clusters);
 
-      YTEntityImpl dClusters = null;
-      final YTEntityImpl dCfg = getDistributedConfiguration();
+      EntityImpl dClusters = null;
+      final EntityImpl dCfg = getDistributedConfiguration();
       if (dCfg != null) {
-        final YTEntityImpl dDatabaseCfg = dCfg.field("database");
+        final EntityImpl dDatabaseCfg = dCfg.field("database");
         if (dDatabaseCfg != null) {
           dClusters = dDatabaseCfg.field("clusters");
         }
@@ -2164,7 +2164,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
       for (String clusterName : clusters) {
         try {
-          final YTEntityImpl row = new YTEntityImpl();
+          final EntityImpl row = new EntityImpl();
           resultSet.add(row);
 
           clusterId = currentDatabase.getClusterIdByName(clusterName);
@@ -2192,7 +2192,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
           row.field("COUNT", count);
 
           if (dClusters != null) {
-            YTEntityImpl dClusterCfg = dClusters.field(clusterName);
+            EntityImpl dClusterCfg = dClusters.field(clusterName);
             if (dClusterCfg == null) {
               dClusterCfg = dClusters.field("*");
             }
@@ -2236,7 +2236,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
         }
       }
 
-      final YTEntityImpl footer = new YTEntityImpl();
+      final EntityImpl footer = new EntityImpl();
       footer.field("NAME", "TOTAL");
       footer.field("COUNT", totalElements);
       if (!isRemote) {
@@ -2264,7 +2264,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     if (currentDatabaseName != null) {
       message("\n\nCLASSES");
 
-      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
+      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
       long totalElements = 0;
       long count;
@@ -2283,7 +2283,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
       for (YTClass cls : classes) {
         try {
-          final YTEntityImpl row = new YTEntityImpl();
+          final EntityImpl row = new EntityImpl();
           resultSet.add(row);
 
           final StringBuilder clusters = new StringBuilder(1024);
@@ -2326,7 +2326,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
       formatter.setColumnAlignment("COUNT", OTableFormatter.ALIGNMENT.RIGHT);
 
-      final YTEntityImpl footer = new YTEntityImpl();
+      final EntityImpl footer = new EntityImpl();
       footer.field("NAME", "TOTAL");
       footer.field("COUNT", totalElements);
 
@@ -2346,7 +2346,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "Console-Command-List-Servers")
   public void listServers() {
 
-    final YTEntityImpl distribCfg = getDistributedConfiguration();
+    final EntityImpl distribCfg = getDistributedConfiguration();
     if (distribCfg == null) {
       message("\n\nDistributed configuration is not active, cannot retrieve server list");
       return;
@@ -2354,13 +2354,13 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     final List<YTIdentifiable> servers = new ArrayList<YTIdentifiable>();
 
-    final Collection<YTEntityImpl> members = distribCfg.field("members");
+    final Collection<EntityImpl> members = distribCfg.field("members");
 
     if (members != null) {
       message("\n\nCONFIGURED SERVERS");
 
-      for (YTEntityImpl m : members) {
-        final YTEntityImpl server = new YTEntityImpl();
+      for (EntityImpl m : members) {
+        final EntityImpl server = new EntityImpl();
 
         server.field("Name", m.<Object>field("name"));
         server.field("Status", m.<Object>field("status"));
@@ -2408,7 +2408,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     try {
 
       message("\nCluster status:");
-      YTEntityImpl clusterStatus =
+      EntityImpl clusterStatus =
           ((YouTrackDBRemote) YouTrackDBInternal.extract(youTrackDB))
               .getClusterStatus(currentDatabaseUserName, currentDatabaseUserPassword);
       out.println(clusterStatus.toJSON("attribSameRow,alwaysFetchEmbedded,fetchPlan:*:0"));
@@ -2454,8 +2454,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
         iOptions == null || iOptions.contains("--force-embedded-ridbags");
     final boolean fix_graph = iOptions == null || iOptions.contains("--fix-graph");
     if (force_embedded) {
-      YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(Integer.MAX_VALUE);
-      YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(Integer.MAX_VALUE);
+      GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(Integer.MAX_VALUE);
+      GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(Integer.MAX_VALUE);
     }
     if (fix_graph || force_embedded) {
       // REPAIR GRAPH
@@ -2748,10 +2748,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   public void properties() {
     message("\nPROPERTIES:");
 
-    final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
+    final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
     for (Entry<String, String> p : properties.entrySet()) {
-      final YTEntityImpl row = new YTEntityImpl();
+      final EntityImpl row = new EntityImpl();
       resultSet.add(row);
 
       row.field("NAME", p.getKey());
@@ -2827,7 +2827,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   public void configGet(
       @ConsoleParameter(name = "config-name", description = "Name of the configuration") final String iConfigName)
       throws IOException {
-    final YTGlobalConfiguration config = YTGlobalConfiguration.findByKey(iConfigName);
+    final GlobalConfiguration config = GlobalConfiguration.findByKey(iConfigName);
     if (config == null) {
       throw new IllegalArgumentException(
           "Configuration variable '" + iConfigName + "' wasn't found");
@@ -2860,7 +2860,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       @ConsoleParameter(name = "config-name", description = "Name of the configuration") final String iConfigName,
       @ConsoleParameter(name = "config-value", description = "Value to set") final String iConfigValue)
       throws IOException {
-    final YTGlobalConfiguration config = YTGlobalConfiguration.findByKey(iConfigName);
+    final GlobalConfiguration config = GlobalConfiguration.findByKey(iConfigName);
     if (config == null) {
       throw new IllegalArgumentException("Configuration variable '" + iConfigName + "' not found");
     }
@@ -2886,10 +2886,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
       message("\nREMOTE SERVER CONFIGURATION");
 
-      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
+      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
       for (Entry<String, String> p : values.entrySet()) {
-        final YTEntityImpl row = new YTEntityImpl();
+        final EntityImpl row = new EntityImpl();
         resultSet.add(row);
 
         row.field("NAME", p.getKey());
@@ -2906,10 +2906,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       // LOCAL STORAGE
       message("\nLOCAL SERVER CONFIGURATION");
 
-      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
+      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
-      for (YTGlobalConfiguration cfg : YTGlobalConfiguration.values()) {
-        final YTEntityImpl row = new YTEntityImpl();
+      for (GlobalConfiguration cfg : GlobalConfiguration.values()) {
+        final EntityImpl row = new EntityImpl();
         resultSet.add(row);
 
         row.field("NAME", cfg.getKey());
@@ -2966,7 +2966,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   /**
    * Should be used only by console commands
    */
-  public YTRecord getCurrentRecord() {
+  public Record getCurrentRecord() {
     return currentRecord;
   }
 
@@ -3029,7 +3029,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     message("OK");
 
-    final YTEntityImpl distribCfg = getDistributedConfiguration();
+    final EntityImpl distribCfg = getDistributedConfiguration();
     if (distribCfg != null) {
       listServers();
     }
@@ -3240,7 +3240,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     if (currentDatabase.isRemote()) {
       final OStorageRemote stg = ((YTDatabaseSessionRemote) currentDatabase).getStorageRemote();
-      final YTEntityImpl distributedCfg = stg.getClusterConfiguration();
+      final EntityImpl distributedCfg = stg.getClusterConfiguration();
       if (distributedCfg != null && !distributedCfg.isEmpty()) {
         message("\n\nDISTRIBUTED CONFIGURATION:\n" + distributedCfg.toJSON("prettyPrint"));
       } else if (iForce) {
@@ -3249,7 +3249,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     }
   }
 
-  protected YTEntityImpl getDistributedConfiguration() {
+  protected EntityImpl getDistributedConfiguration() {
     if (currentDatabase != null) {
       final OStorage stg = currentDatabase.getStorage();
       if (stg instanceof OStorageRemote) {
@@ -3286,7 +3286,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   protected YTIdentifiable setCurrentRecord(final int iIndex) {
     currentRecordIdx = iIndex;
     if (iIndex < currentResultSet.size()) {
-      currentRecord = (YTRecordAbstract) currentResultSet.get(iIndex);
+      currentRecord = (RecordAbstract) currentResultSet.get(iIndex);
     } else {
       currentRecord = null;
     }
@@ -3401,7 +3401,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     currentRecord =
         iResultset == null || iResultset.isEmpty()
             ? null
-            : (YTRecordAbstract) iResultset.get(0).getRecord();
+            : (RecordAbstract) iResultset.get(0).getRecord();
   }
 
   protected void resetResultSet() {
@@ -3469,7 +3469,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   private void dumpRecordDetails() {
     if (currentRecord == null) {
       return;
-    } else if (currentRecord instanceof YTEntityImpl rec) {
+    } else if (currentRecord instanceof EntityImpl rec) {
       if (rec.getClassName() != null || rec.getIdentity().isValid()) {
         message(
             String.format(
@@ -3477,7 +3477,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
                 rec.getClassName(), rec.getIdentity().toString(), rec.getVersion()));
       }
 
-      final List<YTEntityImpl> resultSet = new ArrayList<YTEntityImpl>();
+      final List<EntityImpl> resultSet = new ArrayList<EntityImpl>();
 
       Object value;
       for (String fieldName : rec.getPropertyNames()) {
@@ -3496,7 +3496,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
                   OMultiValue.getMultiValueIterator(value), getMaxMultiValueEntries());
         }
 
-        final YTEntityImpl row = new YTEntityImpl();
+        final EntityImpl row = new EntityImpl();
         resultSet.add(row);
 
         row.field("NAME", fieldName);
@@ -3509,7 +3509,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
       formatter.writeRecords(resultSet, -1);
 
-    } else if (currentRecord instanceof YTBlob rec) {
+    } else if (currentRecord instanceof Blob rec) {
       message(
           "\n"
               + "+-------------------------------------------------------------------------------------------------+");
@@ -3521,7 +3521,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
           "\n"
               + "+-------------------------------------------------------------------------------------------------+");
 
-      final byte[] value = ((YTRecordAbstract) rec).toStream();
+      final byte[] value = ((RecordAbstract) rec).toStream();
       final int max =
           Math.min(
               Integer.parseInt(properties.get(OConsoleProperties.MAX_BINARY_DISPLAY)),

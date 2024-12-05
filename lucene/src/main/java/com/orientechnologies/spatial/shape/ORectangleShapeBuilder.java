@@ -13,12 +13,12 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTProperty;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.List;
 import org.locationtech.spatial4j.shape.Point;
@@ -50,7 +50,7 @@ public class ORectangleShapeBuilder extends OShapeBuilder<Rectangle> {
   }
 
   @Override
-  public Rectangle fromDoc(YTEntityImpl document) {
+  public Rectangle fromDoc(EntityImpl document) {
     validate(document);
     List<Number> coordinates = document.field(COORDINATES);
 
@@ -65,9 +65,9 @@ public class ORectangleShapeBuilder extends OShapeBuilder<Rectangle> {
   }
 
   @Override
-  public YTEntityImpl toDoc(final Rectangle shape) {
+  public EntityImpl toDoc(final Rectangle shape) {
 
-    YTEntityImpl doc = new YTEntityImpl(NAME);
+    EntityImpl doc = new EntityImpl(NAME);
 
     doc.field(
         COORDINATES,

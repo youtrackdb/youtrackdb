@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.tests;
 
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;

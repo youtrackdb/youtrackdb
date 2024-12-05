@@ -2,10 +2,10 @@ package com.orientechnologies.orient.test.database.auto;
 
 import static org.testng.Assert.assertEquals;
 
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -29,7 +29,7 @@ public class IndexClusterTest extends DocumentDBBaseTest {
     oclass.createIndex(database, className + "index1", YTClass.INDEX_TYPE.NOTUNIQUE, "key");
 
     database.begin();
-    database.<YTEntityImpl>newInstance(className).field("key", "a").field("value", 1).save();
+    database.<EntityImpl>newInstance(className).field("key", "a").field("value", 1).save();
     database.commit();
 
     int clId = database.addCluster(className + "secondCluster");
@@ -37,7 +37,7 @@ public class IndexClusterTest extends DocumentDBBaseTest {
 
     database.begin();
     database
-        .<YTEntityImpl>newInstance(className)
+        .<EntityImpl>newInstance(className)
         .field("key", "a")
         .field("value", 2)
         .save(className + "secondCluster");

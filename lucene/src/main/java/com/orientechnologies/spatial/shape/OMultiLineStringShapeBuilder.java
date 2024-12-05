@@ -13,12 +13,12 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +40,7 @@ public class OMultiLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeomet
   }
 
   @Override
-  public JtsGeometry fromDoc(YTEntityImpl document) {
+  public JtsGeometry fromDoc(EntityImpl document) {
     validate(document);
     List<List<List<Number>>> coordinates = document.field(COORDINATES);
     LineString[] multiLine = new LineString[coordinates.size()];
@@ -58,18 +58,18 @@ public class OMultiLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeomet
     YTClass lineString = schema.createAbstractClass(getName(), superClass(db));
     lineString.createProperty(db, COORDINATES, YTType.EMBEDDEDLIST, YTType.EMBEDDEDLIST);
 
-    if (YTGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
+    if (GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
       YTClass lineStringZ = schema.createAbstractClass(getName() + "Z", superClass(db));
       lineStringZ.createProperty(db, COORDINATES, YTType.EMBEDDEDLIST, YTType.EMBEDDEDLIST);
     }
   }
 
   @Override
-  public YTEntityImpl toDoc(JtsGeometry shape) {
+  public EntityImpl toDoc(JtsGeometry shape) {
     final MultiLineString geom = (MultiLineString) shape.getGeom();
 
     List<List<List<Double>>> coordinates = new ArrayList<List<List<Double>>>();
-    YTEntityImpl doc = new YTEntityImpl(getName());
+    EntityImpl doc = new EntityImpl(getName());
     for (int i = 0; i < geom.getNumGeometries(); i++) {
       final LineString lineString = (LineString) geom.getGeometryN(i);
       coordinates.add(coordinatesFromLineString(lineString));
@@ -80,13 +80,13 @@ public class OMultiLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeomet
   }
 
   @Override
-  protected YTEntityImpl toDoc(JtsGeometry shape, Geometry geometry) {
+  protected EntityImpl toDoc(JtsGeometry shape, Geometry geometry) {
     if (geometry == null || Double.isNaN(geometry.getCoordinates()[0].getZ())) {
       return toDoc(shape);
     }
 
     List<List<List<Double>>> coordinates = new ArrayList<List<List<Double>>>();
-    YTEntityImpl doc = new YTEntityImpl(getName() + "Z");
+    EntityImpl doc = new EntityImpl(getName() + "Z");
     for (int i = 0; i < geometry.getNumGeometries(); i++) {
       final Geometry lineString = geometry.getGeometryN(i);
       coordinates.add(coordinatesFromLineStringZ(lineString));
@@ -97,7 +97,7 @@ public class OMultiLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeomet
   }
 
   @Override
-  public String asText(YTEntityImpl document) {
+  public String asText(EntityImpl document) {
     if (document.getClassName().equals("OMultiLineStringZ")) {
       List<List<List<Double>>> coordinates = document.getProperty("coordinates");
 

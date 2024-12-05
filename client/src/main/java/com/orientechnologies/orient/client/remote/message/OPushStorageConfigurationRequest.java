@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import static com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol.REQUEST_PUSH_STORAGE_CONFIG;
+import static com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol.REQUEST_PUSH_STORAGE_CONFIG;
 
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
 import com.orientechnologies.orient.client.remote.message.push.OStorageConfigurationPayload;
-import com.orientechnologies.core.config.OStorageConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 
 public class OPushStorageConfigurationRequest implements OBinaryPushRequest<OBinaryPushResponse> {

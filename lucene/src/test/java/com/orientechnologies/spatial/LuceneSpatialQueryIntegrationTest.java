@@ -15,8 +15,8 @@ package com.orientechnologies.spatial;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.core.exception.YTCommandExecutionException;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.orientechnologies.lucene.test.BaseLuceneTest;
 import org.junit.Assert;
 import org.junit.Test;

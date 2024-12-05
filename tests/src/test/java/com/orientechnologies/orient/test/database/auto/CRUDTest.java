@@ -15,23 +15,23 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.core.db.record.LinkList;
-import com.orientechnologies.core.db.record.LinkSet;
-import com.orientechnologies.core.db.record.TrackedList;
-import com.orientechnologies.core.db.record.TrackedMap;
-import com.orientechnologies.core.db.record.TrackedSet;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTEntity;
-import com.orientechnologies.core.record.impl.YTBlob;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.record.impl.YTRecordBytes;
-import com.orientechnologies.core.sql.YTCommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
+import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -59,7 +59,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
   protected long startRecordNumber;
 
-  private YTEntity rome;
+  private Entity rome;
 
   @Parameters(value = "remote")
   public CRUDTest(@Optional Boolean remote) {
@@ -68,7 +68,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
   @Override
   protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    builder.addConfig(GlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
     return builder.build();
   }
 
@@ -94,7 +94,7 @@ public class CRUDTest extends DocumentDBBaseTest {
   public void create() {
     startRecordNumber = database.countClass("Account");
 
-    YTEntity address;
+    Entity address;
 
     database.begin();
     var country = database.newEntity("Country");
@@ -113,7 +113,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.save(address);
 
     for (long i = startRecordNumber; i < startRecordNumber + TOT_RECORDS_ACCOUNT; ++i) {
-      YTEntity account = database.newEntity("Account");
+      Entity account = database.newEntity("Account");
       account.setProperty("id", i);
       account.setProperty("name", "Bill");
       account.setProperty("surname", "Gates");
@@ -143,7 +143,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
   @Test
   public void testSimpleTypes() {
-    YTEntity element = database.newEntity("JavaSimpleTestClass");
+    Entity element = database.newEntity("JavaSimpleTestClass");
     Assert.assertEquals(element.getProperty("text"), "initTest");
 
     database.begin();
@@ -165,7 +165,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    YTEntityImpl loadedRecord = database.load(id);
+    EntityImpl loadedRecord = database.load(id);
     Assert.assertEquals(loadedRecord.getProperty("text"), "test");
     Assert.assertEquals(loadedRecord.<Integer>getProperty("numberSimple"), 12345);
     Assert.assertEquals(loadedRecord.<Double>getProperty("doubleSimple"), 12.34d);
@@ -179,7 +179,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testSimpleTypes")
   public void testSimpleArrayTypes() {
-    YTEntity element = database.newInstance("JavaSimpleArraysTestClass");
+    Entity element = database.newInstance("JavaSimpleArraysTestClass");
     String[] textArray = new String[10];
     int[] intArray = new int[10];
     long[] longArray = new long[10];
@@ -229,7 +229,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    YTEntity loadedElement = database.load(id);
+    Entity loadedElement = database.load(id);
     Assert.assertNotNull(loadedElement.getProperty("text"));
     Assert.assertNotNull(loadedElement.getProperty("numberSimple"));
     Assert.assertNotNull(loadedElement.getProperty("longSimple"));
@@ -348,7 +348,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testSimpleTypes")
   public void testBinaryDataType() {
-    YTEntity element = database.newInstance("JavaBinaryDataTestClass");
+    Entity element = database.newInstance("JavaBinaryDataTestClass");
     byte[] bytes = new byte[10];
     for (int i = 0; i < 10; i++) {
       bytes[i] = (byte) i;
@@ -368,7 +368,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    YTEntity loadedElement = database.load(id);
+    Entity loadedElement = database.load(id);
     Assert.assertNotNull(loadedElement.getProperty(fieldName));
 
     Assert.assertEquals(loadedElement.<byte[]>getProperty("binaryData").length, 10);
@@ -405,7 +405,7 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "testSimpleArrayTypes")
   public void collectionsDocumentTypeTestPhaseOne() {
     database.begin();
-    YTEntity a = database.newInstance("JavaComplexTestClass");
+    Entity a = database.newInstance("JavaComplexTestClass");
 
     for (int i = 0; i < 3; i++) {
       var child1 = database.newEntity("Child");
@@ -425,9 +425,9 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    List<YTEntityImpl> agendas = executeQuery("SELECT FROM " + rid);
+    List<EntityImpl> agendas = executeQuery("SELECT FROM " + rid);
 
-    YTEntityImpl testLoadedEntity = agendas.get(0);
+    EntityImpl testLoadedEntity = agendas.get(0);
 
     checkCollectionImplementations(testLoadedEntity);
 
@@ -448,7 +448,7 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "collectionsDocumentTypeTestPhaseOne")
   public void collectionsDocumentTypeTestPhaseTwo() {
     database.begin();
-    YTEntity a = database.newInstance("JavaComplexTestClass");
+    Entity a = database.newInstance("JavaComplexTestClass");
 
     for (int i = 0; i < 10; i++) {
       var child1 = database.newEntity("Child");
@@ -469,7 +469,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    List<YTEntityImpl> agendas = executeQuery("SELECT FROM " + rid);
+    List<EntityImpl> agendas = executeQuery("SELECT FROM " + rid);
     var testLoadedEntity = agendas.get(0);
 
     checkCollectionImplementations(testLoadedEntity);
@@ -487,7 +487,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "collectionsDocumentTypeTestPhaseTwo")
   public void collectionsDocumentTypeTestPhaseThree() {
-    YTEntity a = database.newInstance("JavaComplexTestClass");
+    Entity a = database.newInstance("JavaComplexTestClass");
 
     database.begin();
     for (int i = 0; i < 100; i++) {
@@ -507,7 +507,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    List<YTEntityImpl> agendas = executeQuery("SELECT FROM " + rid);
+    List<EntityImpl> agendas = executeQuery("SELECT FROM " + rid);
     var testLoadedEntity = agendas.get(0);
     checkCollectionImplementations(testLoadedEntity);
 
@@ -522,7 +522,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.rollback();
   }
 
-  protected static void checkCollectionImplementations(YTEntityImpl doc) {
+  protected static void checkCollectionImplementations(EntityImpl doc) {
     Object collectionObj = doc.field("list");
     boolean validImplementation =
         (collectionObj instanceof TrackedList<?>) || (doc.field("list") instanceof LinkList);
@@ -575,7 +575,7 @@ public class CRUDTest extends DocumentDBBaseTest {
       ids.add(i);
     }
 
-    for (YTEntity a : database.browseClass("Account")) {
+    for (Entity a : database.browseClass("Account")) {
       int id = a.<Integer>getProperty("id");
       Assert.assertTrue(ids.remove(id));
 
@@ -587,20 +587,20 @@ public class CRUDTest extends DocumentDBBaseTest {
       Assert.assertEquals(
           a.<List<YTIdentifiable>>getProperty("addresses")
               .get(0)
-              .<YTEntity>getRecord()
+              .<Entity>getRecord()
               .getElementProperty("city")
               .getProperty("name"),
           rome.<String>getProperty("name"));
       Assert.assertEquals(
           a.<List<YTIdentifiable>>getProperty("addresses")
               .get(0)
-              .<YTEntity>getRecord()
+              .<Entity>getRecord()
               .getElementProperty("city")
               .getElementProperty("country")
               .getProperty("name"),
-          rome.<YTEntity>getRecord()
+          rome.<Entity>getRecord()
               .<YTIdentifiable>getProperty("country")
-              .<YTEntity>getRecord()
+              .<Entity>getRecord()
               .<String>getProperty("name"));
     }
 
@@ -610,7 +610,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "readAndBrowseDescendingAndCheckHoleUtilization")
   public void mapEnumAndInternalObjects() {
-    database.executeInTxBatches((Iterator<YTEntityImpl>) database.browseClass("OUser"),
+    database.executeInTxBatches((Iterator<EntityImpl>) database.browseClass("OUser"),
         ((session, document) -> {
           document.save();
         }));
@@ -645,7 +645,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     p.setProperty("list", list);
 
-    var children = new HashMap<String, YTEntity>();
+    var children = new HashMap<String, Entity>();
     children.put("first", c);
     p.setProperty("children", children);
 
@@ -654,7 +654,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    List<YTEntityImpl> cresult = executeQuery("select * from Child");
+    List<EntityImpl> cresult = executeQuery("select * from Child");
 
     Assert.assertFalse(cresult.isEmpty());
 
@@ -665,26 +665,26 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    var loaded = database.<YTEntity>load(rid);
+    var loaded = database.<Entity>load(rid);
 
     list = loaded.getProperty("list");
     Assert.assertEquals(list.size(), 4);
     Assert.assertEquals(
-        Objects.requireNonNull(list.get(0).<YTEntity>getRecord().getSchemaClass()).getName(),
+        Objects.requireNonNull(list.get(0).<Entity>getRecord().getSchemaClass()).getName(),
         "Child");
     Assert.assertEquals(
-        Objects.requireNonNull(list.get(1).<YTEntity>getRecord().getSchemaClass()).getName(),
+        Objects.requireNonNull(list.get(1).<Entity>getRecord().getSchemaClass()).getName(),
         "Child");
     Assert.assertEquals(
-        Objects.requireNonNull(list.get(2).<YTEntity>getRecord().getSchemaClass()).getName(),
+        Objects.requireNonNull(list.get(2).<Entity>getRecord().getSchemaClass()).getName(),
         "Child");
     Assert.assertEquals(
-        Objects.requireNonNull(list.get(3).<YTEntity>getRecord().getSchemaClass()).getName(),
+        Objects.requireNonNull(list.get(3).<Entity>getRecord().getSchemaClass()).getName(),
         "Child");
-    Assert.assertEquals(list.get(0).<YTEntity>getRecord().getProperty("name"), "Jack");
-    Assert.assertEquals(list.get(1).<YTEntity>getRecord().getProperty("name"), "Bob");
-    Assert.assertEquals(list.get(2).<YTEntity>getRecord().getProperty("name"), "Sam");
-    Assert.assertEquals(list.get(3).<YTEntity>getRecord().getProperty("name"), "Dean");
+    Assert.assertEquals(list.get(0).<Entity>getRecord().getProperty("name"), "Jack");
+    Assert.assertEquals(list.get(1).<Entity>getRecord().getProperty("name"), "Bob");
+    Assert.assertEquals(list.get(2).<Entity>getRecord().getProperty("name"), "Sam");
+    Assert.assertEquals(list.get(3).<Entity>getRecord().getProperty("name"), "Dean");
     database.commit();
   }
 
@@ -750,10 +750,10 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    List<YTEntityImpl> agendas = executeQuery("SELECT FROM " + rid);
-    YTEntity agenda = agendas.get(0);
+    List<EntityImpl> agendas = executeQuery("SELECT FROM " + rid);
+    Entity agenda = agendas.get(0);
     //noinspection unused,StatementWithEmptyBody
-    for (var e : agenda.<List<YTEntity>>getProperty("events")) {
+    for (var e : agenda.<List<Entity>>getProperty("events")) {
       // NO NEED TO DO ANYTHING, JUST NEED TO ITERATE THE LIST
     }
 
@@ -766,9 +766,9 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.begin();
     agenda = database.bindToSession(agenda);
     try {
-      for (int i = 0; i < agenda.<List<YTEntity>>getProperty("events").size(); i++) {
+      for (int i = 0; i < agenda.<List<Entity>>getProperty("events").size(); i++) {
         @SuppressWarnings("unused")
-        var e = agenda.<List<YTEntity>>getProperty("events").get(i);
+        var e = agenda.<List<Entity>>getProperty("events").get(i);
         // NO NEED TO DO ANYTHING, JUST NEED TO ITERATE THE LIST
       }
     } catch (ConcurrentModificationException cme) {
@@ -783,26 +783,26 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "listObjectsIterationTest")
   public void mapObjectsListEmbeddedTest() {
     database.begin();
-    List<YTEntityImpl> cresult = executeQuery("select * from Child");
+    List<EntityImpl> cresult = executeQuery("select * from Child");
 
     int childSize = cresult.size();
 
-    YTEntity p = database.newInstance("JavaComplexTestClass");
+    Entity p = database.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Silvester");
 
-    YTEntity c = database.newInstance("Child");
+    Entity c = database.newInstance("Child");
     c.setProperty("name", "John");
 
-    YTEntity c1 = database.newInstance("Child");
+    Entity c1 = database.newInstance("Child");
     c1.setProperty("name", "Jack");
 
-    YTEntity c2 = database.newInstance("Child");
+    Entity c2 = database.newInstance("Child");
     c2.setProperty("name", "Bob");
 
-    YTEntity c3 = database.newInstance("Child");
+    Entity c3 = database.newInstance("Child");
     c3.setProperty("name", "Sam");
 
-    YTEntity c4 = database.newInstance("Child");
+    Entity c4 = database.newInstance("Child");
     c4.setProperty("name", "Dean");
 
     var list = new ArrayList<YTIdentifiable>();
@@ -827,35 +827,35 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    YTEntity loaded = database.load(rid);
+    Entity loaded = database.load(rid);
 
-    Assert.assertEquals(loaded.<List<YTEntity>>getProperty("embeddedList").size(), 4);
-    Assert.assertTrue(loaded.<List<YTEntity>>getProperty("embeddedList").get(0).isEmbedded());
-    Assert.assertTrue(loaded.<List<YTEntity>>getProperty("embeddedList").get(1).isEmbedded());
-    Assert.assertTrue(loaded.<List<YTEntity>>getProperty("embeddedList").get(2).isEmbedded());
-    Assert.assertTrue(loaded.<List<YTEntity>>getProperty("embeddedList").get(3).isEmbedded());
+    Assert.assertEquals(loaded.<List<Entity>>getProperty("embeddedList").size(), 4);
+    Assert.assertTrue(loaded.<List<Entity>>getProperty("embeddedList").get(0).isEmbedded());
+    Assert.assertTrue(loaded.<List<Entity>>getProperty("embeddedList").get(1).isEmbedded());
+    Assert.assertTrue(loaded.<List<Entity>>getProperty("embeddedList").get(2).isEmbedded());
+    Assert.assertTrue(loaded.<List<Entity>>getProperty("embeddedList").get(3).isEmbedded());
     Assert.assertEquals(
         Objects.requireNonNull(
                 loaded
-                    .<List<YTEntity>>getProperty("embeddedList")
+                    .<List<Entity>>getProperty("embeddedList")
                     .get(0)
-                    .<YTEntity>getRecord()
+                    .<Entity>getRecord()
                     .getSchemaClass())
             .getName(),
         "Child");
     Assert.assertEquals(
         Objects.requireNonNull(
                 loaded
-                    .<List<YTEntity>>getProperty("embeddedList")
+                    .<List<Entity>>getProperty("embeddedList")
                     .get(1)
-                    .<YTEntity>getRecord()
+                    .<Entity>getRecord()
                     .getSchemaClass())
             .getName(),
         "Child");
     Assert.assertEquals(
         Objects.requireNonNull(
                 loaded
-                    .<List<YTEntity>>getProperty("embeddedList")
+                    .<List<Entity>>getProperty("embeddedList")
                     .get(2)
                     .getEntity()
                     .getSchemaClass())
@@ -864,49 +864,49 @@ public class CRUDTest extends DocumentDBBaseTest {
     Assert.assertEquals(
         Objects.requireNonNull(
                 loaded
-                    .<List<YTEntity>>getProperty("embeddedList")
+                    .<List<Entity>>getProperty("embeddedList")
                     .get(3)
                     .getEntity()
                     .getSchemaClass())
             .getName(),
         "Child");
     Assert.assertEquals(
-        loaded.<List<YTEntity>>getProperty("embeddedList").get(0).getProperty("name"), "Jack");
+        loaded.<List<Entity>>getProperty("embeddedList").get(0).getProperty("name"), "Jack");
     Assert.assertEquals(
-        loaded.<List<YTEntity>>getProperty("embeddedList").get(1).getProperty("name"), "Bob");
+        loaded.<List<Entity>>getProperty("embeddedList").get(1).getProperty("name"), "Bob");
     Assert.assertEquals(
-        loaded.<List<YTEntity>>getProperty("embeddedList").get(2).getProperty("name"), "Sam");
+        loaded.<List<Entity>>getProperty("embeddedList").get(2).getProperty("name"), "Sam");
     Assert.assertEquals(
-        loaded.<List<YTEntity>>getProperty("embeddedList").get(3).getProperty("name"), "Dean");
+        loaded.<List<Entity>>getProperty("embeddedList").get(3).getProperty("name"), "Dean");
     database.commit();
   }
 
   @Test(dependsOnMethods = "mapObjectsListEmbeddedTest")
   public void mapObjectsSetEmbeddedTest() {
     database.begin();
-    List<YTEntityImpl> cresult = executeQuery("select * from Child");
+    List<EntityImpl> cresult = executeQuery("select * from Child");
 
     int childSize = cresult.size();
 
-    YTEntity p = database.newInstance("JavaComplexTestClass");
+    Entity p = database.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Silvester");
 
-    YTEntity c = database.newInstance("Child");
+    Entity c = database.newInstance("Child");
     c.setProperty("name", "John");
 
-    YTEntity c1 = database.newInstance("Child");
+    Entity c1 = database.newInstance("Child");
     c1.setProperty("name", "Jack");
 
-    YTEntity c2 = database.newInstance("Child");
+    Entity c2 = database.newInstance("Child");
     c2.setProperty("name", "Bob");
 
-    YTEntity c3 = database.newInstance("Child");
+    Entity c3 = database.newInstance("Child");
     c3.setProperty("name", "Sam");
 
-    YTEntity c4 = database.newInstance("Child");
+    Entity c4 = database.newInstance("Child");
     c4.setProperty("name", "Dean");
 
-    var embeddedSet = new HashSet<YTEntity>();
+    var embeddedSet = new HashSet<Entity>();
     embeddedSet.add(c);
     embeddedSet.add(c1);
     embeddedSet.add(c2);
@@ -930,10 +930,10 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    YTEntity loaded = database.load(rid);
+    Entity loaded = database.load(rid);
 
-    Assert.assertEquals(loaded.<Set<YTEntity>>getProperty("embeddedSet").size(), 5);
-    for (YTEntity loadedC : loaded.<Set<YTEntity>>getProperty("embeddedSet")) {
+    Assert.assertEquals(loaded.<Set<Entity>>getProperty("embeddedSet").size(), 5);
+    for (Entity loadedC : loaded.<Set<Entity>>getProperty("embeddedSet")) {
       Assert.assertTrue(loadedC.isEmbedded());
       Assert.assertEquals(loadedC.getClassName(), "Child");
       Assert.assertTrue(
@@ -949,29 +949,29 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "mapObjectsSetEmbeddedTest")
   public void mapObjectsMapEmbeddedTest() {
     database.begin();
-    List<YTEntityImpl> cresult = executeQuery("select * from Child");
+    List<EntityImpl> cresult = executeQuery("select * from Child");
 
     int childSize = cresult.size();
 
-    YTEntity p = database.newInstance("JavaComplexTestClass");
+    Entity p = database.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Silvester");
 
-    YTEntity c = database.newInstance("Child");
+    Entity c = database.newInstance("Child");
     c.setProperty("name", "John");
 
-    YTEntity c1 = database.newInstance("Child");
+    Entity c1 = database.newInstance("Child");
     c1.setProperty("name", "Jack");
 
-    YTEntity c2 = database.newInstance("Child");
+    Entity c2 = database.newInstance("Child");
     c2.setProperty("name", "Bob");
 
-    YTEntity c3 = database.newInstance("Child");
+    Entity c3 = database.newInstance("Child");
     c3.setProperty("name", "Sam");
 
-    YTEntity c4 = database.newInstance("Child");
+    Entity c4 = database.newInstance("Child");
     c4.setProperty("name", "Dean");
 
-    var embeddedChildren = new HashMap<String, YTEntity>();
+    var embeddedChildren = new HashMap<String, Entity>();
     embeddedChildren.put(c.getProperty("name"), c);
     embeddedChildren.put(c1.getProperty("name"), c1);
     embeddedChildren.put(c2.getProperty("name"), c2);
@@ -995,11 +995,11 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    YTEntity loaded = database.load(rid);
+    Entity loaded = database.load(rid);
 
-    Assert.assertEquals(loaded.<Map<String, YTEntity>>getProperty("embeddedChildren").size(), 5);
-    for (String key : loaded.<Map<String, YTEntity>>getProperty("embeddedChildren").keySet()) {
-      YTEntity loadedC = loaded.<Map<String, YTEntity>>getProperty("embeddedChildren").get(key);
+    Assert.assertEquals(loaded.<Map<String, Entity>>getProperty("embeddedChildren").size(), 5);
+    for (String key : loaded.<Map<String, Entity>>getProperty("embeddedChildren").keySet()) {
+      Entity loadedC = loaded.<Map<String, Entity>>getProperty("embeddedChildren").get(key);
       Assert.assertTrue(loadedC.isEmbedded());
       Assert.assertEquals(loadedC.getClassName(), "Child");
       Assert.assertTrue(
@@ -1014,19 +1014,19 @@ public class CRUDTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "mapObjectsLinkTest")
   public void mapObjectsNonExistingKeyTest() {
-    YTEntity p = database.newInstance("JavaComplexTestClass");
+    Entity p = database.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Silvester");
 
     database.begin();
     p = database.save(p);
 
-    YTEntity c1 = database.newInstance("Child");
+    Entity c1 = database.newInstance("Child");
     c1.setProperty("name", "John");
 
-    YTEntity c2 = database.newInstance("Child");
+    Entity c2 = database.newInstance("Child");
     c2.setProperty("name", "Jack");
 
-    var children = new HashMap<String, YTEntity>();
+    var children = new HashMap<String, Entity>();
     children.put("first", c1);
     children.put("second", c2);
 
@@ -1036,9 +1036,9 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    YTEntity c3 = database.newInstance("Child");
+    Entity c3 = database.newInstance("Child");
     c3.setProperty("name", "Olivia");
-    YTEntity c4 = database.newInstance("Child");
+    Entity c4 = database.newInstance("Child");
     c4.setProperty("name", "Peter");
 
     p = database.bindToSession(p);
@@ -1049,7 +1049,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    List<YTEntityImpl> cresult = executeQuery("select * from Child");
+    List<EntityImpl> cresult = executeQuery("select * from Child");
 
     Assert.assertFalse(cresult.isEmpty());
 
@@ -1065,7 +1065,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     c3 = database.bindToSession(c3);
     c4 = database.bindToSession(c4);
 
-    YTEntity loaded = database.load(rid);
+    Entity loaded = database.load(rid);
 
     Assert.assertEquals(
         loaded
@@ -1101,16 +1101,16 @@ public class CRUDTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "mapObjectsLinkTest")
   public void mapObjectsLinkTwoSaveTest() {
-    YTEntity p = database.newInstance("JavaComplexTestClass");
+    Entity p = database.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Silvester");
 
     database.begin();
     p = database.save(p);
 
-    YTEntity c1 = database.newInstance("Child");
+    Entity c1 = database.newInstance("Child");
     c1.setProperty("name", "John");
 
-    YTEntity c2 = database.newInstance("Child");
+    Entity c2 = database.newInstance("Child");
     c2.setProperty("name", "Jack");
 
     var children = new HashMap<String, YTIdentifiable>();
@@ -1121,9 +1121,9 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database.save(p);
 
-    YTEntity c3 = database.newInstance("Child");
+    Entity c3 = database.newInstance("Child");
     c3.setProperty("name", "Olivia");
-    YTEntity c4 = database.newInstance("Child");
+    Entity c4 = database.newInstance("Child");
     c4.setProperty("name", "Peter");
 
     p.<Map<String, YTIdentifiable>>getProperty("children").put("third", c3);
@@ -1133,7 +1133,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    List<YTEntityImpl> cresult = executeQuery("select * from Child");
+    List<EntityImpl> cresult = executeQuery("select * from Child");
     Assert.assertFalse(cresult.isEmpty());
 
     YTRID rid = p.getIdentity();
@@ -1143,7 +1143,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    YTEntity loaded = database.load(rid);
+    Entity loaded = database.load(rid);
 
     c1 = database.bindToSession(c1);
     c2 = database.bindToSession(c2);
@@ -1184,16 +1184,16 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "mapObjectsLinkTest")
   public void mapObjectsLinkUpdateDatabaseNewInstanceTest() {
     // TEST WITH NEW INSTANCE
-    YTEntity p = database.newInstance("JavaComplexTestClass");
+    Entity p = database.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Fringe");
 
-    YTEntity c = database.newInstance("Child");
+    Entity c = database.newInstance("Child");
     c.setProperty("name", "Peter");
-    YTEntity c1 = database.newInstance("Child");
+    Entity c1 = database.newInstance("Child");
     c1.setProperty("name", "Walter");
-    YTEntity c2 = database.newInstance("Child");
+    Entity c2 = database.newInstance("Child");
     c2.setProperty("name", "Olivia");
-    YTEntity c3 = database.newInstance("Child");
+    Entity c3 = database.newInstance("Child");
     c3.setProperty("name", "Astrid");
 
     Map<String, YTIdentifiable> children = new HashMap<>();
@@ -1214,7 +1214,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    YTEntity loaded = database.load(rid);
+    Entity loaded = database.load(rid);
 
     for (String key : loaded.<Map<String, YTIdentifiable>>getProperty("children").keySet()) {
       Assert.assertTrue(
@@ -1270,9 +1270,9 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    for (YTEntity reloaded : database.browseClass("JavaComplexTestClass")) {
+    for (Entity reloaded : database.browseClass("JavaComplexTestClass")) {
       reloaded = database.bindToSession(reloaded);
-      YTEntity c4 = database.newInstance("Child");
+      Entity c4 = database.newInstance("Child");
       c4.setProperty("name", "The Observer");
 
       children = reloaded.getProperty("children");
@@ -1290,7 +1290,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.close();
     database = createSessionInstance();
     database.begin();
-    for (YTEntity reloaded : database.browseClass("JavaComplexTestClass")) {
+    for (Entity reloaded : database.browseClass("JavaComplexTestClass")) {
       Assert.assertTrue(
           reloaded.<Map<String, YTIdentifiable>>getProperty("children")
               .containsKey("The Observer"));
@@ -1322,16 +1322,16 @@ public class CRUDTest extends DocumentDBBaseTest {
   public void mapObjectsLinkUpdateJavaNewInstanceTest() {
     // TEST WITH NEW INSTANCE
     database.begin();
-    YTEntity p = database.newInstance("JavaComplexTestClass");
+    Entity p = database.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Fringe");
 
-    YTEntity c = database.newInstance("Child");
+    Entity c = database.newInstance("Child");
     c.setProperty("name", "Peter");
-    YTEntity c1 = database.newInstance("Child");
+    Entity c1 = database.newInstance("Child");
     c1.setProperty("name", "Walter");
-    YTEntity c2 = database.newInstance("Child");
+    Entity c2 = database.newInstance("Child");
     c2.setProperty("name", "Olivia");
-    YTEntity c3 = database.newInstance("Child");
+    Entity c3 = database.newInstance("Child");
     c3.setProperty("name", "Astrid");
 
     var children = new HashMap<String, YTIdentifiable>();
@@ -1351,7 +1351,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    YTEntity loaded = database.load(rid);
+    Entity loaded = database.load(rid);
 
     for (String key : loaded.<Map<String, YTIdentifiable>>getProperty("children").keySet()) {
       Assert.assertTrue(
@@ -1405,8 +1405,8 @@ public class CRUDTest extends DocumentDBBaseTest {
       }
     }
 
-    for (YTEntity reloaded : database.browseClass("JavaComplexTestClass")) {
-      YTEntity c4 = database.newInstance("Child");
+    for (Entity reloaded : database.browseClass("JavaComplexTestClass")) {
+      Entity c4 = database.newInstance("Child");
       c4.setProperty("name", "The Observer");
 
       reloaded.<Map<String, YTIdentifiable>>getProperty("children").put(c4.getProperty("name"), c4);
@@ -1418,7 +1418,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.close();
     database = createSessionInstance();
     database.begin();
-    for (YTEntity reloaded : database.browseClass("JavaComplexTestClass")) {
+    for (Entity reloaded : database.browseClass("JavaComplexTestClass")) {
       Assert.assertTrue(
           reloaded.<Map<String, YTIdentifiable>>getProperty("children")
               .containsKey("The Observer"));
@@ -1453,7 +1453,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     relatives.put("mother", "Julia");
 
     // TEST WITH OBJECT DATABASE NEW INSTANCE AND HANDLER MANAGEMENT
-    YTEntity p = database.newInstance("JavaComplexTestClass");
+    Entity p = database.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Chuck");
 
     var stringMap = new HashMap<String, String>();
@@ -1475,7 +1475,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.close();
     database = createSessionInstance();
     database.begin();
-    YTEntity loaded = database.load(rid);
+    Entity loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, String>>getProperty("stringMap"));
     for (Entry<String, String> entry : relatives.entrySet()) {
       Assert.assertEquals(
@@ -1623,14 +1623,14 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "mapStringTest")
   public void setStringTest() {
     database.begin();
-    YTEntity testClass = database.newInstance("JavaComplexTestClass");
+    Entity testClass = database.newInstance("JavaComplexTestClass");
     Set<String> roles = new HashSet<>();
 
     roles.add("manager");
     roles.add("developer");
     testClass.setProperty("stringSet", roles);
 
-    YTEntity testClassProxy = database.save(testClass);
+    Entity testClassProxy = database.save(testClass);
     database.commit();
 
     database.begin();
@@ -1648,7 +1648,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     database = createSessionInstance();
 
     database.begin();
-    YTEntity loadedProxy = database.load(orid);
+    Entity loadedProxy = database.load(orid);
     Assert.assertEquals(roles.size(), loadedProxy.<Set<String>>getProperty("stringSet").size());
     for (String referenceRole : roles) {
       Assert.assertTrue(loadedProxy.<Set<String>>getProperty("stringSet").contains(referenceRole));
@@ -1705,7 +1705,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     songAndMovies.put("songs", songs);
 
     // TEST WITH OBJECT DATABASE NEW INSTANCE AND HANDLER MANAGEMENT
-    YTEntity p = database.newInstance("JavaComplexTestClass");
+    Entity p = database.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Chuck");
 
     p.setProperty("stringListMap", songAndMovies);
@@ -1725,7 +1725,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     database = createSessionInstance();
 
     database.begin();
-    YTEntity loaded = database.load(rid);
+    Entity loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, List<String>>>getProperty("stringListMap"));
     for (Entry<String, List<String>> entry : songAndMovies.entrySet()) {
       Assert.assertEquals(
@@ -1855,7 +1855,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     relatives.put("date", cal.getTime());
 
     // TEST WITH OBJECT DATABASE NEW INSTANCE AND HANDLER MANAGEMENT
-    YTEntity p = database.newInstance("JavaComplexTestClass");
+    Entity p = database.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Chuck");
 
     var mapObject = new HashMap<String, Object>();
@@ -1879,7 +1879,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.close();
     database = createSessionInstance();
     database.begin();
-    YTEntity loaded = database.load(rid);
+    Entity loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, Object>>getProperty("mapObject"));
     for (Entry<String, Object> entry : relatives.entrySet()) {
       Assert.assertEquals(
@@ -2029,13 +2029,13 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "embeddedMapObjectTest")
   public void testNoGenericCollections() {
     var p = database.newInstance("JavaNoGenericCollectionsTestClass");
-    YTEntity c1 = database.newInstance("Child");
+    Entity c1 = database.newInstance("Child");
     c1.setProperty("name", "1");
-    YTEntity c2 = database.newInstance("Child");
+    Entity c2 = database.newInstance("Child");
     c2.setProperty("name", "2");
-    YTEntity c3 = database.newInstance("Child");
+    Entity c3 = database.newInstance("Child");
     c3.setProperty("name", "3");
-    YTEntity c4 = database.newInstance("Child");
+    Entity c4 = database.newInstance("Child");
     c4.setProperty("name", "4");
 
     var list = new ArrayList();
@@ -2076,15 +2076,15 @@ public class CRUDTest extends DocumentDBBaseTest {
     Assert.assertEquals(p.<Map>getProperty("map").size(), 4);
     for (int i = 0; i < 4; i++) {
       Object o = p.<List>getProperty("list").get(i);
-      Assert.assertTrue(o instanceof YTEntity);
-      Assert.assertEquals(((YTEntity) o).getProperty("name"), (i + 1) + "");
+      Assert.assertTrue(o instanceof Entity);
+      Assert.assertEquals(((Entity) o).getProperty("name"), (i + 1) + "");
       o = p.<Map>getProperty("map").get((i + 1) + "");
-      Assert.assertTrue(o instanceof YTEntity);
-      Assert.assertEquals(((YTEntity) o).getProperty("name"), (i + 1) + "");
+      Assert.assertTrue(o instanceof Entity);
+      Assert.assertEquals(((Entity) o).getProperty("name"), (i + 1) + "");
     }
     for (Object o : p.<Set>getProperty("set")) {
-      Assert.assertTrue(o instanceof YTEntity);
-      int nameToInt = Integer.parseInt(((YTEntity) o).getProperty("name"));
+      Assert.assertTrue(o instanceof Entity);
+      int nameToInt = Integer.parseInt(((Entity) o).getProperty("name"));
       Assert.assertTrue(nameToInt > 0 && nameToInt < 5);
     }
 
@@ -2102,27 +2102,27 @@ public class CRUDTest extends DocumentDBBaseTest {
     p = database.load(rid);
     Assert.assertEquals(p.<List>getProperty("list").size(), 5);
     Object o = p.<List>getProperty("list").get(4);
-    Assert.assertTrue(o instanceof YTEntity);
+    Assert.assertTrue(o instanceof Entity);
     o = p.<Map>getProperty("map").get("5");
-    Assert.assertTrue(o instanceof YTEntity);
+    Assert.assertTrue(o instanceof Entity);
     boolean hasOther = false;
     for (Object obj : p.<Set>getProperty("set")) {
-      hasOther = hasOther || (obj instanceof YTEntity);
+      hasOther = hasOther || (obj instanceof Entity);
     }
     Assert.assertTrue(hasOther);
     database.commit();
   }
 
   public void oidentifableFieldsTest() {
-    YTEntity p = database.newInstance("JavaComplexTestClass");
+    Entity p = database.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Dean Winchester");
 
-    YTEntityImpl testEmbeddedDocument = new YTEntityImpl();
+    EntityImpl testEmbeddedDocument = new EntityImpl();
     testEmbeddedDocument.field("testEmbeddedField", "testEmbeddedValue");
 
     p.setProperty("embeddedDocument", testEmbeddedDocument);
 
-    YTEntityImpl testDocument = new YTEntityImpl();
+    EntityImpl testDocument = new EntityImpl();
     testDocument.field("testField", "testValue");
 
     database.begin();
@@ -2133,8 +2133,8 @@ public class CRUDTest extends DocumentDBBaseTest {
     testDocument = database.bindToSession(testDocument);
     p.setProperty("document", testDocument);
 
-    YTBlob testRecordBytes =
-        new YTRecordBytes(
+    Blob testRecordBytes =
+        new RecordBytes(
             "this is a bytearray test. if you read this Object database has stored it correctly"
                 .getBytes());
 
@@ -2149,7 +2149,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    YTEntity loaded = database.load(rid);
+    Entity loaded = database.load(rid);
 
     Assert.assertNotNull(loaded.getBlobProperty("byteArray"));
     try {
@@ -2167,12 +2167,12 @@ public class CRUDTest extends DocumentDBBaseTest {
       Assert.fail();
       OLogManager.instance().error(this, "Error reading byte[]", ioe);
     }
-    Assert.assertTrue(loaded.getElementProperty("document") instanceof YTEntityImpl);
+    Assert.assertTrue(loaded.getElementProperty("document") instanceof EntityImpl);
     Assert.assertEquals(
         loaded.getElementProperty("document").getProperty("testField"), "testValue");
     Assert.assertTrue(loaded.getElementProperty("document").getIdentity().isPersistent());
 
-    Assert.assertTrue(loaded.getElementProperty("embeddedDocument") instanceof YTEntityImpl);
+    Assert.assertTrue(loaded.getElementProperty("embeddedDocument") instanceof EntityImpl);
     Assert.assertEquals(
         loaded.getElementProperty("embeddedDocument").getProperty("testEmbeddedField"),
         "testEmbeddedValue");
@@ -2187,7 +2187,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     byte[] thumbnailImageBytes =
         "this is a bytearray test. if you read this Object database has stored it correctlyVERSION2"
             .getBytes();
-    YTBlob oRecordBytes = new YTRecordBytes(thumbnailImageBytes);
+    Blob oRecordBytes = new RecordBytes(thumbnailImageBytes);
 
     oRecordBytes.save();
     p.setProperty("byteArray", oRecordBytes);
@@ -2251,7 +2251,7 @@ public class CRUDTest extends DocumentDBBaseTest {
         "this is a bytearray test. if you read this Object database has stored it correctlyVERSION2"
             .getBytes();
 
-    oRecordBytes = new YTRecordBytes(thumbnailImageBytes);
+    oRecordBytes = new RecordBytes(thumbnailImageBytes);
     oRecordBytes.save();
     p.setProperty("byteArray", oRecordBytes);
 
@@ -2307,8 +2307,8 @@ public class CRUDTest extends DocumentDBBaseTest {
 
   @Test
   public void testObjectDelete() {
-    YTEntity media = database.newEntity("Media");
-    YTBlob testRecord = database.newBlob("This is a test".getBytes());
+    Entity media = database.newEntity("Media");
+    Blob testRecord = database.newBlob("This is a test".getBytes());
 
     media.setProperty("content", testRecord);
 
@@ -2329,7 +2329,7 @@ public class CRUDTest extends DocumentDBBaseTest {
   public void update() {
     int[] i = new int[]{0};
 
-    database.executeInTxBatches((Iterator<YTEntityImpl>) database.browseClass("Account"),
+    database.executeInTxBatches((Iterator<EntityImpl>) database.browseClass("Account"),
         (session, a) -> {
           if (i[0] % 2 == 0) {
             var addresses = a.<List<YTIdentifiable>>getProperty("addresses");
@@ -2363,7 +2363,7 @@ public class CRUDTest extends DocumentDBBaseTest {
   public void testUpdate() {
     int i = 0;
     database.begin();
-    YTEntity a;
+    Entity a;
     for (var iterator = database.query("select from Account"); iterator.hasNext(); ) {
       a = iterator.next().toEntity();
 
@@ -2371,24 +2371,24 @@ public class CRUDTest extends DocumentDBBaseTest {
         Assert.assertEquals(
             a.<List<YTIdentifiable>>getProperty("addresses")
                 .get(0)
-                .<YTEntity>getRecord()
+                .<Entity>getRecord()
                 .<YTIdentifiable>getProperty("city")
-                .<YTEntity>getRecord()
-                .<YTEntity>getRecord()
+                .<Entity>getRecord()
+                .<Entity>getRecord()
                 .<YTIdentifiable>getProperty("country")
-                .<YTEntity>getRecord()
+                .<Entity>getRecord()
                 .getProperty("name"),
             "Spain");
       } else {
         Assert.assertEquals(
             a.<List<YTIdentifiable>>getProperty("addresses")
                 .get(0)
-                .<YTEntity>getRecord()
+                .<Entity>getRecord()
                 .<YTIdentifiable>getProperty("city")
-                .<YTEntity>getRecord()
-                .<YTEntity>getRecord()
+                .<Entity>getRecord()
+                .<Entity>getRecord()
                 .<YTIdentifiable>getProperty("country")
-                .<YTEntity>getRecord()
+                .<Entity>getRecord()
                 .getProperty("name"),
             "Italy");
       }
@@ -2405,7 +2405,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     long profiles = database.countClass("Profile");
 
     database.begin();
-    YTEntity neo = database.newEntity("Profile");
+    Entity neo = database.newEntity("Profile");
     neo.setProperty("nick", "Neo");
     neo.setProperty("value", 1);
 
@@ -2441,7 +2441,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.begin();
     Assert.assertEquals(database.countClass("Profile"), profiles + 3);
 
-    for (YTEntity obj : database.browseClass("Profile")) {
+    for (Entity obj : database.browseClass("Profile")) {
       var followersList = obj.<Set<YTIdentifiable>>getProperty("followers");
       Assert.assertTrue(followersList == null || followersList instanceof LinkSet);
       if (obj.<String>getProperty("nick").equals("Neo")) {
@@ -2464,12 +2464,12 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "checkLazyLoadingOff")
   public void queryPerFloat() {
     database.begin();
-    final List<YTEntityImpl> result = executeQuery("select * from Account where salary = 500.10");
+    final List<EntityImpl> result = executeQuery("select * from Account where salary = 500.10");
 
     Assert.assertFalse(result.isEmpty());
 
-    YTEntity account;
-    for (YTEntityImpl entries : result) {
+    Entity account;
+    for (EntityImpl entries : result) {
       account = entries;
       Assert.assertEquals(account.<Float>getProperty("salary"), 500.10f);
     }
@@ -2479,23 +2479,23 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "checkLazyLoadingOff")
   public void queryCross3Levels() {
     database.begin();
-    final List<YTEntityImpl> result =
+    final List<EntityImpl> result =
         executeQuery("select from Profile where location.city.country.name = 'Spain'");
 
     Assert.assertFalse(result.isEmpty());
 
-    YTEntity profile;
-    for (YTEntityImpl entries : result) {
+    Entity profile;
+    for (EntityImpl entries : result) {
       profile = entries;
       Assert.assertEquals(
           profile
               .getElementProperty("location")
-              .<YTEntity>getRecord()
+              .<Entity>getRecord()
               .<YTIdentifiable>getProperty("city")
-              .<YTEntity>getRecord()
-              .<YTEntity>getRecord()
+              .<Entity>getRecord()
+              .<Entity>getRecord()
               .<YTIdentifiable>getProperty("country")
-              .<YTEntity>getRecord()
+              .<Entity>getRecord()
               .getProperty("name"),
           "Spain");
     }
@@ -2507,7 +2507,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     startRecordNumber = database.countClass("Account");
 
     // DELETE ALL THE RECORD IN THE CLASS
-    database.forEachInTx((Iterator<YTEntityImpl>) database.browseClass("Account"),
+    database.forEachInTx((Iterator<EntityImpl>) database.browseClass("Account"),
         ((session, document) -> {
           session.delete(document);
           return false;
@@ -2519,7 +2519,7 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test
   public void commandWithPositionalParameters() {
     database.begin();
-    List<YTEntityImpl> result =
+    List<EntityImpl> result =
         executeQuery("select from Profile where name = ? and surname = ?", "Barack", "Obama");
 
     Assert.assertFalse(result.isEmpty());
@@ -2529,7 +2529,7 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test
   public void queryWithPositionalParameters() {
     database.begin();
-    List<YTEntityImpl> result =
+    List<EntityImpl> result =
         executeQuery("select from Profile where name = ? and surname = ?", "Barack", "Obama");
 
     Assert.assertFalse(result.isEmpty());
@@ -2539,8 +2539,8 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test
   public void queryWithRidAsParameters() {
     database.begin();
-    YTEntity profile = database.browseClass("Profile").next();
-    List<YTEntityImpl> result =
+    Entity profile = database.browseClass("Profile").next();
+    List<EntityImpl> result =
         executeQuery("select from Profile where @rid = ?", profile.getIdentity());
 
     Assert.assertEquals(result.size(), 1);
@@ -2550,8 +2550,8 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test
   public void queryWithRidStringAsParameters() {
     database.begin();
-    YTEntity profile = database.browseClass("Profile").next();
-    List<YTEntityImpl> result =
+    Entity profile = database.browseClass("Profile").next();
+    List<EntityImpl> result =
         executeQuery("select from Profile where @rid = ?", profile.getIdentity());
 
     Assert.assertEquals(result.size(), 1);
@@ -2567,7 +2567,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     params.put("surname", "Obama");
 
     database.begin();
-    List<YTEntityImpl> result =
+    List<EntityImpl> result =
         executeQuery("select from Profile where name = :name and surname = :surname", params);
     Assert.assertFalse(result.isEmpty());
     database.commit();
@@ -2605,7 +2605,7 @@ public class CRUDTest extends DocumentDBBaseTest {
       params.put("name", "Barack");
       params.put("surname", "Obama");
 
-      List<YTEntity> result =
+      List<Entity> result =
           db.query("select from Profile where name = :name and surname = :surname", params)
               .entityStream()
               .toList();
@@ -2633,8 +2633,8 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     parent = database.save(parent);
 
-    List<YTEntityImpl> presult = executeQuery("select from Parent");
-    List<YTEntityImpl> cresult = executeQuery("select from EmbeddedChild");
+    List<EntityImpl> presult = executeQuery("select from Parent");
+    List<EntityImpl> cresult = executeQuery("select from EmbeddedChild");
     Assert.assertEquals(presult.size(), 1);
     Assert.assertEquals(cresult.size(), 0);
 
@@ -2665,7 +2665,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
   @Test(enabled = false, dependsOnMethods = "testCreate")
   public void testEmbeddedBinary() {
-    YTEntity a = database.newEntity("Account");
+    Entity a = database.newEntity("Account");
     a.setProperty("name", "Chris");
     a.setProperty("surname", "Martin");
     a.setProperty("id", 0);
@@ -2677,7 +2677,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.close();
 
     database = createSessionInstance();
-    YTEntity aa = database.load(a.getIdentity());
+    Entity aa = database.load(a.getIdentity());
     Assert.assertNotNull(a.getProperty("thumbnail"));
     Assert.assertNotNull(aa.getProperty("thumbnail"));
     byte[] b = aa.getProperty("thumbnail");
@@ -2689,9 +2689,9 @@ public class CRUDTest extends DocumentDBBaseTest {
   @Test
   public void queryById() {
     database.begin();
-    List<YTEntityImpl> result1 = executeQuery("select from Profile limit 1");
+    List<EntityImpl> result1 = executeQuery("select from Profile limit 1");
 
-    List<YTEntityImpl> result2 =
+    List<EntityImpl> result2 =
         executeQuery("select from Profile where @rid = ?", result1.get(0).getIdentity());
 
     Assert.assertFalse(result2.isEmpty());
@@ -2705,11 +2705,11 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    List<YTEntityImpl> result1 = executeQuery("select from Profile where nick = 'foo'");
+    List<EntityImpl> result1 = executeQuery("select from Profile where nick = 'foo'");
 
     Assert.assertEquals(result1.size(), 1);
     Assert.assertEquals(result1.get(0).getClassName(), "Profile");
-    YTEntity profile = result1.get(0);
+    Entity profile = result1.get(0);
 
     Assert.assertEquals(profile.getProperty("nick"), "foo");
     database.commit();

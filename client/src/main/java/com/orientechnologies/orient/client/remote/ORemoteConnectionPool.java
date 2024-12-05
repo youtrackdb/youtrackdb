@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.common.concur.resource.OResourcePool;
-import com.orientechnologies.common.concur.resource.OResourcePoolListener;
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.io.OIOException;
-import com.orientechnologies.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.concur.resource.OResourcePool;
+import com.jetbrains.youtrack.db.internal.common.concur.resource.OResourcePoolListener;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.io.OIOException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
 
 /**
  *

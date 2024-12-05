@@ -13,9 +13,9 @@
  */
 package com.orientechnologies.security.auditing;
 
-import com.orientechnologies.common.parser.OVariableParser;
-import com.orientechnologies.common.parser.OVariableParserListener;
-import com.orientechnologies.core.security.OAuditingOperation;
+import com.jetbrains.youtrack.db.internal.common.parser.OVariableParser;
+import com.jetbrains.youtrack.db.internal.common.parser.OVariableParserListener;
+import com.jetbrains.youtrack.db.internal.core.security.OAuditingOperation;
 
 public abstract class OAuditingConfig {
 

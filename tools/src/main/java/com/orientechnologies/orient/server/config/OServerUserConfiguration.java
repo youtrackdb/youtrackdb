@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.config;
 
-import com.orientechnologies.core.security.OGlobalUser;
+import com.jetbrains.youtrack.db.internal.core.security.OGlobalUser;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlType;

@@ -1,36 +1,36 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.util.OCommonConst;
-import com.orientechnologies.common.util.ORawPair;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.util.OCommonConst;
+import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.remote.OCollectionNetworkSerializer;
 import com.orientechnologies.orient.client.remote.message.tx.IndexChange;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.ORecordOperation;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.exception.YTSerializationException;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.ORecordInternal;
-import com.orientechnologies.core.record.YTRecord;
-import com.orientechnologies.core.record.YTRecordAbstract;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializer;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
-import com.orientechnologies.core.serialization.serializer.result.binary.OResultSerializerNetwork;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultInternal;
-import com.orientechnologies.core.storage.OPhysicalPosition;
-import com.orientechnologies.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
-import com.orientechnologies.core.tx.OTransactionIndexChanges;
-import com.orientechnologies.core.tx.OTransactionIndexChangesPerKey;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSerializationException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.result.binary.OResultSerializerNetwork;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.storage.OPhysicalPosition;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChangesPerKey;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -62,7 +62,7 @@ public class OMessageHelper {
   }
 
   public static void writeRecord(
-      YTDatabaseSessionInternal session, OChannelDataOutput channel, YTRecordAbstract iRecord,
+      YTDatabaseSessionInternal session, OChannelDataOutput channel, RecordAbstract iRecord,
       ORecordSerializer serializer)
       throws IOException {
     channel.writeShort((short) 0);
@@ -82,15 +82,15 @@ public class OMessageHelper {
   }
 
   public static byte[] getRecordBytes(@Nullable YTDatabaseSessionInternal session,
-      final YTRecordAbstract iRecord, ORecordSerializer serializer) {
+      final RecordAbstract iRecord, ORecordSerializer serializer) {
     final byte[] stream;
     String dbSerializerName = null;
     if (session != null) {
       dbSerializerName = (iRecord.getSession()).getSerializer().toString();
     }
-    if (ORecordInternal.getRecordType(iRecord) == YTEntityImpl.RECORD_TYPE
+    if (ORecordInternal.getRecordType(iRecord) == EntityImpl.RECORD_TYPE
         && (dbSerializerName == null || !dbSerializerName.equals(serializer.toString()))) {
-      ((YTEntityImpl) iRecord).deserializeFields();
+      ((EntityImpl) iRecord).deserializeFields();
       stream = serializer.toStream(session, iRecord);
     } else {
       stream = iRecord.toStream();
@@ -407,12 +407,12 @@ public class OMessageHelper {
     if (classId == OChannelBinaryProtocol.RECORD_RID) {
       return network.readRID();
     } else {
-      final YTRecord record = readRecordFromBytes(db, network, serializer);
+      final Record record = readRecordFromBytes(db, network, serializer);
       return record;
     }
   }
 
-  private static YTRecord readRecordFromBytes(
+  private static Record readRecordFromBytes(
       YTDatabaseSessionInternal db, OChannelDataInput network, ORecordSerializer serializer)
       throws IOException {
     byte rec = network.readByte();
@@ -420,7 +420,7 @@ public class OMessageHelper {
     final int version = network.readVersion();
     final byte[] content = network.readBytes();
 
-    YTRecordAbstract record =
+    RecordAbstract record =
         YouTrackDBManager.instance()
             .getRecordFactoryManager()
             .newInstance(rec, rid, db);
@@ -471,7 +471,7 @@ public class OMessageHelper {
   }
 
   private static void writeDocument(
-      YTDatabaseSessionInternal session, OChannelDataOutput channel, YTEntityImpl doc,
+      YTDatabaseSessionInternal session, OChannelDataOutput channel, EntityImpl doc,
       ORecordSerializer serializer) throws IOException {
     writeIdentifiable(session, channel, doc, serializer);
   }
@@ -529,10 +529,10 @@ public class OMessageHelper {
     return new YTResultInternal(db, readDocument(db, channel));
   }
 
-  private static YTRecord readDocument(YTDatabaseSessionInternal db, OChannelDataInput channel)
+  private static Record readDocument(YTDatabaseSessionInternal db, OChannelDataInput channel)
       throws IOException {
     ORecordSerializer serializer = ORecordSerializerNetworkV37Client.INSTANCE;
-    return (YTRecord) readIdentifiable(db, channel, serializer);
+    return (Record) readIdentifiable(db, channel, serializer);
   }
 
   private static YTResultInternal readProjection(YTDatabaseSessionInternal db,

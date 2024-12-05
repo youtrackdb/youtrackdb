@@ -18,8 +18,8 @@
 
 package com.orientechnologies.lucene.collections;
 
-import com.orientechnologies.core.command.OCommandContext;
-import com.orientechnologies.core.index.OCompositeKey;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
 import java.util.List;
 
 /**

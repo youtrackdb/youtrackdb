@@ -1,7 +1,7 @@
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ public class LuceneNullTest extends BaseLuceneTest {
     db.command("create index Test.names on Test (names) fulltext engine lucene").close();
 
     db.begin();
-    YTEntityImpl doc = new YTEntityImpl("Test");
+    EntityImpl doc = new EntityImpl("Test");
     db.save(doc);
     db.commit();
 
@@ -43,7 +43,7 @@ public class LuceneNullTest extends BaseLuceneTest {
     db.command("create property Test.names EMBEDDEDLIST STRING").close();
     db.command("create index Test.names on Test (names) fulltext engine lucene").close();
 
-    YTEntityImpl doc = new YTEntityImpl("Test");
+    EntityImpl doc = new EntityImpl("Test");
 
     db.begin();
     doc.field("names", new String[]{"foo"});

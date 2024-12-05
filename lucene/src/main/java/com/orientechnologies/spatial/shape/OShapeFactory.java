@@ -13,10 +13,10 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.record.YTEntity;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,7 +66,7 @@ public class OShapeFactory extends OComplexShapeBuilder {
   }
 
   @Override
-  public Shape fromDoc(YTEntityImpl document) {
+  public Shape fromDoc(EntityImpl document) {
     OShapeBuilder oShapeBuilder = factories.get(document.getClassName());
     if (oShapeBuilder != null) {
       return oShapeBuilder.fromDoc(document);
@@ -85,12 +85,12 @@ public class OShapeFactory extends OComplexShapeBuilder {
         e.printStackTrace();
       }
     }
-    if (obj instanceof YTEntityImpl) {
-      return fromDoc((YTEntityImpl) obj);
+    if (obj instanceof EntityImpl) {
+      return fromDoc((EntityImpl) obj);
     }
     if (obj instanceof YTResult) {
-      YTEntity entity = ((YTResult) obj).toEntity();
-      return fromDoc((YTEntityImpl) entity);
+      Entity entity = ((YTResult) obj).toEntity();
+      return fromDoc((EntityImpl) entity);
     }
     if (obj instanceof Map) {
       Map map = (Map) ((Map) obj).get("shape");
@@ -103,7 +103,7 @@ public class OShapeFactory extends OComplexShapeBuilder {
   }
 
   @Override
-  public String asText(YTEntityImpl document) {
+  public String asText(EntityImpl document) {
     String className = document.getClassName();
     OShapeBuilder oShapeBuilder = factories.get(className);
     if (oShapeBuilder != null) {
@@ -123,11 +123,11 @@ public class OShapeFactory extends OComplexShapeBuilder {
   public String asText(Object obj) {
 
     if (obj instanceof YTResult) {
-      YTEntity entity = ((YTResult) obj).toEntity();
-      return asText((YTEntityImpl) entity);
+      Entity entity = ((YTResult) obj).toEntity();
+      return asText((EntityImpl) entity);
     }
-    if (obj instanceof YTEntityImpl) {
-      return asText((YTEntityImpl) obj);
+    if (obj instanceof EntityImpl) {
+      return asText((EntityImpl) obj);
     }
     if (obj instanceof Map) {
       Map map = (Map) ((Map) obj).get("shape");
@@ -141,8 +141,8 @@ public class OShapeFactory extends OComplexShapeBuilder {
 
   public byte[] asBinary(Object obj) {
 
-    if (obj instanceof YTEntityImpl) {
-      Shape shape = fromDoc((YTEntityImpl) obj);
+    if (obj instanceof EntityImpl) {
+      Shape shape = fromDoc((EntityImpl) obj);
       return asBinary(shape);
     }
     if (obj instanceof Map) {
@@ -158,10 +158,10 @@ public class OShapeFactory extends OComplexShapeBuilder {
   }
 
   @Override
-  public YTEntityImpl toDoc(Shape shape) {
+  public EntityImpl toDoc(Shape shape) {
 
     // TODO REFACTOR
-    YTEntityImpl doc = null;
+    EntityImpl doc = null;
     if (Point.class.isAssignableFrom(shape.getClass())) {
       doc = factories.get(OPointShapeBuilder.NAME).toDoc(shape);
     } else if (Rectangle.class.isAssignableFrom(shape.getClass())) {
@@ -188,7 +188,7 @@ public class OShapeFactory extends OComplexShapeBuilder {
   }
 
   @Override
-  protected YTEntityImpl toDoc(Shape shape, Geometry geometry) {
+  protected EntityImpl toDoc(Shape shape, Geometry geometry) {
     if (Point.class.isAssignableFrom(shape.getClass())) {
       return factories.get(OPointShapeBuilder.NAME).toDoc(shape, geometry);
     } else if (geometry != null && "LineString".equals(geometry.getClass().getSimpleName())) {
@@ -231,7 +231,7 @@ public class OShapeFactory extends OComplexShapeBuilder {
     }
   }
 
-  public YTEntityImpl toDoc(Geometry geometry) {
+  public EntityImpl toDoc(Geometry geometry) {
     if (geometry instanceof org.locationtech.jts.geom.Point point) {
       Point point1 = context().makePoint(point.getX(), point.getY());
       return toDoc(point1);

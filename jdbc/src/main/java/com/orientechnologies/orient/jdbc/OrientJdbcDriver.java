@@ -13,8 +13,8 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.OConstants;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.OConstants;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;

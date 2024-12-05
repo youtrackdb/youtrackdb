@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.server.network.http;
 
-import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.common.util.OCallable;
+import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.common.util.OCallable;
 import com.orientechnologies.orient.server.network.OServerNetworkListener;
 import com.orientechnologies.orient.server.network.protocol.http.ONetworkProtocolHttpAbstract;
 import com.orientechnologies.orient.server.network.protocol.http.command.get.OServerCommandGetStaticContent;

@@ -13,11 +13,11 @@
  */
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Before;
@@ -51,10 +51,10 @@ public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
     db.command("CREATE INDEX Place.l_lon ON Place(latitude,longitude) SPATIAL ENGINE LUCENE")
         .close();
 
-    YTEntityImpl rome = newCity("Rome", 12.5, 41.9);
-    YTEntityImpl london = newCity("London", -0.1275, 51.507222);
+    EntityImpl rome = newCity("Rome", 12.5, 41.9);
+    EntityImpl london = newCity("London", -0.1275, 51.507222);
 
-    YTEntityImpl rome1 = new YTEntityImpl("Place");
+    EntityImpl rome1 = new EntityImpl("Place");
     rome1.field("name", "Rome");
     rome1.field("latitude", 41.9);
     rome1.field("longitude", 12.5);
@@ -119,9 +119,9 @@ public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
 //    Assert.assertEquals(1, old.size());
   }
 
-  protected static YTEntityImpl newCity(String name, final Double longitude,
+  protected static EntityImpl newCity(String name, final Double longitude,
       final Double latitude) {
-    YTEntityImpl location = new YTEntityImpl("OPoint");
+    EntityImpl location = new EntityImpl("OPoint");
     location.field(
         "coordinates",
         new ArrayList<Double>() {
@@ -131,7 +131,7 @@ public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
           }
         });
 
-    YTEntityImpl city = new YTEntityImpl("City");
+    EntityImpl city = new EntityImpl("City");
     city.field("name", name);
     city.field("location", location);
     return city;

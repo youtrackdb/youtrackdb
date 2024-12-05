@@ -32,7 +32,7 @@
       -Xmx${heapSize}
       -Dstorage.diskCache.bufferSize=4096
       -Dmemory.directMemory.trackMode=true
-      -Djava.util.logging.manager=com.orientechnologies.common.log.ShutdownLogManager
+      -Djava.util.logging.manager=com.jetbrains.youtrack.db.internal.common.log.ShutdownLogManager
       -Dstorage.diskCache.checksumMode=storeAndThrow
       -Dsecurity.warningDefaultUsers=false
       -Dfile.log.deletion=false

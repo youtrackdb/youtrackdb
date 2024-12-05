@@ -19,17 +19,17 @@
  */
 package com.orientechnologies.orient.client.binary;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.exception.YTSystemException;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.util.OPair;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.enterprise.channel.OSocketFactory;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.YTNetworkProtocolException;
-import com.orientechnologies.orient.enterprise.channel.binary.YTResponseProcessingException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTSystemException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.util.OPair;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.OSocketFactory;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinary;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTNetworkProtocolException;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTResponseProcessingException;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -72,7 +72,7 @@ public abstract class OChannelBinaryClientAbstract extends OChannelBinary {
       if (iDatabaseName != null) {
         serverURL += "/" + iDatabaseName;
       }
-      socketTimeout = iConfig.getValueAsInteger(YTGlobalConfiguration.NETWORK_SOCKET_TIMEOUT);
+      socketTimeout = iConfig.getValueAsInteger(GlobalConfiguration.NETWORK_SOCKET_TIMEOUT);
 
       try {
         if (remoteHost.contains(":")) {

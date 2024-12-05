@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.message.tx;
 
-import com.orientechnologies.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 
 public class ORecordOperation38Response {
 

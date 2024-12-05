@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import org.junit.Assert;
 import org.junit.Before;
@@ -89,11 +89,11 @@ public class LuceneMixIndexTest extends BaseLuceneTest {
 
     Assert.assertEquals(1, docs.stream().count());
 
-    // docs = databaseDocumentTx.query(new OSQLSynchQuery<YTEntityImpl>(
+    // docs = databaseDocumentTx.query(new OSQLSynchQuery<EntityImpl>(
     // "select * from Song where  author = 'Hornsby' and [title] LUCENE \"(title:ballad)\" "));
     // Assert.assertEquals(docs.size(), 0);
     //
-    // docs = databaseDocumentTx.query(new OSQLSynchQuery<YTEntityImpl>(
+    // docs = databaseDocumentTx.query(new OSQLSynchQuery<EntityImpl>(
     // "select * from Song where  author = 'Hornsby' and title LUCENE \"(title:ballad)\" "));
     // Assert.assertEquals(docs.size(), 0);
 

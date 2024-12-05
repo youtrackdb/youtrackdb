@@ -20,10 +20,10 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,7 +43,7 @@ public class OLuceneInheritanceQueryTest extends OLuceneBaseTest {
 
   @Test
   public void testQuery() {
-    YTEntityImpl doc = new YTEntityImpl("C2");
+    EntityImpl doc = new EntityImpl("C2");
     doc.field("name", "abc");
 
     db.begin();

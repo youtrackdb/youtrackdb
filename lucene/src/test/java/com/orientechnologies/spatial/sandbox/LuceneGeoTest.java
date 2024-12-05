@@ -13,8 +13,8 @@
  */
 package com.orientechnologies.spatial.sandbox;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.lucene.test.BaseLuceneTest;
 import com.orientechnologies.spatial.shape.OMultiPolygonShapeBuilder;
 import java.io.IOException;
@@ -174,7 +174,7 @@ public class LuceneGeoTest extends BaseLuceneTest {
     final RAMDirectory directory = new RAMDirectory();
     final IndexWriter writer = new IndexWriter(directory, conf);
 
-    YTEntityImpl entries = loadMultiPolygon(db);
+    EntityImpl entries = loadMultiPolygon(db);
 
     OMultiPolygonShapeBuilder builder = new OMultiPolygonShapeBuilder();
 
@@ -192,16 +192,16 @@ public class LuceneGeoTest extends BaseLuceneTest {
     writer.close();
   }
 
-  protected static YTEntityImpl loadMultiPolygon(YTDatabaseSessionInternal session) {
+  protected static EntityImpl loadMultiPolygon(YTDatabaseSessionInternal session) {
     try {
       InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("italy.json");
 
-      YTEntityImpl doc = new YTEntityImpl(session).fromJSON(systemResourceAsStream);
+      EntityImpl doc = new EntityImpl(session).fromJSON(systemResourceAsStream);
 
       Map geometry = doc.field("geometry");
 
       String type = (String) geometry.get("type");
-      YTEntityImpl location = new YTEntityImpl(session, "O" + type);
+      EntityImpl location = new EntityImpl(session, "O" + type);
       location.field("coordinates", geometry.get("coordinates"));
       return location;
     } catch (Exception e) {

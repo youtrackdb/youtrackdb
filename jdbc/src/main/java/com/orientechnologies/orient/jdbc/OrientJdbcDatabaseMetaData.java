@@ -13,19 +13,19 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.core.OConstants;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.OMetadataInternal;
-import com.orientechnologies.core.metadata.function.OFunction;
-import com.orientechnologies.core.metadata.function.OFunctionLibrary;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTClass.INDEX_TYPE;
-import com.orientechnologies.core.metadata.schema.YTProperty;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.sql.executor.YTInternalResultSet;
-import com.orientechnologies.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.OConstants;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.OMetadataInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.function.OFunction;
+import com.jetbrains.youtrack.db.internal.core.metadata.function.OFunctionLibrary;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.INDEX_TYPE;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTInternalResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;

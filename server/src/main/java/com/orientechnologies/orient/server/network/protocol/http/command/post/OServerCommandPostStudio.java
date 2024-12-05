@@ -19,16 +19,16 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.common.util.OPatternConst;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTPropertyImpl;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.ODocumentHelper;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.string.ORecordSerializerStringAbstract;
+import com.jetbrains.youtrack.db.internal.common.util.OPatternConst;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTPropertyImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.ORecordSerializerStringAbstract;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -305,7 +305,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
         throw new IllegalArgumentException("Record ID not found in request");
       }
 
-      YTEntityImpl doc = new YTEntityImpl(className, new YTRecordId(rid));
+      EntityImpl doc = new EntityImpl(className, new YTRecordId(rid));
       // BIND ALL CHANGED FIELDS
       for (Entry<String, String> f : fields.entrySet()) {
         final Object oldValue = doc.rawField(f.getKey());
@@ -347,7 +347,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
     } else if ("add".equals(operation)) {
       iRequest.getData().commandInfo = "Studio create document";
 
-      final YTEntityImpl doc = new YTEntityImpl(className);
+      final EntityImpl doc = new EntityImpl(className);
 
       // BIND ALL CHANGED FIELDS
       for (Entry<String, String> f : fields.entrySet()) {
@@ -369,7 +369,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
         throw new IllegalArgumentException("Record ID not found in request");
       }
 
-      final YTEntityImpl doc = new YTRecordId(rid).getRecord();
+      final EntityImpl doc = new YTRecordId(rid).getRecord();
       doc.delete();
       iResponse.send(
           OHttpUtils.STATUS_OK_CODE,

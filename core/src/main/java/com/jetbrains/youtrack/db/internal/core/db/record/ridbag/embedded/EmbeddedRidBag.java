@@ -1,0 +1,614 @@
+/*
+ *
+ *
+ *  *
+ *  *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  *  you may not use this file except in compliance with the License.
+ *  *  You may obtain a copy of the License at
+ *  *
+ *  *       http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  *  Unless required by applicable law or agreed to in writing, software
+ *  *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  *  See the License for the specific language governing permissions and
+ *  *  limitations under the License.
+ *  *
+ *
+ *
+ */
+package com.jetbrains.youtrack.db.internal.core.db.record.ridbag.embedded;
+
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
+import com.jetbrains.youtrack.db.internal.common.util.OCommonConst;
+import com.jetbrains.youtrack.db.internal.common.util.OResettable;
+import com.jetbrains.youtrack.db.internal.common.util.OSizeable;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.OMultiValueChangeEvent;
+import com.jetbrains.youtrack.db.internal.core.db.record.OMultiValueChangeTimeLine;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBagDelegate;
+import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSerializationException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.impl.OSimpleMultiValueTracker;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.OLinkSerializer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.Change;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionAbstract;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.NavigableMap;
+import java.util.NoSuchElementException;
+import java.util.UUID;
+
+public class EmbeddedRidBag implements RidBagDelegate {
+
+  private boolean contentWasChanged = false;
+
+  private Object[] entries = OCommonConst.EMPTY_OBJECT_ARRAY;
+  private int entriesLength = 0;
+
+  private int size = 0;
+
+  private transient RecordElement owner;
+
+  private boolean dirty = false;
+  private boolean transactionDirty = false;
+
+  private OSimpleMultiValueTracker<YTIdentifiable, YTIdentifiable> tracker =
+      new OSimpleMultiValueTracker<>(this);
+
+  @Override
+  public void setSize(int size) {
+    this.size = size;
+  }
+
+  private enum Tombstone {
+    TOMBSTONE
+  }
+
+  public Object[] getEntries() {
+    return entries;
+  }
+
+  private final class EntriesIterator implements Iterator<YTIdentifiable>, OResettable, OSizeable {
+
+    private int currentIndex = -1;
+    private int nextIndex = -1;
+    private boolean currentRemoved;
+
+    private EntriesIterator() {
+      reset();
+    }
+
+    @Override
+    public boolean hasNext() {
+      // we may remove items in ridbag during iteration so we need to be sure that pointed item is
+      // not removed.
+      if (nextIndex > -1) {
+        if (entries[nextIndex] instanceof YTIdentifiable) {
+          return true;
+        }
+
+        nextIndex = nextIndex();
+      }
+
+      return nextIndex > -1;
+    }
+
+    @Override
+    public YTIdentifiable next() {
+      currentRemoved = false;
+
+      currentIndex = nextIndex;
+      if (currentIndex == -1) {
+        throw new NoSuchElementException();
+      }
+
+      Object nextValue = entries[currentIndex];
+
+      // we may remove items in ridbag during iteration so we need to be sure that pointed item is
+      // not removed.
+      if (!(nextValue instanceof YTIdentifiable)) {
+        nextIndex = nextIndex();
+
+        currentIndex = nextIndex;
+        if (currentIndex == -1) {
+          throw new NoSuchElementException();
+        }
+
+        nextValue = entries[currentIndex];
+      }
+
+      if (nextValue != null) {
+        if (((YTIdentifiable) nextValue).getIdentity().isPersistent()) {
+          entries[currentIndex] = ((YTIdentifiable) nextValue).getIdentity();
+        }
+      }
+
+      nextIndex = nextIndex();
+
+      assert nextValue != null;
+      return (YTIdentifiable) nextValue;
+    }
+
+    @Override
+    public void remove() {
+      if (currentRemoved) {
+        throw new IllegalStateException("Current element has already been removed");
+      }
+
+      if (currentIndex == -1) {
+        throw new IllegalStateException("Next method was not called for given iterator");
+      }
+
+      currentRemoved = true;
+
+      final YTIdentifiable nextValue = (YTIdentifiable) entries[currentIndex];
+      entries[currentIndex] = Tombstone.TOMBSTONE;
+
+      size--;
+      contentWasChanged = true;
+      removeEvent(nextValue);
+    }
+
+    private void swapValueOnCurrent(YTIdentifiable newValue) {
+      if (currentRemoved) {
+        throw new IllegalStateException("Current element has already been removed");
+      }
+
+      if (currentIndex == -1) {
+        throw new IllegalStateException("Next method was not called for given iterator");
+      }
+
+      final YTIdentifiable oldValue = (YTIdentifiable) entries[currentIndex];
+      entries[currentIndex] = newValue;
+
+      contentWasChanged = true;
+
+      updateEvent(oldValue, oldValue, newValue);
+    }
+
+    @Override
+    public void reset() {
+      currentIndex = -1;
+      nextIndex = -1;
+      currentRemoved = false;
+
+      nextIndex = nextIndex();
+    }
+
+    @Override
+    public int size() {
+      return size;
+    }
+
+    private int nextIndex() {
+      for (int i = currentIndex + 1; i < entriesLength; i++) {
+        Object entry = entries[i];
+        if (entry instanceof YTIdentifiable) {
+          return i;
+        }
+      }
+
+      return -1;
+    }
+  }
+
+  @Override
+  public RecordElement getOwner() {
+    return owner;
+  }
+
+  @Override
+  public boolean contains(YTIdentifiable identifiable) {
+    if (identifiable == null) {
+      return false;
+    }
+
+    for (int i = 0; i < entriesLength; i++) {
+      if (identifiable.equals(entries[i])) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  @Override
+  public void setOwner(RecordElement owner) {
+    if (owner != null && this.owner != null && !this.owner.equals(owner)) {
+      throw new IllegalStateException(
+          "This data structure is owned by document "
+              + owner
+              + " if you want to use it in other document create new rid bag instance and copy"
+              + " content of current one.");
+    }
+    if (this.owner != null) {
+      for (int i = 0; i < entriesLength; i++) {
+        final Object entry = entries[i];
+        if (entry instanceof YTIdentifiable) {
+          ORecordInternal.unTrack(this.owner, (YTIdentifiable) entry);
+        }
+      }
+    }
+
+    this.owner = owner;
+    if (this.owner != null) {
+      for (int i = 0; i < entriesLength; i++) {
+        final Object entry = entries[i];
+        if (entry instanceof YTIdentifiable) {
+          ORecordInternal.track(this.owner, (YTIdentifiable) entry);
+        }
+      }
+    }
+  }
+
+  @Override
+  public void addAll(Collection<YTIdentifiable> values) {
+    for (YTIdentifiable value : values) {
+      add(value);
+    }
+  }
+
+  @Override
+  public void add(final YTIdentifiable identifiable) {
+    if (identifiable == null) {
+      throw new IllegalArgumentException("Impossible to add a null identifiable in a ridbag");
+    }
+    addEntry(identifiable);
+
+    size++;
+    contentWasChanged = true;
+
+    addEvent(identifiable, identifiable);
+  }
+
+  public EmbeddedRidBag copy() {
+    final EmbeddedRidBag copy = new EmbeddedRidBag();
+    copy.contentWasChanged = contentWasChanged;
+    copy.entries = entries;
+    copy.entriesLength = entriesLength;
+    copy.size = size;
+    copy.owner = owner;
+    copy.tracker = this.tracker;
+    return copy;
+  }
+
+  @Override
+  public void remove(YTIdentifiable identifiable) {
+
+    if (removeEntry(identifiable)) {
+      size--;
+      contentWasChanged = true;
+
+      removeEvent(identifiable);
+    }
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return size == 0;
+  }
+
+  @Override
+  public Iterator<YTIdentifiable> iterator() {
+    return new EntriesIterator();
+  }
+
+  public boolean convertRecords2Links() {
+    for (int i = 0; i < entriesLength; i++) {
+      final Object entry = entries[i];
+
+      if (entry instanceof YTIdentifiable identifiable) {
+        if (identifiable instanceof Record record) {
+          entries[i] = record.getIdentity();
+        }
+      }
+    }
+
+    return true;
+  }
+
+  @Override
+  public int size() {
+    return size;
+  }
+
+  @Override
+  public String toString() {
+    if (size < 10) {
+      final StringBuilder sb = new StringBuilder(256);
+      sb.append('[');
+      for (final Iterator<YTIdentifiable> it = this.iterator(); it.hasNext(); ) {
+        try {
+          YTIdentifiable e = it.next();
+          if (e != null) {
+            if (sb.length() > 1) {
+              sb.append(", ");
+            }
+
+            sb.append(e.getIdentity());
+          }
+        } catch (NoSuchElementException ignore) {
+          // IGNORE THIS
+        }
+      }
+      return sb.append(']').toString();
+
+    } else {
+      return "[size=" + size + "]";
+    }
+  }
+
+  @Override
+  public Object returnOriginalState(
+      YTDatabaseSessionInternal session,
+      List<OMultiValueChangeEvent<YTIdentifiable, YTIdentifiable>> multiValueChangeEvents) {
+    final EmbeddedRidBag reverted = new EmbeddedRidBag();
+    for (YTIdentifiable identifiable : this) {
+      reverted.add(identifiable);
+    }
+
+    final ListIterator<OMultiValueChangeEvent<YTIdentifiable, YTIdentifiable>> listIterator =
+        multiValueChangeEvents.listIterator(multiValueChangeEvents.size());
+
+    while (listIterator.hasPrevious()) {
+      final OMultiValueChangeEvent<YTIdentifiable, YTIdentifiable> event = listIterator.previous();
+      switch (event.getChangeType()) {
+        case ADD:
+          reverted.remove(event.getKey());
+          break;
+        case REMOVE:
+          reverted.add(event.getOldValue());
+          break;
+        default:
+          throw new IllegalArgumentException("Invalid change type : " + event.getChangeType());
+      }
+    }
+
+    return reverted;
+  }
+
+  @Override
+  public int getSerializedSize() {
+    int size;
+
+    size = OIntegerSerializer.INT_SIZE;
+
+    size += this.size * OLinkSerializer.RID_SIZE;
+
+    return size;
+  }
+
+  @Override
+  public int serialize(byte[] stream, int offset, UUID ownerUuid) {
+    OIntegerSerializer.INSTANCE.serializeLiteral(size, stream, offset);
+    offset += OIntegerSerializer.INT_SIZE;
+    YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    final int totEntries = entries.length;
+    for (int i = 0; i < totEntries; ++i) {
+      final Object entry = entries[i];
+      if (entry instanceof YTIdentifiable link) {
+        final YTRID rid = link.getIdentity();
+        if (db != null && !db.isClosed() && db.getTransaction().isActive()) {
+          if (!link.getIdentity().isPersistent()) {
+            link = db.getTransaction().getRecord(link.getIdentity());
+            if (link == OTransactionAbstract.DELETED_RECORD) {
+              link = null;
+            }
+          }
+        }
+
+        if (link == null) {
+          throw new YTSerializationException("Found null entry in ridbag with rid=" + rid);
+        }
+
+        entries[i] = link.getIdentity();
+        OLinkSerializer.INSTANCE.serialize(link, stream, offset);
+        offset += OLinkSerializer.RID_SIZE;
+      }
+    }
+
+    return offset;
+  }
+
+  @Override
+  public int deserialize(final byte[] stream, int offset) {
+    this.size = OIntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
+    int entriesSize = OIntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
+    offset += OIntegerSerializer.INT_SIZE;
+
+    for (int i = 0; i < entriesSize; i++) {
+      YTRID rid = OLinkSerializer.INSTANCE.deserialize(stream, offset);
+      offset += OLinkSerializer.RID_SIZE;
+
+      YTIdentifiable identifiable;
+      if (rid.isTemporary()) {
+        try {
+          identifiable = rid.getRecord();
+        } catch (YTRecordNotFoundException rnf) {
+          OLogManager.instance()
+              .warn(this, "Found null reference during ridbag deserialization (rid=%s)", rid);
+          identifiable = rid;
+        }
+      } else {
+        identifiable = rid;
+      }
+
+      addInternal(identifiable);
+    }
+
+    return offset;
+  }
+
+  @Override
+  public void requestDelete() {
+  }
+
+  @Override
+  public Class<?> getGenericClass() {
+    return YTIdentifiable.class;
+  }
+
+  public boolean addInternal(final YTIdentifiable identifiable) {
+    addEntry(identifiable);
+    if (this.owner != null) {
+      ORecordInternal.track(this.owner, identifiable);
+    }
+    return true;
+  }
+
+  public void addEntry(final YTIdentifiable identifiable) {
+    if (entries.length == entriesLength) {
+      if (entriesLength == 0) {
+        final int cfgValue =
+            GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
+        entries = new Object[cfgValue > 0 ? Math.min(cfgValue, 40) : 40];
+      } else {
+        final Object[] oldEntries = entries;
+        entries = new Object[entries.length << 1];
+        System.arraycopy(oldEntries, 0, entries, 0, oldEntries.length);
+      }
+    }
+    entries[entriesLength] = identifiable;
+    entriesLength++;
+  }
+
+  private boolean removeEntry(YTIdentifiable identifiable) {
+    int i = 0;
+    for (; i < entriesLength; i++) {
+      final Object entry = entries[i];
+      if (entry.equals(identifiable)) {
+        entries[i] = Tombstone.TOMBSTONE;
+        break;
+      }
+    }
+
+    return i < entriesLength;
+  }
+
+  @Override
+  public NavigableMap<YTIdentifiable, Change> getChanges() {
+    return null;
+  }
+
+  @Override
+  public void replace(OMultiValueChangeEvent<Object, Object> event, Object newValue) {
+    // do nothing not needed
+  }
+
+  private void addEvent(final YTIdentifiable key, final YTIdentifiable identifiable) {
+    if (this.owner != null) {
+      ORecordInternal.track(this.owner, identifiable);
+    }
+
+    if (tracker.isEnabled()) {
+      tracker.add(key, identifiable);
+    } else {
+      setDirty();
+    }
+  }
+
+  private void updateEvent(YTIdentifiable key, YTIdentifiable oldValue, YTIdentifiable newValue) {
+    if (this.owner != null) {
+      ORecordInternal.unTrack(this.owner, oldValue);
+    }
+
+    if (tracker.isEnabled()) {
+      tracker.updated(key, oldValue, newValue);
+    } else {
+      setDirty();
+    }
+  }
+
+  private void removeEvent(YTIdentifiable removed) {
+    if (this.owner != null) {
+      ORecordInternal.unTrack(this.owner, removed);
+    }
+
+    if (tracker.isEnabled()) {
+      tracker.remove(removed, removed);
+    } else {
+      setDirty();
+    }
+  }
+
+  public void enableTracking(final RecordElement parent) {
+    if (!tracker.isEnabled()) {
+      tracker.enable();
+    }
+  }
+
+  public void disableTracking(final RecordElement document) {
+    if (tracker.isEnabled()) {
+      tracker.disable();
+      this.dirty = false;
+    }
+  }
+
+  @Override
+  public void transactionClear() {
+    tracker.transactionClear();
+    this.transactionDirty = false;
+  }
+
+  @Override
+  public boolean isModified() {
+    return dirty;
+  }
+
+  @Override
+  public boolean isTransactionModified() {
+    return transactionDirty;
+  }
+
+  @Override
+  public OMultiValueChangeTimeLine<Object, Object> getTimeLine() {
+    return tracker.getTimeLine();
+  }
+
+  @Override
+  public <RET> RET setDirty() {
+    if (owner != null) {
+      owner.setDirty();
+    }
+    this.dirty = true;
+    this.transactionDirty = true;
+    return (RET) this;
+  }
+
+  public void setTransactionModified(boolean transactionDirty) {
+    this.transactionDirty = transactionDirty;
+  }
+
+  @Override
+  public void setDirtyNoChanged() {
+    if (owner != null) {
+      owner.setDirtyNoChanged();
+    }
+  }
+
+  @Override
+  public OSimpleMultiValueTracker<YTIdentifiable, YTIdentifiable> getTracker() {
+    return tracker;
+  }
+
+  @Override
+  public void setTracker(OSimpleMultiValueTracker<YTIdentifiable, YTIdentifiable> tracker) {
+    this.tracker.sourceFrom(tracker);
+  }
+
+  @Override
+  public OMultiValueChangeTimeLine<YTIdentifiable, YTIdentifiable> getTransactionTimeLine() {
+    return tracker.getTransactionTimeLine();
+  }
+}

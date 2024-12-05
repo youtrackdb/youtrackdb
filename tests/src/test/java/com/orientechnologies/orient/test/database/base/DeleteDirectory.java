@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.base;
 
-import com.orientechnologies.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
 import java.io.File;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;

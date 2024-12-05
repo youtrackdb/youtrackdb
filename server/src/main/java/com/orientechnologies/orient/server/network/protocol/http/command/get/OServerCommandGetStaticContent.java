@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.util.OCallable;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -309,7 +309,7 @@ public class OServerCommandGetStaticContent extends OServerCommandConfigurableAb
 
     if (server
         .getContextConfiguration()
-        .getValueAsBoolean(YTGlobalConfiguration.SERVER_CACHE_FILE_STATIC)) {
+        .getValueAsBoolean(GlobalConfiguration.SERVER_CACHE_FILE_STATIC)) {
       final OStaticContentCachedEntry cachedEntry = cacheContents.get(path);
       if (cachedEntry != null) {
         staticContent.is = new ByteArrayInputStream(cachedEntry.content);
@@ -346,7 +346,7 @@ public class OServerCommandGetStaticContent extends OServerCommandConfigurableAb
 
       if (server
           .getContextConfiguration()
-          .getValueAsBoolean(YTGlobalConfiguration.SERVER_CACHE_FILE_STATIC)) {
+          .getValueAsBoolean(GlobalConfiguration.SERVER_CACHE_FILE_STATIC)) {
         // READ THE ENTIRE STREAM AND CACHE IT IN MEMORY
         final byte[] buffer = new byte[(int) staticContent.contentSize];
         for (int i = 0; i < staticContent.contentSize; ++i) {

@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.plugin;
 
-import com.orientechnologies.common.util.OService;
+import com.jetbrains.youtrack.db.internal.common.util.OService;
 import com.orientechnologies.orient.server.OClientConnection;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;

@@ -13,15 +13,15 @@
  */
 package com.orientechnologies.security.auditing;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YouTrackDBInternal;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTEntity;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.List;
 
 public class OSystemDBImporter extends Thread {
@@ -38,7 +38,7 @@ public class OSystemDBImporter extends Thread {
     return enabled;
   }
 
-  public OSystemDBImporter(final YouTrackDBInternal context, final YTEntityImpl jsonConfig) {
+  public OSystemDBImporter(final YouTrackDBInternal context, final EntityImpl jsonConfig) {
     super(YouTrackDBManager.instance().getThreadGroup(), "YouTrackDB Auditing Log Importer Thread");
 
     this.context = context;
@@ -125,7 +125,7 @@ public class OSystemDBImporter extends Thread {
         while (result.hasNext()) {
           YTResult doc = result.next();
           try {
-            YTEntity copy = new YTEntityImpl();
+            Entity copy = new EntityImpl();
 
             if (doc.hasProperty("date")) {
               copy.setProperty("date", doc.getProperty("date"), YTType.DATETIME);
@@ -151,7 +151,7 @@ public class OSystemDBImporter extends Thread {
               // Convert user RID to username.
               if (doc.hasProperty("user")) {
                 // doc.field("user") will throw an exception if the user's YTRID is not found.
-                YTEntityImpl userDoc = doc.getProperty("user");
+                EntityImpl userDoc = doc.getProperty("user");
                 final String username = userDoc.field("name");
 
                 if (username != null) {

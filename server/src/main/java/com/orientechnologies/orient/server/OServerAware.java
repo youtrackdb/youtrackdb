@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinary;
 import com.orientechnologies.orient.server.distributed.ODistributedServerManager;
 import java.io.IOException;
 

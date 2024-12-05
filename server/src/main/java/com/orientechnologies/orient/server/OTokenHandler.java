@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.metadata.security.OToken;
-import com.orientechnologies.core.metadata.security.YTSecurityUser;
-import com.orientechnologies.core.security.OParsedToken;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.OToken;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
+import com.jetbrains.youtrack.db.internal.core.security.OParsedToken;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
 import java.io.IOException;
 import java.security.InvalidKeyException;

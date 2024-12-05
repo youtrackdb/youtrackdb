@@ -20,11 +20,11 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +48,7 @@ public class OLuceneCreateJavaApiTest extends OLuceneBaseTest {
 
     YTClass song = schema.getClass("Song");
 
-    YTEntityImpl meta = new YTEntityImpl().field("analyzer", StandardAnalyzer.class.getName());
+    EntityImpl meta = new EntityImpl().field("analyzer", StandardAnalyzer.class.getName());
     OIndex lucene =
         song.createIndex(db,
             "Song.title",

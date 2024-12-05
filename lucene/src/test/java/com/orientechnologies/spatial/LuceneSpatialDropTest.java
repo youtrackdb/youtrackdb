@@ -1,14 +1,14 @@
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.core.db.OPartitionedDatabasePool;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.document.YTDatabaseDocumentTx;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
-import com.orientechnologies.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.db.OPartitionedDatabasePool;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.io.File;
 import java.util.List;
 import org.junit.Assert;
@@ -54,10 +54,10 @@ public class LuceneSpatialDropTest {
 
     db = dbPool.acquire();
     // @maggiolo00 Remove the next three lines and the test will not fail anymore
-    OSQLSynchQuery<YTEntityImpl> query =
-        new OSQLSynchQuery<YTEntityImpl>(
+    OSQLSynchQuery<EntityImpl> query =
+        new OSQLSynchQuery<EntityImpl>(
             "select from test where [latitude,longitude] WITHIN [[50.0,8.0],[51.0,9.0]]");
-    List<YTEntityImpl> result = db.command(query).execute(db);
+    List<EntityImpl> result = db.command(query).execute(db);
     Assert.assertEquals(insertcount, result.size());
     db.close();
     dbPool.close();
@@ -72,7 +72,7 @@ public class LuceneSpatialDropTest {
 
   private void fillDb(YTDatabaseSession db, int count) {
     for (int i = 0; i < count; i++) {
-      YTEntityImpl doc = new YTEntityImpl("test");
+      EntityImpl doc = new EntityImpl("test");
       doc.field("name", "TestInsert" + i);
       doc.field("latitude", 50.0 + (i * 0.000001));
       doc.field("longitude", 8.0 + (i * 0.000001));

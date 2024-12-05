@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
-import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YTLiveQueryResultListener;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryResultListener;
 
 /**
  *

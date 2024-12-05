@@ -1,10 +1,10 @@
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.Date;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,7 +31,7 @@ public class LuceneReuseTest extends BaseLuceneTest {
     for (int i = 0; i < 10; i++) {
       db.begin();
       db.save(
-          new YTEntityImpl("Reuse")
+          new EntityImpl("Reuse")
               .field("name", "John")
               .field("date", new Date())
               .field("surname", "Reese")
@@ -68,7 +68,7 @@ public class LuceneReuseTest extends BaseLuceneTest {
     for (int i = 0; i < 10; i++) {
       db.begin();
       db.save(
-          new YTEntityImpl("Reuse")
+          new EntityImpl("Reuse")
               .field("name", "John")
               .field("date", new Date())
               .field("surname", "Reese")
@@ -79,7 +79,7 @@ public class LuceneReuseTest extends BaseLuceneTest {
     // additional record
     db.begin();
     db.save(
-        new YTEntityImpl("Reuse")
+        new EntityImpl("Reuse")
             .field("name", "John")
             .field("date", new Date())
             .field("surname", "Franklin")

@@ -18,15 +18,15 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTEntity;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -52,7 +52,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
   @Test
   public void testRollback() {
 
-    YTEntityImpl doc = new YTEntityImpl("c1");
+    EntityImpl doc = new EntityImpl("c1");
     doc.field("p1", "abc");
     db.begin();
     db.save(doc);
@@ -70,7 +70,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
   public void txRemoveTest() {
     db.begin();
 
-    YTEntityImpl doc = new YTEntityImpl("c1");
+    EntityImpl doc = new EntityImpl("c1");
     doc.field("p1", "abc");
 
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
@@ -92,7 +92,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
     Assert.assertFalse(vertices.hasNext());
     Assert.assertEquals(1, index.getInternal().size(db));
 
-    doc = new YTEntityImpl("c1");
+    doc = new EntityImpl("c1");
     doc.field("p1", "abc");
 
     db.delete(result.getIdentity().get());
@@ -139,7 +139,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
     db.begin();
     Assert.assertEquals(index.getInternal().size(db), 0);
 
-    YTEntityImpl doc = new YTEntityImpl("c1");
+    EntityImpl doc = new EntityImpl("c1");
     doc.field("p1", "update");
 
     db.save(doc);
@@ -166,7 +166,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
 
     db.begin();
 
-    YTEntity record = db.bindToSession(res.getEntity().get());
+    Entity record = db.bindToSession(res.getEntity().get());
     record.setProperty("p1", "removed");
     db.save(record);
 
@@ -219,10 +219,10 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
     db.begin();
     Assert.assertEquals(index.getInternal().size(db), 0);
 
-    YTEntityImpl doc = new YTEntityImpl("c1");
+    EntityImpl doc = new EntityImpl("c1");
     doc.field("p1", "abc");
 
-    YTEntityImpl doc1 = new YTEntityImpl("c1");
+    EntityImpl doc1 = new EntityImpl("c1");
     doc1.field("p1", "abc");
 
     db.save(doc1);

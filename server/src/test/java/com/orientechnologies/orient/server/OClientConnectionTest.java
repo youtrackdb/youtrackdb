@@ -5,9 +5,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.orient.enterprise.channel.binary.YTTokenSecurityException;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTTokenSecurityException;
 import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
 import com.orientechnologies.orient.server.token.OTokenHandlerImpl;
 import java.io.IOException;
@@ -56,10 +56,10 @@ public class OClientConnectionTest extends BaseMemoryInternalDatabase {
   @Test(expected = YTTokenSecurityException.class)
   public void testExpiredToken() throws IOException, InterruptedException {
     OClientConnection conn = new OClientConnection(1, protocol);
-    long sessionTimeout = YTGlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT.getValueAsLong();
-    YTGlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT.setValue(0);
+    long sessionTimeout = GlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT.getValueAsLong();
+    GlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT.setValue(0);
     OTokenHandler handler = new OTokenHandlerImpl(server.getContextConfiguration());
-    YTGlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT.setValue(sessionTimeout);
+    GlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT.setValue(sessionTimeout);
     byte[] tokenBytes = handler.getSignedBinaryToken(db, db.getUser(), conn.getData());
     Thread.sleep(1);
     conn.validateSession(tokenBytes, handler, protocol);

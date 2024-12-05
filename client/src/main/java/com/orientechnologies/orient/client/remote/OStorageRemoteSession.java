@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.common.io.OIOException;
-import com.orientechnologies.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.io.OIOException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
 import com.orientechnologies.orient.client.remote.message.OCloseRequest;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinary;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;

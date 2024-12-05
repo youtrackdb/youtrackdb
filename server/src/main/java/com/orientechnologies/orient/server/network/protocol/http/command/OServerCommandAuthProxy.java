@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command;
 
-import com.orientechnologies.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;

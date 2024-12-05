@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client;
 
-import com.orientechnologies.common.exception.YTSystemException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTSystemException;
 
 public class YTNotSendRequestException extends YTSystemException {
 

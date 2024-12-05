@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server.distributed.task;
 
-import com.orientechnologies.common.concur.YTNeedRetryException;
+import com.jetbrains.youtrack.db.internal.common.concur.YTNeedRetryException;
 
 public class YTDistributedKeyLockedException extends YTNeedRetryException {
 

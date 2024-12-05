@@ -1,15 +1,15 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.index.OCompositeKey;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.index.OIndexDefinition;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTProperty;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.storage.YTRecordDuplicatedException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.storage.YTRecordDuplicatedException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -62,7 +62,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
         "classIndexManagerTestSuperClass.prop0",
         YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"prop0"});
+        new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop0"});
 
     final YTClass oClass = schema.createClass("classIndexManagerTestClass", superClass);
     final YTProperty propOne = oClass.createProperty(database, "prop1", YTType.STRING);
@@ -70,7 +70,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
         "classIndexManagerTestClass.prop1",
         YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"prop1"});
+        new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop1"});
 
     final YTProperty propTwo = oClass.createProperty(database, "prop2", YTType.INTEGER);
     propTwo.createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
@@ -95,7 +95,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
         "classIndexManagerComposite",
         YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"prop1", "prop2"});
+        new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop1", "prop2"});
 
     final YTClass oClassTwo = schema.createClass("classIndexManagerTestClassTwo");
     oClassTwo.createProperty(database, "prop1", YTType.STRING);
@@ -110,13 +110,13 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
         "classIndexManagerTestIndexValueAndCollection",
         YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"prop1", "prop2"});
+        new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop1", "prop2"});
 
     oClass.createIndex(database,
         "classIndexManagerTestIndexOnPropertiesFromClassAndSuperclass",
         YTClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new YTEntityImpl().fields("ignoreNullValues", true), new String[]{"prop0", "prop1"});
+        new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop0", "prop1"});
 
     database.close();
   }
@@ -158,8 +158,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testPropertiesCheckUniqueIndexDubKeysCreate() {
-    final YTEntityImpl docOne = new YTEntityImpl("classIndexManagerTestClass");
-    final YTEntityImpl docTwo = new YTEntityImpl("classIndexManagerTestClass");
+    final EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
+    final EntityImpl docTwo = new EntityImpl("classIndexManagerTestClass");
 
     docOne.field("prop1", "a");
     database.begin();
@@ -180,8 +180,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testPropertiesCheckUniqueIndexDubKeyIsNullCreate() {
-    final YTEntityImpl docOne = new YTEntityImpl("classIndexManagerTestClass");
-    final YTEntityImpl docTwo = new YTEntityImpl("classIndexManagerTestClass");
+    final EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
+    final EntityImpl docTwo = new EntityImpl("classIndexManagerTestClass");
 
     docOne.field("prop1", "a");
     database.begin();
@@ -195,8 +195,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testPropertiesCheckUniqueIndexDubKeyIsNullCreateInTx() {
-    final YTEntityImpl docOne = new YTEntityImpl("classIndexManagerTestClass");
-    final YTEntityImpl docTwo = new YTEntityImpl("classIndexManagerTestClass");
+    final EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
+    final EntityImpl docTwo = new EntityImpl("classIndexManagerTestClass");
 
     database.begin();
     docOne.field("prop1", "a");
@@ -208,8 +208,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testPropertiesCheckUniqueIndexInParentDubKeysCreate() {
-    final YTEntityImpl docOne = new YTEntityImpl("classIndexManagerTestClass");
-    final YTEntityImpl docTwo = new YTEntityImpl("classIndexManagerTestClass");
+    final EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
+    final EntityImpl docTwo = new EntityImpl("classIndexManagerTestClass");
 
     docOne.field("prop0", "a");
     database.begin();
@@ -230,8 +230,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
   public void testPropertiesCheckUniqueIndexDubKeysUpdate() {
     database.begin();
-    YTEntityImpl docOne = new YTEntityImpl("classIndexManagerTestClass");
-    YTEntityImpl docTwo = new YTEntityImpl("classIndexManagerTestClass");
+    EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
+    EntityImpl docTwo = new EntityImpl("classIndexManagerTestClass");
 
     boolean exceptionThrown = false;
     docOne.field("prop1", "a");
@@ -260,8 +260,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
   public void testPropertiesCheckUniqueIndexDubKeyIsNullUpdate() {
     database.begin();
-    YTEntityImpl docOne = new YTEntityImpl("classIndexManagerTestClass");
-    YTEntityImpl docTwo = new YTEntityImpl("classIndexManagerTestClass");
+    EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
+    EntityImpl docTwo = new EntityImpl("classIndexManagerTestClass");
 
     docOne.field("prop1", "a");
 
@@ -283,8 +283,8 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testPropertiesCheckUniqueIndexDubKeyIsNullUpdateInTX() {
-    final YTEntityImpl docOne = new YTEntityImpl("classIndexManagerTestClass");
-    final YTEntityImpl docTwo = new YTEntityImpl("classIndexManagerTestClass");
+    final EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
+    final EntityImpl docTwo = new EntityImpl("classIndexManagerTestClass");
 
     database.begin();
     docOne.field("prop1", "a");
@@ -299,13 +299,13 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testPropertiesCheckNonUniqueIndexDubKeys() {
-    final YTEntityImpl docOne = new YTEntityImpl("classIndexManagerTestClass");
+    final EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
     docOne.field("prop2", 1);
     database.begin();
     docOne.save();
     database.commit();
 
-    final YTEntityImpl docTwo = new YTEntityImpl("classIndexManagerTestClass");
+    final EntityImpl docTwo = new EntityImpl("classIndexManagerTestClass");
     docTwo.field("prop2", 1);
     database.begin();
     docTwo.save();
@@ -313,12 +313,12 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testPropertiesCheckUniqueNullKeys() {
-    final YTEntityImpl docOne = new YTEntityImpl("classIndexManagerTestClass");
+    final EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
     database.begin();
     docOne.save();
     database.commit();
 
-    final YTEntityImpl docTwo = new YTEntityImpl("classIndexManagerTestClass");
+    final EntityImpl docTwo = new EntityImpl("classIndexManagerTestClass");
     database.begin();
     docTwo.save();
     database.commit();
@@ -336,11 +336,11 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.field("prop1", "a");
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.field("prop1", "a");
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
@@ -365,11 +365,11 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.field("prop1", "a");
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.field("prop1", "b");
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
@@ -386,7 +386,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testDeleteDocumentWithoutClass() {
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.field("prop1", "a");
 
     database.begin();
@@ -399,7 +399,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   }
 
   public void testDeleteModifiedDocumentWithoutClass() {
-    YTEntityImpl docOne = new YTEntityImpl();
+    EntityImpl docOne = new EntityImpl();
     docOne.field("prop1", "a");
 
     database.begin();
@@ -415,7 +415,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
   public void testDocumentUpdateWithoutDirtyFields() {
     database.begin();
-    YTEntityImpl docOne = new YTEntityImpl("classIndexManagerTestClass");
+    EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
     docOne.field("prop1", "a");
 
     docOne.save();
@@ -431,7 +431,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCreateDocumentIndexRecordAdded() {
     checkEmbeddedDB();
 
-    final YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestClass");
+    final EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
@@ -473,7 +473,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
@@ -511,7 +511,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
 
     doc.field("prop0", "x");
     doc.field("prop1", "a");
@@ -549,7 +549,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
@@ -600,7 +600,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
     doc.field("prop1", "a");
     doc.field("prop2", (Object) null);
 
@@ -648,7 +648,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(propFourIndex.getInternal().size(database), 0);
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
 
     final List<String> listProperty = new ArrayList<>();
     listProperty.add("value1");
@@ -708,7 +708,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(propFiveIndexKey.getInternal().size(database), 0);
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
 
     final Map<String, String> mapProperty = new HashMap<>();
     mapProperty.put("key1", "value1");
@@ -787,7 +787,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(propSixIndex.getInternal().size(database), 0);
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
 
     final Set<String> setProperty = new HashSet<>();
     setProperty.add("value1");
@@ -842,7 +842,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(propFourIndex.getInternal().size(database), 0);
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
 
     final List<String> listProperty = new ArrayList<>();
     listProperty.add("value1");
@@ -913,7 +913,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(propFiveIndexKey.getInternal().size(database), 0);
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
 
     final Map<String, String> mapProperty = new HashMap<>();
     mapProperty.put("key1", "value1");
@@ -1008,7 +1008,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     Assert.assertEquals(propSixIndex.getInternal().size(database), 0);
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
 
     final Set<String> setProperty = new HashSet<>();
     setProperty.add("value1");
@@ -1066,7 +1066,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testDeleteDocumentIndexRecordDeleted() {
     checkEmbeddedDB();
 
-    final YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestClass");
+    final EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
@@ -1101,7 +1101,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
     doc.field("prop0", "x");
     doc.field("prop1", "a");
     doc.field("prop2", 1);
@@ -1139,7 +1139,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestClass");
+    final EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
     doc.field("prop1", "a");
     doc.field("prop2", (Object) null);
 
@@ -1167,7 +1167,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestClass");
     doc.field("prop1", "a");
     doc.field("prop2", (Object) null);
 
@@ -1198,7 +1198,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestClassTwo");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestClassTwo");
     doc.field("prop1", "a");
 
     doc.save();
@@ -1221,7 +1221,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
 
   public void testNoClassIndexesDelete() {
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestClassTwo");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestClassTwo");
     doc.field("prop1", "a");
 
     doc.save();
@@ -1235,7 +1235,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeCreation() {
     checkEmbeddedDB();
 
-    final YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestCompositeCollectionClass");
+    final EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1271,7 +1271,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestCompositeCollectionClass");
+    final EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", (Object) null);
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1294,7 +1294,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testCollectionCompositeNullCollectionFieldCreation() {
     checkEmbeddedDB();
 
-    final YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestCompositeCollectionClass");
+    final EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", (Object) null);
@@ -1319,7 +1319,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestCompositeCollectionClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1363,7 +1363,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestCompositeCollectionClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1407,7 +1407,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestCompositeCollectionClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1464,7 +1464,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestCompositeCollectionClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1523,7 +1523,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestCompositeCollectionClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1558,7 +1558,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestCompositeCollectionClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1593,7 +1593,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestCompositeCollectionClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1629,7 +1629,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestCompositeCollectionClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1671,7 +1671,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestCompositeCollectionClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1700,7 +1700,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestCompositeCollectionClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1729,7 +1729,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestCompositeCollectionClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1762,7 +1762,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestCompositeCollectionClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1797,7 +1797,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestCompositeCollectionClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1827,7 +1827,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestCompositeCollectionClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1856,7 +1856,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestCompositeCollectionClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1885,7 +1885,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestCompositeCollectionClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1915,7 +1915,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("classIndexManagerTestCompositeCollectionClass");
+    EntityImpl doc = new EntityImpl("classIndexManagerTestCompositeCollectionClass");
 
     doc.field("prop1", "test1");
     doc.field("prop2", Arrays.asList(1, 2));
@@ -1949,7 +1949,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
   public void testIndexOnPropertiesFromClassAndSuperclass() {
     checkEmbeddedDB();
 
-    final YTEntityImpl docOne = new YTEntityImpl("classIndexManagerTestClass");
+    final EntityImpl docOne = new EntityImpl("classIndexManagerTestClass");
     docOne.field("prop0", "doc1-prop0");
     docOne.field("prop1", "doc1-prop1");
 
@@ -1957,7 +1957,7 @@ public class ClassIndexManagerTest extends DocumentDBBaseTest {
     docOne.save();
     database.commit();
 
-    final YTEntityImpl docTwo = new YTEntityImpl("classIndexManagerTestClass");
+    final EntityImpl docTwo = new EntityImpl("classIndexManagerTestClass");
     docTwo.field("prop0", "doc2-prop0");
     docTwo.field("prop1", "doc2-prop1");
 

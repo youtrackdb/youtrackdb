@@ -15,11 +15,11 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.OJSONWriter;
-import com.orientechnologies.core.util.ODateHelper;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OJSONWriter;
+import com.jetbrains.youtrack.db.internal.core.util.ODateHelper;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -171,7 +171,7 @@ public class OServerCommandPostUploadSingleFile extends
         if (fileDocument.contains("$file")) {
           fileDocument = fileDocument.replace("$file", fileRID.toString());
         }
-        YTEntityImpl doc = new YTEntityImpl();
+        EntityImpl doc = new EntityImpl();
         doc.fromJSON(fileDocument);
         doc.save();
         writer.beginObject("updatedDocument");

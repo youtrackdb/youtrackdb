@@ -2,12 +2,12 @@ package com.orientechnologies.orient.core.db;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.record.ODirection;
-import com.orientechnologies.core.record.YTVertex;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.record.ODirection;
+import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.orientechnologies.orient.server.AbstractRemoteTest;
 import java.util.Iterator;
 import org.junit.Test;
@@ -18,8 +18,8 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
   private int old;
 
   public void setup() throws Exception {
-    old = YTGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
-    YTGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(-1);
+    old = GlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
+    GlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(-1);
     super.setup();
     youTrackDB =
         new YouTrackDB(
@@ -27,12 +27,12 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
             "root",
             "root",
             YouTrackDBConfig.builder()
-                .addConfig(YTGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, -1)
+                .addConfig(GlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, -1)
                 .build());
   }
 
   public void teardown() {
-    YTGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(old);
+    GlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(old);
     super.teardown();
   }
 
@@ -40,9 +40,9 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
   public void test() throws Exception {
     YTDatabaseSession g = youTrackDB.open(name.getMethodName(), "admin", "admin");
     g.begin();
-    YTVertex vertex1 = g.newVertex("V");
+    Vertex vertex1 = g.newVertex("V");
     vertex1.save();
-    YTVertex vertex2 = g.newVertex("V");
+    Vertex vertex2 = g.newVertex("V");
     vertex2.save();
     g.commit();
 
@@ -112,7 +112,7 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
      */
   }
 
-  private int countEdges(YTVertex v, ODirection dir) throws Exception {
+  private int countEdges(Vertex v, ODirection dir) throws Exception {
     int c = 0;
     Iterator it = v.getEdges(dir).iterator();
     while (it.hasNext()) {

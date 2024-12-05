@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.exception.YTSequenceException;
-import com.orientechnologies.core.metadata.sequence.YTSequence;
-import com.orientechnologies.core.metadata.sequence.YTSequence.SEQUENCE_TYPE;
-import com.orientechnologies.core.metadata.sequence.OSequenceLibrary;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSequenceException;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.YTSequence;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.YTSequence.SEQUENCE_TYPE;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.OSequenceLibrary;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import org.testng.Assert;

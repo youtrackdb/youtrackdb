@@ -3,8 +3,8 @@ package com.orientechnologies.lucene.functions;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.lucene.test.BaseLuceneTest;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import org.junit.Before;
 import org.junit.Test;

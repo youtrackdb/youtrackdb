@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.OCommandSQL;
-import com.orientechnologies.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import java.util.Set;
 import org.testng.Assert;
@@ -47,7 +47,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
 
     for (int i = 0; i < 100; i++) {
       database.begin();
-      YTEntityImpl document = new YTEntityImpl("OrderByIndexReuse");
+      EntityImpl document = new EntityImpl("OrderByIndexReuse");
       document.field("firstProp", (101 - i) / 2);
       document.field("secondProp", (101 - i) / 2);
 
@@ -61,15 +61,15 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
 
   public void testGreaterThanOrderByAscFirstProperty() {
     String query = "select from OrderByIndexReuse where firstProp > 5 order by firstProp limit 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 6);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -83,16 +83,16 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     String query =
         "select from OrderByIndexReuse where secondProp > 5 order by secondProp asc, thirdProp asc"
             + " limit 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("secondProp"), i / 2 + 6);
       Assert.assertEquals(document.field("thirdProp"), "prop" + (i + 12));
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -106,16 +106,16 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     String query =
         "select from OrderByIndexReuse where secondProp > 5 order by secondProp desc, thirdProp"
             + " desc limit 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("secondProp"), 50 - i / 2);
       Assert.assertEquals(document.field("thirdProp"), "prop" + (101 - i));
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -129,11 +129,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     String query =
         "select from OrderByIndexReuse where secondProp > 5 order by secondProp asc, thirdProp desc"
             + " limit 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("secondProp"), i / 2 + 6);
       int thirdPropertyIndex;
       if (i % 2 == 0) {
@@ -145,7 +145,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -155,15 +155,15 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
   public void testGreaterThanOrderByDescFirstProperty() {
     final String query =
         "select from OrderByIndexReuse where firstProp > 5 order by firstProp desc limit 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 50 - i / 2);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -176,15 +176,15 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
   public void testGTEOrderByAscFirstProperty() {
     final String query =
         "select from OrderByIndexReuse where firstProp >= 5 order by firstProp limit 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 5);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -198,11 +198,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where secondProp >= 5 order by secondProp asc, thirdProp asc"
             + " limit 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("secondProp"), i / 2 + 5);
       int thirdPropertyIndex;
       if (i % 2 == 0) {
@@ -214,7 +214,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -228,11 +228,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where secondProp >= 5 order by secondProp desc, thirdProp"
             + " desc limit 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("secondProp"), 50 - i / 2);
       int thirdPropertyIndex;
       if (i % 2 == 0) {
@@ -244,7 +244,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -258,11 +258,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where secondProp >= 5 order by secondProp asc, thirdProp"
             + " desc limit 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("secondProp"), i / 2 + 5);
       int thirdPropertyIndex;
       if (i % 2 == 0) {
@@ -274,7 +274,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -284,15 +284,15 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
   public void testGTEOrderByDescFirstProperty() {
     final String query =
         "select from OrderByIndexReuse where firstProp >= 5 order by firstProp desc limit 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 50 - i / 2);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -305,15 +305,15 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
   public void testLTOrderByAscFirstProperty() {
     final String query =
         "select from OrderByIndexReuse where firstProp < 5 order by firstProp limit 3";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (int i = 0; i < 3; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 1);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -327,11 +327,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where secondProp < 5 order by secondProp asc, thirdProp asc"
             + " limit 3";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (int i = 0; i < 3; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("secondProp"), i / 2 + 1);
 
       int thirdPropertyIndex;
@@ -344,7 +344,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -358,11 +358,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where secondProp < 5 order by secondProp desc, thirdProp"
             + " desc limit 3";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (int i = 0; i < 3; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("secondProp"), 4 - i / 2);
 
       int thirdPropertyIndex;
@@ -375,7 +375,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -389,11 +389,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where secondProp < 5 order by secondProp asc, thirdProp desc"
             + " limit 3";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (int i = 0; i < 3; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("secondProp"), i / 2 + 1);
 
       int thirdPropertyIndex;
@@ -406,7 +406,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -416,15 +416,15 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
   public void testLTOrderByDescFirstProperty() {
     final String query =
         "select from OrderByIndexReuse where firstProp < 5 order by firstProp desc limit 3";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (int i = 0; i < 3; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 4 - i / 2);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -437,15 +437,15 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
   public void testLTEOrderByAscFirstProperty() {
     final String query =
         "select from OrderByIndexReuse where firstProp <= 5 order by firstProp limit 3";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (int i = 0; i < 3; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 1);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -459,11 +459,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where secondProp <= 5 order by secondProp asc, thirdProp asc"
             + " limit 3";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (int i = 0; i < 3; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("secondProp"), i / 2 + 1);
 
       int thirdPropertyIndex;
@@ -476,7 +476,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -490,11 +490,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where secondProp <= 5 order by secondProp desc, thirdProp"
             + " desc limit 3";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (int i = 0; i < 3; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("secondProp"), 5 - i / 2);
 
       int thirdPropertyIndex;
@@ -507,7 +507,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -521,11 +521,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where secondProp <= 5 order by secondProp asc, thirdProp"
             + " desc limit 3";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (int i = 0; i < 3; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("secondProp"), i / 2 + 1);
 
       int thirdPropertyIndex;
@@ -538,7 +538,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -548,15 +548,15 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
   public void testLTEOrderByDescFirstProperty() {
     final String query =
         "select from OrderByIndexReuse where firstProp <= 5 order by firstProp desc limit 3";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (int i = 0; i < 3; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 5 - i / 2);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -569,15 +569,15 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
   public void testBetweenOrderByAscFirstProperty() {
     final String query =
         "select from OrderByIndexReuse where firstProp between 5 and 15 order by firstProp limit 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 5);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -591,11 +591,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where secondProp between 5 and 15 order by secondProp asc,"
             + " thirdProp asc limit 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("secondProp"), i / 2 + 5);
 
       int thirdPropertyIndex;
@@ -608,7 +608,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -622,11 +622,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where secondProp between 5 and 15 order by secondProp desc,"
             + " thirdProp desc limit 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("secondProp"), 15 - i / 2);
 
       int thirdPropertyIndex;
@@ -639,7 +639,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -653,11 +653,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where secondProp between 5 and 15 order by secondProp asc,"
             + " thirdProp desc limit 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("secondProp"), i / 2 + 5);
 
       int thirdPropertyIndex;
@@ -670,7 +670,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -681,15 +681,15 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where firstProp between 5 and 15 order by firstProp desc"
             + " limit 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 15 - i / 2);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -703,11 +703,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where firstProp in [10, 2, 43, 21, 45, 47, 11, 12] order by"
             + " firstProp limit 3";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
 
-    YTEntityImpl document = result.get(0);
+    EntityImpl document = result.get(0);
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 2);
 
     document = result.get(1);
@@ -716,7 +716,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     document = result.get(2);
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 10);
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -730,11 +730,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where firstProp in [10, 2, 43, 21, 45, 47, 11, 12] order by"
             + " firstProp desc limit 3";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
 
-    YTEntityImpl document = result.get(0);
+    EntityImpl document = result.get(0);
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 47);
 
     document = result.get(1);
@@ -743,7 +743,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     document = result.get(2);
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 45);
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
@@ -757,16 +757,16 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     String query =
         "select from OrderByIndexReuse where firstProp > 5 order by firstProp asc, prop4 asc limit"
             + " 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 6);
       Assert.assertEquals(document.field("prop4"), "prop" + (i + 12));
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -780,11 +780,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where firstProp > 5 order by firstProp desc, prop4 asc limit"
             + " 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 50 - i / 2);
       int property4Index;
       if (i % 2 == 0) {
@@ -796,7 +796,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -810,11 +810,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where firstProp >= 5 order by firstProp asc, prop4 asc limit"
             + " 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 5);
 
       int property4Index;
@@ -827,7 +827,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -841,11 +841,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where firstProp >= 5 order by firstProp desc, prop4 asc"
             + " limit 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 50 - i / 2);
 
       int property4Index;
@@ -858,7 +858,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -872,11 +872,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where firstProp < 5 order by firstProp asc, prop4 asc limit"
             + " 3";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (int i = 0; i < 3; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 1);
 
       int property4Index;
@@ -889,7 +889,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -903,11 +903,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where firstProp < 5 order by firstProp desc, prop4 asc limit"
             + " 3";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (int i = 0; i < 3; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 4 - i / 2);
 
       int property4Index;
@@ -920,7 +920,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -934,11 +934,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where firstProp <= 5 order by firstProp asc, prop4 asc limit"
             + " 3";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (int i = 0; i < 3; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 1);
 
       int property4Index;
@@ -951,7 +951,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -965,11 +965,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where firstProp <= 5 order by firstProp desc, prop4 asc"
             + " limit 3";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     for (int i = 0; i < 3; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 5 - i / 2);
 
       int property4Index;
@@ -982,7 +982,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -996,11 +996,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where firstProp between 5 and 15 order by firstProp asc,"
             + " prop4 asc limit 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 5);
 
       int property4Index;
@@ -1013,7 +1013,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -1027,11 +1027,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where firstProp between 5 and 15 order by firstProp desc,"
             + " prop4 asc limit 5";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 5);
     for (int i = 0; i < 5; i++) {
-      YTEntityImpl document = result.get(i);
+      EntityImpl document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), 15 - i / 2);
 
       int property4Index;
@@ -1044,7 +1044,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("prop4"), "prop" + property4Index);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -1058,11 +1058,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where firstProp in [10, 2, 43, 21, 45, 47, 11, 12] order by"
             + " firstProp asc, prop4 asc limit 3";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
 
-    YTEntityImpl document = result.get(0);
+    EntityImpl document = result.get(0);
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 2);
     Assert.assertEquals(document.field("prop4"), "prop4");
 
@@ -1074,7 +1074,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 10);
     Assert.assertEquals(document.field("prop4"), "prop20");
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -1088,11 +1088,11 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse where firstProp in [10, 2, 43, 21, 45, 47, 11, 12] order by"
             + " firstProp desc, prop4 asc limit 3";
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
 
-    YTEntityImpl document = result.get(0);
+    EntityImpl document = result.get(0);
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 47);
     Assert.assertEquals(document.field("prop4"), "prop94");
 
@@ -1104,7 +1104,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 45);
     Assert.assertEquals(document.field("prop4"), "prop90");
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
 
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
@@ -1117,17 +1117,17 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
   public void testOrderByFirstPropWithLimitAsc() {
     final String query = "select from OrderByIndexReuse order by firstProp offset 10 limit 4";
 
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 4);
 
     for (int i = 0; i < 4; i++) {
-      final YTEntityImpl document = result.get(i);
+      final EntityImpl document = result.get(i);
 
       Assert.assertEquals(document.<Object>field("firstProp"), 6 + i / 2);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -1139,17 +1139,17 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
   public void testOrderByFirstPropWithLimitDesc() {
     final String query = "select from OrderByIndexReuse order by firstProp desc offset 10 limit 4";
 
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 4);
 
     for (int i = 0; i < 4; i++) {
-      final YTEntityImpl document = result.get(i);
+      final EntityImpl document = result.get(i);
 
       Assert.assertEquals(document.<Object>field("firstProp"), 45 - i / 2);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -1162,12 +1162,12 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse order by secondProp asc, thirdProp asc offset 10 limit 4";
 
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 4);
 
     for (int i = 0; i < 4; i++) {
-      final YTEntityImpl document = result.get(i);
+      final EntityImpl document = result.get(i);
 
       Assert.assertEquals(document.<Object>field("secondProp"), 6 + i / 2);
 
@@ -1181,7 +1181,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -1194,12 +1194,12 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse order by secondProp desc, thirdProp desc offset 10 limit 4";
 
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 4);
 
     for (int i = 0; i < 4; i++) {
-      final YTEntityImpl document = result.get(i);
+      final EntityImpl document = result.get(i);
 
       Assert.assertEquals(document.<Object>field("secondProp"), 45 - i / 2);
 
@@ -1213,7 +1213,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
     Assert.assertTrue(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertTrue(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -1226,12 +1226,12 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse order by secondProp asc, thirdProp desc offset 10 limit 4";
 
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 4);
 
     for (int i = 0; i < 4; i++) {
-      final YTEntityImpl document = result.get(i);
+      final EntityImpl document = result.get(i);
 
       Assert.assertEquals(document.<Object>field("secondProp"), 6 + i / 2);
 
@@ -1245,7 +1245,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertFalse(explain.<Boolean>field("indexIsUsedInOrderBy"));
@@ -1255,12 +1255,12 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     final String query =
         "select from OrderByIndexReuse order by secondProp desc, thirdProp asc offset 10 limit 4";
 
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 4);
 
     for (int i = 0; i < 4; i++) {
-      final YTEntityImpl document = result.get(i);
+      final EntityImpl document = result.get(i);
 
       Assert.assertEquals(document.<Object>field("secondProp"), 45 - i / 2);
 
@@ -1274,7 +1274,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.field("thirdProp"), "prop" + thirdPropertyIndex);
     }
 
-    final YTEntityImpl explain = database.command(new OCommandSQL("explain " + query))
+    final EntityImpl explain = database.command(new OCommandSQL("explain " + query))
         .execute(database);
     Assert.assertFalse(explain.<Boolean>field("fullySortedByIndex"));
     Assert.assertFalse(explain.<Boolean>field("indexIsUsedInOrderBy"));

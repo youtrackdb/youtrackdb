@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.record.YTRecord;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -54,7 +54,7 @@ public class OServerCommandGetCluster extends OServerCommandAuthenticatedDbAbstr
         final int limit = urlParts.length > 3 ? Integer.parseInt(urlParts[3]) : 20;
 
         final List<YTIdentifiable> response = new ArrayList<YTIdentifiable>();
-        for (YTRecord rec : db.browseCluster(urlParts[2])) {
+        for (Record rec : db.browseCluster(urlParts[2])) {
           if (limit > 0 && response.size() >= limit) {
             break;
           }

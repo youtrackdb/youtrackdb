@@ -15,15 +15,15 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -57,18 +57,18 @@ public class TruncateClassTest extends DocumentDBBaseTest {
 
     database.begin();
     database.save(
-        new YTEntityImpl(testClass).field("name", "x").field("data", Arrays.asList(1, 2)));
+        new EntityImpl(testClass).field("name", "x").field("data", Arrays.asList(1, 2)));
     database.save(
-        new YTEntityImpl(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
+        new EntityImpl(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
     database.commit();
 
     database.command("truncate class test_class").close();
 
     database.begin();
     database.save(
-        new YTEntityImpl(testClass).field("name", "x").field("data", Arrays.asList(5, 6, 7)));
+        new EntityImpl(testClass).field("name", "x").field("data", Arrays.asList(5, 6, 7)));
     database.save(
-        new YTEntityImpl(testClass).field("name", "y").field("data", Arrays.asList(8, 9, -1)));
+        new EntityImpl(testClass).field("name", "y").field("data", Arrays.asList(8, 9, -1)));
     database.commit();
 
     List<YTResult> result =
@@ -215,9 +215,9 @@ public class TruncateClassTest extends DocumentDBBaseTest {
 
     database.begin();
     database.save(
-        new YTEntityImpl(testClass).field("name", "x").field("data", Arrays.asList(1, 2)));
+        new EntityImpl(testClass).field("name", "x").field("data", Arrays.asList(1, 2)));
     database.save(
-        new YTEntityImpl(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
+        new EntityImpl(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
     database.commit();
 
     YTResultSet result = database.query("select from test_class");

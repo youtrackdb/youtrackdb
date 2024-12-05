@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command;
 
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.serialization.serializer.OStringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import java.util.Map;
 

@@ -2,15 +2,15 @@ package com.orientechnologies.orient.server.network;
 
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.document.YTDatabaseDocumentTx;
-import com.orientechnologies.core.db.record.ORecordOperation;
-import com.orientechnologies.core.sql.query.OLiveQuery;
-import com.orientechnologies.core.sql.query.OLiveResultListener;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OLiveQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OLiveResultListener;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.util.concurrent.CountDownLatch;

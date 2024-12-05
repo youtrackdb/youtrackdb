@@ -6,8 +6,8 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
-import com.orientechnologies.core.metadata.security.OToken;
-import com.orientechnologies.core.security.OParsedToken;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.OToken;
+import com.jetbrains.youtrack.db.internal.core.security.OParsedToken;
 import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
 import java.io.IOException;
 import java.security.InvalidKeyException;

@@ -11,9 +11,9 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
 import java.util.Collections;
@@ -144,7 +144,7 @@ public class MultipleDBTest extends DocumentDBBaseTest {
               long start = System.currentTimeMillis();
               for (int j = 0; j < operations_write; j++) {
 
-                YTEntityImpl dummy = new YTEntityImpl("DummyObject");
+                EntityImpl dummy = new EntityImpl("DummyObject");
                 dummy.field("name", "name" + j);
 
                 db.begin();

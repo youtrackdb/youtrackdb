@@ -1,0 +1,51 @@
+package com.jetbrains.youtrack.db.internal.core.sql.executor.resultset;
+
+import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionStep;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+
+public class OCostMeasureExecutionStream implements OExecutionStream {
+
+  private final OExecutionStream set;
+  private final OExecutionStep step;
+  private long cost;
+
+  public OCostMeasureExecutionStream(OExecutionStream set, OExecutionStep step) {
+    this.set = set;
+    this.cost = 0;
+    this.step = step;
+  }
+
+  @Override
+  public boolean hasNext(OCommandContext ctx) {
+    long begin = System.nanoTime();
+    ctx.startProfiling(this.step);
+    try {
+      return set.hasNext(ctx);
+    } finally {
+      ctx.endProfiling(this.step);
+      cost += (System.nanoTime() - begin);
+    }
+  }
+
+  @Override
+  public YTResult next(OCommandContext ctx) {
+    long begin = System.nanoTime();
+    ctx.startProfiling(this.step);
+    try {
+      return set.next(ctx);
+    } finally {
+      ctx.endProfiling(this.step);
+      cost += (System.nanoTime() - begin);
+    }
+  }
+
+  @Override
+  public void close(OCommandContext ctx) {
+    set.close(ctx);
+  }
+
+  public long getCost() {
+    return cost;
+  }
+}

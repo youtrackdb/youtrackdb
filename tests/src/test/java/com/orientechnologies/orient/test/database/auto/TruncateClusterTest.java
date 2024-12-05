@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import org.testng.Assert;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -22,7 +22,7 @@ public class TruncateClusterTest extends DocumentDBBaseTest {
     final String clusterName = "TruncateCluster";
 
     final int clusterId = database.addCluster(clusterName);
-    final YTEntityImpl document = new YTEntityImpl();
+    final EntityImpl document = new EntityImpl();
 
     database.begin();
     document.save(clusterName);
@@ -50,7 +50,7 @@ public class TruncateClusterTest extends DocumentDBBaseTest {
     clazz.createProperty(database, "value", YTType.STRING);
     clazz.createIndex(database, "TruncateClusterIndex", YTClass.INDEX_TYPE.UNIQUE, "value");
 
-    final YTEntityImpl document = new YTEntityImpl();
+    final EntityImpl document = new EntityImpl();
     document.field("value", "val");
 
     database.begin();
@@ -77,7 +77,7 @@ public class TruncateClusterTest extends DocumentDBBaseTest {
     final String clusterName = "TruncateClusterIsAbsent";
     final int clusterId = database.addCluster(clusterName);
 
-    final YTEntityImpl document = new YTEntityImpl();
+    final EntityImpl document = new EntityImpl();
 
     database.begin();
     document.save(clusterName);
@@ -107,7 +107,7 @@ public class TruncateClusterTest extends DocumentDBBaseTest {
     final YTClass clazz = schema.createClass(className);
     clazz.addClusterId(database, clusterId);
 
-    final YTEntityImpl document = new YTEntityImpl();
+    final EntityImpl document = new EntityImpl();
 
     database.begin();
     document.save(clusterName);

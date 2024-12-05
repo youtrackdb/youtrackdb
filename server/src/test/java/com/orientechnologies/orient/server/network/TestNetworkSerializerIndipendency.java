@@ -2,19 +2,19 @@ package com.orientechnologies.orient.server.network;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.document.YTDatabaseDocumentTx;
-import com.orientechnologies.core.db.document.YTDatabaseSessionAbstract;
-import com.orientechnologies.core.exception.YTConfigurationException;
-import com.orientechnologies.core.exception.YTStorageException;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializer;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializerFactory;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerBinary;
-import com.orientechnologies.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseSessionAbstract;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializerFactory;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerBinary;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.io.IOException;
@@ -44,12 +44,12 @@ public class TestNetworkSerializerIndipendency {
       YTDatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerBinary.INSTANCE);
       dbTx = new YTDatabaseDocumentTx("remote:localhost/test");
       dbTx.open("admin", "admin");
-      YTEntityImpl document = new YTEntityImpl();
+      EntityImpl document = new EntityImpl();
       document.field("name", "something");
       document.field("surname", "something-else");
       document = dbTx.save(document, dbTx.getClusterNameById(dbTx.getDefaultClusterId()));
       dbTx.commit();
-      YTEntityImpl doc = dbTx.load(document.getIdentity());
+      EntityImpl doc = dbTx.load(document.getIdentity());
       assertEquals(doc.fields(), document.fields());
       assertEquals(doc.<Object>field("name"), document.field("name"));
       assertEquals(doc.<Object>field("surname"), document.field("surname"));
@@ -88,7 +88,7 @@ public class TestNetworkSerializerIndipendency {
       dbTx = new YTDatabaseDocumentTx("remote:localhost/test");
       dbTx.open("admin", "admin");
       dbTx.begin();
-      YTEntityImpl document = new YTEntityImpl();
+      EntityImpl document = new EntityImpl();
       document.field("name", "something");
       document.field("surname", "something-else");
       document = dbTx.save(document, dbTx.getClusterNameById(dbTx.getDefaultClusterId()));
@@ -97,7 +97,7 @@ public class TestNetworkSerializerIndipendency {
       var surname = document.field("surname");
       dbTx.commit();
 
-      YTEntityImpl doc = dbTx.load(document.getIdentity());
+      EntityImpl doc = dbTx.load(document.getIdentity());
       assertEquals(doc.fields(), fields);
       assertEquals(doc.field("name"), name);
       assertEquals(doc.field("surname"), surname);

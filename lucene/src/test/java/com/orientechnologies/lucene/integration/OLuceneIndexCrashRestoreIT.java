@@ -2,16 +2,16 @@ package com.orientechnologies.lucene.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.ODatabasePool;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabasePool;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
 import java.io.File;
@@ -75,9 +75,9 @@ public class OLuceneIndexCrashRestoreIT {
 
   public void spawnServer() throws Exception {
     OLogManager.instance().installCustomFormatter();
-    YTGlobalConfiguration.WAL_FUZZY_CHECKPOINT_INTERVAL.setValue(1000000);
-    YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(3);
-    YTGlobalConfiguration.FILE_LOCK.setValue(false);
+    GlobalConfiguration.WAL_FUZZY_CHECKPOINT_INTERVAL.setValue(1000000);
+    GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(3);
+    GlobalConfiguration.FILE_LOCK.setValue(false);
 
     final File buildDir = new File(BUILD_DIRECTORY);
     if (buildDir.exists()) {
@@ -279,8 +279,8 @@ public class OLuceneIndexCrashRestoreIT {
 
     public static void main(String[] args) throws Exception {
       //      System.out.println("prepare server");
-      YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(3);
-      YTGlobalConfiguration.WAL_FUZZY_CHECKPOINT_INTERVAL.setValue(100000000);
+      GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(3);
+      GlobalConfiguration.WAL_FUZZY_CHECKPOINT_INTERVAL.setValue(100000000);
 
       //      System.out.println("create server instance");
       OServer server = OServerMain.create();

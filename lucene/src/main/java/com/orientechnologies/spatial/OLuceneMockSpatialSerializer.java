@@ -13,15 +13,15 @@
  */
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.common.serialization.types.OBinarySerializer;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.storage.impl.local.paginated.wal.OWALChanges;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALChanges;
 import java.nio.ByteBuffer;
 
 /**
  *
  */
-public class OLuceneMockSpatialSerializer implements OBinarySerializer<YTEntityImpl> {
+public class OLuceneMockSpatialSerializer implements OBinarySerializer<EntityImpl> {
 
   protected static OLuceneMockSpatialSerializer INSTANCE = new OLuceneMockSpatialSerializer();
 
@@ -29,7 +29,7 @@ public class OLuceneMockSpatialSerializer implements OBinarySerializer<YTEntityI
   }
 
   @Override
-  public int getObjectSize(YTEntityImpl object, Object... hints) {
+  public int getObjectSize(EntityImpl object, Object... hints) {
     return 0;
   }
 
@@ -39,11 +39,11 @@ public class OLuceneMockSpatialSerializer implements OBinarySerializer<YTEntityI
   }
 
   @Override
-  public void serialize(YTEntityImpl object, byte[] stream, int startPosition, Object... hints) {
+  public void serialize(EntityImpl object, byte[] stream, int startPosition, Object... hints) {
   }
 
   @Override
-  public YTEntityImpl deserialize(byte[] stream, int startPosition) {
+  public EntityImpl deserialize(byte[] stream, int startPosition) {
     return null;
   }
 
@@ -64,11 +64,11 @@ public class OLuceneMockSpatialSerializer implements OBinarySerializer<YTEntityI
 
   @Override
   public void serializeNativeObject(
-      YTEntityImpl object, byte[] stream, int startPosition, Object... hints) {
+      EntityImpl object, byte[] stream, int startPosition, Object... hints) {
   }
 
   @Override
-  public YTEntityImpl deserializeNativeObject(byte[] stream, int startPosition) {
+  public EntityImpl deserializeNativeObject(byte[] stream, int startPosition) {
     return null;
   }
 
@@ -78,21 +78,21 @@ public class OLuceneMockSpatialSerializer implements OBinarySerializer<YTEntityI
   }
 
   @Override
-  public YTEntityImpl preprocess(YTEntityImpl value, Object... hints) {
+  public EntityImpl preprocess(EntityImpl value, Object... hints) {
     return null;
   }
 
   @Override
-  public void serializeInByteBufferObject(YTEntityImpl object, ByteBuffer buffer, Object... hints) {
+  public void serializeInByteBufferObject(EntityImpl object, ByteBuffer buffer, Object... hints) {
   }
 
   @Override
-  public YTEntityImpl deserializeFromByteBufferObject(ByteBuffer buffer) {
+  public EntityImpl deserializeFromByteBufferObject(ByteBuffer buffer) {
     return null;
   }
 
   @Override
-  public YTEntityImpl deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
+  public EntityImpl deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
     return null;
   }
 
@@ -107,7 +107,7 @@ public class OLuceneMockSpatialSerializer implements OBinarySerializer<YTEntityI
   }
 
   @Override
-  public YTEntityImpl deserializeFromByteBufferObject(
+  public EntityImpl deserializeFromByteBufferObject(
       ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return null;
   }

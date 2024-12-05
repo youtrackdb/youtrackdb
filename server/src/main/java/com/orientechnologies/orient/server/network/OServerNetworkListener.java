@@ -19,14 +19,14 @@
  */
 package com.orientechnologies.orient.server.network;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.exception.YTSystemException;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.serialization.serializer.OStringSerializerHelper;
-import com.orientechnologies.orient.enterprise.channel.OChannel;
-import com.orientechnologies.orient.enterprise.channel.binary.YTNetworkProtocolException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTSystemException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.OChannel;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTNetworkProtocolException;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -224,7 +224,7 @@ public class OServerNetworkListener extends Thread {
           final int max =
               server
                   .getContextConfiguration()
-                  .getValueAsInteger(YTGlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS);
+                  .getValueAsInteger(GlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS);
 
           int conns = server.getClientConnectionManager().getTotal();
           if (conns >= max) {
@@ -436,7 +436,7 @@ public class OServerNetworkListener extends Thread {
     }
 
     socketBufferSize =
-        configuration.getValueAsInteger(YTGlobalConfiguration.NETWORK_SOCKET_BUFFER_SIZE);
+        configuration.getValueAsInteger(GlobalConfiguration.NETWORK_SOCKET_BUFFER_SIZE);
   }
 
   public OServerSocketFactory getSocketFactory() {

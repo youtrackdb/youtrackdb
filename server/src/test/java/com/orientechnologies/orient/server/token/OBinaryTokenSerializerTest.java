@@ -4,12 +4,12 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.metadata.security.binary.OBinaryToken;
-import com.orientechnologies.core.metadata.security.binary.OBinaryTokenPayloadImpl;
-import com.orientechnologies.core.metadata.security.binary.OBinaryTokenSerializer;
-import com.orientechnologies.core.metadata.security.jwt.OrientJwtHeader;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.binary.OBinaryToken;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.binary.OBinaryTokenPayloadImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.binary.OBinaryTokenSerializer;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.OrientJwtHeader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

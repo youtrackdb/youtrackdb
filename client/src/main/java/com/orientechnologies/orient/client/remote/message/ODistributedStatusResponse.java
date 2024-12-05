@@ -19,30 +19,30 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializer;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 
 public class ODistributedStatusResponse implements OBinaryResponse {
 
-  private YTEntityImpl clusterConfig;
+  private EntityImpl clusterConfig;
 
   public ODistributedStatusResponse() {
   }
 
-  public ODistributedStatusResponse(YTEntityImpl clusterConfig) {
+  public ODistributedStatusResponse(EntityImpl clusterConfig) {
     this.clusterConfig = clusterConfig;
   }
 
   @Override
   public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
-    clusterConfig = new YTEntityImpl(network.readBytes());
+    clusterConfig = new EntityImpl(network.readBytes());
   }
 
   public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel,
@@ -52,7 +52,7 @@ public class ODistributedStatusResponse implements OBinaryResponse {
     channel.writeBytes(bytes);
   }
 
-  public YTEntityImpl getClusterConfig() {
+  public EntityImpl getClusterConfig() {
     return clusterConfig;
   }
 }

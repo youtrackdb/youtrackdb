@@ -15,25 +15,25 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.core.exception.YTClusterDoesNotExistException;
-import com.orientechnologies.core.exception.YTCommandExecutionException;
-import com.orientechnologies.core.exception.YTSchemaException;
-import com.orientechnologies.core.exception.YTValidationException;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.metadata.security.OSecurityShared;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.OCommandSQL;
-import com.orientechnologies.core.sql.YTCommandSQLParsingException;
-import com.orientechnologies.core.sql.executor.YTResultSet;
-import com.orientechnologies.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
+import com.jetbrains.youtrack.db.internal.core.exception.YTClusterDoesNotExistException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSchemaException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTValidationException;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityShared;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -53,7 +53,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
   @Override
   protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
-    builder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    builder.addConfig(GlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
     return builder.build();
   }
 
@@ -148,7 +148,7 @@ public class SchemaTest extends DocumentDBBaseTest {
               @Override
               public void run() {
                 ODatabaseRecordThreadLocal.instance().set(database);
-                YTEntityImpl doc = new YTEntityImpl("NewClass");
+                EntityImpl doc = new EntityImpl("NewClass");
 
                 database.begin();
                 database.save(doc);
@@ -407,10 +407,10 @@ public class SchemaTest extends DocumentDBBaseTest {
     YTClass oClass = database.getMetadata().getSchema().createClass("RenameClassTest");
 
     database.begin();
-    YTEntityImpl document = new YTEntityImpl("RenameClassTest");
+    EntityImpl document = new EntityImpl("RenameClassTest");
     document.save();
 
-    document = new YTEntityImpl("RenameClassTest");
+    document = new EntityImpl("RenameClassTest");
 
     document.setClassName("RenameClassTest");
     document.save();
@@ -444,7 +444,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
       for (int i = 0; i < 6; ++i) {
         database.begin();
-        new YTEntityImpl("multipleclusters").field("num", i).save();
+        new EntityImpl("multipleclusters").field("num", i).save();
         database.commit();
       }
 
@@ -470,7 +470,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
       for (int i = 0; i < 2; ++i) {
         database.begin();
-        new YTEntityImpl("multipleclusters").field("num", i).save();
+        new EntityImpl("multipleclusters").field("num", i).save();
         database.commit();
       }
 
@@ -669,12 +669,12 @@ public class SchemaTest extends DocumentDBBaseTest {
         .execute(database);
 
     database.begin();
-    List<YTEntityImpl> result =
+    List<EntityImpl> result =
         databaseDocumentTx.query(
-            new OSQLSynchQuery<YTEntityImpl>("select * from TestRenameClusterOriginal"));
+            new OSQLSynchQuery<EntityImpl>("select * from TestRenameClusterOriginal"));
     Assert.assertEquals(result.size(), 1);
 
-    YTEntityImpl document = result.get(0);
+    EntityImpl document = result.get(0);
     Assert.assertEquals(document.<Object>field("iteration"), i);
     database.commit();
   }

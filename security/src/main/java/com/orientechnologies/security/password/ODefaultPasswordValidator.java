@@ -13,12 +13,12 @@
  */
 package com.orientechnologies.security.password;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.security.OPasswordValidator;
-import com.orientechnologies.core.security.OSecuritySystem;
-import com.orientechnologies.core.security.YTInvalidPasswordException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.security.OPasswordValidator;
+import com.jetbrains.youtrack.db.internal.core.security.OSecuritySystem;
+import com.jetbrains.youtrack.db.internal.core.security.YTInvalidPasswordException;
 import java.util.regex.Pattern;
 
 /**
@@ -42,7 +42,7 @@ public class ODefaultPasswordValidator implements OPasswordValidator {
   }
 
   // OSecurityComponent
-  public void config(YTDatabaseSessionInternal session, final YTEntityImpl jsonConfig,
+  public void config(YTDatabaseSessionInternal session, final EntityImpl jsonConfig,
       OSecuritySystem security) {
     try {
       if (jsonConfig.containsField("enabled")) {

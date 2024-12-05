@@ -2,7 +2,7 @@ package com.orientechnologies.lucene.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.junit.Before;

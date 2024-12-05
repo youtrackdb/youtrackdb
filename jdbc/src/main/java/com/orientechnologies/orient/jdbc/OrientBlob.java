@@ -13,13 +13,12 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.core.record.YTRecordAbstract;
-import com.orientechnologies.core.record.impl.YTBlob;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.sql.Blob;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ import java.util.List;
 /**
  *
  */
-public class OrientBlob implements Blob {
+public class OrientBlob implements java.sql.Blob {
 
   private final List<byte[]> binaryDataChunks;
 
@@ -39,20 +38,20 @@ public class OrientBlob implements Blob {
 
   private int currentChunkIndex;
 
-  protected OrientBlob(YTBlob binaryDataChunk) throws IllegalArgumentException {
+  protected OrientBlob(Blob binaryDataChunk) throws IllegalArgumentException {
     this(Collections.singletonList(binaryDataChunk));
   }
 
-  protected OrientBlob(List<YTBlob> binaryDataChunks) throws IllegalArgumentException {
+  protected OrientBlob(List<Blob> binaryDataChunks) throws IllegalArgumentException {
     this.binaryDataChunks = new ArrayList<>(binaryDataChunks.size());
-    for (YTBlob binaryDataChunk : binaryDataChunks) {
+    for (Blob binaryDataChunk : binaryDataChunks) {
       if (binaryDataChunk == null) {
         throw new IllegalArgumentException("The binary data chunks list cannot hold null chunks");
-      } else if (((YTRecordAbstract) binaryDataChunk).getSize() == 0) {
+      } else if (((RecordAbstract) binaryDataChunk).getSize() == 0) {
         throw new IllegalArgumentException("The binary data chunks list cannot hold empty chunks");
       } else {
 
-        this.binaryDataChunks.add(((YTRecordAbstract) binaryDataChunk).toStream());
+        this.binaryDataChunks.add(((RecordAbstract) binaryDataChunk).toStream());
       }
     }
     this.length = calculateLength();
@@ -165,7 +164,7 @@ public class OrientBlob implements Blob {
    *
    * @see java.sql.Blob#position(java.sql.Blob, long)
    */
-  public long position(Blob pattern, long start) throws SQLException {
+  public long position(java.sql.Blob pattern, long start) throws SQLException {
     throw new SQLFeatureNotSupportedException();
   }
 

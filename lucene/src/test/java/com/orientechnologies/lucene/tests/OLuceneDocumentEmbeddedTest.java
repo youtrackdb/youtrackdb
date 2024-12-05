@@ -18,10 +18,10 @@
 
 package com.orientechnologies.lucene.tests;
 
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,14 +42,14 @@ public class OLuceneDocumentEmbeddedTest extends OLuceneBaseTest {
   @Test
   public void embeddedNoTx() {
 
-    YTEntityImpl doc = new YTEntityImpl("City");
+    EntityImpl doc = new EntityImpl("City");
 
     doc.field("name", "London");
     db.begin();
     db.save(doc);
     db.commit();
 
-    doc = new YTEntityImpl("City");
+    doc = new EntityImpl("City");
     doc.field("name", "Rome");
 
     db.begin();
@@ -65,7 +65,7 @@ public class OLuceneDocumentEmbeddedTest extends OLuceneBaseTest {
   @Test
   public void embeddedTx() {
 
-    YTEntityImpl doc = new YTEntityImpl("City");
+    EntityImpl doc = new EntityImpl("City");
 
     db.begin();
     doc.field("name", "Berlin");

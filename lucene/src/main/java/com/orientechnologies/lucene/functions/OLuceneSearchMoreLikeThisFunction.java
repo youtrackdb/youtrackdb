@@ -1,28 +1,28 @@
 package com.orientechnologies.lucene.functions;
 
-import com.orientechnologies.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
 import com.orientechnologies.lucene.exception.YTLuceneIndexException;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
-import com.orientechnologies.core.command.OCommandContext;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.id.ChangeableRecordId;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.metadata.OMetadataInternal;
-import com.orientechnologies.core.record.YTEntity;
-import com.orientechnologies.core.record.YTRecord;
-import com.orientechnologies.core.record.YTRecordAbstract;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.functions.OIndexableSQLFunction;
-import com.orientechnologies.core.sql.functions.OSQLFunctionAbstract;
-import com.orientechnologies.core.sql.parser.OBinaryCompareOperator;
-import com.orientechnologies.core.sql.parser.OExpression;
-import com.orientechnologies.core.sql.parser.OFromClause;
-import com.orientechnologies.core.sql.parser.OFromItem;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.OMetadataInternal;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.OIndexableSQLFunction;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionAbstract;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromItem;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -99,7 +99,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
 
     List<String> ridsAsString = parseRids(ctx, expression);
 
-    List<YTRecord> others =
+    List<Record> others =
         ridsAsString.stream()
             .map(
                 rid -> {
@@ -109,7 +109,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
                   recordId = recordId.copy();
                   return recordId;
                 })
-            .<YTRecord>map(YTRecordId::getRecord)
+            .<Record>map(YTRecordId::getRecord)
             .toList();
 
     MoreLikeThis mlt = buildMoreLikeThis(index, searcher, metadata);
@@ -178,7 +178,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
   }
 
   private static Map<String, ?> parseMetadata(OExpression[] args) {
-    YTEntityImpl metadata = new YTEntityImpl();
+    EntityImpl metadata = new EntityImpl();
     if (args.length == 2) {
       metadata.fromJSON(args[1].toString());
     }
@@ -240,9 +240,9 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
     return mlt;
   }
 
-  private void addLikeQueries(List<YTRecord> others, MoreLikeThis mlt, Builder queryBuilder) {
+  private void addLikeQueries(List<Record> others, MoreLikeThis mlt, Builder queryBuilder) {
     others.stream()
-        .map(or -> ((YTRecordAbstract) or).getSession().<YTEntity>load(or.getIdentity()))
+        .map(or -> ((RecordAbstract) or).getSession().<Entity>load(or.getIdentity()))
         .forEach(
             element ->
                 Arrays.stream(mlt.getFieldNames())

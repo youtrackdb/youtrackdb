@@ -2,20 +2,20 @@ package com.orientechnologies.orient.client.remote;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.remote.message.MockChannel;
 import com.orientechnologies.orient.client.remote.message.OMessageHelper;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.db.record.ORecordOperation;
-import com.orientechnologies.core.db.record.ridbag.RidBag;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.record.ORecordInternal;
-import com.orientechnologies.core.record.impl.ODirtyManager;
-import com.orientechnologies.core.record.impl.ODocumentInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
+import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.ODirtyManager;
+import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -43,7 +43,7 @@ public class OMessageHelperTest {
     int id = db.getClusterIdByName("V");
     try {
       MockChannel channel = new MockChannel();
-      YTEntityImpl doc = new YTEntityImpl();
+      EntityImpl doc = new EntityImpl();
       RidBag bags = new RidBag(db);
       bags.add(new YTRecordId(id, 0));
       doc.field("bag", bags);
@@ -56,8 +56,8 @@ public class OMessageHelperTest {
           channel, doc, ORecordSerializerNetworkFactory.INSTANCE.current());
       channel.close();
 
-      YTEntityImpl newDoc =
-          (YTEntityImpl)
+      EntityImpl newDoc =
+          (EntityImpl)
               OMessageHelper.readIdentifiable(db,
                   channel, ORecordSerializerNetworkFactory.INSTANCE.current());
 

@@ -13,10 +13,10 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -91,14 +91,14 @@ public abstract class OShapeBuilder<T extends Shape> {
 
   public abstract OShapeType getType();
 
-  public abstract T fromDoc(YTEntityImpl doc);
+  public abstract T fromDoc(EntityImpl doc);
 
   public T fromObject(Object obj) {
     throw new UnsupportedOperationException();
   }
 
   public T fromMapGeoJson(Map<String, Object> geoJsonMap) {
-    YTEntityImpl doc = new YTEntityImpl(getName());
+    EntityImpl doc = new EntityImpl(getName());
     doc.field(COORDINATES, geoJsonMap.get(COORDINATES));
     return fromDoc(doc);
   }
@@ -116,7 +116,7 @@ public abstract class OShapeBuilder<T extends Shape> {
     return writer.write(geom);
   }
 
-  public String asText(YTEntityImpl document) {
+  public String asText(EntityImpl document) {
     return asText(fromDoc(document));
   }
 
@@ -132,16 +132,16 @@ public abstract class OShapeBuilder<T extends Shape> {
     return SPATIAL_CONTEXT.getFormats().getGeoJsonWriter().toString(shape);
   }
 
-  public String asGeoJson(YTEntityImpl document) {
+  public String asGeoJson(EntityImpl document) {
     return asGeoJson(fromDoc(document));
   }
 
-  public YTEntityImpl fromGeoJson(String geoJson) throws IOException, ParseException {
+  public EntityImpl fromGeoJson(String geoJson) throws IOException, ParseException {
     Shape shape = SPATIAL_CONTEXT.getFormats().getGeoJsonReader().read(geoJson);
     return toDoc((T) shape);
   }
 
-  public void validate(YTEntityImpl doc) {
+  public void validate(EntityImpl doc) {
   }
 
   Geometry toGeometry(Shape shape) {
@@ -166,21 +166,21 @@ public abstract class OShapeBuilder<T extends Shape> {
     return (T) entity;
   }
 
-  public abstract YTEntityImpl toDoc(T shape);
+  public abstract EntityImpl toDoc(T shape);
 
-  protected YTEntityImpl toDoc(T parsed, Geometry geometry) {
+  protected EntityImpl toDoc(T parsed, Geometry geometry) {
     if (geometry == null || Double.isNaN(geometry.getCoordinates()[0].getZ())) {
       return toDoc(parsed);
     }
     throw new IllegalArgumentException("Invalid shape");
   }
 
-  public YTEntityImpl toDoc(String wkt)
+  public EntityImpl toDoc(String wkt)
       throws ParseException, org.locationtech.jts.io.ParseException {
     T parsed = fromText(wkt);
     return toDoc(
         parsed,
-        YTGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()
+        GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()
             ? wktReader.read(wkt)
             : null);
   }

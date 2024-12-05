@@ -1,18 +1,18 @@
 package com.orientechnologies.orient.server.query;
 
-import static com.orientechnologies.core.config.YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE;
+import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.core.exception.YTDatabaseException;
-import com.orientechnologies.core.exception.YTSerializationException;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTRecord;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSerializationException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
 import com.orientechnologies.orient.server.OClientConnection;
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   public void testQuery() {
     for (int i = 0; i < 150; i++) {
       db.begin();
-      YTEntityImpl doc = new YTEntityImpl("Some");
+      EntityImpl doc = new EntityImpl("Some");
       doc.setProperty("prop", "value");
       db.save(doc);
       db.commit();
@@ -60,7 +60,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   public void testCommandSelect() {
     for (int i = 0; i < 150; i++) {
       db.begin();
-      YTEntityImpl doc = new YTEntityImpl("Some");
+      EntityImpl doc = new EntityImpl("Some");
       doc.setProperty("prop", "value");
       db.save(doc);
       db.commit();
@@ -78,7 +78,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   public void testCommandInsertWithPageOverflow() {
     for (int i = 0; i < 150; i++) {
       db.begin();
-      YTEntityImpl doc = new YTEntityImpl("Some");
+      EntityImpl doc = new EntityImpl("Some");
       doc.setProperty("prop", "value");
       db.save(doc);
       db.commit();
@@ -97,7 +97,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test(expected = YTDatabaseException.class)
   public void testQueryKilledSession() {
     for (int i = 0; i < 150; i++) {
-      YTEntityImpl doc = new YTEntityImpl("Some");
+      EntityImpl doc = new EntityImpl("Some");
       doc.setProperty("prop", "value");
       db.save(doc);
     }
@@ -118,9 +118,9 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryEmbedded() {
     db.begin();
-    YTEntityImpl doc = new YTEntityImpl("Some");
+    EntityImpl doc = new EntityImpl("Some");
     doc.setProperty("prop", "value");
-    YTEntityImpl emb = new YTEntityImpl();
+    EntityImpl emb = new EntityImpl();
     emb.setProperty("one", "value");
     doc.setProperty("emb", emb, YTType.EMBEDDED);
     db.save(doc);
@@ -136,11 +136,11 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryDoubleEmbedded() {
     db.begin();
-    YTEntityImpl doc = new YTEntityImpl("Some");
+    EntityImpl doc = new EntityImpl("Some");
     doc.setProperty("prop", "value");
-    YTEntityImpl emb1 = new YTEntityImpl();
+    EntityImpl emb1 = new EntityImpl();
     emb1.setProperty("two", "value");
-    YTEntityImpl emb = new YTEntityImpl();
+    EntityImpl emb = new EntityImpl();
     emb.setProperty("one", "value");
     emb.setProperty("secEmb", emb1, YTType.EMBEDDED);
 
@@ -160,9 +160,9 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryEmbeddedList() {
     db.begin();
-    YTEntityImpl doc = new YTEntityImpl("Some");
+    EntityImpl doc = new EntityImpl("Some");
     doc.setProperty("prop", "value");
-    YTEntityImpl emb = new YTEntityImpl();
+    EntityImpl emb = new EntityImpl();
     emb.setProperty("one", "value");
     List<Object> list = new ArrayList<>();
     list.add(emb);
@@ -181,11 +181,11 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryEmbeddedSet() {
     db.begin();
-    YTEntityImpl doc = new YTEntityImpl("Some");
+    EntityImpl doc = new EntityImpl("Some");
     doc.setProperty("prop", "value");
-    YTEntityImpl emb = new YTEntityImpl();
+    EntityImpl emb = new EntityImpl();
     emb.setProperty("one", "value");
-    Set<YTEntityImpl> set = new HashSet<>();
+    Set<EntityImpl> set = new HashSet<>();
     set.add(emb);
     doc.setProperty("set", set, YTType.EMBEDDEDSET);
     db.save(doc);
@@ -203,11 +203,11 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
   @Test
   public void testQueryEmbeddedMap() {
     db.begin();
-    YTEntityImpl doc = new YTEntityImpl("Some");
+    EntityImpl doc = new EntityImpl("Some");
     doc.setProperty("prop", "value");
-    YTEntityImpl emb = new YTEntityImpl();
+    EntityImpl emb = new EntityImpl();
     emb.setProperty("one", "value");
-    Map<String, YTEntityImpl> map = new HashMap<>();
+    Map<String, EntityImpl> map = new HashMap<>();
     map.put("key", emb);
     doc.setProperty("map", map, YTType.EMBEDDEDMAP);
     db.save(doc);
@@ -229,7 +229,7 @@ public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
 
     db.command("insert into Some set prop = 'value'");
 
-    YTRecord record;
+    Record record;
 
     try (YTResultSet resultSet = db.command("insert into Some set prop = 'value'")) {
       record = resultSet.next().getRecord().get();

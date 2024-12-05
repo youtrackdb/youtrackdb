@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.security.kerberos;
 
-import com.orientechnologies.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
 import com.orientechnologies.security.ldap.OLDAPLibrary;
 import java.security.PrivilegedAction;
 import javax.security.auth.Subject;

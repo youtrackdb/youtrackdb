@@ -15,17 +15,17 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.exception.YTConcurrentModificationException;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.record.ORecordInternal;
-import com.orientechnologies.core.record.YTRecordAbstract;
-import com.orientechnologies.core.record.impl.YTBlob;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.record.impl.YTRecordBytes;
-import com.orientechnologies.core.tx.YTRollbackException;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConcurrentModificationException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
+import com.jetbrains.youtrack.db.internal.core.tx.YTRollbackException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -56,8 +56,8 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    YTBlob recordBytes = new YTRecordBytes("This is the first version".getBytes());
-    ((YTRecordAbstract) recordBytes).save("binary");
+    Blob recordBytes = new RecordBytes("This is the first version".getBytes());
+    ((RecordAbstract) recordBytes).save("binary");
 
     database.rollback();
 
@@ -74,8 +74,8 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    YTBlob recordBytes = new YTRecordBytes("This is the first version".getBytes());
-    ((YTRecordAbstract) recordBytes).save("binary");
+    Blob recordBytes = new RecordBytes("This is the first version".getBytes());
+    ((RecordAbstract) recordBytes).save("binary");
 
     database.commit();
 
@@ -90,10 +90,10 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     YTDatabaseSessionInternal db2 = acquireSession();
     database.activateOnCurrentThread();
-    YTBlob record1 = new YTRecordBytes("This is the first version".getBytes());
+    Blob record1 = new RecordBytes("This is the first version".getBytes());
 
     database.begin();
-    ((YTRecordAbstract) record1).save("binary");
+    ((RecordAbstract) record1).save("binary");
     database.commit();
 
     try {
@@ -103,7 +103,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       record1 = database.load(record1.getIdentity());
 
       ODatabaseRecordThreadLocal.instance().set(db2);
-      YTBlob record2 = db2.load(record1.getIdentity());
+      Blob record2 = db2.load(record1.getIdentity());
       ORecordInternal.fill(
           record2,
           record2.getIdentity(),
@@ -145,7 +145,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       database.addBlobCluster("binary");
     }
 
-    YTBlob record = new YTRecordBytes("This is the first version".getBytes());
+    Blob record = new RecordBytes("This is the first version".getBytes());
     database.begin();
     record.save();
     database.commit();
@@ -176,7 +176,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
     }
 
     YTDatabaseSessionInternal db2 = acquireSession();
-    YTBlob record1 = new YTRecordBytes("This is the first version".getBytes());
+    Blob record1 = new RecordBytes("This is the first version".getBytes());
     db2.begin();
     record1.save();
     db2.commit();
@@ -196,7 +196,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
       db2.activateOnCurrentThread();
 
-      YTBlob record2 = db2.load(record1.getIdentity());
+      Blob record2 = db2.load(record1.getIdentity());
       Assert.assertEquals(record2.getVersion(), v1 + 1);
       Assert.assertTrue(new String(record2.toStream()).contains("second"));
 
@@ -225,7 +225,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     database.begin();
     for (int g = 0; g < 1000; g++) {
-      YTEntityImpl doc = new YTEntityImpl("Account");
+      EntityImpl doc = new EntityImpl("Account");
       doc.fromJSON(json);
       doc.field("nr", g);
 
@@ -248,16 +248,16 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    YTEntityImpl kim = new YTEntityImpl("Profile").field("name", "Kim").field("surname", "Bauer");
-    YTEntityImpl teri = new YTEntityImpl("Profile").field("name", "Teri").field("surname", "Bauer");
-    YTEntityImpl jack = new YTEntityImpl("Profile").field("name", "Jack").field("surname", "Bauer");
+    EntityImpl kim = new EntityImpl("Profile").field("name", "Kim").field("surname", "Bauer");
+    EntityImpl teri = new EntityImpl("Profile").field("name", "Teri").field("surname", "Bauer");
+    EntityImpl jack = new EntityImpl("Profile").field("name", "Jack").field("surname", "Bauer");
 
-    ((HashSet<YTEntityImpl>) jack.field("following", new HashSet<YTEntityImpl>())
+    ((HashSet<EntityImpl>) jack.field("following", new HashSet<EntityImpl>())
         .field("following"))
         .add(kim);
-    ((HashSet<YTEntityImpl>) kim.field("following", new HashSet<YTEntityImpl>()).field("following"))
+    ((HashSet<EntityImpl>) kim.field("following", new HashSet<EntityImpl>()).field("following"))
         .add(teri);
-    ((HashSet<YTEntityImpl>) teri.field("following", new HashSet<YTEntityImpl>())
+    ((HashSet<EntityImpl>) teri.field("following", new HashSet<EntityImpl>())
         .field("following"))
         .add(jack);
 
@@ -268,7 +268,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
     database.close();
     database = acquireSession();
 
-    YTEntityImpl loadedJack = database.load(jack.getIdentity());
+    EntityImpl loadedJack = database.load(jack.getIdentity());
     Assert.assertEquals(loadedJack.field("name"), "Jack");
     Collection<YTIdentifiable> jackFollowings = loadedJack.field("following");
     Assert.assertNotNull(jackFollowings);
@@ -316,7 +316,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final YTEntityImpl externalDocOne = new YTEntityImpl("NestedTxClass");
+    final EntityImpl externalDocOne = new EntityImpl("NestedTxClass");
     externalDocOne.field("v", "val1");
     externalDocOne.save();
 
@@ -325,7 +325,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final YTEntityImpl externalDocTwo = new YTEntityImpl("NestedTxClass");
+    final EntityImpl externalDocTwo = new EntityImpl("NestedTxClass");
     externalDocTwo.field("v", "val2");
     externalDocTwo.save();
 
@@ -337,7 +337,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
     assertFuture = executorService.submit(assertEmptyRecord);
     assertFuture.get();
 
-    final YTEntityImpl externalDocThree = new YTEntityImpl("NestedTxClass");
+    final EntityImpl externalDocThree = new EntityImpl("NestedTxClass");
     externalDocThree.field("v", "val3");
     externalDocThree.save();
 
@@ -370,14 +370,14 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       schema.createClass("NestedTxRollbackOne");
     }
 
-    YTEntityImpl brokenDocOne = new YTEntityImpl("NestedTxRollbackOne");
+    EntityImpl brokenDocOne = new EntityImpl("NestedTxRollbackOne");
     database.begin();
     brokenDocOne.save();
     database.commit();
     try {
       database.begin();
 
-      final YTEntityImpl externalDocOne = new YTEntityImpl("NestedTxRollbackOne");
+      final EntityImpl externalDocOne = new EntityImpl("NestedTxRollbackOne");
       externalDocOne.field("v", "val1");
       externalDocOne.save();
 
@@ -385,7 +385,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       assertFuture.get();
 
       database.begin();
-      YTEntityImpl externalDocTwo = new YTEntityImpl("NestedTxRollbackOne");
+      EntityImpl externalDocTwo = new EntityImpl("NestedTxRollbackOne");
       externalDocTwo.field("v", "val2");
       externalDocTwo.save();
 
@@ -401,7 +401,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       assertFuture = executorService.submit(assertEmptyRecord);
       assertFuture.get();
 
-      final YTEntityImpl externalDocThree = new YTEntityImpl("NestedTxRollbackOne");
+      final EntityImpl externalDocThree = new EntityImpl("NestedTxRollbackOne");
       externalDocThree.field("v", "val3");
 
       database.begin();
@@ -414,7 +414,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
               () -> {
                 try (YTDatabaseSessionInternal db = acquireSession()) {
                   db.executeInTx(() -> {
-                    YTEntityImpl brokenDocTwo = db.load(brokenRid);
+                    EntityImpl brokenDocTwo = db.load(brokenRid);
                     brokenDocTwo.field("v", "vstr");
 
                     brokenDocTwo.save();
@@ -440,13 +440,13 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     database.begin();
     try {
-      final YTEntityImpl externalDocOne = new YTEntityImpl("NestedTxRollbackTwo");
+      final EntityImpl externalDocOne = new EntityImpl("NestedTxRollbackTwo");
       externalDocOne.field("v", "val1");
       externalDocOne.save();
 
       database.begin();
 
-      final YTEntityImpl externalDocTwo = new YTEntityImpl("NestedTxRollbackTwo");
+      final EntityImpl externalDocTwo = new EntityImpl("NestedTxRollbackTwo");
       externalDocTwo.field("v", "val2");
       externalDocTwo.save();
 

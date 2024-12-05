@@ -19,15 +19,15 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.common.thread.OThreadPoolExecutors;
+import com.jetbrains.youtrack.db.internal.common.thread.OThreadPoolExecutors;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.orientechnologies.orient.client.binary.OChannelBinarySynchClient;
 import com.orientechnologies.orient.client.remote.message.ODistributedConnectRequest;
 import com.orientechnologies.orient.client.remote.message.ODistributedConnectResponse;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.metadata.security.OToken;
-import com.orientechnologies.core.metadata.security.binary.OBinaryTokenSerializer;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.OToken;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.binary.OBinaryTokenSerializer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
@@ -88,7 +88,7 @@ public class ORemoteServerChannel {
     remoteHost = iURL.substring(0, sepPos);
     remotePort = Integer.parseInt(iURL.substring(sepPos + 1));
     long timeout =
-        contextConfig.getValueAsLong(YTGlobalConfiguration.DISTRIBUTED_TX_EXPIRE_TIMEOUT) / 2;
+        contextConfig.getValueAsLong(GlobalConfiguration.DISTRIBUTED_TX_EXPIRE_TIMEOUT) / 2;
     protocolVersion = currentProtocolVersion;
     RejectedExecutionHandler reject =
         (task, executor) -> {

@@ -1,12 +1,12 @@
 package com.orientechnologies.lucene.integration;
 
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTEntity;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.orientechnologies.orient.server.OServer;
 import org.junit.After;
 import org.junit.Assert;
@@ -35,7 +35,7 @@ public class LuceneCreateIndexIntegrationTest {
     session.command("create property Person.name STRING");
     session.command("create property Person.surname STRING");
 
-    final YTEntity doc = session.newEntity("Person");
+    final Entity doc = session.newEntity("Person");
     doc.setProperty("name", "Jon");
     doc.setProperty("surname", "Snow");
     session.begin();

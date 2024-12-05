@@ -2,8 +2,8 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.core.record.YTVertex;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -84,7 +84,7 @@ public class OLuceneSortTest extends OLuceneBaseTest {
 
     db.begin();
 
-    YTVertex artist = db.newVertex("Author");
+    Vertex artist = db.newVertex("Author");
 
     artist.setProperty("name", "Jimi Hendrix");
 

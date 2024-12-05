@@ -18,11 +18,11 @@
 
 package com.orientechnologies.lucene.query;
 
-import com.orientechnologies.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.orientechnologies.lucene.exception.YTLuceneIndexException;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
-import com.orientechnologies.core.command.OCommandContext;
-import com.orientechnologies.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;

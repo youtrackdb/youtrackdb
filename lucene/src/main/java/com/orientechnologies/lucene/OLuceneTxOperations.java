@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene;
 
-import com.orientechnologies.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import java.util.HashSet;
 import java.util.Set;
 

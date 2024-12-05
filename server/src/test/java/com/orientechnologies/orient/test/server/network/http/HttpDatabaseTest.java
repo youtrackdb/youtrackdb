@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.test.server.network.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.orientechnologies.core.OConstants;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.OConstants;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -42,7 +42,7 @@ public class HttpDatabaseTest extends BaseHttpTest {
   @Test
   public void testCreateAndGetDatabase() throws IOException {
 
-    YTEntityImpl pass = new YTEntityImpl();
+    EntityImpl pass = new EntityImpl();
     pass.setProperty("adminPassword", "admin");
     Assert.assertEquals(
         200,
@@ -70,7 +70,7 @@ public class HttpDatabaseTest extends BaseHttpTest {
 
   @Test
   public void testCreateQueryAndDropDatabase() throws Exception {
-    YTEntityImpl pass = new YTEntityImpl();
+    EntityImpl pass = new EntityImpl();
     pass.setProperty("adminPassword", "admin");
     Assert.assertEquals(
         200,

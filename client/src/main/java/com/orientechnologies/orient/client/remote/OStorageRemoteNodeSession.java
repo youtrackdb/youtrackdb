@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.metadata.security.OToken;
-import com.orientechnologies.core.metadata.security.binary.OBinaryTokenSerializer;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.OToken;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.binary.OBinaryTokenSerializer;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 

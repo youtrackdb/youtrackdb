@@ -15,9 +15,9 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.exception.YTQueryParsingException;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.exception.YTQueryParsingException;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Parameters;
@@ -36,10 +36,10 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
 
   @Test
   public void querySchemaClasses() {
-    List<YTEntityImpl> result =
+    List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTEntityImpl>("select expand(classes) from metadata:schema"))
+                new OSQLSynchQuery<EntityImpl>("select expand(classes) from metadata:schema"))
             .execute(database);
 
     Assert.assertTrue(result.size() != 0);
@@ -47,10 +47,10 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
 
   @Test
   public void querySchemaProperties() {
-    List<YTEntityImpl> result =
+    List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTEntityImpl>(
+                new OSQLSynchQuery<EntityImpl>(
                     "select expand(properties) from (select expand(classes) from metadata:schema)"
                         + " where name = 'OUser'"))
             .execute(database);
@@ -60,10 +60,10 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
 
   @Test
   public void queryIndexes() {
-    List<YTEntityImpl> result =
+    List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTEntityImpl>(
+                new OSQLSynchQuery<EntityImpl>(
                     "select expand(indexes) from metadata:indexmanager"))
             .execute(database);
 
@@ -74,7 +74,7 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
   public void queryMetadataNotSupported() {
     try {
       database
-          .command(new OSQLSynchQuery<YTEntityImpl>("select expand(indexes) from metadata:blaaa"))
+          .command(new OSQLSynchQuery<EntityImpl>("select expand(indexes) from metadata:blaaa"))
           .execute(database);
       Assert.fail();
     } catch (YTQueryParsingException e) {

@@ -13,17 +13,17 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTClass.INDEX_TYPE;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTVertex;
-import com.orientechnologies.core.record.impl.YTBlob;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.record.impl.YTRecordBytes;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.INDEX_TYPE;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,7 +42,7 @@ public class OrientDbCreationHelper {
 
     db.begin();
     for (int i = 1; i <= documents; i++) {
-      YTEntityImpl doc = new YTEntityImpl();
+      EntityImpl doc = new EntityImpl();
       doc.setClassName("Item");
       doc = createItem(i, doc);
       ((YTDatabaseSessionInternal) db).save(doc, "Item");
@@ -55,7 +55,7 @@ public class OrientDbCreationHelper {
     db.commit();
   }
 
-  public static YTEntityImpl createItem(int id, YTEntityImpl doc) {
+  public static EntityImpl createItem(int id, EntityImpl doc) {
     String itemKey = Integer.valueOf(id).toString();
 
     doc.setClassName("Item");
@@ -96,8 +96,8 @@ public class OrientDbCreationHelper {
       throws IOException {
     int articleSerial = 0;
     for (int a = 1; a <= totAuthors; ++a) {
-      YTEntityImpl author = new YTEntityImpl("Author");
-      List<YTEntityImpl> articles = new ArrayList<>(totArticles);
+      EntityImpl author = new EntityImpl("Author");
+      List<EntityImpl> articles = new ArrayList<>(totArticles);
       author.field("articles", articles);
 
       author.field("uuid", a, YTType.DOUBLE);
@@ -105,7 +105,7 @@ public class OrientDbCreationHelper {
       author.field("rating", new Random().nextDouble());
 
       for (int i = 1; i <= totArticles; ++i) {
-        YTEntityImpl article = new YTEntityImpl("Article");
+        EntityImpl article = new EntityImpl("Article");
 
         Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         Date time = instance.getTime();
@@ -123,10 +123,10 @@ public class OrientDbCreationHelper {
     }
   }
 
-  public static YTEntityImpl createArticleWithAttachmentSplitted(YTDatabaseSession db)
+  public static EntityImpl createArticleWithAttachmentSplitted(YTDatabaseSession db)
       throws IOException {
 
-    YTEntityImpl article = new YTEntityImpl("Article");
+    EntityImpl article = new EntityImpl("Article");
     Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
     Date time = instance.getTime();
@@ -148,7 +148,7 @@ public class OrientDbCreationHelper {
       throws IOException {
     int articleSerial = 0;
     for (int a = 1; a <= totAuthors; ++a) {
-      YTVertex writer = db.newVertex("Writer");
+      Vertex writer = db.newVertex("Writer");
       writer.setProperty("uuid", a);
       writer.setProperty("name", "happy writer");
       writer.setProperty("is_active", Boolean.TRUE);
@@ -156,7 +156,7 @@ public class OrientDbCreationHelper {
 
       for (int i = 1; i <= totArticles; ++i) {
 
-        YTVertex post = db.newVertex("Post");
+        Vertex post = db.newVertex("Post");
 
         Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         Date time = instance.getTime();
@@ -170,13 +170,13 @@ public class OrientDbCreationHelper {
     }
 
     // additional wrong data
-    YTVertex writer = db.newVertex("Writer");
+    Vertex writer = db.newVertex("Writer");
     writer.setProperty("uuid", totAuthors * 2);
     writer.setProperty("name", "happy writer");
     writer.setProperty("is_active", Boolean.TRUE);
     writer.setProperty("isActive", Boolean.TRUE);
 
-    YTVertex post = db.newVertex("Post");
+    Vertex post = db.newVertex("Post");
 
     // no date!!
 
@@ -187,11 +187,11 @@ public class OrientDbCreationHelper {
     db.newEdge(writer, post, "Writes");
   }
 
-  private static YTBlob loadFile(YTDatabaseSession database, String filePath) throws IOException {
+  private static Blob loadFile(YTDatabaseSession database, String filePath) throws IOException {
     final File f = new File(filePath);
     if (f.exists()) {
       BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(f));
-      YTBlob record = new YTRecordBytes();
+      Blob record = new RecordBytes();
       record.fromInputStream(inputStream);
       return record;
     }
@@ -229,7 +229,7 @@ public class OrientDbCreationHelper {
               throw new RuntimeException(e);
             }
 
-            YTBlob recordChunk = new YTRecordBytes(chunk);
+            Blob recordChunk = new RecordBytes(chunk);
 
             database.save(recordChunk);
             binaryChuncks.add(recordChunk.getIdentity());

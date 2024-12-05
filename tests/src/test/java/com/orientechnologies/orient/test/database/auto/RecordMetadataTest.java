@@ -2,9 +2,9 @@ package com.orientechnologies.orient.test.database.auto;
 
 import static org.testng.Assert.assertEquals;
 
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.storage.ORecordMetadata;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.storage.ORecordMetadata;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -27,7 +27,7 @@ public class RecordMetadataTest extends DocumentDBBaseTest {
 
   public void testGetRecordMetadata() {
 
-    YTEntityImpl doc = new YTEntityImpl();
+    EntityImpl doc = new EntityImpl();
     for (int i = 0; i < 5; i++) {
       database.begin();
       if (!doc.getIdentity().isNew()) {

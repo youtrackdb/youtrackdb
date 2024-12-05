@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.server.network.http;
 
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,10 +42,10 @@ public class HttpBatchTest extends BaseHttpDatabaseTest {
 
     Assert.assertNotNull(response);
 
-    var responseDoc = new YTEntityImpl();
+    var responseDoc = new EntityImpl();
     responseDoc.fromJSON(response);
-    YTEntityImpl insertedDocument =
-        ((List<YTEntityImpl>) responseDoc.field("result")).get(0);
+    EntityImpl insertedDocument =
+        ((List<EntityImpl>) responseDoc.field("result")).get(0);
 
     // TEST UPDATE
     Assert.assertEquals(
@@ -145,7 +145,7 @@ public class HttpBatchTest extends BaseHttpDatabaseTest {
       line = reader.readLine();
     }
     System.out.println(string);
-    YTEntityImpl doc = new YTEntityImpl();
+    EntityImpl doc = new EntityImpl();
     doc.fromJSON(string);
 
     stream.close();

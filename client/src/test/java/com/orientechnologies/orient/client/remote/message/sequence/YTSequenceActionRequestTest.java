@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.client.remote.message.sequence;
 
-import com.orientechnologies.core.metadata.sequence.YTSequence;
-import com.orientechnologies.core.metadata.sequence.OSequenceAction;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.YTSequence;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.OSequenceAction;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInput;

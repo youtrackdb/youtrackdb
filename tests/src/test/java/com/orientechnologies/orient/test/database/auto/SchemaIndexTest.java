@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.exception.YTSchemaException;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSchemaException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -125,7 +125,7 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
 
     for (int i = 0; i < 10; i++) {
       database.begin();
-      YTEntityImpl document = new YTEntityImpl("polymorpicIdsPropagation");
+      EntityImpl document = new EntityImpl("polymorpicIdsPropagation");
       document.field("value", "val" + counter);
       document.save();
       database.commit();
@@ -136,7 +136,7 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
     final int clusterId2 = database.addCluster("polymorpicIdsPropagationSuperSuper2");
 
     for (int i = 0; i < 10; i++) {
-      YTEntityImpl document = new YTEntityImpl();
+      EntityImpl document = new EntityImpl();
       document.field("value", "val" + counter);
 
       database.begin();

@@ -15,7 +15,7 @@ package com.orientechnologies.spatial;
 
 import static com.orientechnologies.spatial.shape.OShapeBuilder.BASE_CLASS;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.orientechnologies.spatial.shape.OShapeBuilder;
 
 /**

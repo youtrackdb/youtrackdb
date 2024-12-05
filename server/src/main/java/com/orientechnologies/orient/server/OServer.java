@@ -15,35 +15,35 @@
  */
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.common.console.OConsoleReader;
-import com.orientechnologies.common.console.ODefaultConsoleReader;
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.common.log.OAnsiCode;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.parser.OSystemVariableResolver;
-import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValue;
-import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
-import com.orientechnologies.core.OConstants;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.ODatabaseType;
-import com.orientechnologies.core.db.OSystemDatabase;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.db.YouTrackDBConfigBuilder;
-import com.orientechnologies.core.db.YouTrackDBInternal;
-import com.orientechnologies.core.db.document.ODatabaseDocumentTxInternal;
-import com.orientechnologies.core.exception.YTConfigurationException;
-import com.orientechnologies.core.exception.YTDatabaseException;
-import com.orientechnologies.core.exception.YTStorageException;
-import com.orientechnologies.core.metadata.security.YTSecurityUser;
-import com.orientechnologies.core.metadata.security.auth.OTokenAuthInfo;
-import com.orientechnologies.core.security.OParsedToken;
-import com.orientechnologies.core.security.OSecuritySystem;
-import com.orientechnologies.core.security.YTInvalidPasswordException;
+import com.jetbrains.youtrack.db.internal.common.console.OConsoleReader;
+import com.jetbrains.youtrack.db.internal.common.console.ODefaultConsoleReader;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.log.OAnsiCode;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.parser.OSystemVariableResolver;
+import com.jetbrains.youtrack.db.internal.common.profiler.OAbstractProfiler.OProfilerHookValue;
+import com.jetbrains.youtrack.db.internal.common.profiler.OProfiler.METRIC_TYPE;
+import com.jetbrains.youtrack.db.internal.core.OConstants;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.OSystemDatabase;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.ODatabaseDocumentTxInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.OTokenAuthInfo;
+import com.jetbrains.youtrack.db.internal.core.security.OParsedToken;
+import com.jetbrains.youtrack.db.internal.core.security.OSecuritySystem;
+import com.jetbrains.youtrack.db.internal.core.security.YTInvalidPasswordException;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.config.OServerConfigurationManager;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
@@ -151,7 +151,7 @@ public class OServer {
 
     YouTrackDBManager.instance().startup();
 
-    if (YTGlobalConfiguration.PROFILER_ENABLED.getValueAsBoolean()
+    if (GlobalConfiguration.PROFILER_ENABLED.getValueAsBoolean()
         && !YouTrackDBManager.instance().getProfiler().isRecording()) {
       YouTrackDBManager.instance().getProfiler().startRecording();
     }
@@ -374,9 +374,9 @@ public class OServer {
     rejectRequests = false;
 
     if (contextConfiguration.getValueAsBoolean(
-        YTGlobalConfiguration.ENVIRONMENT_DUMP_CFG_AT_STARTUP)) {
+        GlobalConfiguration.ENVIRONMENT_DUMP_CFG_AT_STARTUP)) {
       System.out.println("Dumping environment after server startup...");
-      YTGlobalConfiguration.dumpConfiguration(System.out);
+      GlobalConfiguration.dumpConfiguration(System.out);
     }
 
     databaseDirectory =
@@ -404,7 +404,7 @@ public class OServer {
             .build();
 
     if (contextConfiguration.getValueAsBoolean(
-        YTGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY)) {
+        GlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY)) {
 
       databases =
           ODatabaseDocumentTxInternal.getOrCreateEmbeddedFactory(this.databaseDirectory, config);
@@ -679,7 +679,7 @@ public class OServer {
         }
       }
       if (!contextConfiguration.getValueAsBoolean(
-          YTGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY)
+          GlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY)
           && databases != null) {
         databases.close();
         databases = null;
@@ -721,7 +721,7 @@ public class OServer {
    */
   protected void loadDatabases() {
     if (!contextConfiguration.getValueAsBoolean(
-        YTGlobalConfiguration.SERVER_OPEN_ALL_DATABASES_AT_STARTUP)) {
+        GlobalConfiguration.SERVER_OPEN_ALL_DATABASES_AT_STARTUP)) {
       return;
     }
     databases.loadAllDatabases();
@@ -769,7 +769,7 @@ public class OServer {
       if (key != null) {
         key = key.trim();
         if (!key.isEmpty()) {
-          YTGlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue(key);
+          GlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue(key);
           return true;
         }
       }

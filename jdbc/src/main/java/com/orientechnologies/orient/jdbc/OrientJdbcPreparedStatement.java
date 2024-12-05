@@ -13,13 +13,13 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.core.exception.YTDatabaseException;
-import com.orientechnologies.core.exception.YTQueryParsingException;
-import com.orientechnologies.core.record.impl.YTRecordBytes;
-import com.orientechnologies.core.sql.executor.YTInternalResultSet;
-import com.orientechnologies.core.sql.executor.YTResultInternal;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTQueryParsingException;
+import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTInternalResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.jdbc.OrientJdbcParameterMetadata.ParameterDefinition;
 import java.io.IOException;
 import java.io.InputStream;
@@ -94,7 +94,7 @@ public class OrientJdbcPreparedStatement extends OrientJdbcStatement implements 
       oResultSet = rs;
     } else {
       try {
-        //        sql = new OSQLSynchQuery<YTEntityImpl>(mayCleanForSpark(sql));
+        //        sql = new OSQLSynchQuery<EntityImpl>(mayCleanForSpark(sql));
         oResultSet = database.query(sql, params.values().toArray());
 
       } catch (YTQueryParsingException e) {
@@ -341,7 +341,7 @@ public class OrientJdbcPreparedStatement extends OrientJdbcStatement implements 
 
   public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException {
     try {
-      YTRecordBytes record = new YTRecordBytes();
+      RecordBytes record = new RecordBytes();
       try {
         record.fromInputStream(x);
       } catch (IOException e) {

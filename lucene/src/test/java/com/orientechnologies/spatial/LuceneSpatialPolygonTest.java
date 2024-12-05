@@ -13,13 +13,13 @@
  */
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -57,12 +57,12 @@ public class LuceneSpatialPolygonTest extends BaseSpatialLuceneTest {
   protected void queryPolygon() {
 
     String query = "select * from Place where location && 'POINT(13.383333 52.516667)'";
-    List<YTEntityImpl> docs = db.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> docs = db.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(docs.size(), 1);
 
     query = "select * from Place where location && 'POINT(12.5 41.9)'";
-    docs = db.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    docs = db.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(docs.size(), 0);
   }
@@ -72,14 +72,14 @@ public class LuceneSpatialPolygonTest extends BaseSpatialLuceneTest {
 
     InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("germany.json");
 
-    YTEntityImpl doc = new YTEntityImpl().fromJSON(systemResourceAsStream);
+    EntityImpl doc = new EntityImpl().fromJSON(systemResourceAsStream);
 
     Map geometry = doc.field("geometry");
 
     String type = (String) geometry.get("type");
-    YTEntityImpl location = new YTEntityImpl("O" + type);
+    EntityImpl location = new EntityImpl("O" + type);
     location.field("coordinates", geometry.get("coordinates"));
-    YTEntityImpl germany = new YTEntityImpl("Place");
+    EntityImpl germany = new EntityImpl("Place");
     germany.field("name", "Germany");
     germany.field("location", location);
 

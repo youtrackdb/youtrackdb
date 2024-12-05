@@ -18,8 +18,8 @@
 
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -59,7 +59,7 @@ public class OServerCommandIsEnterprise extends OServerCommandAuthenticatedServe
 
     if ("isEE".equalsIgnoreCase(parts[0])) {
 
-      YTEntityImpl context = YouTrackDBManager.instance().getProfiler().getContext();
+      EntityImpl context = YouTrackDBManager.instance().getProfiler().getContext();
 
       if (context.getProperty("enterprise") == null) {
         context.setProperty("enterprise", false);

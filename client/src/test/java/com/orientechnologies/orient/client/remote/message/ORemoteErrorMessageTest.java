@@ -3,8 +3,8 @@ package com.orientechnologies.orient.client.remote.message;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import com.orientechnologies.DBTestBase;
-import com.orientechnologies.common.exception.OErrorCode;
+import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.common.exception.OErrorCode;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;

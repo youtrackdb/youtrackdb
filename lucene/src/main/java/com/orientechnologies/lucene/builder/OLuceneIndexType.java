@@ -16,13 +16,13 @@
 
 package com.orientechnologies.lucene.builder;
 
-import com.orientechnologies.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngineAbstract;
 import com.orientechnologies.lucene.exception.YTLuceneIndexException;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.index.OCompositeKey;
-import com.orientechnologies.core.index.OIndexDefinition;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -166,8 +166,8 @@ public class OLuceneIndexType {
   public static String hashKey(Object key) {
     try {
       String keyString;
-      if (key instanceof YTEntityImpl) {
-        keyString = ((YTEntityImpl) key).toJSON();
+      if (key instanceof EntityImpl) {
+        keyString = ((EntityImpl) key).toJSON();
       } else {
         keyString = key.toString();
       }

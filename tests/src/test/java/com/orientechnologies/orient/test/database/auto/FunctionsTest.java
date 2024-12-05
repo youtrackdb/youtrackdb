@@ -15,11 +15,11 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.OCommandSQL;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,7 +48,7 @@ public class FunctionsTest extends DocumentDBBaseTest {
             .execute(database);
 
     database.begin();
-    final YTEntityImpl record = result.getRecord();
+    final EntityImpl record = result.getRecord();
     final List<String> parameters = record.field("parameters");
 
     Assert.assertNotNull(parameters);
@@ -77,7 +77,7 @@ public class FunctionsTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    YTEntityImpl func = f.getRecord();
+    EntityImpl func = f.getRecord();
     func.field("code", "return 2;");
     func.save();
     database.commit();
@@ -92,7 +92,7 @@ public class FunctionsTest extends DocumentDBBaseTest {
     database.command("create function testMTCall \"return 3;\" LANGUAGE Javascript").close();
 
     final int TOT = 1000;
-    final int threadNum = YTGlobalConfiguration.SCRIPT_POOL.getValueAsInteger() * 3;
+    final int threadNum = GlobalConfiguration.SCRIPT_POOL.getValueAsInteger() * 3;
     final AtomicLong counter = new AtomicLong();
 
     final Thread[] threads = new Thread[threadNum];

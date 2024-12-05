@@ -2,13 +2,13 @@ package com.orientechnologies.orient.core.db;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.record.ODirection;
-import com.orientechnologies.core.record.YTVertex;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.record.ODirection;
+import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import org.junit.After;
@@ -43,9 +43,9 @@ public class CountRealationshipsTest {
     YTDatabaseSession g =
         youTrackDB.open(CountRealationshipsTest.class.getSimpleName(), "admin", "admin");
     g.begin();
-    YTVertex vertex1 = g.newVertex("V");
+    Vertex vertex1 = g.newVertex("V");
     vertex1.save();
-    YTVertex vertex2 = g.newVertex("V");
+    Vertex vertex2 = g.newVertex("V");
     vertex2.save();
     g.commit();
 
@@ -115,7 +115,7 @@ public class CountRealationshipsTest {
      */
   }
 
-  private int countEdges(YTVertex v, ODirection dir) throws Exception {
+  private int countEdges(Vertex v, ODirection dir) throws Exception {
     int c = 0;
     for (var oEdge : v.getEdges(dir)) {
       c++;

@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.common.util.OCallable;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.distributed.ODistributedRequest.EXECUTION_MODE;
 import com.orientechnologies.orient.server.distributed.task.ORemoteTask;
@@ -203,15 +203,15 @@ public interface ODistributedServerManager {
 
   String getLocalNodeName();
 
-  YTEntityImpl getClusterConfiguration();
+  EntityImpl getClusterConfiguration();
 
   String getNodeNameById(int id);
 
   int getNodeIdByName(String node);
 
-  YTEntityImpl getNodeConfigurationByUuid(String iNode, boolean useCache);
+  EntityImpl getNodeConfigurationByUuid(String iNode, boolean useCache);
 
-  YTEntityImpl getLocalNodeConfiguration();
+  EntityImpl getLocalNodeConfiguration();
 
   ODistributedConfiguration getDatabaseConfiguration(String iDatabaseName);
 
@@ -246,7 +246,7 @@ public interface ODistributedServerManager {
       Object localResult,
       ODistributedResponseManagerFactory responseManagerFactory);
 
-  YTEntityImpl getStats();
+  EntityImpl getStats();
 
   Throwable convertException(Throwable original);
 
@@ -323,5 +323,5 @@ public interface ODistributedServerManager {
   default void messageProcessEnd(ODistributedRequest iRequest, Object responsePayload) {
   }
 
-  YTEntityImpl getOnlineDatabaseConfiguration(String databaseName);
+  EntityImpl getOnlineDatabaseConfiguration(String databaseName);
 }

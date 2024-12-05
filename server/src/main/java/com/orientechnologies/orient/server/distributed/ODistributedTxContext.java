@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.tx.OTransactionId;
-import com.orientechnologies.core.tx.OTransactionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionId;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionInternal;
 import java.util.Set;
 
 /**

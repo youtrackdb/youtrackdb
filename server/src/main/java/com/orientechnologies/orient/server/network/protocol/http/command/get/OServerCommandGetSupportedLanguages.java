@@ -17,10 +17,10 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.core.command.script.OScriptManager;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YouTrackDBInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.command.script.OScriptManager;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAuthenticatedDbAbstract;
@@ -43,7 +43,7 @@ public class OServerCommandGetSupportedLanguages extends OServerCommandAuthentic
     try {
       db = getProfiledDatabaseInstance(iRequest);
 
-      YTEntityImpl result = new YTEntityImpl();
+      EntityImpl result = new EntityImpl();
       Set<String> languages = new HashSet<String>();
 
       OScriptManager scriptManager =

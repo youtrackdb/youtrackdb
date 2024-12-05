@@ -2,13 +2,13 @@ package com.orientechnologies.orient.test.database.auto;
 
 import static org.testng.AssertJUnit.assertTrue;
 
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.storage.OPhysicalPosition;
-import com.orientechnologies.core.storage.OStorageOperationResult;
-import com.orientechnologies.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.storage.OPhysicalPosition;
+import com.jetbrains.youtrack.db.internal.core.storage.OStorageOperationResult;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
@@ -66,11 +66,11 @@ public class RemoteProtocolCommandsTest extends DocumentDBBaseTest {
   public void testRawCreateWithoutIDTest() {
     YTClass clazz = this.database.getMetadata().getSchema().createClass("RidCreationTestClass");
     OAbstractPaginatedStorage storage = (OAbstractPaginatedStorage) this.database.getStorage();
-    YTEntityImpl doc = new YTEntityImpl("RidCreationTestClass");
+    EntityImpl doc = new EntityImpl("RidCreationTestClass");
     doc.field("test", "test");
     YTRecordId bad = new YTRecordId(-1, -1);
     OStorageOperationResult<OPhysicalPosition> res =
-        storage.createRecord(bad, doc.toStream(), doc.getVersion(), YTEntityImpl.RECORD_TYPE, null);
+        storage.createRecord(bad, doc.toStream(), doc.getVersion(), EntityImpl.RECORD_TYPE, null);
 
     // assertTrue(" the cluster is not valid", bad.clusterId >= 0);
     String ids = "";

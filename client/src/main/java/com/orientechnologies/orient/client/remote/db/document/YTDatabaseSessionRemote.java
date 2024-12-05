@@ -20,68 +20,68 @@
 
 package com.orientechnologies.orient.client.remote.db.document;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.record.Edge;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.orientechnologies.orient.client.remote.OLiveQueryClientListener;
 import com.orientechnologies.orient.client.remote.ORemoteQueryResult;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.message.YTRemoteResultSet;
 import com.orientechnologies.orient.client.remote.metadata.schema.OSchemaRemote;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.cache.OLocalRecordCache;
-import com.orientechnologies.core.command.script.YTCommandScriptException;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.core.db.OHookReplacedRecordThreadLocal;
-import com.orientechnologies.core.db.OSharedContext;
-import com.orientechnologies.core.db.YTDatabaseListener;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YTLiveQueryMonitor;
-import com.orientechnologies.core.db.YTLiveQueryResultListener;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.db.document.YTDatabaseSessionAbstract;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.exception.YTCommandExecutionException;
-import com.orientechnologies.core.exception.YTDatabaseException;
-import com.orientechnologies.core.hook.YTRecordHook;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.index.OClassIndexManager;
-import com.orientechnologies.core.index.OIndexManagerRemote;
-import com.orientechnologies.core.iterator.ORecordIteratorCluster;
-import com.orientechnologies.core.metadata.OMetadataDefault;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTImmutableClass;
-import com.orientechnologies.core.metadata.schema.YTSchemaProxy;
-import com.orientechnologies.core.metadata.security.ORole;
-import com.orientechnologies.core.metadata.security.ORule;
-import com.orientechnologies.core.metadata.security.OToken;
-import com.orientechnologies.core.metadata.security.YTImmutableUser;
-import com.orientechnologies.core.metadata.security.YTUser;
-import com.orientechnologies.core.metadata.sequence.OSequenceAction;
-import com.orientechnologies.core.record.YTEdge;
-import com.orientechnologies.core.record.YTRecord;
-import com.orientechnologies.core.record.YTRecordAbstract;
-import com.orientechnologies.core.record.YTVertex;
-import com.orientechnologies.core.record.impl.ODocumentInternal;
-import com.orientechnologies.core.record.impl.YTEdgeEntityImpl;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.record.impl.YTVertexInternal;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializerFactory;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
-import com.orientechnologies.core.storage.ORecordMetadata;
-import com.orientechnologies.core.storage.OStorage;
-import com.orientechnologies.core.storage.OStorageInfo;
-import com.orientechnologies.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
-import com.orientechnologies.core.tx.OTransactionAbstract;
-import com.orientechnologies.core.tx.OTransactionIndexChanges;
-import com.orientechnologies.core.tx.OTransactionNoTx;
-import com.orientechnologies.core.tx.OTransactionNoTx.NonTxReadMode;
-import com.orientechnologies.core.tx.OTransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.cache.OLocalRecordCache;
+import com.jetbrains.youtrack.db.internal.core.command.script.YTCommandScriptException;
+import com.jetbrains.youtrack.db.internal.core.conflict.ORecordConflictStrategy;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.OHookReplacedRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.OSharedContext;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseListener;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryMonitor;
+import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryResultListener;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseSessionAbstract;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
+import com.jetbrains.youtrack.db.internal.core.hook.YTRecordHook;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.index.OClassIndexManager;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexManagerRemote;
+import com.jetbrains.youtrack.db.internal.core.iterator.ORecordIteratorCluster;
+import com.jetbrains.youtrack.db.internal.core.metadata.OMetadataDefault;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTImmutableClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchemaProxy;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.OToken;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTImmutableUser;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTUser;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.OSequenceAction;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializerFactory;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.storage.ORecordMetadata;
+import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.OStorageInfo;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionAbstract;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionNoTx;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionNoTx.NonTxReadMode;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionOptimistic;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -122,7 +122,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
           if (ctx != null) {
             nonTxReadMode =
                 OTransactionNoTx.NonTxReadMode.valueOf(
-                    ctx.getValueAsString(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE));
+                    ctx.getValueAsString(GlobalConfiguration.NON_TX_READS_WARNING_MODE));
           } else {
             nonTxReadMode = NonTxReadMode.WARN;
           }
@@ -135,7 +135,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
                 this,
                 "Invalid value for %s, using %s",
                 e,
-                YTGlobalConfiguration.NON_TX_READS_WARNING_MODE.getKey(),
+                GlobalConfiguration.NON_TX_READS_WARNING_MODE.getKey(),
                 NonTxReadMode.WARN);
         nonTxReadMode = NonTxReadMode.WARN;
       }
@@ -170,7 +170,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   }
 
   @Override
-  public YTDatabaseSession create(final Map<YTGlobalConfiguration, Object> iInitialSettings) {
+  public YTDatabaseSession create(final Map<GlobalConfiguration, Object> iInitialSettings) {
     throw new UnsupportedOperationException("use YouTrackDB");
   }
 
@@ -484,12 +484,12 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
   }
 
   @Override
-  public void recycle(YTRecord record) {
+  public void recycle(Record record) {
     throw new UnsupportedOperationException();
   }
 
   public static void updateSchema(OStorageRemote storage,
-      YTEntityImpl schema) {
+      EntityImpl schema) {
     //    storage.get
     OSharedContext shared = storage.getSharedContext();
     if (shared != null) {
@@ -497,7 +497,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
     }
   }
 
-  public static void updateIndexManager(OStorageRemote storage, YTEntityImpl indexManager) {
+  public static void updateIndexManager(OStorageRemote storage, EntityImpl indexManager) {
     OSharedContext shared = storage.getSharedContext();
     if (shared != null) {
       ((OIndexManagerRemote) shared.getIndexManager()).update(indexManager);
@@ -535,15 +535,15 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
     checkSecurity(ORole.PERMISSION_CREATE, id, iClusterName);
     YTRecordHook.RESULT res = callbackHooks(YTRecordHook.TYPE.BEFORE_CREATE, id);
     if (res == YTRecordHook.RESULT.RECORD_CHANGED) {
-      if (id instanceof YTEntityImpl) {
-        ((YTEntityImpl) id).validate();
+      if (id instanceof EntityImpl) {
+        ((EntityImpl) id).validate();
       }
       return id;
     } else {
       if (res == YTRecordHook.RESULT.RECORD_REPLACED) {
-        YTRecord replaced = OHookReplacedRecordThreadLocal.INSTANCE.get();
-        if (replaced instanceof YTEntityImpl) {
-          ((YTEntityImpl) replaced).validate();
+        Record replaced = OHookReplacedRecordThreadLocal.INSTANCE.get();
+        if (replaced instanceof EntityImpl) {
+          ((EntityImpl) replaced).validate();
         }
         return replaced;
       }
@@ -556,15 +556,15 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
     checkSecurity(ORole.PERMISSION_UPDATE, id, iClusterName);
     YTRecordHook.RESULT res = callbackHooks(YTRecordHook.TYPE.BEFORE_UPDATE, id);
     if (res == YTRecordHook.RESULT.RECORD_CHANGED) {
-      if (id instanceof YTEntityImpl) {
-        ((YTEntityImpl) id).validate();
+      if (id instanceof EntityImpl) {
+        ((EntityImpl) id).validate();
       }
       return id;
     } else {
       if (res == YTRecordHook.RESULT.RECORD_REPLACED) {
-        YTRecord replaced = OHookReplacedRecordThreadLocal.INSTANCE.get();
-        if (replaced instanceof YTEntityImpl) {
-          ((YTEntityImpl) replaced).validate();
+        Record replaced = OHookReplacedRecordThreadLocal.INSTANCE.get();
+        if (replaced instanceof EntityImpl) {
+          ((EntityImpl) replaced).validate();
         }
         return replaced;
       }
@@ -580,7 +580,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
 
   public void afterUpdateOperations(final YTIdentifiable id) {
     callbackHooks(YTRecordHook.TYPE.AFTER_UPDATE, id);
-    if (id instanceof YTEntityImpl doc) {
+    if (id instanceof EntityImpl doc) {
       YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null && getTransaction().isActive()) {
         OClassIndexManager.processIndexOnUpdate(this, doc);
@@ -590,7 +590,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
 
   public void afterCreateOperations(final YTIdentifiable id) {
     callbackHooks(YTRecordHook.TYPE.AFTER_CREATE, id);
-    if (id instanceof YTEntityImpl doc) {
+    if (id instanceof EntityImpl doc) {
       YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null && getTransaction().isActive()) {
         OClassIndexManager.processIndexOnCreate(this, doc);
@@ -600,7 +600,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
 
   public void afterDeleteOperations(final YTIdentifiable id) {
     callbackHooks(YTRecordHook.TYPE.AFTER_DELETE, id);
-    if (id instanceof YTEntityImpl doc) {
+    if (id instanceof EntityImpl doc) {
       YTImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null && getTransaction().isActive()) {
         OClassIndexManager.processIndexOnDelete(this, doc);
@@ -624,7 +624,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
     checkIfActive();
 
     try {
-      YTRecord record = getTransaction().getRecord(rid);
+      Record record = getTransaction().getRecord(rid);
       if (record == OTransactionAbstract.DELETED_RECORD) {
         return false;
       }
@@ -653,7 +653,7 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
     }
   }
 
-  public String getClusterName(final YTRecord record) {
+  public String getClusterName(final Record record) {
     // DON'T ASSIGN CLUSTER WITH REMOTE: SERVER KNOWS THE RIGHT CLUSTER BASED ON LOCALITY
     return null;
   }
@@ -665,31 +665,31 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
         "Not supported yet."); // To change body of generated methods, choose Tools | Templates.
   }
 
-  public void delete(final YTRecord record) {
+  public void delete(final Record record) {
     checkOpenness();
     if (record == null) {
       throw new YTDatabaseException("Cannot delete null document");
     }
-    if (record instanceof YTVertex) {
-      YTVertexInternal.deleteLinks((YTVertex) record);
+    if (record instanceof Vertex) {
+      VertexInternal.deleteLinks((Vertex) record);
     } else {
-      if (record instanceof YTEdge) {
-        YTEdgeEntityImpl.deleteLinks((YTEdge) record);
+      if (record instanceof Edge) {
+        EdgeEntityImpl.deleteLinks((Edge) record);
       }
     }
 
     try {
-      currentTx.deleteRecord((YTRecordAbstract) record);
+      currentTx.deleteRecord((RecordAbstract) record);
     } catch (YTException e) {
       throw e;
     } catch (Exception e) {
-      if (record instanceof YTEntityImpl) {
+      if (record instanceof EntityImpl) {
         throw YTException.wrapException(
             new YTDatabaseException(
                 "Error on deleting record "
                     + record.getIdentity()
                     + " of class '"
-                    + ((YTEntityImpl) record).getClassName()
+                    + ((EntityImpl) record).getClassName()
                     + "'"),
             e);
       } else {
@@ -812,12 +812,12 @@ public class YTDatabaseSessionRemote extends YTDatabaseSessionAbstract {
       return false;
     }
 
-    final ORecordIteratorCluster<YTRecord> iteratorCluster = browseCluster(clusterName);
+    final ORecordIteratorCluster<Record> iteratorCluster = browseCluster(clusterName);
     if (iteratorCluster == null) {
       return false;
     }
 
-    executeInTxBatches((Iterator<YTRecord>) iteratorCluster,
+    executeInTxBatches((Iterator<Record>) iteratorCluster,
         (session, record) -> record.delete());
 
     return storage.dropCluster(this, clusterId);

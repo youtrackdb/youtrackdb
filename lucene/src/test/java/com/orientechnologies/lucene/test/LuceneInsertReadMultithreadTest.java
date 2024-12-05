@@ -18,13 +18,13 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -105,7 +105,7 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
 
       db.begin();
       for (int i = 0; i < cycle; i++) {
-        YTEntityImpl doc = new YTEntityImpl("City");
+        EntityImpl doc = new EntityImpl("City");
 
         doc.field("name", "Rome");
 

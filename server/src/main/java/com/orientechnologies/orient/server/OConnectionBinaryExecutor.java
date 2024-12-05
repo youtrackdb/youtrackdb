@@ -1,63 +1,64 @@
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.serialization.types.OBinarySerializer;
-import com.orientechnologies.common.serialization.types.OByteSerializer;
-import com.orientechnologies.common.serialization.types.ONullSerializer;
-import com.orientechnologies.common.util.OCommonConst;
-import com.orientechnologies.core.OConstants;
-import com.orientechnologies.core.command.OCommandRequestText;
-import com.orientechnologies.core.command.OCommandResultListener;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.ODatabaseType;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YTLiveQueryMonitor;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.db.tool.ODatabaseImport;
-import com.orientechnologies.core.exception.YTConfigurationException;
-import com.orientechnologies.core.exception.YTDatabaseException;
-import com.orientechnologies.core.exception.YTRecordNotFoundException;
-import com.orientechnologies.core.exception.YTSecurityAccessException;
-import com.orientechnologies.core.fetch.OFetchContext;
-import com.orientechnologies.core.fetch.OFetchHelper;
-import com.orientechnologies.core.fetch.OFetchListener;
-import com.orientechnologies.core.fetch.OFetchPlan;
-import com.orientechnologies.core.fetch.remote.ORemoteFetchContext;
-import com.orientechnologies.core.fetch.remote.ORemoteFetchListener;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.metadata.security.YTSecurityUser;
-import com.orientechnologies.core.query.live.OLiveQueryHookV2;
-import com.orientechnologies.core.record.ORecordInternal;
-import com.orientechnologies.core.record.YTRecord;
-import com.orientechnologies.core.record.YTRecordAbstract;
-import com.orientechnologies.core.record.impl.ODocumentInternal;
-import com.orientechnologies.core.record.impl.YTBlob;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializer;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializerFactory;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
-import com.orientechnologies.core.sql.parser.YTLocalResultSetLifecycleDecorator;
-import com.orientechnologies.core.sql.query.OSQLAsynchQuery;
-import com.orientechnologies.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.core.storage.OPhysicalPosition;
-import com.orientechnologies.core.storage.ORecordMetadata;
-import com.orientechnologies.core.storage.cluster.YTOfflineClusterException;
-import com.orientechnologies.core.storage.config.OClusterBasedStorageConfiguration;
-import com.orientechnologies.core.storage.impl.local.OAbstractPaginatedStorage;
-import com.orientechnologies.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
-import com.orientechnologies.core.storage.index.sbtree.OTreeInternal;
-import com.orientechnologies.core.storage.index.sbtreebonsai.local.OSBTreeBonsai;
-import com.orientechnologies.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
-import com.orientechnologies.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
-import com.orientechnologies.core.tx.OTransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.OByteSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.ONullSerializer;
+import com.jetbrains.youtrack.db.internal.common.util.OCommonConst;
+import com.jetbrains.youtrack.db.internal.core.OConstants;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryMonitor;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseImport;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityAccessException;
+import com.jetbrains.youtrack.db.internal.core.fetch.OFetchContext;
+import com.jetbrains.youtrack.db.internal.core.fetch.OFetchHelper;
+import com.jetbrains.youtrack.db.internal.core.fetch.OFetchListener;
+import com.jetbrains.youtrack.db.internal.core.fetch.OFetchPlan;
+import com.jetbrains.youtrack.db.internal.core.fetch.remote.ORemoteFetchContext;
+import com.jetbrains.youtrack.db.internal.core.fetch.remote.ORemoteFetchListener;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
+import com.jetbrains.youtrack.db.internal.core.query.live.OLiveQueryHookV2;
+import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializerFactory;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.YTLocalResultSetLifecycleDecorator;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLAsynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.storage.OPhysicalPosition;
+import com.jetbrains.youtrack.db.internal.core.storage.ORecordMetadata;
+import com.jetbrains.youtrack.db.internal.core.storage.cluster.YTOfflineClusterException;
+import com.jetbrains.youtrack.db.internal.core.storage.config.OClusterBasedStorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OAbstractPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
+import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.OTreeInternal;
+import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.OSBTreeBonsai;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.message.OAddClusterRequest;
@@ -193,7 +194,6 @@ import com.orientechnologies.orient.client.remote.message.OUnsubscribeResponse;
 import com.orientechnologies.orient.client.remote.message.OUpdateRecordRequest;
 import com.orientechnologies.orient.client.remote.message.OUpdateRecordResponse;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.server.distributed.ODistributedConfiguration;
 import com.orientechnologies.orient.server.distributed.ODistributedServerManager;
 import com.orientechnologies.orient.server.distributed.ORemoteServerController;
@@ -361,8 +361,8 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeDistributedStatus(ODistributedStatusRequest request) {
-    final YTEntityImpl req = request.getStatus();
-    YTEntityImpl clusterConfig = new YTEntityImpl();
+    final EntityImpl req = request.getStatus();
+    EntityImpl clusterConfig = new EntityImpl();
 
     final String operation = req.field("operation");
     if (operation == null) {
@@ -454,24 +454,24 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
               connection.getDatabase().getStorageInfo().getConfiguration())
               .toStream(connection.getData().protocolVersion, StandardCharsets.UTF_8);
 
-      response = new OReadRecordResponse(YTBlob.RECORD_TYPE, 0, record, new HashSet<>());
+      response = new OReadRecordResponse(Blob.RECORD_TYPE, 0, record, new HashSet<>());
 
     } else {
       try {
-        final YTRecordAbstract record = connection.getDatabase().load(rid);
+        final RecordAbstract record = connection.getDatabase().load(rid);
         assert !record.isUnloaded();
         byte[] bytes = getRecordBytes(connection, record);
-        final Set<YTRecordAbstract> recordsToSend = new HashSet<>();
+        final Set<RecordAbstract> recordsToSend = new HashSet<>();
         if (!fetchPlanString.isEmpty()) {
           // BUILD THE SERVER SIDE RECORD TO ACCES TO THE FETCH
           // PLAN
-          if (record instanceof YTEntityImpl doc) {
+          if (record instanceof EntityImpl doc) {
             final OFetchPlan fetchPlan = OFetchHelper.buildFetchPlan(fetchPlanString);
 
             final OFetchListener listener =
                 new ORemoteFetchListener() {
                   @Override
-                  protected void sendRecord(YTRecordAbstract iLinked) {
+                  protected void sendRecord(RecordAbstract iLinked) {
                     recordsToSend.add(iLinked);
                   }
                 };
@@ -499,12 +499,12 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeCreateRecord(OCreateRecordRequest request) {
 
-    final YTRecord record = request.getContent();
+    final Record record = request.getContent();
     ORecordInternal.setIdentity(record, request.getRid());
     ORecordInternal.setVersion(record, 0);
-    if (record instanceof YTEntityImpl) {
+    if (record instanceof EntityImpl) {
       // Force conversion of value to class for trigger default values.
-      ODocumentInternal.autoConvertValueToClass(connection.getDatabase(), (YTEntityImpl) record);
+      ODocumentInternal.autoConvertValueToClass(connection.getDatabase(), (EntityImpl) record);
     }
     connection.getDatabase().save(record);
 
@@ -529,14 +529,14 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeUpdateRecord(OUpdateRecordRequest request) {
 
     YTDatabaseSessionInternal database = connection.getDatabase();
-    final YTRecord newRecord = request.getContent();
+    final Record newRecord = request.getContent();
     ORecordInternal.setIdentity(newRecord, request.getRid());
     ORecordInternal.setVersion(newRecord, request.getVersion());
 
     ORecordInternal.setContentChanged(newRecord, request.isUpdateContent());
     ORecordInternal.getDirtyManager(newRecord).clearForSave();
-    YTRecord currentRecord = null;
-    if (newRecord instanceof YTEntityImpl) {
+    Record currentRecord = null;
+    if (newRecord instanceof EntityImpl) {
       try {
         currentRecord = database.load(request.getRid());
       } catch (YTRecordNotFoundException e) {
@@ -552,9 +552,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         throw new YTRecordNotFoundException(request.getRid());
       }
 
-      ((YTEntityImpl) currentRecord).merge((YTEntityImpl) newRecord, false, false);
+      ((EntityImpl) currentRecord).merge((EntityImpl) newRecord, false, false);
       if (request.isUpdateContent()) {
-        ((YTEntityImpl) currentRecord).setDirty();
+        ((EntityImpl) currentRecord).setDirty();
       }
     } else {
       currentRecord = newRecord;
@@ -672,7 +672,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         connection
             .getDatabase()
             .getConfiguration()
-            .getValueAsLong(YTGlobalConfiguration.COMMAND_TIMEOUT);
+            .getValueAsLong(GlobalConfiguration.COMMAND_TIMEOUT);
 
     if (serverTimeout > 0 && command.getTimeoutTime() > serverTimeout)
     // FORCE THE SERVER'S TIMEOUT
@@ -794,7 +794,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeGetGlobalConfiguration(OGetGlobalConfigurationRequest request) {
-    final YTGlobalConfiguration cfg = YTGlobalConfiguration.findByKey(request.getKey());
+    final GlobalConfiguration cfg = GlobalConfiguration.findByKey(request.getKey());
     String cfgValue = cfg != null ? cfg.isHidden() ? "<hidden>" : cfg.getValueAsString() : "";
     return new OGetGlobalConfigurationResponse(cfgValue);
   }
@@ -802,7 +802,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeListGlobalConfigurations(OListGlobalConfigurationsRequest request) {
     Map<String, String> configs = new HashMap<>();
-    for (YTGlobalConfiguration cfg : YTGlobalConfiguration.values()) {
+    for (GlobalConfiguration cfg : GlobalConfiguration.values()) {
       String key;
       try {
         key = cfg.getKey();
@@ -1031,7 +1031,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     connection.getData().collectStats = request.isCollectStats();
 
     if (!request.isTokenBased()
-        && !YTGlobalConfiguration.NETWORK_BINARY_ALLOW_NO_TOKEN.getValueAsBoolean()) {
+        && !GlobalConfiguration.NETWORK_BINARY_ALLOW_NO_TOKEN.getValueAsBoolean()) {
       OLogManager.instance()
           .warn(
               this,
@@ -1112,7 +1112,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     connection.getData().clientId = request.getClientId();
     connection.getData().setSerializationImpl(request.getRecordFormat());
     if (!request.isUseToken()
-        && !YTGlobalConfiguration.NETWORK_BINARY_ALLOW_NO_TOKEN.getValueAsBoolean()) {
+        && !GlobalConfiguration.NETWORK_BINARY_ALLOW_NO_TOKEN.getValueAsBoolean()) {
       OLogManager.instance()
           .warn(
               this,
@@ -1163,7 +1163,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     final OServerPlugin plugin = server.getPlugin("cluster");
     byte[] distriConf = null;
-    YTEntityImpl distributedCfg;
+    EntityImpl distributedCfg;
     if (plugin instanceof ODistributedServerManager) {
       distributedCfg = ((ODistributedServerManager) plugin).getClusterConfiguration();
 
@@ -1280,7 +1280,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeSetGlobalConfig(OSetGlobalConfigurationRequest request) {
 
-    final YTGlobalConfiguration cfg = YTGlobalConfiguration.findByKey(request.getKey());
+    final GlobalConfiguration cfg = GlobalConfiguration.findByKey(request.getKey());
 
     if (cfg != null) {
       cfg.setValue(request.getValue());
@@ -1299,12 +1299,12 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   }
 
   public static byte[] getRecordBytes(OClientConnection connection,
-      final YTRecordAbstract iRecord) {
+      final RecordAbstract iRecord) {
     var db = connection.getDatabase();
     final byte[] stream;
     String name = connection.getData().getSerializationImpl();
-    if (ORecordInternal.getRecordType(iRecord) == YTEntityImpl.RECORD_TYPE) {
-      ((YTEntityImpl) iRecord).deserializeFields();
+    if (ORecordInternal.getRecordType(iRecord) == EntityImpl.RECORD_TYPE) {
+      ((EntityImpl) iRecord).deserializeFields();
       ORecordSerializer ser = ORecordSerializerFactory.instance().getFormat(name);
       stream = ser.toStream(db, iRecord);
     } else {

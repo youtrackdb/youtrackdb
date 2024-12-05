@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.server.network.http;
 
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.nio.file.Paths;
 import org.junit.After;
 import org.junit.Assert;
@@ -20,7 +20,7 @@ public abstract class BaseHttpDatabaseTest extends BaseHttpTest {
             .getCanonicalPath();
 
     super.startServer();
-    YTEntityImpl pass = new YTEntityImpl();
+    EntityImpl pass = new EntityImpl();
     pass.setProperty("adminPassword", "admin");
     Assert.assertEquals(
         post("database/" + getDatabaseName() + "/memory")

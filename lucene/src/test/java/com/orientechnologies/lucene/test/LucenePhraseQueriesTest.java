@@ -2,10 +2,10 @@ package com.orientechnologies.lucene.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTVertex;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,7 +30,7 @@ public class LucenePhraseQueriesTest extends BaseLuceneTest {
         .close();
 
     db.begin();
-    YTVertex role = db.newVertex("Role");
+    Vertex role = db.newVertex("Role");
     role.setProperty("name", "System IT Owner");
     db.save(role);
 

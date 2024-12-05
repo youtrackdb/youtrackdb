@@ -13,8 +13,8 @@
  */
 package com.orientechnologies.spatial.functions;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.sql.functions.OSQLFunctionFactoryTemplate;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionFactoryTemplate;
 
 public class OSpatialFunctionsFactory extends OSQLFunctionFactoryTemplate {
 

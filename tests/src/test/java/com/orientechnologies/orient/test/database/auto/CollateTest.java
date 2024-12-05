@@ -1,18 +1,18 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.collate.OCaseInsensitiveCollate;
-import com.orientechnologies.core.collate.ODefaultCollate;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.index.OCompositeKey;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.index.OIndexManagerAbstract;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTProperty;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.OCommandSQL;
-import com.orientechnologies.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.collate.OCaseInsensitiveCollate;
+import com.jetbrains.youtrack.db.internal.core.collate.ODefaultCollate;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexManagerAbstract;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -42,7 +42,7 @@ public class CollateTest extends DocumentDBBaseTest {
     cip.setCollate(database, OCaseInsensitiveCollate.NAME);
 
     for (int i = 0; i < 10; i++) {
-      YTEntityImpl document = new YTEntityImpl("collateTest");
+      EntityImpl document = new EntityImpl("collateTest");
 
       if (i % 2 == 0) {
         document.field("csp", "VAL");
@@ -58,22 +58,22 @@ public class CollateTest extends DocumentDBBaseTest {
     }
 
     @SuppressWarnings("deprecation")
-    List<YTEntityImpl> result =
+    List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<YTEntityImpl>("select from collateTest where csp = 'VAL'"));
+            new OSQLSynchQuery<EntityImpl>("select from collateTest where csp = 'VAL'"));
     Assert.assertEquals(result.size(), 5);
 
-    for (YTEntityImpl document : result) {
+    for (EntityImpl document : result) {
       Assert.assertEquals(document.field("csp"), "VAL");
     }
 
     //noinspection deprecation
     result =
         database.query(
-            new OSQLSynchQuery<YTEntityImpl>("select from collateTest where cip = 'VaL'"));
+            new OSQLSynchQuery<EntityImpl>("select from collateTest where cip = 'VaL'"));
     Assert.assertEquals(result.size(), 10);
 
-    for (YTEntityImpl document : result) {
+    for (EntityImpl document : result) {
       Assert.assertEquals((document.<String>field("cip")).toUpperCase(Locale.ENGLISH), "VAL");
     }
   }
@@ -85,14 +85,14 @@ public class CollateTest extends DocumentDBBaseTest {
     YTProperty csp = clazz.createProperty(database, "bar", YTType.STRING);
     csp.setCollate(database, OCaseInsensitiveCollate.NAME);
 
-    YTEntityImpl document = new YTEntityImpl("collateTestNotNull");
+    EntityImpl document = new EntityImpl("collateTestNotNull");
     document.field("bar", "baz");
 
     database.begin();
     document.save();
     database.commit();
 
-    document = new YTEntityImpl("collateTestNotNull");
+    document = new EntityImpl("collateTestNotNull");
     document.field("nobar", true);
 
     database.begin();
@@ -100,15 +100,15 @@ public class CollateTest extends DocumentDBBaseTest {
     database.commit();
 
     @SuppressWarnings("deprecation")
-    List<YTEntityImpl> result =
+    List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<YTEntityImpl>("select from collateTestNotNull where bar is null"));
+            new OSQLSynchQuery<EntityImpl>("select from collateTestNotNull where bar is null"));
     Assert.assertEquals(result.size(), 1);
 
     //noinspection deprecation
     result =
         database.query(
-            new OSQLSynchQuery<YTEntityImpl>(
+            new OSQLSynchQuery<EntityImpl>(
                 "select from collateTestNotNull where bar is not null"));
     Assert.assertEquals(result.size(), 1);
   }
@@ -127,7 +127,7 @@ public class CollateTest extends DocumentDBBaseTest {
     clazz.createIndex(database, "collateIndexCIP", YTClass.INDEX_TYPE.NOTUNIQUE, "cip");
 
     for (int i = 0; i < 10; i++) {
-      YTEntityImpl document = new YTEntityImpl("collateIndexTest");
+      EntityImpl document = new EntityImpl("collateIndexTest");
 
       if (i % 2 == 0) {
         document.field("csp", "VAL");
@@ -144,23 +144,23 @@ public class CollateTest extends DocumentDBBaseTest {
 
     String query = "select from collateIndexTest where csp = 'VAL'";
     @SuppressWarnings("deprecation")
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
     Assert.assertEquals(result.size(), 5);
 
-    for (YTEntityImpl document : result) {
+    for (EntityImpl document : result) {
       Assert.assertEquals(document.field("csp"), "VAL");
     }
 
     @SuppressWarnings("deprecation")
-    YTEntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(explain.<Set<String>>field("involvedIndexes").contains("collateIndexCSP"));
 
     query = "select from collateIndexTest where cip = 'VaL'";
     //noinspection deprecation
-    result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    result = database.query(new OSQLSynchQuery<EntityImpl>(query));
     Assert.assertEquals(result.size(), 10);
 
-    for (YTEntityImpl document : result) {
+    for (EntityImpl document : result) {
       Assert.assertEquals((document.<String>field("cip")).toUpperCase(Locale.ENGLISH), "VAL");
     }
 
@@ -179,7 +179,7 @@ public class CollateTest extends DocumentDBBaseTest {
     clazz.createIndex(database, "collateWasChangedIndex", YTClass.INDEX_TYPE.NOTUNIQUE, "cp");
 
     for (int i = 0; i < 10; i++) {
-      YTEntityImpl document = new YTEntityImpl("collateWasChangedIndexTest");
+      EntityImpl document = new EntityImpl("collateWasChangedIndexTest");
 
       if (i % 2 == 0) {
         document.field("cp", "VAL");
@@ -194,15 +194,15 @@ public class CollateTest extends DocumentDBBaseTest {
 
     String query = "select from collateWasChangedIndexTest where cp = 'VAL'";
     @SuppressWarnings("deprecation")
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
     Assert.assertEquals(result.size(), 5);
 
-    for (YTEntityImpl document : result) {
+    for (EntityImpl document : result) {
       Assert.assertEquals(document.field("cp"), "VAL");
     }
 
     @SuppressWarnings("deprecation")
-    YTEntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain.<Set<String>>field("involvedIndexes").contains("collateWasChangedIndex"));
 
@@ -211,10 +211,10 @@ public class CollateTest extends DocumentDBBaseTest {
 
     query = "select from collateWasChangedIndexTest where cp = 'VaL'";
     //noinspection deprecation
-    result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    result = database.query(new OSQLSynchQuery<EntityImpl>(query));
     Assert.assertEquals(result.size(), 10);
 
-    for (YTEntityImpl document : result) {
+    for (EntityImpl document : result) {
       Assert.assertEquals((document.<String>field("cp")).toUpperCase(Locale.ENGLISH), "VAL");
     }
 
@@ -238,7 +238,7 @@ public class CollateTest extends DocumentDBBaseTest {
         "cip");
 
     for (int i = 0; i < 10; i++) {
-      YTEntityImpl document = new YTEntityImpl("CompositeIndexQueryCSTest");
+      EntityImpl document = new EntityImpl("CompositeIndexQueryCSTest");
 
       if (i % 2 == 0) {
         document.field("csp", "VAL");
@@ -255,24 +255,24 @@ public class CollateTest extends DocumentDBBaseTest {
 
     String query = "select from CompositeIndexQueryCSTest where csp = 'VAL'";
     @SuppressWarnings("deprecation")
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
     Assert.assertEquals(result.size(), 5);
 
-    for (YTEntityImpl document : result) {
+    for (EntityImpl document : result) {
       Assert.assertEquals(document.field("csp"), "VAL");
     }
 
     @SuppressWarnings("deprecation")
-    YTEntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain.<Set<String>>field("involvedIndexes").contains("collateCompositeIndexCS"));
 
     query = "select from CompositeIndexQueryCSTest where csp = 'VAL' and cip = 'VaL'";
     //noinspection deprecation
-    result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    result = database.query(new OSQLSynchQuery<EntityImpl>(query));
     Assert.assertEquals(result.size(), 5);
 
-    for (YTEntityImpl document : result) {
+    for (EntityImpl document : result) {
       Assert.assertEquals(document.field("csp"), "VAL");
       Assert.assertEquals((document.<String>field("cip")).toUpperCase(Locale.ENGLISH), "VAL");
     }
@@ -294,7 +294,7 @@ public class CollateTest extends DocumentDBBaseTest {
 
       Assert.assertEquals(value.size(), 5);
       for (YTRID identifiable : value) {
-        final YTEntityImpl record = identifiable.getRecord();
+        final EntityImpl record = identifiable.getRecord();
         Assert.assertEquals(record.field("csp"), "VAL");
         Assert.assertEquals((record.<String>field("cip")).toUpperCase(Locale.ENGLISH), "VAL");
       }
@@ -314,7 +314,7 @@ public class CollateTest extends DocumentDBBaseTest {
         "collateCompositeIndexCollateWasChanged", YTClass.INDEX_TYPE.NOTUNIQUE, "csp", "cip");
 
     for (int i = 0; i < 10; i++) {
-      YTEntityImpl document = new YTEntityImpl("CompositeIndexQueryCollateWasChangedTest");
+      EntityImpl document = new EntityImpl("CompositeIndexQueryCollateWasChangedTest");
       if (i % 2 == 0) {
         document.field("csp", "VAL");
         document.field("cip", "VAL");
@@ -330,15 +330,15 @@ public class CollateTest extends DocumentDBBaseTest {
 
     String query = "select from CompositeIndexQueryCollateWasChangedTest where csp = 'VAL'";
     @SuppressWarnings("deprecation")
-    List<YTEntityImpl> result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
     Assert.assertEquals(result.size(), 5);
 
-    for (YTEntityImpl document : result) {
+    for (EntityImpl document : result) {
       Assert.assertEquals(document.field("csp"), "VAL");
     }
 
     @SuppressWarnings("deprecation")
-    YTEntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
+    EntityImpl explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -349,10 +349,10 @@ public class CollateTest extends DocumentDBBaseTest {
 
     query = "select from CompositeIndexQueryCollateWasChangedTest where csp = 'VaL'";
     //noinspection deprecation
-    result = database.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    result = database.query(new OSQLSynchQuery<EntityImpl>(query));
     Assert.assertEquals(result.size(), 10);
 
-    for (YTEntityImpl document : result) {
+    for (EntityImpl document : result) {
       Assert.assertEquals(document.<String>field("csp").toUpperCase(Locale.ENGLISH), "VAL");
     }
 
@@ -380,7 +380,7 @@ public class CollateTest extends DocumentDBBaseTest {
         .execute(database);
 
     for (int i = 0; i < 10; i++) {
-      YTEntityImpl document = new YTEntityImpl("collateTestViaSQL");
+      EntityImpl document = new EntityImpl("collateTestViaSQL");
 
       if (i % 2 == 0) {
         document.field("csp", "VAL");
@@ -396,22 +396,22 @@ public class CollateTest extends DocumentDBBaseTest {
     }
 
     @SuppressWarnings("deprecation")
-    List<YTEntityImpl> result =
+    List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<YTEntityImpl>("select from collateTestViaSQL where csp = 'VAL'"));
+            new OSQLSynchQuery<EntityImpl>("select from collateTestViaSQL where csp = 'VAL'"));
     Assert.assertEquals(result.size(), 5);
 
-    for (YTEntityImpl document : result) {
+    for (EntityImpl document : result) {
       Assert.assertEquals(document.field("csp"), "VAL");
     }
 
     //noinspection deprecation
     result =
         database.query(
-            new OSQLSynchQuery<YTEntityImpl>("select from collateTestViaSQL where cip = 'VaL'"));
+            new OSQLSynchQuery<EntityImpl>("select from collateTestViaSQL where cip = 'VaL'"));
     Assert.assertEquals(result.size(), 10);
 
-    for (YTEntityImpl document : result) {
+    for (EntityImpl document : result) {
       Assert.assertEquals((document.<String>field("cip")).toUpperCase(Locale.ENGLISH), "VAL");
     }
   }

@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.lucene.functions;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.sql.functions.OSQLFunctionFactoryTemplate;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionFactoryTemplate;
 
 public class OLuceneFunctionsFactory extends OSQLFunctionFactoryTemplate {
 

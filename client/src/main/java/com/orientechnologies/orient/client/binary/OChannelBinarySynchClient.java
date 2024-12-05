@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.client.binary;
 
-import com.orientechnologies.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
 import java.io.IOException;
 
 /**

@@ -2,9 +2,9 @@ package com.orientechnologies.orient.server;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.config.OServerNetworkConfiguration;
 import com.orientechnologies.orient.server.config.OServerNetworkListenerConfiguration;

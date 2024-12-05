@@ -1,7 +1,7 @@
 package com.orientechnologies.lucene.engine;
 
-import com.orientechnologies.core.command.OCommandContext;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -64,12 +64,12 @@ public class OLuceneIndexEngineUtils {
   }
 
   /**
-   * Builds {@link SortField} from a configuration {@link YTEntityImpl}
+   * Builds {@link SortField} from a configuration {@link EntityImpl}
    *
    * @param conf
    * @return
    */
-  public static SortField buildSortField(YTEntityImpl conf) {
+  public static SortField buildSortField(EntityImpl conf) {
 
     return buildSortField(conf.toMap());
   }

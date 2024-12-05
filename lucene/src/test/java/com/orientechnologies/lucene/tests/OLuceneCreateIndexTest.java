@@ -20,8 +20,8 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.core.record.YTVertex;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.junit.Assert;
@@ -52,7 +52,7 @@ public class OLuceneCreateIndexTest extends OLuceneBaseTest {
                 + "\"}")
         .close();
 
-    YTVertex doc = db.newVertex("Song");
+    Vertex doc = db.newVertex("Song");
 
     doc.setProperty("title", "Local");
     doc.setProperty("author", "Local");

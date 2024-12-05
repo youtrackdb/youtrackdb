@@ -9,7 +9,7 @@ import com.orientechnologies.orient.client.remote.message.OPushIndexManagerReque
 import com.orientechnologies.orient.client.remote.message.OPushSchemaRequest;
 import com.orientechnologies.orient.client.remote.message.OPushSequencesRequest;
 import com.orientechnologies.orient.client.remote.message.OPushStorageConfigurationRequest;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinary;
 
 /**
  *

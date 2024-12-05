@@ -19,23 +19,23 @@
  */
 package com.orientechnologies.orient.client.binary;
 
-import com.orientechnologies.common.concur.lock.YTLockException;
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.exception.YTSystemException;
-import com.orientechnologies.common.io.OIOException;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.OConstants;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.YTLockException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTSystemException;
+import com.jetbrains.youtrack.db.internal.common.io.OIOException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.OConstants;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.OSocketFactory;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinary;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTNetworkProtocolException;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTResponseProcessingException;
 import com.orientechnologies.orient.client.remote.OStorageRemoteNodeSession;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.message.OError37Response;
-import com.orientechnologies.orient.enterprise.channel.OSocketFactory;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.YTNetworkProtocolException;
-import com.orientechnologies.orient.enterprise.channel.binary.YTResponseProcessingException;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -71,7 +71,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
     try {
 
       serverURL = remoteHost + ":" + remotePort;
-      socketTimeout = iConfig.getValueAsInteger(YTGlobalConfiguration.NETWORK_SOCKET_TIMEOUT);
+      socketTimeout = iConfig.getValueAsInteger(GlobalConfiguration.NETWORK_SOCKET_TIMEOUT);
 
       try {
         socket.connect(new InetSocketAddress(remoteHost, remotePort), socketTimeout);

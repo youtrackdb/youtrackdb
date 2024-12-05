@@ -20,11 +20,11 @@ package com.orientechnologies.lucene.engine;
 
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.id.YTContextualRecordId;
-import com.orientechnologies.core.index.engine.OIndexEngine;
-import com.orientechnologies.core.storage.impl.local.OFreezableStorageComponent;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.id.YTContextualRecordId;
+import com.jetbrains.youtrack.db.internal.core.index.engine.OIndexEngine;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OFreezableStorageComponent;
 import java.io.IOException;
 import java.util.Set;
 import org.apache.lucene.analysis.Analyzer;

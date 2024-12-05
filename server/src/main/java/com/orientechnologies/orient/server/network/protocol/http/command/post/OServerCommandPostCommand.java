@@ -19,21 +19,21 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.core.command.OBasicCommandContext;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.ODatabaseStats;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.OSQLEngine;
-import com.orientechnologies.core.sql.executor.YTResultSet;
-import com.orientechnologies.core.sql.parser.ODDLStatement;
-import com.orientechnologies.core.sql.parser.OFetchPlan;
-import com.orientechnologies.core.sql.parser.OLimit;
-import com.orientechnologies.core.sql.parser.OMatchStatement;
-import com.orientechnologies.core.sql.parser.OSelectStatement;
-import com.orientechnologies.core.sql.parser.OStatement;
-import com.orientechnologies.core.sql.parser.OTraverseStatement;
+import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseStats;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.ODDLStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OFetchPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OLimit;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OMatchStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OTraverseStatement;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAuthenticatedDbAbstract;
@@ -73,7 +73,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
       // CONTENT REPLACES TEXT
       if (iRequest.getContent().startsWith("{")) {
         // JSON PAYLOAD
-        final YTEntityImpl doc = new YTEntityImpl();
+        final EntityImpl doc = new EntityImpl();
         doc.fromJSON(iRequest.getContent());
         text = doc.field("command");
         params = doc.field("parameters");
@@ -129,7 +129,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
       int i = 0;
       List response = new ArrayList();
       TimerTask commandInterruptTimer = null;
-      if (db.getConfiguration().getValueAsLong(YTGlobalConfiguration.COMMAND_TIMEOUT) > 0
+      if (db.getConfiguration().getValueAsLong(GlobalConfiguration.COMMAND_TIMEOUT) > 0
           && !language.equalsIgnoreCase("sql")) {
       }
       try {

@@ -1,17 +1,17 @@
 package com.orientechnologies.orient.server.query;
 
-import static com.orientechnologies.core.config.YTGlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE;
+import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.QUERY_REMOTE_RESULTSET_PAGE_SIZE;
 
-import com.orientechnologies.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.ODatabasePool;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.sql.executor.YTResultSet;
-import com.orientechnologies.orient.enterprise.channel.binary.YTTokenSecurityException;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabasePool;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTTokenSecurityException;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.token.OTokenHandlerImpl;
 import java.io.File;
@@ -60,7 +60,7 @@ public class RemoteTokenExpireTest {
     youTrackDB.close();
 
     var config =
-        YouTrackDBConfig.builder().addConfig(YTGlobalConfiguration.NETWORK_SOCKET_RETRY, 0).build();
+        YouTrackDBConfig.builder().addConfig(GlobalConfiguration.NETWORK_SOCKET_RETRY, 0).build();
     youTrackDB = new YouTrackDB("remote:localhost", "root", "root", config);
     session = youTrackDB.open(RemoteTokenExpireTest.class.getSimpleName(), "admin", "admin");
   }
@@ -208,7 +208,7 @@ public class RemoteTokenExpireTest {
             "admin",
             YouTrackDBConfig.builder()
                 .addConfig(
-                    YTGlobalConfiguration.CLIENT_CONNECTION_STRATEGY,
+                    GlobalConfiguration.CLIENT_CONNECTION_STRATEGY,
                     OStorageRemote.CONNECTION_STRATEGY.ROUND_ROBIN_CONNECT)
                 .build());
 

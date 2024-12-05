@@ -15,13 +15,13 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.ORecordInternal;
-import com.orientechnologies.core.record.impl.ODocumentHelper;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentHelper;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -51,18 +51,18 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryProjectionOk() {
-    List<YTEntityImpl> result =
+    List<EntityImpl> result =
         database
             .command(
                 "select nick, followings, followers from Profile where nick is defined and"
                     + " followings is defined and followers is defined")
             .stream()
-            .map(r -> (YTEntityImpl) r.toEntity())
+            .map(r -> (EntityImpl) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());
 
-    for (YTEntityImpl d : result) {
+    for (EntityImpl d : result) {
       String[] colNames = d.fieldNames();
       Assert.assertEquals(colNames.length, 3, "document: " + d);
       Assert.assertEquals(colNames[0], "nick", "document: " + d);
@@ -70,7 +70,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
       Assert.assertEquals(colNames[2], "followers", "document: " + d);
 
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(ORecordInternal.getRecordType(d), YTEntityImpl.RECORD_TYPE);
+      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
@@ -78,32 +78,32 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
   public void queryProjectionObjectLevel() {
     var result =
         database.query("select nick, followings, followers from Profile").stream()
-            .map(r -> (YTEntityImpl) r.toEntity())
+            .map(r -> (EntityImpl) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());
 
-    for (YTEntityImpl d : result) {
+    for (EntityImpl d : result) {
       Assert.assertTrue(d.fieldNames().length <= 3);
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(ORecordInternal.getRecordType(d), YTEntityImpl.RECORD_TYPE);
+      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
   @Test
   public void queryProjectionLinkedAndFunction() {
-    List<YTEntityImpl> result =
+    List<EntityImpl> result =
         database
             .query(
                 "select name.toUpperCase(Locale.ENGLISH), address.city.country.name from"
                     + " Profile")
             .stream()
-            .map(r -> (YTEntityImpl) r.toEntity())
+            .map(r -> (EntityImpl) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());
 
-    for (YTEntityImpl d : result) {
+    for (EntityImpl d : result) {
       Assert.assertTrue(d.fieldNames().length <= 2);
       if (d.field("name") != null) {
         Assert.assertEquals(
@@ -111,126 +111,126 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
       }
 
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(ORecordInternal.getRecordType(d), YTEntityImpl.RECORD_TYPE);
+      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
   @Test
   public void queryProjectionSameFieldTwice() {
-    List<YTEntityImpl> result =
+    List<EntityImpl> result =
         database
             .query(
                 "select name, name.toUpperCase(Locale.ENGLISH) as name2 from Profile where name is"
                     + " not null")
             .stream()
-            .map(r -> (YTEntityImpl) r.toEntity())
+            .map(r -> (EntityImpl) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());
 
-    for (YTEntityImpl d : result) {
+    for (EntityImpl d : result) {
       Assert.assertTrue(d.fieldNames().length <= 2);
       Assert.assertNotNull(d.field("name"));
       Assert.assertNotNull(d.field("name2"));
 
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(ORecordInternal.getRecordType(d), YTEntityImpl.RECORD_TYPE);
+      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
   @Test
   public void queryProjectionStaticValues() {
-    List<YTEntityImpl> result =
+    List<EntityImpl> result =
         database
             .query(
                 "select location.city.country.name as location, address.city.country.name as"
                     + " address from Profile where location.city.country.name is not null")
             .stream()
-            .map(r -> (YTEntityImpl) r.toEntity())
+            .map(r -> (EntityImpl) r.toEntity())
             .toList();
 
     Assert.assertFalse(result.isEmpty());
 
-    for (YTEntityImpl d : result) {
+    for (EntityImpl d : result) {
 
       Assert.assertNotNull(d.field("location"));
       Assert.assertNull(d.field("address"));
 
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(ORecordInternal.getRecordType(d), YTEntityImpl.RECORD_TYPE);
+      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
   @Test
   public void queryProjectionPrefixAndAppend() {
-    List<YTEntityImpl> result =
+    List<EntityImpl> result =
         executeQuery(
             "select *, name.prefix('Mr. ').append(' ').append(surname).append('!') as test"
                 + " from Profile where name is not null");
 
     Assert.assertFalse(result.isEmpty());
 
-    for (YTEntityImpl d : result) {
+    for (EntityImpl d : result) {
       Assert.assertEquals(
           d.field("test").toString(), "Mr. " + d.field("name") + " " + d.field("surname") + "!");
 
-      Assert.assertEquals(ORecordInternal.getRecordType(d), YTEntityImpl.RECORD_TYPE);
+      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
   @Test
   public void queryProjectionFunctionsAndFieldOperators() {
-    List<YTEntityImpl> result =
+    List<EntityImpl> result =
         executeQuery(
             "select name.append('.').prefix('Mr. ') as name from Profile where name is not"
                 + " null");
 
     Assert.assertFalse(result.isEmpty());
-    for (YTEntityImpl d : result) {
+    for (EntityImpl d : result) {
       Assert.assertTrue(d.fieldNames().length <= 1);
       Assert.assertTrue(d.field("name").toString().startsWith("Mr. "));
       Assert.assertTrue(d.field("name").toString().endsWith("."));
 
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(ORecordInternal.getRecordType(d), YTEntityImpl.RECORD_TYPE);
+      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
   @Test
   public void queryProjectionSimpleValues() {
-    List<YTEntityImpl> result = executeQuery("select 10, 'ciao' from Profile LIMIT 1");
+    List<EntityImpl> result = executeQuery("select 10, 'ciao' from Profile LIMIT 1");
 
     Assert.assertFalse(result.isEmpty());
 
-    for (YTEntityImpl d : result) {
+    for (EntityImpl d : result) {
       Assert.assertTrue(d.fieldNames().length <= 2);
       Assert.assertEquals(((Integer) d.field("10")).intValue(), 10);
       Assert.assertEquals(d.field("'ciao'"), "ciao");
 
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(ORecordInternal.getRecordType(d), YTEntityImpl.RECORD_TYPE);
+      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
   @Test
   public void queryProjectionJSON() {
-    List<YTEntityImpl> result = executeQuery("select @this.toJson() as json from Profile");
+    List<EntityImpl> result = executeQuery("select @this.toJson() as json from Profile");
 
     Assert.assertFalse(result.isEmpty());
 
-    for (YTEntityImpl d : result) {
+    for (EntityImpl d : result) {
       Assert.assertTrue(d.fieldNames().length <= 1);
       Assert.assertNotNull(d.field("json"));
 
-      new YTEntityImpl().fromJSON((String) d.field("json"));
+      new EntityImpl().fromJSON((String) d.field("json"));
     }
   }
 
   public void queryProjectionRid() {
-    List<YTEntityImpl> result = executeQuery("select @rid as rid FROM V");
+    List<EntityImpl> result = executeQuery("select @rid as rid FROM V");
     Assert.assertFalse(result.isEmpty());
 
-    for (YTEntityImpl d : result) {
+    for (EntityImpl d : result) {
       Assert.assertTrue(d.fieldNames().length <= 1);
       Assert.assertNotNull(d.field("rid"));
 
@@ -240,35 +240,35 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
   }
 
   public void queryProjectionOrigin() {
-    List<YTEntityImpl> result = executeQuery("select @raw as raw FROM V");
+    List<EntityImpl> result = executeQuery("select @raw as raw FROM V");
     Assert.assertFalse(result.isEmpty());
 
-    for (YTEntityImpl d : result) {
+    for (EntityImpl d : result) {
       Assert.assertTrue(d.fieldNames().length <= 1);
       Assert.assertNotNull(d.field("raw"));
     }
   }
 
   public void queryProjectionEval() {
-    List<YTEntityImpl> result = executeQuery("select eval('1 + 4') as result");
+    List<EntityImpl> result = executeQuery("select eval('1 + 4') as result");
     Assert.assertEquals(result.size(), 1);
 
-    for (YTEntityImpl d : result) {
+    for (EntityImpl d : result) {
       Assert.assertEquals(d.<Object>field("result"), 5);
     }
   }
 
   public void queryProjectionContextArray() {
-    List<YTEntityImpl> result =
+    List<EntityImpl> result =
         executeQuery("select $a[0] as a0, $a as a from V let $a = outE() where outE().size() > 0");
     Assert.assertFalse(result.isEmpty());
 
-    for (YTEntityImpl d : result) {
+    for (EntityImpl d : result) {
       Assert.assertTrue(d.containsField("a"));
       Assert.assertTrue(d.containsField("a0"));
 
-      final YTEntityImpl a0doc = d.field("a0");
-      final YTEntityImpl firstADoc =
+      final EntityImpl a0doc = d.field("a0");
+      final EntityImpl firstADoc =
           d.<Iterable<YTIdentifiable>>field("a").iterator().next().getRecord();
 
       Assert.assertTrue(
@@ -277,7 +277,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
   }
 
   public void ifNullFunction() {
-    List<YTEntityImpl> result = executeQuery("SELECT ifnull('a', 'b') as ifnull");
+    List<EntityImpl> result = executeQuery("SELECT ifnull('a', 'b') as ifnull");
     Assert.assertFalse(result.isEmpty());
     Assert.assertEquals(result.get(0).field("ifnull"), "a");
 
@@ -293,37 +293,37 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
   public void setAggregation() {
     var result = executeQuery("SELECT set(name) as set from OUser");
     Assert.assertEquals(result.size(), 1);
-    for (YTEntityImpl d : result) {
+    for (EntityImpl d : result) {
       Assert.assertTrue(OMultiValue.isMultiValue(d.<Object>field("set")));
       Assert.assertTrue(OMultiValue.getSize(d.field("set")) <= 3);
     }
   }
 
   public void projectionWithNoTarget() {
-    List<YTEntityImpl> result = executeQuery("select 'Ay' as a , 'bEE'");
+    List<EntityImpl> result = executeQuery("select 'Ay' as a , 'bEE'");
     Assert.assertEquals(result.size(), 1);
-    for (YTEntityImpl d : result) {
+    for (EntityImpl d : result) {
       Assert.assertEquals(d.field("a"), "Ay");
       Assert.assertEquals(d.field("'bEE'"), "bEE");
     }
 
     result = executeQuery("select 'Ay' as a , 'bEE' as b");
     Assert.assertEquals(result.size(), 1);
-    for (YTEntityImpl d : result) {
+    for (EntityImpl d : result) {
       Assert.assertEquals(d.field("a"), "Ay");
       Assert.assertEquals(d.field("b"), "bEE");
     }
 
     result = executeQuery("select 'Ay' as a , 'bEE' as b fetchplan *:1");
     Assert.assertEquals(result.size(), 1);
-    for (YTEntityImpl d : result) {
+    for (EntityImpl d : result) {
       Assert.assertEquals(d.field("a"), "Ay");
       Assert.assertEquals(d.field("b"), "bEE");
     }
 
     result = executeQuery("select 'Ay' as a , 'bEE' fetchplan *:1");
     Assert.assertEquals(result.size(), 1);
-    for (YTEntityImpl d : result) {
+    for (EntityImpl d : result) {
       Assert.assertEquals(d.field("a"), "Ay");
       Assert.assertEquals(d.field("'bEE'"), "bEE");
     }
@@ -351,14 +351,14 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
       rootElement.save();
       database.commit();
 
-      List<YTEntityImpl> res =
+      List<EntityImpl> res =
           executeQuery("select a,b, child.exclude('d') as child from " + rootElement.getIdentity());
 
       Assert.assertNotNull(res.get(0).field("a"));
       Assert.assertNotNull(res.get(0).field("b"));
-      Assert.assertNotNull(res.get(0).<YTEntityImpl>field("child").field("c"));
-      Assert.assertNull(res.get(0).<YTEntityImpl>field("child").field("d"));
-      Assert.assertNotNull(res.get(0).<YTEntityImpl>field("child").field("e"));
+      Assert.assertNotNull(res.get(0).<EntityImpl>field("child").field("c"));
+      Assert.assertNull(res.get(0).<EntityImpl>field("child").field("d"));
+      Assert.assertNotNull(res.get(0).<EntityImpl>field("child").field("e"));
     } finally {
       database.command("drop class A").close();
       database.command("drop class B").close();
@@ -387,19 +387,19 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
       rootElement.save();
       database.commit();
 
-      List<YTEntityImpl> res =
+      List<EntityImpl> res =
           executeQuery(
               "select child.exclude('d') as link from (select expand(root) from "
                   + childElement.getIdentity()
                   + " )");
       Assert.assertEquals(res.size(), 1);
 
-      YTEntityImpl root = res.get(0);
+      EntityImpl root = res.get(0);
       Assert.assertNotNull(root.field("link"));
 
-      Assert.assertNull(root.<YTEntityImpl>field("link").field("d"));
-      Assert.assertNotNull(root.<YTEntityImpl>field("link").field("c"));
-      Assert.assertNotNull(root.<YTEntityImpl>field("link").field("e"));
+      Assert.assertNull(root.<EntityImpl>field("link").field("d"));
+      Assert.assertNotNull(root.<EntityImpl>field("link").field("c"));
+      Assert.assertNotNull(root.<EntityImpl>field("link").field("e"));
 
     } finally {
       database.command("drop class A").close();
@@ -409,7 +409,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
 
   @Test
   public void testTempRIDsAreNotRecycledInResultSet() {
-    final List<YTEntityImpl> resultset =
+    final List<EntityImpl> resultset =
         executeQuery("select name, $l as l from OUser let $l = (select name from OuSer)");
 
     Assert.assertNotNull(resultset);
@@ -421,7 +421,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
 
       rids.add(rid);
 
-      final List<YTIdentifiable> embeddedList = ((YTEntityImpl) d.getRecord()).field("l");
+      final List<YTIdentifiable> embeddedList = ((EntityImpl) d.getRecord()).field("l");
       Assert.assertNotNull(embeddedList);
       Assert.assertFalse(embeddedList.isEmpty());
 

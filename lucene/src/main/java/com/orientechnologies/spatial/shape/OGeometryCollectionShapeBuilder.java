@@ -13,11 +13,11 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -48,13 +48,13 @@ public class OGeometryCollectionShapeBuilder extends OComplexShapeBuilder<ShapeC
 
   @Override
   public ShapeCollection<Shape> fromMapGeoJson(Map<String, Object> geoJsonMap) {
-    YTEntityImpl doc = new YTEntityImpl(getName());
+    EntityImpl doc = new EntityImpl(getName());
     doc.field("geometries", geoJsonMap.get("geometries"));
     return fromDoc(doc);
   }
 
   @Override
-  public ShapeCollection<Shape> fromDoc(YTEntityImpl doc) {
+  public ShapeCollection<Shape> fromDoc(EntityImpl doc) {
 
     List<Object> geometries = doc.field("geometries");
 
@@ -90,10 +90,10 @@ public class OGeometryCollectionShapeBuilder extends OComplexShapeBuilder<ShapeC
   }
 
   @Override
-  public YTEntityImpl toDoc(ShapeCollection<Shape> shapes) {
+  public EntityImpl toDoc(ShapeCollection<Shape> shapes) {
 
-    YTEntityImpl doc = new YTEntityImpl(getName());
-    List<YTEntityImpl> geometries = new ArrayList<YTEntityImpl>(shapes.size());
+    EntityImpl doc = new EntityImpl(getName());
+    List<EntityImpl> geometries = new ArrayList<EntityImpl>(shapes.size());
     for (Shape s : shapes) {
       geometries.add(shapeFactory.toDoc(s));
     }

@@ -13,13 +13,13 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.core.db.record.LinkList;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.metadata.schema.YTProperty;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTBlob;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import java.math.BigDecimal;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -135,18 +135,18 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
 
       if (value == null) {
         return Types.NULL;
-      } else if (value instanceof YTBlob) {
+      } else if (value instanceof Blob) {
         // Check if the type is a binary record or a collection of binary
         // records
         return Types.BINARY;
       } else if (value instanceof LinkList list) {
-        // check if all the list items are instances of YTRecordBytes
+        // check if all the list items are instances of RecordBytes
         ListIterator<YTIdentifiable> iterator = list.listIterator();
         YTIdentifiable listElement;
         boolean stop = false;
         while (iterator.hasNext() && !stop) {
           listElement = iterator.next();
-          if (!(listElement instanceof YTBlob)) {
+          if (!(listElement instanceof Blob)) {
             stop = true;
           }
         }
@@ -162,7 +162,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
           return Types.NULL;
         }
         // 1. Check if the type is another record or a collection of records
-        if (value instanceof YTBlob) {
+        if (value instanceof Blob) {
           return Types.BINARY;
         }
       } else {
@@ -172,13 +172,13 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
             return Types.NULL;
           }
           if (value instanceof LinkList list) {
-            // check if all the list items are instances of YTRecordBytes
+            // check if all the list items are instances of RecordBytes
             ListIterator<YTIdentifiable> iterator = list.listIterator();
             YTIdentifiable listElement;
             boolean stop = false;
             while (iterator.hasNext() && !stop) {
               listElement = iterator.next();
-              if (!(listElement instanceof YTBlob)) {
+              if (!(listElement instanceof Blob)) {
                 stop = true;
               }
             }
@@ -258,7 +258,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
     if (currentRecord == null) {
       return "";
     } else {
-      return ((YTEntityImpl) currentRecord.toEntity()).getSession().getName();
+      return ((EntityImpl) currentRecord.toEntity()).getSession().getName();
     }
   }
 

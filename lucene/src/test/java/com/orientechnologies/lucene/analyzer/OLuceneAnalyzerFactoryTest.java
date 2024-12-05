@@ -6,9 +6,9 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.core.index.OIndexDefinition;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -38,7 +38,7 @@ public class OLuceneAnalyzerFactoryTest {
 
     String metajson =
         OIOUtils.readFileAsString(new File("./src/test/resources/index_metadata_new.json"));
-    var metadataDocument = new YTEntityImpl();
+    var metadataDocument = new EntityImpl();
     metadataDocument.fromJSON(metajson);
     metadata = metadataDocument.toMap();
 

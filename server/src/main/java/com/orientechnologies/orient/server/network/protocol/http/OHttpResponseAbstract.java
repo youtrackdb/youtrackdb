@@ -19,19 +19,19 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.exception.YTRecordNotFoundException;
-import com.orientechnologies.core.record.YTEntity;
-import com.orientechnologies.core.record.YTRecord;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.OJSONWriter;
-import com.orientechnologies.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.util.OCallable;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OJSONWriter;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.orientechnologies.orient.server.OClientConnection;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -84,7 +84,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
   private boolean jsonErrorResponse = true;
   private boolean sameSiteCookie = true;
   private OClientConnection connection;
-  private boolean streaming = YTGlobalConfiguration.NETWORK_HTTP_STREAMING.getValueAsBoolean();
+  private boolean streaming = GlobalConfiguration.NETWORK_HTTP_STREAMING.getValueAsBoolean();
 
   public OHttpResponseAbstract(
       final OutputStream iOutStream,
@@ -98,7 +98,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       OClientConnection connection,
       YTContextConfiguration contextConfiguration) {
     streaming = contextConfiguration.getValueAsBoolean(
-        YTGlobalConfiguration.NETWORK_HTTP_STREAMING);
+        GlobalConfiguration.NETWORK_HTTP_STREAMING);
     out = iOutStream;
     httpVersion = iHttpVersion;
     additionalHeaders = iAdditionalHeaders;
@@ -208,7 +208,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final Object newResult;
 
       if (iResult instanceof Map) {
-        YTEntityImpl doc = new YTEntityImpl();
+        EntityImpl doc = new EntityImpl();
         for (Map.Entry<?, ?> entry : ((Map<?, ?>) iResult).entrySet()) {
           String key = keyFromMapObject(entry.getKey());
           doc.field(key, entry.getValue());
@@ -218,7 +218,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
           && (OMultiValue.getSize(iResult) > 0
           && !((OMultiValue.getFirstValue(iResult) instanceof YTIdentifiable)
           || ((OMultiValue.getFirstValue(iResult) instanceof YTResult))))) {
-        newResult = Collections.singleton(new YTEntityImpl().field("value", iResult)).iterator();
+        newResult = Collections.singleton(new EntityImpl().field("value", iResult)).iterator();
       } else if (iResult instanceof YTIdentifiable) {
         // CONVERT SINGLE VALUE IN A COLLECTION
         newResult = Collections.singleton(iResult).iterator();
@@ -227,7 +227,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       } else if (OMultiValue.isMultiValue(iResult)) {
         newResult = OMultiValue.getMultiValueIterator(iResult);
       } else {
-        newResult = Collections.singleton(new YTEntityImpl().field("value", iResult)).iterator();
+        newResult = Collections.singleton(new EntityImpl().field("value", iResult)).iterator();
       }
 
       if (newResult == null) {
@@ -319,7 +319,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
             @Override
             public Void call(final OChunkedResponse iArgument) {
               final LinkedHashSet<String> colNames = new LinkedHashSet<String>();
-              final List<YTEntity> records = new ArrayList<YTEntity>();
+              final List<Entity> records = new ArrayList<Entity>();
 
               // BROWSE ALL THE RECORD TO HAVE THE COMPLETE COLUMN
               // NAMES LIST
@@ -341,8 +341,8 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
 
                 } else if (r instanceof YTIdentifiable) {
                   try {
-                    final YTRecord rec = ((YTIdentifiable) r).getRecord();
-                    if (rec instanceof YTEntityImpl doc) {
+                    final Record rec = ((YTIdentifiable) r).getRecord();
+                    if (rec instanceof EntityImpl doc) {
                       records.add(doc);
                       Collections.addAll(colNames, doc.fieldNames());
                     }
@@ -366,7 +366,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
                 iArgument.write(OHttpUtils.EOL);
 
                 // WRITE EACH RECORD
-                for (YTEntity doc : records) {
+                for (Entity doc : records) {
                   for (int col = 0; col < orderedColumns.size(); ++col) {
                     if (col > 0) {
                       iArgument.write(',');
@@ -501,7 +501,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
             buffer.append(objectJson);
           } else if (entry instanceof YTIdentifiable identifiable) {
             try {
-              YTRecord rec = identifiable.getRecord();
+              Record rec = identifiable.getRecord();
               if (rec.isNotBound(databaseDocumentInternal)) {
                 rec = databaseDocumentInternal.bindToSession(rec);
               }
@@ -528,12 +528,12 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
   }
 
   @Override
-  public void writeRecord(final YTRecord iRecord) throws IOException {
+  public void writeRecord(final Record iRecord) throws IOException {
     writeRecord(iRecord, null, null);
   }
 
   @Override
-  public void writeRecord(final YTRecord iRecord, final String iFetchPlan, String iFormat)
+  public void writeRecord(final Record iRecord, final String iFetchPlan, String iFormat)
       throws IOException {
     if (iFormat == null) {
       iFormat = OHttpResponse.JSON_FORMAT;

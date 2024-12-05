@@ -19,24 +19,24 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.OConstants;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.config.OStorageConfiguration;
-import com.orientechnologies.core.config.OStorageEntryConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.exception.YTSecurityAccessException;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.index.OIndexDefinition;
-import com.orientechnologies.core.index.OIndexManagerAbstract;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTClassImpl;
-import com.orientechnologies.core.metadata.schema.YTProperty;
-import com.orientechnologies.core.metadata.schema.YTPropertyImpl;
-import com.orientechnologies.core.metadata.security.ORole;
-import com.orientechnologies.core.metadata.security.YTUser;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.OJSONWriter;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.OConstants;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageEntryConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityAccessException;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexManagerAbstract;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClassImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTPropertyImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTUser;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OJSONWriter;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -340,7 +340,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
   private void exportSecurityInfo(YTDatabaseSessionInternal db, OJSONWriter json)
       throws IOException {
     json.beginCollection("users");
-    for (YTEntityImpl doc : db.getMetadata().getSecurity().getAllUsers()) {
+    for (EntityImpl doc : db.getMetadata().getSecurity().getAllUsers()) {
       YTUser user = new YTUser(db, doc);
       json.beginObject();
       json.writeAttribute("name", user.getName(db));
@@ -352,7 +352,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
 
     json.beginCollection("roles");
     ORole role;
-    for (YTEntityImpl doc : db.getMetadata().getSecurity().getAllRoles()) {
+    for (EntityImpl doc : db.getMetadata().getSecurity().getAllRoles()) {
       role = new ORole(db, doc);
       json.beginObject();
       json.writeAttribute("name", role.getName(db));

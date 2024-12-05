@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.distributed.task;
 
-import com.orientechnologies.common.concur.YTNeedRetryException;
-import com.orientechnologies.common.exception.YTHighLevelException;
+import com.jetbrains.youtrack.db.internal.common.concur.YTNeedRetryException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTHighLevelException;
 
 /**
  * Exception thrown when a distributed operation doesn't reach the quorum.

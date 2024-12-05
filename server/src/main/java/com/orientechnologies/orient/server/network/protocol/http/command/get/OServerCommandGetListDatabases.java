@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.core.db.OSystemDatabase;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.db.OSystemDatabase;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -52,7 +52,7 @@ public class OServerCommandGetListDatabases extends OServerCommandAuthenticatedS
 
     iRequest.getData().commandInfo = "Server status";
 
-    final YTEntityImpl result = new YTEntityImpl();
+    final EntityImpl result = new EntityImpl();
 
     // We copy the returned set so that we can modify it, and we use a LinkedHashSet to preserve the
     // ordering.

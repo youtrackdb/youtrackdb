@@ -13,22 +13,22 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.LinkList;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.exception.YTRecordNotFoundException;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTRecordAbstract;
-import com.orientechnologies.core.record.impl.YTBlob;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultInternal;
-import com.orientechnologies.core.sql.executor.YTResultSet;
-import com.orientechnologies.core.sql.parser.OSelectStatement;
-import com.orientechnologies.core.sql.parser.OrientSql;
-import com.orientechnologies.core.sql.parser.ParseException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OrientSql;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Reader;
@@ -36,7 +36,6 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.Array;
-import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
 import java.sql.NClob;
@@ -393,7 +392,7 @@ public class OrientJdbcResultSet implements ResultSet {
 
   public InputStream getBinaryStream(String columnLabel) throws SQLException {
     try {
-      Blob blob = getBlob(columnLabel);
+      java.sql.Blob blob = getBlob(columnLabel);
       lastReadWasNull = blob == null;
       return blob != null ? blob.getBinaryStream() : null;
     } catch (Exception e) {
@@ -405,11 +404,11 @@ public class OrientJdbcResultSet implements ResultSet {
     }
   }
 
-  public Blob getBlob(int columnIndex) throws SQLException {
+  public java.sql.Blob getBlob(int columnIndex) throws SQLException {
     return getBlob(fieldNames.get(getFieldIndex(columnIndex)));
   }
 
-  public Blob getBlob(String columnLabel) throws SQLException {
+  public java.sql.Blob getBlob(String columnLabel) throws SQLException {
     try {
       Object value = result.getProperty(columnLabel);
 
@@ -417,19 +416,19 @@ public class OrientJdbcResultSet implements ResultSet {
         value = ((YTRID) value).getRecord();
       }
 
-      if (value instanceof YTBlob) {
+      if (value instanceof Blob) {
         lastReadWasNull = false;
-        return new OrientBlob((YTBlob) value);
+        return new OrientBlob((Blob) value);
       } else if (value instanceof LinkList list) {
-        // check if all the list items are instances of YTRecordBytes
+        // check if all the list items are instances of RecordBytes
         ListIterator<YTIdentifiable> iterator = list.listIterator();
 
-        List<YTBlob> binaryRecordList = new ArrayList<>(list.size());
+        List<Blob> binaryRecordList = new ArrayList<>(list.size());
         while (iterator.hasNext()) {
           YTIdentifiable listElement = iterator.next();
 
           try {
-            YTBlob ob = statement.database.load(listElement.getIdentity());
+            Blob ob = statement.database.load(listElement.getIdentity());
             binaryRecordList.add(ob);
           } catch (YTRecordNotFoundException rnf) {
             // ignore
@@ -498,9 +497,9 @@ public class OrientJdbcResultSet implements ResultSet {
         lastReadWasNull = true;
         return null;
       } else {
-        if (value instanceof YTBlob) {
+        if (value instanceof Blob) {
           lastReadWasNull = false;
-          return ((YTRecordAbstract) value).toStream();
+          return ((RecordAbstract) value).toStream();
         }
         byte[] r = result.getProperty(columnLabel);
         lastReadWasNull = r == null;
@@ -1030,10 +1029,10 @@ public class OrientJdbcResultSet implements ResultSet {
       throws SQLException {
   }
 
-  public void updateBlob(int columnIndex, Blob x) throws SQLException {
+  public void updateBlob(int columnIndex, java.sql.Blob x) throws SQLException {
   }
 
-  public void updateBlob(String columnLabel, Blob x) throws SQLException {
+  public void updateBlob(String columnLabel, java.sql.Blob x) throws SQLException {
   }
 
   public void updateBlob(int columnIndex, InputStream inputStream) throws SQLException {
@@ -1241,7 +1240,7 @@ public class OrientJdbcResultSet implements ResultSet {
   }
 
   public boolean isWrapperFor(Class<?> iface) throws SQLException {
-    return YTEntityImpl.class.isAssignableFrom(iface);
+    return EntityImpl.class.isAssignableFrom(iface);
   }
 
   public <T> T unwrap(Class<T> iface) throws SQLException {

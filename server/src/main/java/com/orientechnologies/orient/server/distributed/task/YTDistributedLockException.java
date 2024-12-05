@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed.task;
 
-import com.orientechnologies.common.exception.YTHighLevelException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTHighLevelException;
 
 /**
  * Exception thrown when a distributed resource is locked.

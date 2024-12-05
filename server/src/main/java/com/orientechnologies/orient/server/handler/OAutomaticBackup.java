@@ -20,18 +20,18 @@
 
 package com.orientechnologies.orient.server.handler;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.parser.OSystemVariableResolver;
-import com.orientechnologies.common.parser.OVariableParser;
-import com.orientechnologies.common.parser.OVariableParserListener;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.command.OCommandOutputListener;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.tool.ODatabaseExport;
-import com.orientechnologies.core.exception.YTConfigurationException;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.parser.OSystemVariableResolver;
+import com.jetbrains.youtrack.db.internal.common.parser.OVariableParser;
+import com.jetbrains.youtrack.db.internal.common.parser.OVariableParserListener;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseExport;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;
@@ -59,7 +59,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class OAutomaticBackup extends OServerPluginAbstract implements OServerPluginConfigurable {
 
-  private YTEntityImpl configuration;
+  private EntityImpl configuration;
 
   private final Set<OAutomaticBackupListener> listeners =
       Collections.newSetFromMap(new ConcurrentHashMap<OAutomaticBackupListener, Boolean>());
@@ -92,7 +92,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
   public void config(final OServer iServer, final OServerParameterConfiguration[] iParams) {
     serverInstance = iServer;
 
-    configuration = new YTEntityImpl();
+    configuration = new EntityImpl();
 
     for (OServerParameterConfiguration param : iParams) {
       if (param.name.equalsIgnoreCase("config") && param.value.trim().length() > 0) {
@@ -286,7 +286,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
       // READ THE FILE
       try {
         final String configurationContent = OIOUtils.readFileAsString(f);
-        configuration = new YTEntityImpl();
+        configuration = new EntityImpl();
         configuration.fromJSON(configurationContent);
       } catch (IOException e) {
         throw YTException.wrapException(
@@ -457,13 +457,13 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
   }
 
   @Override
-  public YTEntityImpl getConfig() {
+  public EntityImpl getConfig() {
     return configuration;
   }
 
   // TODO change current config and restart the automatic backup plugin
   @Override
-  public void changeConfig(YTEntityImpl document) {
+  public void changeConfig(EntityImpl document) {
   }
 
   public void registerListener(OAutomaticBackupListener listener) {

@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.serialization.serializer.OJSONWriter;
-import com.orientechnologies.core.storage.OStorage;
-import com.orientechnologies.core.storage.disk.OLocalPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OJSONWriter;
+import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.disk.OLocalPaginatedStorage;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
 import java.io.IOException;
@@ -131,7 +131,7 @@ public class OServerInfo {
       throws IOException {
     json.beginCollection(2, true, "globalProperties");
 
-    for (YTGlobalConfiguration c : YTGlobalConfiguration.values()) {
+    for (GlobalConfiguration c : GlobalConfiguration.values()) {
       json.beginObject(3, true, null);
       json.writeAttribute(4, false, "key", c.getKey());
       json.writeAttribute(4, false, "description", c.getDescription());

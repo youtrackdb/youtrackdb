@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.server.network.protocol;
 
-import com.orientechnologies.core.command.OCommandRequestText;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializer;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializerFactory;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerBinary;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetwork;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializerFactory;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerBinary;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetwork;
 
 /**
  * Saves all the important information about the network connection. Useful for monitoring and

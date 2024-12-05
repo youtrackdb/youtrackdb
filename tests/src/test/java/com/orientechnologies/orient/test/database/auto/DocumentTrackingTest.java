@@ -1,15 +1,15 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.db.record.OMultiValueChangeEvent;
-import com.orientechnologies.core.db.record.OMultiValueChangeTimeLine;
-import com.orientechnologies.core.db.record.TrackedList;
-import com.orientechnologies.core.db.record.TrackedMap;
-import com.orientechnologies.core.db.record.TrackedSet;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.ORecordInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.db.record.OMultiValueChangeEvent;
+import com.jetbrains.youtrack.db.internal.core.db.record.OMultiValueChangeTimeLine;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,7 +48,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedListTrackingAfterSave() {
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -86,7 +86,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedMapTrackingAfterSave() {
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
 
     final Map<String, String> map = new HashMap<String, String>();
     map.put("key1", "value1");
@@ -124,7 +124,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedSetTrackingAfterSave() {
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
 
     final Set<String> set = new HashSet<String>();
     set.add("value1");
@@ -163,13 +163,13 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
   public void testDocumentLinkSetTrackingAfterSave() {
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
 
     final Set<YTRID> set = new HashSet<YTRID>();
     set.add(docOne.getIdentity());
@@ -198,13 +198,13 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
   public void testDocumentLinkListTrackingAfterSave() {
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
 
     final List<YTRID> list = new ArrayList<YTRID>();
     list.add(docOne.getIdentity());
@@ -234,13 +234,13 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
   public void testDocumentLinkMapTrackingAfterSave() {
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
 
     final Map<String, YTRID> map = new HashMap<String, YTRID>();
     map.put("key1", docOne.getIdentity());
@@ -268,7 +268,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
   public void testDocumentEmbeddedListTrackingAfterSaveCacheDisabled() {
     database.begin();
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -305,7 +305,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
   public void testDocumentEmbeddedMapTrackingAfterSaveCacheDisabled() {
     database.begin();
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
 
     final Map<String, String> map = new HashMap<String, String>();
     map.put("key1", "value1");
@@ -342,7 +342,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
   public void testDocumentEmbeddedSetTrackingAfterSaveCacheDisabled() {
     database.begin();
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
 
     final Set<String> set = new HashSet<String>();
     set.add("value1");
@@ -379,13 +379,13 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
   public void testDocumentLinkSetTrackingAfterSaveCacheDisabled() {
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
 
     final Set<YTRID> set = new HashSet<YTRID>();
     set.add(docOne.getIdentity());
@@ -414,13 +414,13 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
   public void testDocumentLinkListTrackingAfterSaveCacheDisabled() {
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
 
     final List<YTRID> list = new ArrayList<YTRID>();
     list.add(docOne.getIdentity());
@@ -449,13 +449,13 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
   public void testDocumentLinkMapTrackingAfterSaveCacheDisabled() {
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
 
     final Map<String, YTRID> map = new HashMap<String, YTRID>();
     map.put("key1", docOne.getIdentity());
@@ -481,7 +481,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedListTrackingAfterSaveWitClass() {
-    YTEntityImpl document = new YTEntityImpl("DocumentTrackingTestClass");
+    EntityImpl document = new EntityImpl("DocumentTrackingTestClass");
 
     database.begin();
     final List<String> list = new ArrayList<String>();
@@ -519,7 +519,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedMapTrackingAfterSaveWithClass() {
-    YTEntityImpl document = new YTEntityImpl("DocumentTrackingTestClass");
+    EntityImpl document = new EntityImpl("DocumentTrackingTestClass");
 
     final Map<String, String> map = new HashMap<String, String>();
     map.put("key1", "value1");
@@ -556,7 +556,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedSetTrackingAfterSaveWithClass() {
-    YTEntityImpl document = new YTEntityImpl("DocumentTrackingTestClass");
+    EntityImpl document = new EntityImpl("DocumentTrackingTestClass");
 
     final Set<String> set = new HashSet<String>();
     set.add("value1");
@@ -594,13 +594,13 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
   public void testDocumentLinkSetTrackingAfterSaveWithClass() {
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl document = new YTEntityImpl("DocumentTrackingTestClass");
+    EntityImpl document = new EntityImpl("DocumentTrackingTestClass");
 
     final Set<YTRID> set = new HashSet<YTRID>();
     set.add(docOne.getIdentity());
@@ -627,13 +627,13 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
   public void testDocumentLinkListTrackingAfterSaveWithClass() {
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl document = new YTEntityImpl("DocumentTrackingTestClass");
+    EntityImpl document = new EntityImpl("DocumentTrackingTestClass");
 
     final List<YTRID> list = new ArrayList<YTRID>();
     list.add(docOne.getIdentity());
@@ -662,13 +662,13 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
   public void testDocumentLinkMapTrackingAfterSaveWithClass() {
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl document = new YTEntityImpl("DocumentTrackingTestClass");
+    EntityImpl document = new EntityImpl("DocumentTrackingTestClass");
 
     final Map<String, YTRID> map = new HashMap<String, YTRID>();
     map.put("key1", docOne.getIdentity());
@@ -696,7 +696,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testDocumentEmbeddedListTrackingAfterConversion() {
     database.begin();
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
 
     final Set<String> set = new HashSet<String>();
     set.add("value1");
@@ -719,7 +719,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testDocumentEmbeddedSetTrackingFailAfterConversion() {
     database.begin();
-    YTEntityImpl document = new YTEntityImpl();
+    EntityImpl document = new EntityImpl();
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -740,7 +740,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedListTrackingFailAfterReplace() {
-    YTEntityImpl document = new YTEntityImpl("DocumentTrackingTestClass");
+    EntityImpl document = new EntityImpl("DocumentTrackingTestClass");
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -773,7 +773,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedMapTrackingAfterReplace() {
-    YTEntityImpl document = new YTEntityImpl("DocumentTrackingTestClass");
+    EntityImpl document = new EntityImpl("DocumentTrackingTestClass");
 
     final Map<String, String> map = new HashMap<String, String>();
     map.put("key1", "value1");
@@ -806,7 +806,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testDocumentEmbeddedSetTrackingAfterReplace() {
-    YTEntityImpl document = new YTEntityImpl("DocumentTrackingTestClass");
+    EntityImpl document = new EntityImpl("DocumentTrackingTestClass");
 
     final Set<String> set = new HashSet<String>();
     set.add("value1");
@@ -839,7 +839,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testRemoveField() {
-    YTEntityImpl document = new YTEntityImpl("DocumentTrackingTestClass");
+    EntityImpl document = new EntityImpl("DocumentTrackingTestClass");
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -867,7 +867,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testTrackingChangesSwitchedOff() {
-    YTEntityImpl document = new YTEntityImpl("DocumentTrackingTestClass");
+    EntityImpl document = new EntityImpl("DocumentTrackingTestClass");
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -895,7 +895,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testTrackingChangesSwitchedOn() {
-    YTEntityImpl document = new YTEntityImpl("DocumentTrackingTestClass");
+    EntityImpl document = new EntityImpl("DocumentTrackingTestClass");
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -934,7 +934,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testReset() {
-    YTEntityImpl document = new YTEntityImpl("DocumentTrackingTestClass");
+    EntityImpl document = new EntityImpl("DocumentTrackingTestClass");
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -953,7 +953,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final List<String> trackedList = document.field("embeddedlist");
     trackedList.add("value2");
 
-    document = new YTEntityImpl("DocumentTrackingTestClass");
+    document = new EntityImpl("DocumentTrackingTestClass");
 
     Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertTrue(document.isDirty());
@@ -962,7 +962,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testClear() {
-    YTEntityImpl document = new YTEntityImpl("DocumentTrackingTestClass");
+    EntityImpl document = new EntityImpl("DocumentTrackingTestClass");
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -990,7 +990,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testUnload() {
-    YTEntityImpl document = new YTEntityImpl("DocumentTrackingTestClass");
+    EntityImpl document = new EntityImpl("DocumentTrackingTestClass");
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -1017,7 +1017,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testUnsetDirty() {
-    YTEntityImpl document = new YTEntityImpl("DocumentTrackingTestClass");
+    EntityImpl document = new EntityImpl("DocumentTrackingTestClass");
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");
@@ -1043,7 +1043,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
   }
 
   public void testRemoveFieldUsingIterator() {
-    YTEntityImpl document = new YTEntityImpl("DocumentTrackingTestClass");
+    EntityImpl document = new EntityImpl("DocumentTrackingTestClass");
 
     final List<String> list = new ArrayList<String>();
     list.add("value1");

@@ -15,11 +15,11 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
-import com.orientechnologies.core.util.ODateHelper;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.util.ODateHelper;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -44,12 +44,12 @@ public class DateTest extends DocumentDBBaseTest {
 
     database.createClass("Order");
     database.begin();
-    YTEntityImpl doc1 = new YTEntityImpl("Order");
+    EntityImpl doc1 = new EntityImpl("Order");
     doc1.field("context", "test");
     doc1.field("date", new Date());
     doc1.save();
 
-    YTEntityImpl doc2 = new YTEntityImpl("Order");
+    EntityImpl doc2 = new EntityImpl("Order");
     doc2.field("context", "test");
     doc2.field("date", System.currentTimeMillis());
     doc2.save();
@@ -75,7 +75,7 @@ public class DateTest extends DocumentDBBaseTest {
         database.getStorage().getConfiguration().getDateFormatInstance().format(begin);
 
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("Order");
+    EntityImpl doc = new EntityImpl("Order");
     doc.field("context", "testPrecision");
     doc.field("date", ODateHelper.now(), YTType.DATETIME);
     doc.save();
@@ -93,7 +93,7 @@ public class DateTest extends DocumentDBBaseTest {
 
   @Test
   public void testDateTypes() throws ParseException {
-    YTEntityImpl doc = new YTEntityImpl();
+    EntityImpl doc = new EntityImpl();
     doc.field("context", "test");
     doc.field("date", System.currentTimeMillis(), YTType.DATE);
 

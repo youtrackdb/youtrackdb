@@ -19,13 +19,13 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.record.ODirection;
-import com.orientechnologies.core.record.YTEdge;
-import com.orientechnologies.core.record.YTVertex;
-import com.orientechnologies.core.serialization.serializer.OJSONWriter;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.record.ODirection;
+import com.jetbrains.youtrack.db.internal.core.record.Edge;
+import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OJSONWriter;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -81,10 +81,10 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
         //        List<Object> result = new ArrayList<Object>();
         //        OGremlinHelper.execute(graph, text, null, null, result, null, null);
         //
-        //        resultSet = new ArrayList<YTEntity>(result.size());
+        //        resultSet = new ArrayList<Entity>(result.size());
         //
         //        for (Object o : result) {
-        //          ((ArrayList<YTEntity>) resultSet).add(db.getVertex(o));
+        //          ((ArrayList<Entity>) resultSet).add(db.getVertex(o));
         //        }
       } else {
         throw new IllegalArgumentException(
@@ -131,8 +131,8 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
     }
 
     // CREATE A SET TO SPEED UP SEARCHES ON VERTICES
-    final Set<YTVertex> vertexes = new HashSet<>();
-    final Set<YTEdge> edges = new HashSet<>();
+    final Set<Vertex> vertexes = new HashSet<>();
+    final Set<Edge> edges = new HashSet<>();
 
     int i = 0;
     while (resultSet.hasNext()) {
@@ -149,7 +149,7 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
     }
     resultSet.close();
 
-    for (YTVertex vertex : vertexes) {
+    for (Vertex vertex : vertexes) {
       json.resetAttributes();
       json.beginObject(0, false, null);
       json.beginObject(1, false, "an");
@@ -171,7 +171,7 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
       json.newline();
     }
 
-    for (YTEdge edge : edges) {
+    for (Edge edge : edges) {
 
       json.resetAttributes();
       json.beginObject();

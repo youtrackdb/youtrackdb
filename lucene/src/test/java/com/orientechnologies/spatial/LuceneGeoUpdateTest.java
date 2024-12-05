@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
 import org.junit.Assert;
 import org.junit.Test;
 

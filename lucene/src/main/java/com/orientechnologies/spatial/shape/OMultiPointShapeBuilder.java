@@ -13,11 +13,11 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,7 +38,7 @@ public class OMultiPointShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  public JtsGeometry fromDoc(YTEntityImpl document) {
+  public JtsGeometry fromDoc(EntityImpl document) {
     validate(document);
     List<List<Number>> coordinates = document.field(COORDINATES);
     Coordinate[] coords = new Coordinate[coordinates.size()];
@@ -59,10 +59,10 @@ public class OMultiPointShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  public YTEntityImpl toDoc(final JtsGeometry shape) {
+  public EntityImpl toDoc(final JtsGeometry shape) {
     final MultiPoint geom = (MultiPoint) shape.getGeom();
 
-    YTEntityImpl doc = new YTEntityImpl(getName());
+    EntityImpl doc = new EntityImpl(getName());
     doc.field(
         COORDINATES,
         new ArrayList<List<Double>>() {

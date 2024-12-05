@@ -1,8 +1,8 @@
 package com.orientechnologies.lucene.parser;
 
-import com.orientechnologies.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
 import com.orientechnologies.lucene.builder.OLuceneDateTools;
-import com.orientechnologies.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.lucene.analysis.Analyzer;

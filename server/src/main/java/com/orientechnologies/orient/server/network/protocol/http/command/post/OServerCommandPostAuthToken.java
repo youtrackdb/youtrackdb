@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.common.concur.lock.YTLockException;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.exception.YTSecurityAccessException;
-import com.orientechnologies.core.metadata.security.YTSecurityUser;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.YTLockException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityAccessException;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.OTokenHandler;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -35,7 +35,7 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
     if (tokenHandler == null
         && server
         .getContextConfiguration()
-        .getValueAsBoolean(YTGlobalConfiguration.NETWORK_HTTP_USE_TOKEN)) {
+        .getValueAsBoolean(GlobalConfiguration.NETWORK_HTTP_USE_TOKEN)) {
       tokenHandler = server.getTokenHandler();
     }
   }
@@ -51,7 +51,7 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
     // Parameter names consistent with 4.3.2 (Access Token Request) of RFC 6749
     Map<String, String> content = iRequest.getUrlEncodedContent();
     if (content == null) {
-      YTEntityImpl result = new YTEntityImpl().field("error", "missing_auth_data");
+      EntityImpl result = new EntityImpl().field("error", "missing_auth_data");
       sendError(iRequest, iResponse, result);
       return false;
     }
@@ -61,7 +61,7 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
     String username = content.get("username");
     String password = content.get("password");
     String authenticatedRid;
-    YTEntityImpl result;
+    EntityImpl result;
 
     if (grantType.equals("password")) {
       authenticatedRid = authenticate(username, password, iRequest.getDatabaseName());
@@ -89,15 +89,15 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
         }
 
         // 4.1.4 (Access Token Response) of RFC 6749
-        result = new YTEntityImpl().field("access_token", signedToken).field("expires_in", 3600);
+        result = new EntityImpl().field("access_token", signedToken).field("expires_in", 3600);
 
         iResponse.writeRecord(result, RESPONSE_FORMAT, null);
       } else {
-        result = new YTEntityImpl().field("error", "unsupported_grant_type");
+        result = new EntityImpl().field("error", "unsupported_grant_type");
         sendError(iRequest, iResponse, result);
       }
     } else {
-      result = new YTEntityImpl().field("error", "unsupported_grant_type");
+      result = new EntityImpl().field("error", "unsupported_grant_type");
       sendError(iRequest, iResponse, result);
     }
 
@@ -129,7 +129,7 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
   }
 
   protected void sendError(
-      final OHttpRequest iRequest, final OHttpResponse iResponse, final YTEntityImpl error)
+      final OHttpRequest iRequest, final OHttpResponse iResponse, final EntityImpl error)
       throws IOException {
     iResponse.send(
         OHttpUtils.STATUS_BADREQ_CODE,

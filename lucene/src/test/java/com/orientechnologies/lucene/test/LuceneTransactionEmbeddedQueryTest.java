@@ -18,18 +18,18 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.document.YTDatabaseDocumentTx;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTEntity;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.stream.Collectors;
@@ -53,7 +53,7 @@ public class LuceneTransactionEmbeddedQueryTest {
     db.create();
     createSchema(db);
     try {
-      YTEntityImpl doc = new YTEntityImpl("c1");
+      EntityImpl doc = new EntityImpl("c1");
       doc.field("p1", new String[]{"abc"});
       db.begin();
       db.save(doc);
@@ -88,7 +88,7 @@ public class LuceneTransactionEmbeddedQueryTest {
     try {
       db.begin();
 
-      YTEntityImpl doc = new YTEntityImpl("c1");
+      EntityImpl doc = new EntityImpl("c1");
       doc.field("p1", new String[]{"abc"});
 
       OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
@@ -161,7 +161,7 @@ public class LuceneTransactionEmbeddedQueryTest {
       db.begin();
       Assert.assertEquals(0, index.getInternal().size(db));
 
-      YTEntityImpl doc = new YTEntityImpl("c1");
+      EntityImpl doc = new EntityImpl("c1");
       doc.field("p1", new String[]{"update removed", "update fixed"});
 
       db.save(doc);
@@ -191,7 +191,7 @@ public class LuceneTransactionEmbeddedQueryTest {
       db.begin();
 
       // select in transaction while updating
-      YTEntity record = db.bindToSession(resultRecord.getEntity().get());
+      Entity record = db.bindToSession(resultRecord.getEntity().get());
       Collection p1 = record.getProperty("p1");
       p1.remove("update removed");
       db.save(record);
@@ -254,10 +254,10 @@ public class LuceneTransactionEmbeddedQueryTest {
 
       db.begin();
 
-      YTEntityImpl doc = new YTEntityImpl("c1");
+      EntityImpl doc = new EntityImpl("c1");
       doc.field("p1", new String[]{"abc"});
 
-      YTEntityImpl doc1 = new YTEntityImpl("c1");
+      EntityImpl doc1 = new EntityImpl("c1");
       doc1.field("p1", new String[]{"abc"});
 
       db.save(doc1);

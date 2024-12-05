@@ -19,20 +19,20 @@
  */
 package com.orientechnologies.orient.console;
 
-import com.orientechnologies.common.collection.OMultiCollectionIterator;
-import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.common.util.OPair;
-import com.orientechnologies.common.util.OSizeable;
-import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.db.record.ridbag.RidBag;
-import com.orientechnologies.core.id.YTImmutableRecordId;
-import com.orientechnologies.core.record.YTRecord;
-import com.orientechnologies.core.record.YTRecordAbstract;
-import com.orientechnologies.core.record.impl.YTBlob;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.util.ODateHelper;
+import com.jetbrains.youtrack.db.internal.common.collection.OMultiCollectionIterator;
+import com.jetbrains.youtrack.db.internal.common.util.OCallable;
+import com.jetbrains.youtrack.db.internal.common.util.OPair;
+import com.jetbrains.youtrack.db.internal.common.util.OSizeable;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
+import com.jetbrains.youtrack.db.internal.core.id.YTImmutableRecordId;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.util.ODateHelper;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,7 +76,7 @@ public class OTableFormatter {
   protected String nullValue = "";
   private boolean leftBorder = true;
   private boolean rightBorder = true;
-  private YTEntityImpl footer;
+  private EntityImpl footer;
 
   public interface OTableOutput {
 
@@ -109,8 +109,8 @@ public class OTableFormatter {
       resultSet.sort(
           (Comparator<Object>)
               (o1, o2) -> {
-                final YTEntityImpl doc1 = ((YTIdentifiable) o1).getRecord();
-                final YTEntityImpl doc2 = ((YTIdentifiable) o2).getRecord();
+                final EntityImpl doc1 = ((YTIdentifiable) o1).getRecord();
+                final EntityImpl doc2 = ((YTIdentifiable) o2).getRecord();
                 final Object value1 = doc1.field(columnSorting.getKey());
                 final Object value2 = doc2.field(columnSorting.getKey());
                 final boolean ascending = columnSorting.getValue();
@@ -196,8 +196,8 @@ public class OTableFormatter {
     // FORMAT THE LINE DYNAMICALLY
     List<String> vargs = new ArrayList<String>();
     try {
-      if (iRecord instanceof YTEntityImpl) {
-        ((YTEntityImpl) iRecord).setLazyLoad(false);
+      if (iRecord instanceof EntityImpl) {
+        ((EntityImpl) iRecord).setLazyLoad(false);
       }
 
       final StringBuilder format = new StringBuilder(maxWidthSize);
@@ -293,16 +293,16 @@ public class OTableFormatter {
     // RID
     {
       value = iRecord.getIdentity().toString();
-    } else if (iRecord instanceof YTEntityImpl) {
-      value = ((YTEntityImpl) iRecord).getProperty(iColumnName);
-    } else if (iRecord instanceof YTBlob) {
-      value = "<binary> (size=" + ((YTRecordAbstract) iRecord).toStream().length + " bytes)";
+    } else if (iRecord instanceof EntityImpl) {
+      value = ((EntityImpl) iRecord).getProperty(iColumnName);
+    } else if (iRecord instanceof Blob) {
+      value = "<binary> (size=" + ((RecordAbstract) iRecord).toStream().length + " bytes)";
     } else if (iRecord instanceof YTIdentifiable) {
-      final YTRecord rec = iRecord.getRecord();
-      if (rec instanceof YTEntityImpl) {
-        value = ((YTEntityImpl) rec).getProperty(iColumnName);
-      } else if (rec instanceof YTBlob) {
-        value = "<binary> (size=" + ((YTRecordAbstract) rec).toStream().length + " bytes)";
+      final Record rec = iRecord.getRecord();
+      if (rec instanceof EntityImpl) {
+        value = ((EntityImpl) rec).getProperty(iColumnName);
+      } else if (rec instanceof Blob) {
+        value = "<binary> (size=" + ((RecordAbstract) rec).toStream().length + " bytes)";
       }
     }
 
@@ -349,7 +349,7 @@ public class OTableFormatter {
     return value.toString();
   }
 
-  public void setFooter(final YTEntityImpl footer) {
+  public void setFooter(final EntityImpl footer) {
     this.footer = footer;
   }
 
@@ -364,11 +364,11 @@ public class OTableFormatter {
       value = getPrettyFieldMultiValue((Iterator<?>) value, multiValueMaxEntries);
     } else if (value instanceof Collection<?>) {
       value = getPrettyFieldMultiValue(((Collection<?>) value).iterator(), multiValueMaxEntries);
-    } else if (value instanceof YTRecord) {
-      if (((YTRecord) value).getIdentity().equals(YTImmutableRecordId.EMPTY_RECORD_ID)) {
+    } else if (value instanceof Record) {
+      if (((Record) value).getIdentity().equals(YTImmutableRecordId.EMPTY_RECORD_ID)) {
         value = value.toString();
       } else {
-        value = ((YTRecord) value).getIdentity().toString();
+        value = ((Record) value).getIdentity().toString();
       }
     } else if (value instanceof Date) {
       final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
@@ -536,13 +536,13 @@ public class OTableFormatter {
 
     int fetched = 0;
     for (YTIdentifiable id : resultSet) {
-      YTRecord rec = id.getRecord();
+      Record rec = id.getRecord();
 
       for (String c : prefixedColumns) {
         columns.put(c, getColumnSize(fetched, rec, c, columns.get(c)));
       }
 
-      if (rec instanceof YTEntityImpl doc) {
+      if (rec instanceof EntityImpl doc) {
         doc.setLazyLoad(false);
         // PARSE ALL THE DOCUMENT'S FIELDS
         for (String fieldName : doc.getPropertyNames()) {
@@ -553,7 +553,7 @@ public class OTableFormatter {
           hasClass = true;
         }
 
-      } else if (rec instanceof YTBlob) {
+      } else if (rec instanceof Blob) {
         // UNIQUE BINARY FIELD
         columns.put("value", maxWidthSize - 15);
       }
@@ -660,7 +660,7 @@ public class OTableFormatter {
   }
 
   private Integer getColumnSize(
-      final Integer iIndex, final YTRecord iRecord, final String fieldName,
+      final Integer iIndex, final Record iRecord, final String fieldName,
       final Integer origSize) {
     Integer newColumnSize;
     if (origSize == null)

@@ -13,20 +13,20 @@
  */
 package com.orientechnologies.spatial.operator;
 
-import com.orientechnologies.common.util.ORawPair;
+import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
 import com.orientechnologies.lucene.operator.OLuceneOperatorUtil;
-import com.orientechnologies.core.command.OCommandContext;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.binary.ODocumentSerializer;
-import com.orientechnologies.core.sql.OIndexSearchResult;
-import com.orientechnologies.core.sql.filter.OSQLFilterCondition;
-import com.orientechnologies.core.sql.operator.OIndexReuseType;
-import com.orientechnologies.core.sql.operator.OQueryTargetOperator;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ODocumentSerializer;
+import com.jetbrains.youtrack.db.internal.core.sql.OIndexSearchResult;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterCondition;
+import com.jetbrains.youtrack.db.internal.core.sql.operator.OIndexReuseType;
+import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryTargetOperator;
 import com.orientechnologies.spatial.collections.OSpatialCompositeKey;
 import com.orientechnologies.spatial.shape.legacy.OShapeBuilderLegacy;
 import com.orientechnologies.spatial.shape.legacy.OShapeBuilderLegacyImpl;
@@ -48,7 +48,7 @@ public class OLuceneWithinOperator extends OQueryTargetOperator {
   @Override
   public Object evaluateRecord(
       YTIdentifiable iRecord,
-      YTEntityImpl iCurrentResult,
+      EntityImpl iCurrentResult,
       OSQLFilterCondition iCondition,
       Object iLeft,
       Object iRight,

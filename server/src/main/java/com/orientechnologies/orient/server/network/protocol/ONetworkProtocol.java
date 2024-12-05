@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.server.network.protocol;
 
-import com.orientechnologies.common.thread.OSoftThread;
+import com.jetbrains.youtrack.db.internal.common.thread.OSoftThread;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.orient.enterprise.channel.OChannel;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.OChannel;
 import com.orientechnologies.orient.server.OClientConnection;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.network.OServerNetworkListener;

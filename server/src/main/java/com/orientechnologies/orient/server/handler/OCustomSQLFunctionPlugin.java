@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.server.handler;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.common.parser.OSystemVariableResolver;
-import com.orientechnologies.core.exception.YTConfigurationException;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.functions.OCustomSQLFunctionFactory;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.common.parser.OSystemVariableResolver;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.OCustomSQLFunctionFactory;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;
@@ -22,7 +22,7 @@ public class OCustomSQLFunctionPlugin extends OServerPluginAbstract {
 
   private static final char PREFIX_NAME_SEPARATOR = '_';
 
-  private YTEntityImpl configuration;
+  private EntityImpl configuration;
 
   @Override
   public String getName() {
@@ -31,7 +31,7 @@ public class OCustomSQLFunctionPlugin extends OServerPluginAbstract {
 
   @Override
   public void config(OServer oServer, OServerParameterConfiguration[] iParams) {
-    configuration = new YTEntityImpl();
+    configuration = new EntityImpl();
 
     final File configFile =
         Arrays.stream(iParams)
@@ -49,7 +49,7 @@ public class OCustomSQLFunctionPlugin extends OServerPluginAbstract {
     try {
       String configurationContent = OIOUtils.readFileAsString(configFile);
       configurationContent = removeComments(configurationContent);
-      configuration = new YTEntityImpl();
+      configuration = new EntityImpl();
       configuration.fromJSON(configurationContent);
     } catch (IOException e) {
       throw YTException.wrapException(

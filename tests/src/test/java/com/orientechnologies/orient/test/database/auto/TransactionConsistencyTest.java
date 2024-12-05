@@ -16,16 +16,16 @@
 
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.exception.YTConcurrentModificationException;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTEntity;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConcurrentModificationException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -57,12 +57,12 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database1.begin();
 
     // Create docA.
-    YTEntityImpl vDocA_db1 = database1.newInstance();
+    EntityImpl vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
     database1.save(vDocA_db1);
 
     // Create docB.
-    YTEntityImpl vDocB_db1 = database1.newInstance();
+    EntityImpl vDocB_db1 = database1.newInstance();
     vDocB_db1.field(NAME, "docB");
 
     database1.save(vDocB_db1);
@@ -79,7 +79,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database2.begin();
     try {
       // Get docA and update in db2 transaction context
-      YTEntityImpl vDocA_db2 = database2.load(vDocA_Rid);
+      EntityImpl vDocA_db2 = database2.load(vDocA_Rid);
       vDocA_db2.field(NAME, "docA_v2");
       database2.save(vDocA_db2);
 
@@ -108,7 +108,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
       // Update docB in db2 transaction context -> should be rollbacked.
       database2.activateOnCurrentThread();
-      YTEntityImpl vDocB_db2 = database2.load(vDocB_Rid);
+      EntityImpl vDocB_db2 = database2.load(vDocB_Rid);
       vDocB_db2.field(NAME, "docB_UpdatedInTranscationThatWillBeRollbacked");
       database2.save(vDocB_db2);
 
@@ -126,12 +126,12 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database2.activateOnCurrentThread();
     database2 = acquireSession();
 
-    YTEntityImpl vDocA_db2 = database2.load(vDocA_Rid);
+    EntityImpl vDocA_db2 = database2.load(vDocA_Rid);
     Assert.assertEquals(vDocA_db2.field(NAME), "docA_v3");
     Assert.assertEquals(vDocA_db2.getVersion(), vDocA_version);
 
     // docB should be in the first state : "docB"
-    YTEntityImpl vDocB_db2 = database2.load(vDocB_Rid);
+    EntityImpl vDocB_db2 = database2.load(vDocB_Rid);
     Assert.assertEquals(vDocB_db2.field(NAME), "docB");
     Assert.assertEquals(vDocB_db2.getVersion(), vDocB_version);
 
@@ -143,7 +143,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database1 = acquireSession();
 
     // Create docA.
-    YTEntityImpl vDocA_db1 = database1.newInstance();
+    EntityImpl vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
     database1.begin();
     database1.save(vDocA_db1);
@@ -156,7 +156,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database2.begin();
     try {
       // Get docA and update in db2 transaction context
-      YTEntityImpl vDocA_db2 = database2.load(vDocA_Rid);
+      EntityImpl vDocA_db2 = database2.load(vDocA_Rid);
       vDocA_db2.field(NAME, "docA_v2");
       database2.save(vDocA_db2);
 
@@ -190,7 +190,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database2 = acquireSession();
 
     // docB should be in the last state : "docA_v3"
-    YTEntityImpl vDocB_db2 = database2.load(vDocA_Rid);
+    EntityImpl vDocB_db2 = database2.load(vDocA_Rid);
     Assert.assertEquals(vDocB_db2.field(NAME), "docA_v3");
 
     database1.activateOnCurrentThread();
@@ -205,7 +205,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database1 = acquireSession();
 
     // Create docA.
-    YTEntityImpl vDocA_db1 = database1.newInstance();
+    EntityImpl vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
     database1.begin();
     database1.save(vDocA_db1);
@@ -218,7 +218,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database2.begin();
     try {
       // Get docA and update in db2 transaction context
-      YTEntityImpl vDocA_db2 = database2.load(vDocA_Rid);
+      EntityImpl vDocA_db2 = database2.load(vDocA_Rid);
       vDocA_db2.field(NAME, "docA_v2");
       database2.save(vDocA_db2);
 
@@ -253,7 +253,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database2 = acquireSession();
 
     // docB should be in the last state : "docA_v3"
-    YTEntityImpl vDocB_db2 = database2.load(vDocA_Rid);
+    EntityImpl vDocB_db2 = database2.load(vDocA_Rid);
     Assert.assertEquals(vDocB_db2.field(NAME), "docA_v3");
 
     database1.activateOnCurrentThread();
@@ -268,7 +268,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
     // Create docA in db1
     database1.begin();
-    YTEntityImpl vDocA_db1 = database1.newInstance();
+    EntityImpl vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
     database1.save(vDocA_db1);
     database1.commit();
@@ -279,7 +279,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     // Update docA in db2
     database2 = acquireSession();
     database2.begin();
-    YTEntityImpl vDocA_db2 = database2.load(vDocA_Rid);
+    EntityImpl vDocA_db2 = database2.load(vDocA_Rid);
     vDocA_db2.field(NAME, "docA_v2");
     database2.save(vDocA_db2);
     database2.commit();
@@ -287,7 +287,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     // Later... read docA with db1.
     database1.activateOnCurrentThread();
     database1.begin();
-    YTEntityImpl vDocA_db1_later = database1.load(vDocA_Rid);
+    EntityImpl vDocA_db1_later = database1.load(vDocA_Rid);
     Assert.assertEquals(vDocA_db1_later.field(NAME), "docA_v2");
     database1.commit();
 
@@ -303,16 +303,16 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database = acquireSession();
     database.begin();
 
-    YTEntityImpl kim = new YTEntityImpl("Profile").field("name", "Kim").field("surname", "Bauer");
-    YTEntityImpl teri = new YTEntityImpl("Profile").field("name", "Teri").field("surname", "Bauer");
-    YTEntityImpl jack = new YTEntityImpl("Profile").field("name", "Jack").field("surname", "Bauer");
+    EntityImpl kim = new EntityImpl("Profile").field("name", "Kim").field("surname", "Bauer");
+    EntityImpl teri = new EntityImpl("Profile").field("name", "Teri").field("surname", "Bauer");
+    EntityImpl jack = new EntityImpl("Profile").field("name", "Jack").field("surname", "Bauer");
 
-    ((HashSet<YTEntityImpl>) jack.field("following", new HashSet<YTEntityImpl>())
+    ((HashSet<EntityImpl>) jack.field("following", new HashSet<EntityImpl>())
         .field("following"))
         .add(kim);
-    ((HashSet<YTEntityImpl>) kim.field("following", new HashSet<YTEntityImpl>()).field("following"))
+    ((HashSet<EntityImpl>) kim.field("following", new HashSet<EntityImpl>()).field("following"))
         .add(teri);
-    ((HashSet<YTEntityImpl>) teri.field("following", new HashSet<YTEntityImpl>())
+    ((HashSet<EntityImpl>) teri.field("following", new HashSet<EntityImpl>())
         .field("following"))
         .add(jack);
 
@@ -323,7 +323,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database.close();
     database = acquireSession();
 
-    YTEntityImpl loadedJack = database.load(jack.getIdentity());
+    EntityImpl loadedJack = database.load(jack.getIdentity());
 
     int jackLastVersion = loadedJack.getVersion();
     database.begin();
@@ -365,16 +365,16 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    YTEntityImpl kim = new YTEntityImpl("MyProfile").field("name", "Kim").field("surname", "Bauer");
-    YTEntityImpl teri = new YTEntityImpl("MyProfile").field("name", "Teri")
+    EntityImpl kim = new EntityImpl("MyProfile").field("name", "Kim").field("surname", "Bauer");
+    EntityImpl teri = new EntityImpl("MyProfile").field("name", "Teri")
         .field("surname", "Bauer");
-    YTEntityImpl jack = new YTEntityImpl("MyProfile").field("name", "Jack")
+    EntityImpl jack = new EntityImpl("MyProfile").field("name", "Jack")
         .field("surname", "Bauer");
 
-    YTEntityImpl myedge = new YTEntityImpl("MyEdge").field("in", kim).field("out", jack);
+    EntityImpl myedge = new EntityImpl("MyEdge").field("in", kim).field("out", jack);
     myedge.save();
-    ((HashSet<YTEntityImpl>) kim.field("out", new HashSet<YTRID>()).field("out")).add(myedge);
-    ((HashSet<YTEntityImpl>) jack.field("in", new HashSet<YTRID>()).field("in")).add(myedge);
+    ((HashSet<EntityImpl>) kim.field("out", new HashSet<YTRID>()).field("out")).add(myedge);
+    ((HashSet<EntityImpl>) jack.field("in", new HashSet<YTRID>()).field("in")).add(myedge);
 
     jack.save();
     kim.save();
@@ -391,26 +391,26 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   public void loadRecordTest() {
     database.begin();
 
-    YTEntityImpl kim = new YTEntityImpl("Profile").field("name", "Kim").field("surname", "Bauer");
-    YTEntityImpl teri = new YTEntityImpl("Profile").field("name", "Teri").field("surname", "Bauer");
-    YTEntityImpl jack = new YTEntityImpl("Profile").field("name", "Jack").field("surname", "Bauer");
-    YTEntityImpl chloe = new YTEntityImpl("Profile").field("name", "Chloe")
+    EntityImpl kim = new EntityImpl("Profile").field("name", "Kim").field("surname", "Bauer");
+    EntityImpl teri = new EntityImpl("Profile").field("name", "Teri").field("surname", "Bauer");
+    EntityImpl jack = new EntityImpl("Profile").field("name", "Jack").field("surname", "Bauer");
+    EntityImpl chloe = new EntityImpl("Profile").field("name", "Chloe")
         .field("surname", "O'Brien");
 
-    ((HashSet<YTEntityImpl>) jack.field("following", new HashSet<YTEntityImpl>())
+    ((HashSet<EntityImpl>) jack.field("following", new HashSet<EntityImpl>())
         .field("following"))
         .add(kim);
-    ((HashSet<YTEntityImpl>) kim.field("following", new HashSet<YTEntityImpl>()).field("following"))
+    ((HashSet<EntityImpl>) kim.field("following", new HashSet<EntityImpl>()).field("following"))
         .add(teri);
-    ((HashSet<YTEntityImpl>) teri.field("following", new HashSet<YTEntityImpl>())
+    ((HashSet<EntityImpl>) teri.field("following", new HashSet<EntityImpl>())
         .field("following"))
         .add(jack);
-    ((HashSet<YTEntityImpl>) teri.field("following")).add(kim);
-    ((HashSet<YTEntityImpl>) chloe.field("following", new HashSet<YTEntityImpl>())
+    ((HashSet<EntityImpl>) teri.field("following")).add(kim);
+    ((HashSet<EntityImpl>) chloe.field("following", new HashSet<EntityImpl>())
         .field("following"))
         .add(jack);
-    ((HashSet<YTEntityImpl>) chloe.field("following")).add(teri);
-    ((HashSet<YTEntityImpl>) chloe.field("following")).add(kim);
+    ((HashSet<EntityImpl>) chloe.field("following")).add(teri);
+    ((HashSet<EntityImpl>) chloe.field("following")).add(kim);
 
     var schema = database.getSchema();
     var profileClusterIds =
@@ -475,11 +475,11 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
               + ")");
 
       // do insert
-      List<YTEntityImpl> v = new ArrayList<>();
+      List<EntityImpl> v = new ArrayList<>();
       database.begin();
       for (int i = initialValue * chunkSize; i < (initialValue * chunkSize) + chunkSize; i++) {
-        YTEntityImpl d =
-            new YTEntityImpl("MyFruit")
+        EntityImpl d =
+            new EntityImpl("MyFruit")
                 .field("name", "" + i)
                 .field("color", "FOO")
                 .field("flavor", "BAR" + i);
@@ -501,7 +501,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
       // do delete
       database.begin();
-      for (YTEntityImpl entries : v) {
+      for (EntityImpl entries : v) {
         database.delete(database.bindToSession(entries));
       }
       database.commit();
@@ -627,22 +627,22 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
     database.begin();
-    List<YTEntity> inserted = new ArrayList<>();
+    List<Entity> inserted = new ArrayList<>();
 
     for (int i = 0; i < cnt; i++) {
-      YTEntityImpl person = new YTEntityImpl("TRPerson");
+      EntityImpl person = new EntityImpl("TRPerson");
       person.field("name", Character.toString((char) ('A' + i)));
       person.field("surname", Character.toString((char) ('A' + (i % 3))));
       person.field("myversion", 0);
-      person.field("in", new HashSet<YTEntityImpl>());
-      person.field("out", new HashSet<YTEntityImpl>());
+      person.field("in", new HashSet<EntityImpl>());
+      person.field("out", new HashSet<EntityImpl>());
 
       if (i >= 1) {
-        YTEntityImpl edge = new YTEntityImpl("TREdge");
+        EntityImpl edge = new EntityImpl("TREdge");
         edge.field("in", person.getIdentity());
         edge.field("out", inserted.get(i - 1));
-        (person.<Set<YTEntityImpl>>getProperty("out")).add(edge);
-        (database.bindToSession(inserted.get(i - 1)).<Set<YTEntityImpl>>getProperty("in")).add(
+        (person.<Set<EntityImpl>>getProperty("out")).add(edge);
+        (database.bindToSession(inserted.get(i - 1)).<Set<EntityImpl>>getProperty("in")).add(
             edge);
         edge.save();
       }
@@ -657,22 +657,22 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     try {
       database.executeInTx(
           () -> {
-            List<YTEntity> inserted2 = new ArrayList<>();
+            List<Entity> inserted2 = new ArrayList<>();
 
             for (int i = 0; i < cnt; i++) {
-              YTEntityImpl person = new YTEntityImpl("TRPerson");
+              EntityImpl person = new EntityImpl("TRPerson");
               person.field("name", Character.toString((char) ('a' + i)));
               person.field("surname", Character.toString((char) ('a' + (i % 3))));
               person.field("myversion", 0);
-              person.field("in", new HashSet<YTEntityImpl>());
-              person.field("out", new HashSet<YTEntityImpl>());
+              person.field("in", new HashSet<EntityImpl>());
+              person.field("out", new HashSet<EntityImpl>());
 
               if (i >= 1) {
-                YTEntityImpl edge = new YTEntityImpl("TREdge");
+                EntityImpl edge = new EntityImpl("TREdge");
                 edge.field("in", person.getIdentity());
                 edge.field("out", inserted2.get(i - 1));
-                (person.<Set<YTEntityImpl>>getProperty("out")).add(edge);
-                ((inserted2.get(i - 1)).<Set<YTEntityImpl>>getProperty("in")).add(edge);
+                (person.<Set<EntityImpl>>getProperty("out")).add(edge);
+                ((inserted2.get(i - 1)).<Set<EntityImpl>>getProperty("in")).add(edge);
                 edge.save();
               }
 
@@ -682,13 +682,13 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
             for (int i = 0; i < cnt; i++) {
               if (i != cnt - 1) {
-                var doc = database.bindToSession((YTEntityImpl) inserted.get(i));
+                var doc = database.bindToSession((EntityImpl) inserted.get(i));
                 doc.setProperty("myversion", 2);
                 doc.save();
               }
             }
 
-            var doc = ((YTEntityImpl) inserted.get(cnt - 1));
+            var doc = ((EntityImpl) inserted.get(cnt - 1));
             database.bindToSession(doc).delete();
 
             throw new IllegalStateException();
@@ -752,7 +752,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     var address2 = database.newEntity("Address");
     address2.setProperty("street", "Via Veneto");
 
-    List<YTEntity> addresses = new ArrayList<>();
+    List<Entity> addresses = new ArrayList<>();
     addresses.add(address1);
     addresses.add(address2);
 
@@ -801,7 +801,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     YTSchema schema = database.getMetadata().getSchema();
     YTClass classA = schema.createClass("TransA");
     classA.createProperty(database, "name", YTType.STRING);
-    YTEntityImpl doc = new YTEntityImpl(classA);
+    EntityImpl doc = new EntityImpl(classA);
     doc.field("name", "test1");
 
     database.begin();

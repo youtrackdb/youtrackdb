@@ -15,18 +15,18 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.config.OStorageConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.core.db.record.TrackedList;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.db.record.ridbag.RidBag;
-import com.orientechnologies.core.exception.YTSerializationException;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.OJSONWriter;
-import com.orientechnologies.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
-import com.orientechnologies.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSerializationException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OJSONWriter;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -51,7 +51,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   @Test
   public void testAlmostLink() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     doc.fromJSON(
         new ByteArrayInputStream(
             "{'title': '#330: Dollar Coins Are Done'}".getBytes(StandardCharsets.UTF_8)));
@@ -59,12 +59,12 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   @Test
   public void testNullList() throws Exception {
-    final YTEntityImpl documentSource = new YTEntityImpl();
+    final EntityImpl documentSource = new EntityImpl();
     documentSource.fromJSON(
         new ByteArrayInputStream(
             "{\"list\" : [\"string\", null]}".getBytes(StandardCharsets.UTF_8)));
 
-    final YTEntityImpl documentTarget = new YTEntityImpl();
+    final EntityImpl documentTarget = new EntityImpl();
     documentTarget.fromStream(documentSource.toStream());
 
     final TrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
@@ -74,11 +74,11 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   @Test
   public void testBooleanList() throws IOException {
-    final YTEntityImpl documentSource = new YTEntityImpl();
+    final EntityImpl documentSource = new EntityImpl();
     documentSource.fromJSON(
         new ByteArrayInputStream("{\"list\" : [true, false]}".getBytes(StandardCharsets.UTF_8)));
 
-    final YTEntityImpl documentTarget = new YTEntityImpl();
+    final EntityImpl documentTarget = new EntityImpl();
     documentTarget.fromStream(documentSource.toStream());
 
     final TrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
@@ -88,11 +88,11 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   @Test
   public void testNumericIntegerList() throws IOException {
-    final YTEntityImpl documentSource = new YTEntityImpl();
+    final EntityImpl documentSource = new EntityImpl();
     documentSource.fromJSON(
         new ByteArrayInputStream("{\"list\" : [17,42]}".getBytes(StandardCharsets.UTF_8)));
 
-    final YTEntityImpl documentTarget = new YTEntityImpl();
+    final EntityImpl documentTarget = new EntityImpl();
     documentTarget.fromStream(documentSource.toStream());
 
     final TrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
@@ -102,12 +102,12 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   @Test
   public void testNumericLongList() throws IOException {
-    final YTEntityImpl documentSource = new YTEntityImpl();
+    final EntityImpl documentSource = new EntityImpl();
     documentSource.fromJSON(
         new ByteArrayInputStream(
             "{\"list\" : [100000000000,100000000001]}".getBytes(StandardCharsets.UTF_8)));
 
-    final YTEntityImpl documentTarget = new YTEntityImpl();
+    final EntityImpl documentTarget = new EntityImpl();
     documentTarget.fromStream(documentSource.toStream());
 
     final TrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
@@ -117,11 +117,11 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   @Test
   public void testNumericFloatList() throws IOException {
-    final YTEntityImpl documentSource = new YTEntityImpl();
+    final EntityImpl documentSource = new EntityImpl();
     documentSource.fromJSON(
         new ByteArrayInputStream("{\"list\" : [17.3,42.7]}".getBytes(StandardCharsets.UTF_8)));
 
-    final YTEntityImpl documentTarget = new YTEntityImpl();
+    final EntityImpl documentTarget = new EntityImpl();
     documentTarget.fromStream(documentSource.toStream());
 
     final TrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
@@ -131,7 +131,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   @Test
   public void testNullity() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     final String docString =
         "{\"gender\":{\"name\":\"Male\"},\"firstName\":\"Jack\",\"lastName\":\"Williams\",\"phone\":\"561-401-3348\",\"email\":\"0586548571@example.com\",\"address\":{\"street1\":\"Smith"
             + " Ave\","
@@ -139,7 +139,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
             + " 03:17:04\"}";
     doc.fromJSON(new ByteArrayInputStream(docString.getBytes(StandardCharsets.UTF_8)));
     final String json = doc.toJSON();
-    final YTEntityImpl loadedDoc = new YTEntityImpl();
+    final EntityImpl loadedDoc = new EntityImpl();
     loadedDoc.fromJSON(json);
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
   }
@@ -147,42 +147,42 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   // no benchmark
   @Test
   public void testEmbeddedList() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
-    final List<YTEntityImpl> list = new ArrayList<YTEntityImpl>();
+    final EntityImpl doc = new EntityImpl();
+    final List<EntityImpl> list = new ArrayList<EntityImpl>();
     doc.field("embeddedList", list, YTType.EMBEDDEDLIST);
-    list.add(new YTEntityImpl().field("name", "Luca"));
-    list.add(new YTEntityImpl().field("name", "Marcus"));
+    list.add(new EntityImpl().field("name", "Luca"));
+    list.add(new EntityImpl().field("name", "Marcus"));
 
     final String json = doc.toJSON();
-    final YTEntityImpl loadedDoc =
-        new YTEntityImpl().fromJSON(
+    final EntityImpl loadedDoc =
+        new EntityImpl().fromJSON(
             new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
     Assert.assertTrue(loadedDoc.containsField("embeddedList"));
     Assert.assertTrue(loadedDoc.field("embeddedList") instanceof List<?>);
     Assert.assertTrue(
-        ((List<YTEntityImpl>) loadedDoc.field("embeddedList")).get(0) instanceof YTEntityImpl);
+        ((List<EntityImpl>) loadedDoc.field("embeddedList")).get(0) instanceof EntityImpl);
 
-    YTEntityImpl newDoc = ((List<YTEntityImpl>) loadedDoc.field("embeddedList")).get(0);
+    EntityImpl newDoc = ((List<EntityImpl>) loadedDoc.field("embeddedList")).get(0);
     Assert.assertEquals(newDoc.field("name"), "Luca");
-    newDoc = ((List<YTEntityImpl>) loadedDoc.field("embeddedList")).get(1);
+    newDoc = ((List<EntityImpl>) loadedDoc.field("embeddedList")).get(1);
     Assert.assertEquals(newDoc.field("name"), "Marcus");
   }
 
   // no benchmark
   @Test
   public void testEmbeddedMap() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
 
-    final Map<String, YTEntityImpl> map = new HashMap<String, YTEntityImpl>();
+    final Map<String, EntityImpl> map = new HashMap<String, EntityImpl>();
     doc.field("map", map);
-    map.put("Luca", new YTEntityImpl().field("name", "Luca"));
-    map.put("Marcus", new YTEntityImpl().field("name", "Marcus"));
-    map.put("Cesare", new YTEntityImpl().field("name", "Cesare"));
+    map.put("Luca", new EntityImpl().field("name", "Luca"));
+    map.put("Marcus", new EntityImpl().field("name", "Marcus"));
+    map.put("Cesare", new EntityImpl().field("name", "Cesare"));
 
     final String json = doc.toJSON();
-    final YTEntityImpl loadedDoc =
-        new YTEntityImpl().fromJSON(
+    final EntityImpl loadedDoc =
+        new EntityImpl().fromJSON(
             new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
 
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
@@ -190,36 +190,36 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     Assert.assertTrue(loadedDoc.containsField("map"));
     Assert.assertTrue(loadedDoc.field("map") instanceof Map<?, ?>);
     Assert.assertTrue(
-        ((Map<String, YTEntityImpl>) loadedDoc.field("map")).values().iterator().next()
-            instanceof YTEntityImpl);
+        ((Map<String, EntityImpl>) loadedDoc.field("map")).values().iterator().next()
+            instanceof EntityImpl);
 
-    YTEntityImpl newDoc = ((Map<String, YTEntityImpl>) loadedDoc.field("map")).get("Luca");
+    EntityImpl newDoc = ((Map<String, EntityImpl>) loadedDoc.field("map")).get("Luca");
     Assert.assertEquals(newDoc.field("name"), "Luca");
 
-    newDoc = ((Map<String, YTEntityImpl>) loadedDoc.field("map")).get("Marcus");
+    newDoc = ((Map<String, EntityImpl>) loadedDoc.field("map")).get("Marcus");
     Assert.assertEquals(newDoc.field("name"), "Marcus");
 
-    newDoc = ((Map<String, YTEntityImpl>) loadedDoc.field("map")).get("Cesare");
+    newDoc = ((Map<String, EntityImpl>) loadedDoc.field("map")).get("Cesare");
     Assert.assertEquals(newDoc.field("name"), "Cesare");
   }
 
   // no benchmark
   @Test
   public void testListToJSON() throws IOException {
-    final List<YTEntityImpl> list = new ArrayList<YTEntityImpl>();
-    final YTEntityImpl first = new YTEntityImpl().field("name", "Luca");
-    final YTEntityImpl second = new YTEntityImpl().field("name", "Marcus");
+    final List<EntityImpl> list = new ArrayList<EntityImpl>();
+    final EntityImpl first = new EntityImpl().field("name", "Luca");
+    final EntityImpl second = new EntityImpl().field("name", "Marcus");
     list.add(first);
     list.add(second);
 
     final String jsonResult = OJSONWriter.listToJSON(list, null);
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     final String docString = "{\"result\": " + jsonResult + "}";
     doc.fromJSON(new ByteArrayInputStream(docString.getBytes(StandardCharsets.UTF_8)));
-    final Collection<YTEntityImpl> result = doc.field("result");
+    final Collection<EntityImpl> result = doc.field("result");
     Assert.assertTrue(result instanceof Collection);
     Assert.assertEquals(result.size(), 2);
-    for (final YTEntityImpl resultDoc : result) {
+    for (final EntityImpl resultDoc : result) {
       Assert.assertTrue(first.hasSameContentOf(resultDoc) || second.hasSameContentOf(resultDoc));
     }
   }
@@ -227,20 +227,20 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   // no benchmark
   @Test
   public void testEmptyEmbeddedMap() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
 
-    final Map<String, YTEntityImpl> map = new HashMap<String, YTEntityImpl>();
+    final Map<String, EntityImpl> map = new HashMap<String, EntityImpl>();
     doc.field("embeddedMap", map, YTType.EMBEDDEDMAP);
 
     final String json = doc.toJSON();
-    final YTEntityImpl loadedDoc =
-        new YTEntityImpl().fromJSON(
+    final EntityImpl loadedDoc =
+        new EntityImpl().fromJSON(
             new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
     Assert.assertTrue(loadedDoc.containsField("embeddedMap"));
     Assert.assertTrue(loadedDoc.field("embeddedMap") instanceof Map<?, ?>);
 
-    final Map<String, YTEntityImpl> loadedMap = loadedDoc.field("embeddedMap");
+    final Map<String, EntityImpl> loadedMap = loadedDoc.field("embeddedMap");
     Assert.assertEquals(loadedMap.size(), 0);
   }
 
@@ -252,22 +252,22 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     database.set(
         ATTRIBUTES.DATETIMEFORMAT, OStorageConfiguration.DEFAULT_DATETIME_FORMAT);
     try {
-      final YTEntityImpl doc = new YTEntityImpl();
+      final EntityImpl doc = new EntityImpl();
       doc.field("long", 100000000000L);
       doc.field("date", new Date());
       doc.field("byte", (byte) 12);
 
-      final YTEntityImpl firstLevelDoc = new YTEntityImpl();
+      final EntityImpl firstLevelDoc = new EntityImpl();
       firstLevelDoc.field("long", 200000000000L);
       firstLevelDoc.field("date", new Date());
       firstLevelDoc.field("byte", (byte) 13);
 
-      final YTEntityImpl secondLevelDoc = new YTEntityImpl();
+      final EntityImpl secondLevelDoc = new EntityImpl();
       secondLevelDoc.field("long", 300000000000L);
       secondLevelDoc.field("date", new Date());
       secondLevelDoc.field("byte", (byte) 14);
 
-      final YTEntityImpl thirdLevelDoc = new YTEntityImpl();
+      final EntityImpl thirdLevelDoc = new EntityImpl();
       thirdLevelDoc.field("long", 400000000000L);
       thirdLevelDoc.field("date", new Date());
       thirdLevelDoc.field("byte", (byte) 15);
@@ -281,8 +281,8 @@ public class JSONStreamTest extends DocumentDBBaseTest {
       // "{\"@type\":\"d\",\"@version\":0,\"@fieldTypes\":\"date=t,byte=b,long=l\",\"date\":\"2021-03-11 14:26:13:141\",\"byte\":12,\"doc\":{\"@type\":\"d\",\"@version\":0,\"@fieldTypes\":\"date=t,byte=b,long=l\",\"date\":\"2021-03-11 14:26:13:141\",\"byte\":13,\"doc\":{\"@type\":\"d\",\"@version\":0,\"@fieldTypes\":\"date=t,byte=b,long=l\",\"date\":\"2021-03-11 14:26:13:141\",\"byte\":14,\"doc\":{\"@type\":\"d\",\"@version\":0,\"@fieldTypes\":\"date=t,byte=b,long=l\",\"date\":\"2021-03-11 14:26:13:141\",\"byte\":15,\"long\":400000000000},\"long\":300000000000},\"long\":200000000000},\"long\":100000000000}";
       final String json = doc.toJSON();
 
-      final YTEntityImpl loadedDoc =
-          new YTEntityImpl().fromJSON(
+      final EntityImpl loadedDoc =
+          new EntityImpl().fromJSON(
               new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
       Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
       Assert.assertTrue(loadedDoc.field("long") instanceof Long);
@@ -292,9 +292,9 @@ public class JSONStreamTest extends DocumentDBBaseTest {
       Assert.assertTrue(loadedDoc.field("byte") instanceof Byte);
       Assert.assertEquals(
           ((Byte) doc.field("byte")).byteValue(), ((Byte) loadedDoc.field("byte")).byteValue());
-      Assert.assertTrue(loadedDoc.field("doc") instanceof YTEntityImpl);
+      Assert.assertTrue(loadedDoc.field("doc") instanceof EntityImpl);
 
-      final YTEntityImpl firstDoc = loadedDoc.field("doc");
+      final EntityImpl firstDoc = loadedDoc.field("doc");
       Assert.assertTrue(firstLevelDoc.hasSameContentOf(firstDoc));
       Assert.assertTrue(firstDoc.field("long") instanceof Long);
       Assert.assertEquals(
@@ -305,9 +305,9 @@ public class JSONStreamTest extends DocumentDBBaseTest {
       Assert.assertEquals(
           ((Byte) firstLevelDoc.field("byte")).byteValue(),
           ((Byte) firstDoc.field("byte")).byteValue());
-      Assert.assertTrue(firstDoc.field("doc") instanceof YTEntityImpl);
+      Assert.assertTrue(firstDoc.field("doc") instanceof EntityImpl);
 
-      final YTEntityImpl secondDoc = firstDoc.field("doc");
+      final EntityImpl secondDoc = firstDoc.field("doc");
       Assert.assertTrue(secondLevelDoc.hasSameContentOf(secondDoc));
       Assert.assertTrue(secondDoc.field("long") instanceof Long);
       Assert.assertEquals(
@@ -318,9 +318,9 @@ public class JSONStreamTest extends DocumentDBBaseTest {
       Assert.assertEquals(
           ((Byte) secondLevelDoc.field("byte")).byteValue(),
           ((Byte) secondDoc.field("byte")).byteValue());
-      Assert.assertTrue(secondDoc.field("doc") instanceof YTEntityImpl);
+      Assert.assertTrue(secondDoc.field("doc") instanceof EntityImpl);
 
-      final YTEntityImpl thirdDoc = secondDoc.field("doc");
+      final EntityImpl thirdDoc = secondDoc.field("doc");
       Assert.assertTrue(thirdLevelDoc.hasSameContentOf(thirdDoc));
       Assert.assertTrue(thirdDoc.field("long") instanceof Long);
       Assert.assertEquals(
@@ -338,7 +338,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   @Test
   public void testNestedEmbeddedMap() throws IOException {
-    final YTEntityImpl newDoc = new YTEntityImpl();
+    final EntityImpl newDoc = new EntityImpl();
 
     final Map<String, HashMap<?, ?>> map1 = new HashMap<>();
     newDoc.field("map1", map1, YTType.EMBEDDEDMAP);
@@ -350,42 +350,42 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     map2.put("map3", (HashMap<?, ?>) map3);
 
     String json = newDoc.toJSON();
-    final YTEntityImpl loadedDoc =
-        new YTEntityImpl().fromJSON(
+    final EntityImpl loadedDoc =
+        new EntityImpl().fromJSON(
             new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
 
     Assert.assertTrue(newDoc.hasSameContentOf(loadedDoc));
 
     Assert.assertTrue(loadedDoc.containsField("map1"));
     Assert.assertTrue(loadedDoc.field("map1") instanceof Map<?, ?>);
-    final Map<String, YTEntityImpl> loadedMap1 = loadedDoc.field("map1");
+    final Map<String, EntityImpl> loadedMap1 = loadedDoc.field("map1");
     Assert.assertEquals(loadedMap1.size(), 1);
 
     Assert.assertTrue(loadedMap1.containsKey("map2"));
     Assert.assertTrue(loadedMap1.get("map2") instanceof Map<?, ?>);
-    final Map<String, YTEntityImpl> loadedMap2 = (Map<String, YTEntityImpl>) loadedMap1.get("map2");
+    final Map<String, EntityImpl> loadedMap2 = (Map<String, EntityImpl>) loadedMap1.get("map2");
     Assert.assertEquals(loadedMap2.size(), 1);
 
     Assert.assertTrue(loadedMap2.containsKey("map3"));
     Assert.assertTrue(loadedMap2.get("map3") instanceof Map<?, ?>);
-    final Map<String, YTEntityImpl> loadedMap3 = (Map<String, YTEntityImpl>) loadedMap2.get("map3");
+    final Map<String, EntityImpl> loadedMap3 = (Map<String, EntityImpl>) loadedMap2.get("map3");
     Assert.assertEquals(loadedMap3.size(), 0);
   }
 
   @Test
   public void testFetchedJson() throws IOException {
-    final List<YTEntityImpl> result =
+    final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<YTEntityImpl>(
+                new OSQLSynchQuery<EntityImpl>(
                     "select * from Profile where name = 'Barack' and surname = 'Obama'"))
             .execute(database);
 
-    for (final YTEntityImpl doc : result) {
+    for (final EntityImpl doc : result) {
       final String jsonFull =
           doc.toJSON("type,rid,version,class,keepTypes,attribSameRow,indent:0,fetchPlan:*:-1");
-      final YTEntityImpl loadedDoc =
-          new YTEntityImpl()
+      final EntityImpl loadedDoc =
+          new EntityImpl()
               .fromJSON(new ByteArrayInputStream(jsonFull.getBytes(StandardCharsets.UTF_8)));
       Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
     }
@@ -393,8 +393,8 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   // Requires JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES
   public void testSpecialChar() throws IOException {
-    final YTEntityImpl doc =
-        new YTEntityImpl()
+    final EntityImpl doc =
+        new EntityImpl()
             .fromJSON(
                 new ByteArrayInputStream(
                     "{name:{\"%Field\":[\"value1\",\"value2\"],\"%Field2\":{},\"%Field3\":\"value3\"}}"
@@ -403,13 +403,13 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final YTEntityImpl loadedDoc = database.load(doc.getIdentity());
+    final EntityImpl loadedDoc = database.load(doc.getIdentity());
     Assert.assertEquals(doc, loadedDoc);
   }
 
   // Required loading @class
   public void testArrayOfArray() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     doc.fromJSON(
         new ByteArrayInputStream(
             "{\"@type\": \"d\",\"@class\": \"Track\",\"type\": \"LineString\",\"coordinates\": [ [ 100,  0 ],  [ 101, 1 ] ]}"
@@ -419,13 +419,13 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     doc.save();
     database.commit();
 
-    final YTEntityImpl loadedDoc = database.load(doc.getIdentity());
+    final EntityImpl loadedDoc = database.load(doc.getIdentity());
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
   }
 
   // Required loading @class
   public void testLongTypes() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     doc.fromJSON(
         new ByteArrayInputStream(
             "{\"@type\": \"d\",\"@class\": \"Track\",\"type\": \"LineString\",\"coordinates\": [ [ 32874387347347,  0 ],  [ -23736753287327, 1 ] ]}"
@@ -434,14 +434,14 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     doc.save();
     database.commit();
 
-    final YTEntityImpl loadedDoc = database.load(doc.getIdentity());
+    final EntityImpl loadedDoc = database.load(doc.getIdentity());
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
   }
 
   // Requires JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES
   public void testSpecialChars() throws IOException {
-    final YTEntityImpl doc =
-        new YTEntityImpl()
+    final EntityImpl doc =
+        new EntityImpl()
             .fromJSON(
                 new ByteArrayInputStream(
                     "{Field:{\"Key1\":[\"Value1\",\"Value2\"],\"Key2\":{\"%%dummy%%\":null},\"Key3\":\"Value3\"}}"
@@ -450,7 +450,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final YTEntityImpl loadedDoc = database.load(doc.getIdentity());
+    final EntityImpl loadedDoc = database.load(doc.getIdentity());
     Assert.assertEquals(doc, loadedDoc);
   }
 
@@ -458,8 +458,8 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   public void testJsonToStream() throws IOException {
     final String doc1Json =
         "{Key1:{\"%Field1\":[{},{},{},{},{}],\"%Field2\":false,\"%Field3\":\"Value1\"}}";
-    final YTEntityImpl doc1 =
-        new YTEntityImpl()
+    final EntityImpl doc1 =
+        new EntityImpl()
             .fromJSON(new ByteArrayInputStream(doc1Json.getBytes(StandardCharsets.UTF_8)));
     final String doc1String = new String(
         ORecordSerializerSchemaAware2CSV.INSTANCE.toStream(database, doc1));
@@ -467,8 +467,8 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
     final String doc2Json =
         "{Key1:{\"%Field1\":[{},{},{},{},{}],\"%Field2\":false,\"%Field3\":\"Value1\"}}";
-    final YTEntityImpl doc2 =
-        new YTEntityImpl()
+    final EntityImpl doc2 =
+        new EntityImpl()
             .fromJSON(new ByteArrayInputStream(doc2Json.getBytes(StandardCharsets.UTF_8)));
     final String doc2String = new String(
         ORecordSerializerSchemaAware2CSV.INSTANCE.toStream(database, doc2));
@@ -477,19 +477,19 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   // "@fieldTypes":"out=z"
   /*  public void testSameNameCollectionsAndMap() throws IOException {
-    YTEntityImpl doc = new YTEntityImpl();
+    EntityImpl doc = new EntityImpl();
     doc.field("string", "STRING_VALUE");
-    List<YTEntityImpl> list = new ArrayList<>();
+    List<EntityImpl> list = new ArrayList<>();
     for (int i = 0; i < 10; i++) {
-      YTEntityImpl doc1 = new YTEntityImpl();
+      EntityImpl doc1 = new EntityImpl();
       doc.field("number", i);
       list.add(doc1);
-      final Map<String, YTEntityImpl> docMap = new HashMap<>();
+      final Map<String, EntityImpl> docMap = new HashMap<>();
       for (int j = 0; j < 5; j++) {
-        final YTEntityImpl doc2 = new YTEntityImpl();
+        final EntityImpl doc2 = new EntityImpl();
         doc2.field("blabla", j);
         docMap.put(String.valueOf(j), doc2);
-        final YTEntityImpl doc3 = new YTEntityImpl();
+        final EntityImpl doc3 = new EntityImpl();
         doc3.field("blubli", String.valueOf(i + j));
         doc2.field("out", doc3);
       }
@@ -503,27 +503,27 @@ public class JSONStreamTest extends DocumentDBBaseTest {
         "{\"@type\":\"d\",\"@version\":0,\"@fieldTypes\":\"out=z\",\"number\":9,\"string\":\"STRING_VALUE\",\"out\":[{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"0\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"1\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"2\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"3\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"4\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"0\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"1\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"2\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"3\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"4\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"1\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"2\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"3\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"4\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"5\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"1\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"2\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"3\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"4\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"5\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"2\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"3\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"4\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"5\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"6\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"2\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"3\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"4\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"5\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"6\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"3\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"4\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"5\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"6\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"7\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"3\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"4\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"5\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"6\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"7\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"4\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"5\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"6\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"7\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"8\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"4\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"5\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"6\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"7\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"8\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"5\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"6\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"7\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"8\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"9\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"5\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"6\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"7\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"8\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"9\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"6\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"7\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"8\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"9\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"10\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"6\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"7\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"8\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"9\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"10\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"7\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"8\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"9\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"10\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"11\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"7\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"8\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"9\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"10\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"11\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"8\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"9\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"10\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"11\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"12\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"8\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"9\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"10\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"11\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"12\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"9\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"10\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"11\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"12\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"13\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"9\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"10\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"11\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"12\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"13\"}}}}]}";
     // String json = doc.toJSON();
 
-    YTEntityImpl newDoc =
-        new YTEntityImpl().fromJSON(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
+    EntityImpl newDoc =
+        new EntityImpl().fromJSON(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(
         "{\"@type\":\"d\",\"@version\":0,\"number\":9,\"string\":\"STRING_VALUE\",\"out\":[{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"0\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"1\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"2\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"3\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"4\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"0\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"1\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"2\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"3\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"4\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"1\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"2\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"3\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"4\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"5\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"1\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"2\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"3\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"4\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"5\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"2\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"3\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"4\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"5\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"6\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"2\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"3\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"4\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"5\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"6\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"3\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"4\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"5\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"6\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"7\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"3\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"4\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"5\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"6\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"7\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"4\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"5\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"6\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"7\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"8\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"4\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"5\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"6\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"7\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"8\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"5\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"6\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"7\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"8\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"9\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"5\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"6\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"7\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"8\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"9\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"6\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"7\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"8\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"9\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"10\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"6\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"7\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"8\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"9\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"10\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"7\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"8\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"9\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"10\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"11\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"7\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"8\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"9\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"10\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"11\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"8\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"9\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"10\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"11\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"12\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"8\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"9\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"10\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"11\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"12\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"9\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"10\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"11\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"12\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"13\"}}}},{\"@type\":\"d\",\"@version\":0,\"out\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"9\"}},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"10\"}},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"11\"}},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"12\"}},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4,\"out\":{\"@type\":\"d\",\"@version\":0,\"blubli\":\"13\"}}}}],\"@fieldTypes\":\"out=z\"}",
         // json,
         newDoc.toJSON());
     Assert.assertTrue(newDoc.hasSameContentOf(doc));
 
-    doc = new YTEntityImpl();
+    doc = new EntityImpl();
     doc.field("string", "STRING_VALUE");
-    final Map<String, YTEntityImpl> docMap = new HashMap<>();
+    final Map<String, EntityImpl> docMap = new HashMap<>();
     for (int i = 0; i < 10; i++) {
-      YTEntityImpl doc1 = new YTEntityImpl();
+      EntityImpl doc1 = new EntityImpl();
       doc.field("number", i);
       list.add(doc1);
       list = new ArrayList<>();
       for (int j = 0; j < 5; j++) {
-        YTEntityImpl doc2 = new YTEntityImpl();
+        EntityImpl doc2 = new EntityImpl();
         doc2.field("blabla", j);
         list.add(doc2);
-        YTEntityImpl doc3 = new YTEntityImpl();
+        EntityImpl doc3 = new EntityImpl();
         doc3.field("blubli", String.valueOf(i + j));
         doc2.field("out", doc3);
       }
@@ -534,22 +534,22 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     // FIXME: WIP move all @fileTypes from end to signatures:
     // json = doc.toJSON();
 
-    // newDoc = new YTEntityImpl().fromJSON(new ByteArrayInputStream(json.getBytes()));
+    // newDoc = new EntityImpl().fromJSON(new ByteArrayInputStream(json.getBytes()));
     // Assert.assertEquals(json, newDoc.toJSON());
     // Assert.assertTrue(newDoc.hasSameContentOf(doc));
   }
 
   // "@fieldTypes":"out=z"
   public void testSameNameCollectionsAndMap2() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     doc.field("string", "STRING_VALUE");
-    final List<YTEntityImpl> list = new ArrayList<>();
+    final List<EntityImpl> list = new ArrayList<>();
     for (int i = 0; i < 2; i++) {
-      final YTEntityImpl doc1 = new YTEntityImpl();
+      final EntityImpl doc1 = new EntityImpl();
       list.add(doc1);
-      final Map<String, YTEntityImpl> docMap = new HashMap<>();
+      final Map<String, EntityImpl> docMap = new HashMap<>();
       for (int j = 0; j < 5; j++) {
-        final YTEntityImpl doc2 = new YTEntityImpl();
+        final EntityImpl doc2 = new EntityImpl();
         doc2.field("blabla", j);
         docMap.put(String.valueOf(j), doc2);
       }
@@ -562,8 +562,8 @@ public class JSONStreamTest extends DocumentDBBaseTest {
         "{\"@type\":\"d\",\"@version\":0,\"@fieldTypes\":\"theList=z\",\"theList\":[{\"@type\":\"d\",\"@version\":0,\"theMap\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4}}},{\"@type\":\"d\",\"@version\":0,\"theMap\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4}}},{\"@type\":\"d\",\"@version\":0,\"theMap\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4}}},{\"@type\":\"d\",\"@version\":0,\"theMap\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4}}}],\"string\":\"STRING_VALUE\"}";
     // final String json = doc.toJSON();
 
-    final YTEntityImpl newDoc =
-        new YTEntityImpl().fromJSON(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
+    final EntityImpl newDoc =
+        new EntityImpl().fromJSON(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(
         "{\"@type\":\"d\",\"@version\":0,\"theList\":[{\"@type\":\"d\",\"@version\":0,\"theMap\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4}}},{\"@type\":\"d\",\"@version\":0,\"theMap\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4}}},{\"@type\":\"d\",\"@version\":0,\"theMap\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4}}},{\"@type\":\"d\",\"@version\":0,\"theMap\":{\"0\":{\"@type\":\"d\",\"@version\":0,\"blabla\":0},\"1\":{\"@type\":\"d\",\"@version\":0,\"blabla\":1},\"2\":{\"@type\":\"d\",\"@version\":0,\"blabla\":2},\"3\":{\"@type\":\"d\",\"@version\":0,\"blabla\":3},\"4\":{\"@type\":\"d\",\"@version\":0,\"blabla\":4}}}],\"string\":\"STRING_VALUE\",\"@fieldTypes\":\"theList=z\"}",
         // json,
@@ -572,13 +572,13 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   }*/
 
   public void testSameNameCollectionsAndMap3() throws IOException {
-    YTEntityImpl doc = new YTEntityImpl();
+    EntityImpl doc = new EntityImpl();
     doc.field("string", "STRING_VALUE");
-    List<Map<String, YTEntityImpl>> list = new ArrayList<Map<String, YTEntityImpl>>();
+    List<Map<String, EntityImpl>> list = new ArrayList<Map<String, EntityImpl>>();
     for (int i = 0; i < 2; i++) {
-      Map<String, YTEntityImpl> docMap = new HashMap<String, YTEntityImpl>();
+      Map<String, EntityImpl> docMap = new HashMap<String, EntityImpl>();
       for (int j = 0; j < 5; j++) {
-        YTEntityImpl doc1 = new YTEntityImpl();
+        EntityImpl doc1 = new EntityImpl();
         doc1.field("blabla", j);
         docMap.put(String.valueOf(j), doc1);
       }
@@ -587,14 +587,14 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     }
     doc.field("theList", list);
     String json = doc.toJSON();
-    YTEntityImpl newDoc =
-        new YTEntityImpl().fromJSON(
+    EntityImpl newDoc =
+        new EntityImpl().fromJSON(
             new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(newDoc.toJSON(), json);
   }
 
   public void testSpaces() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     final String test =
         "{"
             + "\"embedded\": {"
@@ -608,7 +608,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   }
 
   public void testEscaping() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     final String s =
         "{\"name\": \"test\", \"nested\": { \"key\": \"value\", \"anotherKey\": 123 }, \"deep\":"
             + " {\"deeper\": { \"k\": \"v\",\"quotes\": \"\\\"\\\",\\\"oops\\\":\\\"123\\\"\","
@@ -623,7 +623,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   }
 
   public void testEscapingDoubleQuotes() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     String sb =
         " {\n"
             + "    \"foo\":{\n"
@@ -650,7 +650,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   // Requires JsonParser.Feature.ALLOW_TRAILING_COMMA
   public void testEscapingDoubleQuotes2() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     String sb =
         " {\n"
             + "    \"foo\":{\n"
@@ -678,7 +678,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   }
 
   public void testEscapingDoubleQuotes3() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     String sb =
         " {\n"
             + "    \"foo\":{\n"
@@ -704,7 +704,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   }
 
   public void testEmbeddedQuotes() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     // FROM ISSUE 3151
     doc.fromJSON(
         new ByteArrayInputStream(
@@ -714,7 +714,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   }
 
   public void testEmbeddedQuotes2() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     doc.fromJSON(
         new ByteArrayInputStream(
             "{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}".getBytes(StandardCharsets.UTF_8)));
@@ -722,7 +722,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   }
 
   public void testEmbeddedQuotes2a() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     doc.fromJSON(
         new ByteArrayInputStream(
             "{\"datavalue\":\"Sub\\\\urban\"}".getBytes(StandardCharsets.UTF_8)));
@@ -731,7 +731,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   // TODO: fallback to legacy parser for invalid JSON
   /*public void testEmbeddedQuotes3() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     final StringBuilder sb = new StringBuilder();
     sb.append("{\"mainsnak\":{\"datavalue\":{\"value\":\"Suburban\\\\\"\"}}}");
     doc.fromJSON(new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8)));
@@ -740,7 +740,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   // TODO: fallback to legacy parser for invalid JSON
   public void testEmbeddedQuotes4() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     final StringBuilder sb = new StringBuilder();
     sb.append("{\"datavalue\":{\"value\":\"Suburban\\\\\"\"}}");
     doc.fromJSON(new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8)));
@@ -749,7 +749,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   // TODO: fallback to legacy parser for invalid JSON
   public void testEmbeddedQuotes5() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     final StringBuilder sb = new StringBuilder();
     sb.append("{\"datavalue\":\"Suburban\\\\\"\"}");
     doc.fromJSON(new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8)));
@@ -757,7 +757,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   }*/
 
   public void testEmbeddedQuotes6() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     doc.fromJSON(
         new ByteArrayInputStream(
             "{\"mainsnak\":{\"datavalue\":{\"value\":\"Suburban\\\\\"}}}"
@@ -766,7 +766,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   }
 
   public void testEmbeddedQuotes7() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     doc.fromJSON(
         new ByteArrayInputStream(
             "{\"datavalue\":{\"value\":\"Suburban\\\\\"}}".getBytes(StandardCharsets.UTF_8)));
@@ -774,7 +774,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   }
 
   public void testEmbeddedQuotes8() throws IOException {
-    YTEntityImpl doc = new YTEntityImpl();
+    EntityImpl doc = new EntityImpl();
     doc.fromJSON(
         new ByteArrayInputStream(
             "{\"datavalue\":\"Suburban\\\\\"}".getBytes(StandardCharsets.UTF_8)));
@@ -782,13 +782,13 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   }
 
   public void testEmpty() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     doc.fromJSON(new ByteArrayInputStream("{}".getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(doc.fieldNames().length, 0);
   }
 
   public void testInvalidJson() {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     try {
       doc.fromJSON(new ByteArrayInputStream("{".getBytes(StandardCharsets.UTF_8)));
       Assert.fail();
@@ -824,7 +824,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   public void testDates() throws IOException {
     final Date now = new Date(1350518475000L);
 
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     doc.field("date", now);
     // TODO: WIP move @fileTypes from end to signature: {"@type":"d","@version":0,"date":"2012-10-18
     // 02:01:15","@fieldTypes":"date=t"}
@@ -833,19 +833,19 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     // 02:01:15\"}";
     final String json = doc.toJSON();
 
-    final YTEntityImpl unmarshalled =
-        new YTEntityImpl().fromJSON(
+    final EntityImpl unmarshalled =
+        new EntityImpl().fromJSON(
             new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(unmarshalled.field("date"), now);
   }
 
   @Test
   public void testList() throws IOException {
-    final YTEntityImpl documentSource = new YTEntityImpl();
+    final EntityImpl documentSource = new EntityImpl();
     documentSource.fromJSON(
         new ByteArrayInputStream("{\"list\" : [\"string\", 42]}".getBytes(StandardCharsets.UTF_8)));
 
-    final YTEntityImpl documentTarget = new YTEntityImpl();
+    final EntityImpl documentTarget = new EntityImpl();
     documentTarget.fromStream(documentSource.toStream());
 
     final TrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
@@ -855,7 +855,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   @Test
   public void testEmbeddedRIDBagDeserialisationWhenFieldTypeIsProvided() throws Exception {
-    final YTEntityImpl documentSource = new YTEntityImpl();
+    final EntityImpl documentSource = new EntityImpl();
     documentSource.fromJSON(
         new ByteArrayInputStream(
             "{FirstName:\"Student A 0\",in_EHasGoodStudents:[#57:0],@fieldTypes:\"in_EHasGoodStudents=g\"}"
@@ -868,7 +868,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   }
 
   public void testNestedLinkCreation() throws IOException {
-    YTEntityImpl jaimeDoc = new YTEntityImpl("NestedLinkCreation");
+    EntityImpl jaimeDoc = new EntityImpl("NestedLinkCreation");
     jaimeDoc.field("name", "jaime");
 
     database.begin();
@@ -876,7 +876,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     database.commit();
 
     // The link between jaime and cersei is saved properly - the #2263 test case
-    YTEntityImpl cerseiDoc = new YTEntityImpl("NestedLinkCreation");
+    EntityImpl cerseiDoc = new EntityImpl("NestedLinkCreation");
     final String jsonString =
         "{\"@type\":\"d\",\"name\":\"cersei\",\"valonqar\":" + jaimeDoc.toJSON() + "}";
     cerseiDoc.fromJSON(new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8)));
@@ -885,7 +885,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     database.commit();
 
     // The link between jamie and tyrion is not saved properly
-    final YTEntityImpl tyrionDoc = new YTEntityImpl("NestedLinkCreation");
+    final EntityImpl tyrionDoc = new EntityImpl("NestedLinkCreation");
     final String jsonString2 =
         "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":{\"@type\":\"d\","
             + " \"relationship\":\"brother\",\"contact\":"
@@ -896,22 +896,22 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     tyrionDoc.save();
     database.commit();
 
-    final Map<YTRID, YTEntityImpl> contentMap = new HashMap<YTRID, YTEntityImpl>();
+    final Map<YTRID, EntityImpl> contentMap = new HashMap<YTRID, EntityImpl>();
 
-    YTEntityImpl jaime = new YTEntityImpl("NestedLinkCreation");
+    EntityImpl jaime = new EntityImpl("NestedLinkCreation");
     jaime.field("name", "jaime");
 
     contentMap.put(jaimeDoc.getIdentity(), jaime);
 
-    YTEntityImpl cersei = new YTEntityImpl("NestedLinkCreation");
+    EntityImpl cersei = new EntityImpl("NestedLinkCreation");
     cersei.field("name", "cersei");
     cersei.field("valonqar", jaimeDoc.getIdentity());
     contentMap.put(cerseiDoc.getIdentity(), cersei);
 
-    YTEntityImpl tyrion = new YTEntityImpl("NestedLinkCreation");
+    EntityImpl tyrion = new EntityImpl("NestedLinkCreation");
     tyrion.field("name", "tyrion");
 
-    YTEntityImpl embeddedDoc = new YTEntityImpl();
+    EntityImpl embeddedDoc = new EntityImpl();
     embeddedDoc.field("relationship", "brother");
     embeddedDoc.field("contact", jaimeDoc.getIdentity());
     tyrion.field("emergency_contact", embeddedDoc);
@@ -934,13 +934,13 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     tyrionTraverse.add(jaimeDoc.getIdentity());
     traverseMap.put(tyrionDoc.getIdentity(), tyrionTraverse);
 
-    for (YTEntityImpl o : database.browseClass("NestedLinkCreation")) {
-      YTEntityImpl content = contentMap.get(o.getIdentity());
+    for (EntityImpl o : database.browseClass("NestedLinkCreation")) {
+      EntityImpl content = contentMap.get(o.getIdentity());
       Assert.assertTrue(content.hasSameContentOf(o));
 
       List<YTRID> traverse = traverseMap.remove(o.getIdentity());
       for (YTIdentifiable id :
-          new OSQLSynchQuery<YTEntityImpl>("traverse * from " + o.getIdentity().toString())) {
+          new OSQLSynchQuery<EntityImpl>("traverse * from " + o.getIdentity().toString())) {
         Assert.assertTrue(traverse.remove(id.getIdentity()));
       }
 
@@ -951,12 +951,12 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   // TODO: fallback to legacy parser for invalid JSON
   /*public void testNestedLinkCreationFieldTypes() throws IOException {
-    YTEntityImpl jaimeDoc = new YTEntityImpl("NestedLinkCreationFieldTypes");
+    EntityImpl jaimeDoc = new EntityImpl("NestedLinkCreationFieldTypes");
     jaimeDoc.field("name", "jaime");
     jaimeDoc.save();
 
     // The link between jaime and cersei is saved properly - the #2263 test case
-    YTEntityImpl cerseiDoc = new YTEntityImpl("NestedLinkCreationFieldTypes");
+    EntityImpl cerseiDoc = new EntityImpl("NestedLinkCreationFieldTypes");
     String jsonString =
         "{\"@type\":\"d\",\"@fieldTypes\":\"valonqar=x\",\"name\":\"cersei\",\"valonqar\":"
             + jaimeDoc.getIdentity()
@@ -965,7 +965,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     cerseiDoc.save();
 
     // The link between jamie and tyrion is not saved properly
-    YTEntityImpl tyrionDoc = new YTEntityImpl("NestedLinkCreationFieldTypes");
+    EntityImpl tyrionDoc = new EntityImpl("NestedLinkCreationFieldTypes");
     jsonString =
         "{\"@type\":\"d\",\"name\":\"tyrion\",\"emergency_contact\":{\"@type\":\"d\", \"@fieldTypes\":\"contact=x\",\"relationship\":\"brother\",\"contact\":"
             + jaimeDoc.getIdentity()
@@ -973,22 +973,22 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     tyrionDoc.fromJSON(new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8)));
     tyrionDoc.save();
 
-    final Map<YTRID, YTEntityImpl> contentMap = new HashMap<YTRID, YTEntityImpl>();
+    final Map<YTRID, EntityImpl> contentMap = new HashMap<YTRID, EntityImpl>();
 
-    YTEntityImpl jaime = new YTEntityImpl("NestedLinkCreationFieldTypes");
+    EntityImpl jaime = new EntityImpl("NestedLinkCreationFieldTypes");
     jaime.field("name", "jaime");
 
     contentMap.put(jaimeDoc.getIdentity(), jaime);
 
-    YTEntityImpl cersei = new YTEntityImpl("NestedLinkCreationFieldTypes");
+    EntityImpl cersei = new EntityImpl("NestedLinkCreationFieldTypes");
     cersei.field("name", "cersei");
     cersei.field("valonqar", jaimeDoc.getIdentity());
     contentMap.put(cerseiDoc.getIdentity(), cersei);
 
-    YTEntityImpl tyrion = new YTEntityImpl("NestedLinkCreationFieldTypes");
+    EntityImpl tyrion = new EntityImpl("NestedLinkCreationFieldTypes");
     tyrion.field("name", "tyrion");
 
-    YTEntityImpl embeddedDoc = new YTEntityImpl();
+    EntityImpl embeddedDoc = new EntityImpl();
     embeddedDoc.field("relationship", "brother");
     embeddedDoc.field("contact", jaimeDoc.getIdentity());
     tyrion.field("emergency_contact", embeddedDoc);
@@ -1011,13 +1011,13 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     tyrionTraverse.add(jaimeDoc.getIdentity());
     traverseMap.put(tyrionDoc.getIdentity(), tyrionTraverse);
 
-    for (YTEntityImpl o : database.browseClass("NestedLinkCreationFieldTypes")) {
-      YTEntityImpl content = contentMap.get(o.getIdentity());
+    for (EntityImpl o : database.browseClass("NestedLinkCreationFieldTypes")) {
+      EntityImpl content = contentMap.get(o.getIdentity());
       Assert.assertTrue(content.hasSameContentOf(o));
 
       List<YTRID> traverse = traverseMap.remove(o.getIdentity());
       for (YTIdentifiable id :
-          new OSQLSynchQuery<YTEntityImpl>("traverse * from " + o.getIdentity().toString())) {
+          new OSQLSynchQuery<EntityImpl>("traverse * from " + o.getIdentity().toString())) {
         Assert.assertTrue(traverse.remove(id.getIdentity()));
       }
       Assert.assertTrue(traverse.isEmpty());
@@ -1026,7 +1026,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   }*/
 
   public void testInnerDocCreation() throws IOException {
-    YTEntityImpl adamDoc = new YTEntityImpl("InnerDocCreation");
+    EntityImpl adamDoc = new EntityImpl("InnerDocCreation");
     adamDoc.fromJSON(
         new ByteArrayInputStream("{\"name\":\"adam\"}".getBytes(StandardCharsets.UTF_8)));
 
@@ -1034,7 +1034,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     adamDoc.save();
     database.commit();
 
-    YTEntityImpl eveDoc = new YTEntityImpl("InnerDocCreation");
+    EntityImpl eveDoc = new EntityImpl("InnerDocCreation");
     final String jsonString =
         "{\"@type\":\"d\",\"name\":\"eve\",\"friends\":[" + adamDoc.toJSON() + "]}";
     eveDoc.fromJSON(new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8)));
@@ -1043,13 +1043,13 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     eveDoc.save();
     database.commit();
 
-    Map<YTRID, YTEntityImpl> contentMap = new HashMap<YTRID, YTEntityImpl>();
-    YTEntityImpl adam = new YTEntityImpl("InnerDocCreation");
+    Map<YTRID, EntityImpl> contentMap = new HashMap<YTRID, EntityImpl>();
+    EntityImpl adam = new EntityImpl("InnerDocCreation");
     adam.field("name", "adam");
 
     contentMap.put(adamDoc.getIdentity(), adam);
 
-    YTEntityImpl eve = new YTEntityImpl("InnerDocCreation");
+    EntityImpl eve = new EntityImpl("InnerDocCreation");
     eve.field("name", "eve");
 
     List<YTRID> friends = new ArrayList<YTRID>();
@@ -1070,15 +1070,15 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
     traverseMap.put(eveDoc.getIdentity(), eveTraverse);
 
-    for (YTEntityImpl o : database.browseClass("InnerDocCreation")) {
-      YTEntityImpl content = contentMap.get(o.getIdentity());
+    for (EntityImpl o : database.browseClass("InnerDocCreation")) {
+      EntityImpl content = contentMap.get(o.getIdentity());
       Assert.assertTrue(content.hasSameContentOf(o));
     }
 
-    for (final YTEntityImpl o : database.browseClass("InnerDocCreation")) {
+    for (final EntityImpl o : database.browseClass("InnerDocCreation")) {
       final List<YTRID> traverse = traverseMap.remove(o.getIdentity());
       for (final YTIdentifiable id :
-          new OSQLSynchQuery<YTEntityImpl>("traverse * from " + o.getIdentity().toString())) {
+          new OSQLSynchQuery<EntityImpl>("traverse * from " + o.getIdentity().toString())) {
         Assert.assertTrue(traverse.remove(id.getIdentity()));
       }
       Assert.assertTrue(traverse.isEmpty());
@@ -1088,11 +1088,11 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   // TODO: fallback to legacy parser for invalid JSON
   /*public void testInnerDocCreationFieldTypes() throws IOException {
-    final YTEntityImpl adamDoc = new YTEntityImpl("InnerDocCreationFieldTypes");
+    final EntityImpl adamDoc = new EntityImpl("InnerDocCreationFieldTypes");
     adamDoc.fromJSON(new ByteArrayInputStream("{\"name\":\"adam\"}".getBytes(StandardCharsets.UTF_8)));
     adamDoc.save();
 
-    final YTEntityImpl eveDoc = new YTEntityImpl("InnerDocCreationFieldTypes");
+    final EntityImpl eveDoc = new EntityImpl("InnerDocCreationFieldTypes");
     final String jsonString =
         "{\"@type\":\"d\", \"@fieldTypes\" : \"friends=z\", \"name\":\"eve\",\"friends\":["
             + adamDoc.getIdentity()
@@ -1100,13 +1100,13 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     eveDoc.fromJSON(new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8)));
     eveDoc.save();
 
-    Map<YTRID, YTEntityImpl> contentMap = new HashMap<YTRID, YTEntityImpl>();
-    YTEntityImpl adam = new YTEntityImpl("InnerDocCreationFieldTypes");
+    Map<YTRID, EntityImpl> contentMap = new HashMap<YTRID, EntityImpl>();
+    EntityImpl adam = new EntityImpl("InnerDocCreationFieldTypes");
     adam.field("name", "adam");
 
     contentMap.put(adamDoc.getIdentity(), adam);
 
-    YTEntityImpl eve = new YTEntityImpl("InnerDocCreationFieldTypes");
+    EntityImpl eve = new EntityImpl("InnerDocCreationFieldTypes");
     eve.field("name", "eve");
 
     List<YTRID> friends = new ArrayList<YTRID>();
@@ -1127,15 +1127,15 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
     traverseMap.put(eveDoc.getIdentity(), eveTraverse);
 
-    for (YTEntityImpl o : database.browseClass("InnerDocCreationFieldTypes")) {
-      YTEntityImpl content = contentMap.get(o.getIdentity());
+    for (EntityImpl o : database.browseClass("InnerDocCreationFieldTypes")) {
+      EntityImpl content = contentMap.get(o.getIdentity());
       Assert.assertTrue(content.hasSameContentOf(o));
     }
 
-    for (YTEntityImpl o : database.browseClass("InnerDocCreationFieldTypes")) {
+    for (EntityImpl o : database.browseClass("InnerDocCreationFieldTypes")) {
       List<YTRID> traverse = traverseMap.remove(o.getIdentity());
       for (YTIdentifiable id :
-          new OSQLSynchQuery<YTEntityImpl>("traverse * from " + o.getIdentity().toString())) {
+          new OSQLSynchQuery<EntityImpl>("traverse * from " + o.getIdentity().toString())) {
         Assert.assertTrue(traverse.remove(id.getIdentity()));
       }
 
@@ -1154,11 +1154,11 @@ public class JSONStreamTest extends DocumentDBBaseTest {
       database.getMetadata().getSchema().createClass(classNameTwo);
     }
     database.begin();
-    final YTEntityImpl eveDoc = new YTEntityImpl(classNameOne);
+    final EntityImpl eveDoc = new EntityImpl(classNameOne);
     eveDoc.field("name", "eve");
     eveDoc.save();
 
-    final YTEntityImpl nestedWithTypeD = new YTEntityImpl(classNameTwo);
+    final EntityImpl nestedWithTypeD = new EntityImpl(classNameTwo);
     final String jsonString =
         "{\"@type\":\"d\",\"event_name\":\"world cup 2014\",\"admin\":[" + eveDoc.toJSON() + "]}";
     nestedWithTypeD.fromJSON(new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8)));
@@ -1166,14 +1166,14 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     database.commit();
     Assert.assertEquals(database.countClass(classNameOne), 1);
 
-    final Map<YTRID, YTEntityImpl> contentMap = new HashMap<>();
+    final Map<YTRID, EntityImpl> contentMap = new HashMap<>();
 
-    final YTEntityImpl eve = new YTEntityImpl(classNameOne);
+    final EntityImpl eve = new EntityImpl(classNameOne);
     eve.field("name", "eve");
     contentMap.put(eveDoc.getIdentity(), eve);
 
-    for (final YTEntityImpl document : database.browseClass(classNameOne)) {
-      final YTEntityImpl content = contentMap.get(document.getIdentity());
+    for (final EntityImpl document : database.browseClass(classNameOne)) {
+      final EntityImpl content = contentMap.get(document.getIdentity());
       Assert.assertTrue(content.hasSameContentOf(document));
     }
   }
@@ -1186,7 +1186,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     if (!database.getMetadata().getSchema().existsClass("JSONTxDocTwo")) {
       database.getMetadata().getSchema().createClass("JSONTxDocTwo");
     }
-    final YTEntityImpl adamDoc = new YTEntityImpl("JSONTxDocOne");
+    final EntityImpl adamDoc = new EntityImpl("JSONTxDocOne");
     adamDoc.field("name", "adam");
 
     database.begin();
@@ -1194,11 +1194,11 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    final YTEntityImpl eveDoc = new YTEntityImpl("JSONTxDocOne");
+    final EntityImpl eveDoc = new EntityImpl("JSONTxDocOne");
     eveDoc.field("name", "eve");
     eveDoc.save();
 
-    final YTEntityImpl nestedWithTypeD = new YTEntityImpl("JSONTxDocTwo");
+    final EntityImpl nestedWithTypeD = new EntityImpl("JSONTxDocTwo");
     final String jsonString =
         "{\"@type\":\"d\",\"event_name\":\"world cup 2014\",\"admin\":["
             + eveDoc.toJSON()
@@ -1210,23 +1210,23 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     database.commit();
     Assert.assertEquals(database.countClass("JSONTxDocOne"), 2);
 
-    final Map<YTRID, YTEntityImpl> contentMap = new HashMap<>();
-    final YTEntityImpl adam = new YTEntityImpl("JSONTxDocOne");
+    final Map<YTRID, EntityImpl> contentMap = new HashMap<>();
+    final EntityImpl adam = new EntityImpl("JSONTxDocOne");
     adam.field("name", "adam");
     contentMap.put(adamDoc.getIdentity(), adam);
 
-    final YTEntityImpl eve = new YTEntityImpl("JSONTxDocOne");
+    final EntityImpl eve = new EntityImpl("JSONTxDocOne");
     eve.field("name", "eve");
     contentMap.put(eveDoc.getIdentity(), eve);
 
-    for (final YTEntityImpl o : database.browseClass("JSONTxDocOne")) {
-      final YTEntityImpl content = contentMap.get(o.getIdentity());
+    for (final EntityImpl o : database.browseClass("JSONTxDocOne")) {
+      final EntityImpl content = contentMap.get(o.getIdentity());
       Assert.assertTrue(content.hasSameContentOf(o));
     }
   }
 
   public void testInvalidLink() throws IOException {
-    final YTEntityImpl nullRefDoc = new YTEntityImpl();
+    final EntityImpl nullRefDoc = new EntityImpl();
     nullRefDoc.fromJSON(
         new ByteArrayInputStream(
             "{\"name\":\"Luca\", \"ref\":\"#-1:-1\"}".getBytes(StandardCharsets.UTF_8)));
@@ -1240,7 +1240,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   }
 
   public void testOtherJson() throws IOException {
-    new YTEntityImpl()
+    new EntityImpl()
         .fromJSON(
             new ByteArrayInputStream(
                 "{\"Salary\":1500.0,\"Type\":\"Person\",\"Address\":[{\"Zip\":\"JX2 MSX\",\"Type\":\"Home\",\"Street1\":\"13 Marge Street\",\"Country\":\"Holland\",\"Id\":\"Address-28813211\",\"City\":\"Amsterdam\",\"From\":\"1996-02-01\",\"To\":\"1998-01-01\"},{\"Zip\":\"90210\",\"Type\":\"Work\",\"Street1\":\"100 Hollywood Drive\",\"Country\":\"USA\",\"Id\":\"Address-11595040\",\"City\":\"Los Angeles\",\"From\":\"2009-09-01\"}],\"Id\":\"Person-7464251\",\"Name\":\"Stan\"}"
@@ -1249,12 +1249,12 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   @Test
   public void testNumericFloatListScientific() throws IOException {
-    final YTEntityImpl documentSource = new YTEntityImpl();
+    final EntityImpl documentSource = new EntityImpl();
     documentSource.fromJSON(
         new ByteArrayInputStream(
             "{\"list\" : [-9.27415E-31,741800E+290]}".getBytes(StandardCharsets.UTF_8)));
 
-    final YTEntityImpl documentTarget = new YTEntityImpl();
+    final EntityImpl documentTarget = new EntityImpl();
     documentTarget.fromStream(documentSource.toStream());
 
     final TrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
@@ -1264,7 +1264,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   @Test
   public void testScientificNotation() throws IOException {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     doc.fromJSON(
         new ByteArrayInputStream(
             "{'number1': -9.2741500e-31, 'number2': 741800E+290}"

@@ -15,7 +15,7 @@ package com.orientechnologies.orient.jdbc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.ResultSet;

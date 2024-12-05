@@ -15,13 +15,13 @@ package com.orientechnologies.spatial;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.orientechnologies.lucene.test.BaseLuceneTest;
 import java.io.File;
 import java.io.InputStream;
@@ -94,7 +94,7 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
           int i = 0;
           while ((line = lnr.readLine()) != null) {
             String[] nextLine = line.split(",");
-            YTEntityImpl doc = new YTEntityImpl("Place");
+            EntityImpl doc = new EntityImpl("Place");
             doc.field("name", nextLine[3]);
             doc.field("country", nextLine[1]);
             try {

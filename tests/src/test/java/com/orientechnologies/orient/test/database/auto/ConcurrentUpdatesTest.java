@@ -15,10 +15,10 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.concur.YTNeedRetryException;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.common.concur.YTNeedRetryException;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.concurrent.atomic.AtomicLong;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
@@ -65,11 +65,11 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
             try {
               db.begin();
 
-              YTEntityImpl vDoc1 = db.load(rid1);
+              EntityImpl vDoc1 = db.load(rid1);
               vDoc1.field(threadName, vDoc1.field(threadName) + ";" + i);
               vDoc1.save();
 
-              YTEntityImpl vDoc2 = db.load(rid2);
+              EntityImpl vDoc2 = db.load(rid2);
               vDoc2.field(threadName, vDoc2.field(threadName) + ";" + i);
               vDoc2.save();
 
@@ -151,7 +151,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
     YTDatabaseSessionInternal database = acquireSession();
 
-    YTEntityImpl doc1 = database.newInstance();
+    EntityImpl doc1 = database.newInstance();
     doc1.field("INIT", "ok");
     database.begin();
     database.save(doc1);
@@ -159,7 +159,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
     YTRID rid1 = doc1.getIdentity();
 
-    YTEntityImpl doc2 = database.newInstance();
+    EntityImpl doc2 = database.newInstance();
     doc2.field("INIT", "ok");
 
     database.begin();
@@ -222,7 +222,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
     counter.set(0);
 
     YTDatabaseSessionInternal database = acquireSession();
-    YTEntityImpl doc1 = database.newInstance();
+    EntityImpl doc1 = database.newInstance();
     doc1.field("total", 0);
 
     database.begin();

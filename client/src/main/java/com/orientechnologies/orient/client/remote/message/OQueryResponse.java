@@ -2,16 +2,16 @@ package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.serialization.serializer.record.ORecordSerializer;
-import com.orientechnologies.core.sql.executor.OExecutionPlan;
-import com.orientechnologies.core.sql.executor.OExecutionStep;
-import com.orientechnologies.core.sql.executor.OInfoExecutionPlan;
-import com.orientechnologies.core.sql.executor.OInfoExecutionStep;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionStep;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.OInfoExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.OInfoExecutionStep;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -124,7 +124,7 @@ public class OQueryResponse implements OBinaryResponse {
       ORecordSerializer recordSerializer)
       throws IOException {
     if (executionPlan.isPresent()
-        && YTGlobalConfiguration.QUERY_REMOTE_SEND_EXECUTION_PLAN.getValueAsBoolean()) {
+        && GlobalConfiguration.QUERY_REMOTE_SEND_EXECUTION_PLAN.getValueAsBoolean()) {
       channel.writeBoolean(true);
       OMessageHelper.writeResult(session, executionPlan.get().toResult(session), channel,
           recordSerializer);

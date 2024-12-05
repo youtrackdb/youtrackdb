@@ -20,16 +20,16 @@ package com.orientechnologies.spatial;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.core.command.OCommandOutputListener;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.tool.ODatabaseImport;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseImport;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.handler.OAutomaticBackup;
@@ -121,20 +121,20 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
 
     db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
 
-    YTEntityImpl rome = newCity("Rome", 12.5, 41.9);
+    EntityImpl rome = newCity("Rome", 12.5, 41.9);
 
     db.begin();
     db.save(rome);
     db.commit();
   }
 
-  protected YTEntityImpl newCity(String name, final Double longitude, final Double latitude) {
-    YTEntityImpl city =
-        new YTEntityImpl("City")
+  protected EntityImpl newCity(String name, final Double longitude, final Double latitude) {
+    EntityImpl city =
+        new EntityImpl("City")
             .field("name", name)
             .field(
                 "location",
-                new YTEntityImpl("OPoint")
+                new EntityImpl("OPoint")
                     .field(
                         "coordinates",
                         new ArrayList<Double>() {
@@ -175,8 +175,8 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
         OIOUtils.readStreamAsString(
             getClass().getClassLoader().getResourceAsStream("automatic-backup.json"));
 
-    YTEntityImpl doc =
-        new YTEntityImpl();
+    EntityImpl doc =
+        new EntityImpl();
     doc.fromJSON(jsonConfig);
     doc.field("enabled", true)
         .field("targetFileName", "${DBNAME}.json")

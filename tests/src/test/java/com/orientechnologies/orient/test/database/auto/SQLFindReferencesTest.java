@@ -15,12 +15,12 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import java.util.ArrayList;
 import java.util.List;
 import org.testng.Assert;
@@ -143,43 +143,43 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
 
   private void populateDatabase() {
     database.begin();
-    YTEntityImpl car = new YTEntityImpl(CAR);
+    EntityImpl car = new EntityImpl(CAR);
     car.field("plate", "JINF223S");
 
-    YTEntityImpl johnDoe = new YTEntityImpl(WORKER);
+    EntityImpl johnDoe = new EntityImpl(WORKER);
     johnDoe.field("name", "John");
     johnDoe.field("surname", "Doe");
     johnDoe.field("car", car);
     johnDoe.save();
 
-    YTEntityImpl janeDoe = new YTEntityImpl(WORKER);
+    EntityImpl janeDoe = new EntityImpl(WORKER);
     janeDoe.field("name", "Jane");
     janeDoe.field("surname", "Doe");
     janeDoe.save();
 
-    YTEntityImpl chuckNorris = new YTEntityImpl(WORKER);
+    EntityImpl chuckNorris = new EntityImpl(WORKER);
     chuckNorris.field("name", "Chuck");
     chuckNorris.field("surname", "Norris");
     chuckNorris.save();
 
-    YTEntityImpl jackBauer = new YTEntityImpl(WORKER);
+    EntityImpl jackBauer = new EntityImpl(WORKER);
     jackBauer.field("name", "Jack");
     jackBauer.field("surname", "Bauer");
     jackBauer.save();
 
-    YTEntityImpl ctu = new YTEntityImpl(WORKPLACE);
+    EntityImpl ctu = new EntityImpl(WORKPLACE);
     ctu.field("name", "CTU");
     ctu.field("boss", jackBauer);
-    List<YTEntityImpl> workplace1Workers = new ArrayList<YTEntityImpl>();
+    List<EntityImpl> workplace1Workers = new ArrayList<EntityImpl>();
     workplace1Workers.add(chuckNorris);
     workplace1Workers.add(janeDoe);
     ctu.field("workers", workplace1Workers);
     ctu.save();
 
-    YTEntityImpl fbi = new YTEntityImpl(WORKPLACE);
+    EntityImpl fbi = new EntityImpl(WORKPLACE);
     fbi.field("name", "FBI");
     fbi.field("boss", chuckNorris);
-    List<YTEntityImpl> workplace2Workers = new ArrayList<YTEntityImpl>();
+    List<EntityImpl> workplace2Workers = new ArrayList<EntityImpl>();
     workplace2Workers.add(chuckNorris);
     workplace2Workers.add(jackBauer);
     fbi.field("workers", workplace2Workers);

@@ -18,17 +18,17 @@
 
 package com.orientechnologies.lucene.collections;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngineAbstract;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngineUtils;
 import com.orientechnologies.lucene.exception.YTLuceneIndexException;
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
 import com.orientechnologies.lucene.tx.OLuceneTxChangesAbstract;
-import com.orientechnologies.core.command.OCommandContext;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.id.YTContextualRecordId;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.id.YTContextualRecordId;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;

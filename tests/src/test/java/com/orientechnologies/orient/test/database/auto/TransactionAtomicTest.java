@@ -15,19 +15,19 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.command.OCommandExecutor;
-import com.orientechnologies.core.command.OCommandRequestText;
-import com.orientechnologies.core.db.YTDatabaseListener;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.exception.YTConcurrentModificationException;
-import com.orientechnologies.core.exception.YTTransactionException;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.ORecordInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.OCommandSQL;
-import com.orientechnologies.core.storage.YTRecordDuplicatedException;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandExecutor;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseListener;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConcurrentModificationException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTTransactionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.storage.YTRecordDuplicatedException;
 import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
@@ -47,7 +47,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     YTDatabaseSessionInternal db1 = acquireSession();
     YTDatabaseSessionInternal db2 = acquireSession();
 
-    YTEntityImpl record1 = new YTEntityImpl();
+    EntityImpl record1 = new EntityImpl();
 
     db2.begin();
     record1
@@ -58,7 +58,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     // RE-READ THE RECORD
     db2.activateOnCurrentThread();
     db2.begin();
-    YTEntityImpl record2 = db2.load(record1.getIdentity());
+    EntityImpl record2 = db2.load(record1.getIdentity());
 
     record2.field("value", "This is the second version").save();
     db2.commit();
@@ -82,7 +82,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
   @Test
   public void testMVCC() throws IOException {
 
-    YTEntityImpl doc = new YTEntityImpl("Account");
+    EntityImpl doc = new EntityImpl("Account");
     database.begin();
     doc.field("version", 0);
     doc.save();
@@ -104,7 +104,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
 
   @Test
   public void testTransactionPreListenerRollback() throws IOException {
-    YTEntityImpl record1 = new YTEntityImpl();
+    EntityImpl record1 = new EntityImpl();
 
     database.begin();
     record1
@@ -204,12 +204,12 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     try {
       database.begin();
 
-      YTEntityImpl apple = new YTEntityImpl("Fruit").field("name", "Apple").field("color", "Red");
-      YTEntityImpl orange = new YTEntityImpl("Fruit").field("name", "Orange")
+      EntityImpl apple = new EntityImpl("Fruit").field("name", "Apple").field("color", "Red");
+      EntityImpl orange = new EntityImpl("Fruit").field("name", "Orange")
           .field("color", "Orange");
-      YTEntityImpl banana = new YTEntityImpl("Fruit").field("name", "Banana")
+      EntityImpl banana = new EntityImpl("Fruit").field("name", "Banana")
           .field("color", "Yellow");
-      YTEntityImpl kumquat = new YTEntityImpl("Fruit").field("name", "Kumquat")
+      EntityImpl kumquat = new EntityImpl("Fruit").field("name", "Kumquat")
           .field("color", "Orange");
 
       apple.save();

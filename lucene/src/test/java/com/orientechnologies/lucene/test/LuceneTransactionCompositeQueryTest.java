@@ -20,13 +20,13 @@ package com.orientechnologies.lucene.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -54,7 +54,7 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
   @Test
   public void testRollback() {
 
-    YTEntityImpl doc = new YTEntityImpl("Foo");
+    EntityImpl doc = new EntityImpl("Foo");
     doc.field("name", "Test");
     doc.field("bar", "abc");
     db.begin();
@@ -75,7 +75,7 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
   public void txRemoveTest() {
     db.begin();
 
-    YTEntityImpl doc = new YTEntityImpl("Foo");
+    EntityImpl doc = new EntityImpl("Foo");
     doc.field("name", "Test");
     doc.field("bar", "abc");
 
@@ -129,7 +129,7 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
     db.begin();
     Assert.assertEquals(index.getInternal().size(db), 0);
 
-    YTEntityImpl doc = new YTEntityImpl("Foo");
+    EntityImpl doc = new EntityImpl("Foo");
     doc.field("name", "Test");
     doc.field("bar", "abc");
 
@@ -196,11 +196,11 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
     db.begin();
     Assert.assertEquals(index.getInternal().size(db), 0);
 
-    YTEntityImpl doc = new YTEntityImpl("Foo");
+    EntityImpl doc = new EntityImpl("Foo");
     doc.field("name", "Test");
     doc.field("bar", "abc");
 
-    YTEntityImpl doc1 = new YTEntityImpl("Foo");
+    EntityImpl doc1 = new EntityImpl("Foo");
     doc1.field("name", "Test");
     doc1.field("bar", "abc");
 

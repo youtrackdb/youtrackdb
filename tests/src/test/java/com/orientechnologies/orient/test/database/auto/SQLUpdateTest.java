@@ -15,16 +15,16 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTEntity;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -172,7 +172,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
       database.begin();
       Assert.assertEquals(records, 1);
 
-      YTEntityImpl loadedDoc = database.load(doc.getRecordId());
+      EntityImpl loadedDoc = database.load(doc.getRecordId());
       Assert.assertEquals(((List<?>) loadedDoc.field("addresses")).size(), 3);
       Assert.assertEquals(
           ((YTIdentifiable) ((List<?>) loadedDoc.field("addresses")).get(0)).getIdentity(),
@@ -188,7 +188,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   public void updateMapsWithSetOperator() {
 
     database.begin();
-    YTEntity element =
+    Entity element =
         database
             .command(
                 "insert into O (equaledges, name, properties) values ('no',"
@@ -211,7 +211,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(records, 1);
 
-    YTEntity loadedElement = database.load(element.getIdentity());
+    Entity loadedElement = database.load(element.getIdentity());
 
     Assert.assertTrue(loadedElement.getProperty("properties") instanceof Map);
 
@@ -257,7 +257,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
     database.createClass("Person");
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("Person");
+    EntityImpl doc = new EntityImpl("Person");
     doc.field("name", "Raf");
     doc.field("city", "Torino");
     doc.field("gender", "fmale");
@@ -300,7 +300,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   }
 
   public void updateWithReturn() {
-    YTEntityImpl doc = new YTEntityImpl("Data");
+    EntityImpl doc = new EntityImpl("Data");
     database.begin();
     doc.field("name", "Pawel");
     doc.field("city", "Wroclaw");
@@ -345,7 +345,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
   @Test
   public void updateWithNamedParameters() {
-    YTEntityImpl doc = new YTEntityImpl("Data");
+    EntityImpl doc = new EntityImpl("Data");
 
     database.begin();
     doc.field("name", "Raf");
@@ -478,7 +478,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     schema.createClass("FormatEscapingTest");
 
     database.begin();
-    YTEntityImpl document = new YTEntityImpl("FormatEscapingTest");
+    EntityImpl document = new EntityImpl("FormatEscapingTest");
     document.save();
     database.commit();
 
@@ -685,7 +685,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
       if (!iteratorClass.hasNext()) {
         break;
       }
-      YTEntityImpl doc = iteratorClass.next();
+      EntityImpl doc = iteratorClass.next();
       positions.add(doc.getIdentity());
     }
     return positions;
@@ -693,7 +693,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
   public void testMultiplePut() {
     database.begin();
-    YTEntityImpl v = database.newInstance("V");
+    EntityImpl v = database.newInstance("V");
     v.save();
     database.commit();
 
@@ -744,7 +744,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    YTEntity doc = database.load(id);
+    Entity doc = database.load(id);
 
     Assert.assertTrue(doc.getProperty("embeddedListWithLinkedClass") instanceof List);
     Assert.assertEquals(((Collection) doc.getProperty("embeddedListWithLinkedClass")).size(), 2);
@@ -765,8 +765,8 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
     List addr = doc.getProperty("embeddedListWithLinkedClass");
     for (Object o : addr) {
-      Assert.assertTrue(o instanceof YTEntityImpl);
-      Assert.assertEquals(((YTEntityImpl) o).getClassName(), "TestConvertLinkedClass");
+      Assert.assertTrue(o instanceof EntityImpl);
+      Assert.assertEquals(((EntityImpl) o).getClassName(), "TestConvertLinkedClass");
     }
   }
 

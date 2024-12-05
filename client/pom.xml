@@ -34,7 +34,7 @@
       -ea
       -Xmx${heapSize}
       -Dmemory.directMemory.trackMode=true
-      -Djava.util.logging.manager=com.orientechnologies.common.log.ShutdownLogManager
+      -Djava.util.logging.manager=com.jetbrains.youtrack.db.internal.common.log.ShutdownLogManager
       -Dstorage.diskCache.checksumMode=storeAndThrow
       -Dstorage.diskCache.bufferSize=4096
       -Dsecurity.warningDefaultUsers=false
@@ -73,7 +73,7 @@
           <properties>
             <property>
               <name>listener</name>
-              <value>com.orientechnologies.OJUnitTestListener</value>
+              <value>com.jetbrains.youtrack.db.internal.JUnitTestListener</value>
             </property>
           </properties>
         </configuration>

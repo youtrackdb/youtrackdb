@@ -15,21 +15,21 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.exception.YTValidationException;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.iterator.ORecordIteratorCluster;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTEntity;
-import com.orientechnologies.core.record.YTRecord;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.OCommandSQL;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
-import com.orientechnologies.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.YTValidationException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.iterator.ORecordIteratorCluster;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -76,7 +76,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
 
     for (int i = 0; i < 30; i++) {
       database.begin();
-      new YTEntityImpl("Address").save();
+      new EntityImpl("Address").save();
       database.commit();
     }
     List<Long> positions = getValidPositions(addressId);
@@ -86,7 +86,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    YTEntity doc =
+    Entity doc =
         database
             .command(
                 "insert into Profile (name, surname, salary, location, dummy) values"
@@ -141,7 +141,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     List<Long> positions = getValidPositions(addressId);
 
     database.begin();
-    YTEntity doc =
+    Entity doc =
         database
             .command(
                 "insert into Profile (name, surname, salary, location, dummy) values"
@@ -199,7 +199,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
   @SuppressWarnings("unchecked")
   public void insertMap() {
     database.begin();
-    YTEntity doc =
+    Entity doc =
         database
             .command(
                 "insert into O (equaledges, name, properties) values ('no',"
@@ -255,7 +255,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
   @SuppressWarnings("unchecked")
   public void insertList() {
     database.begin();
-    YTEntity doc =
+    Entity doc =
         database
             .command(
                 "insert into O (equaledges, name, list) values ('yes',"
@@ -348,7 +348,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     usersCount.close();
 
     database.begin();
-    YTEntity doc =
+    Entity doc =
         database
             .command("INSERT INTO test SET names = (select name from OUser)")
             .next()
@@ -405,7 +405,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     database.commit();
     Assert.assertNotNull(result);
 
-    YTEntityImpl record = result.getRecord();
+    EntityImpl record = result.getRecord();
 
     record = database.bindToSession(record);
     Assert.assertEquals(record.<Object>field("id"), 3232);
@@ -434,8 +434,8 @@ public class SQLInsertTest extends DocumentDBBaseTest {
         database.query(new OSQLSynchQuery<YTIdentifiable>("select from UserCopy"));
     Assert.assertEquals(result.size(), 2);
     for (YTIdentifiable r : result) {
-      Assert.assertEquals(((YTEntityImpl) r.getRecord()).getClassName(), "UserCopy");
-      Assert.assertNotSame(((YTEntityImpl) r.getRecord()).field("name"), "admin");
+      Assert.assertEquals(((EntityImpl) r.getRecord()).getClassName(), "UserCopy");
+      Assert.assertNotSame(((EntityImpl) r.getRecord()).field("name"), "admin");
     }
   }
 
@@ -457,7 +457,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     }
 
     // RETURN with $current.
-    YTEntityImpl doc =
+    EntityImpl doc =
         database
             .command(new OCommandSQL("INSERT INTO Actor2 SET FirstName=\"FFFF\" RETURN $current"))
             .execute(database);
@@ -488,8 +488,8 @@ public class SQLInsertTest extends DocumentDBBaseTest {
                 + "]";
         List res3 = database.command(new OCommandSQL(sql)).execute(database);
         Assert.assertEquals(res3.size(), 2);
-        Assert.assertTrue(((List<?>) res3).get(0) instanceof YTEntityImpl);
-        final YTEntityImpl res3doc = (YTEntityImpl) res3.get(0);
+        Assert.assertTrue(((List<?>) res3).get(0) instanceof EntityImpl);
+        final EntityImpl res3doc = (EntityImpl) res3.get(0);
         Assert.assertTrue(res3doc.containsField("result"));
         Assert.assertTrue(
             "FFFF".equalsIgnoreCase(res3doc.field("result"))
@@ -517,7 +517,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
               + "return $var2";
       try (var resSql3ResultSet = database.command(sql3)) {
         var res_sql3 = resSql3ResultSet.next().<YTIdentifiable>getProperty("$var2");
-        final YTEntityImpl sql3doc = res_sql3.getRecord();
+        final EntityImpl sql3doc = res_sql3.getRecord();
         Assert.assertEquals(sql3doc.<Object>field("Bingo"), 1);
         Assert.assertEquals(sql3doc.field("Name"), "Bingo owner");
       }
@@ -530,7 +530,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     c.createProperty(database, "embeddedSetNoLinkedClass", YTType.EMBEDDEDSET);
 
     database.begin();
-    YTEntity doc =
+    Entity doc =
         database
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedSetNoLinkedClass',"
@@ -558,7 +558,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
         database.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
 
     database.begin();
-    YTEntity doc =
+    Entity doc =
         database
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedSetWithLinkedClass',"
@@ -573,8 +573,8 @@ public class SQLInsertTest extends DocumentDBBaseTest {
 
     Set addr = doc.getProperty("embeddedSetWithLinkedClass");
     for (Object o : addr) {
-      Assert.assertTrue(o instanceof YTEntityImpl);
-      Assert.assertEquals(((YTEntityImpl) o).getClassName(), "TestConvertLinkedClass");
+      Assert.assertTrue(o instanceof EntityImpl);
+      Assert.assertEquals(((EntityImpl) o).getClassName(), "TestConvertLinkedClass");
     }
   }
 
@@ -584,7 +584,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     c.createProperty(database, "embeddedListNoLinkedClass", YTType.EMBEDDEDLIST);
 
     database.begin();
-    YTEntity doc =
+    Entity doc =
         database
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedListNoLinkedClass',"
@@ -614,7 +614,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    YTEntity doc =
+    Entity doc =
         database
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedListWithLinkedClass',"
@@ -630,8 +630,8 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     List addr = doc.getProperty("embeddedListWithLinkedClass");
     for (Object o : addr) {
       database.begin();
-      Assert.assertTrue(o instanceof YTEntityImpl);
-      Assert.assertEquals(((YTEntityImpl) o).getClassName(), "TestConvertLinkedClass");
+      Assert.assertTrue(o instanceof EntityImpl);
+      Assert.assertEquals(((EntityImpl) o).getClassName(), "TestConvertLinkedClass");
       database.commit();
     }
   }
@@ -642,7 +642,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     c.createProperty(database, "embeddedMapNoLinkedClass", YTType.EMBEDDEDMAP);
 
     database.begin();
-    YTEntity doc =
+    Entity doc =
         database
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedMapNoLinkedClass',"
@@ -685,8 +685,8 @@ public class SQLInsertTest extends DocumentDBBaseTest {
 
     Map addr = doc.getProperty("embeddedMapWithLinkedClass");
     for (Object o : addr.values()) {
-      Assert.assertTrue(o instanceof YTEntityImpl);
-      Assert.assertEquals(((YTEntityImpl) o).getClassName(), "TestConvertLinkedClass");
+      Assert.assertTrue(o instanceof EntityImpl);
+      Assert.assertEquals(((EntityImpl) o).getClassName(), "TestConvertLinkedClass");
     }
   }
 
@@ -707,7 +707,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     database.commit();
 
     doc = database.bindToSession(doc);
-    Assert.assertTrue(doc.getProperty("embeddedNoLinkedClass") instanceof YTEntityImpl);
+    Assert.assertTrue(doc.getProperty("embeddedNoLinkedClass") instanceof EntityImpl);
   }
 
   @Test
@@ -755,7 +755,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
         database.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
 
     database.begin();
-    YTEntity doc =
+    Entity doc =
         database
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedWithLinkedClass',"
@@ -766,9 +766,9 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     database.commit();
 
     doc = database.bindToSession(doc);
-    Assert.assertTrue(doc.getProperty("embeddedWithLinkedClass") instanceof YTEntityImpl);
+    Assert.assertTrue(doc.getProperty("embeddedWithLinkedClass") instanceof EntityImpl);
     Assert.assertEquals(
-        ((YTEntityImpl) doc.getProperty("embeddedWithLinkedClass")).getClassName(),
+        ((EntityImpl) doc.getProperty("embeddedWithLinkedClass")).getClassName(),
         "TestConvertLinkedClass");
   }
 
@@ -781,7 +781,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
         database.getMetadata().getSchema().getOrCreateClass("EmbeddedWithRecordAttributes_Like"));
 
     database.begin();
-    YTEntity doc =
+    Entity doc =
         database
             .command(
                 "INSERT INTO EmbeddedWithRecordAttributes SET `like` = { \n"
@@ -798,9 +798,9 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     doc = database.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("like") instanceof YTIdentifiable);
     Assert.assertEquals(
-        ((YTEntityImpl) doc.getProperty("like")).getClassName(),
+        ((EntityImpl) doc.getProperty("like")).getClassName(),
         "EmbeddedWithRecordAttributes_Like");
-    Assert.assertEquals(((YTEntity) doc.getProperty("like")).<Object>getProperty("count"), 0);
+    Assert.assertEquals(((Entity) doc.getProperty("like")).<Object>getProperty("count"), 0);
   }
 
   @Test
@@ -813,7 +813,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
         database.getMetadata().getSchema().getOrCreateClass("EmbeddedWithRecordAttributes2_Like"));
 
     database.begin();
-    YTEntity doc =
+    Entity doc =
         database
             .command(
                 "INSERT INTO EmbeddedWithRecordAttributes2 SET `like` = { \n"
@@ -830,9 +830,9 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     doc = database.bindToSession(doc);
     Assert.assertTrue(doc.getProperty("like") instanceof YTIdentifiable);
     Assert.assertEquals(
-        ((YTEntityImpl) doc.getProperty("like")).getClassName(),
+        ((EntityImpl) doc.getProperty("like")).getClassName(),
         "EmbeddedWithRecordAttributes2_Like");
-    Assert.assertEquals(((YTEntity) doc.getProperty("like")).<Object>getProperty("count"), 0);
+    Assert.assertEquals(((Entity) doc.getProperty("like")).<Object>getProperty("count"), 0);
   }
 
   @Test
@@ -887,7 +887,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
       if (!iteratorCluster.hasNext()) {
         break;
       }
-      YTRecord doc = iteratorCluster.next();
+      Record doc = iteratorCluster.next();
       positions.add(doc.getIdentity().getClusterPosition());
     }
     return positions;

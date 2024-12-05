@@ -15,13 +15,13 @@ package com.orientechnologies.orient.jdbc;
 
 import static java.lang.Boolean.parseBoolean;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.exception.YTQueryParsingException;
-import com.orientechnologies.core.sql.executor.YTInternalResultSet;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultInternal;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.YTQueryParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTInternalResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -47,7 +47,7 @@ public class OrientJdbcStatement implements Statement {
   protected final Properties info;
   //   protected OCommandSQL               sql;
   protected String sql;
-  //  protected       List<YTEntityImpl>      documents;
+  //  protected       List<EntityImpl>      documents;
   protected boolean closed;
   protected YTResultSet oResultSet;
   protected OrientJdbcResultSet resultSet;

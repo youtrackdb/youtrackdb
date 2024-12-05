@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -74,7 +74,7 @@ public class OServerCommandPostServer extends OServerCommandAuthenticatedServerA
   private void changeConfiguration(
       final OHttpResponse iResponse, final String settingName, final String settingValue)
       throws IOException {
-    final YTGlobalConfiguration cfg = YTGlobalConfiguration.findByKey(settingName);
+    final GlobalConfiguration cfg = GlobalConfiguration.findByKey(settingName);
     if (cfg != null) {
       final Object oldValue = cfg.getValue();
 

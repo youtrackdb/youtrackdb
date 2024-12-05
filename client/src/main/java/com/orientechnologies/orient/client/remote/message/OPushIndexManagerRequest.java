@@ -1,24 +1,24 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import static com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol.REQUEST_PUSH_INDEX_MANAGER;
+import static com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol.REQUEST_PUSH_INDEX_MANAGER;
 
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 
 public class OPushIndexManagerRequest implements OBinaryPushRequest<OBinaryPushResponse> {
 
-  private YTEntityImpl indexManager;
+  private EntityImpl indexManager;
 
   public OPushIndexManagerRequest() {
   }
 
-  public OPushIndexManagerRequest(YTEntityImpl indexManager) {
+  public OPushIndexManagerRequest(EntityImpl indexManager) {
     this.indexManager = indexManager;
   }
 
@@ -33,7 +33,7 @@ public class OPushIndexManagerRequest implements OBinaryPushRequest<OBinaryPushR
   public void read(YTDatabaseSessionInternal db, OChannelDataInput network) throws IOException {
     byte[] bytes = network.readBytes();
     this.indexManager =
-        (YTEntityImpl) ORecordSerializerNetworkV37Client.INSTANCE.fromStream(db, bytes, null);
+        (EntityImpl) ORecordSerializerNetworkV37Client.INSTANCE.fromStream(db, bytes, null);
   }
 
   @Override
@@ -52,7 +52,7 @@ public class OPushIndexManagerRequest implements OBinaryPushRequest<OBinaryPushR
     return REQUEST_PUSH_INDEX_MANAGER;
   }
 
-  public YTEntityImpl getIndexManager() {
+  public EntityImpl getIndexManager() {
     return indexManager;
   }
 }

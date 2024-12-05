@@ -1,13 +1,13 @@
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.document.YTDatabaseDocumentTx;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.File;
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,7 +40,7 @@ public class LuceneFreezeReleaseTest {
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE").close();
 
     db.begin();
-    db.save(new YTEntityImpl("Person").field("name", "John"));
+    db.save(new EntityImpl("Person").field("name", "John"));
     db.commit();
 
     try {
@@ -55,7 +55,7 @@ public class LuceneFreezeReleaseTest {
       db.release();
 
       db.begin();
-      db.save(new YTEntityImpl("Person").field("name", "John"));
+      db.save(new EntityImpl("Person").field("name", "John"));
       db.commit();
 
       results = db.query("select from Person where name lucene 'John'");
@@ -85,7 +85,7 @@ public class LuceneFreezeReleaseTest {
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE").close();
 
     db.begin();
-    db.save(new YTEntityImpl("Person").field("name", "John"));
+    db.save(new EntityImpl("Person").field("name", "John"));
     db.commit();
 
     try {
@@ -104,7 +104,7 @@ public class LuceneFreezeReleaseTest {
       db.release();
 
       db.begin();
-      db.save(new YTEntityImpl("Person").field("name", "John"));
+      db.save(new EntityImpl("Person").field("name", "John"));
       db.commit();
 
       results = db.query("select from Person where name lucene 'John'");

@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -39,11 +39,11 @@ public class SQLEscapingTest extends DocumentDBBaseTest {
   // \"\\u005C\\u005C\" = \"\\u005C\\u005C\"")).execute();
   //    Assert.assertEquals(result.size(), result0.size());
   //
-  //    YTEntityImpl document0 = database.command(new OCommandSQL("insert into Thing set value =
+  //    EntityImpl document0 = database.command(new OCommandSQL("insert into Thing set value =
   // \"\\u005C\\u005C\"")).execute();
   //    Assert.assertEquals("\\", document0.field("value"));
   //
-  //    YTEntityImpl document1 = database.command(new OCommandSQL("insert into Thing set value =
+  //    EntityImpl document1 = database.command(new OCommandSQL("insert into Thing set value =
   // \"\\\\\"")).execute();
   //    Assert.assertEquals("\\", document1.field("value"));
   //
@@ -52,7 +52,7 @@ public class SQLEscapingTest extends DocumentDBBaseTest {
   //    Assert.assertEquals(result.size(), list1.size());
   //
   //    try {
-  //      YTEntityImpl document2 = database.command(new OCommandSQL("insert into Thing set value =
+  //      EntityImpl document2 = database.command(new OCommandSQL("insert into Thing set value =
   // \"\\\"")).execute();
   //      Assert.assertTrue(false);
   //    } catch (Exception e) {

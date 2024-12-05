@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.distributed.task;
 
-import com.orientechnologies.common.concur.YTNeedRetryException;
-import com.orientechnologies.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.common.concur.YTNeedRetryException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.orientechnologies.orient.server.distributed.ODistributedRequestId;
 
 /**

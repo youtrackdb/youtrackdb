@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.OStringSerializerHelper;
-import com.orientechnologies.core.serialization.serializer.record.string.ORecordSerializerCSVAbstract;
+import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.ORecordSerializerCSVAbstract;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -98,7 +98,7 @@ public class OServerCommandPostImportRecords extends OServerCommandDocumentAbstr
               break;
             }
 
-            final YTEntityImpl doc = new YTEntityImpl(cls);
+            final EntityImpl doc = new EntityImpl(cls);
             final String row = parsedRow.trim();
             final List<String> cells = OStringSerializerHelper.smartSplit(row, CSV_SEPARATOR);
 

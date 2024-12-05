@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -53,8 +53,8 @@ public class IndexTxTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final YTEntityImpl doc1 = new YTEntityImpl("IndexTxTestClass");
-    final YTEntityImpl doc2 = new YTEntityImpl("IndexTxTestClass");
+    final EntityImpl doc1 = new EntityImpl("IndexTxTestClass");
+    final EntityImpl doc2 = new EntityImpl("IndexTxTestClass");
 
     doc1.save();
     doc2.save();

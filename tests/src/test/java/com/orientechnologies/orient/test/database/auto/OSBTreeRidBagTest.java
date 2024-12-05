@@ -16,17 +16,17 @@
 
 package com.orientechnologies.orient.test.database.auto;
 
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.remote.OEngineRemote;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.db.record.ridbag.RidBag;
-import com.orientechnologies.core.engine.memory.OEngineMemory;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.storage.cache.local.OWOWCache;
-import com.orientechnologies.core.storage.disk.OLocalPaginatedStorage;
-import com.orientechnologies.core.storage.ridbag.sbtree.OSBTreeCollectionManagerShared;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
+import com.jetbrains.youtrack.db.internal.core.engine.memory.OEngineMemory;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.local.OWOWCache;
+import com.jetbrains.youtrack.db.internal.core.storage.disk.OLocalPaginatedStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OSBTreeCollectionManagerShared;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,38 +66,38 @@ public class OSBTreeRidBagTest extends ORidBagTest {
   @BeforeMethod
   public void beforeMethod() throws IOException {
     topThreshold =
-        YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
+        GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
     bottomThreshold =
-        YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.getValueAsInteger();
+        GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.getValueAsInteger();
 
     if (database.isRemote()) {
       OServerAdmin server =
           new OServerAdmin(database.getURL())
               .connect("root", SERVER_PASSWORD);
       server.setGlobalConfiguration(
-          YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, -1);
+          GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, -1);
       server.setGlobalConfiguration(
-          YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD, -1);
+          GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD, -1);
       server.close();
     }
 
-    YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(-1);
-    YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(-1);
+    GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(-1);
+    GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(-1);
   }
 
   @AfterMethod
   public void afterMethod() throws IOException {
-    YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(topThreshold);
-    YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(bottomThreshold);
+    GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(topThreshold);
+    GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(bottomThreshold);
 
     if (database.isRemote()) {
       OServerAdmin server =
           new OServerAdmin(database.getURL())
               .connect("root", SERVER_PASSWORD);
       server.setGlobalConfiguration(
-          YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, topThreshold);
+          GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, topThreshold);
       server.setGlobalConfiguration(
-          YTGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD, bottomThreshold);
+          GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD, bottomThreshold);
       server.close();
     }
   }
@@ -110,7 +110,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
     final int clusterIdOne = database.addCluster("clusterOne");
 
-    YTEntityImpl docClusterOne = new YTEntityImpl();
+    EntityImpl docClusterOne = new EntityImpl();
     RidBag ridBagClusterOne = new RidBag(database);
     docClusterOne.field("ridBag", ridBagClusterOne);
 
@@ -136,16 +136,16 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
   public void testIteratorOverAfterRemove() {
     database.begin();
-    YTEntityImpl scuti =
-        new YTEntityImpl()
+    EntityImpl scuti =
+        new EntityImpl()
             .field("name", "UY Scuti");
     scuti.save(database.getClusterNameById(database.getDefaultClusterId()));
-    YTEntityImpl cygni =
-        new YTEntityImpl()
+    EntityImpl cygni =
+        new EntityImpl()
             .field("name", "NML Cygni");
     cygni.save(database.getClusterNameById(database.getDefaultClusterId()));
-    YTEntityImpl scorpii =
-        new YTEntityImpl()
+    EntityImpl scorpii =
+        new EntityImpl()
             .field("name", "AH Scorpii");
     scorpii.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
@@ -154,14 +154,14 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     cygni = database.bindToSession(cygni);
     scorpii = database.bindToSession(scorpii);
 
-    HashSet<YTEntityImpl> expectedResult = new HashSet<YTEntityImpl>(Arrays.asList(scuti, scorpii));
+    HashSet<EntityImpl> expectedResult = new HashSet<EntityImpl>(Arrays.asList(scuti, scorpii));
 
     RidBag bag = new RidBag(database);
     bag.add(scuti);
     bag.add(cygni);
     bag.add(scorpii);
 
-    YTEntityImpl doc = new YTEntityImpl();
+    EntityImpl doc = new EntityImpl();
     doc.field("ridBag", bag);
 
     database.begin();
@@ -172,7 +172,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     bag = doc.field("ridBag");
     bag.remove(cygni);
 
-    Set<YTEntityImpl> result = new HashSet<YTEntityImpl>();
+    Set<EntityImpl> result = new HashSet<EntityImpl>();
     for (YTIdentifiable identifiable : bag) {
       result.add(identifiable.getRecord());
     }
@@ -182,23 +182,23 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
   public void testRidBagConversion() {
     final int oldThreshold =
-        YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
-    YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(5);
+        GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
+    GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(5);
 
     database.begin();
-    YTEntityImpl doc_1 = new YTEntityImpl();
+    EntityImpl doc_1 = new EntityImpl();
     doc_1.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl doc_2 = new YTEntityImpl();
+    EntityImpl doc_2 = new EntityImpl();
     doc_2.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl doc_3 = new YTEntityImpl();
+    EntityImpl doc_3 = new EntityImpl();
     doc_3.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl doc_4 = new YTEntityImpl();
+    EntityImpl doc_4 = new EntityImpl();
     doc_4.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl doc = new YTEntityImpl();
+    EntityImpl doc = new EntityImpl();
 
     RidBag bag = new RidBag(database);
     bag.add(doc_1);
@@ -212,10 +212,10 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
     database.begin();
     doc = database.bindToSession(doc);
-    YTEntityImpl doc_5 = new YTEntityImpl();
+    EntityImpl doc_5 = new EntityImpl();
     doc_5.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl doc_6 = new YTEntityImpl();
+    EntityImpl doc_6 = new EntityImpl();
     doc_6.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     bag = doc.field("ridBag");
@@ -245,7 +245,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
     Assert.assertTrue(docs.isEmpty());
 
-    YTGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(oldThreshold);
+    GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(oldThreshold);
     database.rollback();
   }
 
@@ -256,15 +256,15 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     }
 
     float reuseTrigger =
-        YTGlobalConfiguration.SBTREEBOSAI_FREE_SPACE_REUSE_TRIGGER.getValueAsFloat();
-    YTGlobalConfiguration.SBTREEBOSAI_FREE_SPACE_REUSE_TRIGGER.setValue(Float.MIN_VALUE);
+        GlobalConfiguration.SBTREEBOSAI_FREE_SPACE_REUSE_TRIGGER.getValueAsFloat();
+    GlobalConfiguration.SBTREEBOSAI_FREE_SPACE_REUSE_TRIGGER.setValue(Float.MIN_VALUE);
 
-    YTEntityImpl realDoc = new YTEntityImpl();
+    EntityImpl realDoc = new EntityImpl();
     RidBag realDocRidBag = new RidBag(database);
     realDoc.field("ridBag", realDocRidBag);
 
     for (int i = 0; i < 10; i++) {
-      YTEntityImpl docToAdd = new YTEntityImpl();
+      EntityImpl docToAdd = new EntityImpl();
       realDocRidBag.add(docToAdd);
     }
 
@@ -276,7 +276,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
     final int clusterId = database.addCluster("ridBagDeleteTest");
 
-    YTEntityImpl testDocument = crateTestDeleteDoc(realDoc);
+    EntityImpl testDocument = crateTestDeleteDoc(realDoc);
     database.freeze();
     database.release();
 
@@ -301,7 +301,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     database.freeze();
     database.release();
 
-    YTGlobalConfiguration.SBTREEBOSAI_FREE_SPACE_REUSE_TRIGGER.setValue(reuseTrigger);
+    GlobalConfiguration.SBTREEBOSAI_FREE_SPACE_REUSE_TRIGGER.setValue(reuseTrigger);
     testRidBagFile =
         new File(
             directory,
@@ -316,8 +316,8 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     Assert.assertEquals(ridBag.size(), 10);
   }
 
-  private YTEntityImpl crateTestDeleteDoc(YTEntityImpl realDoc) {
-    YTEntityImpl testDocument = new YTEntityImpl();
+  private EntityImpl crateTestDeleteDoc(EntityImpl realDoc) {
+    EntityImpl testDocument = new EntityImpl();
     RidBag highLevelRidBag = new RidBag(database);
     testDocument.field("ridBag", highLevelRidBag);
     realDoc = database.bindToSession(realDoc);

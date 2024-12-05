@@ -16,22 +16,22 @@
 
 package com.orientechnologies.lucene;
 
-import static com.orientechnologies.core.metadata.schema.YTClass.INDEX_TYPE.FULLTEXT;
+import static com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.INDEX_TYPE.FULLTEXT;
 
-import com.orientechnologies.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.lucene.engine.OLuceneFullTextIndexEngine;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.config.IndexEngineData;
-import com.orientechnologies.core.db.ODatabaseLifecycleListener;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.exception.YTConfigurationException;
-import com.orientechnologies.core.index.OIndexFactory;
-import com.orientechnologies.core.index.OIndexInternal;
-import com.orientechnologies.core.index.OIndexMetadata;
-import com.orientechnologies.core.index.engine.OBaseIndexEngine;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseLifecycleListener;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexFactory;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexInternal;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexMetadata;
+import com.jetbrains.youtrack.db.internal.core.index.engine.OBaseIndexEngine;
+import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -90,7 +90,7 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
     final String algorithm = im.getAlgorithm();
 
     if (metadata == null) {
-      var metadataDoc = new YTEntityImpl();
+      var metadataDoc = new EntityImpl();
       metadataDoc.field("analyzer", StandardAnalyzer.class.getName());
       im.setMetadata(metadataDoc);
     }
@@ -147,6 +147,6 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
   }
 
   @Override
-  public void onLocalNodeConfigurationRequest(YTEntityImpl iConfiguration) {
+  public void onLocalNodeConfigurationRequest(EntityImpl iConfiguration) {
   }
 }

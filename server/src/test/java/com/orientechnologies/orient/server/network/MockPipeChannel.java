@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server.network;
 
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinary;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;

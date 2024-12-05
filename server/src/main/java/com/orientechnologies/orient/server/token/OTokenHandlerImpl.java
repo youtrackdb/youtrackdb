@@ -1,26 +1,26 @@
 package com.orientechnologies.orient.server.token;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.exception.YTSystemException;
-import com.orientechnologies.common.util.OCommonConst;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.id.YTImmutableRecordId;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.metadata.security.OToken;
-import com.orientechnologies.core.metadata.security.OTokenException;
-import com.orientechnologies.core.metadata.security.YTSecurityUser;
-import com.orientechnologies.core.metadata.security.binary.OBinaryToken;
-import com.orientechnologies.core.metadata.security.binary.OBinaryTokenPayloadImpl;
-import com.orientechnologies.core.metadata.security.binary.OBinaryTokenSerializer;
-import com.orientechnologies.core.metadata.security.jwt.OJwtPayload;
-import com.orientechnologies.core.metadata.security.jwt.OTokenHeader;
-import com.orientechnologies.core.metadata.security.jwt.OrientJwtHeader;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.security.OParsedToken;
-import com.orientechnologies.core.security.OTokenSign;
-import com.orientechnologies.core.security.OTokenSignImpl;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTSystemException;
+import com.jetbrains.youtrack.db.internal.common.util.OCommonConst;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.YTImmutableRecordId;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.OToken;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.OTokenException;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.binary.OBinaryToken;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.binary.OBinaryTokenPayloadImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.binary.OBinaryTokenSerializer;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.OJwtPayload;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.OTokenHeader;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.OrientJwtHeader;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.security.OParsedToken;
+import com.jetbrains.youtrack.db.internal.core.security.OTokenSign;
+import com.jetbrains.youtrack.db.internal.core.security.OTokenSignImpl;
 import com.orientechnologies.orient.server.OClientConnection;
 import com.orientechnologies.orient.server.OTokenHandler;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
@@ -46,7 +46,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
   public OTokenHandlerImpl(YTContextConfiguration config) {
     this(
         new OTokenSignImpl(config),
-        config.getValueAsLong(YTGlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT));
+        config.getValueAsLong(GlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT));
   }
 
   protected OTokenHandlerImpl(byte[] key, long sessionLength, String algorithm) {
@@ -54,7 +54,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
   }
 
   public OTokenHandlerImpl(OTokenSign sign, YTContextConfiguration config) {
-    this(sign, config.getValueAsLong(YTGlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT));
+    this(sign, config.getValueAsLong(GlobalConfiguration.NETWORK_TOKEN_EXPIRE_TIMEOUT));
   }
 
   protected OTokenHandlerImpl(OTokenSign sign, long sessionLength) {
@@ -383,7 +383,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
   }
 
   protected OrientJwtHeader deserializeWebHeader(final byte[] decodedHeader) {
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     doc.fromJSON(new String(decodedHeader, StandardCharsets.UTF_8));
     final OrientJwtHeader header = new OrientJwtHeader();
     header.setType(doc.field("typ"));
@@ -396,7 +396,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
     if (!"YouTrackDB".equals(type)) {
       throw new YTSystemException("Payload class not registered:" + type);
     }
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     doc.fromJSON(new String(decodedPayload, StandardCharsets.UTF_8));
     final OrientJwtPayload payload = new OrientJwtPayload();
     payload.setUserName(doc.field("username"));
@@ -419,7 +419,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
       throw new IllegalArgumentException("Token header is null");
     }
 
-    YTEntityImpl doc = new YTEntityImpl();
+    EntityImpl doc = new EntityImpl();
     doc.field("typ", header.getType());
     doc.field("alg", header.getAlgorithm());
     doc.field("kid", header.getKeyId());
@@ -431,7 +431,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
       throw new IllegalArgumentException("Token payload is null");
     }
 
-    final YTEntityImpl doc = new YTEntityImpl();
+    final EntityImpl doc = new EntityImpl();
     doc.field("username", payload.getUserName());
     doc.field("iss", payload.getIssuer());
     doc.field("exp", payload.getExpiry());

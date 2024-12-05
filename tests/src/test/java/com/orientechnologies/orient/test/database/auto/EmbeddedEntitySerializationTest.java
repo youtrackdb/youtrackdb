@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.index.OCompositeKey;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,7 +23,7 @@ public class EmbeddedEntitySerializationTest extends DocumentDBBaseTest {
 
   public void testEmbeddedObjectSerialization() {
     database.begin();
-    final YTEntityImpl originalDoc = new YTEntityImpl();
+    final EntityImpl originalDoc = new EntityImpl();
 
     final OCompositeKey compositeKey =
         new OCompositeKey(123, "56", new Date(), new YTRecordId("#0:12"));
@@ -33,7 +33,7 @@ public class EmbeddedEntitySerializationTest extends DocumentDBBaseTest {
     originalDoc.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final YTEntityImpl loadedDoc = database.load(originalDoc.getIdentity());
+    final EntityImpl loadedDoc = database.load(originalDoc.getIdentity());
     Assert.assertNotSame(loadedDoc, originalDoc);
 
     final OCompositeKey loadedCompositeKey = loadedDoc.field("compositeKey");
@@ -45,7 +45,7 @@ public class EmbeddedEntitySerializationTest extends DocumentDBBaseTest {
   }
 
   public void testEmbeddedObjectSerializationInsideOfOtherEmbeddedObjects() {
-    final YTEntityImpl originalDoc = new YTEntityImpl();
+    final EntityImpl originalDoc = new EntityImpl();
 
     final OCompositeKey compositeKeyOne =
         new OCompositeKey(123, "56", new Date(), new YTRecordId("#0:12"));
@@ -56,22 +56,22 @@ public class EmbeddedEntitySerializationTest extends DocumentDBBaseTest {
         new OCompositeKey(
             36, "563", new Date(System.currentTimeMillis() + 1000), new YTRecordId("#0:23"));
 
-    final YTEntityImpl embeddedDocOne = new YTEntityImpl();
+    final EntityImpl embeddedDocOne = new EntityImpl();
     embeddedDocOne.field("compositeKey", compositeKeyOne);
     embeddedDocOne.field("val", "test");
     embeddedDocOne.field("int", 10);
 
-    final YTEntityImpl embeddedDocTwo = new YTEntityImpl();
+    final EntityImpl embeddedDocTwo = new EntityImpl();
     embeddedDocTwo.field("compositeKey", compositeKeyTwo);
     embeddedDocTwo.field("val", "test");
     embeddedDocTwo.field("int", 10);
 
-    final YTEntityImpl embeddedDocThree = new YTEntityImpl();
+    final EntityImpl embeddedDocThree = new EntityImpl();
     embeddedDocThree.field("compositeKey", compositeKeyThree);
     embeddedDocThree.field("val", "test");
     embeddedDocThree.field("int", 10);
 
-    List<YTEntityImpl> embeddedCollection = new ArrayList<YTEntityImpl>();
+    List<EntityImpl> embeddedCollection = new ArrayList<EntityImpl>();
     embeddedCollection.add(embeddedDocTwo);
     embeddedCollection.add(embeddedDocThree);
 
@@ -82,23 +82,23 @@ public class EmbeddedEntitySerializationTest extends DocumentDBBaseTest {
     originalDoc.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final YTEntityImpl loadedDocument = database.load(originalDoc.getIdentity());
+    final EntityImpl loadedDocument = database.load(originalDoc.getIdentity());
     Assert.assertNotSame(loadedDocument, originalDoc);
 
-    final YTEntityImpl loadedEmbeddedDocOne = loadedDocument.field("embeddedDoc");
+    final EntityImpl loadedEmbeddedDocOne = loadedDocument.field("embeddedDoc");
     Assert.assertNotSame(loadedEmbeddedDocOne, embeddedDocOne);
 
     Assert.assertEquals(loadedEmbeddedDocOne.field("compositeKey"), compositeKeyOne);
 
-    List<YTEntityImpl> loadedEmbeddedCollection = loadedDocument.field("embeddedCollection");
+    List<EntityImpl> loadedEmbeddedCollection = loadedDocument.field("embeddedCollection");
     Assert.assertNotSame(loadedEmbeddedCollection, embeddedCollection);
 
-    final YTEntityImpl loadedEmbeddedDocTwo = loadedEmbeddedCollection.get(0);
+    final EntityImpl loadedEmbeddedDocTwo = loadedEmbeddedCollection.get(0);
     Assert.assertNotSame(loadedEmbeddedDocTwo, embeddedDocTwo);
 
     Assert.assertEquals(loadedEmbeddedDocTwo.field("compositeKey"), compositeKeyTwo);
 
-    final YTEntityImpl loadedEmbeddedDocThree = loadedEmbeddedCollection.get(1);
+    final EntityImpl loadedEmbeddedDocThree = loadedEmbeddedCollection.get(1);
     Assert.assertNotSame(loadedEmbeddedDocThree, embeddedDocThree);
 
     Assert.assertEquals(loadedEmbeddedDocThree.field("compositeKey"), compositeKeyThree);

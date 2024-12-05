@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Set;
 
 /**
@@ -35,9 +35,9 @@ public interface ODistributedMessageService {
 
   void updateLatency(String metricName, long sentOn);
 
-  YTEntityImpl getLatencies();
+  EntityImpl getLatencies();
 
-  YTEntityImpl getMessageStats();
+  EntityImpl getMessageStats();
 
   void updateMessageStats(String message);
 

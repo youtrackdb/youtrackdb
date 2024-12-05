@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.base;
 
-import com.orientechnologies.common.test.SpeedTestMultiThreads;
-import com.orientechnologies.common.test.SpeedTestThread;
+import com.jetbrains.youtrack.db.internal.common.test.SpeedTestMultiThreads;
+import com.jetbrains.youtrack.db.internal.common.test.SpeedTestThread;
 
 public abstract class OrientThreadTest extends SpeedTestThread {
 

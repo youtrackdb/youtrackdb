@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.lucene.test.BaseLuceneTest;
 import com.orientechnologies.spatial.shape.OMultiPolygonShapeBuilder;
 import java.io.IOException;
@@ -136,17 +136,17 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
     };
   }
 
-  protected YTEntityImpl loadMultiPolygon() {
+  protected EntityImpl loadMultiPolygon() {
 
     try {
       InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("italy.json");
 
-      YTEntityImpl doc = new YTEntityImpl().fromJSON(systemResourceAsStream);
+      EntityImpl doc = new EntityImpl().fromJSON(systemResourceAsStream);
 
       Map geometry = doc.field("geometry");
 
       String type = (String) geometry.get("type");
-      YTEntityImpl location = new YTEntityImpl("O" + type);
+      EntityImpl location = new EntityImpl("O" + type);
       location.field("coordinates", geometry.get("coordinates"));
       return location;
     } catch (Exception e) {
@@ -166,9 +166,9 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
     return geometryFactory.createGeometryCollection(new Geometry[]{point, lineString});
   }
 
-  protected YTEntityImpl geometryCollection() {
+  protected EntityImpl geometryCollection() {
 
-    final YTEntityImpl point = new YTEntityImpl("OPoint");
+    final EntityImpl point = new EntityImpl("OPoint");
     point.field(
         "coordinates",
         new ArrayList<Double>() {
@@ -178,7 +178,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
           }
         });
 
-    final YTEntityImpl lineString = new YTEntityImpl("OLineString");
+    final EntityImpl lineString = new EntityImpl("OLineString");
     lineString.field(
         "coordinates",
         new ArrayList<List<Double>>() {
@@ -188,11 +188,11 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
           }
         });
 
-    YTEntityImpl geometryCollection = new YTEntityImpl("OGeometryCollection");
+    EntityImpl geometryCollection = new EntityImpl("OGeometryCollection");
 
     geometryCollection.field(
         "geometries",
-        new ArrayList<YTEntityImpl>() {
+        new ArrayList<EntityImpl>() {
           {
             add(point);
             add(lineString);
@@ -201,8 +201,8 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
     return geometryCollection;
   }
 
-  protected YTEntityImpl lineStringDoc() {
-    YTEntityImpl point = new YTEntityImpl("OLineString");
+  protected EntityImpl lineStringDoc() {
+    EntityImpl point = new EntityImpl("OLineString");
     point.field(
         "coordinates",
         new ArrayList<List<Double>>() {
@@ -217,7 +217,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
 
   protected MultiPolygon createMultiPolygon() throws IOException {
 
-    YTEntityImpl document = loadMultiPolygon();
+    EntityImpl document = loadMultiPolygon();
 
     OMultiPolygonShapeBuilder builder = new OMultiPolygonShapeBuilder();
 
@@ -226,8 +226,8 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
     return (MultiPolygon) ((JtsGeometry) geometry).getGeom();
   }
 
-  protected YTEntityImpl point() {
-    YTEntityImpl point = new YTEntityImpl("OPoint");
+  protected EntityImpl point() {
+    EntityImpl point = new EntityImpl("OPoint");
     point.field(
         "coordinates",
         new ArrayList<Double>() {
@@ -239,8 +239,8 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
     return point;
   }
 
-  protected YTEntityImpl multiLineString() {
-    YTEntityImpl point = new YTEntityImpl("OMultiLineString");
+  protected EntityImpl multiLineString() {
+    EntityImpl point = new EntityImpl("OMultiLineString");
     point.field(
         "coordinates",
         new ArrayList<List<List<Double>>>() {
@@ -258,8 +258,8 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
     return point;
   }
 
-  protected YTEntityImpl multiPoint() {
-    YTEntityImpl point = new YTEntityImpl("OMultiPoint");
+  protected EntityImpl multiPoint() {
+    EntityImpl point = new EntityImpl("OMultiPoint");
     point.field(
         "coordinates",
         new ArrayList<List<Double>>() {
@@ -272,8 +272,8 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
     return point;
   }
 
-  protected YTEntityImpl rectangle() {
-    YTEntityImpl polygon = new YTEntityImpl("OPolygon");
+  protected EntityImpl rectangle() {
+    EntityImpl polygon = new EntityImpl("OPolygon");
     polygon.field(
         "coordinates",
         new ArrayList<List<List<Double>>>() {
@@ -293,8 +293,8 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
     return polygon;
   }
 
-  protected YTEntityImpl polygon() {
-    YTEntityImpl polygon = new YTEntityImpl("OPolygon");
+  protected EntityImpl polygon() {
+    EntityImpl polygon = new EntityImpl("OPolygon");
     polygon.field(
         "coordinates",
         new ArrayList<List<List<Double>>>() {

@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.command.OCommandDistributedReplicateRequest;
-import com.orientechnologies.core.exception.YTConcurrentCreateException;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConcurrentCreateException;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.distributed.ODistributedServerLog.DIRECTION;
 import com.orientechnologies.orient.server.distributed.task.YTDistributedOperationException;
 import com.orientechnologies.orient.server.distributed.task.YTDistributedRecordLockedException;
@@ -171,10 +171,10 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
             {
               foundBucket = true;
             } else if (rgPayload != null) {
-              if (rgPayload instanceof YTEntityImpl
-                  && responsePayload instanceof YTEntityImpl
-                  && !((YTEntityImpl) rgPayload).getIdentity().isValid()
-                  && ((YTEntityImpl) rgPayload).hasSameContentOf((YTEntityImpl) responsePayload))
+              if (rgPayload instanceof EntityImpl
+                  && responsePayload instanceof EntityImpl
+                  && !((EntityImpl) rgPayload).getIdentity().isValid()
+                  && ((EntityImpl) rgPayload).hasSameContentOf((EntityImpl) responsePayload))
               // SAME RESULT
               {
                 foundBucket = true;

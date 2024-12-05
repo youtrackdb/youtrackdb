@@ -19,18 +19,18 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command;
 
-import com.orientechnologies.common.concur.lock.YTLockException;
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.exception.YTSecurityAccessException;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.metadata.security.YTUser;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.OStringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.YTLockException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityAccessException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTUser;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.server.OTokenHandler;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -303,7 +303,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
       if (currentUserId != null && localDatabase.getUser() != null) {
         if (!currentUserId.equals(
             localDatabase.getUser().getIdentity(localDatabase).getIdentity())) {
-          YTEntityImpl userDoc = localDatabase.load(currentUserId);
+          EntityImpl userDoc = localDatabase.load(currentUserId);
           localDatabase.setUser(new YTUser(localDatabase, userDoc));
         }
       }
@@ -335,7 +335,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
       String currentUserId = iRequest.getData().currentUserId;
       if (currentUserId != null && !currentUserId.isEmpty() && localDatabase.getUser() != null) {
         if (!currentUserId.equals(localDatabase.getUser().getIdentity(localDatabase).toString())) {
-          YTEntityImpl userDoc = localDatabase.load(new YTRecordId(currentUserId));
+          EntityImpl userDoc = localDatabase.load(new YTRecordId(currentUserId));
           localDatabase.setUser(new YTUser(localDatabase, userDoc));
         }
       }
@@ -352,7 +352,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
     if (tokenHandler == null
         && server
         .getContextConfiguration()
-        .getValueAsBoolean(YTGlobalConfiguration.NETWORK_HTTP_USE_TOKEN)) {
+        .getValueAsBoolean(GlobalConfiguration.NETWORK_HTTP_USE_TOKEN)) {
       tokenHandler = server.getTokenHandler();
     }
   }

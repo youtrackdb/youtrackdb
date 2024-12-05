@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.security;
 
-import com.orientechnologies.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 
 /**
  * An exception OSecurityAuthenticators can throw.

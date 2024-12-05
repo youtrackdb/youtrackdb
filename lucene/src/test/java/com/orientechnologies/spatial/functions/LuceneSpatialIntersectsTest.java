@@ -13,8 +13,8 @@
  */
 package com.orientechnologies.spatial.functions;
 
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.orientechnologies.spatial.BaseSpatialLuceneTest;
 import org.junit.Assert;
 import org.junit.Test;

@@ -15,14 +15,14 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.ODatabaseType;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.exception.YTCoreException;
-import com.orientechnologies.core.exception.YTStorageException;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.exception.YTCoreException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
 import java.io.File;
 import java.util.Locale;
 import org.testng.Assert;
@@ -57,7 +57,7 @@ public class DbCreationTest {
 
   private void initODB() {
     var configBuilder = YouTrackDBConfig.builder();
-    configBuilder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    configBuilder.addConfig(GlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
 
     if (remoteDB) {
       youTrackDB =
@@ -100,7 +100,7 @@ public class DbCreationTest {
     String url = calculateURL() + "/";
 
     var configBuilder = YouTrackDBConfig.builder();
-    configBuilder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    configBuilder.addConfig(GlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
 
     try (var odb = new YouTrackDB(url, "root", "root", configBuilder.build())) {
       var database = odb.open(DB_NAME, "admin", "admin");
@@ -158,7 +158,7 @@ public class DbCreationTest {
     var url = calculateURL();
 
     var configBuilder = YouTrackDBConfig.builder();
-    configBuilder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    configBuilder.addConfig(GlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
     var odb = new YouTrackDB(url, "root", "root", configBuilder.build());
     if (odb.exists("sub")) {
       odb.drop("sub");
@@ -180,7 +180,7 @@ public class DbCreationTest {
     var url = calculateURL();
 
     var configBuilder = YouTrackDBConfig.builder();
-    configBuilder.addConfig(YTGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    configBuilder.addConfig(GlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
 
     var odb = new YouTrackDB(url, "root", "root", configBuilder.build());
     if (odb.exists("sub")) {

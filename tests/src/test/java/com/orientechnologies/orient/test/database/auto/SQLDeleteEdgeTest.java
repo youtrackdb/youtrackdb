@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.exception.YTCommandExecutionException;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
-import com.orientechnologies.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.testng.Assert;
@@ -34,7 +34,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.commit();
 
     List<YTIdentifiable> result =
-        database.query(new OSQLSynchQuery<YTEntityImpl>("select from testFromToV"));
+        database.query(new OSQLSynchQuery<EntityImpl>("select from testFromToV"));
 
     database.begin();
     database
@@ -88,7 +88,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.commit();
 
     List<YTIdentifiable> result =
-        database.query(new OSQLSynchQuery<YTEntityImpl>("select from testFromV"));
+        database.query(new OSQLSynchQuery<EntityImpl>("select from testFromV"));
 
     database.begin();
     database
@@ -143,7 +143,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.commit();
 
     List<YTIdentifiable> result =
-        database.query(new OSQLSynchQuery<YTEntityImpl>("select from testToV"));
+        database.query(new OSQLSynchQuery<EntityImpl>("select from testToV"));
 
     database.begin();
     database

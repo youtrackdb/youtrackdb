@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.all;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.core.command.OBasicCommandContext;
-import com.orientechnologies.core.command.script.YTCommandScriptException;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.metadata.function.OFunction;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.script.YTCommandScriptException;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.function.OFunction;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequestWrapper;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -76,7 +76,7 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
       if (args.length == 0 && iRequest.getContent() != null && !iRequest.getContent().isEmpty()) {
         // PARSE PARAMETERS FROM CONTENT PAYLOAD
         try {
-          final YTEntityImpl params = new YTEntityImpl();
+          final EntityImpl params = new EntityImpl();
           params.fromJSON(iRequest.getContent());
           functionResult = f.executeInContext(context, params.toMap());
         } catch (Exception e) {

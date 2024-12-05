@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseImpExpAbstract;
+import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseTool;
+import com.jetbrains.youtrack.db.internal.core.db.tool.YTDatabaseImportException;
 import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
-import com.orientechnologies.core.command.OCommandOutputListener;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.tool.ODatabaseImpExpAbstract;
-import com.orientechnologies.core.db.tool.ODatabaseTool;
-import com.orientechnologies.core.db.tool.YTDatabaseImportException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

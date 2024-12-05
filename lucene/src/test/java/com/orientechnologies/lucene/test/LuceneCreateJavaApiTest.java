@@ -20,13 +20,13 @@ package com.orientechnologies.lucene.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.index.OIndexInternal;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -57,7 +57,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
     final YTSchema schema = db.getMetadata().getSchema();
     final YTClass song = schema.getClass(SONG_CLASS);
 
-    final YTEntityImpl meta = new YTEntityImpl().field("analyzer",
+    final EntityImpl meta = new EntityImpl().field("analyzer",
         StandardAnalyzer.class.getName());
     final OIndex lucene =
         song.createIndex(db,
@@ -108,7 +108,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
   @Test
   public void testCreateIndexEmbeddedMapJSON() {
     db.begin();
-    var songDoc = new YTEntityImpl(SONG_CLASS);
+    var songDoc = new EntityImpl(SONG_CLASS);
     songDoc.fromJSON(
         "{\n"
             + "    \"description\": \"Capital\",\n"
@@ -152,7 +152,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
     entries.put("text", "Hello Rome how are you today?");
     entries.put("text2", "Hello Bolzano how are you today?");
 
-    final YTEntityImpl doc = new YTEntityImpl(SONG_CLASS);
+    final EntityImpl doc = new EntityImpl(SONG_CLASS);
     doc.field("description", "Capital", YTType.STRING);
     doc.field("String" + YTType.EMBEDDEDMAP.getName(), entries, YTType.EMBEDDEDMAP, YTType.STRING);
     db.begin();

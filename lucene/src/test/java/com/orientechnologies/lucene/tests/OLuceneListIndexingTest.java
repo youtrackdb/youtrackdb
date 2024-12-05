@@ -20,13 +20,13 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -69,7 +69,7 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     YTSchema schema = db.getMetadata().getSchema();
 
     // Rome
-    YTEntityImpl doc = new YTEntityImpl("City");
+    EntityImpl doc = new EntityImpl("City");
     doc.field("name", "Rome");
     doc.field("tags", Arrays.asList("Beautiful", "Touristic", "Sunny"));
 
@@ -89,7 +89,7 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     assertThat(doc.<String>field("name")).isEqualTo("Rome");
 
     // London
-    doc = new YTEntityImpl("City");
+    doc = new EntityImpl("City");
     doc.field("name", "London");
     doc.field("tags", Arrays.asList("Beautiful", "Touristic", "Sunny"));
 
@@ -140,7 +140,7 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     db.begin();
     YTSchema schema = db.getMetadata().getSchema();
 
-    YTEntityImpl doc = new YTEntityImpl("Person");
+    EntityImpl doc = new EntityImpl("Person");
     doc.field("name", "Enrico");
     doc.field("tags", Arrays.asList("Funny", "Tall", "Geek"));
 
@@ -157,7 +157,7 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
 
     assertThat(coll).hasSize(3);
 
-    doc = new YTEntityImpl("Person");
+    doc = new EntityImpl("Person");
     doc.field("name", "Jared");
     doc.field("tags", Arrays.asList("Funny", "Tall"));
 

@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.client.remote;
 
 import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
-import com.orientechnologies.core.db.ODatabasePoolInternal;
-import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.OSharedContext;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabasePoolInternal;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.OSharedContext;
 
 /**
  *

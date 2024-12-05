@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.spatial.functions;
 
-import com.orientechnologies.core.sql.functions.OSQLFunctionAbstract;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionAbstract;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 import org.locationtech.spatial4j.shape.Shape;
 

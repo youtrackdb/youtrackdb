@@ -18,10 +18,10 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTVertex;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +51,7 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
     // THIS WON'T USE LUCENE INDEXES!!!! see #6997
 
     db.begin();
-    YTVertex city = db.newVertex("City");
+    Vertex city = db.newVertex("City");
     city.setProperty("name", "London / a");
     db.save(city);
 
@@ -80,14 +80,14 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
     YTClass oneClass = db.createVertexClass("One");
     YTClass twoClass = db.createVertexClass("Two");
 
-    YTVertex one = db.newVertex(oneClass);
+    Vertex one = db.newVertex(oneClass);
     one.setProperty("name", "Same");
 
     db.begin();
     db.save(one);
     db.commit();
 
-    YTVertex two = db.newVertex(twoClass);
+    Vertex two = db.newVertex(twoClass);
     two.setProperty("name", "Same");
     db.begin();
     db.save(two);

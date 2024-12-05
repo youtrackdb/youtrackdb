@@ -13,19 +13,19 @@
  */
 package com.orientechnologies.security.ldap;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YouTrackDBInternal;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTProperty;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.security.OSecurityAuthenticator;
-import com.orientechnologies.core.security.OSecurityComponent;
-import com.orientechnologies.core.security.OSecuritySystem;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.security.OSecurityAuthenticator;
+import com.jetbrains.youtrack.db.internal.core.security.OSecurityComponent;
+import com.jetbrains.youtrack.db.internal.core.security.OSecuritySystem;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -86,7 +86,7 @@ public class OLDAPImporter implements OSecurityComponent {
   }
 
   // OSecurityComponent
-  public void config(YTDatabaseSessionInternal session, final YTEntityImpl importDoc,
+  public void config(YTDatabaseSessionInternal session, final EntityImpl importDoc,
       OSecuritySystem security) {
     try {
       context = security.getContext();
@@ -111,9 +111,9 @@ public class OLDAPImporter implements OSecurityComponent {
       }
 
       if (importDoc.containsField("databases")) {
-        List<YTEntityImpl> list = importDoc.field("databases");
+        List<EntityImpl> list = importDoc.field("databases");
 
-        for (YTEntityImpl dbDoc : list) {
+        for (EntityImpl dbDoc : list) {
           if (dbDoc.containsField("database")) {
             String dbName = dbDoc.field("database");
 
@@ -130,9 +130,9 @@ public class OLDAPImporter implements OSecurityComponent {
             if (dbDoc.containsField("domains")) {
               final List<DatabaseDomain> dbDomainsList = new ArrayList<DatabaseDomain>();
 
-              final List<YTEntityImpl> dbdList = dbDoc.field("domains");
+              final List<EntityImpl> dbdList = dbDoc.field("domains");
 
-              for (YTEntityImpl dbDomainDoc : dbdList) {
+              for (EntityImpl dbDomainDoc : dbdList) {
                 String domain = null;
 
                 // "domain" is mandatory.
@@ -150,9 +150,9 @@ public class OLDAPImporter implements OSecurityComponent {
                   if (dbDomainDoc.containsField("servers")) {
                     final List<OLDAPServer> ldapServerList = new ArrayList<OLDAPServer>();
 
-                    final List<YTEntityImpl> ldapServers = dbDomainDoc.field("servers");
+                    final List<EntityImpl> ldapServers = dbDomainDoc.field("servers");
 
-                    for (YTEntityImpl ldapServerDoc : ldapServers) {
+                    for (EntityImpl ldapServerDoc : ldapServers) {
                       final String url = ldapServerDoc.field("url");
 
                       boolean isAlias = false;
@@ -181,12 +181,12 @@ public class OLDAPImporter implements OSecurityComponent {
                     //
                     final List<User> userList = new ArrayList<User>();
 
-                    final List<YTEntityImpl> userDocList = dbDomainDoc.field("users");
+                    final List<EntityImpl> userDocList = dbDomainDoc.field("users");
 
                     // userDocList can be null if only the oldapUserClass is used instead
                     // security.json.
                     if (userDocList != null) {
-                      for (YTEntityImpl userDoc : userDocList) {
+                      for (EntityImpl userDoc : userDocList) {
                         if (userDoc.containsField("baseDN") && userDoc.containsField("filter")) {
                           if (userDoc.containsField("roles")) {
                             final String baseDN = userDoc.field("baseDN");
@@ -735,7 +735,7 @@ public class OLDAPImporter implements OSecurityComponent {
   }
 
   /*
-   * private boolean dbUserExists(ODatabase<?> db, String upn) { try { List<YTEntityImpl> list = new OSQLSynchQuery<YTEntityImpl>(
+   * private boolean dbUserExists(ODatabase<?> db, String upn) { try { List<EntityImpl> list = new OSQLSynchQuery<EntityImpl>(
    * "SELECT FROM OUser WHERE name = ?").run(upn);
    *
    * return !list.isEmpty(); } catch(Exception ex) { OLogManager.instance().debug(this, "dbUserExists() Exception: ", ex); }

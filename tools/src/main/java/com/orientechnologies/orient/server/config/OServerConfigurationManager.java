@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.config;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

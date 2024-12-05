@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -69,13 +69,13 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl document = new YTEntityImpl("LinkListIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -104,16 +104,16 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
     try {
       database.begin();
-      final YTEntityImpl document = new YTEntityImpl("LinkListIndexTestClass");
+      final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
       document.field(
           "linkCollection",
           new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -145,16 +145,16 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl document = new YTEntityImpl("LinkListIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
 
     document.field(
         "linkCollection",
@@ -188,16 +188,16 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl document = new YTEntityImpl("LinkListIndexTestClass");
+    EntityImpl document = new EntityImpl("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -240,16 +240,16 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl document = new YTEntityImpl("LinkListIndexTestClass");
+    EntityImpl document = new EntityImpl("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -286,16 +286,16 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl document = new YTEntityImpl("LinkListIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -334,16 +334,16 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl document = new YTEntityImpl("LinkListIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -352,7 +352,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
 
     try {
       database.begin();
-      YTEntityImpl loadedDocument = database.load(document.getIdentity());
+      EntityImpl loadedDocument = database.load(document.getIdentity());
       loadedDocument.<List<YTIdentifiable>>field("linkCollection").add(docThree.getIdentity());
       loadedDocument.save();
       database.commit();
@@ -383,16 +383,16 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docThree = new YTEntityImpl();
+    final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl document = new YTEntityImpl("LinkListIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -400,7 +400,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    YTEntityImpl loadedDocument = database.load(document.getIdentity());
+    EntityImpl loadedDocument = database.load(document.getIdentity());
     loadedDocument.<List<YTIdentifiable>>field("linkCollection").add(docThree.getIdentity());
     loadedDocument.save();
     database.rollback();
@@ -426,13 +426,13 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl document = new YTEntityImpl("LinkListIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -441,7 +441,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
 
     try {
       database.begin();
-      YTEntityImpl loadedDocument = database.load(document.getIdentity());
+      EntityImpl loadedDocument = database.load(document.getIdentity());
       loadedDocument.<List>field("linkCollection").remove(docTwo.getIdentity());
       loadedDocument.save();
       database.commit();
@@ -470,13 +470,13 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl document = new YTEntityImpl("LinkListIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -484,7 +484,7 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    YTEntityImpl loadedDocument = database.load(document.getIdentity());
+    EntityImpl loadedDocument = database.load(document.getIdentity());
     loadedDocument.<List>field("linkCollection").remove(docTwo.getIdentity());
     loadedDocument.save();
     database.rollback();
@@ -510,13 +510,13 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl document = new YTEntityImpl("LinkListIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -549,13 +549,13 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl document = new YTEntityImpl("LinkListIndexTestClass");
+    EntityImpl document = new EntityImpl("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -576,13 +576,13 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    YTEntityImpl document = new YTEntityImpl("LinkListIndexTestClass");
+    EntityImpl document = new EntityImpl("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -607,13 +607,13 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl document = new YTEntityImpl("LinkListIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));
@@ -644,13 +644,13 @@ public class LinkListIndexTest extends DocumentDBBaseTest {
 
   public void testIndexCollectionSQL() {
     database.begin();
-    final YTEntityImpl docOne = new YTEntityImpl();
+    final EntityImpl docOne = new EntityImpl();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl docTwo = new YTEntityImpl();
+    final EntityImpl docTwo = new EntityImpl();
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final YTEntityImpl document = new YTEntityImpl("LinkListIndexTestClass");
+    final EntityImpl document = new EntityImpl("LinkListIndexTestClass");
     document.field(
         "linkCollection",
         new ArrayList<>(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));

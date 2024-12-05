@@ -20,23 +20,23 @@
 
 package com.orientechnologies.orient.server.network.protocol.binary;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.command.OCommandResultListener;
-import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.ORecordOperation;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.fetch.remote.ORemoteFetchListener;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.query.live.OLiveQueryHook;
-import com.orientechnologies.core.record.ORecordInternal;
-import com.orientechnologies.core.record.YTRecordAbstract;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.query.OLiveResultListener;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.fetch.remote.ORemoteFetchListener;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.query.live.OLiveQueryHook;
+import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OLiveResultListener;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinary;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.server.OClientConnection;
 import com.orientechnologies.orient.server.OClientSessions;
 import com.orientechnologies.orient.server.OServer;
@@ -97,7 +97,7 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
           iRecord,
           new ORemoteFetchListener() {
             @Override
-            protected void sendRecord(YTRecordAbstract iLinked) {
+            protected void sendRecord(RecordAbstract iLinked) {
               if (!alreadySent.contains(iLinked.getIdentity())) {
                 alreadySent.add(iLinked.getIdentity());
                 try {
@@ -259,6 +259,6 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
   }
 
   @Override
-  public void linkdedBySimpleValue(YTEntityImpl doc) {
+  public void linkdedBySimpleValue(EntityImpl doc) {
   }
 }

@@ -19,26 +19,26 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.orientechnologies.common.concur.lock.YTLockException;
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.config.YTContextConfiguration;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.document.OQueryDatabaseState;
-import com.orientechnologies.core.exception.YTCommandExecutionException;
-import com.orientechnologies.core.exception.YTConcurrentModificationException;
-import com.orientechnologies.core.exception.YTDatabaseException;
-import com.orientechnologies.core.exception.YTRecordNotFoundException;
-import com.orientechnologies.core.exception.YTSecurityAccessException;
-import com.orientechnologies.core.metadata.security.YTUser;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.OStringSerializerHelper;
-import com.orientechnologies.core.sql.YTCommandSQLParsingException;
-import com.orientechnologies.core.sql.executor.OInternalExecutionPlan;
-import com.orientechnologies.orient.enterprise.channel.OChannel;
-import com.orientechnologies.orient.enterprise.channel.binary.YTNetworkProtocolException;
-import com.orientechnologies.orient.enterprise.channel.text.OChannelTextServer;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.YTLockException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.OQueryDatabaseState;
+import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConcurrentModificationException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityAccessException;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.YTUser;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.OInternalExecutionPlan;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.OChannel;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTNetworkProtocolException;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.text.OChannelTextServer;
 import com.orientechnologies.orient.server.OClientConnection;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
@@ -150,7 +150,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
 
     final boolean installDefaultCommands =
         iConfiguration.getValueAsBoolean(
-            YTGlobalConfiguration.NETWORK_HTTP_INSTALL_DEFAULT_COMMANDS);
+            GlobalConfiguration.NETWORK_HTTP_INSTALL_DEFAULT_COMMANDS);
     if (installDefaultCommands) {
       registerStatelessCommands(iListener);
     }
@@ -166,16 +166,16 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
 
     server = iServer;
     requestMaxContentLength =
-        iConfiguration.getValueAsInteger(YTGlobalConfiguration.NETWORK_HTTP_MAX_CONTENT_LENGTH);
-    socketTimeout = iConfiguration.getValueAsInteger(YTGlobalConfiguration.NETWORK_SOCKET_TIMEOUT);
+        iConfiguration.getValueAsInteger(GlobalConfiguration.NETWORK_HTTP_MAX_CONTENT_LENGTH);
+    socketTimeout = iConfiguration.getValueAsInteger(GlobalConfiguration.NETWORK_SOCKET_TIMEOUT);
     responseCharSet =
-        iConfiguration.getValueAsString(YTGlobalConfiguration.NETWORK_HTTP_CONTENT_CHARSET);
+        iConfiguration.getValueAsString(GlobalConfiguration.NETWORK_HTTP_CONTENT_CHARSET);
 
     jsonResponseError =
-        iConfiguration.getValueAsBoolean(YTGlobalConfiguration.NETWORK_HTTP_JSON_RESPONSE_ERROR);
+        iConfiguration.getValueAsBoolean(GlobalConfiguration.NETWORK_HTTP_JSON_RESPONSE_ERROR);
     sameSiteCookie =
         iConfiguration.getValueAsBoolean(
-            YTGlobalConfiguration.NETWORK_HTTP_SESSION_COOKIE_SAME_SITE);
+            GlobalConfiguration.NETWORK_HTTP_SESSION_COOKIE_SAME_SITE);
 
     channel = new OChannelTextServer(iSocket, iConfiguration);
     channel.connected();
@@ -197,7 +197,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
     final String callbackF;
     if (server
         .getContextConfiguration()
-        .getValueAsBoolean(YTGlobalConfiguration.NETWORK_HTTP_JSONP_ENABLED)
+        .getValueAsBoolean(GlobalConfiguration.NETWORK_HTTP_JSONP_ENABLED)
         && request.getParameters() != null
         && request.getParameters().containsKey(OHttpUtils.CALLBACK_PARAMETER_NAME)) {
       callbackF = request.getParameters().get(OHttpUtils.CALLBACK_PARAMETER_NAME);
@@ -549,14 +549,14 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
       writeLine(iHeaders);
     }
 
-    YTEntityImpl response = new YTEntityImpl();
-    YTEntityImpl error = new YTEntityImpl();
+    EntityImpl response = new EntityImpl();
+    EntityImpl error = new EntityImpl();
 
     error.field("code", iCode);
     error.field("reason", iCode);
     error.field("content", iContent);
 
-    List<YTEntityImpl> errors = new ArrayList<YTEntityImpl>();
+    List<EntityImpl> errors = new ArrayList<EntityImpl>();
     errors.add(error);
 
     response.field("errors", errors);
@@ -860,10 +860,10 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
         }
         requestContent.append(c);
         // review this number: NETWORK_HTTP_MAX_CONTENT_LENGTH should refer to the body only...
-        if (YTGlobalConfiguration.NETWORK_HTTP_MAX_CONTENT_LENGTH.getValueAsInteger() > -1
+        if (GlobalConfiguration.NETWORK_HTTP_MAX_CONTENT_LENGTH.getValueAsInteger() > -1
             && requestContent.length()
             >= 10000
-            + YTGlobalConfiguration.NETWORK_HTTP_MAX_CONTENT_LENGTH.getValueAsInteger()
+            + GlobalConfiguration.NETWORK_HTTP_MAX_CONTENT_LENGTH.getValueAsInteger()
             * 2) {
           while (channel.inStream.available() > 0) {
             channel.read();

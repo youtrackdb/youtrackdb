@@ -14,25 +14,25 @@
 package com.orientechnologies.spatial.functions;
 
 import com.orientechnologies.lucene.collections.OLuceneResultSetEmpty;
-import com.orientechnologies.core.command.OCommandContext;
-import com.orientechnologies.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.exception.YTCommandExecutionException;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.OMetadataInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultInternal;
-import com.orientechnologies.core.sql.functions.OIndexableSQLFunction;
-import com.orientechnologies.core.sql.parser.OBinaryCompareOperator;
-import com.orientechnologies.core.sql.parser.OExpression;
-import com.orientechnologies.core.sql.parser.OFromClause;
-import com.orientechnologies.core.sql.parser.OFromItem;
-import com.orientechnologies.core.sql.parser.OIdentifier;
-import com.orientechnologies.core.sql.parser.OJson;
-import com.orientechnologies.core.sql.parser.OLeOperator;
-import com.orientechnologies.core.sql.parser.OLtOperator;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.OMetadataInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.OIndexableSQLFunction;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OJson;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OLeOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.OLtOperator;
 import com.orientechnologies.spatial.index.OLuceneSpatialIndex;
 import com.orientechnologies.spatial.strategy.SpatialQueryBuilderAbstract;
 import java.util.Collection;
@@ -98,7 +98,7 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
     queryParams.put(SpatialQueryBuilderAbstract.GEO_FILTER, operator());
     Object shape;
     if (args[1].getValue() instanceof OJson json) {
-      YTEntityImpl doc = new YTEntityImpl();
+      EntityImpl doc = new EntityImpl();
       doc.fromJSON(json.toString());
       shape = doc.toMap();
     } else {

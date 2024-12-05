@@ -16,22 +16,22 @@ package com.orientechnologies.spatial.engine;
 
 import static com.orientechnologies.lucene.builder.OLuceneQueryBuilder.EMPTY_METADATA;
 
-import com.orientechnologies.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.orientechnologies.lucene.collections.OLuceneResultSet;
 import com.orientechnologies.lucene.collections.OLuceneResultSetEmpty;
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.id.YTContextualRecordId;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.index.OIndexDefinition;
-import com.orientechnologies.core.index.OIndexKeyUpdater;
-import com.orientechnologies.core.index.YTIndexEngineException;
-import com.orientechnologies.core.index.engine.IndexEngineValidator;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.storage.OStorage;
-import com.orientechnologies.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.id.YTContextualRecordId;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexKeyUpdater;
+import com.jetbrains.youtrack.db.internal.core.index.YTIndexEngineException;
+import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValidator;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.spatial.factory.OSpatialStrategyFactory;
 import com.orientechnologies.spatial.query.OSpatialQueryContext;
 import com.orientechnologies.spatial.shape.OShapeBuilder;
@@ -121,7 +121,7 @@ public class OLuceneGeoSpatialIndexEngine extends OLuceneSpatialIndexEngineAbstr
 
     if (key instanceof YTIdentifiable) {
       openIfClosed();
-      YTEntityImpl location = ((YTIdentifiable) key).getRecord();
+      EntityImpl location = ((YTIdentifiable) key).getRecord();
       updateLastAccess();
       addDocument(newGeoDocument((YTIdentifiable) value, factory.fromDoc(location), location));
     }
@@ -147,7 +147,7 @@ public class OLuceneGeoSpatialIndexEngine extends OLuceneSpatialIndexEngineAbstr
   @Override
   public Document buildDocument(YTDatabaseSessionInternal session, Object key,
       YTIdentifiable value) {
-    YTEntityImpl location = ((YTIdentifiable) key).getRecord();
+    EntityImpl location = ((YTIdentifiable) key).getRecord();
     return newGeoDocument(value, factory.fromDoc(location), location);
   }
 

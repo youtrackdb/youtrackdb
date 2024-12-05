@@ -13,8 +13,8 @@
  */
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Assert;
@@ -37,12 +37,12 @@ public class LuceneSpatialGeometryCollectionTest extends BaseSpatialLuceneTest {
 
   @Test
   public void testGeoCollectionOutsideTx() {
-    YTEntityImpl test1 = new YTEntityImpl("test");
+    EntityImpl test1 = new EntityImpl("test");
     test1.field("name", "test1");
-    YTEntityImpl geometry = new YTEntityImpl("OGeometryCollection");
-    YTEntityImpl point = new YTEntityImpl("OPoint");
+    EntityImpl geometry = new EntityImpl("OGeometryCollection");
+    EntityImpl point = new EntityImpl("OPoint");
     point.field("coordinates", Arrays.asList(1.0, 2.0));
-    YTEntityImpl polygon = new YTEntityImpl("OPolygon");
+    EntityImpl polygon = new EntityImpl("OPolygon");
     polygon.field(
         "coordinates",
         List.of(
@@ -70,12 +70,12 @@ public class LuceneSpatialGeometryCollectionTest extends BaseSpatialLuceneTest {
   public void testGeoCollectionInsideTransaction() {
     db.begin();
 
-    YTEntityImpl test1 = new YTEntityImpl("test");
+    EntityImpl test1 = new EntityImpl("test");
     test1.field("name", "test1");
-    YTEntityImpl geometry = new YTEntityImpl("OGeometryCollection");
-    YTEntityImpl point = new YTEntityImpl("OPoint");
+    EntityImpl geometry = new EntityImpl("OGeometryCollection");
+    EntityImpl point = new EntityImpl("OPoint");
     point.field("coordinates", Arrays.asList(1.0, 2.0));
-    YTEntityImpl polygon = new YTEntityImpl("OPolygon");
+    EntityImpl polygon = new EntityImpl("OPolygon");
     polygon.field(
         "coordinates",
         List.of(

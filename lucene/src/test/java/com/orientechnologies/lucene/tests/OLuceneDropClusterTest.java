@@ -18,8 +18,8 @@
 
 package com.orientechnologies.lucene.tests;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.metadata.OMetadataInternal;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.metadata.OMetadataInternal;
 import java.io.InputStream;
 import java.util.logging.Level;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;

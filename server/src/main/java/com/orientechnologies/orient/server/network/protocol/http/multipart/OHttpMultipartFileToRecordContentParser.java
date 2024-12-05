@@ -15,10 +15,10 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.multipart;
 
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.record.impl.YTBlob;
-import com.orientechnologies.core.record.impl.YTRecordBytes;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
+import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import java.io.IOException;
 import java.util.Map;
@@ -35,7 +35,7 @@ public class OHttpMultipartFileToRecordContentParser implements OHttpMultipartCo
       final OHttpMultipartContentInputStream in,
       YTDatabaseSession database)
       throws IOException {
-    final YTBlob record = new YTRecordBytes();
+    final Blob record = new RecordBytes();
     record.fromInputStream(in);
     record.save();
     return record.getIdentity();

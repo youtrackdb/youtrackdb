@@ -14,20 +14,20 @@
  */
 package com.orientechnologies.spatial.engine;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.util.ORawPair;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.lucene.builder.OLuceneIndexType;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngineAbstract;
 import com.orientechnologies.lucene.engine.OLuceneIndexWriterFactory;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.index.OIndexDefinition;
-import com.orientechnologies.core.index.OIndexMetadata;
-import com.orientechnologies.core.index.engine.IndexEngineValuesTransformer;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.storage.OStorage;
-import com.orientechnologies.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.OIndexMetadata;
+import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValuesTransformer;
+import com.jetbrains.youtrack.db.internal.core.storage.OStorage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.spatial.factory.OSpatialStrategyFactory;
 import com.orientechnologies.spatial.shape.OShapeBuilder;
 import com.orientechnologies.spatial.strategy.SpatialQueryBuilder;
@@ -138,7 +138,7 @@ public abstract class OLuceneSpatialIndexEngineAbstract extends OLuceneIndexEngi
   }
 
   protected Document newGeoDocument(YTIdentifiable oIdentifiable, Shape shape,
-      YTEntityImpl shapeDoc) {
+      EntityImpl shapeDoc) {
 
     FieldType ft = new FieldType();
     ft.setIndexOptions(IndexOptions.DOCS);

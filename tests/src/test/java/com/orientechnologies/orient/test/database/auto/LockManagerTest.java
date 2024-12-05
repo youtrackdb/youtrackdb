@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.concur.lock.OOneEntryPerKeyLockManager;
-import com.orientechnologies.common.concur.lock.OOneEntryPerKeyLockManager.LOCK;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.OOneEntryPerKeyLockManager;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.OOneEntryPerKeyLockManager.LOCK;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

@@ -13,13 +13,13 @@
  */
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.core.index.OIndex;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +49,7 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
 
     db.command("CREATE INDEX Place.location ON Place(location) SPATIAL ENGINE LUCENE").close();
 
-    YTEntityImpl linestring1 = new YTEntityImpl("Place");
+    EntityImpl linestring1 = new EntityImpl("Place");
     linestring1.field("name", "LineString1");
     linestring1.field(
         "location",
@@ -61,7 +61,7 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
               }
             }));
 
-    YTEntityImpl linestring2 = new YTEntityImpl("Place");
+    EntityImpl linestring2 = new EntityImpl("Place");
     linestring2.field("name", "LineString2");
     linestring2.field(
         "location",
@@ -87,8 +87,8 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
     db.commit();
   }
 
-  public YTEntityImpl createLineString(List<List<Double>> coordinates) {
-    YTEntityImpl location = new YTEntityImpl("OLineString");
+  public EntityImpl createLineString(List<List<Double>> coordinates) {
+    EntityImpl location = new EntityImpl("OLineString");
     location.field("coordinates", coordinates);
     return location;
   }
@@ -108,7 +108,7 @@ public class LuceneSpatialLineStringTest extends BaseSpatialLuceneTest {
     Assert.assertEquals(1, docs.size());
 
     query = "select * from Place where location && 'LINESTRING(1 2, 4 6)' ";
-    docs = db.query(new OSQLSynchQuery<YTEntityImpl>(query));
+    docs = db.query(new OSQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(1, docs.size());
 

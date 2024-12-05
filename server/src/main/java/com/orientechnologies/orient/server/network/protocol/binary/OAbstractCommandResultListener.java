@@ -19,13 +19,13 @@
  */
 package com.orientechnologies.orient.server.network.protocol.binary;
 
-import com.orientechnologies.core.command.OCommandResultListener;
-import com.orientechnologies.core.fetch.OFetchContext;
-import com.orientechnologies.core.fetch.OFetchHelper;
-import com.orientechnologies.core.fetch.OFetchListener;
-import com.orientechnologies.core.fetch.OFetchPlan;
-import com.orientechnologies.core.fetch.remote.ORemoteFetchContext;
-import com.orientechnologies.core.record.YTRecord;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
+import com.jetbrains.youtrack.db.internal.core.fetch.OFetchContext;
+import com.jetbrains.youtrack.db.internal.core.fetch.OFetchHelper;
+import com.jetbrains.youtrack.db.internal.core.fetch.OFetchListener;
+import com.jetbrains.youtrack.db.internal.core.fetch.OFetchPlan;
+import com.jetbrains.youtrack.db.internal.core.fetch.remote.ORemoteFetchContext;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.orientechnologies.orient.client.remote.SimpleValueFetchPlanCommandListener;
 
 /**
@@ -58,7 +58,7 @@ public abstract class OAbstractCommandResultListener
   protected void fetchRecord(final Object iRecord, final OFetchListener iFetchListener) {
     if (fetchPlan != null
         && fetchPlan != OFetchHelper.DEFAULT_FETCHPLAN
-        && iRecord instanceof YTRecord record) {
+        && iRecord instanceof Record record) {
       final OFetchContext context = new ORemoteFetchContext();
       OFetchHelper.fetch(record, record, fetchPlan, iFetchListener, context, "");
     }

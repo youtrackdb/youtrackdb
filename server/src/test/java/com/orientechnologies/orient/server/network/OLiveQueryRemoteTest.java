@@ -1,23 +1,23 @@
 package com.orientechnologies.orient.server.network;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YTLiveQueryMonitor;
-import com.orientechnologies.core.db.YTLiveQueryResultListener;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.record.YTEntity;
-import com.orientechnologies.core.record.YTVertex;
-import com.orientechnologies.core.sql.executor.YTResult;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryMonitor;
+import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryResultListener;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ public class OLiveQueryRemoteTest {
 
   @Before
   public void before() throws Exception {
-    YTGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
+    GlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
     server = new OServer(false);
     server.startup(
         getClass()
@@ -118,7 +118,7 @@ public class OLiveQueryRemoteTest {
   public void testRidSelect() throws InterruptedException {
     MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(1));
     db.begin();
-    YTVertex item = db.newVertex();
+    Vertex item = db.newVertex();
     item.save();
     db.commit();
 
@@ -266,7 +266,7 @@ public class OLiveQueryRemoteTest {
 
     db.begin();
     for (int i = 0; i < txSize; i++) {
-      YTEntity elem = db.newEntity("test");
+      Entity elem = db.newEntity("test");
       elem.setProperty("name", "foo");
       elem.setProperty("surname", "bar" + i);
       elem.save();

@@ -15,15 +15,15 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.common.util.OPatternConst;
-import com.orientechnologies.core.exception.YTRecordNotFoundException;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.metadata.schema.YTProperty;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTRecordAbstract;
-import com.orientechnologies.core.record.impl.ODocumentInternal;
-import com.orientechnologies.core.record.impl.YTBlob;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.common.util.OPatternConst;
+import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
+import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -60,22 +60,22 @@ public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDb
     iRequest.getData().commandInfo = "Download";
     iRequest.getData().commandDetail = rid;
 
-    final YTRecordAbstract response;
+    final RecordAbstract response;
     var db = getProfiledDatabaseInstance(iRequest);
     try {
       try {
         response = db.load(new YTRecordId(rid));
-        if (response instanceof YTBlob) {
+        if (response instanceof Blob) {
           sendORecordBinaryFileContent(
               iResponse,
               OHttpUtils.STATUS_OK_CODE,
               OHttpUtils.STATUS_OK_DESCRIPTION,
               fileType,
-              (YTBlob) response,
+              (Blob) response,
               fileName);
-        } else if (response instanceof YTEntityImpl) {
+        } else if (response instanceof EntityImpl) {
           for (YTProperty prop :
-              ODocumentInternal.getImmutableSchemaClass(((YTEntityImpl) response)).properties(db)) {
+              ODocumentInternal.getImmutableSchemaClass(((EntityImpl) response)).properties(db)) {
             if (prop.getType().equals(YTType.BINARY)) {
               sendBinaryFieldFileContent(
                   iRequest,
@@ -83,7 +83,7 @@ public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDb
                   OHttpUtils.STATUS_OK_CODE,
                   OHttpUtils.STATUS_OK_DESCRIPTION,
                   fileType,
-                  ((YTEntityImpl) response).field(prop.getName()),
+                  ((EntityImpl) response).field(prop.getName()),
                   fileName);
             }
           }
@@ -117,14 +117,14 @@ public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDb
       final int iCode,
       final String iReason,
       final String iContentType,
-      final YTBlob record,
+      final Blob record,
       final String iFileName)
       throws IOException {
     iResponse.writeStatus(iCode, iReason);
     iResponse.writeHeaders(iContentType);
     iResponse.writeLine("Content-Disposition: attachment; filename=" + iFileName);
     iResponse.writeLine("Date: " + new Date());
-    iResponse.writeLine(OHttpUtils.HEADER_CONTENT_LENGTH + (((YTRecordAbstract) record).getSize()));
+    iResponse.writeLine(OHttpUtils.HEADER_CONTENT_LENGTH + (((RecordAbstract) record).getSize()));
     iResponse.writeLine(null);
 
     record.toOutputStream(iResponse.getOutputStream());

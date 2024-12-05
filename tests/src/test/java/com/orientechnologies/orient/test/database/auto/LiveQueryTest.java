@@ -15,13 +15,13 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.exception.YTException;
-import com.orientechnologies.core.command.OCommandOutputListener;
-import com.orientechnologies.core.db.record.ORecordOperation;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.query.OLegacyResultSet;
-import com.orientechnologies.core.sql.query.OLiveQuery;
-import com.orientechnologies.core.sql.query.OLiveResultListener;
+import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OLegacyResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OLiveQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.OLiveResultListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,10 +76,10 @@ public class LiveQueryTest extends DocumentDBBaseTest implements OCommandOutputL
 
     MyLiveQueryListener listener = new MyLiveQueryListener();
 
-    OLegacyResultSet<YTEntityImpl> tokens =
-        database.query(new OLiveQuery<YTEntityImpl>("live select from " + className1, listener));
+    OLegacyResultSet<EntityImpl> tokens =
+        database.query(new OLiveQuery<EntityImpl>("live select from " + className1, listener));
     Assert.assertEquals(tokens.size(), 1);
-    YTEntityImpl tokenDoc = tokens.get(0);
+    EntityImpl tokenDoc = tokens.get(0);
     int token = tokenDoc.field("token");
     Assert.assertNotNull(token);
 
@@ -94,7 +94,7 @@ public class LiveQueryTest extends DocumentDBBaseTest implements OCommandOutputL
     Assert.assertEquals(listener.ops.size(), 2);
     for (ORecordOperation doc : listener.ops) {
       Assert.assertEquals(doc.type, ORecordOperation.CREATED);
-      Assert.assertEquals(((YTEntityImpl) doc.record).field("name"), "foo");
+      Assert.assertEquals(((EntityImpl) doc.record).field("name"), "foo");
     }
     unLatch.await(1, TimeUnit.MINUTES);
     Assert.assertEquals(listener.unsubscribe, token);

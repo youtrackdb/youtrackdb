@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server.query;
 
-import com.orientechnologies.core.config.YTGlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
 import org.junit.Test;
 
@@ -10,7 +10,7 @@ import org.junit.Test;
 public class RemoteDropClusterTest extends BaseServerMemoryDatabase {
 
   public void beforeTest() {
-    YTGlobalConfiguration.CLASS_MINIMUM_CLUSTERS.setValue(1);
+    GlobalConfiguration.CLASS_MINIMUM_CLUSTERS.setValue(1);
     super.beforeTest();
   }
 

@@ -16,19 +16,19 @@
 
 package com.orientechnologies.orient.server.network.protocol.binary;
 
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.remote.OFetchPlanResults;
-import com.orientechnologies.core.command.OCommandResultListener;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.exception.YTFetchException;
-import com.orientechnologies.core.fetch.OFetchContext;
-import com.orientechnologies.core.fetch.OFetchHelper;
-import com.orientechnologies.core.fetch.remote.ORemoteFetchContext;
-import com.orientechnologies.core.fetch.remote.ORemoteFetchListener;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.record.YTRecord;
-import com.orientechnologies.core.record.YTRecordAbstract;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.YTFetchException;
+import com.jetbrains.youtrack.db.internal.core.fetch.OFetchContext;
+import com.jetbrains.youtrack.db.internal.core.fetch.OFetchHelper;
+import com.jetbrains.youtrack.db.internal.core.fetch.remote.ORemoteFetchContext;
+import com.jetbrains.youtrack.db.internal.core.fetch.remote.ORemoteFetchListener;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,8 +38,8 @@ import java.util.Set;
 public class OSyncCommandResultListener extends OAbstractCommandResultListener
     implements OFetchPlanResults {
 
-  private final Set<YTRecord> fetchedRecordsToSend = new HashSet<YTRecord>();
-  private final Set<YTRecord> alreadySent = new HashSet<YTRecord>();
+  private final Set<Record> fetchedRecordsToSend = new HashSet<Record>();
+  private final Set<Record> alreadySent = new HashSet<Record>();
 
   public OSyncCommandResultListener(final OCommandResultListener wrappedResultListener) {
     super(wrappedResultListener);
@@ -47,8 +47,8 @@ public class OSyncCommandResultListener extends OAbstractCommandResultListener
 
   @Override
   public boolean result(YTDatabaseSessionInternal querySession, final Object iRecord) {
-    if (iRecord instanceof YTRecord) {
-      alreadySent.add((YTRecord) iRecord);
+    if (iRecord instanceof Record) {
+      alreadySent.add((Record) iRecord);
       fetchedRecordsToSend.remove(iRecord);
     }
 
@@ -62,7 +62,7 @@ public class OSyncCommandResultListener extends OAbstractCommandResultListener
         iRecord,
         new ORemoteFetchListener() {
           @Override
-          protected void sendRecord(YTRecordAbstract iLinked) {
+          protected void sendRecord(RecordAbstract iLinked) {
             if (!alreadySent.contains(iLinked)) {
               fetchedRecordsToSend.add(iLinked);
             }
@@ -71,7 +71,7 @@ public class OSyncCommandResultListener extends OAbstractCommandResultListener
     return true;
   }
 
-  public Set<YTRecord> getFetchedRecordsToSend() {
+  public Set<Record> getFetchedRecordsToSend() {
     return fetchedRecordsToSend;
   }
 
@@ -80,12 +80,12 @@ public class OSyncCommandResultListener extends OAbstractCommandResultListener
   }
 
   @Override
-  public void linkdedBySimpleValue(YTEntityImpl doc) {
+  public void linkdedBySimpleValue(EntityImpl doc) {
 
     ORemoteFetchListener listener =
         new ORemoteFetchListener() {
           @Override
-          protected void sendRecord(YTRecordAbstract iLinked) {
+          protected void sendRecord(RecordAbstract iLinked) {
             if (!alreadySent.contains(iLinked)) {
               fetchedRecordsToSend.add(iLinked);
             }
@@ -93,7 +93,7 @@ public class OSyncCommandResultListener extends OAbstractCommandResultListener
 
           @Override
           public void parseLinked(
-              YTEntityImpl iRootRecord,
+              EntityImpl iRootRecord,
               YTIdentifiable iLinked,
               Object iUserObject,
               String iFieldName,
@@ -106,7 +106,7 @@ public class OSyncCommandResultListener extends OAbstractCommandResultListener
 
           @Override
           public void parseLinkedCollectionValue(
-              YTEntityImpl iRootRecord,
+              EntityImpl iRootRecord,
               YTIdentifiable iLinked,
               Object iUserObject,
               String iFieldName,

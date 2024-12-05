@@ -19,14 +19,14 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.patch;
 
-import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.core.db.YTDatabaseSession;
-import com.orientechnologies.core.exception.YTRecordNotFoundException;
-import com.orientechnologies.core.id.ChangeableRecordId;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.record.ORecordInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -63,7 +63,7 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
                 }
 
                 // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
-                var doc = new YTEntityImpl();
+                var doc = new EntityImpl();
                 doc.fromJSON(iRequest.getContent());
 
                 if (iRequest.getIfMatch() != null)
@@ -82,7 +82,7 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
                   throw new IllegalArgumentException("Invalid Record ID in request: " + recordId);
                 }
 
-                final YTEntityImpl currentDocument;
+                final EntityImpl currentDocument;
 
                 try {
                   currentDocument = db.load(recordId);

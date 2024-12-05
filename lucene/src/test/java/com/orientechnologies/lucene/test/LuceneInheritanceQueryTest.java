@@ -18,11 +18,11 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,7 +37,7 @@ public class LuceneInheritanceQueryTest extends BaseLuceneTest {
   @Test
   public void testQuery() {
     createSchema(db);
-    YTEntityImpl doc = new YTEntityImpl("C2");
+    EntityImpl doc = new EntityImpl("C2");
     doc.field("name", "abc");
     db.begin();
     db.save(doc);

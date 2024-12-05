@@ -15,14 +15,14 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.command.OCommandOutputListener;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.document.YTDatabaseDocumentTx;
-import com.orientechnologies.core.db.tool.ODatabaseCompare;
-import com.orientechnologies.core.db.tool.ODatabaseExport;
-import com.orientechnologies.core.db.tool.ODatabaseImport;
-import com.orientechnologies.core.hook.YTRecordHook;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseCompare;
+import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseExport;
+import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseImport;
+import com.jetbrains.youtrack.db.internal.core.hook.YTRecordHook;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;

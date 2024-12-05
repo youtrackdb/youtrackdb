@@ -18,14 +18,14 @@
 
 package com.orientechnologies.orient.server.plugin;
 
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 
 /**
  *
  */
 public interface OServerPluginConfigurable {
 
-  YTEntityImpl getConfig();
+  EntityImpl getConfig();
 
-  void changeConfig(YTEntityImpl document);
+  void changeConfig(EntityImpl document);
 }

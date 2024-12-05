@@ -19,13 +19,13 @@
  */
 package com.orientechnologies.orient.server.plugin;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.common.parser.OSystemVariableResolver;
-import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.common.util.OService;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.exception.YTConfigurationException;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.common.parser.OSystemVariableResolver;
+import com.jetbrains.youtrack.db.internal.common.util.OCallable;
+import com.jetbrains.youtrack.db.internal.common.util.OService;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -388,7 +388,7 @@ public class OServerPluginManager implements OService {
                   "Error on loading 'plugin.json' file for dynamic plugin '%s'", pluginName));
         }
 
-        final YTEntityImpl properties = new YTEntityImpl().fromJSON(pluginConfigFile);
+        final EntityImpl properties = new EntityImpl().fromJSON(pluginConfigFile);
 
         if (properties.containsField("name"))
         // OVERWRITE PLUGIN NAME

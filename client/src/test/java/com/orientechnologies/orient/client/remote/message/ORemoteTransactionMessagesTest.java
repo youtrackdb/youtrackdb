@@ -6,20 +6,20 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.DBTestBase;
-import com.orientechnologies.common.comparator.ODefaultComparator;
-import com.orientechnologies.core.db.record.ORecordOperation;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.id.YTRecordId;
-import com.orientechnologies.core.record.ORecordInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
-import com.orientechnologies.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
-import com.orientechnologies.core.storage.index.sbtreebonsai.local.OBonsaiBucketPointer;
-import com.orientechnologies.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
-import com.orientechnologies.core.tx.OTransactionIndexChanges;
-import com.orientechnologies.core.tx.OTransactionIndexChanges.OPERATION;
-import com.orientechnologies.core.tx.OTransactionIndexChangesPerKey;
+import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.common.comparator.ODefaultComparator;
+import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
+import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.OBonsaiBucketPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges.OPERATION;
+import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChangesPerKey;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +48,7 @@ public class ORemoteTransactionMessagesTest extends DBTestBase {
   public void testBeginTransactionWriteRead() throws IOException {
 
     List<ORecordOperation> operations = new ArrayList<>();
-    operations.add(new ORecordOperation(new YTEntityImpl(), ORecordOperation.CREATED));
+    operations.add(new ORecordOperation(new EntityImpl(), ORecordOperation.CREATED));
     Map<String, OTransactionIndexChanges> changes = new HashMap<>();
     OTransactionIndexChanges change = new OTransactionIndexChanges();
     change.cleared = false;
@@ -88,7 +88,7 @@ public class ORemoteTransactionMessagesTest extends DBTestBase {
   @Test
   public void testFullCommitTransactionWriteRead() throws IOException {
     List<ORecordOperation> operations = new ArrayList<>();
-    operations.add(new ORecordOperation(new YTEntityImpl(), ORecordOperation.CREATED));
+    operations.add(new ORecordOperation(new EntityImpl(), ORecordOperation.CREATED));
     Map<String, OTransactionIndexChanges> changes = new HashMap<>();
     OTransactionIndexChanges change = new OTransactionIndexChanges();
     change.cleared = false;
@@ -180,11 +180,11 @@ public class ORemoteTransactionMessagesTest extends DBTestBase {
   public void testTransactionFetchResponseWriteRead() throws IOException {
 
     List<ORecordOperation> operations = new ArrayList<>();
-    operations.add(new ORecordOperation(new YTEntityImpl(), ORecordOperation.CREATED));
-    var docOne = new YTEntityImpl();
+    operations.add(new ORecordOperation(new EntityImpl(), ORecordOperation.CREATED));
+    var docOne = new EntityImpl();
     ORecordInternal.setIdentity(docOne, new YTRecordId(10, 2));
 
-    var docTwo = new YTEntityImpl();
+    var docTwo = new EntityImpl();
     ORecordInternal.setIdentity(docTwo, new YTRecordId(10, 1));
 
     operations.add(
@@ -239,11 +239,11 @@ public class ORemoteTransactionMessagesTest extends DBTestBase {
   public void testTransactionFetchResponse38WriteRead() throws IOException {
 
     List<ORecordOperation> operations = new ArrayList<>();
-    operations.add(new ORecordOperation(new YTEntityImpl(), ORecordOperation.CREATED));
+    operations.add(new ORecordOperation(new EntityImpl(), ORecordOperation.CREATED));
     operations.add(
-        new ORecordOperation(new YTEntityImpl(new YTRecordId(10, 2)), ORecordOperation.UPDATED));
+        new ORecordOperation(new EntityImpl(new YTRecordId(10, 2)), ORecordOperation.UPDATED));
     operations.add(
-        new ORecordOperation(new YTEntityImpl(new YTRecordId(10, 1)), ORecordOperation.DELETED));
+        new ORecordOperation(new EntityImpl(new YTRecordId(10, 1)), ORecordOperation.DELETED));
     Map<String, OTransactionIndexChanges> changes = new HashMap<>();
     OTransactionIndexChanges change = new OTransactionIndexChanges();
     change.cleared = false;

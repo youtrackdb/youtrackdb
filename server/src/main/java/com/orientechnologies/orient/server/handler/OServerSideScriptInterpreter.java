@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.server.handler;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.command.OScriptInterceptor;
-import com.orientechnologies.core.command.script.OCommandExecutorScript;
-import com.orientechnologies.core.command.script.OCommandScript;
-import com.orientechnologies.core.db.YouTrackDBInternal;
-import com.orientechnologies.core.exception.YTSecurityException;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.command.OScriptInterceptor;
+import com.jetbrains.youtrack.db.internal.core.command.script.OCommandExecutorScript;
+import com.jetbrains.youtrack.db.internal.core.command.script.OCommandScript;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityException;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;

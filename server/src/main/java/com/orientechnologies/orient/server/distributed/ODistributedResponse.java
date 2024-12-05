@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.core.serialization.OStreamableHelper;
+import com.jetbrains.youtrack.db.internal.core.serialization.OStreamableHelper;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;

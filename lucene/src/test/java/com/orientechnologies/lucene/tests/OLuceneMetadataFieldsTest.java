@@ -3,7 +3,7 @@ package com.orientechnologies.lucene.tests;
 import static com.orientechnologies.lucene.functions.OLuceneFunctionsUtils.doubleEscape;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.io.InputStream;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.List;
 public class OPushDistributedConfigurationRequest
     implements OBinaryPushRequest<OBinaryPushResponse> {
 
-  public YTEntityImpl configuration;
+  public EntityImpl configuration;
   private List<String> hosts;
 
   public OPushDistributedConfigurationRequest(List<String> hosts) {

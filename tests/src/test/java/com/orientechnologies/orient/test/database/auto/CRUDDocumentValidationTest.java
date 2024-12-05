@@ -15,15 +15,15 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.common.util.OPair;
-import com.orientechnologies.core.command.OBasicCommandContext;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.core.exception.YTDatabaseException;
-import com.orientechnologies.core.exception.YTValidationException;
-import com.orientechnologies.core.record.YTEntity;
-import com.orientechnologies.core.record.impl.ODocumentComparator;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
-import com.orientechnologies.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.common.util.OPair;
+import com.jetbrains.youtrack.db.internal.core.command.OBasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.YTValidationException;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentComparator;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -37,8 +37,8 @@ import org.testng.annotations.Test;
 @Test
 public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
 
-  private YTEntityImpl record;
-  private YTEntityImpl account;
+  private EntityImpl record;
+  private EntityImpl account;
 
   @Parameters(value = "remote")
   public CRUDDocumentValidationTest(@Optional Boolean remote) {
@@ -48,7 +48,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
   @Test
   public void openDb() {
     database.begin();
-    account = new YTEntityImpl("Account");
+    account = new EntityImpl("Account");
     account.save();
     account.field("id", "1234567890");
     database.commit();
@@ -122,7 +122,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
       expectedExceptions = YTValidationException.class)
   public void validationStrictClass() throws ParseException {
     database.begin();
-    YTEntityImpl doc = new YTEntityImpl("StrictTest");
+    EntityImpl doc = new EntityImpl("StrictTest");
     doc.field("id", 122112);
     doc.field("antani", "122112");
     doc.save();
@@ -177,7 +177,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream().toList();
     database.begin();
     Assert.assertEquals(result.size(), 1);
-    YTEntity readDoc = result.get(0).toEntity();
+    Entity readDoc = result.get(0).toEntity();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K1N");
     readDoc.save();
@@ -186,7 +186,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testUpdateDocDefined")
   public void validationMandatoryNullableCloseDb() throws ParseException {
-    YTEntityImpl doc = new YTEntityImpl("MyTestClass");
+    EntityImpl doc = new EntityImpl("MyTestClass");
     doc.field("keyField", "K2");
     doc.field("dateTimeField", (Date) null);
     doc.field("stringField", (String) null);
@@ -201,7 +201,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K2").stream().toList();
     database.begin();
     Assert.assertEquals(result.size(), 1);
-    YTEntity readDoc = result.get(0).toEntity();
+    Entity readDoc = result.get(0).toEntity();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K2N");
     readDoc.save();
@@ -210,7 +210,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "validationMandatoryNullableCloseDb")
   public void validationMandatoryNullableNoCloseDb() throws ParseException {
-    YTEntityImpl doc = new YTEntityImpl("MyTestClass");
+    EntityImpl doc = new EntityImpl("MyTestClass");
     doc.field("keyField", "K3");
     doc.field("dateTimeField", (Date) null);
     doc.field("stringField", (String) null);
@@ -223,7 +223,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     List<YTResult> result =
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K3").stream().toList();
     Assert.assertEquals(result.size(), 1);
-    YTEntity readDoc = result.get(0).toEntity();
+    Entity readDoc = result.get(0).toEntity();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K3N");
     readDoc.save();
@@ -234,7 +234,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
   public void validationDisabledAdDatabaseLevel() throws ParseException {
     database.getMetadata().reload();
     try {
-      YTEntityImpl doc = new YTEntityImpl("MyTestClass");
+      EntityImpl doc = new EntityImpl("MyTestClass");
       database.begin();
       doc.save();
       database.commit();
@@ -248,7 +248,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.setValidationEnabled(false);
     try {
 
-      YTEntityImpl doc = new YTEntityImpl("MyTestClass");
+      EntityImpl doc = new EntityImpl("MyTestClass");
       database.begin();
       doc.save();
       database.commit();
@@ -273,8 +273,8 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
   @Test
   public void testNullComparison() {
     // given
-    YTEntityImpl doc1 = new YTEntityImpl().field("testField", (Object) null);
-    YTEntityImpl doc2 = new YTEntityImpl().field("testField", (Object) null);
+    EntityImpl doc1 = new EntityImpl().field("testField", (Object) null);
+    EntityImpl doc2 = new EntityImpl().field("testField", (Object) null);
 
     ODocumentComparator comparator =
         new ODocumentComparator(

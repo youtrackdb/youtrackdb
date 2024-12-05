@@ -16,18 +16,18 @@
 
 package com.orientechnologies.orient.server.network.protocol.binary;
 
-import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.core.command.OCommandResultListener;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.record.YTIdentifiable;
-import com.orientechnologies.core.exception.YTFetchException;
-import com.orientechnologies.core.fetch.OFetchContext;
-import com.orientechnologies.core.fetch.OFetchHelper;
-import com.orientechnologies.core.fetch.remote.ORemoteFetchContext;
-import com.orientechnologies.core.fetch.remote.ORemoteFetchListener;
-import com.orientechnologies.core.id.YTRID;
-import com.orientechnologies.core.record.YTRecordAbstract;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.common.log.OLogManager;
+import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.YTFetchException;
+import com.jetbrains.youtrack.db.internal.core.fetch.OFetchContext;
+import com.jetbrains.youtrack.db.internal.core.fetch.OFetchHelper;
+import com.jetbrains.youtrack.db.internal.core.fetch.remote.ORemoteFetchContext;
+import com.jetbrains.youtrack.db.internal.core.fetch.remote.ORemoteFetchListener;
+import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.OClientConnection;
 import java.io.IOException;
 import java.util.HashSet;
@@ -63,7 +63,7 @@ public class OAsyncCommandResultListener extends OAbstractCommandResultListener 
           iRecord,
           new ORemoteFetchListener() {
             @Override
-            protected void sendRecord(YTRecordAbstract iLinked) {
+            protected void sendRecord(RecordAbstract iLinked) {
               if (!alreadySent.contains(iLinked.getIdentity())) {
                 alreadySent.add(iLinked.getIdentity());
                 try {
@@ -99,11 +99,11 @@ public class OAsyncCommandResultListener extends OAbstractCommandResultListener 
   }
 
   @Override
-  public void linkdedBySimpleValue(YTEntityImpl doc) {
+  public void linkdedBySimpleValue(EntityImpl doc) {
     ORemoteFetchListener listener =
         new ORemoteFetchListener() {
           @Override
-          protected void sendRecord(YTRecordAbstract iLinked) {
+          protected void sendRecord(RecordAbstract iLinked) {
             if (!alreadySent.contains(iLinked.getIdentity())) {
               alreadySent.add(iLinked.getIdentity());
               try {
@@ -117,26 +117,26 @@ public class OAsyncCommandResultListener extends OAbstractCommandResultListener 
 
           @Override
           public void parseLinked(
-              YTEntityImpl iRootRecord,
+              EntityImpl iRootRecord,
               YTIdentifiable iLinked,
               Object iUserObject,
               String iFieldName,
               OFetchContext iContext)
               throws YTFetchException {
-            if (iLinked instanceof YTRecordAbstract record) {
+            if (iLinked instanceof RecordAbstract record) {
               sendRecord(record);
             }
           }
 
           @Override
           public void parseLinkedCollectionValue(
-              YTEntityImpl iRootRecord,
+              EntityImpl iRootRecord,
               YTIdentifiable iLinked,
               Object iUserObject,
               String iFieldName,
               OFetchContext iContext)
               throws YTFetchException {
-            if (iLinked instanceof YTRecordAbstract record) {
+            if (iLinked instanceof RecordAbstract record) {
               sendRecord(record);
             }
           }

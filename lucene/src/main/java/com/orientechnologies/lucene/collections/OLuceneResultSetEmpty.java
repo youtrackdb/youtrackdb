@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.collections;
 
-import com.orientechnologies.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import java.util.Collections;
 import java.util.Iterator;
 

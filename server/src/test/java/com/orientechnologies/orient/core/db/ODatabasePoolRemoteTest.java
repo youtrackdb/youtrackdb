@@ -2,15 +2,15 @@ package com.orientechnologies.orient.core.db;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.DBTestBase;
-import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.core.db.ODatabasePool;
-import com.orientechnologies.core.db.YTDatabaseSessionInternal;
-import com.orientechnologies.core.db.YouTrackDB;
-import com.orientechnologies.core.db.YouTrackDBConfig;
-import com.orientechnologies.core.YouTrackDBManager;
-import com.orientechnologies.core.config.YTGlobalConfiguration;
-import com.orientechnologies.core.record.impl.YTEntityImpl;
+import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.common.io.OFileUtils;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.ODatabasePool;
+import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
+import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import org.junit.After;
@@ -24,7 +24,7 @@ public class ODatabasePoolRemoteTest {
 
   @Before
   public void before() throws Exception {
-    YTGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
+    GlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
     server = new OServer(false);
     server.setServerRootDirectory(SERVER_DIRECTORY);
     server.startup(
@@ -42,7 +42,7 @@ public class ODatabasePoolRemoteTest {
             "remote:localhost:",
             "root",
             "root",
-            YouTrackDBConfig.builder().addConfig(YTGlobalConfiguration.DB_POOL_MAX, 1).build());
+            YouTrackDBConfig.builder().addConfig(GlobalConfiguration.DB_POOL_MAX, 1).build());
 
     if (!youTrackDb.exists("test")) {
       youTrackDb.execute(
@@ -53,7 +53,7 @@ public class ODatabasePoolRemoteTest {
     YTDatabaseSessionInternal db = (YTDatabaseSessionInternal) pool.acquire();
     db.createClass("Test");
     db.begin();
-    db.save(new YTEntityImpl("Test"));
+    db.save(new EntityImpl("Test"));
     db.close();
     db = (YTDatabaseSessionInternal) pool.acquire();
     assertEquals(0, db.countClass("Test"));
@@ -67,7 +67,7 @@ public class ODatabasePoolRemoteTest {
     YouTrackDB youTrackDb =
         new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
-            YouTrackDBConfig.builder().addConfig(YTGlobalConfiguration.DB_POOL_MAX, 1).build());
+            YouTrackDBConfig.builder().addConfig(GlobalConfiguration.DB_POOL_MAX, 1).build());
 
     if (!youTrackDb.exists("test")) {
       youTrackDb.execute(

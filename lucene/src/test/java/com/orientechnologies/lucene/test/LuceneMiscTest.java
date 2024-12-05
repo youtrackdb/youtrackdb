@@ -18,13 +18,13 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.orientechnologies.core.metadata.schema.YTClass;
-import com.orientechnologies.core.metadata.schema.YTSchema;
-import com.orientechnologies.core.metadata.schema.YTType;
-import com.orientechnologies.core.record.YTEdge;
-import com.orientechnologies.core.record.YTVertex;
-import com.orientechnologies.core.sql.OCommandSQL;
-import com.orientechnologies.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.record.Edge;
+import com.jetbrains.youtrack.db.internal.core.record.Vertex;
+import com.jetbrains.youtrack.db.internal.core.sql.OCommandSQL;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -129,14 +129,14 @@ public class LuceneMiscTest extends BaseLuceneTest {
     db.command("create index AuthorOf.in on AuthorOf (in) NOTUNIQUE").close();
     db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE").close();
 
-    YTVertex authorVertex = db.newVertex("Author");
+    Vertex authorVertex = db.newVertex("Author");
     authorVertex.setProperty("name", "Bob Dylan");
 
     db.begin();
     db.save(authorVertex);
     db.commit();
 
-    YTVertex songVertex = db.newVertex("Song");
+    Vertex songVertex = db.newVertex("Song");
     songVertex.setProperty("title", "hurricane");
 
     db.begin();
@@ -146,7 +146,7 @@ public class LuceneMiscTest extends BaseLuceneTest {
     db.begin();
     authorVertex = db.bindToSession(authorVertex);
     songVertex = db.bindToSession(songVertex);
-    YTEdge edge = authorVertex.addEdge(songVertex, "AuthorOf");
+    Edge edge = authorVertex.addEdge(songVertex, "AuthorOf");
     db.save(edge);
     db.commit();
 
