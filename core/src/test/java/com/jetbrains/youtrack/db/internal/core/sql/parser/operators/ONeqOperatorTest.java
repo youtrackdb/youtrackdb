@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser.operators;
 
 import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ONeqOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLNeqOperator;
 import java.math.BigDecimal;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class ONeqOperatorTest {
 
   @Test
   public void test() {
-    ONeqOperator op = new ONeqOperator(-1);
+    SQLNeqOperator op = new SQLNeqOperator(-1);
     Assert.assertTrue(op.execute(null, 1));
     Assert.assertTrue(op.execute(1, null));
     Assert.assertTrue(op.execute(null, null));

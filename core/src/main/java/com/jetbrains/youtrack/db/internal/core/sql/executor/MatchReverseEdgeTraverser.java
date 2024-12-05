@@ -3,9 +3,9 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMatchPathItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ORid;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchPathItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLRid;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 
 /**
  *
@@ -21,19 +21,19 @@ public class MatchReverseEdgeTraverser extends MatchEdgeTraverser {
     this.endPointAlias = edge.edge.out.alias;
   }
 
-  protected String targetClassName(OMatchPathItem item, CommandContext iCommandContext) {
+  protected String targetClassName(SQLMatchPathItem item, CommandContext iCommandContext) {
     return edge.getLeftClass();
   }
 
-  protected String targetClusterName(OMatchPathItem item, CommandContext iCommandContext) {
+  protected String targetClusterName(SQLMatchPathItem item, CommandContext iCommandContext) {
     return edge.getLeftCluster();
   }
 
-  protected ORid targetRid(OMatchPathItem item, CommandContext iCommandContext) {
+  protected SQLRid targetRid(SQLMatchPathItem item, CommandContext iCommandContext) {
     return edge.getLeftRid();
   }
 
-  protected OWhereClause getTargetFilter(OMatchPathItem item) {
+  protected SQLWhereClause getTargetFilter(SQLMatchPathItem item) {
     return edge.getLeftFilter();
   }
 

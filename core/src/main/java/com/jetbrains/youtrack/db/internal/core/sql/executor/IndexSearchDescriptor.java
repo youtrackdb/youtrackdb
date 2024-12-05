@@ -4,11 +4,11 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.OCompositeIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OAndBlock;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCondition;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBooleanExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OEqualsCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCondition;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLEqualsCompareOperator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,15 +19,15 @@ import java.util.List;
 public class IndexSearchDescriptor {
 
   private final OIndex index;
-  private final OBooleanExpression keyCondition;
-  private final OBinaryCondition additionalRangeCondition;
-  private final OBooleanExpression remainingCondition;
+  private final SQLBooleanExpression keyCondition;
+  private final SQLBinaryCondition additionalRangeCondition;
+  private final SQLBooleanExpression remainingCondition;
 
   public IndexSearchDescriptor(
       OIndex idx,
-      OBooleanExpression keyCondition,
-      OBinaryCondition additional,
-      OBooleanExpression remainingCondition) {
+      SQLBooleanExpression keyCondition,
+      SQLBinaryCondition additional,
+      SQLBooleanExpression remainingCondition) {
     this.index = idx;
     this.keyCondition = keyCondition;
     this.additionalRangeCondition = additional;
@@ -41,7 +41,7 @@ public class IndexSearchDescriptor {
     this.remainingCondition = null;
   }
 
-  public IndexSearchDescriptor(OIndex idx, OBooleanExpression keyCondition) {
+  public IndexSearchDescriptor(OIndex idx, SQLBooleanExpression keyCondition) {
     this.index = idx;
     this.keyCondition = keyCondition;
     this.additionalRangeCondition = null;
@@ -54,9 +54,9 @@ public class IndexSearchDescriptor {
     String indexName = index.getName();
     int size = getSubBlocks().size();
     boolean range = false;
-    OBooleanExpression lastOp = getSubBlocks().get(getSubBlocks().size() - 1);
-    if (lastOp instanceof OBinaryCondition) {
-      OBinaryCompareOperator op = ((OBinaryCondition) lastOp).getOperator();
+    SQLBooleanExpression lastOp = getSubBlocks().get(getSubBlocks().size() - 1);
+    if (lastOp instanceof SQLBinaryCondition) {
+      SQLBinaryCompareOperator op = ((SQLBinaryCondition) lastOp).getOperator();
       range = op.isRangeOperator();
     }
 
@@ -72,9 +72,9 @@ public class IndexSearchDescriptor {
     return Integer.MAX_VALUE;
   }
 
-  private List<OBooleanExpression> getSubBlocks() {
-    if (keyCondition instanceof OAndBlock) {
-      return ((OAndBlock) keyCondition).getSubBlocks();
+  private List<SQLBooleanExpression> getSubBlocks() {
+    if (keyCondition instanceof SQLAndBlock) {
+      return ((SQLAndBlock) keyCondition).getSubBlocks();
     } else {
       return Collections.singletonList(keyCondition);
     }
@@ -88,15 +88,15 @@ public class IndexSearchDescriptor {
     return index;
   }
 
-  protected OBooleanExpression getKeyCondition() {
+  protected SQLBooleanExpression getKeyCondition() {
     return keyCondition;
   }
 
-  protected OBinaryCondition getAdditionalRangeCondition() {
+  protected SQLBinaryCondition getAdditionalRangeCondition() {
     return additionalRangeCondition;
   }
 
-  protected OBooleanExpression getRemainingCondition() {
+  protected SQLBooleanExpression getRemainingCondition() {
     return remainingCondition;
   }
 
@@ -108,8 +108,8 @@ public class IndexSearchDescriptor {
    * @return
    */
   public boolean requiresMultipleIndexLookups() {
-    for (OBooleanExpression oBooleanExpression : getSubBlocks()) {
-      if (!(oBooleanExpression instanceof OBinaryCondition)) {
+    for (SQLBooleanExpression oBooleanExpression : getSubBlocks()) {
+      if (!(oBooleanExpression instanceof SQLBinaryCondition)) {
         return true;
       }
     }
@@ -128,7 +128,7 @@ public class IndexSearchDescriptor {
   }
 
   public boolean fullySorted(List<String> orderItems) {
-    List<OBooleanExpression> conditions = getSubBlocks();
+    List<SQLBooleanExpression> conditions = getSubBlocks();
     OIndex idx = index;
 
     if (!idx.supportsOrderedIterations()) {
@@ -137,10 +137,10 @@ public class IndexSearchDescriptor {
     List<String> conditionItems = new ArrayList<>();
 
     for (int i = 0; i < conditions.size(); i++) {
-      OBooleanExpression item = conditions.get(i);
-      if (item instanceof OBinaryCondition) {
-        if (((OBinaryCondition) item).getOperator() instanceof OEqualsCompareOperator) {
-          conditionItems.add(((OBinaryCondition) item).getLeft().toString());
+      SQLBooleanExpression item = conditions.get(i);
+      if (item instanceof SQLBinaryCondition) {
+        if (((SQLBinaryCondition) item).getOperator() instanceof SQLEqualsCompareOperator) {
+          conditionItems.add(((SQLBinaryCondition) item).getLeft().toString());
         } else if (i != conditions.size() - 1) {
           return false;
         }
@@ -192,8 +192,8 @@ public class IndexSearchDescriptor {
    * @return
    */
   public boolean isPrefixOf(IndexSearchDescriptor other) {
-    List<OBooleanExpression> left = getSubBlocks();
-    List<OBooleanExpression> right = other.getSubBlocks();
+    List<SQLBooleanExpression> left = getSubBlocks();
+    List<SQLBooleanExpression> right = other.getSubBlocks();
     if (left.size() > right.size()) {
       return false;
     }
@@ -209,8 +209,8 @@ public class IndexSearchDescriptor {
     if (blockCount() != desc.blockCount()) {
       return false;
     }
-    List<OBooleanExpression> left = getSubBlocks();
-    List<OBooleanExpression> right = desc.getSubBlocks();
+    List<SQLBooleanExpression> left = getSubBlocks();
+    List<SQLBooleanExpression> right = desc.getSubBlocks();
     for (int i = 0; i < left.size(); i++) {
       if (!left.get(i).equals(right.get(i))) {
         return false;

@@ -4989,7 +4989,7 @@ public abstract class AbstractPaginatedStorage
   /**
    * Register the cluster internally.
    *
-   * @param cluster OCluster implementation
+   * @param cluster SQLCluster implementation
    * @return The id (physical position into the array) of the new cluster just created. First is 0.
    */
   private int registerCluster(final OCluster cluster) {

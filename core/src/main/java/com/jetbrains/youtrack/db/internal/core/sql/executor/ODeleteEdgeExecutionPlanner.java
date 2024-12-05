@@ -3,18 +3,18 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBatch;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ODeleteEdgeStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBatch;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLDeleteEdgeStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OExecutionPlanCache;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIndexIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLimit;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ORid;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIndexIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLimit;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLRid;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,23 +24,23 @@ import java.util.stream.Collectors;
  */
 public class ODeleteEdgeExecutionPlanner {
 
-  private final ODeleteEdgeStatement statement;
+  private final SQLDeleteEdgeStatement statement;
 
-  protected OIdentifier className;
-  protected OIdentifier targetClusterName;
+  protected SQLIdentifier className;
+  protected SQLIdentifier targetClusterName;
 
-  protected List<ORid> rids;
+  protected List<SQLRid> rids;
 
-  private OExpression leftExpression;
-  private OExpression rightExpression;
+  private SQLExpression leftExpression;
+  private SQLExpression rightExpression;
 
-  protected OBatch batch = null;
+  protected SQLBatch batch = null;
 
-  private OWhereClause whereClause;
+  private SQLWhereClause whereClause;
 
-  private OLimit limit;
+  private SQLLimit limit;
 
-  public ODeleteEdgeExecutionPlanner(ODeleteEdgeStatement stm2) {
+  public ODeleteEdgeExecutionPlanner(SQLDeleteEdgeStatement stm2) {
     this.statement = stm2;
   }
 
@@ -92,13 +92,13 @@ public class ODeleteEdgeExecutionPlanner {
     if (leftExpression != null || rightExpression != null) {
       handleGlobalLet(
           result,
-          new OIdentifier("$__ORIENT_DELETE_EDGE_fromV"),
+          new SQLIdentifier("$__ORIENT_DELETE_EDGE_fromV"),
           leftExpression,
           ctx,
           enableProfiling);
       handleGlobalLet(
           result,
-          new OIdentifier("$__ORIENT_DELETE_EDGE_toV"),
+          new SQLIdentifier("$__ORIENT_DELETE_EDGE_toV"),
           rightExpression,
           ctx,
           enableProfiling);
@@ -116,10 +116,10 @@ public class ODeleteEdgeExecutionPlanner {
           enableProfiling);
       handleWhere(result, ctx, whereClause, enableProfiling);
     } else if (whereClause != null) {
-      OFromClause fromClause = new OFromClause(-1);
-      OFromItem item = new OFromItem(-1);
+      SQLFromClause fromClause = new SQLFromClause(-1);
+      SQLFromItem item = new SQLFromItem(-1);
       if (className == null) {
-        item.setIdentifier(new OIdentifier("E"));
+        item.setIdentifier(new SQLIdentifier("E"));
       } else {
         item.setIdentifier(className);
       }
@@ -150,7 +150,7 @@ public class ODeleteEdgeExecutionPlanner {
   private void handleWhere(
       ODeleteExecutionPlan result,
       CommandContext ctx,
-      OWhereClause whereClause,
+      SQLWhereClause whereClause,
       boolean profilingEnabled) {
     if (whereClause != null) {
       result.chain(new FilterStep(whereClause, ctx, -1, profilingEnabled));
@@ -162,8 +162,8 @@ public class ODeleteEdgeExecutionPlanner {
       CommandContext ctx,
       String fromAlias,
       String toAlias,
-      OIdentifier targetClass,
-      OIdentifier targetCluster,
+      SQLIdentifier targetClass,
+      SQLIdentifier targetCluster,
       boolean profilingEnabled) {
     if (fromAlias != null && toAlias != null) {
       result.chain(
@@ -176,7 +176,8 @@ public class ODeleteEdgeExecutionPlanner {
   }
 
   private void handleTargetRids(
-      ODeleteExecutionPlan result, CommandContext ctx, List<ORid> rids, boolean profilingEnabled) {
+      ODeleteExecutionPlan result, CommandContext ctx, List<SQLRid> rids,
+      boolean profilingEnabled) {
     if (rids != null) {
       result.chain(
           new FetchFromRidsStep(
@@ -191,7 +192,7 @@ public class ODeleteEdgeExecutionPlanner {
   private void handleTargetCluster(
       ODeleteExecutionPlan result,
       CommandContext ctx,
-      OIdentifier targetClusterName,
+      SQLIdentifier targetClusterName,
       boolean profilingEnabled) {
     if (targetClusterName != null) {
       String name = targetClusterName.getStringValue();
@@ -206,7 +207,7 @@ public class ODeleteEdgeExecutionPlanner {
   private void handleTargetClass(
       ODeleteExecutionPlan result,
       CommandContext ctx,
-      OIdentifier className,
+      SQLIdentifier className,
       boolean profilingEnabled) {
     if (className != null) {
       result.chain(
@@ -217,8 +218,8 @@ public class ODeleteEdgeExecutionPlanner {
 
   private boolean handleIndexAsTarget(
       ODeleteExecutionPlan result,
-      OIndexIdentifier indexIdentifier,
-      OWhereClause whereClause,
+      SQLIndexIdentifier indexIdentifier,
+      SQLWhereClause whereClause,
       CommandContext ctx,
       boolean profilingEnabled) {
     if (indexIdentifier == null) {
@@ -238,7 +239,7 @@ public class ODeleteEdgeExecutionPlanner {
   }
 
   private void handleLimit(
-      OUpdateExecutionPlan plan, CommandContext ctx, OLimit limit, boolean profilingEnabled) {
+      OUpdateExecutionPlan plan, CommandContext ctx, SQLLimit limit, boolean profilingEnabled) {
     if (limit != null) {
       plan.chain(new LimitExecutionStep(limit, ctx, profilingEnabled));
     }
@@ -252,10 +253,10 @@ public class ODeleteEdgeExecutionPlanner {
   private void handleTarget(
       OUpdateExecutionPlan result,
       CommandContext ctx,
-      OFromClause target,
-      OWhereClause whereClause,
+      SQLFromClause target,
+      SQLWhereClause whereClause,
       boolean profilingEnabled) {
-    OSelectStatement sourceStatement = new OSelectStatement(-1);
+    SQLSelectStatement sourceStatement = new SQLSelectStatement(-1);
     sourceStatement.setTarget(target);
     sourceStatement.setWhereClause(whereClause);
     OSelectExecutionPlanner planner = new OSelectExecutionPlanner(sourceStatement);
@@ -266,8 +267,8 @@ public class ODeleteEdgeExecutionPlanner {
 
   private void handleGlobalLet(
       ODeleteExecutionPlan result,
-      OIdentifier name,
-      OExpression expression,
+      SQLIdentifier name,
+      SQLExpression expression,
       CommandContext ctx,
       boolean profilingEnabled) {
     if (expression != null) {

@@ -5,12 +5,12 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMatchFilter;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMatchPathItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMatchPathItemFirst;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMethodCall;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMultiMatchPathItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchFilter;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchPathItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchPathItemFirst;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMethodCall;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMultiMatchPathItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -42,7 +42,7 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
     //      }
     //    }
 
-    OMultiMatchPathItem item = (OMultiMatchPathItem) this.item;
+    SQLMultiMatchPathItem item = (SQLMultiMatchPathItem) this.item;
     List<YTResult> result = new ArrayList<>();
 
     List<Object> nextStep = new ArrayList<>();
@@ -50,15 +50,15 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
 
     var db = iCommandContext.getDatabase();
     Object oldCurrent = iCommandContext.getVariable("$current");
-    for (OMatchPathItem sub : item.getItems()) {
+    for (SQLMatchPathItem sub : item.getItems()) {
       List<YTResult> rightSide = new ArrayList<>();
       for (Object o : nextStep) {
-        OWhereClause whileCond =
+        SQLWhereClause whileCond =
             sub.getFilter() == null ? null : sub.getFilter().getWhileCondition();
 
-        OMethodCall method = sub.getMethod();
-        if (sub instanceof OMatchPathItemFirst) {
-          method = ((OMatchPathItemFirst) sub).getFunction().toMethod();
+        SQLMethodCall method = sub.getMethod();
+        if (sub instanceof SQLMatchPathItemFirst) {
+          method = ((SQLMatchPathItemFirst) sub).getFunction().toMethod();
         }
 
         if (whileCond != null) {
@@ -121,11 +121,11 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
     return ExecutionStream.resultIterator(result.iterator());
   }
 
-  private boolean matchesCondition(YTResultInternal x, OMatchFilter filter, CommandContext ctx) {
+  private boolean matchesCondition(YTResultInternal x, SQLMatchFilter filter, CommandContext ctx) {
     if (filter == null) {
       return true;
     }
-    OWhereClause where = filter.getFilter();
+    SQLWhereClause where = filter.getFilter();
     if (where == null) {
       return true;
     }

@@ -4,16 +4,16 @@ import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OJson;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLJson;
 
 /**
  *
  */
 public class UpdateMergeStep extends AbstractExecutionStep {
 
-  private final OJson json;
+  private final SQLJson json;
 
-  public UpdateMergeStep(OJson json, CommandContext ctx, boolean profilingEnabled) {
+  public UpdateMergeStep(SQLJson json, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.json = json;
   }

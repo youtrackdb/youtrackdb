@@ -27,13 +27,13 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMatchStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ODDLStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFetchPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLimit;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OTraverseStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFetchPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLimit;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLTraverseStatement;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAuthenticatedDbAbstract;
@@ -113,7 +113,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
     try {
       db = getProfiledDatabaseInstance(iRequest);
       db.resetRecordLoadStats();
-      OStatement stm = parseStatement(language, text, db);
+      SQLStatement stm = parseStatement(language, text, db);
 
       if (stm != null && !(stm instanceof ODDLStatement)) {
         db.begin();
@@ -189,19 +189,19 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
     return false;
   }
 
-  public static String getFetchPlanFromStatement(OStatement statement) {
-    if (statement instanceof OSelectStatement) {
-      OFetchPlan fp = ((OSelectStatement) statement).getFetchPlan();
+  public static String getFetchPlanFromStatement(SQLStatement statement) {
+    if (statement instanceof SQLSelectStatement) {
+      SQLFetchPlan fp = ((SQLSelectStatement) statement).getFetchPlan();
       if (fp != null) {
         return fp.toString().substring("FETCHPLAN ".length());
       }
-    } else if (statement instanceof OMatchStatement) {
-      return ((OMatchStatement) statement).getFetchPlan();
+    } else if (statement instanceof SQLMatchStatement) {
+      return ((SQLMatchStatement) statement).getFetchPlan();
     }
     return null;
   }
 
-  public static OStatement parseStatement(String language, String text, YTDatabaseSession db) {
+  public static SQLStatement parseStatement(String language, String text, YTDatabaseSession db) {
     try {
       if (language != null && language.equalsIgnoreCase("sql")) {
         return OSQLEngine.parse(text, (YTDatabaseSessionInternal) db);
@@ -211,15 +211,15 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
     return null;
   }
 
-  public static int getLimitFromStatement(OStatement statement, int previousLimit) {
+  public static int getLimitFromStatement(SQLStatement statement, int previousLimit) {
     try {
-      OLimit limit = null;
-      if (statement instanceof OSelectStatement) {
-        limit = ((OSelectStatement) statement).getLimit();
-      } else if (statement instanceof OMatchStatement) {
-        limit = ((OMatchStatement) statement).getLimit();
-      } else if (statement instanceof OTraverseStatement) {
-        limit = ((OTraverseStatement) statement).getLimit();
+      SQLLimit limit = null;
+      if (statement instanceof SQLSelectStatement) {
+        limit = ((SQLSelectStatement) statement).getLimit();
+      } else if (statement instanceof SQLMatchStatement) {
+        limit = ((SQLMatchStatement) statement).getLimit();
+      } else if (statement instanceof SQLTraverseStatement) {
+        limit = ((SQLTraverseStatement) statement).getLimit();
       }
       if (limit != null) {
         return limit.getValue(new BasicCommandContext());

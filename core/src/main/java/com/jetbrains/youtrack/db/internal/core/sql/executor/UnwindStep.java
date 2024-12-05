@@ -7,8 +7,8 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OUnwind;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLUnwind;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -20,14 +20,14 @@ import java.util.stream.Collectors;
  */
 public class UnwindStep extends AbstractExecutionStep {
 
-  private final OUnwind unwind;
+  private final SQLUnwind unwind;
   private final List<String> unwindFields;
 
-  public UnwindStep(OUnwind unwind, CommandContext ctx, boolean profilingEnabled) {
+  public UnwindStep(SQLUnwind unwind, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.unwind = unwind;
     unwindFields =
-        unwind.getItems().stream().map(OIdentifier::getStringValue).collect(Collectors.toList());
+        unwind.getItems().stream().map(SQLIdentifier::getStringValue).collect(Collectors.toList());
   }
 
   @Override

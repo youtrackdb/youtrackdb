@@ -4,7 +4,7 @@ import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 
 /**
  * Assigns a class to documents coming from upstream
@@ -14,7 +14,7 @@ public class SetDocumentClassStep extends AbstractExecutionStep {
   private final String targetClass;
 
   public SetDocumentClassStep(
-      OIdentifier targetClass, CommandContext ctx, boolean profilingEnabled) {
+      SQLIdentifier targetClass, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.targetClass = targetClass.getStringValue();
   }

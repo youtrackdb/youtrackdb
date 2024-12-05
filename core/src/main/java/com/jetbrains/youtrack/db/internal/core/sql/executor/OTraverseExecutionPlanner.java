@@ -10,21 +10,21 @@ import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLAbstract;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OCluster;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIndexIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OInputParameter;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OInteger;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLimit;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMetadataIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ORid;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSkip;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OTraverseProjectionItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OTraverseStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCluster;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIndexIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInputParameter;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInteger;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLimit;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMetadataIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLRid;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSkip;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLTraverseProjectionItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLTraverseStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,18 +35,18 @@ import java.util.stream.Collectors;
  */
 public class OTraverseExecutionPlanner {
 
-  private List<OTraverseProjectionItem> projections = null;
-  private final OFromClause target;
+  private List<SQLTraverseProjectionItem> projections = null;
+  private final SQLFromClause target;
 
-  private final OWhereClause whileClause;
+  private final SQLWhereClause whileClause;
 
-  private final OTraverseStatement.Strategy strategy;
-  private final OInteger maxDepth;
+  private final SQLTraverseStatement.Strategy strategy;
+  private final SQLInteger maxDepth;
 
-  private final OSkip skip;
-  private final OLimit limit;
+  private final SQLSkip skip;
+  private final SQLLimit limit;
 
-  public OTraverseExecutionPlanner(OTraverseStatement statement) {
+  public OTraverseExecutionPlanner(SQLTraverseStatement statement) {
     // copying the content, so that it can be manipulated and optimized
     if (statement.getProjections() == null) {
       this.projections = null;
@@ -61,7 +61,7 @@ public class OTraverseExecutionPlanner {
 
     this.strategy =
         statement.getStrategy() == null
-            ? OTraverseStatement.Strategy.DEPTH_FIRST
+            ? SQLTraverseStatement.Strategy.DEPTH_FIRST
             : statement.getStrategy();
     this.maxDepth = statement.getMaxDepth() == null ? null : statement.getMaxDepth().copy();
 
@@ -106,7 +106,7 @@ public class OTraverseExecutionPlanner {
   private void handleFetchFromTarger(
       OSelectExecutionPlan result, CommandContext ctx, boolean profilingEnabled) {
 
-    OFromItem target = this.target == null ? null : this.target.getItem();
+    SQLFromItem target = this.target == null ? null : this.target.getItem();
     if (target == null) {
       handleNoTarget(result, ctx, profilingEnabled);
     } else if (target.getIdentifier() != null) {
@@ -137,32 +137,32 @@ public class OTraverseExecutionPlanner {
 
   private void handleInputParamAsTarget(
       OSelectExecutionPlan result,
-      OInputParameter inputParam,
+      SQLInputParameter inputParam,
       CommandContext ctx,
       boolean profilingEnabled) {
     Object paramValue = inputParam.getValue(ctx.getInputParameters());
     if (paramValue == null) {
       result.chain(new EmptyStep(ctx, profilingEnabled)); // nothing to return
     } else if (paramValue instanceof YTClass) {
-      OFromClause from = new OFromClause(-1);
-      OFromItem item = new OFromItem(-1);
+      SQLFromClause from = new SQLFromClause(-1);
+      SQLFromItem item = new SQLFromItem(-1);
       from.setItem(item);
-      item.setIdentifier(new OIdentifier(((YTClass) paramValue).getName()));
+      item.setIdentifier(new SQLIdentifier(((YTClass) paramValue).getName()));
       handleClassAsTarget(result, from, ctx, profilingEnabled);
     } else if (paramValue instanceof String) {
       // strings are treated as classes
-      OFromClause from = new OFromClause(-1);
-      OFromItem item = new OFromItem(-1);
+      SQLFromClause from = new SQLFromClause(-1);
+      SQLFromItem item = new SQLFromItem(-1);
       from.setItem(item);
-      item.setIdentifier(new OIdentifier((String) paramValue));
+      item.setIdentifier(new SQLIdentifier((String) paramValue));
       handleClassAsTarget(result, from, ctx, profilingEnabled);
     } else if (paramValue instanceof YTIdentifiable) {
       YTRID orid = ((YTIdentifiable) paramValue).getIdentity();
 
-      ORid rid = new ORid(-1);
-      OInteger cluster = new OInteger(-1);
+      SQLRid rid = new SQLRid(-1);
+      SQLInteger cluster = new SQLInteger(-1);
       cluster.setValue(orid.getClusterId());
-      OInteger position = new OInteger(-1);
+      SQLInteger position = new SQLInteger(-1);
       position.setValue(orid.getClusterPosition());
       rid.setLegacy(true);
       rid.setCluster(cluster);
@@ -171,17 +171,17 @@ public class OTraverseExecutionPlanner {
       handleRidsAsTarget(result, Collections.singletonList(rid), ctx, profilingEnabled);
     } else if (paramValue instanceof Iterable) {
       // try list of RIDs
-      List<ORid> rids = new ArrayList<>();
+      List<SQLRid> rids = new ArrayList<>();
       for (Object x : (Iterable) paramValue) {
         if (!(x instanceof YTIdentifiable)) {
           throw new YTCommandExecutionException("Cannot use colleciton as target: " + paramValue);
         }
         YTRID orid = ((YTIdentifiable) x).getIdentity();
 
-        ORid rid = new ORid(-1);
-        OInteger cluster = new OInteger(-1);
+        SQLRid rid = new SQLRid(-1);
+        SQLInteger cluster = new SQLInteger(-1);
         cluster.setValue(orid.getClusterId());
-        OInteger position = new OInteger(-1);
+        SQLInteger position = new SQLInteger(-1);
         position.setValue(orid.getClusterPosition());
         rid.setCluster(cluster);
         rid.setPosition(position);
@@ -201,7 +201,7 @@ public class OTraverseExecutionPlanner {
 
   private void handleIndexAsTarget(
       OSelectExecutionPlan result,
-      OIndexIdentifier indexIdentifier,
+      SQLIndexIdentifier indexIdentifier,
       CommandContext ctx,
       boolean profilingEnabled) {
     String indexName = indexIdentifier.getIndexName();
@@ -248,7 +248,7 @@ public class OTraverseExecutionPlanner {
 
   private void handleMetadataAsTarget(
       OSelectExecutionPlan plan,
-      OMetadataIdentifier metadata,
+      SQLMetadataIdentifier metadata,
       CommandContext ctx,
       boolean profilingEnabled) {
     var db = ctx.getDatabase();
@@ -265,9 +265,9 @@ public class OTraverseExecutionPlanner {
   }
 
   private void handleRidsAsTarget(
-      OSelectExecutionPlan plan, List<ORid> rids, CommandContext ctx, boolean profilingEnabled) {
+      OSelectExecutionPlan plan, List<SQLRid> rids, CommandContext ctx, boolean profilingEnabled) {
     List<YTRecordId> actualRids = new ArrayList<>();
-    for (ORid rid : rids) {
+    for (SQLRid rid : rids) {
       actualRids.add(rid.toRecordId((YTResult) null, ctx));
     }
     plan.chain(new FetchFromRidsStep(actualRids, ctx, profilingEnabled));
@@ -275,10 +275,10 @@ public class OTraverseExecutionPlanner {
 
   private void handleClassAsTarget(
       OSelectExecutionPlan plan,
-      OFromClause queryTarget,
+      SQLFromClause queryTarget,
       CommandContext ctx,
       boolean profilingEnabled) {
-    OIdentifier identifier = queryTarget.getItem().getIdentifier();
+    SQLIdentifier identifier = queryTarget.getItem().getIdentifier();
 
     Boolean orderByRidAsc = null; // null: no order. true: asc, false:desc
     FetchFromClassExecutionStep fetcher =
@@ -289,13 +289,13 @@ public class OTraverseExecutionPlanner {
 
   private void handleClustersAsTarget(
       OSelectExecutionPlan plan,
-      List<OCluster> clusters,
+      List<SQLCluster> clusters,
       CommandContext ctx,
       boolean profilingEnabled) {
     var db = ctx.getDatabase();
     Boolean orderByRidAsc = null; // null: no order. true: asc, false:desc
     if (clusters.size() == 1) {
-      OCluster cluster = clusters.get(0);
+      SQLCluster cluster = clusters.get(0);
       Integer clusterId = cluster.getClusterNumber();
       if (clusterId == null) {
         clusterId = db.getClusterIdByName(cluster.getClusterName());
@@ -314,7 +314,7 @@ public class OTraverseExecutionPlanner {
     } else {
       int[] clusterIds = new int[clusters.size()];
       for (int i = 0; i < clusters.size(); i++) {
-        OCluster cluster = clusters.get(i);
+        SQLCluster cluster = clusters.get(i);
         Integer clusterId = cluster.getClusterNumber();
         if (clusterId == null) {
           clusterId = db.getClusterIdByName(cluster.getClusterName());
@@ -332,7 +332,7 @@ public class OTraverseExecutionPlanner {
 
   private void handleSubqueryAsTarget(
       OSelectExecutionPlan plan,
-      OStatement subQuery,
+      SQLStatement subQuery,
       CommandContext ctx,
       boolean profilingEnabled) {
     BasicCommandContext subCtx = new BasicCommandContext();

@@ -21,7 +21,7 @@ public class OProfileStorageStatementTest {
   }
 
   protected SimpleNode checkSyntax(String query, boolean isCorrect) {
-    OrientSql osql = getParserFor(query);
+    YouTrackDBSql osql = getParserFor(query);
     try {
       SimpleNode result = osql.parse();
       if (!isCorrect) {
@@ -50,25 +50,25 @@ public class OProfileStorageStatementTest {
   @Test
   public void testParserSimple1() {
     SimpleNode stm = checkRightSyntax("profile storage on");
-    assertTrue(stm instanceof OProfileStorageStatement);
+    assertTrue(stm instanceof SQLProfileStorageStatement);
   }
 
   @Test
   public void testParserSimple2() {
     SimpleNode stm = checkRightSyntax("profile storage off");
-    assertTrue(stm instanceof OProfileStorageStatement);
+    assertTrue(stm instanceof SQLProfileStorageStatement);
   }
 
   @Test
   public void testParserSimpleUpper1() {
     SimpleNode stm = checkRightSyntax("PROFILE STORAGE ON");
-    assertTrue(stm instanceof OProfileStorageStatement);
+    assertTrue(stm instanceof SQLProfileStorageStatement);
   }
 
   @Test
   public void testParserSimpleUpper2() {
     SimpleNode stm = checkRightSyntax("PROFILE STORAGE OFF");
-    assertTrue(stm instanceof OProfileStorageStatement);
+    assertTrue(stm instanceof SQLProfileStorageStatement);
   }
 
   @Test
@@ -82,7 +82,7 @@ public class OProfileStorageStatementTest {
   }
 
   private void printTree(String s) {
-    OrientSql osql = getParserFor(s);
+    YouTrackDBSql osql = getParserFor(s);
     try {
       SimpleNode n = osql.parse();
 
@@ -91,9 +91,9 @@ public class OProfileStorageStatementTest {
     }
   }
 
-  protected OrientSql getParserFor(String string) {
+  protected YouTrackDBSql getParserFor(String string) {
     InputStream is = new ByteArrayInputStream(string.getBytes());
-    OrientSql osql = new OrientSql(is);
+    YouTrackDBSql osql = new YouTrackDBSql(is);
     return osql;
   }
 }

@@ -17,7 +17,7 @@ public class OInsertStatementTest {
   }
 
   protected SimpleNode checkSyntax(String query, boolean isCorrect) {
-    OrientSql osql = getParserFor(query);
+    YouTrackDBSql osql = getParserFor(query);
     try {
       SimpleNode result = osql.parse();
       if (!isCorrect) {
@@ -119,7 +119,7 @@ public class OInsertStatementTest {
   }
 
   private void printTree(String s) {
-    OrientSql osql = getParserFor(s);
+    YouTrackDBSql osql = getParserFor(s);
     try {
       SimpleNode n = osql.parse();
     } catch (ParseException e) {
@@ -127,9 +127,9 @@ public class OInsertStatementTest {
     }
   }
 
-  protected OrientSql getParserFor(String string) {
+  protected YouTrackDBSql getParserFor(String string) {
     InputStream is = new ByteArrayInputStream(string.getBytes());
-    OrientSql osql = new OrientSql(is);
+    YouTrackDBSql osql = new YouTrackDBSql(is);
     return osql;
   }
 }

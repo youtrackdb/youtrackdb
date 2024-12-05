@@ -20,10 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBaseExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OInteger;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMathExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMathExpression.Operator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMathExpression.Operator;
 import java.math.BigDecimal;
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,18 +33,18 @@ public class OMathExpressionTest {
   @Test
   public void testTypes() {
 
-    OMathExpression expr = new OMathExpression(-1);
+    SQLMathExpression expr = new SQLMathExpression(-1);
 
-    OMathExpression.Operator[] basicOps =
-        new OMathExpression.Operator[]{
-            OMathExpression.Operator.PLUS,
-            OMathExpression.Operator.MINUS,
-            OMathExpression.Operator.STAR,
-            OMathExpression.Operator.SLASH,
-            OMathExpression.Operator.REM
+    SQLMathExpression.Operator[] basicOps =
+        new SQLMathExpression.Operator[]{
+            SQLMathExpression.Operator.PLUS,
+            SQLMathExpression.Operator.MINUS,
+            SQLMathExpression.Operator.STAR,
+            SQLMathExpression.Operator.SLASH,
+            SQLMathExpression.Operator.REM
         };
 
-    for (OMathExpression.Operator op : basicOps) {
+    for (SQLMathExpression.Operator op : basicOps) {
       Assert.assertEquals(op.apply(1, 1).getClass(), Integer.class);
 
       Assert.assertEquals(op.apply((short) 1, (short) 1).getClass(), Integer.class);
@@ -69,24 +66,24 @@ public class OMathExpressionTest {
     }
 
     Assert.assertEquals(
-        OMathExpression.Operator.PLUS.apply(Integer.MAX_VALUE, 1).getClass(), Long.class);
+        SQLMathExpression.Operator.PLUS.apply(Integer.MAX_VALUE, 1).getClass(), Long.class);
     Assert.assertEquals(
-        OMathExpression.Operator.MINUS.apply(Integer.MIN_VALUE, 1).getClass(), Long.class);
+        SQLMathExpression.Operator.MINUS.apply(Integer.MIN_VALUE, 1).getClass(), Long.class);
   }
 
   @Test
   public void testPriority() {
-    OMathExpression exp = new OMathExpression(-1);
+    SQLMathExpression exp = new SQLMathExpression(-1);
     exp.addChildExpression(integer(10));
-    exp.addOperator(OMathExpression.Operator.PLUS);
+    exp.addOperator(SQLMathExpression.Operator.PLUS);
     exp.addChildExpression(integer(5));
-    exp.addOperator(OMathExpression.Operator.STAR);
+    exp.addOperator(SQLMathExpression.Operator.STAR);
     exp.addChildExpression(integer(8));
-    exp.addOperator(OMathExpression.Operator.PLUS);
+    exp.addOperator(SQLMathExpression.Operator.PLUS);
     exp.addChildExpression(integer(2));
-    exp.addOperator(OMathExpression.Operator.LSHIFT);
+    exp.addOperator(SQLMathExpression.Operator.LSHIFT);
     exp.addChildExpression(integer(1));
-    exp.addOperator(OMathExpression.Operator.PLUS);
+    exp.addOperator(SQLMathExpression.Operator.PLUS);
     exp.addChildExpression(integer(1));
 
     Object result = exp.execute((YTResult) null, null);
@@ -96,23 +93,23 @@ public class OMathExpressionTest {
 
   @Test
   public void testPriority2() {
-    OMathExpression exp = new OMathExpression(-1);
+    SQLMathExpression exp = new SQLMathExpression(-1);
     exp.addChildExpression(integer(1));
-    exp.addOperator(OMathExpression.Operator.PLUS);
+    exp.addOperator(SQLMathExpression.Operator.PLUS);
     exp.addChildExpression(integer(2));
-    exp.addOperator(OMathExpression.Operator.STAR);
+    exp.addOperator(SQLMathExpression.Operator.STAR);
     exp.addChildExpression(integer(3));
-    exp.addOperator(OMathExpression.Operator.STAR);
+    exp.addOperator(SQLMathExpression.Operator.STAR);
     exp.addChildExpression(integer(4));
-    exp.addOperator(OMathExpression.Operator.PLUS);
+    exp.addOperator(SQLMathExpression.Operator.PLUS);
     exp.addChildExpression(integer(8));
-    exp.addOperator(OMathExpression.Operator.RSHIFT);
+    exp.addOperator(SQLMathExpression.Operator.RSHIFT);
     exp.addChildExpression(integer(2));
-    exp.addOperator(OMathExpression.Operator.PLUS);
+    exp.addOperator(SQLMathExpression.Operator.PLUS);
     exp.addChildExpression(integer(1));
-    exp.addOperator(OMathExpression.Operator.MINUS);
+    exp.addOperator(SQLMathExpression.Operator.MINUS);
     exp.addChildExpression(integer(3));
-    exp.addOperator(OMathExpression.Operator.PLUS);
+    exp.addOperator(SQLMathExpression.Operator.PLUS);
     exp.addChildExpression(integer(1));
 
     Object result = exp.execute((YTResult) null, null);
@@ -122,11 +119,11 @@ public class OMathExpressionTest {
 
   @Test
   public void testPriority3() {
-    OMathExpression exp = new OMathExpression(-1);
+    SQLMathExpression exp = new SQLMathExpression(-1);
     exp.addChildExpression(integer(3));
-    exp.addOperator(OMathExpression.Operator.RSHIFT);
+    exp.addOperator(SQLMathExpression.Operator.RSHIFT);
     exp.addChildExpression(integer(1));
-    exp.addOperator(OMathExpression.Operator.LSHIFT);
+    exp.addOperator(SQLMathExpression.Operator.LSHIFT);
     exp.addChildExpression(integer(1));
 
     Object result = exp.execute((YTResult) null, null);
@@ -136,11 +133,11 @@ public class OMathExpressionTest {
 
   @Test
   public void testPriority4() {
-    OMathExpression exp = new OMathExpression(-1);
+    SQLMathExpression exp = new SQLMathExpression(-1);
     exp.addChildExpression(integer(3));
-    exp.addOperator(OMathExpression.Operator.LSHIFT);
+    exp.addOperator(SQLMathExpression.Operator.LSHIFT);
     exp.addChildExpression(integer(1));
-    exp.addOperator(OMathExpression.Operator.RSHIFT);
+    exp.addOperator(SQLMathExpression.Operator.RSHIFT);
     exp.addChildExpression(integer(1));
 
     Object result = exp.execute((YTResult) null, null);
@@ -150,9 +147,9 @@ public class OMathExpressionTest {
 
   @Test
   public void testAnd() {
-    OMathExpression exp = new OMathExpression(-1);
+    SQLMathExpression exp = new SQLMathExpression(-1);
     exp.addChildExpression(integer(5));
-    exp.addOperator(OMathExpression.Operator.BIT_AND);
+    exp.addOperator(SQLMathExpression.Operator.BIT_AND);
     exp.addChildExpression(integer(1));
 
     Object result = exp.execute((YTResult) null, null);
@@ -162,9 +159,9 @@ public class OMathExpressionTest {
 
   @Test
   public void testAnd2() {
-    OMathExpression exp = new OMathExpression(-1);
+    SQLMathExpression exp = new SQLMathExpression(-1);
     exp.addChildExpression(integer(5));
-    exp.addOperator(OMathExpression.Operator.BIT_AND);
+    exp.addOperator(SQLMathExpression.Operator.BIT_AND);
     exp.addChildExpression(integer(4));
 
     Object result = exp.execute((YTResult) null, null);
@@ -174,9 +171,9 @@ public class OMathExpressionTest {
 
   @Test
   public void testOr() {
-    OMathExpression exp = new OMathExpression(-1);
+    SQLMathExpression exp = new SQLMathExpression(-1);
     exp.addChildExpression(integer(4));
-    exp.addOperator(OMathExpression.Operator.BIT_OR);
+    exp.addOperator(SQLMathExpression.Operator.BIT_OR);
     exp.addChildExpression(integer(1));
 
     Object result = exp.execute((YTResult) null, null);
@@ -184,22 +181,22 @@ public class OMathExpressionTest {
     Assert.assertEquals(5, result);
   }
 
-  private OMathExpression integer(Number i) {
-    OBaseExpression exp = new OBaseExpression(-1);
-    OInteger integer = new OInteger(-1);
+  private SQLMathExpression integer(Number i) {
+    SQLBaseExpression exp = new SQLBaseExpression(-1);
+    SQLInteger integer = new SQLInteger(-1);
     integer.setValue(i);
     exp.number = integer;
     return exp;
   }
 
-  private OMathExpression str(String value) {
-    final OBaseExpression exp = new OBaseExpression(-1);
+  private SQLMathExpression str(String value) {
+    final SQLBaseExpression exp = new SQLBaseExpression(-1);
     exp.string = "'" + value + "'";
     return exp;
   }
 
-  private OMathExpression nullExpr() {
-    return new OBaseExpression(-1);
+  private SQLMathExpression nullExpr() {
+    return new SQLBaseExpression(-1);
   }
 
   @Test
@@ -212,8 +209,8 @@ public class OMathExpressionTest {
   }
 
   private void testNullCoalescingGeneric(
-      OMathExpression left, OMathExpression right, Object expected) {
-    OMathExpression exp = new OMathExpression(-1);
+      SQLMathExpression left, SQLMathExpression right, Object expected) {
+    SQLMathExpression exp = new SQLMathExpression(-1);
     exp.addChildExpression(left);
     exp.addOperator(Operator.NULL_COALESCING);
     exp.addChildExpression(right);

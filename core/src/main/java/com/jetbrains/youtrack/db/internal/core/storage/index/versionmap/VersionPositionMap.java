@@ -22,7 +22,7 @@ public abstract class VersionPositionMap extends DurableComponent {
     super(storage, name, extension, lockName);
   }
 
-  // Lifecycle similar to OCluster (e.g. PaginatedClusterV2)
+  // Lifecycle similar to SQLCluster (e.g. PaginatedClusterV2)
   public abstract void create(OAtomicOperation atomicOperation);
 
   public abstract void open() throws IOException;

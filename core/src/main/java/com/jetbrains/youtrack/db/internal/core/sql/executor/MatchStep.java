@@ -4,8 +4,8 @@ import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ResultSetEdgeTraverser;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFieldMatchPathItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMultiMatchPathItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFieldMatchPathItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMultiMatchPathItem;
 
 /**
  *
@@ -33,9 +33,9 @@ public class MatchStep extends AbstractExecutionStep {
   }
 
   protected MatchEdgeTraverser createTraverser(YTResult lastUpstreamRecord) {
-    if (edge.edge.item instanceof OMultiMatchPathItem) {
+    if (edge.edge.item instanceof SQLMultiMatchPathItem) {
       return new MatchMultiEdgeTraverser(lastUpstreamRecord, edge);
-    } else if (edge.edge.item instanceof OFieldMatchPathItem) {
+    } else if (edge.edge.item instanceof SQLFieldMatchPathItem) {
       return new MatchFieldTraverser(lastUpstreamRecord, edge);
     } else if (edge.out) {
       return new MatchEdgeTraverser(lastUpstreamRecord, edge);
@@ -58,9 +58,9 @@ public class MatchStep extends AbstractExecutionStep {
     result.append(spaces);
     result.append("  ");
     result.append("{").append(edge.edge.out.alias).append("}");
-    if (edge.edge.item instanceof OFieldMatchPathItem) {
+    if (edge.edge.item instanceof SQLFieldMatchPathItem) {
       result.append(".");
-      result.append(((OFieldMatchPathItem) edge.edge.item).getField());
+      result.append(((SQLFieldMatchPathItem) edge.edge.item).getField());
     } else {
       result.append(edge.edge.item.getMethod());
     }

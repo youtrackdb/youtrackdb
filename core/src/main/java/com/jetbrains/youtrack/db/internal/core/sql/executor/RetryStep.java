@@ -7,7 +7,7 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.OExecutionThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandInterruptedException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import java.util.List;
 
 /**
@@ -15,15 +15,15 @@ import java.util.List;
  */
 public class RetryStep extends AbstractExecutionStep {
 
-  public List<OStatement> body;
-  public List<OStatement> elseBody;
+  public List<SQLStatement> body;
+  public List<SQLStatement> elseBody;
   public boolean elseFail;
   private final int retries;
 
   public RetryStep(
-      List<OStatement> statements,
+      List<SQLStatement> statements,
       int retries,
-      List<OStatement> elseStatements,
+      List<SQLStatement> elseStatements,
       Boolean elseFail,
       CommandContext ctx,
       boolean enableProfiling) {
@@ -79,11 +79,11 @@ public class RetryStep extends AbstractExecutionStep {
     return new EmptyStep(ctx, false).start(ctx);
   }
 
-  public OScriptExecutionPlan initPlan(List<OStatement> body, CommandContext ctx) {
+  public OScriptExecutionPlan initPlan(List<SQLStatement> body, CommandContext ctx) {
     BasicCommandContext subCtx1 = new BasicCommandContext();
     subCtx1.setParent(ctx);
     OScriptExecutionPlan plan = new OScriptExecutionPlan(subCtx1);
-    for (OStatement stm : body) {
+    for (SQLStatement stm : body) {
       plan.chain(stm.createExecutionPlan(subCtx1, profilingEnabled), profilingEnabled);
     }
     return plan;

@@ -5,12 +5,12 @@ import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OForEachBlock;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIfStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OReturnStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLForEachBlock;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIfStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLReturnStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import java.util.Iterator;
 import java.util.List;
 
@@ -19,14 +19,14 @@ import java.util.List;
  */
 public class ForEachStep extends AbstractExecutionStep {
 
-  private final OIdentifier loopVariable;
-  private final OExpression source;
-  public List<OStatement> body;
+  private final SQLIdentifier loopVariable;
+  private final SQLExpression source;
+  public List<SQLStatement> body;
 
   public ForEachStep(
-      OIdentifier loopVariable,
-      OExpression oExpression,
-      List<OStatement> statements,
+      SQLIdentifier loopVariable,
+      SQLExpression oExpression,
+      List<SQLStatement> statements,
       CommandContext ctx,
       boolean enableProfiling) {
     super(ctx, enableProfiling);
@@ -64,21 +64,21 @@ public class ForEachStep extends AbstractExecutionStep {
     BasicCommandContext subCtx1 = new BasicCommandContext();
     subCtx1.setParent(ctx);
     OScriptExecutionPlan plan = new OScriptExecutionPlan(subCtx1);
-    for (OStatement stm : body) {
+    for (SQLStatement stm : body) {
       plan.chain(stm.createExecutionPlan(subCtx1, profilingEnabled), profilingEnabled);
     }
     return plan;
   }
 
   public boolean containsReturn() {
-    for (OStatement stm : this.body) {
-      if (stm instanceof OReturnStatement) {
+    for (SQLStatement stm : this.body) {
+      if (stm instanceof SQLReturnStatement) {
         return true;
       }
-      if (stm instanceof OForEachBlock && ((OForEachBlock) stm).containsReturn()) {
+      if (stm instanceof SQLForEachBlock && ((SQLForEachBlock) stm).containsReturn()) {
         return true;
       }
-      if (stm instanceof OIfStatement && ((OIfStatement) stm).containsReturn()) {
+      if (stm instanceof SQLIfStatement && ((SQLIfStatement) stm).containsReturn()) {
         return true;
       }
     }

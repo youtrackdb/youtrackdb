@@ -14,10 +14,10 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.INDEX_TYP
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexFinder.Operation;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OrientSql;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SimpleNode;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.YouTrackDBSql;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Optional;
@@ -50,7 +50,7 @@ public class OStatementIndexFinderTest {
     YTProperty prop = cl.createProperty(session, "name", YTType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
-    OSelectStatement stat = parseQuery("select from cl where name='a'");
+    SQLSelectStatement stat = parseQuery("select from cl where name='a'");
     OIndexFinder finder = new OClassIndexFinder("cl");
     BasicCommandContext ctx = new BasicCommandContext(session);
     Optional<OIndexCandidate> result = stat.getWhereClause().findIndex(finder, ctx);
@@ -64,7 +64,7 @@ public class OStatementIndexFinderTest {
     YTProperty prop = cl.createProperty(session, "name", YTType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
-    OSelectStatement stat = parseQuery("select from cl where name > 'a'");
+    SQLSelectStatement stat = parseQuery("select from cl where name > 'a'");
 
     OIndexFinder finder = new OClassIndexFinder("cl");
     BasicCommandContext ctx = new BasicCommandContext(session);
@@ -73,7 +73,7 @@ public class OStatementIndexFinderTest {
     assertEquals("cl.name", result.get().getName());
     assertEquals(Operation.Gt, result.get().getOperation());
 
-    OSelectStatement stat1 = parseQuery("select from cl where name < 'a'");
+    SQLSelectStatement stat1 = parseQuery("select from cl where name < 'a'");
     Optional<OIndexCandidate> result1 = stat1.getWhereClause().findIndex(finder, ctx);
     assertEquals("cl.name", result1.get().getName());
     assertEquals(Operation.Lt, result1.get().getOperation());
@@ -85,7 +85,7 @@ public class OStatementIndexFinderTest {
     YTProperty prop = cl.createProperty(session, "name", YTType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
-    OSelectStatement stat = parseQuery("select from cl where name='a' and name='b'");
+    SQLSelectStatement stat = parseQuery("select from cl where name='a' and name='b'");
     OIndexFinder finder = new OClassIndexFinder("cl");
     BasicCommandContext ctx = new BasicCommandContext(session);
     Optional<OIndexCandidate> result = stat.getWhereClause().findIndex(finder, ctx);
@@ -103,7 +103,7 @@ public class OStatementIndexFinderTest {
     YTProperty prop = cl.createProperty(session, "name", YTType.STRING);
     prop.createIndex(session, INDEX_TYPE.NOTUNIQUE);
 
-    OSelectStatement stat = parseQuery("select from cl where name='a' or name='b'");
+    SQLSelectStatement stat = parseQuery("select from cl where name='a' or name='b'");
     OIndexFinder finder = new OClassIndexFinder("cl");
     BasicCommandContext ctx = new BasicCommandContext(session);
     Optional<OIndexCandidate> result = stat.getWhereClause().findIndex(finder, ctx);
@@ -124,7 +124,7 @@ public class OStatementIndexFinderTest {
     OIndexFinder finder = new OClassIndexFinder("cl");
     BasicCommandContext ctx = new BasicCommandContext(session);
 
-    OSelectStatement stat = parseQuery("select from cl where name < 'a' and name > 'b'");
+    SQLSelectStatement stat = parseQuery("select from cl where name < 'a' and name > 'b'");
     Optional<OIndexCandidate> result = stat.getWhereClause().findIndex(finder, ctx);
     assertTrue((result.get() instanceof OMultipleIndexCanditate));
     OMultipleIndexCanditate multiple = (OMultipleIndexCanditate) result.get();
@@ -143,7 +143,7 @@ public class OStatementIndexFinderTest {
     OIndexFinder finder = new OClassIndexFinder("cl");
     BasicCommandContext ctx = new BasicCommandContext(session);
 
-    OSelectStatement stat = parseQuery("select from cl where name < 'a' or name > 'b'");
+    SQLSelectStatement stat = parseQuery("select from cl where name < 'a' or name > 'b'");
     Optional<OIndexCandidate> result = stat.getWhereClause().findIndex(finder, ctx);
     assertTrue((result.get() instanceof ORequiredIndexCanditate));
     ORequiredIndexCanditate required = (ORequiredIndexCanditate) result.get();
@@ -162,7 +162,7 @@ public class OStatementIndexFinderTest {
     OIndexFinder finder = new OClassIndexFinder("cl");
     BasicCommandContext ctx = new BasicCommandContext(session);
 
-    OSelectStatement stat = parseQuery("select from cl where not name < 'a' ");
+    SQLSelectStatement stat = parseQuery("select from cl where not name < 'a' ");
     Optional<OIndexCandidate> result = stat.getWhereClause().findIndex(finder, ctx);
     assertEquals("cl.name", result.get().getName());
     assertEquals(Operation.Ge, result.get().getOperation());
@@ -179,7 +179,7 @@ public class OStatementIndexFinderTest {
     OIndexFinder finder = new OClassIndexFinder("cl");
     BasicCommandContext ctx = new BasicCommandContext(session);
 
-    OSelectStatement stat = parseQuery("select from cl where friend.friend.name = 'a' ");
+    SQLSelectStatement stat = parseQuery("select from cl where friend.friend.name = 'a' ");
     Optional<OIndexCandidate> result = stat.getWhereClause().findIndex(finder, ctx);
     assertEquals("cl.friend->cl.friend->cl.name->", result.get().getName());
     assertEquals(Operation.Eq, result.get().getOperation());
@@ -196,7 +196,7 @@ public class OStatementIndexFinderTest {
     OIndexFinder finder = new OClassIndexFinder("cl");
     BasicCommandContext ctx = new BasicCommandContext(session);
 
-    OSelectStatement stat =
+    SQLSelectStatement stat =
         parseQuery(
             "select from cl where (friend.name = 'a' and name='a') or (friend.name='b' and"
                 + " name='b') ");
@@ -227,7 +227,7 @@ public class OStatementIndexFinderTest {
     OIndexFinder finder = new OClassIndexFinder("cl");
     BasicCommandContext ctx = new BasicCommandContext(session);
 
-    OSelectStatement stat =
+    SQLSelectStatement stat =
         parseQuery(
             "select from cl where (friend.name = 'a' and name='a') or (friend.name='b' and"
                 + " name='b') ");
@@ -255,7 +255,7 @@ public class OStatementIndexFinderTest {
     OIndexFinder finder = new OClassIndexFinder("cl");
     BasicCommandContext ctx = new BasicCommandContext(session);
 
-    OSelectStatement stat =
+    SQLSelectStatement stat =
         parseQuery(
             "select from cl where (friend.name = 'a' and name='a') or (friend.other='b' and"
                 + " other='b') ");
@@ -271,7 +271,7 @@ public class OStatementIndexFinderTest {
     cl.createProperty(session, "surname", YTType.STRING);
     cl.createIndex(session, "cl.name_surname", INDEX_TYPE.NOTUNIQUE, "name", "surname");
 
-    OSelectStatement stat = parseQuery("select from cl where name = 'a' and surname = 'b'");
+    SQLSelectStatement stat = parseQuery("select from cl where name = 'a' and surname = 'b'");
 
     OIndexFinder finder = new OClassIndexFinder("cl");
     BasicCommandContext ctx = new BasicCommandContext(session);
@@ -289,7 +289,7 @@ public class OStatementIndexFinderTest {
     cl.createProperty(session, "surname", YTType.STRING);
     cl.createIndex(session, "cl.name_surname", INDEX_TYPE.NOTUNIQUE, "name", "surname");
 
-    OSelectStatement stat = parseQuery("select from cl where name = 'a' and other = 'b'");
+    SQLSelectStatement stat = parseQuery("select from cl where name = 'a' and other = 'b'");
 
     OIndexFinder finder = new OClassIndexFinder("cl");
     BasicCommandContext ctx = new BasicCommandContext(session);
@@ -309,7 +309,7 @@ public class OStatementIndexFinderTest {
     cl.createIndex(session, "cl.name_surname_other", INDEX_TYPE.NOTUNIQUE, "name", "surname",
         "other");
 
-    OSelectStatement stat = parseQuery("select from cl where surname = 'a' and other = 'b'");
+    SQLSelectStatement stat = parseQuery("select from cl where surname = 'a' and other = 'b'");
 
     OIndexFinder finder = new OClassIndexFinder("cl");
     BasicCommandContext ctx = new BasicCommandContext(session);
@@ -326,7 +326,7 @@ public class OStatementIndexFinderTest {
     cl.createProperty(session, "surname", YTType.STRING);
     cl.createIndex(session, "cl.name_surname", INDEX_TYPE.NOTUNIQUE, "name", "surname");
 
-    OSelectStatement stat = parseQuery("select from cl where surname = 'a'");
+    SQLSelectStatement stat = parseQuery("select from cl where surname = 'a'");
 
     OIndexFinder finder = new OClassIndexFinder("cl");
     BasicCommandContext ctx = new BasicCommandContext(session);
@@ -343,7 +343,7 @@ public class OStatementIndexFinderTest {
     cl.createProperty(session, "surname", YTType.STRING);
     cl.createIndex(session, "cl.name_surname", INDEX_TYPE.NOTUNIQUE, "name", "surname");
 
-    OSelectStatement stat =
+    SQLSelectStatement stat =
         parseQuery(
             "select from cl where (name = 'a' and surname = 'b') or (name='d' and surname='e')");
 
@@ -369,7 +369,7 @@ public class OStatementIndexFinderTest {
     cl.createProperty(session, "surname", YTType.STRING);
     cl.createIndex(session, "cl.name_surname", INDEX_TYPE.NOTUNIQUE, "name", "surname");
 
-    OSelectStatement stat =
+    SQLSelectStatement stat =
         parseQuery(
             "select from cl where (name = 'a' and surname = 'b') or (other='d' and surname='e')");
 
@@ -387,7 +387,7 @@ public class OStatementIndexFinderTest {
     cl.createProperty(session, "name", YTType.STRING);
     cl.createIndex(session, "cl.name", INDEX_TYPE.NOTUNIQUE, "name");
 
-    OSelectStatement stat = parseQuery("select from cl where name < 'a' and name > 'b'");
+    SQLSelectStatement stat = parseQuery("select from cl where name < 'a' and name > 'b'");
     OIndexFinder finder = new OClassIndexFinder("cl");
     BasicCommandContext ctx = new BasicCommandContext(session);
 
@@ -398,12 +398,12 @@ public class OStatementIndexFinderTest {
     assertEquals(Operation.Range, result.get().getOperation());
   }
 
-  private OSelectStatement parseQuery(String query) {
+  private SQLSelectStatement parseQuery(String query) {
     InputStream is = new ByteArrayInputStream(query.getBytes());
-    OrientSql osql = new OrientSql(is);
+    YouTrackDBSql osql = new YouTrackDBSql(is);
     try {
       SimpleNode n = osql.parse();
-      return (OSelectStatement) n;
+      return (SQLSelectStatement) n;
     } catch (ParseException e) {
       throw new RuntimeException(e);
     }

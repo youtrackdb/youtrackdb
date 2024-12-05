@@ -3,16 +3,16 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLimit;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLimit;
 
 /**
  *
  */
 public class LimitExecutionStep extends AbstractExecutionStep {
 
-  private final OLimit limit;
+  private final SQLLimit limit;
 
-  public LimitExecutionStep(OLimit limit, CommandContext ctx, boolean profilingEnabled) {
+  public LimitExecutionStep(SQLLimit limit, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.limit = limit;
   }

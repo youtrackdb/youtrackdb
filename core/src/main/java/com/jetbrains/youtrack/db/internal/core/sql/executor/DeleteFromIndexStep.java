@@ -12,18 +12,18 @@ import com.jetbrains.youtrack.db.internal.core.index.OIndexInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStreamProducer;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OAndBlock;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBetweenCondition;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCondition;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBooleanExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OCollection;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OEqualsCompareOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OGeOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OGtOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLeOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLtOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBetweenCondition;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCondition;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCollection;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLEqualsCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGeOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGtOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLeOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLtOperator;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -39,17 +39,17 @@ import java.util.stream.Stream;
 public class DeleteFromIndexStep extends AbstractExecutionStep {
 
   protected final OIndexInternal index;
-  private final OBinaryCondition additional;
-  private final OBooleanExpression ridCondition;
+  private final SQLBinaryCondition additional;
+  private final SQLBooleanExpression ridCondition;
   private final boolean orderAsc;
 
-  private final OBooleanExpression condition;
+  private final SQLBooleanExpression condition;
 
   public DeleteFromIndexStep(
       OIndex index,
-      OBooleanExpression condition,
-      OBinaryCondition additionalRangeCondition,
-      OBooleanExpression ridCondition,
+      SQLBooleanExpression condition,
+      SQLBinaryCondition additionalRangeCondition,
+      SQLBooleanExpression ridCondition,
       CommandContext ctx,
       boolean profilingEnabled) {
     this(index, condition, additionalRangeCondition, ridCondition, true, ctx, profilingEnabled);
@@ -57,9 +57,9 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
 
   private DeleteFromIndexStep(
       OIndex index,
-      OBooleanExpression condition,
-      OBinaryCondition additionalRangeCondition,
-      OBooleanExpression ridCondition,
+      SQLBooleanExpression condition,
+      SQLBinaryCondition additionalRangeCondition,
+      SQLBooleanExpression ridCondition,
       boolean orderAsc,
       CommandContext ctx,
       boolean profilingEnabled) {
@@ -133,7 +133,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
   }
 
   private Set<Stream<ORawPair<Object, YTRID>>> init(YTDatabaseSessionInternal session,
-      OBooleanExpression condition) {
+      SQLBooleanExpression condition) {
     Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams =
         Collections.newSetFromMap(new IdentityHashMap<>());
     if (index.getDefinition() == null) {
@@ -141,11 +141,11 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     }
     if (condition == null) {
       processFlatIteration(session, acquiredStreams);
-    } else if (condition instanceof OBinaryCondition) {
+    } else if (condition instanceof SQLBinaryCondition) {
       processBinaryCondition(acquiredStreams);
-    } else if (condition instanceof OBetweenCondition) {
+    } else if (condition instanceof SQLBetweenCondition) {
       processBetweenCondition(session, acquiredStreams);
-    } else if (condition instanceof OAndBlock) {
+    } else if (condition instanceof SQLAndBlock) {
       processAndBlock(acquiredStreams);
     } else {
       throw new YTCommandExecutionException(
@@ -161,10 +161,10 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
    * @param acquiredStreams TODO
    */
   private void processAndBlock(Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams) {
-    OCollection fromKey = indexKeyFrom((OAndBlock) condition, additional);
-    OCollection toKey = indexKeyTo((OAndBlock) condition, additional);
-    boolean fromKeyIncluded = indexKeyFromIncluded((OAndBlock) condition, additional);
-    boolean toKeyIncluded = indexKeyToIncluded((OAndBlock) condition, additional);
+    SQLCollection fromKey = indexKeyFrom((SQLAndBlock) condition, additional);
+    SQLCollection toKey = indexKeyTo((SQLAndBlock) condition, additional);
+    boolean fromKeyIncluded = indexKeyFromIncluded((SQLAndBlock) condition, additional);
+    boolean toKeyIncluded = indexKeyToIncluded((SQLAndBlock) condition, additional);
     init(acquiredStreams, fromKey, fromKeyIncluded, toKey, toKeyIncluded);
   }
 
@@ -185,9 +185,9 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
 
   private void init(
       Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams,
-      OCollection fromKey,
+      SQLCollection fromKey,
       boolean fromKeyIncluded,
-      OCollection toKey,
+      SQLCollection toKey,
       boolean toKeyIncluded) {
     Object secondValue = fromKey.execute((YTResult) null, ctx);
     Object thirdValue = toKey.execute((YTResult) null, ctx);
@@ -202,7 +202,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
               toBetweenIndexKey(database, indexDef, thirdValue),
               toKeyIncluded, orderAsc);
       storeAcquiredStream(stream, acquiredStreams);
-    } else if (additional == null && allEqualities((OAndBlock) condition)) {
+    } else if (additional == null && allEqualities((SQLAndBlock) condition)) {
       stream = index.streamEntries(database, toIndexKey(ctx.getDatabase(), indexDef, secondValue),
           orderAsc);
       storeAcquiredStream(stream, acquiredStreams);
@@ -212,13 +212,13 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     }
   }
 
-  private static boolean allEqualities(OAndBlock condition) {
+  private static boolean allEqualities(SQLAndBlock condition) {
     if (condition == null) {
       return false;
     }
-    for (OBooleanExpression exp : condition.getSubBlocks()) {
-      if (exp instanceof OBinaryCondition) {
-        if (((OBinaryCondition) exp).getOperator() instanceof OEqualsCompareOperator) {
+    for (SQLBooleanExpression exp : condition.getSubBlocks()) {
+      if (exp instanceof SQLBinaryCondition) {
+        if (((SQLBinaryCondition) exp).getOperator() instanceof SQLEqualsCompareOperator) {
           return true;
         }
       } else {
@@ -231,13 +231,13 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
   private void processBetweenCondition(YTDatabaseSessionInternal session,
       Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams) {
     OIndexDefinition definition = index.getDefinition();
-    OExpression key = ((OBetweenCondition) condition).getFirst();
+    SQLExpression key = ((SQLBetweenCondition) condition).getFirst();
     if (!key.toString().equalsIgnoreCase("key")) {
       throw new YTCommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
-    OExpression second = ((OBetweenCondition) condition).getSecond();
-    OExpression third = ((OBetweenCondition) condition).getThird();
+    SQLExpression second = ((SQLBetweenCondition) condition).getSecond();
+    SQLExpression third = ((SQLBetweenCondition) condition).getThird();
 
     Object secondValue = second.execute((YTResult) null, ctx);
     Object thirdValue = third.execute((YTResult) null, ctx);
@@ -252,13 +252,13 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
 
   private void processBinaryCondition(Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams) {
     OIndexDefinition definition = index.getDefinition();
-    OBinaryCompareOperator operator = ((OBinaryCondition) condition).getOperator();
-    OExpression left = ((OBinaryCondition) condition).getLeft();
+    SQLBinaryCompareOperator operator = ((SQLBinaryCondition) condition).getOperator();
+    SQLExpression left = ((SQLBinaryCondition) condition).getLeft();
     if (!left.toString().equalsIgnoreCase("key")) {
       throw new YTCommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
-    Object rightValue = ((OBinaryCondition) condition).getRight().execute((YTResult) null, ctx);
+    Object rightValue = ((SQLBinaryCondition) condition).getRight().execute((YTResult) null, ctx);
     Stream<ORawPair<Object, YTRID>> stream =
         createStream(ctx.getDatabase(), operator, definition, rightValue);
     storeAcquiredStream(stream, acquiredStreams);
@@ -295,19 +295,19 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
 
   private Stream<ORawPair<Object, YTRID>> createStream(
       YTDatabaseSessionInternal session,
-      OBinaryCompareOperator operator,
+      SQLBinaryCompareOperator operator,
       OIndexDefinition definition,
       Object value) {
     boolean orderAsc = this.orderAsc;
-    if (operator instanceof OEqualsCompareOperator) {
+    if (operator instanceof SQLEqualsCompareOperator) {
       return index.streamEntries(session, toIndexKey(session, definition, value), orderAsc);
-    } else if (operator instanceof OGeOperator) {
+    } else if (operator instanceof SQLGeOperator) {
       return index.streamEntriesMajor(session, value, true, orderAsc);
-    } else if (operator instanceof OGtOperator) {
+    } else if (operator instanceof SQLGtOperator) {
       return index.streamEntriesMajor(session, value, false, orderAsc);
-    } else if (operator instanceof OLeOperator) {
+    } else if (operator instanceof SQLLeOperator) {
       return index.streamEntriesMinor(session, value, true, orderAsc);
-    } else if (operator instanceof OLtOperator) {
+    } else if (operator instanceof SQLLtOperator) {
       return index.streamEntriesMinor(session, value, false, orderAsc);
     } else {
       throw new YTCommandExecutionException(
@@ -315,14 +315,15 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     }
   }
 
-  private static OCollection indexKeyFrom(OAndBlock keyCondition, OBinaryCondition additional) {
-    OCollection result = new OCollection(-1);
-    for (OBooleanExpression exp : keyCondition.getSubBlocks()) {
-      if (exp instanceof OBinaryCondition binaryCond) {
-        OBinaryCompareOperator operator = binaryCond.getOperator();
-        if ((operator instanceof OEqualsCompareOperator)
-            || (operator instanceof OGtOperator)
-            || (operator instanceof OGeOperator)) {
+  private static SQLCollection indexKeyFrom(SQLAndBlock keyCondition,
+      SQLBinaryCondition additional) {
+    SQLCollection result = new SQLCollection(-1);
+    for (SQLBooleanExpression exp : keyCondition.getSubBlocks()) {
+      if (exp instanceof SQLBinaryCondition binaryCond) {
+        SQLBinaryCompareOperator operator = binaryCond.getOperator();
+        if ((operator instanceof SQLEqualsCompareOperator)
+            || (operator instanceof SQLGtOperator)
+            || (operator instanceof SQLGeOperator)) {
           result.add(binaryCond.getRight());
         } else if (additional != null) {
           result.add(additional.getRight());
@@ -334,14 +335,14 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     return result;
   }
 
-  private static OCollection indexKeyTo(OAndBlock keyCondition, OBinaryCondition additional) {
-    OCollection result = new OCollection(-1);
-    for (OBooleanExpression exp : keyCondition.getSubBlocks()) {
-      if (exp instanceof OBinaryCondition binaryCond) {
-        OBinaryCompareOperator operator = binaryCond.getOperator();
-        if ((operator instanceof OEqualsCompareOperator)
-            || (operator instanceof OLtOperator)
-            || (operator instanceof OLeOperator)) {
+  private static SQLCollection indexKeyTo(SQLAndBlock keyCondition, SQLBinaryCondition additional) {
+    SQLCollection result = new SQLCollection(-1);
+    for (SQLBooleanExpression exp : keyCondition.getSubBlocks()) {
+      if (exp instanceof SQLBinaryCondition binaryCond) {
+        SQLBinaryCompareOperator operator = binaryCond.getOperator();
+        if ((operator instanceof SQLEqualsCompareOperator)
+            || (operator instanceof SQLLtOperator)
+            || (operator instanceof SQLLeOperator)) {
           result.add(binaryCond.getRight());
         } else if (additional != null) {
           result.add(additional.getRight());
@@ -353,13 +354,14 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     return result;
   }
 
-  private static boolean indexKeyFromIncluded(OAndBlock keyCondition, OBinaryCondition additional) {
-    OBooleanExpression exp =
+  private static boolean indexKeyFromIncluded(
+      SQLAndBlock keyCondition, SQLBinaryCondition additional) {
+    SQLBooleanExpression exp =
         keyCondition.getSubBlocks().get(keyCondition.getSubBlocks().size() - 1);
-    if (exp instanceof OBinaryCondition) {
-      OBinaryCompareOperator operator = ((OBinaryCondition) exp).getOperator();
-      OBinaryCompareOperator additionalOperator =
-          Optional.ofNullable(additional).map(OBinaryCondition::getOperator).orElse(null);
+    if (exp instanceof SQLBinaryCondition) {
+      SQLBinaryCompareOperator operator = ((SQLBinaryCondition) exp).getOperator();
+      SQLBinaryCompareOperator additionalOperator =
+          Optional.ofNullable(additional).map(SQLBinaryCondition::getOperator).orElse(null);
       if (isGreaterOperator(operator)) {
         return isIncludeOperator(operator);
       } else {
@@ -371,34 +373,35 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     }
   }
 
-  private static boolean isGreaterOperator(OBinaryCompareOperator operator) {
+  private static boolean isGreaterOperator(SQLBinaryCompareOperator operator) {
     if (operator == null) {
       return false;
     }
-    return operator instanceof OGeOperator || operator instanceof OGtOperator;
+    return operator instanceof SQLGeOperator || operator instanceof SQLGtOperator;
   }
 
-  private static boolean isLessOperator(OBinaryCompareOperator operator) {
+  private static boolean isLessOperator(SQLBinaryCompareOperator operator) {
     if (operator == null) {
       return false;
     }
-    return operator instanceof OLeOperator || operator instanceof OLtOperator;
+    return operator instanceof SQLLeOperator || operator instanceof SQLLtOperator;
   }
 
-  private static boolean isIncludeOperator(OBinaryCompareOperator operator) {
+  private static boolean isIncludeOperator(SQLBinaryCompareOperator operator) {
     if (operator == null) {
       return false;
     }
-    return operator instanceof OGeOperator || operator instanceof OLeOperator;
+    return operator instanceof SQLGeOperator || operator instanceof SQLLeOperator;
   }
 
-  private static boolean indexKeyToIncluded(OAndBlock keyCondition, OBinaryCondition additional) {
-    OBooleanExpression exp =
+  private static boolean indexKeyToIncluded(SQLAndBlock keyCondition,
+      SQLBinaryCondition additional) {
+    SQLBooleanExpression exp =
         keyCondition.getSubBlocks().get(keyCondition.getSubBlocks().size() - 1);
-    if (exp instanceof OBinaryCondition) {
-      OBinaryCompareOperator operator = ((OBinaryCondition) exp).getOperator();
-      OBinaryCompareOperator additionalOperator =
-          Optional.ofNullable(additional).map(OBinaryCondition::getOperator).orElse(null);
+    if (exp instanceof SQLBinaryCondition) {
+      SQLBinaryCompareOperator operator = ((SQLBinaryCondition) exp).getOperator();
+      SQLBinaryCompareOperator additionalOperator =
+          Optional.ofNullable(additional).map(SQLBinaryCondition::getOperator).orElse(null);
       if (isLessOperator(operator)) {
         return isIncludeOperator(operator);
       } else {

@@ -97,7 +97,7 @@ import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OInternalExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTInternalResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.YTLocalResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.YTLocalResultSetLifecycleDecorator;
 import com.jetbrains.youtrack.db.internal.core.storage.ORecordMetadata;
@@ -339,7 +339,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
           "Impossible to create the database with ORecordDocument2csv serializer");
     }
     storage.setRecordSerializer(serializer.toString(), serializer.getCurrentVersion());
-    storage.setProperty(OStatement.CUSTOM_STRICT_SQL, "true");
+    storage.setProperty(SQLStatement.CUSTOM_STRICT_SQL, "true");
 
     this.setSerializer(serializer);
 
@@ -651,7 +651,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     try {
       preQueryStart();
-      OStatement statement = OSQLEngine.parse(query, this);
+      SQLStatement statement = OSQLEngine.parse(query, this);
       if (!statement.isIdempotent()) {
         throw new YTCommandExecutionException(
             "Cannot execute query on non idempotent statement: " + query);
@@ -673,7 +673,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     preQueryStart();
     try {
-      OStatement statement = OSQLEngine.parse(query, this);
+      SQLStatement statement = OSQLEngine.parse(query, this);
       if (!statement.isIdempotent()) {
         throw new YTCommandExecutionException(
             "Cannot execute query on non idempotent statement: " + query);
@@ -696,7 +696,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     preQueryStart();
     try {
-      OStatement statement = OSQLEngine.parse(query, this);
+      SQLStatement statement = OSQLEngine.parse(query, this);
       YTResultSet original = statement.execute(this, args, true);
       YTLocalResultSetLifecycleDecorator result;
       if (!statement.isIdempotent()) {
@@ -727,7 +727,7 @@ public class YTDatabaseSessionEmbedded extends YTDatabaseSessionAbstract
     try {
       preQueryStart();
 
-      OStatement statement = OSQLEngine.parse(query, this);
+      SQLStatement statement = OSQLEngine.parse(query, this);
       YTResultSet original = statement.execute(this, args, true);
       YTLocalResultSetLifecycleDecorator result;
       if (!statement.isIdempotent()) {

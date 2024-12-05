@@ -11,7 +11,7 @@ import com.jetbrains.youtrack.db.internal.core.record.ODirection;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStreamProducer;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Spliterators;
@@ -24,13 +24,13 @@ import java.util.stream.StreamSupport;
 public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
 
   private final String toAlias;
-  private final OIdentifier targetCluster;
-  private final OIdentifier targetClass;
+  private final SQLIdentifier targetCluster;
+  private final SQLIdentifier targetClass;
 
   public FetchEdgesToVerticesStep(
       String toAlias,
-      OIdentifier targetClass,
-      OIdentifier targetCluster,
+      SQLIdentifier targetClass,
+      SQLIdentifier targetCluster,
       CommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);

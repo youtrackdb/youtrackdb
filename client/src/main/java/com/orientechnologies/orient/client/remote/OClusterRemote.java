@@ -41,7 +41,7 @@ public class OClusterRemote implements OCluster {
   /*
    * (non-Javadoc)
    *
-   * @see com.orientechnologies.core.storage.OCluster#configure(com.orientechnologies.core.storage.Storage, int,
+   * @see com.orientechnologies.core.storage.SQLCluster#configure(com.orientechnologies.core.storage.Storage, int,
    * java.lang.String, java.lang.String, int, java.lang.Object[])
    */
   public void configure(int iId, String iClusterName) {
@@ -52,7 +52,7 @@ public class OClusterRemote implements OCluster {
   /*
    * (non-Javadoc)
    *
-   * @see com.orientechnologies.core.storage.OCluster#configure(com.orientechnologies.core.storage.Storage,
+   * @see com.orientechnologies.core.storage.SQLCluster#configure(com.orientechnologies.core.storage.Storage,
    * com.orientechnologies.core.config.OStorageClusterConfiguration)
    */
   public void configure(Storage iStorage, OStorageClusterConfiguration iConfig) {
@@ -63,7 +63,7 @@ public class OClusterRemote implements OCluster {
   /*
    * (non-Javadoc)
    *
-   * @see com.orientechnologies.core.storage.OCluster#create(int)
+   * @see com.orientechnologies.core.storage.SQLCluster#create(int)
    */
   public void create(OAtomicOperation atomicOperation) {
   }
@@ -71,7 +71,7 @@ public class OClusterRemote implements OCluster {
   /*
    * (non-Javadoc)
    *
-   * @see com.orientechnologies.core.storage.OCluster#open()
+   * @see com.orientechnologies.core.storage.SQLCluster#open()
    */
   public void open(OAtomicOperation atomicOperation) {
   }

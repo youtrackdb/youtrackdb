@@ -3,21 +3,22 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 
 /**
  *
  */
 public class GlobalLetExpressionStep extends AbstractExecutionStep {
 
-  private final OIdentifier varname;
-  private final OExpression expression;
+  private final SQLIdentifier varname;
+  private final SQLExpression expression;
 
   private boolean executed = false;
 
   public GlobalLetExpressionStep(
-      OIdentifier varName, OExpression expression, CommandContext ctx, boolean profilingEnabled) {
+      SQLIdentifier varName, SQLExpression expression, CommandContext ctx,
+      boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.varname = varName;
     this.expression = expression;

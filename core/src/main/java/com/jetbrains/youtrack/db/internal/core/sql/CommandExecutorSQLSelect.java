@@ -92,11 +92,11 @@ import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperatorMajor;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperatorMajorEquals;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperatorMinor;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperatorMinorEquals;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCondition;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OOrderBy;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OOrderByItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCondition;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrderBy;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrderByItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OLegacyResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLQuery;
 import java.util.ArrayList;
@@ -2032,19 +2032,19 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       return false;
     }
 
-    final OOrderBy order = new OOrderBy();
-    order.setItems(new ArrayList<OOrderByItem>());
+    final SQLOrderBy order = new SQLOrderBy();
+    order.setItems(new ArrayList<SQLOrderByItem>());
     if (this.orderedFields != null) {
       for (OPair<String, String> pair : this.orderedFields) {
-        OOrderByItem item = new OOrderByItem();
+        SQLOrderByItem item = new SQLOrderByItem();
         item.setRecordAttr(pair.getKey());
         if (pair.getValue() == null) {
-          item.setType(OOrderByItem.ASC);
+          item.setType(SQLOrderByItem.ASC);
         } else {
           item.setType(
               pair.getValue().toUpperCase(Locale.ENGLISH).equals("DESC")
-                  ? OOrderByItem.DESC
-                  : OOrderByItem.ASC);
+                  ? SQLOrderByItem.DESC
+                  : SQLOrderByItem.ASC);
         }
         order.getItems().add(item);
       }
@@ -2496,22 +2496,22 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
     if (this.preParsedStatement == null) {
       return null;
     }
-    OWhereClause where = ((OSelectStatement) this.preParsedStatement).getWhereClause();
+    SQLWhereClause where = ((SQLSelectStatement) this.preParsedStatement).getWhereClause();
     if (where == null) {
       return null;
     }
-    List<OBinaryCondition> conditions =
+    List<SQLBinaryCondition> conditions =
         where.getIndexedFunctionConditions(iSchemaClass, getDatabase());
 
     long lastEstimation = Long.MAX_VALUE;
-    OBinaryCondition bestCondition = null;
+    SQLBinaryCondition bestCondition = null;
     if (conditions == null) {
       return null;
     }
-    for (OBinaryCondition condition : conditions) {
+    for (SQLBinaryCondition condition : conditions) {
       long estimation =
           condition.estimateIndexed(
-              ((OSelectStatement) this.preParsedStatement).getTarget(), getContext());
+              ((SQLSelectStatement) this.preParsedStatement).getTarget(), getContext());
       if (estimation > -1 && estimation < lastEstimation) {
         lastEstimation = estimation;
         bestCondition = condition;
@@ -2523,7 +2523,7 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
     }
     Iterable<YTIdentifiable> result =
         bestCondition.executeIndexedFunction(
-            ((OSelectStatement) this.preParsedStatement).getTarget(), getContext());
+            ((SQLSelectStatement) this.preParsedStatement).getTarget(), getContext());
     if (result == null) {
       return null;
     }

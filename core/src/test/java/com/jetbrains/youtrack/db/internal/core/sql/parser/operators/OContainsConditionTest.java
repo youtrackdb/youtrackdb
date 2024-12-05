@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser.operators;
 
 import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OContainsCondition;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLContainsCondition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -35,7 +35,7 @@ public class OContainsConditionTest extends DBTestBase {
 
   @Test
   public void test() {
-    OContainsCondition op = new OContainsCondition(-1);
+    SQLContainsCondition op = new SQLContainsCondition(-1);
 
     Assert.assertFalse(op.execute(db, null, null));
     Assert.assertFalse(op.execute(db, null, "foo"));
@@ -77,7 +77,7 @@ public class OContainsConditionTest extends DBTestBase {
           }
         };
 
-    OContainsCondition op = new OContainsCondition(-1);
+    SQLContainsCondition op = new SQLContainsCondition(-1);
     Assert.assertTrue(op.execute(db, left, right));
   }
 }

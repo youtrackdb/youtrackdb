@@ -11,7 +11,7 @@ public abstract class SimpleNode implements Node {
   protected Node[] children;
   protected int id;
   protected Object value;
-  protected OrientSql parser;
+  protected YouTrackDBSql parser;
   protected Token firstToken;
   protected Token lastToken;
 
@@ -23,7 +23,7 @@ public abstract class SimpleNode implements Node {
     id = i;
   }
 
-  public SimpleNode(OrientSql p, int i) {
+  public SimpleNode(YouTrackDBSql p, int i) {
     this(i);
     parser = p;
   }

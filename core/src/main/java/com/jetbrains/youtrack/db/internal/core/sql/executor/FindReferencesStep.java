@@ -13,8 +13,8 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OCluster;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCluster;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,12 +33,12 @@ import java.util.stream.StreamSupport;
  */
 public class FindReferencesStep extends AbstractExecutionStep {
 
-  private final List<OIdentifier> classes;
-  private final List<OCluster> clusters;
+  private final List<SQLIdentifier> classes;
+  private final List<SQLCluster> clusters;
 
   public FindReferencesStep(
-      List<OIdentifier> classes,
-      List<OCluster> clusters,
+      List<SQLIdentifier> classes,
+      List<SQLCluster> clusters,
       CommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
@@ -89,7 +89,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
       targetClusterNames.addAll(ctx.getDatabase().getClusterNames());
     } else {
       if (this.clusters != null) {
-        for (OCluster c : this.clusters) {
+        for (SQLCluster c : this.clusters) {
           if (c.getClusterName() != null) {
             targetClusterNames.add(c.getClusterName());
           } else {
@@ -102,7 +102,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
         }
         YTSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
         assert this.classes != null;
-        for (OIdentifier className : this.classes) {
+        for (SQLIdentifier className : this.classes) {
           YTClass clazz = schema.getClass(className.getStringValue());
           if (clazz == null) {
             throw new YTCommandExecutionException("Class not found: " + className);

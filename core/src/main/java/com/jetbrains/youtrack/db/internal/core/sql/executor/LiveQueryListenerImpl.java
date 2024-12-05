@@ -14,9 +14,9 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.query.live.OLiveQueryHookV2;
 import com.jetbrains.youtrack.db.internal.core.query.live.OLiveQueryListenerV2;
 import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +32,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
   private final YTLiveQueryResultListener clientListener;
   private YTDatabaseSessionInternal execDb;
 
-  private final OSelectStatement statement;
+  private final SQLSelectStatement statement;
   private String className;
   private List<YTRecordId> rids;
 
@@ -58,12 +58,12 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     if (query.trim().toLowerCase().startsWith("live ")) {
       query = query.trim().substring(5);
     }
-    OStatement stm = OSQLEngine.parse(query, db);
-    if (!(stm instanceof OSelectStatement)) {
+    SQLStatement stm = OSQLEngine.parse(query, db);
+    if (!(stm instanceof SQLSelectStatement)) {
       throw new YTCommandExecutionException(
           "Only SELECT statement can be used as a live query: " + query);
     }
-    this.statement = (OSelectStatement) stm;
+    this.statement = (SQLSelectStatement) stm;
     validateStatement(statement, db);
     if (statement.getTarget().getItem().getIdentifier() != null) {
       this.className = statement.getTarget().getItem().getIdentifier().getStringValue();
@@ -105,7 +105,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     }
   }
 
-  private void validateStatement(OSelectStatement statement, YTDatabaseSessionInternal db) {
+  private void validateStatement(SQLSelectStatement statement, YTDatabaseSessionInternal db) {
     if (statement.getProjection() != null) {
       if (statement.getProjection().getItems().stream().anyMatch(x -> x.isAggregate(db))) {
         throw new YTCommandExecutionException(
@@ -221,7 +221,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
       }
     }
     // filter conditions
-    OWhereClause where = statement.getWhereClause();
+    SQLWhereClause where = statement.getWhereClause();
     if (where == null) {
       return true;
     }
@@ -268,7 +268,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     }
   }
 
-  public OSelectStatement getStatement() {
+  public SQLSelectStatement getStatement() {
     return statement;
   }
 }

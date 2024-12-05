@@ -47,12 +47,12 @@ import com.jetbrains.youtrack.db.internal.core.sql.method.OSQLMethod;
 import com.jetbrains.youtrack.db.internal.core.sql.method.OSQLMethodFactory;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperatorFactory;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OOrBlock;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSecurityResourceSegment;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OServerStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrBlock;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSecurityResourceSegment;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLServerStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatementCache;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OrientSql;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.YouTrackDBSql;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
 import java.io.ByteArrayInputStream;
@@ -79,45 +79,45 @@ public class OSQLEngine {
   private static OQueryOperator[] SORTED_OPERATORS = null;
   private static final ClassLoader orientClassLoader = OSQLEngine.class.getClassLoader();
 
-  public static OStatement parse(String query, YTDatabaseSessionInternal db) {
+  public static SQLStatement parse(String query, YTDatabaseSessionInternal db) {
     return OStatementCache.get(query, db);
   }
 
-  public static OServerStatement parseServerStatement(String query, YouTrackDBInternal db) {
+  public static SQLServerStatement parseServerStatement(String query, YouTrackDBInternal db) {
     return OStatementCache.getServerStatement(query, db);
   }
 
-  public static List<OStatement> parseScript(String script, YTDatabaseSessionInternal db) {
+  public static List<SQLStatement> parseScript(String script, YTDatabaseSessionInternal db) {
     final InputStream is = new ByteArrayInputStream(script.getBytes());
     return parseScript(is, db);
   }
 
-  public static List<OStatement> parseScript(InputStream script, YTDatabaseSessionInternal db) {
+  public static List<SQLStatement> parseScript(InputStream script, YTDatabaseSessionInternal db) {
     try {
-      final OrientSql osql = new OrientSql(script);
-      List<OStatement> result = osql.parseScript();
+      final YouTrackDBSql osql = new YouTrackDBSql(script);
+      List<SQLStatement> result = osql.parseScript();
       return result;
     } catch (ParseException e) {
       throw new YTCommandSQLParsingException(e, "");
     }
   }
 
-  public static OOrBlock parsePredicate(String predicate) throws YTCommandSQLParsingException {
+  public static SQLOrBlock parsePredicate(String predicate) throws YTCommandSQLParsingException {
     final InputStream is = new ByteArrayInputStream(predicate.getBytes());
     try {
-      final OrientSql osql = new OrientSql(is);
-      OOrBlock result = osql.OrBlock();
+      final YouTrackDBSql osql = new YouTrackDBSql(is);
+      SQLOrBlock result = osql.OrBlock();
       return result;
     } catch (ParseException e) {
       throw new YTCommandSQLParsingException(e, "");
     }
   }
 
-  public static OSecurityResourceSegment parseSecurityResource(String exp) {
+  public static SQLSecurityResourceSegment parseSecurityResource(String exp) {
     final InputStream is = new ByteArrayInputStream(exp.getBytes());
     try {
-      final OrientSql osql = new OrientSql(is);
-      OSecurityResourceSegment result = osql.SecurityResourceSegment();
+      final YouTrackDBSql osql = new YouTrackDBSql(is);
+      SQLSecurityResourceSegment result = osql.SecurityResourceSegment();
       return result;
     } catch (ParseException e) {
       throw new YTCommandSQLParsingException(e, "");

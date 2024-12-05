@@ -30,7 +30,7 @@ import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionExcep
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClassImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OAlterClassStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAlterClassStatement;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
@@ -114,7 +114,7 @@ public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
           || "removecluster".equalsIgnoreCase(attributeAsString)) {
         value = decodeClassName(value);
       }
-      OAlterClassStatement stm = (OAlterClassStatement) preParsedStatement;
+      SQLAlterClassStatement stm = (SQLAlterClassStatement) preParsedStatement;
       if (this.preParsedStatement != null && stm.property == ATTRIBUTES.CUSTOM) {
         value = stm.customKey.getStringValue() + "=" + stm.customValue.toString();
       }

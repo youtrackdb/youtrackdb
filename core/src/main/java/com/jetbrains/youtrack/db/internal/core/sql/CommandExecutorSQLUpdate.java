@@ -45,7 +45,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItem;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilter;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OUpdateStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLUpdateStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLAsynchQuery;
 import com.jetbrains.youtrack.db.internal.core.storage.YTRecordDuplicatedException;
 import java.util.ArrayList;
@@ -228,7 +228,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
           || additionalStatement.equals(CommandExecutorSQLAbstract.KEYWORD_LET)) {
         if (this.preParsedStatement != null) {
           Map<Object, Object> params = ((CommandRequestText) iRequest).getParameters();
-          OUpdateStatement updateStm = (OUpdateStatement) preParsedStatement;
+          SQLUpdateStatement updateStm = (SQLUpdateStatement) preParsedStatement;
           StringBuilder selectString = new StringBuilder();
           selectString.append("select from ");
           updateStm.target.toString(params, selectString);
@@ -292,7 +292,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     if (preParsedStatement == null) {
       return subjectName;
     }
-    return ((OUpdateStatement) preParsedStatement).target.toString();
+    return ((SQLUpdateStatement) preParsedStatement).target.toString();
   }
 
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {

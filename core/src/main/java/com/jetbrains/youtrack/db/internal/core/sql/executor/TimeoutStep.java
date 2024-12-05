@@ -4,16 +4,16 @@ import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExpireResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OTimeout;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLTimeout;
 
 /**
  *
  */
 public class TimeoutStep extends AbstractExecutionStep {
 
-  private final OTimeout timeout;
+  private final SQLTimeout timeout;
 
-  public TimeoutStep(OTimeout timeout, CommandContext ctx, boolean profilingEnabled) {
+  public TimeoutStep(SQLTimeout timeout, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.timeout = timeout;
   }
@@ -26,7 +26,7 @@ public class TimeoutStep extends AbstractExecutionStep {
 
   private void fail() {
     sendTimeout();
-    if (OTimeout.RETURN.equals(this.timeout.getFailureStrategy())) {
+    if (SQLTimeout.RETURN.equals(this.timeout.getFailureStrategy())) {
     } else {
       throw new YTTimeoutException("Timeout expired");
     }

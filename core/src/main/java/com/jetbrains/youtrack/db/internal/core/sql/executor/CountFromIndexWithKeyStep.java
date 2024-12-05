@@ -5,17 +5,17 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIndexIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIndexIdentifier;
 
 /**
  * Returns the number of records contained in an index
  */
 public class CountFromIndexWithKeyStep extends AbstractExecutionStep {
 
-  private final OIndexIdentifier target;
+  private final SQLIndexIdentifier target;
   private final String alias;
-  private final OExpression keyValue;
+  private final SQLExpression keyValue;
 
   /**
    * @param targetIndex      the index name as it is parsed by the SQL parsed
@@ -24,8 +24,8 @@ public class CountFromIndexWithKeyStep extends AbstractExecutionStep {
    * @param profilingEnabled true to enable the profiling of the execution (for SQL PROFILE)
    */
   public CountFromIndexWithKeyStep(
-      OIndexIdentifier targetIndex,
-      OExpression keyValue,
+      SQLIndexIdentifier targetIndex,
+      SQLExpression keyValue,
       String alias,
       CommandContext ctx,
       boolean profilingEnabled) {

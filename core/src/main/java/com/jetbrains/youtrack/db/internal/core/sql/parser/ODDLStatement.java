@@ -14,13 +14,13 @@ import java.util.Map;
 /**
  *
  */
-public abstract class ODDLStatement extends OStatement {
+public abstract class ODDLStatement extends SQLStatement {
 
   public ODDLStatement(int id) {
     super(id);
   }
 
-  public ODDLStatement(OrientSql p, int id) {
+  public ODDLStatement(YouTrackDBSql p, int id) {
     super(p, id);
   }
 

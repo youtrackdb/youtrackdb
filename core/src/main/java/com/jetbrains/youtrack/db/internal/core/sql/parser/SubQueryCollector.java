@@ -23,10 +23,10 @@ public class SubQueryCollector {
   protected static final String GENERATED_ALIAS_PREFIX = "$$$SUBQUERY$$_";
   protected int nextAliasId = 0;
 
-  protected Map<OIdentifier, OStatement> subQueries = new LinkedHashMap<>();
+  protected Map<SQLIdentifier, SQLStatement> subQueries = new LinkedHashMap<>();
 
-  protected OIdentifier getNextAlias() {
-    OIdentifier result = new OIdentifier(GENERATED_ALIAS_PREFIX + (nextAliasId++));
+  protected SQLIdentifier getNextAlias() {
+    SQLIdentifier result = new SQLIdentifier(GENERATED_ALIAS_PREFIX + (nextAliasId++));
     result.internalAlias = true;
     return result;
   }
@@ -38,17 +38,17 @@ public class SubQueryCollector {
     this.subQueries.clear();
   }
 
-  public OIdentifier addStatement(OIdentifier alias, OStatement stm) {
+  public SQLIdentifier addStatement(SQLIdentifier alias, SQLStatement stm) {
     subQueries.put(alias, stm);
     return alias;
   }
 
-  public OIdentifier addStatement(OStatement stm) {
-    OIdentifier alias = getNextAlias();
+  public SQLIdentifier addStatement(SQLStatement stm) {
+    SQLIdentifier alias = getNextAlias();
     return addStatement(alias, stm);
   }
 
-  public Map<OIdentifier, OStatement> getSubQueries() {
+  public Map<SQLIdentifier, SQLStatement> getSubQueries() {
     return subQueries;
   }
 }

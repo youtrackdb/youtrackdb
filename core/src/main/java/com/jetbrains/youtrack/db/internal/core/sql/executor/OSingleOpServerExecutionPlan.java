@@ -5,7 +5,7 @@ import com.jetbrains.youtrack.db.internal.core.command.ServerCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSimpleExecServerStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSimpleExecServerStatement;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,13 +14,13 @@ import java.util.List;
  */
 public class OSingleOpServerExecutionPlan implements OInternalExecutionPlan {
 
-  protected final OSimpleExecServerStatement statement;
+  protected final SQLSimpleExecServerStatement statement;
   private final ServerCommandContext ctx;
 
   private boolean executed = false;
   private ExecutionStream result;
 
-  public OSingleOpServerExecutionPlan(ServerCommandContext ctx, OSimpleExecServerStatement stm) {
+  public OSingleOpServerExecutionPlan(ServerCommandContext ctx, SQLSimpleExecServerStatement stm) {
     this.ctx = ctx;
     this.statement = stm;
   }

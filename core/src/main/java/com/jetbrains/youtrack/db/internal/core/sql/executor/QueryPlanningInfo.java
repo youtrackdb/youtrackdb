@@ -1,16 +1,16 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OAndBlock;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OGroupBy;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLetClause;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLimit;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OOrderBy;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OProjection;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSkip;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OTimeout;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OUnwind;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGroupBy;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLetClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLimit;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrderBy;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLProjection;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSkip;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLTimeout;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLUnwind;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,19 +20,19 @@ import java.util.Set;
  */
 public class QueryPlanningInfo {
 
-  protected OTimeout timeout;
+  protected SQLTimeout timeout;
   protected boolean distinct = false;
   protected boolean expand = false;
 
-  protected OProjection preAggregateProjection;
-  protected OProjection aggregateProjection;
-  protected OProjection projection = null;
-  protected OProjection projectionAfterOrderBy = null;
+  protected SQLProjection preAggregateProjection;
+  protected SQLProjection aggregateProjection;
+  protected SQLProjection projection = null;
+  protected SQLProjection projectionAfterOrderBy = null;
 
-  protected OLetClause globalLetClause = null;
+  protected SQLLetClause globalLetClause = null;
   protected boolean globalLetPresent = false;
 
-  protected OLetClause perRecordLetClause = null;
+  protected SQLLetClause perRecordLetClause = null;
 
   /**
    * in a sharded execution plan, this maps the single server to the clusters it will be queried for
@@ -47,19 +47,19 @@ public class QueryPlanningInfo {
    */
   public boolean distributedPlanCreated = false;
 
-  protected OFromClause target;
-  protected OWhereClause whereClause;
-  protected List<OAndBlock> flattenedWhereClause;
-  protected OGroupBy groupBy;
-  protected OOrderBy orderBy;
-  protected OUnwind unwind;
-  protected OSkip skip;
-  protected OLimit limit;
+  protected SQLFromClause target;
+  protected SQLWhereClause whereClause;
+  protected List<SQLAndBlock> flattenedWhereClause;
+  protected SQLGroupBy groupBy;
+  protected SQLOrderBy orderBy;
+  protected SQLUnwind unwind;
+  protected SQLSkip skip;
+  protected SQLLimit limit;
 
   protected boolean orderApplied = false;
   protected boolean projectionsCalculated = false;
 
-  protected OAndBlock ridRangeConditions;
+  protected SQLAndBlock ridRangeConditions;
 
   public QueryPlanningInfo copy() {
     // TODO check what has to be copied and what can be just referenced as it is

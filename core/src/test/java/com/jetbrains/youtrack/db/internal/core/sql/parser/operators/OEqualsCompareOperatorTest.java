@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser.operators;
 
 import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OEqualsCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLEqualsCompareOperator;
 import java.math.BigDecimal;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class OEqualsCompareOperatorTest {
 
   @Test
   public void test() {
-    OEqualsCompareOperator op = new OEqualsCompareOperator(-1);
+    SQLEqualsCompareOperator op = new SQLEqualsCompareOperator(-1);
 
     Assert.assertFalse(op.execute(null, 1));
     Assert.assertFalse(op.execute(1, null));

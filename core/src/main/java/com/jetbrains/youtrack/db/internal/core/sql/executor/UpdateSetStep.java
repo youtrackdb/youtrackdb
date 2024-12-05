@@ -3,7 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OUpdateItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLUpdateItem;
 import java.util.List;
 
 /**
@@ -11,10 +11,10 @@ import java.util.List;
  */
 public class UpdateSetStep extends AbstractExecutionStep {
 
-  private final List<OUpdateItem> items;
+  private final List<SQLUpdateItem> items;
 
   public UpdateSetStep(
-      List<OUpdateItem> updateItems, CommandContext ctx, boolean profilingEnabled) {
+      List<SQLUpdateItem> updateItems, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.items = updateItems;
   }
@@ -29,7 +29,7 @@ public class UpdateSetStep extends AbstractExecutionStep {
 
   private YTResult mapResult(YTResult result, CommandContext ctx) {
     if (result instanceof YTResultInternal) {
-      for (OUpdateItem item : items) {
+      for (SQLUpdateItem item : items) {
         item.applyUpdate((YTResultInternal) result, ctx);
       }
     }
@@ -43,7 +43,7 @@ public class UpdateSetStep extends AbstractExecutionStep {
     result.append(spaces);
     result.append("+ UPDATE SET");
 
-    for (OUpdateItem item : items) {
+    for (SQLUpdateItem item : items) {
       result.append("\n");
       result.append(spaces);
       result.append("  ");

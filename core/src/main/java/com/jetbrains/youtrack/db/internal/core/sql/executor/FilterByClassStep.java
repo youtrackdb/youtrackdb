@@ -7,7 +7,7 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import java.util.Optional;
 
 /**
@@ -15,10 +15,10 @@ import java.util.Optional;
  */
 public class FilterByClassStep extends AbstractExecutionStep {
 
-  private OIdentifier identifier;
+  private SQLIdentifier identifier;
   private final String className;
 
-  public FilterByClassStep(OIdentifier identifier, CommandContext ctx, boolean profilingEnabled) {
+  public FilterByClassStep(SQLIdentifier identifier, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.identifier = identifier;
     this.className = identifier.getStringValue();
@@ -71,7 +71,7 @@ public class FilterByClassStep extends AbstractExecutionStep {
   public void deserialize(YTResult fromResult) {
     try {
       ExecutionStepInternal.basicDeserialize(fromResult, this);
-      identifier = OIdentifier.deserialize(fromResult.getProperty("identifier"));
+      identifier = SQLIdentifier.deserialize(fromResult.getProperty("identifier"));
     } catch (Exception e) {
       throw YTException.wrapException(new YTCommandExecutionException(""), e);
     }

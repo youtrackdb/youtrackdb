@@ -30,8 +30,8 @@ import com.jetbrains.youtrack.db.internal.core.iterator.ORecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OTruncateClusterStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLTruncateClusterStatement;
 import java.util.Map;
 
 /**
@@ -83,7 +83,7 @@ public class CommandExecutorSQLTruncateCluster extends CommandExecutorSQLAbstrac
 
       if (preParsedStatement
           != null) { // new parser, this will be removed and implemented with the new executor
-        OIdentifier name = ((OTruncateClusterStatement) preParsedStatement).clusterName;
+        SQLIdentifier name = ((SQLTruncateClusterStatement) preParsedStatement).clusterName;
         if (name != null) {
           clusterName = name.getStringValue();
         }

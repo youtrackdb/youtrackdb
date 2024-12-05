@@ -28,8 +28,8 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTClusterDoesNotExistException;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OCreateClassStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCreateClassStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -93,7 +93,7 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
 
       className = word.toString();
       if (this.preParsedStatement != null) {
-        className = ((OCreateClassStatement) preParsedStatement).name.getStringValue();
+        className = ((SQLCreateClassStatement) preParsedStatement).name.getStringValue();
       }
       if (className == null) {
         throw new YTCommandSQLParsingException("Expected <class>", parserText, oldPos);
@@ -141,10 +141,10 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
             }
           } while (hasNext);
           if (newParser) {
-            OCreateClassStatement statement = (OCreateClassStatement) this.preParsedStatement;
-            List<OIdentifier> superclasses = statement.getSuperclasses();
+            SQLCreateClassStatement statement = (SQLCreateClassStatement) this.preParsedStatement;
+            List<SQLIdentifier> superclasses = statement.getSuperclasses();
             this.superClasses.clear();
-            for (OIdentifier superclass : superclasses) {
+            for (SQLIdentifier superclass : superclasses) {
               String superclassName = superclass.getStringValue();
               if (!database.getMetadata().getSchema().existsClass(superclassName)) {
                 throw new YTCommandSQLParsingException(

@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.parser.operators;
 
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OGtOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGtOperator;
 import java.math.BigDecimal;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,7 +31,7 @@ public class OGtOperatorTest {
 
   @Test
   public void test() {
-    OGtOperator op = new OGtOperator(-1);
+    SQLGtOperator op = new SQLGtOperator(-1);
     Assert.assertFalse(op.execute(1, 1));
     Assert.assertTrue(op.execute(1, 0));
     Assert.assertFalse(op.execute(0, 1));

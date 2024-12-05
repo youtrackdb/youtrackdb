@@ -9,11 +9,11 @@ import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionExcep
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIndexIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OInsertBody;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OInsertSetExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIndexIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInsertBody;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInsertSetExpression;
 import java.util.Iterator;
 import java.util.List;
 
@@ -22,12 +22,12 @@ import java.util.List;
  */
 public class InsertIntoIndexStep extends AbstractExecutionStep {
 
-  private final OIndexIdentifier targetIndex;
-  private final OInsertBody body;
+  private final SQLIndexIdentifier targetIndex;
+  private final SQLInsertBody body;
 
   public InsertIntoIndexStep(
-      OIndexIdentifier targetIndex,
-      OInsertBody insertBody,
+      SQLIndexIdentifier targetIndex,
+      SQLInsertBody insertBody,
       CommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
@@ -54,7 +54,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
     if (index == null) {
       throw new YTCommandExecutionException("Index not found: " + targetIndex);
     }
-    List<OInsertSetExpression> setExps = body.getSetExpressions();
+    List<SQLInsertSetExpression> setExps = body.getSetExpressions();
     if (body.getContent() != null) {
       throw new YTCommandExecutionException(
           "Invalid expression: INSERT INTO INDEX:... CONTENT ...");
@@ -72,22 +72,22 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
   }
 
   private long handleKeyValues(
-      List<OIdentifier> identifierList,
-      List<List<OExpression>> setExpressions,
+      List<SQLIdentifier> identifierList,
+      List<List<SQLExpression>> setExpressions,
       OIndex index,
       CommandContext ctx) {
-    OExpression keyExp = null;
-    OExpression valueExp = null;
+    SQLExpression keyExp = null;
+    SQLExpression valueExp = null;
     if (identifierList == null || setExpressions == null) {
       throw new YTCommandExecutionException("Invalid insert expression");
     }
     long count = 0;
-    for (List<OExpression> valList : setExpressions) {
+    for (List<SQLExpression> valList : setExpressions) {
       if (identifierList.size() != valList.size()) {
         throw new YTCommandExecutionException("Invalid insert expression");
       }
       for (int i = 0; i < identifierList.size(); i++) {
-        OIdentifier key = identifierList.get(i);
+        SQLIdentifier key = identifierList.get(i);
         if (key.getStringValue().equalsIgnoreCase("key")) {
           keyExp = valList.get(i);
         }
@@ -105,10 +105,10 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
     return count;
   }
 
-  private long handleSet(List<OInsertSetExpression> setExps, OIndex index, CommandContext ctx) {
-    OExpression keyExp = null;
-    OExpression valueExp = null;
-    for (OInsertSetExpression exp : setExps) {
+  private long handleSet(List<SQLInsertSetExpression> setExps, OIndex index, CommandContext ctx) {
+    SQLExpression keyExp = null;
+    SQLExpression valueExp = null;
+    for (SQLInsertSetExpression exp : setExps) {
       if (exp.getLeft().getStringValue().equalsIgnoreCase("key")) {
         keyExp = exp.getRight();
       } else if (exp.getLeft().getStringValue().equalsIgnoreCase("rid")) {
@@ -124,7 +124,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
   }
 
   private long doExecute(
-      OIndex index, CommandContext ctx, OExpression keyExp, OExpression valueExp) {
+      OIndex index, CommandContext ctx, SQLExpression keyExp, SQLExpression valueExp) {
     long count = 0;
     Object key = keyExp.execute((YTResult) null, ctx);
     Object value = valueExp.execute((YTResult) null, ctx);

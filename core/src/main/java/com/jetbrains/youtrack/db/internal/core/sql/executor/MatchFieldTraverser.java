@@ -3,8 +3,8 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFieldMatchPathItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMatchPathItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFieldMatchPathItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchPathItem;
 
 public class MatchFieldTraverser extends MatchEdgeTraverser {
 
@@ -12,7 +12,7 @@ public class MatchFieldTraverser extends MatchEdgeTraverser {
     super(lastUpstreamRecord, edge);
   }
 
-  public MatchFieldTraverser(YTResult lastUpstreamRecord, OMatchPathItem item) {
+  public MatchFieldTraverser(YTResult lastUpstreamRecord, SQLMatchPathItem item) {
     super(lastUpstreamRecord, item);
   }
 
@@ -24,7 +24,7 @@ public class MatchFieldTraverser extends MatchEdgeTraverser {
     Object qR;
     try {
       // TODO check possible results!
-      qR = ((OFieldMatchPathItem) this.item).getExp().execute(startingPoint, iCommandContext);
+      qR = ((SQLFieldMatchPathItem) this.item).getExp().execute(startingPoint, iCommandContext);
     } finally {
       iCommandContext.setVariable("$current", prevCurrent);
     }

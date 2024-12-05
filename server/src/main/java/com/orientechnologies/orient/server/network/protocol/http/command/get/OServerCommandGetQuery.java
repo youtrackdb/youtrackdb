@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAuthenticatedDbAbstract;
@@ -54,7 +54,7 @@ public class OServerCommandGetQuery extends OServerCommandAuthenticatedDbAbstrac
     iRequest.getData().commandDetail = text;
 
     try (YTDatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
-      OStatement stm = OServerCommandPostCommand.parseStatement("SQL", text, db);
+      SQLStatement stm = OServerCommandPostCommand.parseStatement("SQL", text, db);
       YTResultSet result = db.query(text);
       limit = OServerCommandPostCommand.getLimitFromStatement(stm, limit);
       String localFetchPlan = OServerCommandPostCommand.getFetchPlanFromStatement(stm);

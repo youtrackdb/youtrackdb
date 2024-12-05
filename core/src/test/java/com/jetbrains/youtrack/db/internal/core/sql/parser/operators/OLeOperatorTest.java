@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.parser.operators;
 
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLeOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLeOperator;
 import java.math.BigDecimal;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,7 +31,7 @@ public class OLeOperatorTest {
 
   @Test
   public void test() {
-    OLeOperator op = new OLeOperator(-1);
+    SQLLeOperator op = new SQLLeOperator(-1);
     Assert.assertTrue(op.execute(1, 1));
     Assert.assertFalse(op.execute(1, 0));
     Assert.assertTrue(op.execute(0, 1));

@@ -4,10 +4,10 @@ import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OGroupBy;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OProjection;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OProjectionItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGroupBy;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLProjection;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLProjectionItem;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,13 +18,13 @@ import java.util.Map;
  */
 public class AggregateProjectionCalculationStep extends ProjectionCalculationStep {
 
-  private final OGroupBy groupBy;
+  private final SQLGroupBy groupBy;
   private final long timeoutMillis;
   private final long limit;
 
   public AggregateProjectionCalculationStep(
-      OProjection projection,
-      OGroupBy groupBy,
+      SQLProjection projection,
+      SQLGroupBy groupBy,
       long limit,
       CommandContext ctx,
       long timeoutMillis,
@@ -80,7 +80,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
     var db = ctx.getDatabase();
     List<Object> key = new ArrayList<>();
     if (groupBy != null) {
-      for (OExpression item : groupBy.getItems()) {
+      for (SQLExpression item : groupBy.getItems()) {
         Object val = item.execute(next, ctx);
         key.add(val);
       }
@@ -92,7 +92,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
       }
       preAggr = new YTResultInternal(ctx.getDatabase());
 
-      for (OProjectionItem proj : this.projection.getItems()) {
+      for (SQLProjectionItem proj : this.projection.getItems()) {
         String alias = proj.getProjectionAlias().getStringValue();
         if (!proj.isAggregate(db)) {
           preAggr.setProperty(alias, proj.execute(next, ctx));
@@ -101,7 +101,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
       aggregateResults.put(key, preAggr);
     }
 
-    for (OProjectionItem proj : this.projection.getItems()) {
+    for (SQLProjectionItem proj : this.projection.getItems()) {
       String alias = proj.getProjectionAlias().getStringValue();
       if (proj.isAggregate(db)) {
         AggregationContext aggrCtx = (AggregationContext) preAggr.getTemporaryProperty(alias);

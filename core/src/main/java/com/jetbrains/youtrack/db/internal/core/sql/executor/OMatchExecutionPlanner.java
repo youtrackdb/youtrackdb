@@ -7,28 +7,28 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OAndBlock;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OCluster;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OGroupBy;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLimit;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMatchExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMatchFilter;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMatchPathItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMatchStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMultiMatchPathItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ONestedProjection;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OOrderBy;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OProjection;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OProjectionItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ORid;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSkip;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OUnwind;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCluster;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGroupBy;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLimit;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchFilter;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchPathItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMultiMatchPathItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLNestedProjection;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrderBy;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLProjection;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLProjectionItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLRid;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSkip;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLUnwind;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.Pattern;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,33 +48,33 @@ public class OMatchExecutionPlanner {
 
   static final String DEFAULT_ALIAS_PREFIX = "$ORIENT_DEFAULT_ALIAS_";
 
-  protected List<OMatchExpression> matchExpressions;
-  protected List<OMatchExpression> notMatchExpressions;
-  protected List<OExpression> returnItems;
-  protected List<OIdentifier> returnAliases;
-  protected List<ONestedProjection> returnNestedProjections;
+  protected List<SQLMatchExpression> matchExpressions;
+  protected List<SQLMatchExpression> notMatchExpressions;
+  protected List<SQLExpression> returnItems;
+  protected List<SQLIdentifier> returnAliases;
+  protected List<SQLNestedProjection> returnNestedProjections;
   private boolean returnElements = false;
   private boolean returnPaths = false;
   private boolean returnPatterns = false;
   private boolean returnPathElements = false;
   private boolean returnDistinct = false;
-  protected OSkip skip;
-  private final OGroupBy groupBy;
-  private final OOrderBy orderBy;
-  private final OUnwind unwind;
-  protected OLimit limit;
+  protected SQLSkip skip;
+  private final SQLGroupBy groupBy;
+  private final SQLOrderBy orderBy;
+  private final SQLUnwind unwind;
+  protected SQLLimit limit;
 
   // post-parsing
   private Pattern pattern;
   private List<Pattern> subPatterns;
-  private Map<String, OWhereClause> aliasFilters;
+  private Map<String, SQLWhereClause> aliasFilters;
   private Map<String, String> aliasClasses;
   private Map<String, String> aliasClusters;
-  private Map<String, ORid> aliasRids;
+  private Map<String, SQLRid> aliasRids;
   private boolean foundOptional = false;
   private final long threshold = 100;
 
-  public OMatchExecutionPlanner(OMatchStatement stm) {
+  public OMatchExecutionPlanner(SQLMatchStatement stm) {
     this.matchExpressions =
         stm.getMatchExpressions().stream().map(x -> x.copy()).collect(Collectors.toList());
     this.notMatchExpressions =
@@ -177,14 +177,14 @@ public class OMatchExecutionPlanner {
       }
     } else {
       QueryPlanningInfo info = new QueryPlanningInfo();
-      List<OProjectionItem> items = new ArrayList<>();
+      List<SQLProjectionItem> items = new ArrayList<>();
       for (int i = 0; i < this.returnItems.size(); i++) {
-        OProjectionItem item =
-            new OProjectionItem(
+        SQLProjectionItem item =
+            new SQLProjectionItem(
                 returnItems.get(i), this.returnAliases.get(i), returnNestedProjections.get(i));
         items.add(item);
       }
-      info.projection = new OProjection(items, returnDistinct);
+      info.projection = new SQLProjection(items, returnDistinct);
 
       info.projection = OSelectExecutionPlanner.translateDistinct(info.projection);
       info.distinct = info.projection != null && info.projection.isDistinct();
@@ -206,7 +206,7 @@ public class OMatchExecutionPlanner {
   }
 
   private boolean dependsOnExecutionContext(String key) {
-    OWhereClause filter = aliasFilters.get(key);
+    SQLWhereClause filter = aliasFilters.get(key);
     if (filter == null) {
       return false;
     }
@@ -224,10 +224,10 @@ public class OMatchExecutionPlanner {
   private void manageNotPatterns(
       OSelectExecutionPlan result,
       Pattern pattern,
-      List<OMatchExpression> notMatchExpressions,
+      List<SQLMatchExpression> notMatchExpressions,
       CommandContext context,
       boolean enableProfiling) {
-    for (OMatchExpression exp : notMatchExpressions) {
+    for (SQLMatchExpression exp : notMatchExpressions) {
       if (pattern.aliasToNode.get(exp.getOrigin().getAlias()) == null) {
         throw new YTCommandExecutionException(
             "This kind of NOT expression is not supported (yet). "
@@ -241,10 +241,10 @@ public class OMatchExecutionPlanner {
         // TODO implement his
       }
 
-      OMatchFilter lastFilter = exp.getOrigin();
+      SQLMatchFilter lastFilter = exp.getOrigin();
       List<AbstractExecutionStep> steps = new ArrayList<>();
-      for (OMatchPathItem item : exp.getItems()) {
-        if (item instanceof OMultiMatchPathItem) {
+      for (SQLMatchPathItem item : exp.getItems()) {
+        if (item instanceof SQLMultiMatchPathItem) {
           throw new YTCommandExecutionException(
               "This kind of NOT expression is not supported (yet): " + item);
         }
@@ -274,10 +274,10 @@ public class OMatchExecutionPlanner {
     } else if (returnPathElements) {
       result.chain(new ReturnMatchPathElementsStep(context, profilingEnabled));
     } else {
-      OProjection projection = new OProjection(-1);
+      SQLProjection projection = new SQLProjection(-1);
       projection.setItems(new ArrayList<>());
       for (int i = 0; i < returnAliases.size(); i++) {
-        OProjectionItem item = new OProjectionItem(-1);
+        SQLProjectionItem item = new SQLProjectionItem(-1);
         item.setExpression(returnItems.get(i));
         item.setAlias(returnAliases.get(i));
         item.setNestedProjection(returnNestedProjections.get(i));
@@ -318,9 +318,9 @@ public class OMatchExecutionPlanner {
         // from actual execution plan
         String clazz = aliasClasses.get(node.alias);
         String cluster = aliasClusters.get(node.alias);
-        ORid rid = aliasRids.get(node.alias);
-        OWhereClause filter = aliasFilters.get(node.alias);
-        OSelectStatement select = createSelectStatement(clazz, cluster, rid, filter);
+        SQLRid rid = aliasRids.get(node.alias);
+        SQLWhereClause filter = aliasFilters.get(node.alias);
+        SQLSelectStatement select = createSelectStatement(clazz, cluster, rid, filter);
         plan.chain(
             new MatchFirstStep(
                 context,
@@ -568,7 +568,7 @@ public class OMatchExecutionPlanner {
     for (PatternNode node : pattern.aliasToNode.values()) {
       Set<String> currentDependencies = new HashSet<String>();
 
-      OWhereClause filter = aliasFilters.get(node.alias);
+      SQLWhereClause filter = aliasFilters.get(node.alias);
       if (filter != null && filter.getBaseExpression() != null) {
         List<String> involvedAliases = filter.getBaseExpression().getMatchPatternInvolvedAliases();
         if (involvedAliases != null) {
@@ -600,15 +600,15 @@ public class OMatchExecutionPlanner {
       PatternNode patternNode = edge.out ? edge.edge.out : edge.edge.in;
       String clazz = this.aliasClasses.get(patternNode.alias);
       String cluster = this.aliasClusters.get(patternNode.alias);
-      ORid rid = this.aliasRids.get(patternNode.alias);
-      OWhereClause where = aliasFilters.get(patternNode.alias);
-      OSelectStatement select = new OSelectStatement(-1);
-      select.setTarget(new OFromClause(-1));
-      select.getTarget().setItem(new OFromItem(-1));
+      SQLRid rid = this.aliasRids.get(patternNode.alias);
+      SQLWhereClause where = aliasFilters.get(patternNode.alias);
+      SQLSelectStatement select = new SQLSelectStatement(-1);
+      select.setTarget(new SQLFromClause(-1));
+      select.getTarget().setItem(new SQLFromItem(-1));
       if (clazz != null) {
-        select.getTarget().getItem().setIdentifier(new OIdentifier(clazz));
+        select.getTarget().getItem().setIdentifier(new SQLIdentifier(clazz));
       } else if (cluster != null) {
-        select.getTarget().getItem().setCluster(new OCluster(cluster));
+        select.getTarget().getItem().setCluster(new SQLCluster(cluster));
       } else if (rid != null) {
         select.getTarget().getItem().setRids(Collections.singletonList(rid));
       }
@@ -638,9 +638,9 @@ public class OMatchExecutionPlanner {
     for (String alias : aliasesToPrefetch) {
       String targetClass = aliasClasses.get(alias);
       String targetCluster = aliasClusters.get(alias);
-      ORid targetRid = aliasRids.get(alias);
-      OWhereClause filter = aliasFilters.get(alias);
-      OSelectStatement prefetchStm =
+      SQLRid targetRid = aliasRids.get(alias);
+      SQLWhereClause filter = aliasFilters.get(alias);
+      SQLSelectStatement prefetchStm =
           createSelectStatement(targetClass, targetCluster, targetRid, filter);
 
       MatchPrefetchStep step =
@@ -653,18 +653,18 @@ public class OMatchExecutionPlanner {
     }
   }
 
-  private OSelectStatement createSelectStatement(
-      String targetClass, String targetCluster, ORid targetRid, OWhereClause filter) {
-    OSelectStatement prefetchStm = new OSelectStatement(-1);
+  private SQLSelectStatement createSelectStatement(
+      String targetClass, String targetCluster, SQLRid targetRid, SQLWhereClause filter) {
+    SQLSelectStatement prefetchStm = new SQLSelectStatement(-1);
     prefetchStm.setWhereClause(filter);
-    OFromClause from = new OFromClause(-1);
-    OFromItem fromItem = new OFromItem(-1);
+    SQLFromClause from = new SQLFromClause(-1);
+    SQLFromItem fromItem = new SQLFromItem(-1);
     if (targetRid != null) {
       fromItem.setRids(Collections.singletonList(targetRid));
     } else if (targetClass != null) {
-      fromItem.setIdentifier(new OIdentifier(targetClass));
+      fromItem.setIdentifier(new SQLIdentifier(targetClass));
     } else if (targetCluster != null) {
-      fromItem.setCluster(new OCluster(targetCluster));
+      fromItem.setCluster(new SQLCluster(targetCluster));
     }
     from.setItem(fromItem);
     prefetchStm.setTarget(from);
@@ -675,22 +675,22 @@ public class OMatchExecutionPlanner {
     if (this.pattern != null) {
       return;
     }
-    List<OMatchExpression> allPatterns = new ArrayList<>();
+    List<SQLMatchExpression> allPatterns = new ArrayList<>();
     allPatterns.addAll(this.matchExpressions);
     allPatterns.addAll(this.notMatchExpressions);
 
     assignDefaultAliases(allPatterns);
 
     pattern = new Pattern();
-    for (OMatchExpression expr : this.matchExpressions) {
+    for (SQLMatchExpression expr : this.matchExpressions) {
       pattern.addExpression(expr);
     }
 
-    Map<String, OWhereClause> aliasFilters = new LinkedHashMap<>();
+    Map<String, SQLWhereClause> aliasFilters = new LinkedHashMap<>();
     Map<String, String> aliasClasses = new LinkedHashMap<>();
     Map<String, String> aliasClusters = new LinkedHashMap<>();
-    Map<String, ORid> aliasRids = new LinkedHashMap<>();
-    for (OMatchExpression expr : this.matchExpressions) {
+    Map<String, SQLRid> aliasRids = new LinkedHashMap<>();
+    for (SQLMatchExpression expr : this.matchExpressions) {
       addAliases(expr, aliasFilters, aliasClasses, aliasClusters, aliasRids, ctx);
     }
 
@@ -702,12 +702,12 @@ public class OMatchExecutionPlanner {
     rebindFilters(aliasFilters);
   }
 
-  private void rebindFilters(Map<String, OWhereClause> aliasFilters) {
-    for (OMatchExpression expression : matchExpressions) {
-      OWhereClause newFilter = aliasFilters.get(expression.getOrigin().getAlias());
+  private void rebindFilters(Map<String, SQLWhereClause> aliasFilters) {
+    for (SQLMatchExpression expression : matchExpressions) {
+      SQLWhereClause newFilter = aliasFilters.get(expression.getOrigin().getAlias());
       expression.getOrigin().setFilter(newFilter);
 
-      for (OMatchPathItem item : expression.getItems()) {
+      for (SQLMatchPathItem item : expression.getItems()) {
         newFilter = aliasFilters.get(item.getFilter().getAlias());
         item.getFilter().setFilter(newFilter);
       }
@@ -715,14 +715,14 @@ public class OMatchExecutionPlanner {
   }
 
   private void addAliases(
-      OMatchExpression expr,
-      Map<String, OWhereClause> aliasFilters,
+      SQLMatchExpression expr,
+      Map<String, SQLWhereClause> aliasFilters,
       Map<String, String> aliasClasses,
       Map<String, String> aliasClusters,
-      Map<String, ORid> aliasRids,
+      Map<String, SQLRid> aliasRids,
       CommandContext context) {
     addAliases(expr.getOrigin(), aliasFilters, aliasClasses, aliasClusters, aliasRids, context);
-    for (OMatchPathItem item : expr.getItems()) {
+    for (SQLMatchPathItem item : expr.getItems()) {
       if (item.getFilter() != null) {
         addAliases(item.getFilter(), aliasFilters, aliasClasses, aliasClusters, aliasRids, context);
       }
@@ -730,23 +730,23 @@ public class OMatchExecutionPlanner {
   }
 
   private void addAliases(
-      OMatchFilter matchFilter,
-      Map<String, OWhereClause> aliasFilters,
+      SQLMatchFilter matchFilter,
+      Map<String, SQLWhereClause> aliasFilters,
       Map<String, String> aliasClasses,
       Map<String, String> aliasClusters,
-      Map<String, ORid> aliasRids,
+      Map<String, SQLRid> aliasRids,
       CommandContext context) {
     String alias = matchFilter.getAlias();
-    OWhereClause filter = matchFilter.getFilter();
+    SQLWhereClause filter = matchFilter.getFilter();
     if (alias != null) {
       if (filter != null && filter.getBaseExpression() != null) {
-        OWhereClause previousFilter = aliasFilters.get(alias);
+        SQLWhereClause previousFilter = aliasFilters.get(alias);
         if (previousFilter == null) {
-          previousFilter = new OWhereClause(-1);
-          previousFilter.setBaseExpression(new OAndBlock(-1));
+          previousFilter = new SQLWhereClause(-1);
+          previousFilter.setBaseExpression(new SQLAndBlock(-1));
           aliasFilters.put(alias, previousFilter);
         }
-        OAndBlock filterBlock = (OAndBlock) previousFilter.getBaseExpression();
+        SQLAndBlock filterBlock = (SQLAndBlock) previousFilter.getBaseExpression();
         if (filter != null && filter.getBaseExpression() != null) {
           filterBlock.getSubBlocks().add(filter.getBaseExpression());
         }
@@ -789,9 +789,9 @@ public class OMatchExecutionPlanner {
         }
       }
 
-      ORid rid = matchFilter.getRid(context);
+      SQLRid rid = matchFilter.getRid(context);
       if (rid != null) {
-        ORid previousRid = aliasRids.get(alias);
+        SQLRid previousRid = aliasRids.get(alias);
         if (previousRid == null) {
           aliasRids.put(alias, rid);
         } else if (!previousRid.equals(rid)) {
@@ -826,16 +826,16 @@ public class OMatchExecutionPlanner {
    *
    * @param matchExpressions
    */
-  private void assignDefaultAliases(List<OMatchExpression> matchExpressions) {
+  private void assignDefaultAliases(List<SQLMatchExpression> matchExpressions) {
     int counter = 0;
-    for (OMatchExpression expression : matchExpressions) {
+    for (SQLMatchExpression expression : matchExpressions) {
       if (expression.getOrigin().getAlias() == null) {
         expression.getOrigin().setAlias(DEFAULT_ALIAS_PREFIX + (counter++));
       }
 
-      for (OMatchPathItem item : expression.getItems()) {
+      for (SQLMatchPathItem item : expression.getItems()) {
         if (item.getFilter() == null) {
-          item.setFilter(new OMatchFilter(-1));
+          item.setFilter(new SQLMatchFilter(-1));
         }
         if (item.getFilter().getAlias() == null) {
           item.getFilter().setAlias(DEFAULT_ALIAS_PREFIX + (counter++));
@@ -847,8 +847,8 @@ public class OMatchExecutionPlanner {
   private Map<String, Long> estimateRootEntries(
       Map<String, String> aliasClasses,
       Map<String, String> aliasClusters,
-      Map<String, ORid> aliasRids,
-      Map<String, OWhereClause> aliasFilters,
+      Map<String, SQLRid> aliasRids,
+      Map<String, SQLWhereClause> aliasFilters,
       CommandContext ctx) {
     Set<String> allAliases = new LinkedHashSet<String>();
     allAliases.addAll(aliasClasses.keySet());
@@ -861,7 +861,7 @@ public class OMatchExecutionPlanner {
 
     Map<String, Long> result = new LinkedHashMap<String, Long>();
     for (String alias : allAliases) {
-      ORid rid = aliasRids.get(alias);
+      SQLRid rid = aliasRids.get(alias);
       if (rid != null) {
         result.put(alias, 1L);
         continue;
@@ -880,7 +880,7 @@ public class OMatchExecutionPlanner {
         }
         YTClass oClass = schema.getClass(className);
         long upperBound;
-        OWhereClause filter = aliasFilters.get(alias);
+        SQLWhereClause filter = aliasFilters.get(alias);
         if (filter != null) {
           upperBound = filter.estimate(oClass, this.threshold, ctx);
         } else {
@@ -895,7 +895,7 @@ public class OMatchExecutionPlanner {
         YTClass oClass = db.getMetadata().getSchema().getClassByClusterId(clusterId);
         if (oClass != null) {
           long upperBound;
-          OWhereClause filter = aliasFilters.get(alias);
+          SQLWhereClause filter = aliasFilters.get(alias);
           if (filter != null) {
             upperBound =
                 Math.min(

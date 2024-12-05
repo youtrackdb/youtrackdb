@@ -6,11 +6,11 @@ import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionExcep
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OAndBlock;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBooleanExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OCluster;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCluster;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 import java.util.List;
 
 /**
@@ -18,11 +18,11 @@ import java.util.List;
  */
 public class UpsertStep extends AbstractExecutionStep {
 
-  private final OFromClause commandTarget;
-  private final OWhereClause initialFilter;
+  private final SQLFromClause commandTarget;
+  private final SQLWhereClause initialFilter;
 
   public UpsertStep(
-      OFromClause target, OWhereClause where, CommandContext ctx, boolean profilingEnabled) {
+      SQLFromClause target, SQLWhereClause where, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.commandTarget = target;
     this.initialFilter = where;
@@ -42,12 +42,12 @@ public class UpsertStep extends AbstractExecutionStep {
   }
 
   private YTResult createNewRecord(
-      CommandContext ctx, OFromClause commandTarget, OWhereClause initialFilter) {
+      CommandContext ctx, SQLFromClause commandTarget, SQLWhereClause initialFilter) {
     EntityImpl doc;
     if (commandTarget.getItem().getIdentifier() != null) {
       doc = new EntityImpl(commandTarget.getItem().getIdentifier().getStringValue());
     } else if (commandTarget.getItem().getCluster() != null) {
-      OCluster cluster = commandTarget.getItem().getCluster();
+      SQLCluster cluster = commandTarget.getItem().getCluster();
       Integer clusterId = cluster.getClusterNumber();
       if (clusterId == null) {
         clusterId = ctx.getDatabase().getClusterIdByName(cluster.getClusterName());
@@ -70,16 +70,16 @@ public class UpsertStep extends AbstractExecutionStep {
     return result;
   }
 
-  private void setContent(YTResultInternal doc, OWhereClause initialFilter) {
-    List<OAndBlock> flattened = initialFilter.flatten();
+  private void setContent(YTResultInternal doc, SQLWhereClause initialFilter) {
+    List<SQLAndBlock> flattened = initialFilter.flatten();
     if (flattened.isEmpty()) {
       return;
     }
     if (flattened.size() > 1) {
       throw new YTCommandExecutionException("Cannot UPSERT on OR conditions");
     }
-    OAndBlock andCond = flattened.get(0);
-    for (OBooleanExpression condition : andCond.getSubBlocks()) {
+    SQLAndBlock andCond = flattened.get(0);
+    for (SQLBooleanExpression condition : andCond.getSubBlocks()) {
       condition.transformToUpdateItem().ifPresent(x -> x.applyUpdate(doc, ctx));
     }
   }

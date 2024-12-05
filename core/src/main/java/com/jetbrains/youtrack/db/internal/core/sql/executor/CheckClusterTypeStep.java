@@ -6,18 +6,18 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OCluster;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCluster;
 
 /**
  * This step is used just as a gate check to verify that a cluster belongs to a class.
  *
- * <p>It accepts two values: a target cluster (name or OCluster) and a class. If the cluster
+ * <p>It accepts two values: a target cluster (name or SQLCluster) and a class. If the cluster
  * belongs to the class, then the syncPool() returns an empty result set, otherwise it throws an
  * YTCommandExecutionException
  */
 public class CheckClusterTypeStep extends AbstractExecutionStep {
 
-  private OCluster cluster;
+  private SQLCluster cluster;
   private String clusterName;
   private final String targetClass;
 
@@ -29,7 +29,7 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
   }
 
   public CheckClusterTypeStep(
-      OCluster targetCluster, String clazz, CommandContext ctx, boolean profilingEnabled) {
+      SQLCluster targetCluster, String clazz, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.cluster = targetCluster;
     this.targetClass = clazz;

@@ -32,23 +32,23 @@ public class OProjectionTest {
 
   @Test
   public void testIsExpand() throws ParseException {
-    OrientSql parser = getParserFor("select expand(foo)  from V");
-    OSelectStatement stm = (OSelectStatement) parser.parse();
+    YouTrackDBSql parser = getParserFor("select expand(foo)  from V");
+    SQLSelectStatement stm = (SQLSelectStatement) parser.parse();
     Assert.assertTrue(stm.getProjection().isExpand());
 
-    OrientSql parser2 = getParserFor("select foo  from V");
-    OSelectStatement stm2 = (OSelectStatement) parser2.parse();
+    YouTrackDBSql parser2 = getParserFor("select foo  from V");
+    SQLSelectStatement stm2 = (SQLSelectStatement) parser2.parse();
     Assert.assertFalse(stm2.getProjection().isExpand());
 
-    OrientSql parser3 = getParserFor("select expand  from V");
-    OSelectStatement stm3 = (OSelectStatement) parser3.parse();
+    YouTrackDBSql parser3 = getParserFor("select expand  from V");
+    SQLSelectStatement stm3 = (SQLSelectStatement) parser3.parse();
     Assert.assertFalse(stm3.getProjection().isExpand());
   }
 
   @Test
   public void testValidate() throws ParseException {
-    OrientSql parser = getParserFor("select expand(foo)  from V");
-    OSelectStatement stm = (OSelectStatement) parser.parse();
+    YouTrackDBSql parser = getParserFor("select expand(foo)  from V");
+    SQLSelectStatement stm = (SQLSelectStatement) parser.parse();
     stm.getProjection().validate();
 
     try {
@@ -61,9 +61,9 @@ public class OProjectionTest {
     }
   }
 
-  protected OrientSql getParserFor(String string) {
+  protected YouTrackDBSql getParserFor(String string) {
     InputStream is = new ByteArrayInputStream(string.getBytes());
-    OrientSql osql = new OrientSql(is);
+    YouTrackDBSql osql = new YouTrackDBSql(is);
     return osql;
   }
 }

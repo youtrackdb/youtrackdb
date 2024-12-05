@@ -3,16 +3,16 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSkip;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSkip;
 
 /**
  *
  */
 public class SkipExecutionStep extends AbstractExecutionStep {
 
-  private final OSkip skip;
+  private final SQLSkip skip;
 
-  public SkipExecutionStep(OSkip skip, CommandContext ctx, boolean profilingEnabled) {
+  public SkipExecutionStep(SQLSkip skip, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.skip = skip;
   }

@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ORid;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLRid;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 
 /**
  *
@@ -12,8 +12,8 @@ public class EdgeTraversal {
   public PatternEdge edge;
   private String leftClass;
   private String leftCluster;
-  private ORid leftRid;
-  private OWhereClause leftFilter;
+  private SQLRid leftRid;
+  private SQLWhereClause leftFilter;
 
   public EdgeTraversal(PatternEdge edge, boolean out) {
     this.edge = edge;
@@ -24,7 +24,7 @@ public class EdgeTraversal {
     this.leftClass = leftClass;
   }
 
-  public void setLeftFilter(OWhereClause leftFilter) {
+  public void setLeftFilter(SQLWhereClause leftFilter) {
     this.leftFilter = leftFilter;
   }
 
@@ -36,7 +36,7 @@ public class EdgeTraversal {
     return leftCluster;
   }
 
-  public ORid getLeftRid() {
+  public SQLRid getLeftRid() {
     return leftRid;
   }
 
@@ -44,11 +44,11 @@ public class EdgeTraversal {
     this.leftCluster = leftCluster;
   }
 
-  public void setLeftRid(ORid leftRid) {
+  public void setLeftRid(SQLRid leftRid) {
     this.leftRid = leftRid;
   }
 
-  public OWhereClause getLeftFilter() {
+  public SQLWhereClause getLeftFilter() {
     return leftFilter;
   }
 

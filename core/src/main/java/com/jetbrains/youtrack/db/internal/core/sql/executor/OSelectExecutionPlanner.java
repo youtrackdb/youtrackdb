@@ -20,41 +20,41 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTView;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLAbstract;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.AggregateProjectionSplit;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OAndBlock;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBaseExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCondition;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBooleanExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OCluster;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OEqualsCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBaseExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCondition;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCluster;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLEqualsCompareOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OExecutionPlanCache;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFunctionCall;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OGeOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OGroupBy;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OGtOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIndexIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OInputParameter;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OInteger;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLeOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLetClause;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLetItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLtOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMetadataIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OOrBlock;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OOrderBy;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OOrderByItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OProjection;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OProjectionItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ORecordAttribute;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ORid;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OTimeout;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFunctionCall;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGeOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGroupBy;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGtOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIndexIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInputParameter;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInteger;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLeOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLetClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLetItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLtOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMetadataIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrBlock;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrderBy;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrderByItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLProjection;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLProjectionItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLRecordAttribute;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLRid;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLTimeout;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SubQueryCollector;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.ArrayList;
@@ -78,9 +78,9 @@ import java.util.stream.Collectors;
 public class OSelectExecutionPlanner {
 
   private QueryPlanningInfo info;
-  private final OSelectStatement statement;
+  private final SQLSelectStatement statement;
 
-  public OSelectExecutionPlanner(OSelectStatement oSelectStatement) {
+  public OSelectExecutionPlanner(SQLSelectStatement oSelectStatement) {
     this.statement = oSelectStatement;
   }
 
@@ -111,7 +111,7 @@ public class OSelectExecutionPlanner {
         &&
         ctx.getDatabase().getConfiguration().getValueAsLong(GlobalConfiguration.COMMAND_TIMEOUT)
         > 0) {
-      info.timeout = new OTimeout(-1);
+      info.timeout = new SQLTimeout(-1);
       info.timeout.setVal(
           ctx.getDatabase()
               .getConfiguration()
@@ -422,18 +422,18 @@ public class OSelectExecutionPlanner {
 
     Set<String> result = new HashSet<>();
     YTDatabaseSessionInternal db = ctx.getDatabase();
-    OFromItem item = info.target.getItem();
+    SQLFromItem item = info.target.getItem();
     if (item.getRids() != null && !item.getRids().isEmpty()) {
       if (item.getRids().size() == 1) {
-        OInteger cluster = item.getRids().get(0).getCluster();
+        SQLInteger cluster = item.getRids().get(0).getCluster();
         if (cluster.getValue().longValue() > YTRID.CLUSTER_MAX) {
           throw new YTCommandExecutionException(
               "Invalid cluster Id:" + cluster + ". Max allowed value = " + YTRID.CLUSTER_MAX);
         }
         result.add(db.getClusterNameById(cluster.getValue().intValue()));
       } else {
-        for (ORid rid : item.getRids()) {
-          OInteger cluster = rid.getCluster();
+        for (SQLRid rid : item.getRids()) {
+          SQLInteger cluster = rid.getCluster();
           result.add(db.getClusterNameById(cluster.getValue().intValue()));
         }
       }
@@ -456,7 +456,7 @@ public class OSelectExecutionPlanner {
         return null;
       }
     } else if (item.getClusterList() != null) {
-      for (OCluster cluster : item.getClusterList().toListOfClusters()) {
+      for (SQLCluster cluster : item.getClusterList().toListOfClusters()) {
         String name = cluster.getClusterName();
         if (name == null) {
           name = db.getClusterNameById(cluster.getClusterNumber());
@@ -505,7 +505,7 @@ public class OSelectExecutionPlanner {
     return null;
   }
 
-  private OWhereClause translateLucene(OWhereClause whereClause) {
+  private SQLWhereClause translateLucene(SQLWhereClause whereClause) {
     if (whereClause == null) {
       return null;
     }
@@ -522,21 +522,21 @@ public class OSelectExecutionPlanner {
    *
    * @param projection the projection
    */
-  protected static OProjection translateDistinct(OProjection projection) {
+  protected static SQLProjection translateDistinct(SQLProjection projection) {
     if (projection != null && projection.getItems().size() == 1) {
       if (isDistinct(projection.getItems().get(0))) {
         projection = projection.copy();
-        OProjectionItem item = projection.getItems().get(0);
-        OFunctionCall function =
-            ((OBaseExpression) item.getExpression().getMathExpression())
+        SQLProjectionItem item = projection.getItems().get(0);
+        SQLFunctionCall function =
+            ((SQLBaseExpression) item.getExpression().getMathExpression())
                 .getIdentifier()
                 .getLevelZero()
                 .getFunctionCall();
-        OExpression exp = function.getParams().get(0);
-        OProjectionItem resultItem = new OProjectionItem(-1);
+        SQLExpression exp = function.getParams().get(0);
+        SQLProjectionItem resultItem = new SQLProjectionItem(-1);
         resultItem.setAlias(item.getAlias());
         resultItem.setExpression(exp.copy());
-        OProjection result = new OProjection(-1);
+        SQLProjection result = new SQLProjection(-1);
         result.setItems(new ArrayList<>());
         result.setDistinct(true);
         result.getItems().add(resultItem);
@@ -553,14 +553,14 @@ public class OSelectExecutionPlanner {
    * @param item the projection
    * @return
    */
-  private static boolean isDistinct(OProjectionItem item) {
+  private static boolean isDistinct(SQLProjectionItem item) {
     if (item.getExpression() == null) {
       return false;
     }
     if (item.getExpression().getMathExpression() == null) {
       return false;
     }
-    if (!(item.getExpression().getMathExpression() instanceof OBaseExpression base)) {
+    if (!(item.getExpression().getMathExpression() instanceof SQLBaseExpression base)) {
       return false;
     }
     if (base.getIdentifier() == null) {
@@ -572,7 +572,7 @@ public class OSelectExecutionPlanner {
     if (base.getIdentifier().getLevelZero() == null) {
       return false;
     }
-    OFunctionCall function = base.getIdentifier().getLevelZero().getFunctionCall();
+    SQLFunctionCall function = base.getIdentifier().getLevelZero().getFunctionCall();
     if (function == null) {
       return false;
     }
@@ -595,7 +595,7 @@ public class OSelectExecutionPlanner {
       QueryPlanningInfo info,
       CommandContext ctx,
       boolean profilingEnabled) {
-    OIdentifier targetClass = info.target == null ? null : info.target.getItem().getIdentifier();
+    SQLIdentifier targetClass = info.target == null ? null : info.target.getItem().getIdentifier();
     if (targetClass == null) {
       return false;
     }
@@ -620,7 +620,7 @@ public class OSelectExecutionPlanner {
     return true;
   }
 
-  private boolean securityPoliciesExistForClass(OIdentifier targetClass, CommandContext ctx) {
+  private boolean securityPoliciesExistForClass(SQLIdentifier targetClass, CommandContext ctx) {
     YTDatabaseSessionInternal db = ctx.getDatabase();
     OSecurityInternal security = db.getSharedContext().getSecurity();
     YTClass clazz =
@@ -638,7 +638,7 @@ public class OSelectExecutionPlanner {
       QueryPlanningInfo info,
       CommandContext ctx,
       boolean profilingEnabled) {
-    OIdentifier targetClass = info.target == null ? null : info.target.getItem().getIdentifier();
+    SQLIdentifier targetClass = info.target == null ? null : info.target.getItem().getIdentifier();
     if (targetClass == null) {
       return false;
     }
@@ -674,14 +674,14 @@ public class OSelectExecutionPlanner {
       // for now it only handles a single equality condition, it can be extended
       return false;
     }
-    OBooleanExpression condition = info.flattenedWhereClause.get(0).getSubBlocks().get(0);
-    if (!(condition instanceof OBinaryCondition binaryCondition)) {
+    SQLBooleanExpression condition = info.flattenedWhereClause.get(0).getSubBlocks().get(0);
+    if (!(condition instanceof SQLBinaryCondition binaryCondition)) {
       return false;
     }
     if (!binaryCondition.getLeft().isBaseIdentifier()) {
       return false;
     }
-    if (!(binaryCondition.getOperator() instanceof OEqualsCompareOperator)) {
+    if (!(binaryCondition.getOperator() instanceof SQLEqualsCompareOperator)) {
       // this can be extended to use range operators too
       return false;
     }
@@ -693,10 +693,10 @@ public class OSelectExecutionPlanner {
       List<String> fields = classIndex.getDefinition().getFields();
       if (fields.size() == 1
           && fields.get(0).equals(binaryCondition.getLeft().getDefaultAlias().getStringValue())) {
-        OExpression expr = ((OBinaryCondition) condition).getRight();
+        SQLExpression expr = ((SQLBinaryCondition) condition).getRight();
         result.chain(
             new CountFromIndexWithKeyStep(
-                new OIndexIdentifier(classIndex.getName(), OIndexIdentifier.Type.INDEX),
+                new SQLIndexIdentifier(classIndex.getName(), SQLIndexIdentifier.Type.INDEX),
                 expr,
                 info.projection.getAllAliases().iterator().next(),
                 ctx,
@@ -713,7 +713,7 @@ public class OSelectExecutionPlanner {
       QueryPlanningInfo info,
       CommandContext ctx,
       boolean profilingEnabled) {
-    OIndexIdentifier targetIndex = info.target == null ? null : info.target.getItem().getIndex();
+    SQLIndexIdentifier targetIndex = info.target == null ? null : info.target.getItem().getIndex();
     if (targetIndex == null) {
       return false;
     }
@@ -760,7 +760,7 @@ public class OSelectExecutionPlanner {
         || info.projection.getItems().size() != 1) {
       return false;
     }
-    OProjectionItem item = info.aggregateProjection.getItems().get(0);
+    SQLProjectionItem item = info.aggregateProjection.getItems().get(0);
     return item.getExpression().toString().equalsIgnoreCase("count(*)");
   }
 
@@ -774,10 +774,10 @@ public class OSelectExecutionPlanner {
         != 1) {
       return false;
     }
-    OProjectionItem item = info.aggregateProjection.getItems().get(0);
-    OExpression exp = item.getExpression();
+    SQLProjectionItem item = info.aggregateProjection.getItems().get(0);
+    SQLExpression exp = item.getExpression();
     if (exp.getMathExpression() != null
-        && exp.getMathExpression() instanceof OBaseExpression base) {
+        && exp.getMathExpression() instanceof SQLBaseExpression base) {
       return base.isCount() && base.getModifier() == null;
     }
     return false;
@@ -893,9 +893,9 @@ public class OSelectExecutionPlanner {
    */
   private static void splitLet(QueryPlanningInfo info, CommandContext ctx) {
     if (info.perRecordLetClause != null && info.perRecordLetClause.getItems() != null) {
-      Iterator<OLetItem> iterator = info.perRecordLetClause.getItems().iterator();
+      Iterator<SQLLetItem> iterator = info.perRecordLetClause.getItems().iterator();
       while (iterator.hasNext()) {
-        OLetItem item = iterator.next();
+        SQLLetItem item = iterator.next();
         if (item.getExpression() != null
             && (item.getExpression().isEarlyCalculated(ctx)
             || isUnionAllOfQueries(info, item.getVarName(), item.getExpression()))) {
@@ -910,15 +910,15 @@ public class OSelectExecutionPlanner {
   }
 
   private static boolean isUnionAllOfQueries(
-      QueryPlanningInfo info, OIdentifier varName, OExpression expression) {
-    if (expression.getMathExpression() instanceof OBaseExpression exp) {
+      QueryPlanningInfo info, SQLIdentifier varName, SQLExpression expression) {
+    if (expression.getMathExpression() instanceof SQLBaseExpression exp) {
       if (exp.getIdentifier() != null
           && exp.getModifier() == null
           && exp.getIdentifier().getLevelZero() != null
           && exp.getIdentifier().getLevelZero().getFunctionCall() != null) {
-        OFunctionCall fc = exp.getIdentifier().getLevelZero().getFunctionCall();
+        SQLFunctionCall fc = exp.getIdentifier().getLevelZero().getFunctionCall();
         if (fc.getName().getStringValue().equalsIgnoreCase("unionall")) {
-          for (OExpression param : fc.getParams()) {
+          for (SQLExpression param : fc.getParams()) {
             if (param.toString().startsWith("$")) {
               return true;
             }
@@ -936,19 +936,20 @@ public class OSelectExecutionPlanner {
    * @param flattenedWhereClause
    * @return
    */
-  private static List<OAndBlock> moveFlattededEqualitiesLeft(List<OAndBlock> flattenedWhereClause) {
+  private static List<SQLAndBlock> moveFlattededEqualitiesLeft(
+      List<SQLAndBlock> flattenedWhereClause) {
     if (flattenedWhereClause == null) {
       return null;
     }
 
-    List<OAndBlock> result = new ArrayList<>();
-    for (OAndBlock block : flattenedWhereClause) {
-      List<OBooleanExpression> equalityExpressions = new ArrayList<>();
-      List<OBooleanExpression> nonEqualityExpressions = new ArrayList<>();
-      OAndBlock newBlock = block.copy();
-      for (OBooleanExpression exp : newBlock.getSubBlocks()) {
-        if (exp instanceof OBinaryCondition) {
-          if (((OBinaryCondition) exp).getOperator() instanceof OEqualsCompareOperator) {
+    List<SQLAndBlock> result = new ArrayList<>();
+    for (SQLAndBlock block : flattenedWhereClause) {
+      List<SQLBooleanExpression> equalityExpressions = new ArrayList<>();
+      List<SQLBooleanExpression> nonEqualityExpressions = new ArrayList<>();
+      SQLAndBlock newBlock = block.copy();
+      for (SQLBooleanExpression exp : newBlock.getSubBlocks()) {
+        if (exp instanceof SQLBinaryCondition) {
+          if (((SQLBinaryCondition) exp).getOperator() instanceof SQLEqualsCompareOperator) {
             equalityExpressions.add(exp);
           } else {
             nonEqualityExpressions.add(exp);
@@ -957,7 +958,7 @@ public class OSelectExecutionPlanner {
           nonEqualityExpressions.add(exp);
         }
       }
-      OAndBlock newAnd = new OAndBlock(-1);
+      SQLAndBlock newAnd = new SQLAndBlock(-1);
       newAnd.getSubBlocks().addAll(equalityExpressions);
       newAnd.getSubBlocks().addAll(nonEqualityExpressions);
       result.add(newAnd);
@@ -981,20 +982,20 @@ public class OSelectExecutionPlanner {
       return;
     }
 
-    OOrderBy newOrderBy = info.orderBy == null ? null : info.orderBy.copy();
-    List<OProjectionItem> additionalOrderByProjections =
+    SQLOrderBy newOrderBy = info.orderBy == null ? null : info.orderBy.copy();
+    List<SQLProjectionItem> additionalOrderByProjections =
         calculateAdditionalOrderByProjections(info.projection.getAllAliases(), newOrderBy);
     if (additionalOrderByProjections.size() > 0) {
       info.orderBy = newOrderBy; // the ORDER BY has changed
     }
     if (additionalOrderByProjections.size() > 0) {
-      info.projectionAfterOrderBy = new OProjection(-1);
+      info.projectionAfterOrderBy = new SQLProjection(-1);
       info.projectionAfterOrderBy.setItems(new ArrayList<>());
       for (String alias : info.projection.getAllAliases()) {
-        info.projectionAfterOrderBy.getItems().add(projectionFromAlias(new OIdentifier(alias)));
+        info.projectionAfterOrderBy.getItems().add(projectionFromAlias(new SQLIdentifier(alias)));
       }
 
-      for (OProjectionItem item : additionalOrderByProjections) {
+      for (SQLProjectionItem item : additionalOrderByProjections) {
         if (info.preAggregateProjection != null) {
           info.preAggregateProjection.getItems().add(item);
           info.aggregateProjection.getItems().add(projectionFromAlias(item.getAlias()));
@@ -1016,27 +1017,27 @@ public class OSelectExecutionPlanner {
    * @return a list of additional projections to add to the existing projections to allow ORDER BY
    * calculation (empty if nothing has to be added).
    */
-  private static List<OProjectionItem> calculateAdditionalOrderByProjections(
-      Set<String> allAliases, OOrderBy orderBy) {
-    List<OProjectionItem> result = new ArrayList<>();
+  private static List<SQLProjectionItem> calculateAdditionalOrderByProjections(
+      Set<String> allAliases, SQLOrderBy orderBy) {
+    List<SQLProjectionItem> result = new ArrayList<>();
     int nextAliasCount = 0;
     if (orderBy != null && orderBy.getItems() != null || !orderBy.getItems().isEmpty()) {
-      for (OOrderByItem item : orderBy.getItems()) {
+      for (SQLOrderByItem item : orderBy.getItems()) {
         if (!allAliases.contains(item.getAlias())) {
-          OProjectionItem newProj = new OProjectionItem(-1);
+          SQLProjectionItem newProj = new SQLProjectionItem(-1);
           if (item.getAlias() != null) {
             newProj.setExpression(
-                new OExpression(new OIdentifier(item.getAlias()), item.getModifier()));
+                new SQLExpression(new SQLIdentifier(item.getAlias()), item.getModifier()));
           } else if (item.getRecordAttr() != null) {
-            ORecordAttribute attr = new ORecordAttribute(-1);
+            SQLRecordAttribute attr = new SQLRecordAttribute(-1);
             attr.setName(item.getRecordAttr());
-            newProj.setExpression(new OExpression(attr, item.getModifier()));
+            newProj.setExpression(new SQLExpression(attr, item.getModifier()));
           } else if (item.getRid() != null) {
-            OExpression exp = new OExpression(-1);
+            SQLExpression exp = new SQLExpression(-1);
             exp.setRid(item.getRid().copy());
             newProj.setExpression(exp);
           }
-          OIdentifier newAlias = new OIdentifier("_$$$ORDER_BY_ALIAS$$$_" + (nextAliasCount++));
+          SQLIdentifier newAlias = new SQLIdentifier("_$$$ORDER_BY_ALIAS$$$_" + (nextAliasCount++));
           newProj.setAlias(newAlias);
           item.setAlias(newAlias.getStringValue());
           item.setModifier(null);
@@ -1056,11 +1057,11 @@ public class OSelectExecutionPlanner {
       return;
     }
 
-    OProjection preAggregate = new OProjection(-1);
+    SQLProjection preAggregate = new SQLProjection(-1);
     preAggregate.setItems(new ArrayList<>());
-    OProjection aggregate = new OProjection(-1);
+    SQLProjection aggregate = new SQLProjection(-1);
     aggregate.setItems(new ArrayList<>());
-    OProjection postAggregate = new OProjection(-1);
+    SQLProjection postAggregate = new SQLProjection(-1);
     postAggregate.setItems(new ArrayList<>());
 
     boolean isSplitted = false;
@@ -1068,13 +1069,13 @@ public class OSelectExecutionPlanner {
     var db = ctx.getDatabase();
     // split for aggregate projections
     AggregateProjectionSplit result = new AggregateProjectionSplit();
-    for (OProjectionItem item : info.projection.getItems()) {
+    for (SQLProjectionItem item : info.projection.getItems()) {
       result.reset();
       if (isAggregate(db, item)) {
         isSplitted = true;
-        OProjectionItem post = item.splitForAggregation(result, ctx);
-        OIdentifier postAlias = item.getProjectionAlias();
-        postAlias = new OIdentifier(postAlias, true);
+        SQLProjectionItem post = item.splitForAggregation(result, ctx);
+        SQLIdentifier postAlias = item.getProjectionAlias();
+        postAlias = new SQLIdentifier(postAlias, true);
         post.setAlias(postAlias);
         postAggregate.getItems().add(post);
         aggregate.getItems().addAll(result.getAggregate());
@@ -1082,8 +1083,8 @@ public class OSelectExecutionPlanner {
       } else {
         preAggregate.getItems().add(item);
         // also push the alias forward in the chain
-        OProjectionItem aggItem = new OProjectionItem(-1);
-        aggItem.setExpression(new OExpression(item.getProjectionAlias()));
+        SQLProjectionItem aggItem = new SQLProjectionItem(-1);
+        aggItem.setExpression(new SQLExpression(item.getProjectionAlias()));
         aggregate.getItems().add(aggItem);
         postAggregate.getItems().add(aggItem);
       }
@@ -1107,13 +1108,13 @@ public class OSelectExecutionPlanner {
     }
   }
 
-  private static boolean isAggregate(YTDatabaseSessionInternal db, OProjectionItem item) {
+  private static boolean isAggregate(YTDatabaseSessionInternal db, SQLProjectionItem item) {
     return item.isAggregate(db);
   }
 
-  private static OProjectionItem projectionFromAlias(OIdentifier oIdentifier) {
-    OProjectionItem result = new OProjectionItem(-1);
-    result.setExpression(new OExpression(oIdentifier));
+  private static SQLProjectionItem projectionFromAlias(SQLIdentifier oIdentifier) {
+    SQLProjectionItem result = new SQLProjectionItem(-1);
+    result.setExpression(new SQLExpression(oIdentifier));
     return result;
   }
 
@@ -1129,9 +1130,9 @@ public class OSelectExecutionPlanner {
         || info.groupBy.getItems().size() == 0) {
       return;
     }
-    OGroupBy newGroupBy = new OGroupBy(-1);
+    SQLGroupBy newGroupBy = new SQLGroupBy(-1);
     int i = 0;
-    for (OExpression exp : info.groupBy.getItems()) {
+    for (SQLExpression exp : info.groupBy.getItems()) {
       if (exp.isAggregate(db)) {
         throw new YTCommandExecutionException("Cannot group by an aggregate function");
       }
@@ -1149,18 +1150,18 @@ public class OSelectExecutionPlanner {
         }
       }
       if (!found) {
-        OProjectionItem newItem = new OProjectionItem(-1);
+        SQLProjectionItem newItem = new SQLProjectionItem(-1);
         newItem.setExpression(exp);
-        OIdentifier groupByAlias = new OIdentifier("_$$$GROUP_BY_ALIAS$$$_" + (i++));
+        SQLIdentifier groupByAlias = new SQLIdentifier("_$$$GROUP_BY_ALIAS$$$_" + (i++));
         newItem.setAlias(groupByAlias);
         if (info.preAggregateProjection == null) {
-          info.preAggregateProjection = new OProjection(-1);
+          info.preAggregateProjection = new SQLProjection(-1);
         }
         if (info.preAggregateProjection.getItems() == null) {
           info.preAggregateProjection.setItems(new ArrayList<>());
         }
         info.preAggregateProjection.getItems().add(newItem);
-        newGroupBy.getItems().add(new OExpression(groupByAlias));
+        newGroupBy.getItems().add(new SQLExpression(groupByAlias));
       }
 
       info.groupBy = newGroupBy;
@@ -1177,9 +1178,9 @@ public class OSelectExecutionPlanner {
     }
     int i = 0;
     int j = 0;
-    for (Map.Entry<OIdentifier, OStatement> entry : collector.getSubQueries().entrySet()) {
-      OIdentifier alias = entry.getKey();
-      OStatement query = entry.getValue();
+    for (Map.Entry<SQLIdentifier, SQLStatement> entry : collector.getSubQueries().entrySet()) {
+      SQLIdentifier alias = entry.getKey();
+      SQLStatement query = entry.getValue();
       if (query.refersToParent()) {
         addRecordLevelLet(info, alias, query, j++);
       } else {
@@ -1201,9 +1202,9 @@ public class OSelectExecutionPlanner {
       info.groupBy.extractSubQueries(collector);
     }
 
-    for (Map.Entry<OIdentifier, OStatement> entry : collector.getSubQueries().entrySet()) {
-      OIdentifier alias = entry.getKey();
-      OStatement query = entry.getValue();
+    for (Map.Entry<SQLIdentifier, SQLStatement> entry : collector.getSubQueries().entrySet()) {
+      SQLIdentifier alias = entry.getKey();
+      SQLStatement query = entry.getValue();
       if (query.refersToParent()) {
         addRecordLevelLet(info, alias, query);
       } else {
@@ -1212,53 +1213,54 @@ public class OSelectExecutionPlanner {
     }
   }
 
-  private static void addGlobalLet(QueryPlanningInfo info, OIdentifier alias, OExpression exp) {
+  private static void addGlobalLet(QueryPlanningInfo info, SQLIdentifier alias, SQLExpression exp) {
     if (info.globalLetClause == null) {
-      info.globalLetClause = new OLetClause(-1);
+      info.globalLetClause = new SQLLetClause(-1);
     }
-    OLetItem item = new OLetItem(-1);
+    SQLLetItem item = new SQLLetItem(-1);
     item.setVarName(alias);
     item.setExpression(exp);
     info.globalLetClause.addItem(item);
   }
 
-  private static void addGlobalLet(QueryPlanningInfo info, OIdentifier alias, OStatement stm) {
+  private static void addGlobalLet(QueryPlanningInfo info, SQLIdentifier alias, SQLStatement stm) {
     if (info.globalLetClause == null) {
-      info.globalLetClause = new OLetClause(-1);
+      info.globalLetClause = new SQLLetClause(-1);
     }
-    OLetItem item = new OLetItem(-1);
+    SQLLetItem item = new SQLLetItem(-1);
     item.setVarName(alias);
     item.setQuery(stm);
     info.globalLetClause.addItem(item);
   }
 
   private static void addGlobalLet(
-      QueryPlanningInfo info, OIdentifier alias, OStatement stm, int pos) {
+      QueryPlanningInfo info, SQLIdentifier alias, SQLStatement stm, int pos) {
     if (info.globalLetClause == null) {
-      info.globalLetClause = new OLetClause(-1);
+      info.globalLetClause = new SQLLetClause(-1);
     }
-    OLetItem item = new OLetItem(-1);
+    SQLLetItem item = new SQLLetItem(-1);
     item.setVarName(alias);
     item.setQuery(stm);
     info.globalLetClause.getItems().add(pos, item);
   }
 
-  private static void addRecordLevelLet(QueryPlanningInfo info, OIdentifier alias, OStatement stm) {
+  private static void addRecordLevelLet(QueryPlanningInfo info, SQLIdentifier alias,
+      SQLStatement stm) {
     if (info.perRecordLetClause == null) {
-      info.perRecordLetClause = new OLetClause(-1);
+      info.perRecordLetClause = new SQLLetClause(-1);
     }
-    OLetItem item = new OLetItem(-1);
+    SQLLetItem item = new SQLLetItem(-1);
     item.setVarName(alias);
     item.setQuery(stm);
     info.perRecordLetClause.addItem(item);
   }
 
   private static void addRecordLevelLet(
-      QueryPlanningInfo info, OIdentifier alias, OStatement stm, int pos) {
+      QueryPlanningInfo info, SQLIdentifier alias, SQLStatement stm, int pos) {
     if (info.perRecordLetClause == null) {
-      info.perRecordLetClause = new OLetClause(-1);
+      info.perRecordLetClause = new SQLLetClause(-1);
     }
-    OLetItem item = new OLetItem(-1);
+    SQLLetItem item = new SQLLetItem(-1);
     item.setVarName(alias);
     item.setQuery(stm);
     info.perRecordLetClause.getItems().add(pos, item);
@@ -1270,7 +1272,7 @@ public class OSelectExecutionPlanner {
       CommandContext ctx,
       boolean profilingEnabled) {
 
-    OFromItem target = info.target == null ? null : info.target.getItem();
+    SQLFromItem target = info.target == null ? null : info.target.getItem();
     for (Map.Entry<String, OSelectExecutionPlan> shardedPlan :
         info.distributedFetchExecutionPlans.entrySet()) {
       if (target == null) {
@@ -1286,7 +1288,7 @@ public class OSelectExecutionPlanner {
         } else {
           Set<String> filterClusters = info.serverToClusters.get(shardedPlan.getKey());
 
-          OAndBlock ridRangeConditions = extractRidRanges(info.flattenedWhereClause, ctx);
+          SQLAndBlock ridRangeConditions = extractRidRanges(info.flattenedWhereClause, ctx);
           if (ridRangeConditions != null && !ridRangeConditions.isEmpty()) {
             info.ridRangeConditions = ridRangeConditions;
             filterClusters =
@@ -1306,9 +1308,9 @@ public class OSelectExecutionPlanner {
             ctx,
             profilingEnabled);
       } else if (target.getClusterList() != null) {
-        List<OCluster> allClusters = target.getClusterList().toListOfClusters();
-        List<OCluster> clustersForShard = new ArrayList<>();
-        for (OCluster cluster : allClusters) {
+        List<SQLCluster> allClusters = target.getClusterList().toListOfClusters();
+        List<SQLCluster> clustersForShard = new ArrayList<>();
+        for (SQLCluster cluster : allClusters) {
           String name = cluster.getClusterName();
           if (name == null) {
             name = ctx.getDatabase().getClusterNameById(cluster.getClusterNumber());
@@ -1335,7 +1337,7 @@ public class OSelectExecutionPlanner {
             profilingEnabled);
       } else if (target.getInputParams() != null && target.getInputParams().size() > 0) {
         List<OInternalExecutionPlan> plans = new ArrayList<>();
-        for (OInputParameter param : target.getInputParams()) {
+        for (SQLInputParameter param : target.getInputParams()) {
           OSelectExecutionPlan subPlan = new OSelectExecutionPlan(ctx);
           handleInputParamAsTarget(
               subPlan,
@@ -1361,8 +1363,8 @@ public class OSelectExecutionPlanner {
         handleMetadataAsTarget(shardedPlan.getValue(), target.getMetadata(), ctx, profilingEnabled);
       } else if (target.getRids() != null && target.getRids().size() > 0) {
         Set<String> filterClusters = info.serverToClusters.get(shardedPlan.getKey());
-        List<ORid> rids = new ArrayList<>();
-        for (ORid rid : target.getRids()) {
+        List<SQLRid> rids = new ArrayList<>();
+        for (SQLRid rid : target.getRids()) {
           if (filterClusters == null || isFromClusters(rid, filterClusters, ctx.getDatabase())) {
             rids.add(rid);
           }
@@ -1390,35 +1392,35 @@ public class OSelectExecutionPlanner {
 
   private boolean clusterMatchesRidRange(
       String clusterName,
-      OAndBlock ridRangeConditions,
+      SQLAndBlock ridRangeConditions,
       YTDatabaseSessionInternal database,
       CommandContext ctx) {
     int thisClusterId = database.getClusterIdByName(clusterName);
-    for (OBooleanExpression ridRangeCondition : ridRangeConditions.getSubBlocks()) {
-      if (ridRangeCondition instanceof OBinaryCondition) {
-        OBinaryCompareOperator operator = ((OBinaryCondition) ridRangeCondition).getOperator();
+    for (SQLBooleanExpression ridRangeCondition : ridRangeConditions.getSubBlocks()) {
+      if (ridRangeCondition instanceof SQLBinaryCondition) {
+        SQLBinaryCompareOperator operator = ((SQLBinaryCondition) ridRangeCondition).getOperator();
         YTRID conditionRid;
 
         Object obj;
-        if (((OBinaryCondition) ridRangeCondition).getRight().getRid() != null) {
+        if (((SQLBinaryCondition) ridRangeCondition).getRight().getRid() != null) {
           obj =
-              ((OBinaryCondition) ridRangeCondition)
+              ((SQLBinaryCondition) ridRangeCondition)
                   .getRight()
                   .getRid()
                   .toRecordId((YTResult) null, ctx);
         } else {
-          obj = ((OBinaryCondition) ridRangeCondition).getRight().execute((YTResult) null, ctx);
+          obj = ((SQLBinaryCondition) ridRangeCondition).getRight().execute((YTResult) null, ctx);
         }
 
         conditionRid = ((YTIdentifiable) obj).getIdentity();
 
         if (conditionRid != null) {
           int conditionClusterId = conditionRid.getClusterId();
-          if (operator instanceof OGtOperator || operator instanceof OGeOperator) {
+          if (operator instanceof SQLGtOperator || operator instanceof SQLGeOperator) {
             if (thisClusterId < conditionClusterId) {
               return false;
             }
-          } else if (operator instanceof OLtOperator || operator instanceof OLeOperator) {
+          } else if (operator instanceof SQLLtOperator || operator instanceof SQLLeOperator) {
             if (thisClusterId > conditionClusterId) {
               return false;
             }
@@ -1429,15 +1431,15 @@ public class OSelectExecutionPlanner {
     return true;
   }
 
-  private OAndBlock extractRidRanges(List<OAndBlock> flattenedWhereClause, CommandContext ctx) {
-    OAndBlock result = new OAndBlock(-1);
+  private SQLAndBlock extractRidRanges(List<SQLAndBlock> flattenedWhereClause, CommandContext ctx) {
+    SQLAndBlock result = new SQLAndBlock(-1);
 
     if (flattenedWhereClause == null || flattenedWhereClause.size() != 1) {
       return result;
     }
     // TODO optimization: merge multiple conditions
 
-    for (OBooleanExpression booleanExpression : flattenedWhereClause.get(0).getSubBlocks()) {
+    for (SQLBooleanExpression booleanExpression : flattenedWhereClause.get(0).getSubBlocks()) {
       if (isRidRange(booleanExpression, ctx)) {
         result.getSubBlocks().add(booleanExpression.copy());
       }
@@ -1446,9 +1448,9 @@ public class OSelectExecutionPlanner {
     return result;
   }
 
-  private boolean isRidRange(OBooleanExpression booleanExpression, CommandContext ctx) {
-    if (booleanExpression instanceof OBinaryCondition cond) {
-      OBinaryCompareOperator operator = cond.getOperator();
+  private boolean isRidRange(SQLBooleanExpression booleanExpression, CommandContext ctx) {
+    if (booleanExpression instanceof SQLBinaryCondition cond) {
+      SQLBinaryCompareOperator operator = cond.getOperator();
       if (operator.isRangeOperator() && cond.getLeft().toString().equalsIgnoreCase("@rid")) {
         Object obj;
         if (cond.getRight().getRid() != null) {
@@ -1466,32 +1468,32 @@ public class OSelectExecutionPlanner {
       OSelectExecutionPlan result,
       Set<String> filterClusters,
       QueryPlanningInfo info,
-      OInputParameter inputParam,
+      SQLInputParameter inputParam,
       CommandContext ctx,
       boolean profilingEnabled) {
     Object paramValue = inputParam.getValue(ctx.getInputParameters());
     if (paramValue == null) {
       result.chain(new EmptyStep(ctx, profilingEnabled)); // nothing to return
     } else if (paramValue instanceof YTClass) {
-      OFromClause from = new OFromClause(-1);
-      OFromItem item = new OFromItem(-1);
+      SQLFromClause from = new SQLFromClause(-1);
+      SQLFromItem item = new SQLFromItem(-1);
       from.setItem(item);
-      item.setIdentifier(new OIdentifier(((YTClass) paramValue).getName()));
+      item.setIdentifier(new SQLIdentifier(((YTClass) paramValue).getName()));
       handleClassAsTarget(result, filterClusters, from, info, ctx, profilingEnabled);
     } else if (paramValue instanceof String) {
       // strings are treated as classes
-      OFromClause from = new OFromClause(-1);
-      OFromItem item = new OFromItem(-1);
+      SQLFromClause from = new SQLFromClause(-1);
+      SQLFromItem item = new SQLFromItem(-1);
       from.setItem(item);
-      item.setIdentifier(new OIdentifier((String) paramValue));
+      item.setIdentifier(new SQLIdentifier((String) paramValue));
       handleClassAsTarget(result, filterClusters, from, info, ctx, profilingEnabled);
     } else if (paramValue instanceof YTIdentifiable) {
       YTRID orid = ((YTIdentifiable) paramValue).getIdentity();
 
-      ORid rid = new ORid(-1);
-      OInteger cluster = new OInteger(-1);
+      SQLRid rid = new SQLRid(-1);
+      SQLInteger cluster = new SQLInteger(-1);
       cluster.setValue(orid.getClusterId());
-      OInteger position = new OInteger(-1);
+      SQLInteger position = new SQLInteger(-1);
       position.setValue(orid.getClusterPosition());
       rid.setLegacy(true);
       rid.setCluster(cluster);
@@ -1505,17 +1507,17 @@ public class OSelectExecutionPlanner {
 
     } else if (paramValue instanceof Iterable) {
       // try list of RIDs
-      List<ORid> rids = new ArrayList<>();
+      List<SQLRid> rids = new ArrayList<>();
       for (Object x : (Iterable) paramValue) {
         if (!(x instanceof YTIdentifiable)) {
           throw new YTCommandExecutionException("Cannot use colleciton as target: " + paramValue);
         }
         YTRID orid = ((YTIdentifiable) x).getIdentity();
 
-        ORid rid = new ORid(-1);
-        OInteger cluster = new OInteger(-1);
+        SQLRid rid = new SQLRid(-1);
+        SQLInteger cluster = new SQLInteger(-1);
         cluster.setValue(orid.getClusterId());
-        OInteger position = new OInteger(-1);
+        SQLInteger position = new SQLInteger(-1);
         position.setValue(orid.getClusterPosition());
         rid.setCluster(cluster);
         rid.setPosition(position);
@@ -1542,7 +1544,7 @@ public class OSelectExecutionPlanner {
    * @return
    */
   private boolean isFromClusters(
-      ORid rid, Set<String> filterClusters, YTDatabaseSessionInternal database) {
+      SQLRid rid, Set<String> filterClusters, YTDatabaseSessionInternal database) {
     if (filterClusters == null) {
       throw new IllegalArgumentException();
     }
@@ -1558,7 +1560,7 @@ public class OSelectExecutionPlanner {
   private void handleIndexAsTarget(
       OSelectExecutionPlan result,
       QueryPlanningInfo info,
-      OIndexIdentifier indexIdentifier,
+      SQLIndexIdentifier indexIdentifier,
       Set<String> filterClusters,
       CommandContext ctx,
       boolean profilingEnabled) {
@@ -1578,8 +1580,8 @@ public class OSelectExecutionPlanner {
 
     switch (indexIdentifier.getType()) {
       case INDEX:
-        OBooleanExpression keyCondition = null;
-        OBooleanExpression ridCondition = null;
+        SQLBooleanExpression keyCondition = null;
+        SQLBooleanExpression ridCondition = null;
         if (info.flattenedWhereClause == null || info.flattenedWhereClause.isEmpty()) {
           if (!index.supportsOrderedIterations()) {
             throw new YTCommandExecutionException(
@@ -1590,7 +1592,7 @@ public class OSelectExecutionPlanner {
               "Index queries with this kind of condition are not supported yet: "
                   + info.whereClause);
         } else {
-          OAndBlock andBlock = info.flattenedWhereClause.get(0);
+          SQLAndBlock andBlock = info.flattenedWhereClause.get(0);
           if (andBlock.getSubBlocks().size() == 1) {
 
             info.whereClause =
@@ -1622,7 +1624,7 @@ public class OSelectExecutionPlanner {
         IndexSearchDescriptor desc = new IndexSearchDescriptor(index, keyCondition);
         result.chain(new FetchFromIndexStep(desc, true, ctx, profilingEnabled));
         if (ridCondition != null) {
-          OWhereClause where = new OWhereClause(-1);
+          SQLWhereClause where = new SQLWhereClause(-1);
           where.setBaseExpression(ridCondition);
           result.chain(
               new FilterStep(
@@ -1664,8 +1666,8 @@ public class OSelectExecutionPlanner {
     }
   }
 
-  private OBooleanExpression getKeyCondition(OAndBlock andBlock) {
-    for (OBooleanExpression exp : andBlock.getSubBlocks()) {
+  private SQLBooleanExpression getKeyCondition(SQLAndBlock andBlock) {
+    for (SQLBooleanExpression exp : andBlock.getSubBlocks()) {
       String str = exp.toString();
       if (str.length() < 5) {
         continue;
@@ -1677,8 +1679,8 @@ public class OSelectExecutionPlanner {
     return null;
   }
 
-  private OBooleanExpression getRidCondition(OAndBlock andBlock) {
-    for (OBooleanExpression exp : andBlock.getSubBlocks()) {
+  private SQLBooleanExpression getRidCondition(SQLAndBlock andBlock) {
+    for (SQLBooleanExpression exp : andBlock.getSubBlocks()) {
       String str = exp.toString();
       if (str.length() < 5) {
         continue;
@@ -1692,7 +1694,7 @@ public class OSelectExecutionPlanner {
 
   private void handleMetadataAsTarget(
       OSelectExecutionPlan plan,
-      OMetadataIdentifier metadata,
+      SQLMetadataIdentifier metadata,
       CommandContext ctx,
       boolean profilingEnabled) {
     var db = ctx.getDatabase();
@@ -1719,9 +1721,9 @@ public class OSelectExecutionPlanner {
   }
 
   private void handleRidsAsTarget(
-      OSelectExecutionPlan plan, List<ORid> rids, CommandContext ctx, boolean profilingEnabled) {
+      OSelectExecutionPlan plan, List<SQLRid> rids, CommandContext ctx, boolean profilingEnabled) {
     List<YTRecordId> actualRids = new ArrayList<>();
-    for (ORid rid : rids) {
+    for (SQLRid rid : rids) {
       actualRids.add(rid.toRecordId((YTResult) null, ctx));
     }
     plan.chain(new FetchFromRidsStep(actualRids, ctx, profilingEnabled));
@@ -1743,10 +1745,10 @@ public class OSelectExecutionPlanner {
       CommandContext ctx,
       boolean profilingEnabled) {
     if (info.globalLetClause != null) {
-      List<OLetItem> items = info.globalLetClause.getItems();
+      List<SQLLetItem> items = info.globalLetClause.getItems();
       items = sortLet(items, this.statement.getLetClause());
       List<String> scriptVars = new ArrayList<>();
-      for (OLetItem item : items) {
+      for (SQLLetItem item : items) {
         if (item.getExpression() != null) {
           result.chain(
               new GlobalLetExpressionStep(
@@ -1772,10 +1774,10 @@ public class OSelectExecutionPlanner {
     // checking whether the execution plan already contains some LET steps
     // and in case skip
     if (info.perRecordLetClause != null) {
-      List<OLetItem> items = info.perRecordLetClause.getItems();
+      List<SQLLetItem> items = info.perRecordLetClause.getItems();
       items = sortLet(items, this.statement.getLetClause());
       if (plan.steps.size() > 0 || info.distributedPlanCreated) {
-        for (OLetItem item : items) {
+        for (SQLLetItem item : items) {
           if (item.getExpression() != null) {
             plan.chain(
                 new LetExpressionStep(
@@ -1786,7 +1788,7 @@ public class OSelectExecutionPlanner {
         }
       } else {
         for (OSelectExecutionPlan shardedPlan : info.distributedFetchExecutionPlans.values()) {
-          for (OLetItem item : items) {
+          for (SQLLetItem item : items) {
             if (item.getExpression() != null) {
               shardedPlan.chain(
                   new LetExpressionStep(
@@ -1805,18 +1807,18 @@ public class OSelectExecutionPlanner {
     }
   }
 
-  private List<OLetItem> sortLet(List<OLetItem> items, OLetClause letClause) {
+  private List<SQLLetItem> sortLet(List<SQLLetItem> items, SQLLetClause letClause) {
     if (letClause == null) {
       return items;
     }
-    List<OLetItem> i = new ArrayList<>();
+    List<SQLLetItem> i = new ArrayList<>();
     i.addAll(items);
-    ArrayList<OLetItem> result = new ArrayList<>();
-    for (OLetItem item : letClause.getItems()) {
+    ArrayList<SQLLetItem> result = new ArrayList<>();
+    for (SQLLetItem item : letClause.getItems()) {
       String var = item.getVarName().getStringValue();
-      Iterator<OLetItem> iterator = i.iterator();
+      Iterator<SQLLetItem> iterator = i.iterator();
       while (iterator.hasNext()) {
-        OLetItem x = iterator.next();
+        SQLLetItem x = iterator.next();
         if (x.getVarName().getStringValue().equals(var)) {
           iterator.remove();
           result.add(x);
@@ -1824,7 +1826,7 @@ public class OSelectExecutionPlanner {
         }
       }
     }
-    for (OLetItem item : i) {
+    for (SQLLetItem item : i) {
 
       result.add(item);
     }
@@ -1932,11 +1934,11 @@ public class OSelectExecutionPlanner {
   private void handleClassAsTarget(
       OSelectExecutionPlan plan,
       Set<String> filterClusters,
-      OFromClause from,
+      SQLFromClause from,
       QueryPlanningInfo info,
       CommandContext ctx,
       boolean profilingEnabled) {
-    OIdentifier identifier = from.getItem().getIdentifier();
+    SQLIdentifier identifier = from.getItem().getIdentifier();
     if (handleClassAsTargetWithIndexedFunction(
         plan, filterClusters, identifier, info, ctx, profilingEnabled)) {
       plan.chain(new FilterByClassStep(identifier, ctx, profilingEnabled));
@@ -2000,7 +2002,7 @@ public class OSelectExecutionPlanner {
   private boolean handleClassAsTargetWithIndexedFunction(
       OSelectExecutionPlan plan,
       Set<String> filterClusters,
-      OIdentifier queryTarget,
+      SQLIdentifier queryTarget,
       QueryPlanningInfo info,
       CommandContext ctx,
       boolean profilingEnabled) {
@@ -2023,8 +2025,8 @@ public class OSelectExecutionPlanner {
 
     boolean indexedFunctionsFound = false;
 
-    for (OAndBlock block : info.flattenedWhereClause) {
-      List<OBinaryCondition> indexedFunctionConditions =
+    for (SQLAndBlock block : info.flattenedWhereClause) {
+      List<SQLBinaryCondition> indexedFunctionConditions =
           block.getIndexedFunctionConditions(clazz, ctx.getDatabase());
 
       indexedFunctionConditions =
@@ -2088,8 +2090,8 @@ public class OSelectExecutionPlanner {
           resultSubPlans.add(subPlan);
         }
       } else {
-        OBinaryCondition blockCandidateFunction = null;
-        for (OBinaryCondition cond : indexedFunctionConditions) {
+        SQLBinaryCondition blockCandidateFunction = null;
+        for (SQLBinaryCondition cond : indexedFunctionConditions) {
           if (!cond.allowsIndexedFunctionExecutionOnTarget(info.target, ctx)) {
             if (!cond.canExecuteIndexedFunctionWithoutIndex(info.target, ctx)) {
               throw new YTCommandExecutionException(
@@ -2179,11 +2181,11 @@ public class OSelectExecutionPlanner {
     }
   }
 
-  private boolean refersToLet(List<OBooleanExpression> subBlocks) {
+  private boolean refersToLet(List<SQLBooleanExpression> subBlocks) {
     if (subBlocks == null) {
       return false;
     }
-    for (OBooleanExpression exp : subBlocks) {
+    for (SQLBooleanExpression exp : subBlocks) {
       if (exp.toString().startsWith("$")) {
         return true;
       }
@@ -2191,15 +2193,15 @@ public class OSelectExecutionPlanner {
     return false;
   }
 
-  private List<OBinaryCondition> filterIndexedFunctionsWithoutIndex(
-      List<OBinaryCondition> indexedFunctionConditions,
-      OFromClause fromClause,
+  private List<SQLBinaryCondition> filterIndexedFunctionsWithoutIndex(
+      List<SQLBinaryCondition> indexedFunctionConditions,
+      SQLFromClause fromClause,
       CommandContext ctx) {
     if (indexedFunctionConditions == null) {
       return null;
     }
-    List<OBinaryCondition> result = new ArrayList<>();
-    for (OBinaryCondition cond : indexedFunctionConditions) {
+    List<SQLBinaryCondition> result = new ArrayList<>();
+    for (SQLBinaryCondition cond : indexedFunctionConditions) {
       if (cond.allowsIndexedFunctionExecutionOnTarget(fromClause, ctx)) {
         result.add(cond);
       } else if (!cond.canExecuteIndexedFunctionWithoutIndex(fromClause, ctx)) {
@@ -2219,7 +2221,7 @@ public class OSelectExecutionPlanner {
    */
   private boolean handleClassWithIndexForSortOnly(
       OSelectExecutionPlan plan,
-      OIdentifier queryTarget,
+      SQLIdentifier queryTarget,
       Set<String> filterClusters,
       QueryPlanningInfo info,
       CommandContext ctx,
@@ -2245,7 +2247,7 @@ public class OSelectExecutionPlanner {
       boolean indexFound = true;
       String orderType = null;
       for (int i = 0; i < info.orderBy.getItems().size(); i++) {
-        OOrderByItem orderItem = info.orderBy.getItems().get(i);
+        SQLOrderByItem orderItem = info.orderBy.getItems().get(i);
         if (orderItem.getCollate() != null) {
           return false;
         }
@@ -2268,7 +2270,7 @@ public class OSelectExecutionPlanner {
         plan.chain(
             new FetchFromIndexValuesStep(
                 new IndexSearchDescriptor(idx),
-                orderType.equals(OOrderByItem.ASC),
+                orderType.equals(SQLOrderByItem.ASC),
                 ctx,
                 profilingEnabled));
         IntArrayList filterClusterIds;
@@ -2302,7 +2304,7 @@ public class OSelectExecutionPlanner {
 
   private boolean handleClassAsTargetWithIndex(
       OSelectExecutionPlan plan,
-      OIdentifier targetClass,
+      SQLIdentifier targetClass,
       Set<String> filterClusters,
       QueryPlanningInfo info,
       CommandContext ctx,
@@ -2526,7 +2528,7 @@ public class OSelectExecutionPlanner {
     return ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot();
   }
 
-  private boolean fullySorted(OOrderBy orderBy, IndexSearchDescriptor desc) {
+  private boolean fullySorted(SQLOrderBy orderBy, IndexSearchDescriptor desc) {
     if (orderBy.ordersWithCollate() || !orderBy.ordersSameDirection()) {
       return false;
     }
@@ -2543,17 +2545,17 @@ public class OSelectExecutionPlanner {
       return null;
     }
     String result = null;
-    for (OOrderByItem item : info.orderBy.getItems()) {
+    for (SQLOrderByItem item : info.orderBy.getItems()) {
       if (result == null) {
-        result = item.getType() == null ? OOrderByItem.ASC : item.getType();
+        result = item.getType() == null ? SQLOrderByItem.ASC : item.getType();
       } else {
-        String newType = item.getType() == null ? OOrderByItem.ASC : item.getType();
+        String newType = item.getType() == null ? SQLOrderByItem.ASC : item.getType();
         if (!newType.equals(result)) {
           return null;
         }
       }
     }
-    return result == null || result.equals(OOrderByItem.ASC);
+    return result == null || result.equals(SQLOrderByItem.ASC);
   }
 
   private ExecutionStepInternal createParallelIndexFetch(
@@ -2586,8 +2588,8 @@ public class OSelectExecutionPlanner {
     return new ParallelExecStep(subPlans, ctx, profilingEnabled);
   }
 
-  private OWhereClause createWhereFrom(OBooleanExpression remainingCondition) {
-    OWhereClause result = new OWhereClause(-1);
+  private SQLWhereClause createWhereFrom(SQLBooleanExpression remainingCondition) {
+    SQLWhereClause result = new SQLWhereClause(-1);
     result.setBaseExpression(remainingCondition);
     return result;
   }
@@ -2602,7 +2604,7 @@ public class OSelectExecutionPlanner {
    * @return
    */
   private IndexSearchDescriptor findBestIndexFor(
-      CommandContext ctx, Set<OIndex> indexes, OAndBlock block, YTClass clazz) {
+      CommandContext ctx, Set<OIndex> indexes, SQLAndBlock block, YTClass clazz) {
     // get all valid index descriptors
     List<IndexSearchDescriptor> descriptors =
         indexes.stream()
@@ -2742,15 +2744,15 @@ public class OSelectExecutionPlanner {
    * @return
    */
   private IndexSearchDescriptor buildIndexSearchDescriptor(
-      CommandContext ctx, OIndex index, OAndBlock block, YTClass clazz) {
+      CommandContext ctx, OIndex index, SQLAndBlock block, YTClass clazz) {
     List<String> indexFields = index.getDefinition().getFields();
     boolean found = false;
 
-    OAndBlock blockCopy = block.copy();
-    Iterator<OBooleanExpression> blockIterator;
+    SQLAndBlock blockCopy = block.copy();
+    Iterator<SQLBooleanExpression> blockIterator;
 
-    OAndBlock indexKeyValue = new OAndBlock(-1);
-    OBinaryCondition additionalRangeCondition = null;
+    SQLAndBlock indexKeyValue = new SQLAndBlock(-1);
+    SQLBinaryCondition additionalRangeCondition = null;
 
     for (String indexField : indexFields) {
       OIndexSearchInfo info =
@@ -2764,20 +2766,20 @@ public class OSelectExecutionPlanner {
       blockIterator = blockCopy.getSubBlocks().iterator();
       boolean indexFieldFound = false;
       while (blockIterator.hasNext()) {
-        OBooleanExpression singleExp = blockIterator.next();
+        SQLBooleanExpression singleExp = blockIterator.next();
         if (singleExp.isIndexAware(info)) {
           indexFieldFound = true;
           indexKeyValue.getSubBlocks().add(singleExp.copy());
           blockIterator.remove();
-          if (singleExp instanceof OBinaryCondition
+          if (singleExp instanceof SQLBinaryCondition
               && info.allowsRange()
-              && ((OBinaryCondition) singleExp).getOperator().isRangeOperator()) {
+              && ((SQLBinaryCondition) singleExp).getOperator().isRangeOperator()) {
             // look for the opposite condition, on the same field, for range queries (the other
             // side of the range)
             while (blockIterator.hasNext()) {
-              OBooleanExpression next = blockIterator.next();
+              SQLBooleanExpression next = blockIterator.next();
               if (next.createRangeWith(singleExp)) {
-                additionalRangeCondition = (OBinaryCondition) next;
+                additionalRangeCondition = (SQLBinaryCondition) next;
                 blockIterator.remove();
                 break;
               }
@@ -2818,20 +2820,20 @@ public class OSelectExecutionPlanner {
    * @return
    */
   private IndexSearchDescriptor buildIndexSearchDescriptorForFulltext(
-      CommandContext ctx, OIndex index, OAndBlock block, YTClass clazz) {
+      CommandContext ctx, OIndex index, SQLAndBlock block, YTClass clazz) {
     List<String> indexFields = index.getDefinition().getFields();
     boolean found = false;
 
-    OAndBlock blockCopy = block.copy();
-    Iterator<OBooleanExpression> blockIterator;
+    SQLAndBlock blockCopy = block.copy();
+    Iterator<SQLBooleanExpression> blockIterator;
 
-    OAndBlock indexKeyValue = new OAndBlock(-1);
+    SQLAndBlock indexKeyValue = new SQLAndBlock(-1);
 
     for (String indexField : indexFields) {
       blockIterator = blockCopy.getSubBlocks().iterator();
       boolean indexFieldFound = false;
       while (blockIterator.hasNext()) {
-        OBooleanExpression singleExp = blockIterator.next();
+        SQLBooleanExpression singleExp = blockIterator.next();
         if (singleExp.isFullTextIndexAware(indexField)) {
           found = true;
           indexFieldFound = true;
@@ -2898,9 +2900,9 @@ public class OSelectExecutionPlanner {
   private List<IndexSearchDescriptor> commonFactor(
       List<IndexSearchDescriptor> indexSearchDescriptors) {
     // index, key condition, additional filter (to aggregate in OR)
-    Map<OIndex, Map<IndexCondPair, OOrBlock>> aggregation = new HashMap<>();
+    Map<OIndex, Map<IndexCondPair, SQLOrBlock>> aggregation = new HashMap<>();
     for (IndexSearchDescriptor item : indexSearchDescriptors) {
-      Map<IndexCondPair, OOrBlock> filtersForIndex = aggregation.get(item.getIndex());
+      Map<IndexCondPair, SQLOrBlock> filtersForIndex = aggregation.get(item.getIndex());
       if (filtersForIndex == null) {
         filtersForIndex = new HashMap<>();
         aggregation.put(item.getIndex(), filtersForIndex);
@@ -2908,16 +2910,16 @@ public class OSelectExecutionPlanner {
       IndexCondPair extendedCond =
           new IndexCondPair(item.getKeyCondition(), item.getAdditionalRangeCondition());
 
-      OOrBlock existingAdditionalConditions = filtersForIndex.get(extendedCond);
+      SQLOrBlock existingAdditionalConditions = filtersForIndex.get(extendedCond);
       if (existingAdditionalConditions == null) {
-        existingAdditionalConditions = new OOrBlock(-1);
+        existingAdditionalConditions = new SQLOrBlock(-1);
         filtersForIndex.put(extendedCond, existingAdditionalConditions);
       }
       existingAdditionalConditions.getSubBlocks().add(item.getRemainingCondition());
     }
     List<IndexSearchDescriptor> result = new ArrayList<>();
-    for (Map.Entry<OIndex, Map<IndexCondPair, OOrBlock>> item : aggregation.entrySet()) {
-      for (Map.Entry<IndexCondPair, OOrBlock> filters : item.getValue().entrySet()) {
+    for (Map.Entry<OIndex, Map<IndexCondPair, SQLOrBlock>> item : aggregation.entrySet()) {
+      for (Map.Entry<IndexCondPair, SQLOrBlock> filters : item.getValue().entrySet()) {
         result.add(
             new IndexSearchDescriptor(
                 item.getKey(),
@@ -2932,7 +2934,7 @@ public class OSelectExecutionPlanner {
   private void handleClustersAsTarget(
       OSelectExecutionPlan plan,
       QueryPlanningInfo info,
-      List<OCluster> clusters,
+      List<SQLCluster> clusters,
       CommandContext ctx,
       boolean profilingEnabled) {
     var db = ctx.getDatabase();
@@ -2941,7 +2943,7 @@ public class OSelectExecutionPlanner {
     boolean tryByIndex = true;
     Set<String> clusterNames = new HashSet<>();
 
-    for (OCluster cluster : clusters) {
+    for (SQLCluster cluster : clusters) {
       String name = cluster.getClusterName();
       Integer clusterId = cluster.getClusterNumber();
       if (name == null) {
@@ -2972,7 +2974,7 @@ public class OSelectExecutionPlanner {
     }
 
     if (tryByIndex) {
-      OIdentifier clazz = new OIdentifier(candidateClass.getName());
+      SQLIdentifier clazz = new SQLIdentifier(candidateClass.getName());
       if (handleClassAsTargetWithIndexedFunction(
           plan, clusterNames, clazz, info, ctx, profilingEnabled)) {
         return;
@@ -2999,7 +3001,7 @@ public class OSelectExecutionPlanner {
       info.orderApplied = true;
     }
     if (clusters.size() == 1) {
-      OCluster cluster = clusters.get(0);
+      SQLCluster cluster = clusters.get(0);
       Integer clusterId = cluster.getClusterNumber();
       if (clusterId == null) {
         clusterId = db.getClusterIdByName(cluster.getClusterName());
@@ -3018,7 +3020,7 @@ public class OSelectExecutionPlanner {
     } else {
       int[] clusterIds = new int[clusters.size()];
       for (int i = 0; i < clusters.size(); i++) {
-        OCluster cluster = clusters.get(i);
+        SQLCluster cluster = clusters.get(i);
         Integer clusterId = cluster.getClusterNumber();
         if (clusterId == null) {
           clusterId = db.getClusterIdByName(cluster.getClusterName());
@@ -3036,7 +3038,7 @@ public class OSelectExecutionPlanner {
 
   private void handleSubqueryAsTarget(
       OSelectExecutionPlan plan,
-      OStatement subQuery,
+      SQLStatement subQuery,
       CommandContext ctx,
       boolean profilingEnabled) {
     BasicCommandContext subCtx = new BasicCommandContext();
@@ -3056,11 +3058,11 @@ public class OSelectExecutionPlanner {
       return false;
     }
     if (info.orderBy.getItems().size() == 1) {
-      OOrderByItem item = info.orderBy.getItems().get(0);
+      SQLOrderByItem item = info.orderBy.getItems().get(0);
       String recordAttr = item.getRecordAttr();
       return recordAttr != null
           && recordAttr.equalsIgnoreCase("@rid")
-          && OOrderByItem.DESC.equals(item.getType());
+          && SQLOrderByItem.DESC.equals(item.getType());
     }
     return false;
   }
@@ -3074,11 +3076,11 @@ public class OSelectExecutionPlanner {
       return false;
     }
     if (info.orderBy.getItems().size() == 1) {
-      OOrderByItem item = info.orderBy.getItems().get(0);
+      SQLOrderByItem item = info.orderBy.getItems().get(0);
       String recordAttr = item.getRecordAttr();
       return recordAttr != null
           && recordAttr.equalsIgnoreCase("@rid")
-          && (item.getType() == null || OOrderByItem.ASC.equals(item.getType()));
+          && (item.getType() == null || SQLOrderByItem.ASC.equals(item.getType()));
     }
     return false;
   }

@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.parser.operators;
 
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLikeOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLikeOperator;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,7 +30,7 @@ public class OLikeOperatorTest {
 
   @Test
   public void test() {
-    OLikeOperator op = new OLikeOperator(-1);
+    SQLLikeOperator op = new SQLLikeOperator(-1);
     Assert.assertTrue(op.execute("foobar", "%ooba%"));
     Assert.assertTrue(op.execute("foobar", "%oo%"));
     Assert.assertFalse(op.execute("foobar", "oo%"));

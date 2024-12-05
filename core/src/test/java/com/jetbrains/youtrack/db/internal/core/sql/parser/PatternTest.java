@@ -16,9 +16,9 @@ public class PatternTest extends OParserTestAbstract {
   @Test
   public void testSimplePattern() {
     String query = "MATCH {as:a, class:Person} return a";
-    OrientSql parser = getParserFor(query);
+    YouTrackDBSql parser = getParserFor(query);
     try {
-      OMatchStatement stm = (OMatchStatement) parser.parse();
+      SQLMatchStatement stm = (SQLMatchStatement) parser.parse();
       stm.setContext(getContext());
       stm.buildPatterns();
       Pattern pattern = stm.pattern;
@@ -34,9 +34,9 @@ public class PatternTest extends OParserTestAbstract {
   @Test
   public void testCartesianProduct() {
     String query = "MATCH {as:a, class:Person}, {as:b, class:Person} return a, b";
-    OrientSql parser = getParserFor(query);
+    YouTrackDBSql parser = getParserFor(query);
     try {
-      OMatchStatement stm = (OMatchStatement) parser.parse();
+      SQLMatchStatement stm = (SQLMatchStatement) parser.parse();
       stm.setContext(getContext());
       stm.buildPatterns();
       Pattern pattern = stm.pattern;
@@ -67,9 +67,9 @@ public class PatternTest extends OParserTestAbstract {
     String query =
         "MATCH {as:a, class:Person}-->{as:b}, {as:c, class:Person}-->{as:d}-->{as:e}, {as:d,"
             + " class:Foo}-->{as:f} return a, b";
-    OrientSql parser = getParserFor(query);
+    YouTrackDBSql parser = getParserFor(query);
     try {
-      OMatchStatement stm = (OMatchStatement) parser.parse();
+      SQLMatchStatement stm = (SQLMatchStatement) parser.parse();
       stm.setContext(getContext());
       stm.buildPatterns();
       Pattern pattern = stm.pattern;

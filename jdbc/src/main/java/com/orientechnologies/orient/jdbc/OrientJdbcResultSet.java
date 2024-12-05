@@ -26,8 +26,8 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OrientSql;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.YouTrackDBSql;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -152,17 +152,17 @@ public class OrientJdbcResultSet implements ResultSet {
     if (statement.sql != null && !statement.sql.isEmpty()) {
       try {
 
-        OrientSql osql = null;
+        YouTrackDBSql osql = null;
         YTDatabaseSessionInternal db = null;
         try {
           db =
               (YTDatabaseSessionInternal)
                   ((OrientJdbcConnection) statement.getConnection()).getDatabase();
           if (db == null) {
-            osql = new OrientSql(new ByteArrayInputStream(statement.sql.getBytes()));
+            osql = new YouTrackDBSql(new ByteArrayInputStream(statement.sql.getBytes()));
           } else {
             osql =
-                new OrientSql(
+                new YouTrackDBSql(
                     new ByteArrayInputStream(statement.sql.getBytes()),
                     db.getStorageInfo().getConfiguration().getCharset());
           }
@@ -174,12 +174,12 @@ public class OrientJdbcResultSet implements ResultSet {
                       + db
                       + " "
                       + db.getStorageInfo().getConfiguration().getCharset());
-          osql = new OrientSql(new ByteArrayInputStream(statement.sql.getBytes()));
+          osql = new YouTrackDBSql(new ByteArrayInputStream(statement.sql.getBytes()));
         } catch (Exception e) {
           throw new RuntimeException(e);
         }
 
-        final OSelectStatement select = osql.SelectStatement();
+        final SQLSelectStatement select = osql.SelectStatement();
         if (select.getProjection() != null) {
           boolean isMappable =
               select.getProjection().getItems().stream()

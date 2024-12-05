@@ -15,10 +15,10 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.OIndexableSQLFunction;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionAbstract;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromItem;
 import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
 import com.orientechnologies.lucene.exception.YTLuceneIndexException;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
@@ -79,11 +79,11 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
 
   @Override
   public Iterable<YTIdentifiable> searchFromTarget(
-      OFromClause target,
-      OBinaryCompareOperator operator,
+      SQLFromClause target,
+      SQLBinaryCompareOperator operator,
       Object rightValue,
       CommandContext ctx,
-      OExpression... args) {
+      SQLExpression... args) {
 
     OLuceneFullTextIndex index = this.searchForIndex(target, ctx);
 
@@ -93,7 +93,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
 
     IndexSearcher searcher = index.searcher();
 
-    OExpression expression = args[0];
+    SQLExpression expression = args[0];
 
     var metadata = parseMetadata(args);
 
@@ -137,7 +137,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
     return luceneResultSet;
   }
 
-  private List<String> parseRids(CommandContext ctx, OExpression expression) {
+  private List<String> parseRids(CommandContext ctx, SQLExpression expression) {
 
     Object expResult = expression.execute((YTIdentifiable) null, ctx);
 
@@ -177,7 +177,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
     return rids;
   }
 
-  private static Map<String, ?> parseMetadata(OExpression[] args) {
+  private static Map<String, ?> parseMetadata(SQLExpression[] args) {
     EntityImpl metadata = new EntityImpl();
     if (args.length == 2) {
       metadata.fromJSON(args[1].toString());
@@ -270,8 +270,8 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
                     new TermQuery(new Term("RID", QueryParser.escape(rid))), Occur.MUST_NOT));
   }
 
-  private OLuceneFullTextIndex searchForIndex(OFromClause target, CommandContext ctx) {
-    OFromItem item = target.getItem();
+  private OLuceneFullTextIndex searchForIndex(SQLFromClause target, CommandContext ctx) {
+    SQLFromItem item = target.getItem();
 
     String className = item.getIdentifier().getStringValue();
 
@@ -298,11 +298,11 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
 
   @Override
   public long estimate(
-      OFromClause target,
-      OBinaryCompareOperator operator,
+      SQLFromClause target,
+      SQLBinaryCompareOperator operator,
       Object rightValue,
       CommandContext ctx,
-      OExpression... args) {
+      SQLExpression... args) {
     OLuceneFullTextIndex index = this.searchForIndex(target, ctx);
     if (index != null) {
       return index.size(ctx.getDatabase());
@@ -312,21 +312,21 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
 
   @Override
   public boolean canExecuteInline(
-      OFromClause target,
-      OBinaryCompareOperator operator,
+      SQLFromClause target,
+      SQLBinaryCompareOperator operator,
       Object rightValue,
       CommandContext ctx,
-      OExpression... args) {
+      SQLExpression... args) {
     return false;
   }
 
   @Override
   public boolean allowsIndexedExecution(
-      OFromClause target,
-      OBinaryCompareOperator operator,
+      SQLFromClause target,
+      SQLBinaryCompareOperator operator,
       Object rightValue,
       CommandContext ctx,
-      OExpression... args) {
+      SQLExpression... args) {
 
     OLuceneFullTextIndex index = this.searchForIndex(target, ctx);
 
@@ -335,11 +335,11 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
 
   @Override
   public boolean shouldExecuteAfterSearch(
-      OFromClause target,
-      OBinaryCompareOperator operator,
+      SQLFromClause target,
+      SQLBinaryCompareOperator operator,
       Object rightValue,
       CommandContext ctx,
-      OExpression... args) {
+      SQLExpression... args) {
     return false;
   }
 }

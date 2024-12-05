@@ -3,7 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.metadata.security;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OOrBlock;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrBlock;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class OPredicateCache {
 
-  private final Map<String, OOrBlock> map;
+  private final Map<String, SQLOrBlock> map;
   private final int mapSize;
 
   /**
@@ -22,8 +22,8 @@ public class OPredicateCache {
   public OPredicateCache(int size) {
     this.mapSize = size;
     map =
-        new LinkedHashMap<String, OOrBlock>(size) {
-          protected boolean removeEldestEntry(final Map.Entry<String, OOrBlock> eldest) {
+        new LinkedHashMap<String, SQLOrBlock>(size) {
+          protected boolean removeEldestEntry(final Map.Entry<String, SQLOrBlock> eldest) {
             return super.size() > mapSize;
           }
         };
@@ -47,12 +47,12 @@ public class OPredicateCache {
    * @param statement an SQL statement
    * @return the corresponding executor, taking it from the internal cache, if it exists
    */
-  public OOrBlock get(String statement) {
+  public SQLOrBlock get(String statement) {
     if (GlobalConfiguration.STATEMENT_CACHE_SIZE.getValueAsInteger() == 0) {
       return parse(statement);
     }
 
-    OOrBlock result;
+    SQLOrBlock result;
     synchronized (map) {
       // LRU
       result = map.remove(statement);
@@ -69,7 +69,7 @@ public class OPredicateCache {
     return result.copy();
   }
 
-  protected static OOrBlock parse(String statement) throws YTCommandSQLParsingException {
+  protected static SQLOrBlock parse(String statement) throws YTCommandSQLParsingException {
     return OSQLEngine.parsePredicate(statement);
   }
 

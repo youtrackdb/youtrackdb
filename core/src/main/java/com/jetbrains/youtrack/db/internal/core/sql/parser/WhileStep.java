@@ -16,12 +16,12 @@ import java.util.List;
 
 public class WhileStep extends AbstractExecutionStep {
 
-  private final OBooleanExpression condition;
-  private final List<OStatement> statements;
+  private final SQLBooleanExpression condition;
+  private final List<SQLStatement> statements;
 
   public WhileStep(
-      OBooleanExpression condition,
-      List<OStatement> statements,
+      SQLBooleanExpression condition,
+      List<SQLStatement> statements,
       CommandContext ctx,
       boolean enableProfiling) {
     super(ctx, enableProfiling);
@@ -54,7 +54,7 @@ public class WhileStep extends AbstractExecutionStep {
     BasicCommandContext subCtx1 = new BasicCommandContext();
     subCtx1.setParent(ctx);
     OScriptExecutionPlan plan = new OScriptExecutionPlan(subCtx1);
-    for (OStatement stm : statements) {
+    for (SQLStatement stm : statements) {
       if (stm.originalStatement == null) {
         stm.originalStatement = stm.toString();
       }
@@ -71,17 +71,17 @@ public class WhileStep extends AbstractExecutionStep {
   }
 
   public boolean containsReturn() {
-    for (OStatement stm : this.statements) {
-      if (stm instanceof OReturnStatement) {
+    for (SQLStatement stm : this.statements) {
+      if (stm instanceof SQLReturnStatement) {
         return true;
       }
-      if (stm instanceof OForEachBlock && ((OForEachBlock) stm).containsReturn()) {
+      if (stm instanceof SQLForEachBlock && ((SQLForEachBlock) stm).containsReturn()) {
         return true;
       }
-      if (stm instanceof OIfStatement && ((OIfStatement) stm).containsReturn()) {
+      if (stm instanceof SQLIfStatement && ((SQLIfStatement) stm).containsReturn()) {
         return true;
       }
-      if (stm instanceof OWhileBlock && ((OWhileBlock) stm).containsReturn()) {
+      if (stm instanceof SQLWhileBlock && ((SQLWhileBlock) stm).containsReturn()) {
         return true;
       }
     }

@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OCreateVertexStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCreateVertexStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class OCreateVertexExecutionPlanner extends OInsertExecutionPlanner {
 
-  public OCreateVertexExecutionPlanner(OCreateVertexStatement statement) {
+  public OCreateVertexExecutionPlanner(SQLCreateVertexStatement statement) {
     this.targetClass =
         statement.getTargetClass() == null ? null : statement.getTargetClass().copy();
     this.targetClusterName =
@@ -19,7 +19,7 @@ public class OCreateVertexExecutionPlanner extends OInsertExecutionPlanner {
     this.targetCluster =
         statement.getTargetCluster() == null ? null : statement.getTargetCluster().copy();
     if (this.targetClass == null && this.targetCluster == null && this.targetClusterName == null) {
-      this.targetClass = new OIdentifier("V");
+      this.targetClass = new SQLIdentifier("V");
     }
     this.insertBody = statement.getInsertBody() == null ? null : statement.getInsertBody().copy();
     this.returnStatement =

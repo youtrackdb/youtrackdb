@@ -3,7 +3,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OUpdateRemoveItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLUpdateRemoveItem;
 import java.util.List;
 
 /**
@@ -11,10 +11,10 @@ import java.util.List;
  */
 public class UpdateRemoveStep extends AbstractExecutionStep {
 
-  private final List<OUpdateRemoveItem> items;
+  private final List<SQLUpdateRemoveItem> items;
 
   public UpdateRemoveStep(
-      List<OUpdateRemoveItem> items, CommandContext ctx, boolean profilingEnabled) {
+      List<SQLUpdateRemoveItem> items, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.items = items;
   }
@@ -28,7 +28,7 @@ public class UpdateRemoveStep extends AbstractExecutionStep {
 
   private YTResult mapResult(YTResult result, CommandContext ctx) {
     if (result instanceof YTResultInternal) {
-      for (OUpdateRemoveItem item : items) {
+      for (SQLUpdateRemoveItem item : items) {
         item.applyUpdate((YTResultInternal) result, ctx);
       }
     }
@@ -41,7 +41,7 @@ public class UpdateRemoveStep extends AbstractExecutionStep {
     StringBuilder result = new StringBuilder();
     result.append(spaces);
     result.append("+ UPDATE REMOVE");
-    for (OUpdateRemoveItem item : items) {
+    for (SQLUpdateRemoveItem item : items) {
       result.append("\n");
       result.append(spaces);
       result.append("  ");

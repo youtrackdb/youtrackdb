@@ -16,9 +16,9 @@ package com.orientechnologies.spatial.functions;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 import com.orientechnologies.spatial.strategy.SpatialQueryBuilderDistanceSphere;
 import java.util.Map;
@@ -75,21 +75,21 @@ public class OSTDistanceSphereFunction extends OSpatialFunctionAbstractIndexable
 
   @Override
   public Iterable<YTIdentifiable> searchFromTarget(
-      OFromClause target,
-      OBinaryCompareOperator operator,
+      SQLFromClause target,
+      SQLBinaryCompareOperator operator,
       Object rightValue,
       CommandContext ctx,
-      OExpression... args) {
+      SQLExpression... args) {
     return results(target, args, ctx, rightValue);
   }
 
   @Override
   public long estimate(
-      OFromClause target,
-      OBinaryCompareOperator operator,
+      SQLFromClause target,
+      SQLBinaryCompareOperator operator,
       Object rightValue,
       CommandContext ctx,
-      OExpression... args) {
+      SQLExpression... args) {
 
     if (rightValue == null || !isValidBinaryOperator(operator)) {
       return -1;
@@ -100,7 +100,7 @@ public class OSTDistanceSphereFunction extends OSpatialFunctionAbstractIndexable
 
   @Override
   protected void onAfterParsing(
-      Map<String, Object> params, OExpression[] args, CommandContext ctx, Object rightValue) {
+      Map<String, Object> params, SQLExpression[] args, CommandContext ctx, Object rightValue) {
 
     Number parsedNumber = (Number) rightValue;
 

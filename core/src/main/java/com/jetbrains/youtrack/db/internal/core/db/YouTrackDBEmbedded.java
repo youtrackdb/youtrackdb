@@ -45,7 +45,7 @@ import com.jetbrains.youtrack.db.internal.core.security.ODefaultSecuritySystem;
 import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTInternalResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OServerStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLServerStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.YTLocalResultSetLifecycleDecorator;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.config.OClusterBasedStorageConfiguration;
@@ -1203,7 +1203,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   public YTResultSet executeServerStatementNamedParams(String script, String username, String pw,
       Map<String, Object> args) {
-    OServerStatement statement = OSQLEngine.parseServerStatement(script, this);
+    SQLServerStatement statement = OSQLEngine.parseServerStatement(script, this);
     YTResultSet original = statement.execute(this, args, true);
     YTLocalResultSetLifecycleDecorator result;
     //    if (!statement.isIdempotent()) {
@@ -1224,7 +1224,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   public YTResultSet executeServerStatementPositionalParams(
       String script, String username, String pw, Object... args) {
-    OServerStatement statement = OSQLEngine.parseServerStatement(script, this);
+    SQLServerStatement statement = OSQLEngine.parseServerStatement(script, this);
     YTResultSet original = statement.execute(this, args, true);
     YTLocalResultSetLifecycleDecorator result;
     //    if (!statement.isIdempotent()) {

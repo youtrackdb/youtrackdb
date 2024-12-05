@@ -21,9 +21,9 @@ package com.jetbrains.youtrack.db.internal.core.sql.functions;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
 
 /**
  * This interface represents SQL functions whose implementation can rely on an index. If used in a
@@ -49,11 +49,11 @@ public interface OIndexableSQLFunction extends OSQLFunction {
    * not be performed for some reason.
    */
   Iterable<YTIdentifiable> searchFromTarget(
-      OFromClause target,
-      OBinaryCompareOperator operator,
+      SQLFromClause target,
+      SQLBinaryCompareOperator operator,
       Object rightValue,
       CommandContext ctx,
-      OExpression... args);
+      SQLExpression... args);
 
   /**
    * estimates the number of entries returned by searchFromTarget() with these parameters
@@ -71,11 +71,11 @@ public interface OIndexableSQLFunction extends OSQLFunction {
    * parameters, -1 if the estimation cannot be done
    */
   long estimate(
-      OFromClause target,
-      OBinaryCompareOperator operator,
+      SQLFromClause target,
+      SQLBinaryCompareOperator operator,
       Object rightValue,
       CommandContext ctx,
-      OExpression... args);
+      SQLExpression... args);
 
   /**
    * checks if the function can be used even on single records, not as an indexed function (even if
@@ -93,11 +93,11 @@ public interface OIndexableSQLFunction extends OSQLFunction {
    * @return true if the funciton can be calculated without the index. False otherwise
    */
   boolean canExecuteInline(
-      OFromClause target,
-      OBinaryCompareOperator operator,
+      SQLFromClause target,
+      SQLBinaryCompareOperator operator,
       Object rightValue,
       CommandContext ctx,
-      OExpression... args);
+      SQLExpression... args);
 
   /**
    * Checks if this function can be used to fetch data from this target and with these arguments
@@ -115,11 +115,11 @@ public interface OIndexableSQLFunction extends OSQLFunction {
    * @return True if the funciton can be used to fetch from an index. False otherwise
    */
   boolean allowsIndexedExecution(
-      OFromClause target,
-      OBinaryCompareOperator operator,
+      SQLFromClause target,
+      SQLBinaryCompareOperator operator,
       Object rightValue,
       CommandContext ctx,
-      OExpression... args);
+      SQLExpression... args);
 
   /**
    * Checks if this function should be called even if the method {@link #searchFromTarget} is
@@ -138,9 +138,9 @@ public interface OIndexableSQLFunction extends OSQLFunction {
    * executed. False otherwise
    */
   boolean shouldExecuteAfterSearch(
-      OFromClause target,
-      OBinaryCompareOperator operator,
+      SQLFromClause target,
+      SQLBinaryCompareOperator operator,
       Object rightValue,
       CommandContext ctx,
-      OExpression... args);
+      SQLExpression... args);
 }

@@ -2,27 +2,27 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBatch;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OCluster;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMoveVertexStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OUpdateOperations;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBatch;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCluster;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMoveVertexStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLUpdateOperations;
 
 /**
  *
  */
 public class OMoveVertexExecutionPlanner {
 
-  private final OFromItem source;
-  private final OIdentifier targetClass;
-  private final OCluster targetCluster;
-  private final OUpdateOperations updateOperations;
-  private final OBatch batch;
+  private final SQLFromItem source;
+  private final SQLIdentifier targetClass;
+  private final SQLCluster targetCluster;
+  private final SQLUpdateOperations updateOperations;
+  private final SQLBatch batch;
 
-  public OMoveVertexExecutionPlanner(OMoveVertexStatement oStatement) {
+  public OMoveVertexExecutionPlanner(SQLMoveVertexStatement oStatement) {
     this.source = oStatement.getSource();
     this.targetClass = oStatement.getTargetClass();
     this.targetCluster = oStatement.getTargetCluster();
@@ -44,15 +44,15 @@ public class OMoveVertexExecutionPlanner {
 
   private void handleTarget(
       OUpdateExecutionPlan result,
-      OIdentifier targetClass,
-      OCluster targetCluster,
+      SQLIdentifier targetClass,
+      SQLCluster targetCluster,
       CommandContext ctx,
       boolean profilingEnabled) {
     result.chain(new MoveVertexStep(targetClass, targetCluster, ctx, profilingEnabled));
   }
 
   private void handleBatch(
-      OUpdateExecutionPlan result, CommandContext ctx, OBatch batch, boolean profilingEnabled) {
+      OUpdateExecutionPlan result, CommandContext ctx, SQLBatch batch, boolean profilingEnabled) {
     if (batch != null) {
       result.chain(new BatchStep(batch, ctx, profilingEnabled));
     }
@@ -78,25 +78,25 @@ public class OMoveVertexExecutionPlanner {
   private void handleOperations(
       OUpdateExecutionPlan plan,
       CommandContext ctx,
-      OUpdateOperations op,
+      SQLUpdateOperations op,
       boolean profilingEnabled) {
     if (op != null) {
       switch (op.getType()) {
-        case OUpdateOperations.TYPE_SET:
+        case SQLUpdateOperations.TYPE_SET:
           plan.chain(new UpdateSetStep(op.getUpdateItems(), ctx, profilingEnabled));
           break;
-        case OUpdateOperations.TYPE_REMOVE:
+        case SQLUpdateOperations.TYPE_REMOVE:
           plan.chain(new UpdateRemoveStep(op.getUpdateRemoveItems(), ctx, profilingEnabled));
           break;
-        case OUpdateOperations.TYPE_MERGE:
+        case SQLUpdateOperations.TYPE_MERGE:
           plan.chain(new UpdateMergeStep(op.getJson(), ctx, profilingEnabled));
           break;
-        case OUpdateOperations.TYPE_CONTENT:
+        case SQLUpdateOperations.TYPE_CONTENT:
           plan.chain(new UpdateContentStep(op.getJson(), ctx, profilingEnabled));
           break;
-        case OUpdateOperations.TYPE_PUT:
-        case OUpdateOperations.TYPE_INCREMENT:
-        case OUpdateOperations.TYPE_ADD:
+        case SQLUpdateOperations.TYPE_PUT:
+        case SQLUpdateOperations.TYPE_INCREMENT:
+        case SQLUpdateOperations.TYPE_ADD:
           throw new YTCommandExecutionException(
               "Cannot execute with UPDATE PUT/ADD/INCREMENT new executor: " + op);
       }
@@ -106,10 +106,10 @@ public class OMoveVertexExecutionPlanner {
   private void handleSource(
       OUpdateExecutionPlan result,
       CommandContext ctx,
-      OFromItem source,
+      SQLFromItem source,
       boolean profilingEnabled) {
-    OSelectStatement sourceStatement = new OSelectStatement(-1);
-    sourceStatement.setTarget(new OFromClause(-1));
+    SQLSelectStatement sourceStatement = new SQLSelectStatement(-1);
+    sourceStatement.setTarget(new SQLFromClause(-1));
     sourceStatement.getTarget().setItem(source);
     OSelectExecutionPlanner planner = new OSelectExecutionPlanner(sourceStatement);
     result.chain(

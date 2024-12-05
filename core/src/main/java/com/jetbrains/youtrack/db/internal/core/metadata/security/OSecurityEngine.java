@@ -13,9 +13,9 @@ import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OAndBlock;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBooleanExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OOrBlock;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrBlock;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,19 +44,19 @@ public class OSecurityEngine {
    * @param scope
    * @return always returns a valid predicate (it is never supposed to be null)
    */
-  static OBooleanExpression getPredicateForSecurityResource(
+  static SQLBooleanExpression getPredicateForSecurityResource(
       YTDatabaseSessionInternal session,
       OSecurityShared security,
       String resourceString,
       OSecurityPolicy.Scope scope) {
     YTSecurityUser user = session.getUser();
     if (user == null) {
-      return OBooleanExpression.FALSE;
+      return SQLBooleanExpression.FALSE;
     }
 
     Set<? extends OSecurityRole> roles = user.getRoles();
     if (roles == null || roles.isEmpty()) {
-      return OBooleanExpression.FALSE;
+      return SQLBooleanExpression.FALSE;
     }
 
     OSecurityResource resource = getResourceFromString(resourceString);
@@ -69,10 +69,10 @@ public class OSecurityEngine {
       return getPredicateForFunction(
           session, security, (OSecurityResourceFunction) resource, scope);
     }
-    return OBooleanExpression.FALSE;
+    return SQLBooleanExpression.FALSE;
   }
 
-  private static OBooleanExpression getPredicateForFunction(
+  private static SQLBooleanExpression getPredicateForFunction(
       YTDatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityResourceFunction resource,
@@ -88,13 +88,13 @@ public class OSecurityEngine {
           session, security, roles.iterator().next(), function, scope);
     }
 
-    OOrBlock result = new OOrBlock(-1);
+    SQLOrBlock result = new SQLOrBlock(-1);
 
     for (OSecurityRole role : roles) {
-      OBooleanExpression roleBlock =
+      SQLBooleanExpression roleBlock =
           getPredicateForRoleHierarchy(session, security, role, function, scope);
-      if (OBooleanExpression.TRUE.equals(roleBlock)) {
-        return OBooleanExpression.TRUE;
+      if (SQLBooleanExpression.TRUE.equals(roleBlock)) {
+        return SQLBooleanExpression.TRUE;
       }
       result.getSubBlocks().add(roleBlock);
     }
@@ -102,7 +102,7 @@ public class OSecurityEngine {
     return result;
   }
 
-  private static OBooleanExpression getPredicateForProperty(
+  private static SQLBooleanExpression getPredicateForProperty(
       YTDatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityResourceProperty resource,
@@ -129,13 +129,13 @@ public class OSecurityEngine {
           session, security, roles.iterator().next(), clazz, propertyName, scope);
     }
 
-    OOrBlock result = new OOrBlock(-1);
+    SQLOrBlock result = new SQLOrBlock(-1);
 
     for (OSecurityRole role : roles) {
-      OBooleanExpression roleBlock =
+      SQLBooleanExpression roleBlock =
           getPredicateForRoleHierarchy(session, security, role, clazz, propertyName, scope);
-      if (OBooleanExpression.TRUE.equals(roleBlock)) {
-        return OBooleanExpression.TRUE;
+      if (SQLBooleanExpression.TRUE.equals(roleBlock)) {
+        return SQLBooleanExpression.TRUE;
       }
       result.getSubBlocks().add(roleBlock);
     }
@@ -143,7 +143,7 @@ public class OSecurityEngine {
     return result;
   }
 
-  private static OBooleanExpression getPredicateForClass(
+  private static SQLBooleanExpression getPredicateForClass(
       YTDatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityResourceClass resource,
@@ -154,7 +154,7 @@ public class OSecurityEngine {
             .getImmutableSchemaSnapshot()
             .getClass(resource.getClassName());
     if (clazz == null) {
-      return OBooleanExpression.TRUE;
+      return SQLBooleanExpression.TRUE;
     }
     Set<? extends OSecurityRole> roles = session.getUser().getRoles();
     if (roles == null || roles.size() == 0) {
@@ -164,13 +164,13 @@ public class OSecurityEngine {
       return getPredicateForRoleHierarchy(session, security, roles.iterator().next(), clazz, scope);
     }
 
-    OOrBlock result = new OOrBlock(-1);
+    SQLOrBlock result = new SQLOrBlock(-1);
 
     for (OSecurityRole role : roles) {
-      OBooleanExpression roleBlock =
+      SQLBooleanExpression roleBlock =
           getPredicateForRoleHierarchy(session, security, role, clazz, scope);
-      if (OBooleanExpression.TRUE.equals(roleBlock)) {
-        return OBooleanExpression.TRUE;
+      if (SQLBooleanExpression.TRUE.equals(roleBlock)) {
+        return SQLBooleanExpression.TRUE;
       }
       result.getSubBlocks().add(roleBlock);
     }
@@ -178,7 +178,7 @@ public class OSecurityEngine {
     return result;
   }
 
-  private static OBooleanExpression getPredicateForRoleHierarchy(
+  private static SQLBooleanExpression getPredicateForRoleHierarchy(
       YTDatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityRole role,
@@ -186,7 +186,7 @@ public class OSecurityEngine {
       OSecurityPolicy.Scope scope) {
     // TODO cache!
 
-    OBooleanExpression result = getPredicateForFunction(session, security, role, function, scope);
+    SQLBooleanExpression result = getPredicateForFunction(session, security, role, function, scope);
     if (result != null) {
       return result;
     }
@@ -194,10 +194,10 @@ public class OSecurityEngine {
     if (role.getParentRole() != null) {
       return getPredicateForRoleHierarchy(session, security, role.getParentRole(), function, scope);
     }
-    return OBooleanExpression.FALSE;
+    return SQLBooleanExpression.FALSE;
   }
 
-  private static OBooleanExpression getPredicateForFunction(
+  private static SQLBooleanExpression getPredicateForFunction(
       YTDatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityRole role,
@@ -217,16 +217,16 @@ public class OSecurityEngine {
     if (predicateString != null) {
       return parsePredicate(session, predicateString);
     }
-    return OBooleanExpression.FALSE;
+    return SQLBooleanExpression.FALSE;
   }
 
-  private static OBooleanExpression getPredicateForRoleHierarchy(
+  private static SQLBooleanExpression getPredicateForRoleHierarchy(
       YTDatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityRole role,
       YTClass clazz,
       OSecurityPolicy.Scope scope) {
-    OBooleanExpression result;
+    SQLBooleanExpression result;
     if (role != null) {
       result = security.getPredicateFromCache(role.getName(session), clazz.getName());
       if (result != null) {
@@ -243,13 +243,13 @@ public class OSecurityEngine {
       result = getPredicateForRoleHierarchy(session, security, role.getParentRole(), clazz, scope);
     }
     if (result == null) {
-      result = OBooleanExpression.FALSE;
+      result = SQLBooleanExpression.FALSE;
     }
     security.putPredicateInCache(session, role.getName(session), clazz.getName(), result);
     return result;
   }
 
-  private static OBooleanExpression getPredicateForRoleHierarchy(
+  private static SQLBooleanExpression getPredicateForRoleHierarchy(
       YTDatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityRole role,
@@ -257,7 +257,7 @@ public class OSecurityEngine {
       String propertyName,
       OSecurityPolicy.Scope scope) {
     String cacheKey = "$CLASS$" + clazz.getName() + "$PROP$" + propertyName + "$" + scope;
-    OBooleanExpression result;
+    SQLBooleanExpression result;
     if (role != null) {
       result = security.getPredicateFromCache(role.getName(session), cacheKey);
       if (result != null) {
@@ -272,7 +272,7 @@ public class OSecurityEngine {
               session, security, role.getParentRole(), clazz, propertyName, scope);
     }
     if (result == null) {
-      result = OBooleanExpression.FALSE;
+      result = SQLBooleanExpression.FALSE;
     }
     if (role != null) {
       security.putPredicateInCache(session, role.getName(session), cacheKey, result);
@@ -280,7 +280,7 @@ public class OSecurityEngine {
     return result;
   }
 
-  private static OBooleanExpression getPredicateForClassHierarchy(
+  private static SQLBooleanExpression getPredicateForClassHierarchy(
       YTDatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityRole role,
@@ -296,12 +296,12 @@ public class OSecurityEngine {
         return getPredicateForClassHierarchy(
             session, security, role, clazz.getSuperClasses().iterator().next(), scope);
       }
-      OAndBlock result = new OAndBlock(-1);
+      SQLAndBlock result = new SQLAndBlock(-1);
       for (YTClass superClass : clazz.getSuperClasses()) {
-        OBooleanExpression superClassPredicate =
+        SQLBooleanExpression superClassPredicate =
             getPredicateForClassHierarchy(session, security, role, superClass, scope);
         if (superClassPredicate == null) {
-          return OBooleanExpression.FALSE;
+          return SQLBooleanExpression.FALSE;
         }
         result.getSubBlocks().add(superClassPredicate);
       }
@@ -320,10 +320,10 @@ public class OSecurityEngine {
     if (predicateString != null) {
       return parsePredicate(session, predicateString);
     }
-    return OBooleanExpression.FALSE;
+    return SQLBooleanExpression.FALSE;
   }
 
-  private static OBooleanExpression getPredicateForClassHierarchy(
+  private static SQLBooleanExpression getPredicateForClassHierarchy(
       YTDatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityRole role,
@@ -345,12 +345,12 @@ public class OSecurityEngine {
             propertyName,
             scope);
       }
-      OAndBlock result = new OAndBlock(-1);
+      SQLAndBlock result = new SQLAndBlock(-1);
       for (YTClass superClass : clazz.getSuperClasses()) {
-        OBooleanExpression superClassPredicate =
+        SQLBooleanExpression superClassPredicate =
             getPredicateForClassHierarchy(session, security, role, superClass, propertyName, scope);
         if (superClassPredicate == null) {
-          return OBooleanExpression.TRUE;
+          return SQLBooleanExpression.TRUE;
         }
         result.getSubBlocks().add(superClassPredicate);
       }
@@ -382,16 +382,16 @@ public class OSecurityEngine {
     if (predicateString != null) {
       return parsePredicate(session, predicateString);
     }
-    return OBooleanExpression.TRUE;
+    return SQLBooleanExpression.TRUE;
   }
 
-  public static OBooleanExpression parsePredicate(
+  public static SQLBooleanExpression parsePredicate(
       YTDatabaseSession session, String predicateString) {
     if ("true".equalsIgnoreCase(predicateString)) {
-      return OBooleanExpression.TRUE;
+      return SQLBooleanExpression.TRUE;
     }
     if ("false".equalsIgnoreCase(predicateString)) {
-      return OBooleanExpression.FALSE;
+      return SQLBooleanExpression.FALSE;
     }
     try {
 
@@ -403,11 +403,11 @@ public class OSecurityEngine {
   }
 
   static boolean evaluateSecuirtyPolicyPredicate(
-      YTDatabaseSessionInternal session, OBooleanExpression predicate, Record record) {
-    if (OBooleanExpression.TRUE.equals(predicate)) {
+      YTDatabaseSessionInternal session, SQLBooleanExpression predicate, Record record) {
+    if (SQLBooleanExpression.TRUE.equals(predicate)) {
       return true;
     }
-    if (OBooleanExpression.FALSE.equals(predicate)) {
+    if (SQLBooleanExpression.FALSE.equals(predicate)) {
       return false;
     }
     if (predicate == null) {
@@ -440,11 +440,11 @@ public class OSecurityEngine {
   }
 
   static boolean evaluateSecuirtyPolicyPredicate(
-      YTDatabaseSessionInternal session, OBooleanExpression predicate, YTResult record) {
-    if (OBooleanExpression.TRUE.equals(predicate)) {
+      YTDatabaseSessionInternal session, SQLBooleanExpression predicate, YTResult record) {
+    if (SQLBooleanExpression.TRUE.equals(predicate)) {
       return true;
     }
-    if (OBooleanExpression.FALSE.equals(predicate)) {
+    if (SQLBooleanExpression.FALSE.equals(predicate)) {
       return false;
     }
     try {

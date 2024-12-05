@@ -16,9 +16,9 @@ package com.orientechnologies.spatial.functions;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
 import com.orientechnologies.spatial.strategy.SpatialQueryBuilderIntersects;
 import org.locationtech.spatial4j.shape.Shape;
 
@@ -58,11 +58,11 @@ public class OSTIntersectsFunction extends OSpatialFunctionAbstractIndexable {
 
   @Override
   public Iterable<YTIdentifiable> searchFromTarget(
-      OFromClause target,
-      OBinaryCompareOperator operator,
+      SQLFromClause target,
+      SQLBinaryCompareOperator operator,
       Object rightValue,
       CommandContext ctx,
-      OExpression... args) {
+      SQLExpression... args) {
     return results(target, args, ctx, rightValue);
   }
 

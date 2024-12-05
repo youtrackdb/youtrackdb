@@ -43,7 +43,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilter;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ODeleteStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLDeleteStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLAsynchQuery;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLQuery;
 import java.util.ArrayList;
@@ -198,7 +198,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
     if (preParsedStatement == null) {
       return subjectName;
     }
-    return ((ODeleteStatement) preParsedStatement).fromClause.toString();
+    return ((SQLDeleteStatement) preParsedStatement).fromClause.toString();
   }
 
   public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {

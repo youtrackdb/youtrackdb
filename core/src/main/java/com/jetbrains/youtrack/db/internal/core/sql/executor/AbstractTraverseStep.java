@@ -4,9 +4,9 @@ import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OInteger;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OTraverseProjectionItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInteger;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLTraverseProjectionItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -18,22 +18,22 @@ import java.util.stream.Stream;
  */
 public abstract class AbstractTraverseStep extends AbstractExecutionStep {
 
-  protected final OWhereClause whileClause;
-  protected final List<OTraverseProjectionItem> projections;
-  protected final OInteger maxDepth;
+  protected final SQLWhereClause whileClause;
+  protected final List<SQLTraverseProjectionItem> projections;
+  protected final SQLInteger maxDepth;
 
   public AbstractTraverseStep(
-      List<OTraverseProjectionItem> projections,
-      OWhereClause whileClause,
-      OInteger maxDepth,
+      List<SQLTraverseProjectionItem> projections,
+      SQLWhereClause whileClause,
+      SQLInteger maxDepth,
       CommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.whileClause = whileClause;
     this.maxDepth = maxDepth;
 
-    try (final Stream<OTraverseProjectionItem> stream = projections.stream()) {
-      this.projections = stream.map(OTraverseProjectionItem::copy).collect(Collectors.toList());
+    try (final Stream<SQLTraverseProjectionItem> stream = projections.stream()) {
+      this.projections = stream.map(SQLTraverseProjectionItem::copy).collect(Collectors.toList());
     }
   }
 

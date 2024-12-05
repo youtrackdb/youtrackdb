@@ -7,8 +7,8 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCondition;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCondition;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
 import java.util.Iterator;
 
 /**
@@ -16,12 +16,12 @@ import java.util.Iterator;
  */
 public class FetchFromIndexedFunctionStep extends AbstractExecutionStep {
 
-  private OBinaryCondition functionCondition;
-  private OFromClause queryTarget;
+  private SQLBinaryCondition functionCondition;
+  private SQLFromClause queryTarget;
 
   public FetchFromIndexedFunctionStep(
-      OBinaryCondition functionCondition,
-      OFromClause queryTarget,
+      SQLBinaryCondition functionCondition,
+      SQLFromClause queryTarget,
       CommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
@@ -69,10 +69,10 @@ public class FetchFromIndexedFunctionStep extends AbstractExecutionStep {
   public void deserialize(YTResult fromResult) {
     try {
       ExecutionStepInternal.basicDeserialize(fromResult, this);
-      functionCondition = new OBinaryCondition(-1);
+      functionCondition = new SQLBinaryCondition(-1);
       functionCondition.deserialize(fromResult.getProperty("functionCondition "));
 
-      queryTarget = new OFromClause(-1);
+      queryTarget = new SQLFromClause(-1);
       queryTarget.deserialize(fromResult.getProperty("functionCondition "));
 
     } catch (Exception e) {

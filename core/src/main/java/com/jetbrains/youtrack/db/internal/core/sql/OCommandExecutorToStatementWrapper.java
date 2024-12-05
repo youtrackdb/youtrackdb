@@ -28,7 +28,7 @@ import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatementCache;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLAsynchQuery;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
@@ -46,7 +46,7 @@ public class OCommandExecutorToStatementWrapper implements CommandExecutor {
   private CommandContext context;
   private OProgressListener progressListener;
 
-  protected OStatement statement;
+  protected SQLStatement statement;
 
   @SuppressWarnings("unchecked")
   @Override

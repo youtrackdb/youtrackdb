@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.parser.operators;
 
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OInOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInOperator;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
@@ -32,7 +32,7 @@ public class OInOperatorTest {
 
   @Test
   public void test() {
-    OInOperator op = new OInOperator(-1);
+    SQLInOperator op = new SQLInOperator(-1);
 
     Assert.assertFalse(op.execute(null, null));
     Assert.assertFalse(op.execute(null, "foo"));

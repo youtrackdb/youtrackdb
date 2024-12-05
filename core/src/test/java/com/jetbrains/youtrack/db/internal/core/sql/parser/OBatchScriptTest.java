@@ -62,19 +62,19 @@ public class OBatchScriptTest {
     checkRightSyntax(s);
   }
 
-  protected List<OStatement> checkRightSyntax(String query) {
+  protected List<SQLStatement> checkRightSyntax(String query) {
     return checkSyntax(query, true);
   }
 
-  protected List<OStatement> checkWrongSyntax(String query) {
+  protected List<SQLStatement> checkWrongSyntax(String query) {
     return checkSyntax(query, false);
   }
 
-  protected List<OStatement> checkSyntax(String query, boolean isCorrect) {
-    OrientSql osql = getParserFor(query);
+  protected List<SQLStatement> checkSyntax(String query, boolean isCorrect) {
+    YouTrackDBSql osql = getParserFor(query);
     try {
-      List<OStatement> result = osql.parseScript();
-      //      for(OStatement stm:result){
+      List<SQLStatement> result = osql.parseScript();
+      //      for(SQLStatement stm:result){
       //        System.out.println(stm.toString()+";");
       //      }
       if (!isCorrect) {
@@ -91,9 +91,9 @@ public class OBatchScriptTest {
     return null;
   }
 
-  protected OrientSql getParserFor(String string) {
+  protected YouTrackDBSql getParserFor(String string) {
     InputStream is = new ByteArrayInputStream(string.getBytes());
-    OrientSql osql = new OrientSql(is);
+    YouTrackDBSql osql = new YouTrackDBSql(is);
     return osql;
   }
 }

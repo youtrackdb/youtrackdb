@@ -21,8 +21,8 @@ package com.jetbrains.youtrack.db.internal.common.collection;
 
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OOrderBy;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OOrderByItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrderBy;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrderByItem;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -32,14 +32,14 @@ public class OSortedMultiIterator<T extends YTIdentifiable> implements Iterator<
   private static final int STATUS_INIT = 0;
   private static final int STATUS_RUNNING = 1;
 
-  private final OOrderBy orderBy;
+  private final SQLOrderBy orderBy;
 
   private final List<Iterator<T>> sourceIterators = new ArrayList<Iterator<T>>();
   private final List<T> heads = new ArrayList<T>();
 
   private int status = STATUS_INIT;
 
-  public OSortedMultiIterator(OOrderBy orderBy) {
+  public OSortedMultiIterator(SQLOrderBy orderBy) {
     this.orderBy = orderBy;
   }
 
@@ -120,7 +120,7 @@ public class OSortedMultiIterator<T extends YTIdentifiable> implements Iterator<
     EntityImpl rightDoc =
         (right instanceof EntityImpl) ? (EntityImpl) right : (EntityImpl) right.getRecord();
 
-    for (OOrderByItem orderItem : orderBy.getItems()) {
+    for (SQLOrderByItem orderItem : orderBy.getItems()) {
       Object leftVal = leftDoc.field(orderItem.getRecordAttr());
       Object rightVal = rightDoc.field(orderItem.getRecordAttr());
       if (rightVal == null) {
@@ -135,7 +135,7 @@ public class OSortedMultiIterator<T extends YTIdentifiable> implements Iterator<
           continue;
         }
         boolean greater = compare > 0;
-        if (OOrderByItem.DESC.equals(orderItem.getType())) {
+        if (SQLOrderByItem.DESC.equals(orderItem.getType())) {
           return greater;
         } else {
           return !greater;

@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCondition;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBooleanExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCondition;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
 import java.util.Objects;
 
 /**
@@ -10,10 +10,11 @@ import java.util.Objects;
  */
 class IndexCondPair {
 
-  protected OBooleanExpression mainCondition;
-  protected OBinaryCondition additionalRange;
+  protected SQLBooleanExpression mainCondition;
+  protected SQLBinaryCondition additionalRange;
 
-  public IndexCondPair(OBooleanExpression keyCondition, OBinaryCondition additionalRangeCondition) {
+  public IndexCondPair(
+      SQLBooleanExpression keyCondition, SQLBinaryCondition additionalRangeCondition) {
     this.mainCondition = keyCondition;
     this.additionalRange = additionalRangeCondition;
   }

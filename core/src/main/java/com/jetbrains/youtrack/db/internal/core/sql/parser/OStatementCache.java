@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class OStatementCache {
 
-  private final Map<String, OStatement> map;
+  private final Map<String, SQLStatement> map;
   private final int mapSize;
 
   /**
@@ -27,8 +27,8 @@ public class OStatementCache {
   public OStatementCache(int size) {
     this.mapSize = size;
     map =
-        new LinkedHashMap<String, OStatement>(size) {
-          protected boolean removeEldestEntry(final Map.Entry<String, OStatement> eldest) {
+        new LinkedHashMap<String, SQLStatement>(size) {
+          protected boolean removeEldestEntry(final Map.Entry<String, SQLStatement> eldest) {
             return super.size() > mapSize;
           }
         };
@@ -57,7 +57,7 @@ public class OStatementCache {
    *                  created through statement parsing
    * @return a statement executor from the cache
    */
-  public static OStatement get(String statement, YTDatabaseSessionInternal db) {
+  public static SQLStatement get(String statement, YTDatabaseSessionInternal db) {
     if (db == null) {
       return parse(statement);
     }
@@ -75,7 +75,7 @@ public class OStatementCache {
    *                  created through statement parsing
    * @return a statement executor from the cache
    */
-  public static OServerStatement getServerStatement(String statement, YouTrackDBInternal db) {
+  public static SQLServerStatement getServerStatement(String statement, YouTrackDBInternal db) {
     // TODO create a global cache!
     return parseServerStatement(statement);
   }
@@ -84,12 +84,12 @@ public class OStatementCache {
    * @param statement an SQL statement
    * @return the corresponding executor, taking it from the internal cache, if it exists
    */
-  public OStatement get(String statement) {
+  public SQLStatement get(String statement) {
     if (GlobalConfiguration.STATEMENT_CACHE_SIZE.getValueAsInteger() == 0) {
       return parse(statement);
     }
 
-    OStatement result;
+    SQLStatement result;
     synchronized (map) {
       // LRU
       result = map.remove(statement);
@@ -113,7 +113,7 @@ public class OStatementCache {
    * @return the corresponding executor
    * @throws YTCommandSQLParsingException if the input parameter is not a valid SQL statement
    */
-  protected static OStatement parse(String statement) throws YTCommandSQLParsingException {
+  protected static SQLStatement parse(String statement) throws YTCommandSQLParsingException {
     try {
       YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
       InputStream is;
@@ -137,12 +137,12 @@ public class OStatementCache {
         }
       }
 
-      OrientSql osql = null;
+      YouTrackDBSql osql = null;
       if (db == null) {
-        osql = new OrientSql(is);
+        osql = new YouTrackDBSql(is);
       } else {
         try {
-          osql = new OrientSql(is, db.getStorageInfo().getConfiguration().getCharset());
+          osql = new YouTrackDBSql(is, db.getStorageInfo().getConfiguration().getCharset());
         } catch (UnsupportedEncodingException e2) {
           LogManager.instance()
               .warn(
@@ -151,10 +151,10 @@ public class OStatementCache {
                       + db
                       + " "
                       + db.getStorageInfo().getConfiguration().getCharset());
-          osql = new OrientSql(is);
+          osql = new YouTrackDBSql(is);
         }
       }
-      OStatement result = osql.parse();
+      SQLStatement result = osql.parse();
       result.originalStatement = statement;
 
       return result;
@@ -173,12 +173,12 @@ public class OStatementCache {
    * @return the corresponding executor
    * @throws YTCommandSQLParsingException if the input parameter is not a valid SQL statement
    */
-  protected static OServerStatement parseServerStatement(String statement)
+  protected static SQLServerStatement parseServerStatement(String statement)
       throws YTCommandSQLParsingException {
     try {
       InputStream is = new ByteArrayInputStream(statement.getBytes());
-      OrientSql osql = new OrientSql(is);
-      OServerStatement result = osql.parseServerStatement();
+      YouTrackDBSql osql = new YouTrackDBSql(is);
+      SQLServerStatement result = osql.parseServerStatement();
       //      result.originalStatement = statement;
 
       return result;

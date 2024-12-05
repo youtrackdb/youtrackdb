@@ -4,7 +4,7 @@ import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OReturnStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLReturnStatement;
 
 /**
  * <p>This step represents the execution plan of an instruciton instide a batch script
@@ -40,7 +40,7 @@ public class ScriptLineStep extends AbstractExecutionStep {
       return ((OScriptExecutionPlan) plan).containsReturn();
     }
     if (plan instanceof OSingleOpExecutionPlan) {
-      if (((OSingleOpExecutionPlan) plan).statement instanceof OReturnStatement) {
+      if (((OSingleOpExecutionPlan) plan).statement instanceof SQLReturnStatement) {
         return true;
       }
     }
@@ -61,7 +61,7 @@ public class ScriptLineStep extends AbstractExecutionStep {
       return ((OScriptExecutionPlan) plan).executeUntilReturn();
     }
     if (plan instanceof OSingleOpExecutionPlan) {
-      if (((OSingleOpExecutionPlan) plan).statement instanceof OReturnStatement) {
+      if (((OSingleOpExecutionPlan) plan).statement instanceof SQLReturnStatement) {
         return new ReturnStep(((OSingleOpExecutionPlan) plan).statement, ctx, profilingEnabled);
       }
     }

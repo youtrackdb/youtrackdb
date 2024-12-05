@@ -12,10 +12,10 @@ import com.jetbrains.youtrack.db.internal.core.sql.executor.ORetryExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.OScriptExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.RetryStep;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBeginStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OCommitStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLetStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBeginStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCommitStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLetStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.YTLocalResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +39,7 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
     if (!script.trim().endsWith(";")) {
       script += ";";
     }
-    List<OStatement> statements = OSQLEngine.parseScript(script, database);
+    List<SQLStatement> statements = OSQLEngine.parseScript(script, database);
 
     CommandContext scriptContext = new BasicCommandContext();
     scriptContext.setDatabase(database);
@@ -59,7 +59,7 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
     if (!script.trim().endsWith(";")) {
       script += ";";
     }
-    List<OStatement> statements = OSQLEngine.parseScript(script, database);
+    List<SQLStatement> statements = OSQLEngine.parseScript(script, database);
 
     CommandContext scriptContext = new BasicCommandContext();
     scriptContext.setDatabase(database);
@@ -69,20 +69,20 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
     return executeInternal(statements, scriptContext);
   }
 
-  private YTResultSet executeInternal(List<OStatement> statements, CommandContext scriptContext) {
+  private YTResultSet executeInternal(List<SQLStatement> statements, CommandContext scriptContext) {
     OScriptExecutionPlan plan = new OScriptExecutionPlan(scriptContext);
 
     plan.setStatement(
-        statements.stream().map(OStatement::toString).collect(Collectors.joining(";")));
+        statements.stream().map(SQLStatement::toString).collect(Collectors.joining(";")));
 
-    List<OStatement> lastRetryBlock = new ArrayList<>();
+    List<SQLStatement> lastRetryBlock = new ArrayList<>();
     int nestedTxLevel = 0;
 
-    for (OStatement stm : statements) {
+    for (SQLStatement stm : statements) {
       if (stm.getOriginalStatement() == null) {
         stm.setOriginalStatement(stm.toString());
       }
-      if (stm instanceof OBeginStatement) {
+      if (stm instanceof SQLBeginStatement) {
         nestedTxLevel++;
       }
 
@@ -93,11 +93,11 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
         lastRetryBlock.add(stm);
       }
 
-      if (stm instanceof OCommitStatement && nestedTxLevel > 0) {
+      if (stm instanceof SQLCommitStatement && nestedTxLevel > 0) {
         nestedTxLevel--;
         if (nestedTxLevel == 0) {
-          if (((OCommitStatement) stm).getRetry() != null) {
-            int nRetries = ((OCommitStatement) stm).getRetry().getValue().intValue();
+          if (((SQLCommitStatement) stm).getRetry() != null) {
+            int nRetries = ((SQLCommitStatement) stm).getRetry().getValue().intValue();
             if (nRetries <= 0) {
               throw new YTCommandExecutionException("Invalid retry number: " + nRetries);
             }
@@ -106,8 +106,8 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
                 new RetryStep(
                     lastRetryBlock,
                     nRetries,
-                    ((OCommitStatement) stm).getElseStatements(),
-                    ((OCommitStatement) stm).getElseFail(),
+                    ((SQLCommitStatement) stm).getElseStatements(),
+                    ((SQLCommitStatement) stm).getElseFail(),
                     scriptContext,
                     false);
             ORetryExecutionPlan retryPlan = new ORetryExecutionPlan(scriptContext);
@@ -115,7 +115,7 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
             plan.chain(retryPlan, false);
             lastRetryBlock = new ArrayList<>();
           } else {
-            for (OStatement statement : lastRetryBlock) {
+            for (SQLStatement statement : lastRetryBlock) {
               OInternalExecutionPlan sub = statement.createExecutionPlan(scriptContext);
               plan.chain(sub, false);
             }
@@ -123,8 +123,8 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
         }
       }
 
-      if (stm instanceof OLetStatement) {
-        scriptContext.declareScriptVariable(((OLetStatement) stm).getName().getStringValue());
+      if (stm instanceof SQLLetStatement) {
+        scriptContext.declareScriptVariable(((SQLLetStatement) stm).getName().getStringValue());
       }
     }
     return new YTLocalResultSet(plan);

@@ -31,7 +31,7 @@ public abstract class OParserTestAbstract extends DBTestBase {
   }
 
   protected SimpleNode checkSyntax(String query, boolean isCorrect) {
-    OrientSql osql = getParserFor(query);
+    YouTrackDBSql osql = getParserFor(query);
     try {
       SimpleNode result = osql.parse();
       if (!isCorrect) {
@@ -48,7 +48,7 @@ public abstract class OParserTestAbstract extends DBTestBase {
   }
 
   protected SimpleNode checkSyntaxServer(String query, boolean isCorrect) {
-    OrientSql osql = getParserFor(query);
+    YouTrackDBSql osql = getParserFor(query);
     try {
       SimpleNode result = osql.parseServerStatement();
       if (!isCorrect) {
@@ -64,9 +64,9 @@ public abstract class OParserTestAbstract extends DBTestBase {
     return null;
   }
 
-  protected OrientSql getParserFor(String string) {
+  protected YouTrackDBSql getParserFor(String string) {
     InputStream is = new ByteArrayInputStream(string.getBytes());
-    OrientSql osql = new OrientSql(is);
+    YouTrackDBSql osql = new YouTrackDBSql(is);
     return osql;
   }
 }

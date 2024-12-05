@@ -4,10 +4,10 @@ import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBooleanExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIfStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OReturnStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIfStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLReturnStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import java.util.List;
 
 /**
@@ -15,9 +15,9 @@ import java.util.List;
  */
 public class IfStep extends AbstractExecutionStep {
 
-  protected OBooleanExpression condition;
-  public List<OStatement> positiveStatements;
-  public List<OStatement> negativeStatements;
+  protected SQLBooleanExpression condition;
+  public List<SQLStatement> positiveStatements;
+  public List<SQLStatement> negativeStatements;
 
   public IfStep(CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
@@ -47,7 +47,7 @@ public class IfStep extends AbstractExecutionStep {
     BasicCommandContext subCtx1 = new BasicCommandContext();
     subCtx1.setParent(ctx);
     OScriptExecutionPlan positivePlan = new OScriptExecutionPlan(subCtx1);
-    for (OStatement stm : positiveStatements) {
+    for (SQLStatement stm : positiveStatements) {
       positivePlan.chain(stm.createExecutionPlan(subCtx1, profilingEnabled), profilingEnabled);
     }
     return positivePlan;
@@ -59,7 +59,7 @@ public class IfStep extends AbstractExecutionStep {
         BasicCommandContext subCtx2 = new BasicCommandContext();
         subCtx2.setParent(ctx);
         OScriptExecutionPlan negativePlan = new OScriptExecutionPlan(subCtx2);
-        for (OStatement stm : negativeStatements) {
+        for (SQLStatement stm : negativeStatements) {
           negativePlan.chain(stm.createExecutionPlan(subCtx2, profilingEnabled), profilingEnabled);
         }
         return negativePlan;
@@ -68,24 +68,24 @@ public class IfStep extends AbstractExecutionStep {
     return null;
   }
 
-  public OBooleanExpression getCondition() {
+  public SQLBooleanExpression getCondition() {
     return condition;
   }
 
-  public void setCondition(OBooleanExpression condition) {
+  public void setCondition(SQLBooleanExpression condition) {
     this.condition = condition;
   }
 
   public boolean containsReturn() {
     if (positiveStatements != null) {
-      for (OStatement stm : positiveStatements) {
+      for (SQLStatement stm : positiveStatements) {
         if (containsReturn(stm)) {
           return true;
         }
       }
     }
     if (negativeStatements != null) {
-      for (OStatement stm : negativeStatements) {
+      for (SQLStatement stm : negativeStatements) {
         if (containsReturn(stm)) {
           return true;
         }
@@ -94,12 +94,12 @@ public class IfStep extends AbstractExecutionStep {
     return false;
   }
 
-  private boolean containsReturn(OStatement stm) {
-    if (stm instanceof OReturnStatement) {
+  private boolean containsReturn(SQLStatement stm) {
+    if (stm instanceof SQLReturnStatement) {
       return true;
     }
-    if (stm instanceof OIfStatement) {
-      for (OStatement o : ((OIfStatement) stm).getStatements()) {
+    if (stm instanceof SQLIfStatement) {
+      for (SQLStatement o : ((SQLIfStatement) stm).getStatements()) {
         if (containsReturn(o)) {
           return true;
         }

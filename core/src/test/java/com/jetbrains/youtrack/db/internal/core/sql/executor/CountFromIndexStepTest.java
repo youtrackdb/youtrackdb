@@ -5,8 +5,8 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIndexIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIndexName;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIndexIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIndexName;
 import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Test;
@@ -24,9 +24,9 @@ public class CountFromIndexStepTest extends TestUtilsFixture {
   private static final String ALIAS = "size";
   private String indexName;
 
-  private final OIndexIdentifier.Type identifierType;
+  private final SQLIndexIdentifier.Type identifierType;
 
-  public CountFromIndexStepTest(OIndexIdentifier.Type identifierType) {
+  public CountFromIndexStepTest(SQLIndexIdentifier.Type identifierType) {
     this.identifierType = identifierType;
   }
 
@@ -34,10 +34,10 @@ public class CountFromIndexStepTest extends TestUtilsFixture {
   public static Iterable<Object[]> types() {
     return Arrays.asList(
         new Object[][]{
-            {OIndexIdentifier.Type.INDEX},
-            {OIndexIdentifier.Type.VALUES},
-            {OIndexIdentifier.Type.VALUESASC},
-            {OIndexIdentifier.Type.VALUESDESC},
+            {SQLIndexIdentifier.Type.INDEX},
+            {SQLIndexIdentifier.Type.VALUES},
+            {SQLIndexIdentifier.Type.VALUESASC},
+            {SQLIndexIdentifier.Type.VALUESDESC},
         });
   }
 
@@ -60,9 +60,9 @@ public class CountFromIndexStepTest extends TestUtilsFixture {
 
   @Test
   public void shouldCountRecordsOfIndex() {
-    OIndexName name = new OIndexName(-1);
+    SQLIndexName name = new SQLIndexName(-1);
     name.setValue(indexName);
-    OIndexIdentifier identifier = new OIndexIdentifier(-1);
+    SQLIndexIdentifier identifier = new SQLIndexIdentifier(-1);
     identifier.setIndexName(name);
     identifier.setIndexNameString(name.getValue());
     identifier.setType(identifierType);

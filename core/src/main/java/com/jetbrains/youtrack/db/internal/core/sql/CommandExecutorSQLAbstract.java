@@ -32,7 +32,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.OMetadataInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatementCache;
 import java.util.Collection;
 import java.util.HashSet;
@@ -76,7 +76,7 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
 
   protected long timeoutMs = GlobalConfiguration.COMMAND_TIMEOUT.getValueAsLong();
   protected TIMEOUT_STRATEGY timeoutStrategy = TIMEOUT_STRATEGY.EXCEPTION;
-  protected OStatement preParsedStatement;
+  protected SQLStatement preParsedStatement;
 
   /**
    * The command is replicated
@@ -237,7 +237,7 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
 
     if (strict) {
       try {
-        final OStatement result = OStatementCache.get(queryText, getDatabase());
+        final SQLStatement result = OStatementCache.get(queryText, getDatabase());
         preParsedStatement = result;
 
         if (iRequest instanceof CommandRequestAbstract) {

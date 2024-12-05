@@ -2,24 +2,24 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ODeleteVertexStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIndexIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLimit;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLDeleteVertexStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIndexIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLimit;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 
 /**
  *
  */
 public class ODeleteVertexExecutionPlanner {
 
-  private final OFromClause fromClause;
-  private final OWhereClause whereClause;
+  private final SQLFromClause fromClause;
+  private final SQLWhereClause whereClause;
   private final boolean returnBefore;
-  private final OLimit limit;
+  private final SQLLimit limit;
 
-  public ODeleteVertexExecutionPlanner(ODeleteVertexStatement stm) {
+  public ODeleteVertexExecutionPlanner(SQLDeleteVertexStatement stm) {
     this.fromClause = stm.getFromClause() == null ? null : stm.getFromClause().copy();
     this.whereClause = stm.getWhereClause() == null ? null : stm.getWhereClause().copy();
     this.returnBefore = stm.isReturnBefore();
@@ -50,8 +50,8 @@ public class ODeleteVertexExecutionPlanner {
 
   private boolean handleIndexAsTarget(
       ODeleteExecutionPlan result,
-      OIndexIdentifier indexIdentifier,
-      OWhereClause whereClause,
+      SQLIndexIdentifier indexIdentifier,
+      SQLWhereClause whereClause,
       CommandContext ctx) {
     if (indexIdentifier == null) {
       return false;
@@ -82,7 +82,7 @@ public class ODeleteVertexExecutionPlanner {
   }
 
   private void handleLimit(
-      OUpdateExecutionPlan plan, CommandContext ctx, OLimit limit, boolean profilingEnabled) {
+      OUpdateExecutionPlan plan, CommandContext ctx, SQLLimit limit, boolean profilingEnabled) {
     if (limit != null) {
       plan.chain(new LimitExecutionStep(limit, ctx, profilingEnabled));
     }
@@ -96,10 +96,10 @@ public class ODeleteVertexExecutionPlanner {
   private void handleTarget(
       OUpdateExecutionPlan result,
       CommandContext ctx,
-      OFromClause target,
-      OWhereClause whereClause,
+      SQLFromClause target,
+      SQLWhereClause whereClause,
       boolean profilingEnabled) {
-    OSelectStatement sourceStatement = new OSelectStatement(-1);
+    SQLSelectStatement sourceStatement = new SQLSelectStatement(-1);
     sourceStatement.setTarget(target);
     sourceStatement.setWhereClause(whereClause);
     OSelectExecutionPlanner planner = new OSelectExecutionPlanner(sourceStatement);

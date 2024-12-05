@@ -28,28 +28,28 @@ public class AggregateProjectionSplit {
   protected static final String GENERATED_ALIAS_PREFIX = "_$$$OALIAS$$_";
   protected int nextAliasId = 0;
 
-  protected List<OProjectionItem> preAggregate = new ArrayList<>();
-  protected List<OProjectionItem> aggregate = new ArrayList<>();
+  protected List<SQLProjectionItem> preAggregate = new ArrayList<>();
+  protected List<SQLProjectionItem> aggregate = new ArrayList<>();
 
-  public OIdentifier getNextAlias() {
-    OIdentifier result = new OIdentifier(GENERATED_ALIAS_PREFIX + (nextAliasId++));
+  public SQLIdentifier getNextAlias() {
+    SQLIdentifier result = new SQLIdentifier(GENERATED_ALIAS_PREFIX + (nextAliasId++));
     result.internalAlias = true;
     return result;
   }
 
-  public List<OProjectionItem> getPreAggregate() {
+  public List<SQLProjectionItem> getPreAggregate() {
     return preAggregate;
   }
 
-  public void setPreAggregate(List<OProjectionItem> preAggregate) {
+  public void setPreAggregate(List<SQLProjectionItem> preAggregate) {
     this.preAggregate = preAggregate;
   }
 
-  public List<OProjectionItem> getAggregate() {
+  public List<SQLProjectionItem> getAggregate() {
     return aggregate;
   }
 
-  public void setAggregate(List<OProjectionItem> aggregate) {
+  public void setAggregate(List<SQLProjectionItem> aggregate) {
     this.aggregate = aggregate;
   }
 

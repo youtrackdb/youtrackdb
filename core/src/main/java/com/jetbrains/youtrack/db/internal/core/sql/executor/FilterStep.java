@@ -7,7 +7,7 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExpireResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 
 /**
  *
@@ -15,10 +15,11 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
 public class FilterStep extends AbstractExecutionStep {
 
   private final long timeoutMillis;
-  private OWhereClause whereClause;
+  private SQLWhereClause whereClause;
 
   public FilterStep(
-      OWhereClause whereClause, CommandContext ctx, long timeoutMillis, boolean profilingEnabled) {
+      SQLWhereClause whereClause, CommandContext ctx, long timeoutMillis,
+      boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.whereClause = whereClause;
     this.timeoutMillis = timeoutMillis;
@@ -73,7 +74,7 @@ public class FilterStep extends AbstractExecutionStep {
   public void deserialize(YTResult fromResult) {
     try {
       ExecutionStepInternal.basicDeserialize(fromResult, this);
-      whereClause = new OWhereClause(-1);
+      whereClause = new SQLWhereClause(-1);
       whereClause.deserialize(fromResult.getProperty("whereClause"));
     } catch (Exception e) {
       throw YTException.wrapException(new YTCommandExecutionException(""), e);

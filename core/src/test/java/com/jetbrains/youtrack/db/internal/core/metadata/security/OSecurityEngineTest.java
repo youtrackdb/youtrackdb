@@ -7,7 +7,7 @@ import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBooleanExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -71,7 +71,7 @@ public class OSecurityEngineTest {
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.*", policy);
     db.commit();
 
-    OBooleanExpression pred =
+    SQLBooleanExpression pred =
         OSecurityEngine.getPredicateForSecurityResource(
             db, (OSecurityShared) security, "database.class.Person", OSecurityPolicy.Scope.READ);
 
@@ -92,7 +92,7 @@ public class OSecurityEngineTest {
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.Person", policy);
     db.commit();
 
-    OBooleanExpression pred =
+    SQLBooleanExpression pred =
         OSecurityEngine.getPredicateForSecurityResource(
             db, (OSecurityShared) security, "database.class.Person", OSecurityPolicy.Scope.READ);
 
@@ -114,7 +114,7 @@ public class OSecurityEngineTest {
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.Person", policy);
     db.commit();
 
-    OBooleanExpression pred =
+    SQLBooleanExpression pred =
         OSecurityEngine.getPredicateForSecurityResource(
             db, (OSecurityShared) security, "database.class.Employee", OSecurityPolicy.Scope.READ);
 
@@ -143,7 +143,7 @@ public class OSecurityEngineTest {
         db, security.getRole(db, "admin"), "database.class.Employee", policy);
     db.commit();
 
-    OBooleanExpression pred =
+    SQLBooleanExpression pred =
         OSecurityEngine.getPredicateForSecurityResource(
             db, (OSecurityShared) security, "database.class.Employee", OSecurityPolicy.Scope.READ);
 
@@ -171,7 +171,7 @@ public class OSecurityEngineTest {
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.*", policy);
     db.commit();
 
-    OBooleanExpression pred =
+    SQLBooleanExpression pred =
         OSecurityEngine.getPredicateForSecurityResource(
             db, (OSecurityShared) security, "database.class.Employee", OSecurityPolicy.Scope.READ);
 
@@ -200,7 +200,7 @@ public class OSecurityEngineTest {
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.Foo", policy);
     db.commit();
 
-    OBooleanExpression pred =
+    SQLBooleanExpression pred =
         OSecurityEngine.getPredicateForSecurityResource(
             db, (OSecurityShared) security, "database.class.Employee", OSecurityPolicy.Scope.READ);
 
@@ -240,7 +240,7 @@ public class OSecurityEngineTest {
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
     db.commit();
 
-    OBooleanExpression pred =
+    SQLBooleanExpression pred =
         OSecurityEngine.getPredicateForSecurityResource(
             db, (OSecurityShared) security, "database.class.Person", OSecurityPolicy.Scope.READ);
 

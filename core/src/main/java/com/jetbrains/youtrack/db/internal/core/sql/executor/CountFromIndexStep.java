@@ -6,14 +6,14 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIndexIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIndexIdentifier;
 
 /**
  * Returns the number of records contained in an index
  */
 public class CountFromIndexStep extends AbstractExecutionStep {
 
-  private final OIndexIdentifier target;
+  private final SQLIndexIdentifier target;
   private final String alias;
 
   /**
@@ -23,7 +23,7 @@ public class CountFromIndexStep extends AbstractExecutionStep {
    * @param profilingEnabled true to enable the profiling of the execution (for SQL PROFILE)
    */
   public CountFromIndexStep(
-      OIndexIdentifier targetIndex, String alias, CommandContext ctx, boolean profilingEnabled) {
+      SQLIndexIdentifier targetIndex, String alias, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.target = targetIndex;
     this.alias = alias;

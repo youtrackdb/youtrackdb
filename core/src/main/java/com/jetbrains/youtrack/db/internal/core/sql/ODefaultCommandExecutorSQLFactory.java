@@ -18,8 +18,8 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 import com.jetbrains.youtrack.db.internal.common.exception.YTException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMatchStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OProfileStorageStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLProfileStorageStatement;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -166,13 +166,13 @@ public class ODefaultCommandExecutorSQLFactory implements OCommandExecutorSQLFac
         CommandExecutorSQLTransactional.KEYWORD_TRANSACTIONAL,
         CommandExecutorSQLTransactional.class);
 
-    commands.put(OMatchStatement.KEYWORD_MATCH, OMatchStatement.class);
+    commands.put(SQLMatchStatement.KEYWORD_MATCH, SQLMatchStatement.class);
     commands.put(
         CommandExecutorSQLOptimizeDatabase.KEYWORD_OPTIMIZE,
         CommandExecutorSQLOptimizeDatabase.class);
 
     commands.put(
-        OProfileStorageStatement.KEYWORD_PROFILE, OCommandExecutorToStatementWrapper.class);
+        SQLProfileStorageStatement.KEYWORD_PROFILE, OCommandExecutorToStatementWrapper.class);
 
     // GRAPH
 

@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.parser.operators;
 
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLuceneOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLuceneOperator;
 import org.junit.Test;
 
 /**
@@ -29,7 +29,7 @@ public class ONearOperatorTest {
 
   @Test
   public void test() {
-    OLuceneOperator op = new OLuceneOperator(-1);
+    SQLLuceneOperator op = new SQLLuceneOperator(-1);
     // TODO
   }
 }

@@ -4,17 +4,17 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OCluster;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIndexIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OInputParameter;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OInsertBody;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OInsertSetExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OInsertStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OJson;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OProjection;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OUpdateItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCluster;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIndexIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInputParameter;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInsertBody;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInsertSetExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInsertStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLJson;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLProjection;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLUpdateItem;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,18 +23,18 @@ import java.util.List;
  */
 public class OInsertExecutionPlanner {
 
-  protected OIdentifier targetClass;
-  protected OIdentifier targetClusterName;
-  protected OCluster targetCluster;
-  protected OIndexIdentifier targetIndex;
-  protected OInsertBody insertBody;
-  protected OProjection returnStatement;
-  protected OSelectStatement selectStatement;
+  protected SQLIdentifier targetClass;
+  protected SQLIdentifier targetClusterName;
+  protected SQLCluster targetCluster;
+  protected SQLIndexIdentifier targetIndex;
+  protected SQLInsertBody insertBody;
+  protected SQLProjection returnStatement;
+  protected SQLSelectStatement selectStatement;
 
   public OInsertExecutionPlanner() {
   }
 
-  public OInsertExecutionPlanner(OInsertStatement statement) {
+  public OInsertExecutionPlanner(SQLInsertStatement statement) {
     this.targetClass =
         statement.getTargetClass() == null ? null : statement.getTargetClass().copy();
     this.targetClusterName =
@@ -70,7 +70,7 @@ public class OInsertExecutionPlanner {
         if (name == null) {
           name = database.getClusterNameById(targetCluster.getClusterNumber());
         }
-        handleSave(result, new OIdentifier(name), ctx, enableProfiling);
+        handleSave(result, new SQLIdentifier(name), ctx, enableProfiling);
       } else {
         handleSave(result, targetClusterName, ctx, enableProfiling);
       }
@@ -81,7 +81,7 @@ public class OInsertExecutionPlanner {
 
   private void handleSave(
       OInsertExecutionPlan result,
-      OIdentifier targetClusterName,
+      SQLIdentifier targetClusterName,
       CommandContext ctx,
       boolean profilingEnabled) {
     result.chain(new SaveElementStep(ctx, targetClusterName, profilingEnabled));
@@ -89,7 +89,7 @@ public class OInsertExecutionPlanner {
 
   private void handleReturn(
       OInsertExecutionPlan result,
-      OProjection returnStatement,
+      SQLProjection returnStatement,
       CommandContext ctx,
       boolean profilingEnabled) {
     if (returnStatement != null) {
@@ -99,7 +99,7 @@ public class OInsertExecutionPlanner {
 
   private void handleSetFields(
       OInsertExecutionPlan result,
-      OInsertBody insertBody,
+      SQLInsertBody insertBody,
       CommandContext ctx,
       boolean profilingEnabled) {
     if (insertBody == null) {
@@ -113,18 +113,18 @@ public class OInsertExecutionPlanner {
               ctx,
               profilingEnabled));
     } else if (insertBody.getContent() != null) {
-      for (OJson json : insertBody.getContent()) {
+      for (SQLJson json : insertBody.getContent()) {
         result.chain(new UpdateContentStep(json, ctx, profilingEnabled));
       }
     } else if (insertBody.getContentInputParam() != null) {
-      for (OInputParameter inputParam : insertBody.getContentInputParam()) {
+      for (SQLInputParameter inputParam : insertBody.getContentInputParam()) {
         result.chain(new UpdateContentStep(inputParam, ctx, profilingEnabled));
       }
     } else if (insertBody.getSetExpressions() != null) {
-      List<OUpdateItem> items = new ArrayList<>();
-      for (OInsertSetExpression exp : insertBody.getSetExpressions()) {
-        OUpdateItem item = new OUpdateItem(-1);
-        item.setOperator(OUpdateItem.OPERATOR_EQ);
+      List<SQLUpdateItem> items = new ArrayList<>();
+      for (SQLInsertSetExpression exp : insertBody.getSetExpressions()) {
+        SQLUpdateItem item = new SQLUpdateItem(-1);
+        item.setOperator(SQLUpdateItem.OPERATOR_EQ);
         item.setLeft(exp.getLeft().copy());
         item.setRight(exp.getRight().copy());
         items.add(item);
@@ -137,7 +137,7 @@ public class OInsertExecutionPlanner {
       OInsertExecutionPlan result, CommandContext ctx, boolean profilingEnabled) {
     var database = ctx.getDatabase();
     YTSchema schema = database.getMetadata().getSchema();
-    OIdentifier tc = null;
+    SQLIdentifier tc = null;
     if (targetClass != null) {
       tc = targetClass;
     } else if (targetCluster != null) {
@@ -147,7 +147,7 @@ public class OInsertExecutionPlanner {
       }
       YTClass targetClass = schema.getClassByClusterId(database.getClusterIdByName(name));
       if (targetClass != null) {
-        tc = new OIdentifier(targetClass.getName());
+        tc = new SQLIdentifier(targetClass.getName());
       }
     } else if (this.targetClass == null) {
 
@@ -155,7 +155,7 @@ public class OInsertExecutionPlanner {
           schema.getClassByClusterId(
               database.getClusterIdByName(targetClusterName.getStringValue()));
       if (targetClass != null) {
-        tc = new OIdentifier(targetClass.getName());
+        tc = new SQLIdentifier(targetClass.getName());
       }
     }
     if (tc != null) {
@@ -165,7 +165,7 @@ public class OInsertExecutionPlanner {
 
   private void handleCreateRecord(
       OInsertExecutionPlan result,
-      OInsertBody body,
+      SQLInsertBody body,
       CommandContext ctx,
       boolean profilingEnabled) {
     int tot = 1;
@@ -192,7 +192,7 @@ public class OInsertExecutionPlanner {
 
   private void handleInsertSelect(
       OInsertExecutionPlan result,
-      OSelectStatement selectStatement,
+      SQLSelectStatement selectStatement,
       CommandContext ctx,
       boolean profilingEnabled) {
     OInternalExecutionPlan subPlan = selectStatement.createExecutionPlan(ctx, profilingEnabled);

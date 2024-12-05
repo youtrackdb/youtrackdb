@@ -11,8 +11,8 @@ import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBatch;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBatch;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -26,24 +26,24 @@ import java.util.stream.StreamSupport;
  */
 public class CreateEdgesStep extends AbstractExecutionStep {
 
-  private final OIdentifier targetClass;
-  private final OIdentifier targetCluster;
+  private final SQLIdentifier targetClass;
+  private final SQLIdentifier targetCluster;
   private final String uniqueIndexName;
-  private final OIdentifier fromAlias;
-  private final OIdentifier toAlias;
+  private final SQLIdentifier fromAlias;
+  private final SQLIdentifier toAlias;
   private final Number wait;
   private final Number retry;
-  private final OBatch batch;
+  private final SQLBatch batch;
 
   public CreateEdgesStep(
-      OIdentifier targetClass,
-      OIdentifier targetClusterName,
+      SQLIdentifier targetClass,
+      SQLIdentifier targetClusterName,
       String uniqueIndex,
-      OIdentifier fromAlias,
-      OIdentifier toAlias,
+      SQLIdentifier fromAlias,
+      SQLIdentifier toAlias,
       Number wait,
       Number retry,
-      OBatch batch,
+      SQLBatch batch,
       CommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);

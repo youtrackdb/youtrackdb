@@ -55,7 +55,7 @@ import com.jetbrains.youtrack.db.internal.core.security.OSecuritySystem;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBooleanExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -92,7 +92,7 @@ public class OSecurityShared implements OSecurityInternal {
   // used to avoid updating the above while the security schema is being created
   protected boolean skipRoleHasPredicateSecurityForClassUpdate = false;
 
-  protected Map<String, Map<String, OBooleanExpression>> securityPredicateCache =
+  protected Map<String, Map<String, SQLBooleanExpression>> securityPredicateCache =
       new ConcurrentHashMap<>();
 
   /**
@@ -1393,7 +1393,7 @@ public class OSecurityShared implements OSecurityInternal {
       if (predicateString == null) {
         continue;
       }
-      OBooleanExpression predicate = OSecurityEngine.parsePredicate(db, predicateString);
+      SQLBooleanExpression predicate = OSecurityEngine.parsePredicate(db, predicateString);
       if (!predicate.isAlwaysTrue()) {
         return false;
       }
@@ -1450,7 +1450,7 @@ public class OSecurityShared implements OSecurityInternal {
 
     var sessionInternal = session;
     for (String prop : props) {
-      OBooleanExpression predicate =
+      SQLBooleanExpression predicate =
           OSecurityEngine.getPredicateForSecurityResource(
               sessionInternal,
               this,
@@ -1499,7 +1499,7 @@ public class OSecurityShared implements OSecurityInternal {
 
     var sessionInternal = session;
     if (document.getIdentity().isNew()) {
-      OBooleanExpression predicate =
+      SQLBooleanExpression predicate =
           OSecurityEngine.getPredicateForSecurityResource(
               sessionInternal,
               this,
@@ -1508,7 +1508,7 @@ public class OSecurityShared implements OSecurityInternal {
       return OSecurityEngine.evaluateSecuirtyPolicyPredicate(session, predicate, document);
     } else {
 
-      OBooleanExpression readPredicate =
+      SQLBooleanExpression readPredicate =
           OSecurityEngine.getPredicateForSecurityResource(
               sessionInternal,
               this,
@@ -1518,7 +1518,7 @@ public class OSecurityShared implements OSecurityInternal {
         return false;
       }
 
-      OBooleanExpression beforePredicate =
+      SQLBooleanExpression beforePredicate =
           OSecurityEngine.getPredicateForSecurityResource(
               sessionInternal,
               this,
@@ -1532,7 +1532,7 @@ public class OSecurityShared implements OSecurityInternal {
         return false;
       }
 
-      OBooleanExpression predicate =
+      SQLBooleanExpression predicate =
           OSecurityEngine.getPredicateForSecurityResource(
               sessionInternal,
               this,
@@ -1571,7 +1571,7 @@ public class OSecurityShared implements OSecurityInternal {
         }
       }
 
-      OBooleanExpression predicate;
+      SQLBooleanExpression predicate;
       if (className == null) {
         predicate = null;
       } else {
@@ -1617,7 +1617,7 @@ public class OSecurityShared implements OSecurityInternal {
         }
       }
 
-      OBooleanExpression predicate =
+      SQLBooleanExpression predicate =
           OSecurityEngine.getPredicateForSecurityResource(
               sessionInternal,
               this,
@@ -1658,7 +1658,7 @@ public class OSecurityShared implements OSecurityInternal {
       }
 
       var sessionInternal = session;
-      OBooleanExpression beforePredicate = null;
+      SQLBooleanExpression beforePredicate = null;
       if (className != null) {
         beforePredicate =
             OSecurityEngine.getPredicateForSecurityResource(
@@ -1676,7 +1676,7 @@ public class OSecurityShared implements OSecurityInternal {
         return false;
       }
 
-      OBooleanExpression predicate = null;
+      SQLBooleanExpression predicate = null;
       if (className != null) {
         predicate =
             OSecurityEngine.getPredicateForSecurityResource(
@@ -1761,7 +1761,7 @@ public class OSecurityShared implements OSecurityInternal {
         }
       }
 
-      OBooleanExpression predicate = null;
+      SQLBooleanExpression predicate = null;
       if (className != null) {
         predicate =
             OSecurityEngine.getPredicateForSecurityResource(
@@ -1781,7 +1781,7 @@ public class OSecurityShared implements OSecurityInternal {
       return true;
     }
 
-    OBooleanExpression predicate =
+    SQLBooleanExpression predicate =
         OSecurityEngine.getPredicateForSecurityResource(
             session,
             this,
@@ -1791,12 +1791,12 @@ public class OSecurityShared implements OSecurityInternal {
         session, predicate, function.getDocument(session));
   }
 
-  protected OBooleanExpression getPredicateFromCache(String roleName, String key) {
-    Map<String, OBooleanExpression> roleMap = this.securityPredicateCache.get(roleName);
+  protected SQLBooleanExpression getPredicateFromCache(String roleName, String key) {
+    Map<String, SQLBooleanExpression> roleMap = this.securityPredicateCache.get(roleName);
     if (roleMap == null) {
       return null;
     }
-    OBooleanExpression result = roleMap.get(key.toLowerCase(Locale.ENGLISH));
+    SQLBooleanExpression result = roleMap.get(key.toLowerCase(Locale.ENGLISH));
     if (result != null) {
       return result.copy();
     }
@@ -1804,9 +1804,9 @@ public class OSecurityShared implements OSecurityInternal {
   }
 
   protected void putPredicateInCache(YTDatabaseSessionInternal session, String roleName, String key,
-      OBooleanExpression predicate) {
+      SQLBooleanExpression predicate) {
     if (predicate.isCacheable(session)) {
-      Map<String, OBooleanExpression> roleMap = this.securityPredicateCache.get(roleName);
+      Map<String, SQLBooleanExpression> roleMap = this.securityPredicateCache.get(roleName);
       if (roleMap == null) {
         roleMap = new ConcurrentHashMap<>();
         this.securityPredicateCache.put(roleName, roleMap);
@@ -1824,10 +1824,10 @@ public class OSecurityShared implements OSecurityInternal {
     }
 
     var sessionInternal = (YTDatabaseSessionInternal) session;
-    OBooleanExpression predicate =
+    SQLBooleanExpression predicate =
         OSecurityEngine.getPredicateForSecurityResource(
             sessionInternal, this, resource, OSecurityPolicy.Scope.READ);
-    return predicate != null && !OBooleanExpression.TRUE.equals(predicate);
+    return predicate != null && !SQLBooleanExpression.TRUE.equals(predicate);
   }
 
   @Override

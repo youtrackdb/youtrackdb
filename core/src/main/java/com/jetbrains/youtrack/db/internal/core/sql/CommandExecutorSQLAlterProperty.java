@@ -31,8 +31,8 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClassImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTPropertyImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OAlterPropertyStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAlterPropertyStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
 import com.jetbrains.youtrack.db.internal.core.util.ODateHelper;
 import java.util.Arrays;
 import java.util.Date;
@@ -150,7 +150,7 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
       }
 
       if (preParsedStatement != null) {
-        OExpression settingExp = ((OAlterPropertyStatement) preParsedStatement).settingValue;
+        SQLExpression settingExp = ((SQLAlterPropertyStatement) preParsedStatement).settingValue;
         if (settingExp != null) {
           Object expValue = settingExp.execute((YTIdentifiable) null, context);
           if (expValue == null) {

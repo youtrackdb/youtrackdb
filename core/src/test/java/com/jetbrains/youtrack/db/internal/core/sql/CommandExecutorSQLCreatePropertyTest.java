@@ -29,7 +29,7 @@ import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionExcep
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import org.junit.Test;
 
 /**
@@ -296,7 +296,7 @@ public class CommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalData
   @Test
   public void testNonStrict() throws Exception {
 
-    db.getStorage().setProperty(OStatement.CUSTOM_STRICT_SQL, "false");
+    db.getStorage().setProperty(SQLStatement.CUSTOM_STRICT_SQL, "false");
 
     db.command("CREATE CLASS company").close();
     db.command(

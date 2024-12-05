@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OCluster;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFindReferencesStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ORid;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCluster;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFindReferencesStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLRid;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SimpleNode;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,13 +16,13 @@ import java.util.stream.Collectors;
  */
 public class OFindReferencesExecutionPlanner {
 
-  protected ORid rid;
-  protected OStatement subQuery;
+  protected SQLRid rid;
+  protected SQLStatement subQuery;
 
   // class or cluster
   protected List<SimpleNode> targets;
 
-  public OFindReferencesExecutionPlanner(OFindReferencesStatement statement) {
+  public OFindReferencesExecutionPlanner(SQLFindReferencesStatement statement) {
     // copying the content, so that it can be manipulated and optimized
     this.rid = statement.getRid() == null ? null : statement.getRid().copy();
     this.subQuery = statement.getSubQuery() == null ? null : statement.getSubQuery().copy();
@@ -42,18 +42,18 @@ public class OFindReferencesExecutionPlanner {
 
   private void handleFindReferences(
       OSelectExecutionPlan plan, CommandContext ctx, boolean profilingEnabled) {
-    List<OIdentifier> classes = null;
-    List<OCluster> clusters = null;
+    List<SQLIdentifier> classes = null;
+    List<SQLCluster> clusters = null;
     if (targets != null) {
       classes =
           targets.stream()
-              .filter(x -> x instanceof OIdentifier)
-              .map(y -> ((OIdentifier) y))
+              .filter(x -> x instanceof SQLIdentifier)
+              .map(y -> ((SQLIdentifier) y))
               .collect(Collectors.toList());
       clusters =
           targets.stream()
-              .filter(x -> x instanceof OCluster)
-              .map(y -> ((OCluster) y))
+              .filter(x -> x instanceof SQLCluster)
+              .map(y -> ((SQLCluster) y))
               .collect(Collectors.toList());
     }
 

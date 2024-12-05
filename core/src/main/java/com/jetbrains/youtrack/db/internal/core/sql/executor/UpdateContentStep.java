@@ -12,8 +12,8 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OInputParameter;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OJson;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInputParameter;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLJson;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,16 +22,16 @@ import java.util.Map;
  */
 public class UpdateContentStep extends AbstractExecutionStep {
 
-  private OJson json;
-  private OInputParameter inputParameter;
+  private SQLJson json;
+  private SQLInputParameter inputParameter;
 
-  public UpdateContentStep(OJson json, CommandContext ctx, boolean profilingEnabled) {
+  public UpdateContentStep(SQLJson json, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.json = json;
   }
 
   public UpdateContentStep(
-      OInputParameter inputParameter, CommandContext ctx, boolean profilingEnabled) {
+      SQLInputParameter inputParameter, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.inputParameter = inputParameter;
   }

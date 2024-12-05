@@ -44,9 +44,9 @@ import com.jetbrains.youtrack.db.internal.core.sql.OTemporaryRidGenerator;
 import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilter;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIfStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OrientSql;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIfStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.YouTrackDBSql;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
 import com.jetbrains.youtrack.db.internal.core.sql.query.OLegacyResultSet;
 import com.jetbrains.youtrack.db.internal.core.storage.YTRecordDuplicatedException;
@@ -157,13 +157,13 @@ public class CommandExecutorScript extends CommandExecutorAbstract
 
       InputStream is = new ByteArrayInputStream(bytes);
 
-      OrientSql osql = null;
+      YouTrackDBSql osql = null;
       try {
 
         if (db == null) {
-          osql = new OrientSql(is);
+          osql = new YouTrackDBSql(is);
         } else {
-          osql = new OrientSql(is, db.getStorageInfo().getConfiguration().getCharset());
+          osql = new YouTrackDBSql(is, db.getStorageInfo().getConfiguration().getCharset());
         }
       } catch (UnsupportedEncodingException e) {
         LogManager.instance()
@@ -173,13 +173,13 @@ public class CommandExecutorScript extends CommandExecutorAbstract
                     + getDatabase()
                     + " "
                     + getDatabase().getStorageInfo().getConfiguration().getCharset());
-        osql = new OrientSql(is);
+        osql = new YouTrackDBSql(is);
       }
-      List<OStatement> statements = osql.parseScript();
+      List<SQLStatement> statements = osql.parseScript();
       StringBuilder result = new StringBuilder();
-      for (OStatement stm : statements) {
+      for (SQLStatement stm : statements) {
         stm.toString(iArgs, result);
-        if (!(stm instanceof OIfStatement)) {
+        if (!(stm instanceof SQLIfStatement)) {
           result.append(";");
         }
         result.append("\n");

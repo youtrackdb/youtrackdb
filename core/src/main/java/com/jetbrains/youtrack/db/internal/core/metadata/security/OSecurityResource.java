@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
 import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityException;
 import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSecurityResourceSegment;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSecurityResourceSegment;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -72,10 +72,10 @@ public abstract class OSecurityResource {
       return OSecurityResourceServerOp.ADMIN;
     }
     try {
-      OSecurityResourceSegment parsed = OSQLEngine.parseSecurityResource(resource);
+      SQLSecurityResourceSegment parsed = OSQLEngine.parseSecurityResource(resource);
 
       if (resource.startsWith("database.class.")) {
-        OSecurityResourceSegment classElement = parsed.getNext().getNext();
+        SQLSecurityResourceSegment classElement = parsed.getNext().getNext();
         String className;
         boolean allClasses = false;
         if (classElement.getIdentifier() != null) {
@@ -84,7 +84,7 @@ public abstract class OSecurityResource {
           className = null;
           allClasses = true;
         }
-        OSecurityResourceSegment propertyModifier = classElement.getNext();
+        SQLSecurityResourceSegment propertyModifier = classElement.getNext();
         if (propertyModifier != null) {
           if (propertyModifier.getNext() != null) {
             throw new YTSecurityException("Invalid resource: " + resource);
@@ -99,21 +99,21 @@ public abstract class OSecurityResource {
           return new OSecurityResourceClass(resource, className);
         }
       } else if (resource.startsWith("database.cluster.")) {
-        OSecurityResourceSegment clusterElement = parsed.getNext().getNext();
+        SQLSecurityResourceSegment clusterElement = parsed.getNext().getNext();
         String clusterName = clusterElement.getIdentifier().getStringValue();
         if (clusterElement.getNext() != null) {
           throw new YTSecurityException("Invalid resource: " + resource);
         }
         return new OSecurityResourceCluster(resource, clusterName);
       } else if (resource.startsWith("database.function.")) {
-        OSecurityResourceSegment functionElement = parsed.getNext().getNext();
+        SQLSecurityResourceSegment functionElement = parsed.getNext().getNext();
         String functionName = functionElement.getIdentifier().getStringValue();
         if (functionElement.getNext() != null) {
           throw new YTSecurityException("Invalid resource: " + resource);
         }
         return new OSecurityResourceFunction(resource, functionName);
       } else if (resource.startsWith("database.systemclusters.")) {
-        OSecurityResourceSegment clusterElement = parsed.getNext().getNext();
+        SQLSecurityResourceSegment clusterElement = parsed.getNext().getNext();
         String clusterName = clusterElement.getIdentifier().getStringValue();
         if (clusterElement.getNext() != null) {
           throw new YTSecurityException("Invalid resource: " + resource);

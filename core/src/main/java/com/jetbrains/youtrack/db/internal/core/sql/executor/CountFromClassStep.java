@@ -7,7 +7,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTImmutableSchema;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 
 /**
  * Returns the number of records contained in a class (including subclasses) Executes a count(*) on
@@ -15,7 +15,7 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
  */
 public class CountFromClassStep extends AbstractExecutionStep {
 
-  private final OIdentifier target;
+  private final SQLIdentifier target;
   private final String alias;
 
   /**
@@ -25,7 +25,7 @@ public class CountFromClassStep extends AbstractExecutionStep {
    * @param profilingEnabled true to enable the profiling of the execution (for SQL PROFILE)
    */
   public CountFromClassStep(
-      OIdentifier targetClass, String alias, CommandContext ctx, boolean profilingEnabled) {
+      SQLIdentifier targetClass, String alias, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.target = targetClass;
     this.alias = alias;

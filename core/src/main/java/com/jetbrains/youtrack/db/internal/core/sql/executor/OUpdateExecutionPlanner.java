@@ -2,15 +2,15 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLimit;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OProjection;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OTimeout;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OUpdateEdgeStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OUpdateOperations;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OUpdateStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLimit;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLProjection;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLTimeout;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLUpdateEdgeStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLUpdateOperations;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLUpdateStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,25 +20,25 @@ import java.util.stream.Collectors;
  */
 public class OUpdateExecutionPlanner {
 
-  private final OFromClause target;
-  public OWhereClause whereClause;
+  private final SQLFromClause target;
+  public SQLWhereClause whereClause;
 
   protected boolean upsert = false;
 
-  protected List<OUpdateOperations> operations = new ArrayList<OUpdateOperations>();
+  protected List<SQLUpdateOperations> operations = new ArrayList<SQLUpdateOperations>();
   protected boolean returnBefore = false;
   protected boolean returnAfter = false;
   protected boolean returnCount = false;
 
   protected boolean updateEdge = false;
 
-  protected OProjection returnProjection;
+  protected SQLProjection returnProjection;
 
-  public OLimit limit;
-  public OTimeout timeout;
+  public SQLLimit limit;
+  public SQLTimeout timeout;
 
-  public OUpdateExecutionPlanner(OUpdateStatement oUpdateStatement) {
-    if (oUpdateStatement instanceof OUpdateEdgeStatement) {
+  public OUpdateExecutionPlanner(SQLUpdateStatement oUpdateStatement) {
+    if (oUpdateStatement instanceof SQLUpdateEdgeStatement) {
       updateEdge = true;
     }
     this.target = oUpdateStatement.getTarget().copy();
@@ -110,7 +110,7 @@ public class OUpdateExecutionPlanner {
       OUpdateExecutionPlan result,
       CommandContext ctx,
       boolean returnAfter,
-      OProjection returnProjection,
+      SQLProjection returnProjection,
       boolean profilingEnabled) {
     if (returnAfter) {
       // re-convert to normal step
@@ -125,7 +125,7 @@ public class OUpdateExecutionPlanner {
       OUpdateExecutionPlan result,
       CommandContext ctx,
       boolean returnBefore,
-      OProjection returnProjection,
+      SQLProjection returnProjection,
       boolean profilingEnabled) {
     if (returnBefore) {
       result.chain(new UnwrapPreviousValueStep(ctx, profilingEnabled));
@@ -143,7 +143,7 @@ public class OUpdateExecutionPlanner {
   private void handleTimeout(
       OUpdateExecutionPlan result,
       CommandContext ctx,
-      OTimeout timeout,
+      SQLTimeout timeout,
       boolean profilingEnabled) {
     if (timeout != null && timeout.getVal().longValue() > 0) {
       result.chain(new TimeoutStep(timeout, ctx, profilingEnabled));
@@ -161,7 +161,7 @@ public class OUpdateExecutionPlanner {
   }
 
   private void handleLimit(
-      OUpdateExecutionPlan plan, CommandContext ctx, OLimit limit, boolean profilingEnabled) {
+      OUpdateExecutionPlan plan, CommandContext ctx, SQLLimit limit, boolean profilingEnabled) {
     if (limit != null) {
       plan.chain(new LimitExecutionStep(limit, ctx, profilingEnabled));
     }
@@ -170,8 +170,8 @@ public class OUpdateExecutionPlanner {
   private void handleUpsert(
       OUpdateExecutionPlan plan,
       CommandContext ctx,
-      OFromClause target,
-      OWhereClause where,
+      SQLFromClause target,
+      SQLWhereClause where,
       boolean upsert,
       boolean profilingEnabled) {
     if (upsert) {
@@ -182,29 +182,29 @@ public class OUpdateExecutionPlanner {
   private void handleOperations(
       OUpdateExecutionPlan plan,
       CommandContext ctx,
-      List<OUpdateOperations> ops,
+      List<SQLUpdateOperations> ops,
       boolean profilingEnabled) {
     if (ops != null) {
-      for (OUpdateOperations op : ops) {
+      for (SQLUpdateOperations op : ops) {
         switch (op.getType()) {
-          case OUpdateOperations.TYPE_SET:
+          case SQLUpdateOperations.TYPE_SET:
             plan.chain(new UpdateSetStep(op.getUpdateItems(), ctx, profilingEnabled));
             if (updateEdge) {
               plan.chain(new UpdateEdgePointersStep(ctx, profilingEnabled));
             }
             break;
-          case OUpdateOperations.TYPE_REMOVE:
+          case SQLUpdateOperations.TYPE_REMOVE:
             plan.chain(new UpdateRemoveStep(op.getUpdateRemoveItems(), ctx, profilingEnabled));
             break;
-          case OUpdateOperations.TYPE_MERGE:
+          case SQLUpdateOperations.TYPE_MERGE:
             plan.chain(new UpdateMergeStep(op.getJson(), ctx, profilingEnabled));
             break;
-          case OUpdateOperations.TYPE_CONTENT:
+          case SQLUpdateOperations.TYPE_CONTENT:
             plan.chain(new UpdateContentStep(op.getJson(), ctx, profilingEnabled));
             break;
-          case OUpdateOperations.TYPE_PUT:
-          case OUpdateOperations.TYPE_INCREMENT:
-          case OUpdateOperations.TYPE_ADD:
+          case SQLUpdateOperations.TYPE_PUT:
+          case SQLUpdateOperations.TYPE_INCREMENT:
+          case SQLUpdateOperations.TYPE_ADD:
             throw new YTCommandExecutionException(
                 "Cannot execute with UPDATE PUT/ADD/INCREMENT new executor: " + op);
         }
@@ -215,11 +215,11 @@ public class OUpdateExecutionPlanner {
   private void handleTarget(
       OUpdateExecutionPlan result,
       CommandContext ctx,
-      OFromClause target,
-      OWhereClause whereClause,
-      OTimeout timeout,
+      SQLFromClause target,
+      SQLWhereClause whereClause,
+      SQLTimeout timeout,
       boolean profilingEnabled) {
-    OSelectStatement sourceStatement = new OSelectStatement(-1);
+    SQLSelectStatement sourceStatement = new SQLSelectStatement(-1);
     sourceStatement.setTarget(target);
     sourceStatement.setWhereClause(whereClause);
     if (timeout != null) {

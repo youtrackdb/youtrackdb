@@ -5,7 +5,7 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OOrderBy;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrderBy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,17 +15,17 @@ import java.util.List;
  **/
 public class OrderByStep extends AbstractExecutionStep {
 
-  private final OOrderBy orderBy;
+  private final SQLOrderBy orderBy;
   private final long timeoutMillis;
   private Integer maxResults;
 
   public OrderByStep(
-      OOrderBy orderBy, CommandContext ctx, long timeoutMillis, boolean profilingEnabled) {
+      SQLOrderBy orderBy, CommandContext ctx, long timeoutMillis, boolean profilingEnabled) {
     this(orderBy, null, ctx, timeoutMillis, profilingEnabled);
   }
 
   public OrderByStep(
-      OOrderBy orderBy,
+      SQLOrderBy orderBy,
       Integer maxResults,
       CommandContext ctx,
       long timeoutMillis,

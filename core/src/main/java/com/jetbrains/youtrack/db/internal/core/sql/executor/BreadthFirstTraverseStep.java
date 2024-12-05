@@ -5,9 +5,9 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OInteger;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OTraverseProjectionItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInteger;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLTraverseProjectionItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,9 +22,9 @@ import java.util.Set;
 public class BreadthFirstTraverseStep extends AbstractTraverseStep {
 
   public BreadthFirstTraverseStep(
-      List<OTraverseProjectionItem> projections,
-      OWhereClause whileClause,
-      OInteger maxDepth,
+      List<SQLTraverseProjectionItem> projections,
+      SQLWhereClause whileClause,
+      SQLInteger maxDepth,
       CommandContext ctx,
       boolean profilingEnabled) {
     super(projections, whileClause, maxDepth, ctx, profilingEnabled);
@@ -86,7 +86,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
     if (!entryPoints.isEmpty()) {
       YTTraverseResult item = (YTTraverseResult) entryPoints.remove(0);
       results.add(item);
-      for (OTraverseProjectionItem proj : projections) {
+      for (SQLTraverseProjectionItem proj : projections) {
         Object nextStep = proj.execute(item, ctx);
         if (this.maxDepth == null || this.maxDepth.getValue().intValue() > item.depth) {
           addNextEntryPoints(

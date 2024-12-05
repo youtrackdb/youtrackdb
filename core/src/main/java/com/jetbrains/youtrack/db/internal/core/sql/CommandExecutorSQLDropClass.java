@@ -27,7 +27,7 @@ import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ODropClassStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLDropClassStatement;
 import java.util.Map;
 
 /**
@@ -56,9 +56,9 @@ public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
       textRequest.setText(queryText);
       final boolean strict = getDatabase().getStorageInfo().getConfiguration().isStrictSql();
       if (strict) {
-        this.className = ((ODropClassStatement) this.preParsedStatement).name.getStringValue();
-        this.unsafe = ((ODropClassStatement) this.preParsedStatement).unsafe;
-        this.ifExists = ((ODropClassStatement) this.preParsedStatement).ifExists;
+        this.className = ((SQLDropClassStatement) this.preParsedStatement).name.getStringValue();
+        this.unsafe = ((SQLDropClassStatement) this.preParsedStatement).unsafe;
+        this.ifExists = ((SQLDropClassStatement) this.preParsedStatement).ifExists;
       } else {
         oldParsing((CommandRequestText) iRequest);
       }

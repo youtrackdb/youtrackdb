@@ -35,9 +35,9 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.LiveQueryListenerImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OProjection;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OProjectionItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLProjection;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLProjectionItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -254,12 +254,12 @@ public class OLiveQueryHookV2 {
     }
     for (OLiveQueryListenerV2 listener : ops.subscribers.values()) {
       if (listener instanceof LiveQueryListenerImpl) {
-        OSelectStatement query = ((LiveQueryListenerImpl) listener).getStatement();
-        OProjection proj = query.getProjection();
+        SQLSelectStatement query = ((LiveQueryListenerImpl) listener).getStatement();
+        SQLProjection proj = query.getProjection();
         if (proj == null || proj.getItems() == null || proj.getItems().isEmpty()) {
           return null;
         }
-        for (OProjectionItem item : proj.getItems()) {
+        for (SQLProjectionItem item : proj.getItems()) {
           if (!item.getExpression().isBaseIdentifier()) {
             return null;
           }

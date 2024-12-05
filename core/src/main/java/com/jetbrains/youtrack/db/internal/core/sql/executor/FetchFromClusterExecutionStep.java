@@ -10,14 +10,14 @@ import com.jetbrains.youtrack.db.internal.core.id.YTRID;
 import com.jetbrains.youtrack.db.internal.core.iterator.ORecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCondition;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBooleanExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OGeOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OGtOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLeOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLtOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ORid;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCondition;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGeOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGtOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLeOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLtOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLRid;
 import java.util.Iterator;
 
 /**
@@ -79,15 +79,15 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
 
     long maxValue = -1;
 
-    for (OBooleanExpression ridRangeCondition : queryPlanning.ridRangeConditions.getSubBlocks()) {
-      if (ridRangeCondition instanceof OBinaryCondition cond) {
-        ORid condRid = cond.getRight().getRid();
-        OBinaryCompareOperator operator = cond.getOperator();
+    for (SQLBooleanExpression ridRangeCondition : queryPlanning.ridRangeConditions.getSubBlocks()) {
+      if (ridRangeCondition instanceof SQLBinaryCondition cond) {
+        SQLRid condRid = cond.getRight().getRid();
+        SQLBinaryCompareOperator operator = cond.getOperator();
         if (condRid != null) {
           if (condRid.getCluster().getValue().intValue() != this.clusterId) {
             continue;
           }
-          if (operator instanceof OGtOperator || operator instanceof OGeOperator) {
+          if (operator instanceof SQLGtOperator || operator instanceof SQLGeOperator) {
             maxValue = Math.max(maxValue, condRid.getPosition().getValue().longValue());
           }
         }
@@ -105,28 +105,28 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
     }
     long minValue = Long.MAX_VALUE;
 
-    for (OBooleanExpression ridRangeCondition : queryPlanning.ridRangeConditions.getSubBlocks()) {
-      if (ridRangeCondition instanceof OBinaryCondition cond) {
+    for (SQLBooleanExpression ridRangeCondition : queryPlanning.ridRangeConditions.getSubBlocks()) {
+      if (ridRangeCondition instanceof SQLBinaryCondition cond) {
         YTRID conditionRid;
 
         Object obj;
         if (cond.getRight().getRid() != null) {
           obj =
-              ((OBinaryCondition) ridRangeCondition)
+              ((SQLBinaryCondition) ridRangeCondition)
                   .getRight()
                   .getRid()
                   .toRecordId((YTResult) null, ctx);
         } else {
-          obj = ((OBinaryCondition) ridRangeCondition).getRight().execute((YTResult) null, ctx);
+          obj = ((SQLBinaryCondition) ridRangeCondition).getRight().execute((YTResult) null, ctx);
         }
 
         conditionRid = ((YTIdentifiable) obj).getIdentity();
-        OBinaryCompareOperator operator = cond.getOperator();
+        SQLBinaryCompareOperator operator = cond.getOperator();
         if (conditionRid != null) {
           if (conditionRid.getClusterId() != this.clusterId) {
             continue;
           }
-          if (operator instanceof OLtOperator || operator instanceof OLeOperator) {
+          if (operator instanceof SQLLtOperator || operator instanceof SQLLeOperator) {
             minValue = Math.min(minValue, conditionRid.getClusterPosition());
           }
         }

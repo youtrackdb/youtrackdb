@@ -6,20 +6,21 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OProjectionItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLProjectionItem;
 
 /**
  *
  */
 public class LetExpressionStep extends AbstractExecutionStep {
 
-  private OIdentifier varname;
-  private OExpression expression;
+  private SQLIdentifier varname;
+  private SQLExpression expression;
 
   public LetExpressionStep(
-      OIdentifier varName, OExpression expression, CommandContext ctx, boolean profilingEnabled) {
+      SQLIdentifier varName, SQLExpression expression, CommandContext ctx,
+      boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.varname = varName;
     this.expression = expression;
@@ -38,7 +39,7 @@ public class LetExpressionStep extends AbstractExecutionStep {
   private YTResult mapResult(YTResult result, CommandContext ctx) {
     Object value = expression.execute(result, ctx);
     ((YTResultInternal) result)
-        .setMetadata(varname.getStringValue(), OProjectionItem.convert(value, ctx));
+        .setMetadata(varname.getStringValue(), SQLProjectionItem.convert(value, ctx));
     return result;
   }
 
@@ -65,10 +66,10 @@ public class LetExpressionStep extends AbstractExecutionStep {
     try {
       ExecutionStepInternal.basicDeserialize(fromResult, this);
       if (fromResult.getProperty("varname") != null) {
-        varname = OIdentifier.deserialize(fromResult.getProperty("varname"));
+        varname = SQLIdentifier.deserialize(fromResult.getProperty("varname"));
       }
       if (fromResult.getProperty("expression") != null) {
-        expression = new OExpression(-1);
+        expression = new SQLExpression(-1);
         expression.deserialize(fromResult.getProperty("expression"));
       }
       reset();

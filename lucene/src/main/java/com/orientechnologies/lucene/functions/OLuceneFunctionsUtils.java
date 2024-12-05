@@ -4,7 +4,7 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.metadata.OMetadataInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import org.apache.lucene.index.memory.MemoryIndex;
 
@@ -15,7 +15,7 @@ public class OLuceneFunctionsUtils {
 
   public static final String MEMORY_INDEX = "_memoryIndex";
 
-  protected static OLuceneFullTextIndex searchForIndex(OExpression[] args, CommandContext ctx) {
+  protected static OLuceneFullTextIndex searchForIndex(SQLExpression[] args, CommandContext ctx) {
     final String indexName = (String) args[0].execute((YTIdentifiable) null, ctx);
     return getLuceneFullTextIndex(ctx, indexName);
   }

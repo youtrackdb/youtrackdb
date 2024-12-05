@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.parser.operators;
 
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OContainsValueOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLContainsValueOperator;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Assert;
@@ -32,7 +32,7 @@ public class OContainsValueOperatorTest {
 
   @Test
   public void test() {
-    OContainsValueOperator op = new OContainsValueOperator(-1);
+    SQLContainsValueOperator op = new SQLContainsValueOperator(-1);
 
     Assert.assertFalse(op.execute(null, null));
     Assert.assertFalse(op.execute(null, "foo"));

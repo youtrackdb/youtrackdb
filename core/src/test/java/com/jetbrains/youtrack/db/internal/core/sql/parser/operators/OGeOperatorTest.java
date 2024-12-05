@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.parser.operators;
 
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OGeOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGeOperator;
 import java.math.BigDecimal;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,7 +31,7 @@ public class OGeOperatorTest {
 
   @Test
   public void test() {
-    OGeOperator op = new OGeOperator(-1);
+    SQLGeOperator op = new SQLGeOperator(-1);
     Assert.assertTrue(op.execute(1, 1));
     Assert.assertTrue(op.execute(1, 0));
     Assert.assertFalse(op.execute(0, 1));

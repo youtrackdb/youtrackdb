@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.parser.operators;
 
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OContainsKeyOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLContainsKeyOperator;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Assert;
@@ -32,7 +32,7 @@ public class OContainsKeyOperatorTest {
 
   @Test
   public void test() {
-    OContainsKeyOperator op = new OContainsKeyOperator(-1);
+    SQLContainsKeyOperator op = new SQLContainsKeyOperator(-1);
 
     Assert.assertFalse(op.execute(null, null));
     Assert.assertFalse(op.execute(null, "foo"));

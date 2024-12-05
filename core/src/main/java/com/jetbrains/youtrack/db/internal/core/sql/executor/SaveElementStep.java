@@ -3,16 +3,16 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 
 /**
  *
  */
 public class SaveElementStep extends AbstractExecutionStep {
 
-  private final OIdentifier cluster;
+  private final SQLIdentifier cluster;
 
-  public SaveElementStep(CommandContext ctx, OIdentifier cluster, boolean profilingEnabled) {
+  public SaveElementStep(CommandContext ctx, SQLIdentifier cluster, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.cluster = cluster;
   }

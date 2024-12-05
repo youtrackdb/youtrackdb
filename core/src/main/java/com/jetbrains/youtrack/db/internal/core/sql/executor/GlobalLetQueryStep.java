@@ -4,8 +4,8 @@ import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.YTLocalResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,12 +16,12 @@ import java.util.List;
  */
 public class GlobalLetQueryStep extends AbstractExecutionStep {
 
-  private final OIdentifier varName;
+  private final SQLIdentifier varName;
   private final OInternalExecutionPlan subExecutionPlan;
 
   public GlobalLetQueryStep(
-      OIdentifier varName,
-      OStatement query,
+      SQLIdentifier varName,
+      SQLStatement query,
       CommandContext ctx,
       boolean profilingEnabled,
       List<String> scriptVars) {

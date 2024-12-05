@@ -32,10 +32,10 @@ import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OProjection;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OProjectionItem;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLProjection;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLProjectionItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatementCache;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntIterator;
@@ -630,9 +630,9 @@ public class ViewManager {
       db.executeInTx(
           () -> {
             var boundRow = db.bindToSession(viewRow);
-            OStatement stm = OStatementCache.get(view.getQuery(), db);
-            if (stm instanceof OSelectStatement) {
-              OProjection projection = ((OSelectStatement) stm).getProjection();
+            SQLStatement stm = OStatementCache.get(view.getQuery(), db);
+            if (stm instanceof SQLSelectStatement) {
+              SQLProjection projection = ((SQLSelectStatement) stm).getProjection();
               if (projection == null
                   || (projection.getItems().isEmpty() && projection.getItems().get(0).isAll())) {
                 for (String s : origin.getPropertyNames()) {
@@ -645,7 +645,7 @@ public class ViewManager {
                   boundRow.setProperty(s, value);
                 }
               } else {
-                for (OProjectionItem oProjectionItem : projection.getItems()) {
+                for (SQLProjectionItem oProjectionItem : projection.getItems()) {
                   Object value = oProjectionItem.execute(origin, new BasicCommandContext());
                   boundRow.setProperty(oProjectionItem.getProjectionAliasAsString(), value);
                 }

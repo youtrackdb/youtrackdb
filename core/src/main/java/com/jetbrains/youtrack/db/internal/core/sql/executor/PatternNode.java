@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OMatchPathItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchPathItem;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -15,7 +15,7 @@ public class PatternNode {
   public int centrality = 0;
   public boolean optional = false;
 
-  public int addEdge(OMatchPathItem item, PatternNode to) {
+  public int addEdge(SQLMatchPathItem item, PatternNode to) {
     PatternEdge edge = new PatternEdge();
     edge.item = item;
     edge.out = this;

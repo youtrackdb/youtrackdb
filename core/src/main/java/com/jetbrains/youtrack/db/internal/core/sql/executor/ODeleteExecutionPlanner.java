@@ -5,14 +5,14 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
 import com.jetbrains.youtrack.db.internal.core.index.OIndexAbstract;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OAndBlock;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBooleanExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ODeleteStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OFromClause;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIndexIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLimit;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OSelectStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OWhereClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLDeleteStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIndexIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLimit;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
 import java.util.List;
 
 /**
@@ -20,13 +20,13 @@ import java.util.List;
  */
 public class ODeleteExecutionPlanner {
 
-  private final OFromClause fromClause;
-  private final OWhereClause whereClause;
+  private final SQLFromClause fromClause;
+  private final SQLWhereClause whereClause;
   private final boolean returnBefore;
-  private final OLimit limit;
+  private final SQLLimit limit;
   private final boolean unsafe;
 
-  public ODeleteExecutionPlanner(ODeleteStatement stm) {
+  public ODeleteExecutionPlanner(SQLDeleteStatement stm) {
     this.fromClause = stm.getFromClause() == null ? null : stm.getFromClause().copy();
     this.whereClause = stm.getWhereClause() == null ? null : stm.getWhereClause().copy();
     this.returnBefore = stm.isReturnBefore();
@@ -63,8 +63,8 @@ public class ODeleteExecutionPlanner {
 
   private boolean handleIndexAsTarget(
       ODeleteExecutionPlan result,
-      OIndexIdentifier indexIdentifier,
-      OWhereClause whereClause,
+      SQLIndexIdentifier indexIdentifier,
+      SQLWhereClause whereClause,
       CommandContext ctx,
       boolean profilingEnabled) {
     if (indexIdentifier == null) {
@@ -76,14 +76,14 @@ public class ODeleteExecutionPlanner {
     if (index == null) {
       throw new YTCommandExecutionException("Index not found: " + indexName);
     }
-    List<OAndBlock> flattenedWhereClause = whereClause == null ? null : whereClause.flatten();
+    List<SQLAndBlock> flattenedWhereClause = whereClause == null ? null : whereClause.flatten();
 
     switch (indexIdentifier.getType()) {
       case INDEX:
         OIndexAbstract.manualIndexesWarning();
 
-        OBooleanExpression keyCondition = null;
-        OBooleanExpression ridCondition = null;
+        SQLBooleanExpression keyCondition = null;
+        SQLBooleanExpression ridCondition = null;
         if (flattenedWhereClause == null || flattenedWhereClause.size() == 0) {
           if (!index.supportsOrderedIterations()) {
             throw new YTCommandExecutionException(
@@ -93,7 +93,7 @@ public class ODeleteExecutionPlanner {
           throw new YTCommandExecutionException(
               "Index queries with this kind of condition are not supported yet: " + whereClause);
         } else {
-          OAndBlock andBlock = flattenedWhereClause.get(0);
+          SQLAndBlock andBlock = flattenedWhereClause.get(0);
           if (andBlock.getSubBlocks().size() == 1) {
 
             whereClause =
@@ -125,7 +125,7 @@ public class ODeleteExecutionPlanner {
             new DeleteFromIndexStep(
                 index, keyCondition, null, ridCondition, ctx, profilingEnabled));
         if (ridCondition != null) {
-          OWhereClause where = new OWhereClause(-1);
+          SQLWhereClause where = new SQLWhereClause(-1);
           where.setBaseExpression(ridCondition);
           result.chain(new FilterStep(where, ctx, -1, profilingEnabled));
         }
@@ -178,7 +178,7 @@ public class ODeleteExecutionPlanner {
   }
 
   private void handleLimit(
-      OUpdateExecutionPlan plan, CommandContext ctx, OLimit limit, boolean profilingEnabled) {
+      OUpdateExecutionPlan plan, CommandContext ctx, SQLLimit limit, boolean profilingEnabled) {
     if (limit != null) {
       plan.chain(new LimitExecutionStep(limit, ctx, profilingEnabled));
     }
@@ -187,10 +187,10 @@ public class ODeleteExecutionPlanner {
   private void handleTarget(
       OUpdateExecutionPlan result,
       CommandContext ctx,
-      OFromClause target,
-      OWhereClause whereClause,
+      SQLFromClause target,
+      SQLWhereClause whereClause,
       boolean profilingEnabled) {
-    OSelectStatement sourceStatement = new OSelectStatement(-1);
+    SQLSelectStatement sourceStatement = new SQLSelectStatement(-1);
     sourceStatement.setTarget(target);
     sourceStatement.setWhereClause(whereClause);
     OSelectExecutionPlanner planner = new OSelectExecutionPlanner(sourceStatement);
@@ -199,8 +199,8 @@ public class ODeleteExecutionPlanner {
             planner.createExecutionPlan(ctx, profilingEnabled, false), ctx, ctx, profilingEnabled));
   }
 
-  private OBooleanExpression getKeyCondition(OAndBlock andBlock) {
-    for (OBooleanExpression exp : andBlock.getSubBlocks()) {
+  private SQLBooleanExpression getKeyCondition(SQLAndBlock andBlock) {
+    for (SQLBooleanExpression exp : andBlock.getSubBlocks()) {
       String str = exp.toString();
       if (str.length() < 5) {
         continue;
@@ -212,8 +212,8 @@ public class ODeleteExecutionPlanner {
     return null;
   }
 
-  private OBooleanExpression getRidCondition(OAndBlock andBlock) {
-    for (OBooleanExpression exp : andBlock.getSubBlocks()) {
+  private SQLBooleanExpression getRidCondition(SQLAndBlock andBlock) {
+    for (SQLBooleanExpression exp : andBlock.getSubBlocks()) {
       String str = exp.toString();
       if (str.length() < 5) {
         continue;

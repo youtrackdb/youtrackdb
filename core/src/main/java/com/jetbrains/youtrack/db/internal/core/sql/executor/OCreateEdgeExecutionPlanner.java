@@ -5,16 +5,16 @@ import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.index.OIndex;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBatch;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OCreateEdgeStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBatch;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCreateEdgeStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.OExecutionPlanCache;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OIdentifier;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OInputParameter;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OInsertBody;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OInsertSetExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OJson;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OUpdateItem;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInputParameter;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInsertBody;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInsertSetExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLJson;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLUpdateItem;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,20 +23,20 @@ import java.util.List;
  */
 public class OCreateEdgeExecutionPlanner {
 
-  private final OCreateEdgeStatement statement;
-  protected OIdentifier targetClass;
-  protected OIdentifier targetClusterName;
-  protected OExpression leftExpression;
-  protected OExpression rightExpression;
+  private final SQLCreateEdgeStatement statement;
+  protected SQLIdentifier targetClass;
+  protected SQLIdentifier targetClusterName;
+  protected SQLExpression leftExpression;
+  protected SQLExpression rightExpression;
 
   protected boolean upsert = false;
 
-  protected OInsertBody body;
+  protected SQLInsertBody body;
   protected Number retry;
   protected Number wait;
-  protected OBatch batch;
+  protected SQLBatch batch;
 
-  public OCreateEdgeExecutionPlanner(OCreateEdgeStatement statement) {
+  public OCreateEdgeExecutionPlanner(SQLCreateEdgeStatement statement) {
     this.statement = statement;
     this.targetClass =
         statement.getTargetClass() == null ? null : statement.getTargetClass().copy();
@@ -67,16 +67,16 @@ public class OCreateEdgeExecutionPlanner {
 
     if (targetClass == null) {
       if (targetClusterName == null) {
-        targetClass = new OIdentifier("E");
+        targetClass = new SQLIdentifier("E");
       } else {
         YTClass clazz =
             db.getMetadata()
                 .getImmutableSchemaSnapshot()
                 .getClassByClusterId(db.getClusterIdByName(targetClusterName.getStringValue()));
         if (clazz != null) {
-          targetClass = new OIdentifier(clazz.getName());
+          targetClass = new SQLIdentifier(clazz.getName());
         } else {
-          targetClass = new OIdentifier("E");
+          targetClass = new SQLIdentifier("E");
         }
       }
     }
@@ -87,13 +87,13 @@ public class OCreateEdgeExecutionPlanner {
 
     handleGlobalLet(
         result,
-        new OIdentifier("$__ORIENT_CREATE_EDGE_fromV"),
+        new SQLIdentifier("$__ORIENT_CREATE_EDGE_fromV"),
         leftExpression,
         ctx,
         enableProfiling);
     handleGlobalLet(
         result,
-        new OIdentifier("$__ORIENT_CREATE_EDGE_toV"),
+        new SQLIdentifier("$__ORIENT_CREATE_EDGE_toV"),
         rightExpression,
         ctx,
         enableProfiling);
@@ -134,8 +134,8 @@ public class OCreateEdgeExecutionPlanner {
             targetClass,
             targetClusterName,
             uniqueIndexName,
-            new OIdentifier("$__ORIENT_CREATE_EDGE_fromV"),
-            new OIdentifier("$__ORIENT_CREATE_EDGE_toV"),
+            new SQLIdentifier("$__ORIENT_CREATE_EDGE_fromV"),
+            new SQLIdentifier("$__ORIENT_CREATE_EDGE_toV"),
             wait,
             retry,
             batch,
@@ -159,8 +159,8 @@ public class OCreateEdgeExecutionPlanner {
 
   private void handleGlobalLet(
       OInsertExecutionPlan result,
-      OIdentifier name,
-      OExpression expression,
+      SQLIdentifier name,
+      SQLExpression expression,
       CommandContext ctx,
       boolean profilingEnabled) {
     result.chain(new GlobalLetExpressionStep(name, expression, ctx, profilingEnabled));
@@ -176,7 +176,7 @@ public class OCreateEdgeExecutionPlanner {
 
   private void handleSave(
       OInsertExecutionPlan result,
-      OIdentifier targetClusterName,
+      SQLIdentifier targetClusterName,
       CommandContext ctx,
       boolean profilingEnabled) {
     result.chain(new SaveElementStep(ctx, targetClusterName, profilingEnabled));
@@ -184,7 +184,7 @@ public class OCreateEdgeExecutionPlanner {
 
   private void handleSetFields(
       OInsertExecutionPlan result,
-      OInsertBody insertBody,
+      SQLInsertBody insertBody,
       CommandContext ctx,
       boolean profilingEnabled) {
     if (insertBody == null) {
@@ -198,18 +198,18 @@ public class OCreateEdgeExecutionPlanner {
               ctx,
               profilingEnabled));
     } else if (insertBody.getContent() != null) {
-      for (OJson json : insertBody.getContent()) {
+      for (SQLJson json : insertBody.getContent()) {
         result.chain(new UpdateContentStep(json, ctx, profilingEnabled));
       }
     } else if (insertBody.getContentInputParam() != null) {
-      for (OInputParameter inputParam : insertBody.getContentInputParam()) {
+      for (SQLInputParameter inputParam : insertBody.getContentInputParam()) {
         result.chain(new UpdateContentStep(inputParam, ctx, profilingEnabled));
       }
     } else if (insertBody.getSetExpressions() != null) {
-      List<OUpdateItem> items = new ArrayList<>();
-      for (OInsertSetExpression exp : insertBody.getSetExpressions()) {
-        OUpdateItem item = new OUpdateItem(-1);
-        item.setOperator(OUpdateItem.OPERATOR_EQ);
+      List<SQLUpdateItem> items = new ArrayList<>();
+      for (SQLInsertSetExpression exp : insertBody.getSetExpressions()) {
+        SQLUpdateItem item = new SQLUpdateItem(-1);
+        item.setOperator(SQLUpdateItem.OPERATOR_EQ);
         item.setLeft(exp.getLeft().copy());
         item.setRight(exp.getRight().copy());
         items.add(item);

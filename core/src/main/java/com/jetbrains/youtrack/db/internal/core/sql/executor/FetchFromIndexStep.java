@@ -21,25 +21,25 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStreamProducer;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OAndBlock;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBetweenCondition;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCompareOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBinaryCondition;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OBooleanExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OCollection;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OContainsAnyCondition;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OContainsKeyOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OContainsTextCondition;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OContainsValueCondition;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OContainsValueOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OEqualsCompareOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OExpression;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OGeOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OGtOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OInCondition;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLeOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OLtOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OValueExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBetweenCondition;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCondition;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBooleanExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCollection;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLContainsAnyCondition;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLContainsKeyOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLContainsTextCondition;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLContainsValueCondition;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLContainsValueOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLEqualsCompareOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGeOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGtOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInCondition;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLeOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLtOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLValueExpression;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -139,8 +139,8 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     // stats
     OQueryStats stats = OQueryStats.get(ctx.getDatabase());
     OIndex index = desc.getIndex();
-    OBooleanExpression condition = desc.getKeyCondition();
-    OBinaryCondition additionalRangeCondition = desc.getAdditionalRangeCondition();
+    SQLBooleanExpression condition = desc.getKeyCondition();
+    SQLBinaryCondition additionalRangeCondition = desc.getAdditionalRangeCondition();
     if (index == null) {
       return; // this could happen, if not inited yet
     }
@@ -149,19 +149,20 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     int size = 0;
 
     if (condition != null) {
-      if (condition instanceof OBinaryCondition) {
+      if (condition instanceof SQLBinaryCondition) {
         size = 1;
-      } else if (condition instanceof OBetweenCondition) {
+      } else if (condition instanceof SQLBetweenCondition) {
         size = 1;
         range = true;
-      } else if (condition instanceof OAndBlock andBlock) {
+      } else if (condition instanceof SQLAndBlock andBlock) {
         size = andBlock.getSubBlocks().size();
-        OBooleanExpression lastOp = andBlock.getSubBlocks().get(andBlock.getSubBlocks().size() - 1);
-        if (lastOp instanceof OBinaryCondition) {
-          OBinaryCompareOperator op = ((OBinaryCondition) lastOp).getOperator();
+        SQLBooleanExpression lastOp = andBlock.getSubBlocks()
+            .get(andBlock.getSubBlocks().size() - 1);
+        if (lastOp instanceof SQLBinaryCondition) {
+          SQLBinaryCompareOperator op = ((SQLBinaryCondition) lastOp).getOperator();
           range = op.isRangeOperator();
         }
-      } else if (condition instanceof OInCondition) {
+      } else if (condition instanceof SQLInCondition) {
         size = 1;
       }
     }
@@ -172,21 +173,21 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       IndexSearchDescriptor desc, boolean isOrderAsc, CommandContext ctx) {
 
     OIndexInternal index = desc.getIndex().getInternal();
-    OBooleanExpression condition = desc.getKeyCondition();
-    OBinaryCondition additionalRangeCondition = desc.getAdditionalRangeCondition();
+    SQLBooleanExpression condition = desc.getKeyCondition();
+    SQLBinaryCondition additionalRangeCondition = desc.getAdditionalRangeCondition();
 
     if (index.getDefinition() == null) {
       return Collections.emptyList();
     }
     if (condition == null) {
       return processFlatIteration(ctx.getDatabase(), index, isOrderAsc);
-    } else if (condition instanceof OBinaryCondition) {
+    } else if (condition instanceof SQLBinaryCondition) {
       return processBinaryCondition(ctx.getDatabase(), index, condition, isOrderAsc, ctx);
-    } else if (condition instanceof OBetweenCondition) {
+    } else if (condition instanceof SQLBetweenCondition) {
       return processBetweenCondition(index, condition, isOrderAsc, ctx);
-    } else if (condition instanceof OAndBlock) {
+    } else if (condition instanceof SQLAndBlock) {
       return processAndBlock(index, condition, additionalRangeCondition, isOrderAsc, ctx);
-    } else if (condition instanceof OInCondition) {
+    } else if (condition instanceof SQLInCondition) {
       return processInCondition(index, condition, ctx, isOrderAsc);
     } else {
       // TODO process containsAny
@@ -196,20 +197,20 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   private static List<Stream<ORawPair<Object, YTRID>>> processInCondition(
-      OIndexInternal index, OBooleanExpression condition, CommandContext ctx, boolean orderAsc) {
+      OIndexInternal index, SQLBooleanExpression condition, CommandContext ctx, boolean orderAsc) {
     List<Stream<ORawPair<Object, YTRID>>> streams = new ArrayList<>();
     Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams =
         Collections.newSetFromMap(new IdentityHashMap<>());
     OIndexDefinition definition = index.getDefinition();
-    OInCondition inCondition = (OInCondition) condition;
+    SQLInCondition inCondition = (SQLInCondition) condition;
 
-    OExpression left = inCondition.getLeft();
+    SQLExpression left = inCondition.getLeft();
     if (!left.toString().equalsIgnoreCase("key")) {
       throw new YTCommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
     Object rightValue = inCondition.evaluateRight((YTResult) null, ctx);
-    OEqualsCompareOperator equals = new OEqualsCompareOperator(-1);
+    SQLEqualsCompareOperator equals = new SQLEqualsCompareOperator(-1);
     if (OMultiValue.isMultiValue(rightValue)) {
       for (Object item : OMultiValue.getMultiValueIterable(rightValue)) {
         if (item instanceof YTResult) {
@@ -247,14 +248,15 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
    */
   private static List<Stream<ORawPair<Object, YTRID>>> processAndBlock(
       OIndexInternal index,
-      OBooleanExpression condition,
-      OBinaryCondition additionalRangeCondition,
+      SQLBooleanExpression condition,
+      SQLBinaryCondition additionalRangeCondition,
       boolean isOrderAsc,
       CommandContext ctx) {
-    OCollection fromKey = indexKeyFrom((OAndBlock) condition, additionalRangeCondition);
-    OCollection toKey = indexKeyTo((OAndBlock) condition, additionalRangeCondition);
-    boolean fromKeyIncluded = indexKeyFromIncluded((OAndBlock) condition, additionalRangeCondition);
-    boolean toKeyIncluded = indexKeyToIncluded((OAndBlock) condition, additionalRangeCondition);
+    SQLCollection fromKey = indexKeyFrom((SQLAndBlock) condition, additionalRangeCondition);
+    SQLCollection toKey = indexKeyTo((SQLAndBlock) condition, additionalRangeCondition);
+    boolean fromKeyIncluded = indexKeyFromIncluded((SQLAndBlock) condition,
+        additionalRangeCondition);
+    boolean toKeyIncluded = indexKeyToIncluded((SQLAndBlock) condition, additionalRangeCondition);
     return multipleRange(
         index,
         fromKey,
@@ -297,20 +299,20 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
 
   private static List<Stream<ORawPair<Object, YTRID>>> multipleRange(
       OIndexInternal index,
-      OCollection fromKey,
+      SQLCollection fromKey,
       boolean fromKeyIncluded,
-      OCollection toKey,
+      SQLCollection toKey,
       boolean toKeyIncluded,
-      OBooleanExpression condition,
+      SQLBooleanExpression condition,
       boolean isOrderAsc,
-      OBinaryCondition additionalRangeCondition,
+      SQLBinaryCondition additionalRangeCondition,
       CommandContext ctx) {
     var db = ctx.getDatabase();
     List<Stream<ORawPair<Object, YTRID>>> streams = new ArrayList<>();
     Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams =
         Collections.newSetFromMap(new IdentityHashMap<>());
-    List<OCollection> secondValueCombinations = cartesianProduct(fromKey, ctx);
-    List<OCollection> thirdValueCombinations = cartesianProduct(toKey, ctx);
+    List<SQLCollection> secondValueCombinations = cartesianProduct(fromKey, ctx);
+    List<SQLCollection> thirdValueCombinations = cartesianProduct(toKey, ctx);
 
     OIndexDefinition indexDef = index.getDefinition();
 
@@ -369,7 +371,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
                       }
 
                     } else if (additionalRangeCondition == null
-                        && allEqualities((OAndBlock) condition)) {
+                        && allEqualities((SQLAndBlock) condition)) {
                       stream =
                           index.streamEntries(db,
                               toIndexKey(db, indexDef, itemVal), isOrderAsc);
@@ -416,7 +418,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
           }
         }
 
-      } else if (additionalRangeCondition == null && allEqualities((OAndBlock) condition)) {
+      } else if (additionalRangeCondition == null && allEqualities((SQLAndBlock) condition)) {
         stream =
             index.streamEntries(db, toIndexKey(ctx.getDatabase(), indexDef, secondValue),
                 isOrderAsc);
@@ -476,50 +478,51 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     return value;
   }
 
-  private static List<OCollection> cartesianProduct(OCollection key, CommandContext ctx) {
-    return cartesianProduct(new OCollection(-1), key, ctx); // TODO
+  private static List<SQLCollection> cartesianProduct(SQLCollection key, CommandContext ctx) {
+    return cartesianProduct(new SQLCollection(-1), key, ctx); // TODO
   }
 
-  private static List<OCollection> cartesianProduct(
-      OCollection head, OCollection key, CommandContext ctx) {
+  private static List<SQLCollection> cartesianProduct(
+      SQLCollection head, SQLCollection key, CommandContext ctx) {
     if (key.getExpressions().isEmpty()) {
       return Collections.singletonList(head);
     }
 
     var db = ctx.getDatabase();
-    OExpression nextElementInKey = key.getExpressions().get(0);
+    SQLExpression nextElementInKey = key.getExpressions().get(0);
     Object value = nextElementInKey.execute(new YTResultInternal(db), ctx);
     if (value instanceof Iterable && !(value instanceof YTIdentifiable)) {
-      List<OCollection> result = new ArrayList<>();
+      List<SQLCollection> result = new ArrayList<>();
       for (Object elemInKey : (Collection<?>) value) {
-        OCollection newHead = new OCollection(-1);
-        for (OExpression exp : head.getExpressions()) {
+        SQLCollection newHead = new SQLCollection(-1);
+        for (SQLExpression exp : head.getExpressions()) {
           newHead.add(exp.copy());
         }
         newHead.add(toExpression(elemInKey));
-        OCollection tail = key.copy();
+        SQLCollection tail = key.copy();
         tail.getExpressions().remove(0);
         result.addAll(cartesianProduct(newHead, tail, ctx));
       }
       return result;
     } else {
-      OCollection newHead = new OCollection(-1);
-      for (OExpression exp : head.getExpressions()) {
+      SQLCollection newHead = new SQLCollection(-1);
+      for (SQLExpression exp : head.getExpressions()) {
         newHead.add(exp.copy());
       }
       newHead.add(nextElementInKey);
-      OCollection tail = key.copy();
+      SQLCollection tail = key.copy();
       tail.getExpressions().remove(0);
       return cartesianProduct(newHead, tail, ctx);
     }
   }
 
-  private static OExpression toExpression(Object value) {
-    return new OValueExpression(value);
+  private static SQLExpression toExpression(Object value) {
+    return new SQLValueExpression(value);
   }
 
   private static Object convertToIndexDefinitionTypes(
-      YTDatabaseSessionInternal session, OBooleanExpression condition, Object val, YTType[] types) {
+      YTDatabaseSessionInternal session, SQLBooleanExpression condition, Object val,
+      YTType[] types) {
     if (val == null) {
       return null;
     }
@@ -529,22 +532,22 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       for (Object o : OMultiValue.getMultiValueIterable(val)) {
         result.add(YTType.convert(session, o, types[i++].getDefaultJavaType()));
       }
-      if (condition instanceof OAndBlock) {
+      if (condition instanceof SQLAndBlock) {
 
-        for (int j = 0; j < ((OAndBlock) condition).getSubBlocks().size(); j++) {
-          OBooleanExpression subExp = ((OAndBlock) condition).getSubBlocks().get(j);
-          if (subExp instanceof OBinaryCondition) {
-            if (((OBinaryCondition) subExp).getOperator() instanceof OContainsKeyOperator) {
+        for (int j = 0; j < ((SQLAndBlock) condition).getSubBlocks().size(); j++) {
+          SQLBooleanExpression subExp = ((SQLAndBlock) condition).getSubBlocks().get(j);
+          if (subExp instanceof SQLBinaryCondition) {
+            if (((SQLBinaryCondition) subExp).getOperator() instanceof SQLContainsKeyOperator) {
               Map<Object, Object> newValue = new HashMap<>();
               newValue.put(result.get(j), "");
               result.set(j, newValue);
-            } else if (((OBinaryCondition) subExp).getOperator()
-                instanceof OContainsValueOperator) {
+            } else if (((SQLBinaryCondition) subExp).getOperator()
+                instanceof SQLContainsValueOperator) {
               Map<Object, Object> newValue = new HashMap<>();
               newValue.put("", result.get(j));
               result.set(j, newValue);
             }
-          } else if (subExp instanceof OContainsValueCondition) {
+          } else if (subExp instanceof SQLContainsValueCondition) {
             Map<Object, Object> newValue = new HashMap<>();
             newValue.put("", result.get(j));
             result.set(j, newValue);
@@ -556,18 +559,18 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     return YTType.convert(session, val, types[0].getDefaultJavaType());
   }
 
-  private static boolean allEqualities(OAndBlock condition) {
+  private static boolean allEqualities(SQLAndBlock condition) {
     if (condition == null) {
       return false;
     }
-    for (OBooleanExpression exp : condition.getSubBlocks()) {
-      if (exp instanceof OBinaryCondition) {
-        if (!(((OBinaryCondition) exp).getOperator() instanceof OEqualsCompareOperator)
-            && !(((OBinaryCondition) exp).getOperator() instanceof OContainsKeyOperator)
-            && !(((OBinaryCondition) exp).getOperator() instanceof OContainsValueOperator)) {
+    for (SQLBooleanExpression exp : condition.getSubBlocks()) {
+      if (exp instanceof SQLBinaryCondition) {
+        if (!(((SQLBinaryCondition) exp).getOperator() instanceof SQLEqualsCompareOperator)
+            && !(((SQLBinaryCondition) exp).getOperator() instanceof SQLContainsKeyOperator)
+            && !(((SQLBinaryCondition) exp).getOperator() instanceof SQLContainsValueOperator)) {
           return false;
         }
-      } else if (!(exp instanceof OInCondition)) {
+      } else if (!(exp instanceof SQLInCondition)) {
         return false;
       } // OK
     }
@@ -575,17 +578,18 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   private static List<Stream<ORawPair<Object, YTRID>>> processBetweenCondition(
-      OIndexInternal index, OBooleanExpression condition, boolean isOrderAsc, CommandContext ctx) {
+      OIndexInternal index, SQLBooleanExpression condition, boolean isOrderAsc,
+      CommandContext ctx) {
     List<Stream<ORawPair<Object, YTRID>>> streams = new ArrayList<>();
 
     OIndexDefinition definition = index.getDefinition();
-    OExpression key = ((OBetweenCondition) condition).getFirst();
+    SQLExpression key = ((SQLBetweenCondition) condition).getFirst();
     if (!key.toString().equalsIgnoreCase("key")) {
       throw new YTCommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
-    OExpression second = ((OBetweenCondition) condition).getSecond();
-    OExpression third = ((OBetweenCondition) condition).getThird();
+    SQLExpression second = ((SQLBetweenCondition) condition).getSecond();
+    SQLExpression third = ((SQLBetweenCondition) condition).getThird();
 
     Object secondValue = second.execute((YTResult) null, ctx);
     secondValue = unboxOResult(secondValue);
@@ -605,7 +609,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   private static List<Stream<ORawPair<Object, YTRID>>> processBinaryCondition(
       YTDatabaseSessionInternal session,
       OIndexInternal index,
-      OBooleanExpression condition,
+      SQLBooleanExpression condition,
       boolean isOrderAsc,
       CommandContext ctx) {
     List<Stream<ORawPair<Object, YTRID>>> streams = new ArrayList<>();
@@ -613,13 +617,13 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
         Collections.newSetFromMap(new IdentityHashMap<>());
 
     OIndexDefinition definition = index.getDefinition();
-    OBinaryCompareOperator operator = ((OBinaryCondition) condition).getOperator();
-    OExpression left = ((OBinaryCondition) condition).getLeft();
+    SQLBinaryCompareOperator operator = ((SQLBinaryCondition) condition).getOperator();
+    SQLExpression left = ((SQLBinaryCondition) condition).getLeft();
     if (!left.toString().equalsIgnoreCase("key")) {
       throw new YTCommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
-    Object rightValue = ((OBinaryCondition) condition).getRight().execute((YTResult) null, ctx);
+    Object rightValue = ((SQLBinaryCondition) condition).getRight().execute((YTResult) null, ctx);
     Stream<ORawPair<Object, YTRID>> stream =
         createCursor(session, index, operator, definition, rightValue, isOrderAsc, condition);
     if (acquiredStreams.add(stream)) {
@@ -667,22 +671,22 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   private static Stream<ORawPair<Object, YTRID>> createCursor(
       YTDatabaseSessionInternal session,
       OIndexInternal index,
-      OBinaryCompareOperator operator,
+      SQLBinaryCompareOperator operator,
       OIndexDefinition definition,
       Object value,
       boolean orderAsc,
-      OBooleanExpression condition) {
-    if (operator instanceof OEqualsCompareOperator
-        || operator instanceof OContainsKeyOperator
-        || operator instanceof OContainsValueOperator) {
+      SQLBooleanExpression condition) {
+    if (operator instanceof SQLEqualsCompareOperator
+        || operator instanceof SQLContainsKeyOperator
+        || operator instanceof SQLContainsValueOperator) {
       return index.streamEntries(session, toIndexKey(session, definition, value), orderAsc);
-    } else if (operator instanceof OGeOperator) {
+    } else if (operator instanceof SQLGeOperator) {
       return index.streamEntriesMajor(session, value, true, orderAsc);
-    } else if (operator instanceof OGtOperator) {
+    } else if (operator instanceof SQLGtOperator) {
       return index.streamEntriesMajor(session, value, false, orderAsc);
-    } else if (operator instanceof OLeOperator) {
+    } else if (operator instanceof SQLLeOperator) {
       return index.streamEntriesMinor(session, value, true, orderAsc);
-    } else if (operator instanceof OLtOperator) {
+    } else if (operator instanceof SQLLtOperator) {
       return index.streamEntriesMinor(session, value, false, orderAsc);
     } else {
       throw new YTCommandExecutionException(
@@ -694,10 +698,11 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     return orderAsc;
   }
 
-  private static OCollection indexKeyFrom(OAndBlock keyCondition, OBinaryCondition additional) {
-    OCollection result = new OCollection(-1);
-    for (OBooleanExpression exp : keyCondition.getSubBlocks()) {
-      OExpression res = exp.resolveKeyFrom(additional);
+  private static SQLCollection indexKeyFrom(SQLAndBlock keyCondition,
+      SQLBinaryCondition additional) {
+    SQLCollection result = new SQLCollection(-1);
+    for (SQLBooleanExpression exp : keyCondition.getSubBlocks()) {
+      SQLExpression res = exp.resolveKeyFrom(additional);
       if (res != null) {
         result.add(res);
       }
@@ -705,10 +710,10 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     return result;
   }
 
-  private static OCollection indexKeyTo(OAndBlock keyCondition, OBinaryCondition additional) {
-    OCollection result = new OCollection(-1);
-    for (OBooleanExpression exp : keyCondition.getSubBlocks()) {
-      OExpression res = exp.resolveKeyTo(additional);
+  private static SQLCollection indexKeyTo(SQLAndBlock keyCondition, SQLBinaryCondition additional) {
+    SQLCollection result = new SQLCollection(-1);
+    for (SQLBooleanExpression exp : keyCondition.getSubBlocks()) {
+      SQLExpression res = exp.resolveKeyTo(additional);
       if (res != null) {
         result.add(res);
       }
@@ -716,26 +721,27 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     return result;
   }
 
-  private static boolean indexKeyFromIncluded(OAndBlock keyCondition, OBinaryCondition additional) {
-    OBooleanExpression exp =
+  private static boolean indexKeyFromIncluded(
+      SQLAndBlock keyCondition, SQLBinaryCondition additional) {
+    SQLBooleanExpression exp =
         keyCondition.getSubBlocks().get(keyCondition.getSubBlocks().size() - 1);
-    OBinaryCompareOperator additionalOperator =
-        Optional.ofNullable(additional).map(OBinaryCondition::getOperator).orElse(null);
-    if (exp instanceof OBinaryCondition) {
-      OBinaryCompareOperator operator = ((OBinaryCondition) exp).getOperator();
+    SQLBinaryCompareOperator additionalOperator =
+        Optional.ofNullable(additional).map(SQLBinaryCondition::getOperator).orElse(null);
+    if (exp instanceof SQLBinaryCondition) {
+      SQLBinaryCompareOperator operator = ((SQLBinaryCondition) exp).getOperator();
       if (isGreaterOperator(operator)) {
         return isIncludeOperator(operator);
       } else {
         return additionalOperator == null
             || (isIncludeOperator(additionalOperator) && isGreaterOperator(additionalOperator));
       }
-    } else if (exp instanceof OInCondition || exp instanceof OContainsAnyCondition) {
+    } else if (exp instanceof SQLInCondition || exp instanceof SQLContainsAnyCondition) {
       return additional == null
           || (isIncludeOperator(additionalOperator) && isGreaterOperator(additionalOperator));
-    } else if (exp instanceof OContainsTextCondition) {
+    } else if (exp instanceof SQLContainsTextCondition) {
       return true;
-    } else if (exp instanceof OContainsValueCondition) {
-      OBinaryCompareOperator operator = ((OContainsValueCondition) exp).getOperator();
+    } else if (exp instanceof SQLContainsValueCondition) {
+      SQLBinaryCompareOperator operator = ((SQLContainsValueCondition) exp).getOperator();
       if (isGreaterOperator(operator)) {
         return isIncludeOperator(operator);
       } else {
@@ -747,47 +753,48 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     }
   }
 
-  private static boolean isGreaterOperator(OBinaryCompareOperator operator) {
+  private static boolean isGreaterOperator(SQLBinaryCompareOperator operator) {
     if (operator == null) {
       return false;
     }
-    return operator instanceof OGeOperator || operator instanceof OGtOperator;
+    return operator instanceof SQLGeOperator || operator instanceof SQLGtOperator;
   }
 
-  private static boolean isLessOperator(OBinaryCompareOperator operator) {
+  private static boolean isLessOperator(SQLBinaryCompareOperator operator) {
     if (operator == null) {
       return false;
     }
-    return operator instanceof OLeOperator || operator instanceof OLtOperator;
+    return operator instanceof SQLLeOperator || operator instanceof SQLLtOperator;
   }
 
-  private static boolean isIncludeOperator(OBinaryCompareOperator operator) {
+  private static boolean isIncludeOperator(SQLBinaryCompareOperator operator) {
     if (operator == null) {
       return false;
     }
-    return operator instanceof OGeOperator || operator instanceof OLeOperator;
+    return operator instanceof SQLGeOperator || operator instanceof SQLLeOperator;
   }
 
-  private static boolean indexKeyToIncluded(OAndBlock keyCondition, OBinaryCondition additional) {
-    OBooleanExpression exp =
+  private static boolean indexKeyToIncluded(SQLAndBlock keyCondition,
+      SQLBinaryCondition additional) {
+    SQLBooleanExpression exp =
         keyCondition.getSubBlocks().get(keyCondition.getSubBlocks().size() - 1);
-    OBinaryCompareOperator additionalOperator =
-        Optional.ofNullable(additional).map(OBinaryCondition::getOperator).orElse(null);
-    if (exp instanceof OBinaryCondition) {
-      OBinaryCompareOperator operator = ((OBinaryCondition) exp).getOperator();
+    SQLBinaryCompareOperator additionalOperator =
+        Optional.ofNullable(additional).map(SQLBinaryCondition::getOperator).orElse(null);
+    if (exp instanceof SQLBinaryCondition) {
+      SQLBinaryCompareOperator operator = ((SQLBinaryCondition) exp).getOperator();
       if (isLessOperator(operator)) {
         return isIncludeOperator(operator);
       } else {
         return additionalOperator == null
             || (isIncludeOperator(additionalOperator) && isLessOperator(additionalOperator));
       }
-    } else if (exp instanceof OInCondition || exp instanceof OContainsAnyCondition) {
+    } else if (exp instanceof SQLInCondition || exp instanceof SQLContainsAnyCondition) {
       return additionalOperator == null
           || (isIncludeOperator(additionalOperator) && isLessOperator(additionalOperator));
-    } else if (exp instanceof OContainsTextCondition) {
+    } else if (exp instanceof SQLContainsTextCondition) {
       return true;
-    } else if (exp instanceof OContainsValueCondition) {
-      OBinaryCompareOperator operator = ((OContainsValueCondition) exp).getOperator();
+    } else if (exp instanceof SQLContainsValueCondition) {
+      SQLBinaryCompareOperator operator = ((SQLContainsValueCondition) exp).getOperator();
       if (isLessOperator(operator)) {
         return isIncludeOperator(operator);
       } else {
@@ -844,13 +851,14 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     try {
       ExecutionStepInternal.basicDeserialize(fromResult, this);
       String indexName = fromResult.getProperty("indexName");
-      OBooleanExpression condition = null;
+      SQLBooleanExpression condition = null;
       if (fromResult.getProperty("condition") != null) {
-        condition = OBooleanExpression.deserializeFromOResult(fromResult.getProperty("condition"));
+        condition = SQLBooleanExpression.deserializeFromOResult(
+            fromResult.getProperty("condition"));
       }
-      OBinaryCondition additionalRangeCondition = null;
+      SQLBinaryCondition additionalRangeCondition = null;
       if (fromResult.getProperty("additionalRangeCondition") != null) {
-        additionalRangeCondition = new OBinaryCondition(-1);
+        additionalRangeCondition = new SQLBinaryCondition(-1);
         additionalRangeCondition.deserialize(fromResult.getProperty("additionalRangeCondition"));
       }
       YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
