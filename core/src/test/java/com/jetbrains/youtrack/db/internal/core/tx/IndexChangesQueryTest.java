@@ -1,14 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.tx;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.OCreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -27,21 +27,21 @@ public class IndexChangesQueryTest {
   private static final String FIELD_NAME = "value";
   private static final String INDEX_NAME = "idxTxAwareMultiValueGetEntriesTestIndex";
   private YouTrackDB youTrackDB;
-  private YTDatabaseSessionInternal database;
+  private DatabaseSessionInternal database;
 
   @Before
   public void before() {
     youTrackDB =
-        OCreateDatabaseUtil.createDatabase("test", DBTestBase.embeddedDBUrl(getClass()),
-            OCreateDatabaseUtil.TYPE_MEMORY);
+        CreateDatabaseUtil.createDatabase("test", DbTestBase.embeddedDBUrl(getClass()),
+            CreateDatabaseUtil.TYPE_MEMORY);
     database =
-        (YTDatabaseSessionInternal)
-            youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        (DatabaseSessionInternal)
+            youTrackDB.open("test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass cls = schema.createClass(CLASS_NAME);
-    cls.createProperty(database, FIELD_NAME, YTType.INTEGER);
-    cls.createIndex(database, INDEX_NAME, YTClass.INDEX_TYPE.NOTUNIQUE, FIELD_NAME);
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass cls = schema.createClass(CLASS_NAME);
+    cls.createProperty(database, FIELD_NAME, PropertyType.INTEGER);
+    cls.createIndex(database, INDEX_NAME, SchemaClass.INDEX_TYPE.NOTUNIQUE, FIELD_NAME);
   }
 
   @After
@@ -54,7 +54,7 @@ public class IndexChangesQueryTest {
   public void testMultiplePut() {
     database.begin();
 
-    final OIndex index =
+    final Index index =
         database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX_NAME);
 
     EntityImpl doc = new EntityImpl(CLASS_NAME);
@@ -76,8 +76,8 @@ public class IndexChangesQueryTest {
     Assert.assertFalse((fetchCollectionFromIndex(index, 2)).isEmpty());
   }
 
-  private Collection<YTRID> fetchCollectionFromIndex(OIndex index, int key) {
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, key)) {
+  private Collection<RID> fetchCollectionFromIndex(Index index, int key) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, key)) {
       return stream.collect(Collectors.toList());
     }
   }
@@ -98,7 +98,7 @@ public class IndexChangesQueryTest {
     doc3.field(FIELD_NAME, 2);
     doc3.save();
 
-    final OIndex index =
+    final Index index =
         database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX_NAME);
 
     database.commit();

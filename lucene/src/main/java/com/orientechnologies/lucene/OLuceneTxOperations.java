@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,6 +27,6 @@ import java.util.Set;
  */
 public class OLuceneTxOperations {
 
-  public final Set<YTIdentifiable> removed = new HashSet<YTIdentifiable>();
-  public final Set<YTIdentifiable> added = new HashSet<YTIdentifiable>();
+  public final Set<Identifiable> removed = new HashSet<Identifiable>();
+  public final Set<Identifiable> added = new HashSet<Identifiable>();
 }

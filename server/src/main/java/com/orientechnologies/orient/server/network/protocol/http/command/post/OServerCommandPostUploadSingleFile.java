@@ -15,11 +15,11 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OJSONWriter;
-import com.jetbrains.youtrack.db.internal.core.util.ODateHelper;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
+import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -36,18 +36,18 @@ import java.util.HashMap;
  *
  */
 public class OServerCommandPostUploadSingleFile extends
-    OHttpMultipartRequestCommand<String, YTRID> {
+    OHttpMultipartRequestCommand<String, RID> {
 
   private static final String[] NAMES = {"POST|uploadSingleFile/*"};
 
   protected StringWriter buffer;
-  protected OJSONWriter writer;
-  protected YTRID fileRID;
+  protected JSONWriter writer;
+  protected RID fileRID;
   protected String fileDocument;
   protected String fileName;
   protected String fileType;
   protected long now;
-  protected YTDatabaseSessionInternal database;
+  protected DatabaseSessionInternal database;
 
   @Override
   public boolean execute(final OHttpRequest iRequest, OHttpResponse iResponse) throws Exception {
@@ -70,7 +70,7 @@ public class OServerCommandPostUploadSingleFile extends
       database = getProfiledDatabaseInstance(iRequest);
       try {
         buffer = new StringWriter();
-        writer = new OJSONWriter(buffer);
+        writer = new JSONWriter(buffer);
         writer.beginObject();
         parse(
             iRequest,
@@ -126,7 +126,7 @@ public class OServerCommandPostUploadSingleFile extends
 
   @Override
   protected void processFileContent(
-      OHttpRequest iRequest, YTRID iContentResult, HashMap<String, String> headers)
+      OHttpRequest iRequest, RID iContentResult, HashMap<String, String> headers)
       throws Exception {
     if (headers.containsKey(OHttpUtils.MULTIPART_CONTENT_NAME)
         && headers.get(OHttpUtils.MULTIPART_CONTENT_NAME).equals(getFileParamenterName())) {
@@ -142,7 +142,7 @@ public class OServerCommandPostUploadSingleFile extends
         fileType = headers.get(OHttpUtils.MULTIPART_CONTENT_TYPE);
 
         final Calendar cal = Calendar.getInstance();
-        final DateFormat formatter = ODateHelper.getDateFormatInstance(database);
+        final DateFormat formatter = DateHelper.getDateFormatInstance(database);
         now = cal.getTimeInMillis();
 
         writer.beginObject("uploadedFile");

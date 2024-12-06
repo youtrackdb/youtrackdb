@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.client.remote.message;
 
 import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.NETWORK_BINARY_MIN_PROTOCOL_VERSION;
-import static com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol.OLDEST_SUPPORTED_PROTOCOL_VERSION;
+import static com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol.OLDEST_SUPPORTED_PROTOCOL_VERSION;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 
 public class OBinaryProtocolHelper {
 
@@ -16,7 +16,7 @@ public class OBinaryProtocolHelper {
               "Backward compatibility support available from to version %d your version is %d",
               OLDEST_SUPPORTED_PROTOCOL_VERSION, protocolVersion);
       LogManager.instance().error(caller, message, null);
-      throw new YTDatabaseException(message);
+      throw new DatabaseException(message);
     }
 
     if (NETWORK_BINARY_MIN_PROTOCOL_VERSION.getValueAsInteger() > protocolVersion) {
@@ -28,7 +28,7 @@ public class OBinaryProtocolHelper {
               protocolVersion,
               NETWORK_BINARY_MIN_PROTOCOL_VERSION.getKey());
       LogManager.instance().error(caller, message, null);
-      throw new YTDatabaseException(message);
+      throw new DatabaseException(message);
     }
   }
 }

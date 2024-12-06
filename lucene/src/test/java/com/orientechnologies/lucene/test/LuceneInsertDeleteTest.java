@@ -20,14 +20,14 @@ package com.orientechnologies.lucene.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
@@ -44,10 +44,10 @@ public class LuceneInsertDeleteTest extends BaseLuceneTest {
   @Before
   public void init() {
 
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass oClass = schema.createClass("City");
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass oClass = schema.createClass("City");
 
-    oClass.createProperty(db, "name", YTType.STRING);
+    oClass.createProperty(db, "name", PropertyType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
 
@@ -55,7 +55,7 @@ public class LuceneInsertDeleteTest extends BaseLuceneTest {
   public void testInsertUpdateWithIndex() {
 
     db.getMetadata().reload();
-    YTSchema schema = db.getMetadata().getSchema();
+    Schema schema = db.getMetadata().getSchema();
 
     EntityImpl doc = new EntityImpl("City");
     doc.field("name", "Rome");
@@ -63,9 +63,9 @@ public class LuceneInsertDeleteTest extends BaseLuceneTest {
     db.save(doc);
     db.commit();
 
-    OIndex idx = schema.getClass("City").getClassIndex(db, "City.name");
+    Index idx = schema.getClass("City").getClassIndex(db, "City.name");
     Collection<?> coll;
-    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
 
@@ -74,7 +74,7 @@ public class LuceneInsertDeleteTest extends BaseLuceneTest {
     assertThat(idx.getInternal().size(db)).isEqualTo(1);
     db.commit();
 
-    YTIdentifiable next = (YTIdentifiable) coll.iterator().next();
+    Identifiable next = (Identifiable) coll.iterator().next();
     doc = db.load(next.getIdentity());
 
     db.begin();
@@ -82,7 +82,7 @@ public class LuceneInsertDeleteTest extends BaseLuceneTest {
     db.delete(doc);
     db.commit();
 
-    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(0);
@@ -101,7 +101,7 @@ public class LuceneInsertDeleteTest extends BaseLuceneTest {
                 + " {'closeAfterInterval':1000 , 'firstFlushAfter':1000 }")
         .close();
 
-    YTResultSet docs = db.query("select from Song where title lucene 'mountain'");
+    ResultSet docs = db.query("select from Song where title lucene 'mountain'");
 
     assertThat(docs).hasSize(4);
     TimeUnit.SECONDS.sleep(5);

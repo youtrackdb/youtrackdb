@@ -18,10 +18,10 @@
 
 package com.orientechnologies.lucene.query;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.orientechnologies.lucene.exception.YTLuceneIndexException;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.orientechnologies.lucene.exception.LuceneIndexException;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
 import java.io.IOException;
 import java.util.Collections;
@@ -111,8 +111,8 @@ public class OLuceneQueryContext {
       return new MultiReader(
           searcher.getIndexReader(), luceneTxChanges.searcher().getIndexReader());
     } catch (final IOException e) {
-      throw YTException.wrapException(
-          new YTLuceneIndexException("unable to create reader on changes"), e);
+      throw BaseException.wrapException(
+          new LuceneIndexException("unable to create reader on changes"), e);
     }
   }
 
@@ -120,11 +120,11 @@ public class OLuceneQueryContext {
     return changes.map(c -> c.deletedDocs(query)).orElse(0L);
   }
 
-  public boolean isUpdated(final Document doc, final Object key, final YTIdentifiable value) {
+  public boolean isUpdated(final Document doc, final Object key, final Identifiable value) {
     return changes.map(c -> c.isUpdated(doc, key, value)).orElse(false);
   }
 
-  public boolean isDeleted(final Document doc, final Object key, final YTIdentifiable value) {
+  public boolean isDeleted(final Document doc, final Object key, final Identifiable value) {
     return changes.map(c -> c.isDeleted(doc, key, value)).orElse(false);
   }
 

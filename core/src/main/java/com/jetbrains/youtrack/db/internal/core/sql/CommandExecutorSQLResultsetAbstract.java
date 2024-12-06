@@ -22,36 +22,36 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.iterator.ORecordIteratorClass;
-import com.jetbrains.youtrack.db.internal.core.iterator.ORecordIteratorClassDescendentOrder;
-import com.jetbrains.youtrack.db.internal.core.iterator.ORecordIteratorClusters;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClass;
+import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClassDescendentOrder;
+import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClusters;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterCondition;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItemField;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLTarget;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLTarget;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilter;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
-import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionRuntime;
-import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperatorEquals;
-import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperatorNotEquals;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OLegacyResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLAsynchQuery;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionRuntime;
+import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperatorEquals;
+import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperatorNotEquals;
+import com.jetbrains.youtrack.db.internal.core.sql.query.LegacyResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -64,7 +64,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Executes a TRAVERSE crossing records. Returns a List<YTIdentifiable> containing all the traversed
+ * Executes a TRAVERSE crossing records. Returns a List<Identifiable> containing all the traversed
  * records that match the WHERE condition.
  *
  * <p>SYNTAX: <code>TRAVERSE <field>* FROM <target> WHERE <condition></code>
@@ -81,29 +81,29 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @SuppressWarnings("unchecked")
 public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest, Iterable<YTIdentifiable>,
-    OIterableRecordSource {
+    implements CommandDistributedReplicateRequest, Iterable<Identifiable>,
+    IterableRecordSource {
 
   protected static final String KEYWORD_FROM_2FIND = " " + KEYWORD_FROM + " ";
   protected static final String KEYWORD_LET_2FIND = " " + KEYWORD_LET + " ";
 
-  protected OSQLAsynchQuery<EntityImpl> request;
-  protected OSQLTarget parsedTarget;
+  protected SQLAsynchQuery<EntityImpl> request;
+  protected SQLTarget parsedTarget;
   protected SQLFilter compiledFilter;
   protected Map<String, Object> let = null;
-  protected Iterator<? extends YTIdentifiable> target;
-  protected Iterable<YTIdentifiable> tempResult;
+  protected Iterator<? extends Identifiable> target;
+  protected Iterable<Identifiable> tempResult;
   protected int resultCount;
   protected AtomicInteger serialTempRID = new AtomicInteger(0);
   protected int skip = 0;
   protected boolean lazyIteration = true;
 
-  private static final class IndexValuesIterator implements Iterator<YTIdentifiable> {
+  private static final class IndexValuesIterator implements Iterator<Identifiable> {
 
-    private final Iterator<YTRID> indexValuesIterator;
+    private final Iterator<RID> indexValuesIterator;
 
     private IndexValuesIterator(String indexName, boolean ascOrder) {
-      final YTDatabaseSessionInternal database = getDatabase();
+      final DatabaseSessionInternal database = getDatabase();
       if (ascOrder) {
         indexValuesIterator =
             database
@@ -133,7 +133,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     }
 
     @Override
-    public YTIdentifiable next() {
+    public Identifiable next() {
       return indexValuesIterator.next();
     }
 
@@ -151,14 +151,14 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
 
     init(textRequest);
 
-    if (iRequest instanceof OSQLSynchQuery) {
-      request = (OSQLSynchQuery<EntityImpl>) iRequest;
+    if (iRequest instanceof SQLSynchQuery) {
+      request = (SQLSynchQuery<EntityImpl>) iRequest;
     } else {
-      if (iRequest instanceof OSQLAsynchQuery) {
-        request = (OSQLAsynchQuery<EntityImpl>) iRequest;
+      if (iRequest instanceof SQLAsynchQuery) {
+        request = (SQLAsynchQuery<EntityImpl>) iRequest;
       } else {
         // BUILD A QUERY OBJECT FROM THE COMMAND REQUEST
-        request = new OSQLSynchQuery<EntityImpl>(textRequest.getText());
+        request = new SQLSynchQuery<EntityImpl>(textRequest.getText());
         if (textRequest.getResultListener() != null) {
           request.setResultListener(textRequest.getResultListener());
         }
@@ -181,7 +181,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
   }
 
   @Override
-  public OCommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
+  public CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
   getDistributedExecutionMode() {
     return DISTRIBUTED_EXECUTION_MODE.REPLICATE;
   }
@@ -224,15 +224,15 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
               if (!lazyIteration && parsedTarget.getTargetQuery() != null) {
                 // EXECUTE THE QUERY TO ALLOW DISTRIB EXECUTION
                 target =
-                    ((Iterable<? extends YTIdentifiable>)
+                    ((Iterable<? extends Identifiable>)
                         db
                             .command(new CommandSQL(parsedTarget.getTargetQuery()))
                             .execute(db, iArgs))
                         .iterator();
               } else {
-                if (parsedTarget.getTargetRecords() instanceof OIterableRecordSource) {
+                if (parsedTarget.getTargetRecords() instanceof IterableRecordSource) {
                   target =
-                      ((OIterableRecordSource) parsedTarget.getTargetRecords()).iterator(
+                      ((IterableRecordSource) parsedTarget.getTargetRecords()).iterator(
                           getDatabase(), iArgs);
                 } else {
                   target = parsedTarget.getTargetRecords().iterator();
@@ -245,13 +245,13 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
                   target = Collections.EMPTY_LIST.iterator();
                   return true;
                 } else {
-                  if (var instanceof YTIdentifiable) {
-                    final ArrayList<YTIdentifiable> list = new ArrayList<YTIdentifiable>();
-                    list.add((YTIdentifiable) var);
+                  if (var instanceof Identifiable) {
+                    final ArrayList<Identifiable> list = new ArrayList<Identifiable>();
+                    list.add((Identifiable) var);
                     target = list.iterator();
                   } else {
                     if (var instanceof Iterable<?>) {
-                      target = ((Iterable<? extends YTIdentifiable>) var).iterator();
+                      target = ((Iterable<? extends Identifiable>) var).iterator();
                     }
                   }
                 }
@@ -268,26 +268,26 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
   }
 
   protected Object getResultInstance() {
-    if (request instanceof OSQLSynchQuery) {
-      return ((OSQLSynchQuery<EntityImpl>) request).getResult();
+    if (request instanceof SQLSynchQuery) {
+      return ((SQLSynchQuery<EntityImpl>) request).getResult();
     }
 
     return request.getResultListener().getResult();
   }
 
-  protected Object getResult(YTDatabaseSessionInternal session) {
+  protected Object getResult(DatabaseSessionInternal session) {
     try {
       if (tempResult != null) {
         int fetched = 0;
 
         for (Object d : tempResult) {
           if (d != null) {
-            if (!(d instanceof YTIdentifiable))
+            if (!(d instanceof Identifiable))
             // NON-DOCUMENT AS RESULT, COMES FROM EXPAND? CREATE A DOCUMENT AT THE FLY
             {
               d = new EntityImpl().field("value", d);
             } else {
-              d = ((YTIdentifiable) d).getRecord();
+              d = ((Identifiable) d).getRecord();
             }
 
             if (limit > -1 && fetched >= limit) {
@@ -309,9 +309,9 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     }
   }
 
-  protected boolean pushResult(YTDatabaseSessionInternal session, Object rec) {
+  protected boolean pushResult(DatabaseSessionInternal session, Object rec) {
     if (rec instanceof RecordAbstract record) {
-      final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+      final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
       if (db != null) {
         var cached = db.getLocalCache().findRecord(record.getIdentity());
         if (cached != record) {
@@ -328,11 +328,11 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     return request.getResultListener().result(session, rec);
   }
 
-  protected boolean handleResult(final YTIdentifiable iRecord, final CommandContext iContext) {
+  protected boolean handleResult(final Identifiable iRecord, final CommandContext iContext) {
     if (iRecord != null) {
       resultCount++;
 
-      YTIdentifiable identifiable =
+      Identifiable identifiable =
           iRecord instanceof Record ? ((Record) iRecord) : iRecord.getIdentity();
 
       // CALL THE LISTENER NOW
@@ -349,7 +349,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     return true;
   }
 
-  protected void parseLet(YTDatabaseSessionInternal session) {
+  protected void parseLet(DatabaseSessionInternal session) {
     let = new LinkedHashMap<String, Object>();
 
     boolean stop = false;
@@ -366,13 +366,13 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
       final Object letValue;
 
       // TRY TO PARSE AS FUNCTION
-      final Object func = OSQLHelper.getFunction(session, parsedTarget, letValueAsString);
+      final Object func = SQLHelper.getFunction(session, parsedTarget, letValueAsString);
       if (func != null) {
         letValue = func;
       } else {
         if (letValueAsString.startsWith("(")) {
           letValue =
-              new OSQLSynchQuery<Object>(
+              new SQLSynchQuery<Object>(
                   letValueAsString.substring(1, letValueAsString.length() - 1));
         } else {
           letValue = letValueAsString;
@@ -389,9 +389,9 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
    *
    * @param w
    * @return the limit found as integer, or -1 if no limit is found. -1 means no limits.
-   * @throws YTCommandSQLParsingException if no valid limit has been found
+   * @throws CommandSQLParsingException if no valid limit has been found
    */
-  protected int parseLimit(final String w) throws YTCommandSQLParsingException {
+  protected int parseLimit(final String w) throws CommandSQLParsingException {
     if (!w.equals(KEYWORD_LIMIT)) {
       return -1;
     }
@@ -421,9 +421,9 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
    *
    * @param w
    * @return the skip found as integer, or -1 if no skip is found. -1 means no skip.
-   * @throws YTCommandSQLParsingException if no valid skip has been found
+   * @throws CommandSQLParsingException if no valid skip has been found
    */
-  protected int parseSkip(final String w) throws YTCommandSQLParsingException {
+  protected int parseSkip(final String w) throws CommandSQLParsingException {
     if (!w.equals(KEYWORD_SKIP) && !w.equals(KEYWORD_OFFSET)) {
       return -1;
     }
@@ -461,7 +461,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClass(targetClass)
-              .isSuperClassOf(ODocumentInternal.getImmutableSchemaClass(recordSchemaAware))) {
+              .isSuperClassOf(DocumentInternal.getImmutableSchemaClass(recordSchemaAware))) {
             return false;
           }
         }
@@ -484,7 +484,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     return evaluate != null && evaluate;
   }
 
-  protected void assignLetClauses(YTDatabaseSession session, final Record iRecord) {
+  protected void assignLetClauses(DatabaseSession session, final Record iRecord) {
     if (let != null && !let.isEmpty()) {
       // BIND CONTEXT VARIABLES
       for (Map.Entry<String, Object> entry : let.entrySet()) {
@@ -496,20 +496,20 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
         final Object letValue = entry.getValue();
 
         Object varValue;
-        if (letValue instanceof OSQLSynchQuery<?>) {
-          final OSQLSynchQuery<Object> subQuery = (OSQLSynchQuery<Object>) letValue;
+        if (letValue instanceof SQLSynchQuery<?>) {
+          final SQLSynchQuery<Object> subQuery = (SQLSynchQuery<Object>) letValue;
           subQuery.reset();
           subQuery.resetPagination();
           subQuery.getContext().setParent(context);
           subQuery.getContext().setVariable("parentQuery", this);
           subQuery.getContext().setVariable("current", iRecord);
-          varValue = ODatabaseRecordThreadLocal.instance().get().query(subQuery);
-          if (varValue instanceof OLegacyResultSet) {
-            varValue = ((OLegacyResultSet) varValue).copy();
+          varValue = DatabaseRecordThreadLocal.instance().get().query(subQuery);
+          if (varValue instanceof LegacyResultSet) {
+            varValue = ((LegacyResultSet) varValue).copy();
           }
 
         } else {
-          if (letValue instanceof OSQLFunctionRuntime f) {
+          if (letValue instanceof SQLFunctionRuntime f) {
             if (f.getFunction().aggregateResults()) {
               f.execute(iRecord, iRecord, null, context);
               varValue = f.getFunction().getResult();
@@ -544,21 +544,21 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
             iAscendentOrder);
   }
 
-  protected Iterator<? extends YTIdentifiable> searchInClasses(
-      final YTClass iCls, final boolean iPolymorphic, final boolean iAscendentOrder) {
+  protected Iterator<? extends Identifiable> searchInClasses(
+      final SchemaClass iCls, final boolean iPolymorphic, final boolean iAscendentOrder) {
 
-    final YTDatabaseSessionInternal database = getDatabase();
+    final DatabaseSessionInternal database = getDatabase();
     database.checkSecurity(
-        ORule.ResourceGeneric.CLASS,
-        ORole.PERMISSION_READ,
+        Rule.ResourceGeneric.CLASS,
+        Role.PERMISSION_READ,
         iCls.getName().toLowerCase(Locale.ENGLISH));
 
-    final YTRID[] range = getRange(database);
+    final RID[] range = getRange(database);
     if (iAscendentOrder) {
-      return new ORecordIteratorClass<Record>(database, iCls.getName(), iPolymorphic, false)
+      return new RecordIteratorClass<Record>(database, iCls.getName(), iPolymorphic, false)
           .setRange(range[0], range[1]);
     } else {
-      return new ORecordIteratorClassDescendentOrder<Record>(
+      return new RecordIteratorClassDescendentOrder<Record>(
           database, database, iCls.getName(), iPolymorphic)
           .setRange(range[0], range[1]);
     }
@@ -569,24 +569,24 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
   }
 
   protected void searchInClusters() {
-    final YTDatabaseSessionInternal database = getDatabase();
+    final DatabaseSessionInternal database = getDatabase();
 
     final IntOpenHashSet clusterIds = new IntOpenHashSet();
     for (String clusterName : parsedTarget.getTargetClusters().keySet()) {
       if (clusterName == null || clusterName.isEmpty()) {
-        throw new YTCommandExecutionException("No cluster or schema class selected in query");
+        throw new CommandExecutionException("No cluster or schema class selected in query");
       }
 
       database.checkSecurity(
-          ORule.ResourceGeneric.CLUSTER,
-          ORole.PERMISSION_READ,
+          Rule.ResourceGeneric.CLUSTER,
+          Role.PERMISSION_READ,
           clusterName.toLowerCase(Locale.ENGLISH));
 
       if (Character.isDigit(clusterName.charAt(0))) {
         // GET THE CLUSTER NUMBER
-        for (int clusterId : OStringSerializerHelper.splitIntArray(clusterName)) {
+        for (int clusterId : StringSerializerHelper.splitIntArray(clusterName)) {
           if (clusterId == -1) {
-            throw new YTCommandExecutionException("Cluster '" + clusterName + "' not found");
+            throw new CommandExecutionException("Cluster '" + clusterName + "' not found");
           }
 
           clusterIds.add(clusterId);
@@ -595,26 +595,26 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
         // GET THE CLUSTER NUMBER BY THE CLASS NAME
         final int clusterId = database.getClusterIdByName(clusterName.toLowerCase(Locale.ENGLISH));
         if (clusterId == -1) {
-          throw new YTCommandExecutionException("Cluster '" + clusterName + "' not found");
+          throw new CommandExecutionException("Cluster '" + clusterName + "' not found");
         }
 
         clusterIds.add(clusterId);
       }
     }
 
-    final YTRID[] range = getRange(database);
+    final RID[] range = getRange(database);
     target =
-        new ORecordIteratorClusters<>(database, clusterIds.toIntArray())
+        new RecordIteratorClusters<>(database, clusterIds.toIntArray())
             .setRange(range[0], range[1]);
   }
 
   protected void applyLimitAndSkip() {
     if (tempResult != null && (limit > 0 || skip > 0)) {
-      final List<YTIdentifiable> newList = new ArrayList<YTIdentifiable>();
+      final List<Identifiable> newList = new ArrayList<Identifiable>();
 
       // APPLY LIMIT
       if (tempResult instanceof List<?>) {
-        final List<YTIdentifiable> t = (List<YTIdentifiable>) tempResult;
+        final List<Identifiable> t = (List<Identifiable>) tempResult;
         final int start = Math.min(skip, t.size());
 
         int tot = t.size();
@@ -634,7 +634,7 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
   /**
    * Optimizes the condition tree.
    */
-  protected void optimize(YTDatabaseSession session) {
+  protected void optimize(DatabaseSession session) {
     if (compiledFilter != null) {
       optimizeBranch(session, null, compiledFilter.getRootCondition());
     }
@@ -646,15 +646,15 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
    * @param function
    * @return optimized function, same function if no change
    */
-  protected Object optimizeFunction(OSQLFunctionRuntime function) {
+  protected Object optimizeFunction(SQLFunctionRuntime function) {
     // boolean precalculate = true;
     // for (int i = 0; i < function.configuredParameters.length; ++i) {
-    // if (function.configuredParameters[i] instanceof OSQLFilterItemField) {
+    // if (function.configuredParameters[i] instanceof SQLFilterItemField) {
     // precalculate = false;
-    // } else if (function.configuredParameters[i] instanceof OSQLFunctionRuntime) {
-    // final Object res = optimizeFunction((OSQLFunctionRuntime) function.configuredParameters[i]);
+    // } else if (function.configuredParameters[i] instanceof SQLFunctionRuntime) {
+    // final Object res = optimizeFunction((SQLFunctionRuntime) function.configuredParameters[i]);
     // function.configuredParameters[i] = res;
-    // if (res instanceof OSQLFunctionRuntime || res instanceof OSQLFilterItemField) {
+    // if (res instanceof SQLFunctionRuntime || res instanceof SQLFilterItemField) {
     // // function might have been optimized but result is still not static
     // precalculate = false;
     // }
@@ -670,47 +670,47 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
   }
 
   protected void optimizeBranch(
-      YTDatabaseSession session, final OSQLFilterCondition iParentCondition,
-      OSQLFilterCondition iCondition) {
+      DatabaseSession session, final SQLFilterCondition iParentCondition,
+      SQLFilterCondition iCondition) {
     if (iCondition == null) {
       return;
     }
 
     Object left = iCondition.getLeft();
 
-    if (left instanceof OSQLFilterCondition) {
+    if (left instanceof SQLFilterCondition) {
       // ANALYSE LEFT RECURSIVELY
-      optimizeBranch(session, iCondition, (OSQLFilterCondition) left);
+      optimizeBranch(session, iCondition, (SQLFilterCondition) left);
     } else {
-      if (left instanceof OSQLFunctionRuntime) {
-        left = optimizeFunction((OSQLFunctionRuntime) left);
+      if (left instanceof SQLFunctionRuntime) {
+        left = optimizeFunction((SQLFunctionRuntime) left);
         iCondition.setLeft(left);
       }
     }
 
     Object right = iCondition.getRight();
 
-    if (right instanceof OSQLFilterCondition) {
+    if (right instanceof SQLFilterCondition) {
       // ANALYSE RIGHT RECURSIVELY
-      optimizeBranch(session, iCondition, (OSQLFilterCondition) right);
+      optimizeBranch(session, iCondition, (SQLFilterCondition) right);
     } else {
-      if (right instanceof OSQLFunctionRuntime) {
-        right = optimizeFunction((OSQLFunctionRuntime) right);
+      if (right instanceof SQLFunctionRuntime) {
+        right = optimizeFunction((SQLFunctionRuntime) right);
         iCondition.setRight(right);
       }
     }
 
-    final OQueryOperator oper = iCondition.getOperator();
+    final QueryOperator oper = iCondition.getOperator();
 
     Object result = null;
 
-    if (left instanceof OSQLFilterItemField && right instanceof OSQLFilterItemField) {
-      if (((OSQLFilterItemField) left).getRoot(session)
-          .equals(((OSQLFilterItemField) right).getRoot(session))) {
-        if (oper instanceof OQueryOperatorEquals) {
+    if (left instanceof SQLFilterItemField && right instanceof SQLFilterItemField) {
+      if (((SQLFilterItemField) left).getRoot(session)
+          .equals(((SQLFilterItemField) right).getRoot(session))) {
+        if (oper instanceof QueryOperatorEquals) {
           result = Boolean.TRUE;
         } else {
-          if (oper instanceof OQueryOperatorNotEquals) {
+          if (oper instanceof QueryOperatorNotEquals) {
             result = Boolean.FALSE;
           }
         }
@@ -737,26 +737,26 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
     }
   }
 
-  protected YTRID[] getRange(YTDatabaseSession session) {
-    final YTRID beginRange;
-    final YTRID endRange;
+  protected RID[] getRange(DatabaseSession session) {
+    final RID beginRange;
+    final RID endRange;
 
-    final OSQLFilterCondition rootCondition =
+    final SQLFilterCondition rootCondition =
         compiledFilter == null ? null : compiledFilter.getRootCondition();
     if (compiledFilter == null || rootCondition == null) {
-      if (request instanceof OSQLSynchQuery) {
-        beginRange = ((OSQLSynchQuery<EntityImpl>) request).getNextPageRID();
+      if (request instanceof SQLSynchQuery) {
+        beginRange = ((SQLSynchQuery<EntityImpl>) request).getNextPageRID();
       } else {
         beginRange = null;
       }
       endRange = null;
     } else {
-      final YTRID conditionBeginRange = rootCondition.getBeginRidRange(session);
-      final YTRID conditionEndRange = rootCondition.getEndRidRange(session);
-      final YTRID nextPageRid;
+      final RID conditionBeginRange = rootCondition.getBeginRidRange(session);
+      final RID conditionEndRange = rootCondition.getEndRidRange(session);
+      final RID nextPageRid;
 
-      if (request instanceof OSQLSynchQuery) {
-        nextPageRid = ((OSQLSynchQuery<EntityImpl>) request).getNextPageRID();
+      if (request instanceof SQLSynchQuery) {
+        nextPageRid = ((SQLSynchQuery<EntityImpl>) request).getNextPageRID();
       } else {
         nextPageRid = null;
       }
@@ -775,22 +775,22 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
       endRange = conditionEndRange;
     }
 
-    return new YTRID[]{beginRange, endRange};
+    return new RID[]{beginRange, endRange};
   }
 
-  public Iterator<? extends YTIdentifiable> getTarget() {
+  public Iterator<? extends Identifiable> getTarget() {
     return target;
   }
 
-  public void setTarget(final Iterator<? extends YTIdentifiable> target) {
+  public void setTarget(final Iterator<? extends Identifiable> target) {
     this.target = target;
   }
 
-  public void setRequest(final OSQLAsynchQuery<EntityImpl> request) {
+  public void setRequest(final SQLAsynchQuery<EntityImpl> request) {
     this.request = request;
   }
 
-  public void setParsedTarget(final OSQLTarget parsedTarget) {
+  public void setParsedTarget(final SQLTarget parsedTarget) {
     this.parsedTarget = parsedTarget;
   }
 
@@ -833,10 +833,10 @@ public abstract class CommandExecutorSQLResultsetAbstract extends CommandExecuto
 
     Object result = null;
 
-    if (firstResult instanceof OLegacyResultSet) {
+    if (firstResult instanceof LegacyResultSet) {
       // REUSE THE SAME RESULTSET TO AVOID DUPLICATES
-      ((OLegacyResultSet) firstResult).clear();
-      ((OLegacyResultSet) firstResult).addAll(mergedResult);
+      ((LegacyResultSet) firstResult).clear();
+      ((LegacyResultSet) firstResult).addAll(mergedResult);
       result = firstResult;
     } else {
       result = new ArrayList<Object>(mergedResult);

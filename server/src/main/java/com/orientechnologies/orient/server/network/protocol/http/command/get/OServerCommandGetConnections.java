@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OJSONWriter;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.orientechnologies.orient.server.OServerInfo;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -47,7 +47,7 @@ public class OServerCommandGetConnections extends OServerCommandAuthenticatedSer
     iRequest.getData().commandInfo = "Server status";
 
     final StringWriter jsonBuffer = new StringWriter();
-    final OJSONWriter json = new OJSONWriter(jsonBuffer);
+    final JSONWriter json = new JSONWriter(jsonBuffer);
     json.beginObject();
 
     final String databaseName = args.length > 1 && args[1].length() > 0 ? args[1] : null;

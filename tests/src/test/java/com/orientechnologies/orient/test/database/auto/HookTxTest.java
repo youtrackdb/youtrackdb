@@ -18,7 +18,7 @@ package com.orientechnologies.orient.test.database.auto;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
-import com.jetbrains.youtrack.db.internal.core.hook.YTRecordHookAbstract;
+import com.jetbrains.youtrack.db.internal.core.hook.RecordHookAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -43,7 +43,7 @@ public class HookTxTest extends DocumentDBBaseTest {
   private Entity profile;
   private int expectedHookState;
 
-  private final class RecordHook extends YTRecordHookAbstract {
+  private final class RecordHook extends RecordHookAbstract {
 
     @Override
     @Test(enabled = false)

@@ -17,7 +17,7 @@ import static com.orientechnologies.orient.jdbc.OrientDbCreationHelper.createSch
 import static com.orientechnologies.orient.jdbc.OrientDbCreationHelper.loadDB;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import java.io.File;
 import java.util.Properties;
@@ -35,7 +35,7 @@ public abstract class YouTrackDbJdbcDbPerMethodTemplateTest {
   public TestName name = new TestName();
 
   protected OrientJdbcConnection conn;
-  protected YTDatabaseSessionInternal db;
+  protected DatabaseSessionInternal db;
   protected YouTrackDB youTrackDB;
   protected DataSource ds;
 
@@ -57,7 +57,7 @@ public abstract class YouTrackDbJdbcDbPerMethodTemplateTest {
     conn = (OrientJdbcConnection) ds.getConnection();
     youTrackDB = conn.getOrientDB();
 
-    db = (YTDatabaseSessionInternal) ((OrientJdbcConnection) ds.getConnection()).getDatabase();
+    db = (DatabaseSessionInternal) ((OrientJdbcConnection) ds.getConnection()).getDatabase();
 
     createSchemaDB(db);
 

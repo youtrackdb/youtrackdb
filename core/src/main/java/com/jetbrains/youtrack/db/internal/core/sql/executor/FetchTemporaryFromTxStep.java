@@ -1,16 +1,16 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -31,7 +31,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -41,18 +41,18 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
     return ExecutionStream.iterator(data).map(this::setContext);
   }
 
-  private YTResult setContext(YTResult result, CommandContext context) {
+  private Result setContext(Result result, CommandContext context) {
     context.setVariable("$current", result);
     return result;
   }
 
   private Iterator<Record> init(CommandContext ctx) {
-    Iterable<? extends ORecordOperation> iterable =
+    Iterable<? extends RecordOperation> iterable =
         ctx.getDatabase().getTransaction().getRecordOperations();
 
     List<Record> records = new ArrayList<>();
     if (iterable != null) {
-      for (ORecordOperation op : iterable) {
+      for (RecordOperation op : iterable) {
         Record record = op.record;
         if (matchesClass(record, className) && !hasCluster(record)) {
           records.add(record);
@@ -78,7 +78,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
   }
 
   private static boolean hasCluster(Record record) {
-    YTRID rid = record.getIdentity();
+    RID rid = record.getIdentity();
     if (rid == null) {
       return false;
     }
@@ -91,7 +91,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
       return false;
     }
 
-    YTClass schema = ODocumentInternal.getImmutableSchemaClass(((EntityImpl) doc));
+    SchemaClass schema = DocumentInternal.getImmutableSchemaClass(((EntityImpl) doc));
     if (schema == null) {
       return className == null;
     } else if (schema.getName().equals(className)) {
@@ -118,19 +118,19 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
   }
 
   @Override
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("className", className);
     return result;
   }
 
   @Override
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     try {
       ExecutionStepInternal.basicDeserialize(fromResult, this);
       className = fromResult.getProperty("className");
     } catch (Exception e) {
-      throw YTException.wrapException(new YTCommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(""), e);
     }
   }
 

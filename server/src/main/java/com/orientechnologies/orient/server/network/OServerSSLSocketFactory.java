@@ -15,9 +15,9 @@
  */
 package com.orientechnologies.orient.server.network;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.parser.OSystemVariableResolver;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
+import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import java.io.File;
 import java.io.IOException;
@@ -79,9 +79,9 @@ public class OServerSSLSocketFactory extends OServerSocketFactory {
     }
 
     if (keyStorePath == null) {
-      throw new YTConfigurationException("Missing parameter " + PARAM_NETWORK_SSL_KEYSTORE);
+      throw new ConfigurationException("Missing parameter " + PARAM_NETWORK_SSL_KEYSTORE);
     } else if (keyStorePassword == null) {
-      throw new YTConfigurationException(
+      throw new ConfigurationException(
           "Missing parameter " + PARAM_NETWORK_SSL_KEYSTORE_PASSWORD);
     }
 
@@ -89,7 +89,7 @@ public class OServerSSLSocketFactory extends OServerSocketFactory {
     if (!keyStoreFile.isAbsolute()) {
       keyStoreFile =
           new File(
-              OSystemVariableResolver.resolveSystemVariables("${YOU_TRACK_DB_HOME}"), keyStorePath);
+              SystemVariableResolver.resolveSystemVariables("${YOU_TRACK_DB_HOME}"), keyStorePath);
     }
 
     if (trustStorePath != null) {
@@ -97,7 +97,7 @@ public class OServerSSLSocketFactory extends OServerSocketFactory {
       if (!trustStoreFile.isAbsolute()) {
         trustStoreFile =
             new File(
-                OSystemVariableResolver.resolveSystemVariables("${YOU_TRACK_DB_HOME}"),
+                SystemVariableResolver.resolveSystemVariables("${YOU_TRACK_DB_HOME}"),
                 trustStorePath);
       }
     }
@@ -148,8 +148,8 @@ public class OServerSSLSocketFactory extends OServerSocketFactory {
       return context;
 
     } catch (Exception e) {
-      throw YTException.wrapException(
-          new YTConfigurationException("Failed to create SSL context"), e);
+      throw BaseException.wrapException(
+          new ConfigurationException("Failed to create SSL context"), e);
     }
   }
 

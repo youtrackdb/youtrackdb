@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInteger;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLTraverseProjectionItem;
@@ -38,14 +38,14 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
 
     ExecutionStream resultSet = prev.start(ctx);
     return new ExecutionStream() {
-      private final List<YTResult> entryPoints = new ArrayList<>();
-      private final List<YTResult> results = new ArrayList<>();
-      private final Set<YTRID> traversed = new ORidSet();
+      private final List<Result> entryPoints = new ArrayList<>();
+      private final List<Result> results = new ArrayList<>();
+      private final Set<RID> traversed = new RidSet();
 
       @Override
       public boolean hasNext(CommandContext ctx) {
@@ -56,11 +56,11 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
       }
 
       @Override
-      public YTResult next(CommandContext ctx) {
+      public Result next(CommandContext ctx) {
         if (!hasNext(ctx)) {
           throw new IllegalStateException();
         }
-        YTResult result = results.remove(0);
+        Result result = results.remove(0);
         if (result.isEntity()) {
           this.traversed.add(result.toEntity().getIdentity());
         }
@@ -75,9 +75,9 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
 
   private void fetchNextBlock(
       CommandContext ctx,
-      List<YTResult> entryPoints,
-      List<YTResult> results,
-      Set<YTRID> traversed,
+      List<Result> entryPoints,
+      List<Result> results,
+      Set<RID> traversed,
       ExecutionStream resultSet) {
     if (!results.isEmpty()) {
       return;
@@ -99,12 +99,12 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
   protected abstract void fetchNextEntryPoints(
       ExecutionStream toFetch,
       CommandContext ctx,
-      List<YTResult> entryPoints,
-      Set<YTRID> traversed);
+      List<Result> entryPoints,
+      Set<RID> traversed);
 
   protected abstract void fetchNextResults(
-      CommandContext ctx, List<YTResult> results, List<YTResult> entryPoints,
-      Set<YTRID> traversed);
+      CommandContext ctx, List<Result> results, List<Result> entryPoints,
+      Set<RID> traversed);
 
   @Override
   public String toString() {

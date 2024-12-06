@@ -1,24 +1,24 @@
 package com.orientechnologies.orient.client.remote;
 
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 
 /**
  *
  */
 public class ORemoteQueryResult {
 
-  private final YTResultSet result;
+  private final ResultSet result;
   private final boolean transactionUpdated;
   private final boolean reloadMetadata;
 
-  public ORemoteQueryResult(YTResultSet result, boolean transactionUpdated,
+  public ORemoteQueryResult(ResultSet result, boolean transactionUpdated,
       boolean reloadMetadata) {
     this.result = result;
     this.transactionUpdated = transactionUpdated;
     this.reloadMetadata = reloadMetadata;
   }
 
-  public YTResultSet getResult() {
+  public ResultSet getResult() {
     return result;
   }
 

@@ -20,10 +20,10 @@
 package com.orientechnologies.orient.server.network.protocol;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializerFactory;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerBinary;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetwork;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerBinary;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
 
 /**
  * Saves all the important information about the network connection. Useful for monitoring and
@@ -49,26 +49,26 @@ public class ONetworkProtocolData {
   public CommandRequestText command = null;
   public boolean supportsLegacyPushMessages = true;
   public boolean collectStats = true;
-  private ORecordSerializer serializer;
+  private RecordSerializer serializer;
 
   public String getSerializationImpl() {
     return serializationImpl;
   }
 
   public void setSerializationImpl(String serializationImpl) {
-    if (serializationImpl.equals(ORecordSerializerBinary.NAME)) {
-      serializationImpl = ORecordSerializerNetwork.NAME;
+    if (serializationImpl.equals(RecordSerializerBinary.NAME)) {
+      serializationImpl = RecordSerializerNetwork.NAME;
     }
     this.serializationImpl = serializationImpl;
-    serializer = ORecordSerializerFactory.instance().getFormat(serializationImpl);
+    serializer = RecordSerializerFactory.instance().getFormat(serializationImpl);
   }
 
-  public void setSerializer(ORecordSerializer serializer) {
+  public void setSerializer(RecordSerializer serializer) {
     this.serializer = serializer;
     this.serializationImpl = serializer.getName();
   }
 
-  public ORecordSerializer getSerializer() {
+  public RecordSerializer getSerializer() {
     return serializer;
   }
 }

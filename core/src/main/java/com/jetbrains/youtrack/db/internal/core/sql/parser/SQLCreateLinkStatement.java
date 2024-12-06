@@ -2,22 +2,22 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentHelper;
-import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,7 +52,7 @@ public class SQLCreateLinkStatement extends SQLSimpleExecStatement {
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
     Object total = execute(ctx);
-    YTResultInternal result = new YTResultInternal(ctx.getDatabase());
+    ResultInternal result = new ResultInternal(ctx.getDatabase());
     result.setProperty("operation", "create link");
     result.setProperty("name", name.getValue());
     result.setProperty("count", total);
@@ -66,42 +66,42 @@ public class SQLCreateLinkStatement extends SQLSimpleExecStatement {
    */
   private Object execute(CommandContext ctx) {
     if (destField == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final YTDatabaseSessionInternal database = ctx.getDatabase();
+    final DatabaseSessionInternal database = ctx.getDatabase();
     if (database.getDatabaseOwner() == null) {
-      throw new YTCommandSQLParsingException(
-          "This command supports only the database type YTDatabaseDocumentTx and type '"
+      throw new CommandSQLParsingException(
+          "This command supports only the database type DatabaseDocumentTx and type '"
               + database.getClass()
               + "' was found");
     }
 
-    final YTDatabaseSessionInternal db = database.getDatabaseOwner();
+    final DatabaseSessionInternal db = database.getDatabaseOwner();
 
-    YTClass sourceClass =
+    SchemaClass sourceClass =
         database
             .getMetadata()
             .getImmutableSchemaSnapshot()
             .getClass(this.sourceClass.getStringValue());
     if (sourceClass == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Source class '" + this.sourceClass.getStringValue() + "' not found");
     }
 
-    YTClass destClass =
+    SchemaClass destClass =
         database
             .getMetadata()
             .getImmutableSchemaSnapshot()
             .getClass(this.destClass.getStringValue());
     if (destClass == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Destination class '" + this.destClass.getStringValue() + "' not found");
     }
 
     String cmd = "select from ";
-    if (destField != null && !ODocumentHelper.ATTRIBUTE_RID.equals(destField.value)) {
+    if (destField != null && !DocumentHelper.ATTRIBUTE_RID.equals(destField.value)) {
       cmd = "select from " + this.destClass + " where " + destField + " = ";
     }
 
@@ -114,11 +114,13 @@ public class SQLCreateLinkStatement extends SQLSimpleExecStatement {
     try {
       final boolean[] multipleRelationship = new boolean[1];
 
-      YTType linkType = YTType.valueOf(type.getStringValue().toUpperCase(Locale.ENGLISH));
+      PropertyType linkType = PropertyType.valueOf(
+          type.getStringValue().toUpperCase(Locale.ENGLISH));
       if (linkType != null)
       // DETERMINE BASED ON FORCED TYPE
       {
-        multipleRelationship[0] = linkType == YTType.LINKSET || linkType == YTType.LINKLIST;
+        multipleRelationship[0] =
+            linkType == PropertyType.LINKSET || linkType == PropertyType.LINKLIST;
       } else {
         multipleRelationship[0] = false;
       }
@@ -138,7 +140,7 @@ public class SQLCreateLinkStatement extends SQLSimpleExecStatement {
         Object value = doc.getProperty(sourceField.getStringValue());
 
         if (value != null) {
-          if (value instanceof EntityImpl || value instanceof YTRID) {
+          if (value instanceof EntityImpl || value instanceof RID) {
             // ALREADY CONVERTED
           } else if (value instanceof Collection<?>) {
             // TODO
@@ -147,7 +149,7 @@ public class SQLCreateLinkStatement extends SQLSimpleExecStatement {
             target = null;
 
             if (destField != null
-                && !ODocumentHelper.ATTRIBUTE_RID.equals(destField.value)
+                && !DocumentHelper.ATTRIBUTE_RID.equals(destField.value)
                 && value instanceof String) {
               if (((String) value).length() == 0) {
                 value = null;
@@ -156,14 +158,14 @@ public class SQLCreateLinkStatement extends SQLSimpleExecStatement {
               }
             }
 
-            try (YTResultSet rs = database.query(txCmd + value)) {
+            try (ResultSet rs = database.query(txCmd + value)) {
               result = toList(rs);
             }
 
             if (result == null || result.size() == 0) {
               value = null;
             } else if (result.size() > 1) {
-              throw new YTCommandExecutionException(
+              throw new CommandExecutionException(
                   "Cannot create link because multiple records was found in class '"
                       + txDestClass.getName()
                       + "' with value "
@@ -199,10 +201,10 @@ public class SQLCreateLinkStatement extends SQLSimpleExecStatement {
                 coll.add(doc);
               } else {
                 if (txLinkType != null) {
-                  if (txLinkType == YTType.LINKSET) {
+                  if (txLinkType == PropertyType.LINKSET) {
                     value = new LinkSet(target);
-                    ((Set<YTIdentifiable>) value).add(doc);
-                  } else if (txLinkType == YTType.LINKLIST) {
+                    ((Set<Identifiable>) value).add(doc);
+                  } else if (txLinkType == PropertyType.LINKLIST) {
                     value = new LinkList(target);
                     ((LinkList) value).add(doc);
                   } else
@@ -233,11 +235,11 @@ public class SQLCreateLinkStatement extends SQLSimpleExecStatement {
       if (total[0] > 0) {
         if (inverse) {
           // REMOVE THE OLD PROPERTY IF ANY
-          YTProperty prop = destClass.getProperty(linkName);
+          Property prop = destClass.getProperty(linkName);
           destClass = db.getMetadata().getSchema().getClass(this.destClass.getStringValue());
           if (prop != null) {
             if (linkType != prop.getType()) {
-              throw new YTCommandExecutionException(
+              throw new CommandExecutionException(
                   "Cannot create the link because the property '"
                       + linkName
                       + "' already exists for class "
@@ -248,7 +250,7 @@ public class SQLCreateLinkStatement extends SQLSimpleExecStatement {
                       + linkType);
             }
           } else {
-            throw new YTCommandExecutionException(
+            throw new CommandExecutionException(
                 "Cannot create the link because the property '"
                     + linkName
                     + "' does not exist in class '"
@@ -257,11 +259,11 @@ public class SQLCreateLinkStatement extends SQLSimpleExecStatement {
           }
         } else {
           // REMOVE THE OLD PROPERTY IF ANY
-          YTProperty prop = sourceClass.getProperty(linkName);
+          Property prop = sourceClass.getProperty(linkName);
           sourceClass = db.getMetadata().getSchema().getClass(this.destClass.getStringValue());
           if (prop != null) {
-            if (prop.getType() != YTType.LINK) {
-              throw new YTCommandExecutionException(
+            if (prop.getType() != PropertyType.LINK) {
+              throw new CommandExecutionException(
                   "Cannot create the link because the property '"
                       + linkName
                       + "' already exists for class "
@@ -269,10 +271,10 @@ public class SQLCreateLinkStatement extends SQLSimpleExecStatement {
                       + " and has a different type - actual: "
                       + prop.getType()
                       + " expected: "
-                      + YTType.LINK);
+                      + PropertyType.LINK);
             }
           } else {
-            throw new YTCommandExecutionException(
+            throw new CommandExecutionException(
                 "Cannot create the link because the property '"
                     + linkName
                     + "' does not exist in class '"
@@ -283,13 +285,13 @@ public class SQLCreateLinkStatement extends SQLSimpleExecStatement {
       }
 
     } catch (Exception e) {
-      throw YTException.wrapException(
-          new YTCommandExecutionException("Error on creation of links"), e);
+      throw BaseException.wrapException(
+          new CommandExecutionException("Error on creation of links"), e);
     }
     return total[0];
   }
 
-  private List<EntityImpl> toList(YTResultSet rs) {
+  private List<EntityImpl> toList(ResultSet rs) {
     if (!rs.hasNext()) {
       return null;
     }

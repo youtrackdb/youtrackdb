@@ -3,12 +3,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClassEmbedded;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTPropertyImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassEmbedded;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class SQLCreatePropertyStatement extends ODDLStatement {
+public class SQLCreatePropertyStatement extends DDLStatement {
 
   public SQLIdentifier className;
   public SQLIdentifier propertyName;
@@ -45,7 +45,7 @@ public class SQLCreatePropertyStatement extends ODDLStatement {
 
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
-    YTResultInternal result = new YTResultInternal(ctx.getDatabase());
+    ResultInternal result = new ResultInternal(ctx.getDatabase());
     result.setProperty("operation", "create property");
     result.setProperty("className", className.getStringValue());
     result.setProperty("propertyName", propertyName.getStringValue());
@@ -53,31 +53,32 @@ public class SQLCreatePropertyStatement extends ODDLStatement {
     return ExecutionStream.singleton(result);
   }
 
-  private void executeInternal(CommandContext ctx, YTResultInternal result) {
+  private void executeInternal(CommandContext ctx, ResultInternal result) {
     var db = ctx.getDatabase();
-    YTClassEmbedded clazz =
-        (YTClassEmbedded) db.getMetadata().getSchema().getClass(className.getStringValue());
+    SchemaClassEmbedded clazz =
+        (SchemaClassEmbedded) db.getMetadata().getSchema().getClass(className.getStringValue());
     if (clazz == null) {
-      throw new YTCommandExecutionException("Class not found: " + className.getStringValue());
+      throw new CommandExecutionException("Class not found: " + className.getStringValue());
     }
     if (clazz.getProperty(propertyName.getStringValue()) != null) {
       if (ifNotExists) {
         return;
       }
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Property "
               + className.getStringValue()
               + "."
               + propertyName.getStringValue()
               + " already exists");
     }
-    YTType type = YTType.valueOf(propertyType.getStringValue().toUpperCase(Locale.ENGLISH));
+    PropertyType type = PropertyType.valueOf(
+        propertyType.getStringValue().toUpperCase(Locale.ENGLISH));
     if (type == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Invalid property type: " + propertyType.getStringValue());
     }
-    YTClass linkedClass = null;
-    YTType linkedType = null;
+    SchemaClass linkedClass = null;
+    PropertyType linkedType = null;
     if (this.linkedType != null) {
       String linked = this.linkedType.getStringValue();
       // FIRST SEARCH BETWEEN CLASSES
@@ -85,12 +86,12 @@ public class SQLCreatePropertyStatement extends ODDLStatement {
       if (linkedClass == null)
       // NOT FOUND: SEARCH BETWEEN TYPES
       {
-        linkedType = YTType.valueOf(linked.toUpperCase(Locale.ENGLISH));
+        linkedType = PropertyType.valueOf(linked.toUpperCase(Locale.ENGLISH));
       }
     }
     // CREATE IT LOCALLY
-    YTPropertyImpl internalProp =
-        (YTPropertyImpl)
+    PropertyImpl internalProp =
+        (PropertyImpl)
             clazz.addProperty(ctx.getDatabase(), propertyName.getStringValue(), type, linkedType,
                 linkedClass,
                 unsafe);

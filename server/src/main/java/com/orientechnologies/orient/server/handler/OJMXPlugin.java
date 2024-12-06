@@ -20,19 +20,19 @@
 
 package com.orientechnologies.orient.server.handler;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.OConstants;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
-import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;
+import com.orientechnologies.orient.server.plugin.ServerPluginAbstract;
 import java.lang.management.ManagementFactory;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-public class OJMXPlugin extends OServerPluginAbstract {
+public class OJMXPlugin extends ServerPluginAbstract {
 
   private ObjectName onProfiler;
   private boolean profilerManaged;
@@ -62,7 +62,7 @@ public class OJMXPlugin extends OServerPluginAbstract {
     try {
       if (profilerManaged) {
         // REGISTER THE PROFILER
-        onProfiler = new ObjectName("com.orientechnologies.common.profiler:type=OProfilerMXBean");
+        onProfiler = new ObjectName("com.orientechnologies.common.profiler:type=ProfilerMXBean");
         if (mBeanServer.isRegistered(onProfiler)) {
           mBeanServer.unregisterMBean(onProfiler);
         }
@@ -70,15 +70,15 @@ public class OJMXPlugin extends OServerPluginAbstract {
       }
 
     } catch (Exception e) {
-      throw YTException.wrapException(
-          new YTConfigurationException("Cannot initialize JMX server"), e);
+      throw BaseException.wrapException(
+          new ConfigurationException("Cannot initialize JMX server"), e);
     }
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see com.orientechnologies.orient.server.handler.OServerHandlerAbstract#shutdown()
+   * @see com.orientechnologies.orient.server.handler.ServerHandlerAbstract#shutdown()
    */
   @Override
   public void shutdown() {
@@ -92,7 +92,8 @@ public class OJMXPlugin extends OServerPluginAbstract {
 
     } catch (Exception e) {
       LogManager.instance()
-          .error(this, "YouTrackDB Server v" + OConstants.getVersion() + " unregisterMBean error",
+          .error(this,
+              "YouTrackDB Server v" + YouTrackDBConstants.getVersion() + " unregisterMBean error",
               e);
     }
   }

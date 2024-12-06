@@ -20,12 +20,12 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.multivalue.v2;
 
-import com.jetbrains.youtrack.db.internal.core.exception.YTDurableComponentException;
+import com.jetbrains.youtrack.db.internal.core.exception.DurableComponentException;
 
 /**
  * @since 8/30/13
  */
-public final class CellBTreeMultiValueException extends YTDurableComponentException {
+public final class CellBTreeMultiValueException extends DurableComponentException {
 
   @SuppressWarnings("unused")
   public CellBTreeMultiValueException(final CellBTreeMultiValueException exception) {

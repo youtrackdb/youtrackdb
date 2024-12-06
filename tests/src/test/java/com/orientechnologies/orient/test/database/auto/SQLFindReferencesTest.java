@@ -15,12 +15,12 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import java.util.ArrayList;
 import java.util.List;
 import org.testng.Assert;
@@ -36,13 +36,13 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
   private static final String WORKER = "Worker";
   private static final String CAR = "Car";
 
-  private YTRID carID;
-  private YTRID johnDoeID;
-  private YTRID janeDoeID;
-  private YTRID chuckNorrisID;
-  private YTRID jackBauerID;
-  private YTRID ctuID;
-  private YTRID fbiID;
+  private RID carID;
+  private RID johnDoeID;
+  private RID janeDoeID;
+  private RID chuckNorrisID;
+  private RID jackBauerID;
+  private RID ctuID;
+  private RID fbiID;
 
   @Parameters(value = "remote")
   public SQLFindReferencesTest(boolean remote) {
@@ -51,7 +51,7 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
 
   @Test
   public void findSimpleReference() {
-    List<YTResult> result = database.command("find references " + carID).stream().toList();
+    List<Result> result = database.command("find references " + carID).stream().toList();
 
     Assert.assertEquals(result.size(), 1);
     Assert.assertEquals(result.iterator().next().getProperty("referredBy"), johnDoeID);
@@ -64,7 +64,7 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
     result = database.command("find references " + chuckNorrisID).stream().toList();
     Assert.assertEquals(result.size(), 2);
 
-    for (YTResult rid : result) {
+    for (Result rid : result) {
       Assert.assertTrue(
           rid.getProperty("referredBy").equals(ctuID)
               || rid.getProperty("referredBy").equals(fbiID));
@@ -78,7 +78,7 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
 
   @Test
   public void findReferenceByClassAndClusters() {
-    List<YTResult> result =
+    List<Result> result =
         database.command("find references " + janeDoeID + " [" + WORKPLACE + "]").stream().toList();
 
     Assert.assertEquals(result.size(), 1);
@@ -92,8 +92,8 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(result.size(), 3);
 
-    for (YTResult res : result) {
-      YTIdentifiable rid = res.getProperty("referredBy");
+    for (Result res : result) {
+      Identifiable rid = res.getProperty("referredBy");
       Assert.assertTrue(rid.equals(ctuID) || rid.equals(fbiID) || rid.equals(carID));
     }
 
@@ -124,21 +124,21 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
   }
 
   private void createSchema() {
-    YTClass worker = database.getMetadata().getSchema().createClass(WORKER);
-    YTClass workplace = database.getMetadata().getSchema().createClass(WORKPLACE);
-    YTClass car = database.getMetadata().getSchema().createClass(CAR);
+    SchemaClass worker = database.getMetadata().getSchema().createClass(WORKER);
+    SchemaClass workplace = database.getMetadata().getSchema().createClass(WORKPLACE);
+    SchemaClass car = database.getMetadata().getSchema().createClass(CAR);
 
-    worker.createProperty(database, "name", YTType.STRING);
-    worker.createProperty(database, "surname", YTType.STRING);
-    worker.createProperty(database, "colleagues", YTType.LINKLIST, worker);
-    worker.createProperty(database, "car", YTType.LINK, car);
+    worker.createProperty(database, "name", PropertyType.STRING);
+    worker.createProperty(database, "surname", PropertyType.STRING);
+    worker.createProperty(database, "colleagues", PropertyType.LINKLIST, worker);
+    worker.createProperty(database, "car", PropertyType.LINK, car);
 
-    workplace.createProperty(database, "name", YTType.STRING);
-    workplace.createProperty(database, "boss", YTType.LINK, worker);
-    workplace.createProperty(database, "workers", YTType.LINKLIST, worker);
+    workplace.createProperty(database, "name", PropertyType.STRING);
+    workplace.createProperty(database, "boss", PropertyType.LINK, worker);
+    workplace.createProperty(database, "workers", PropertyType.LINKLIST, worker);
 
-    car.createProperty(database, "plate", YTType.STRING);
-    car.createProperty(database, "owner", YTType.LINK, worker);
+    car.createProperty(database, "plate", PropertyType.STRING);
+    car.createProperty(database, "owner", PropertyType.LINK, worker);
   }
 
   private void populateDatabase() {

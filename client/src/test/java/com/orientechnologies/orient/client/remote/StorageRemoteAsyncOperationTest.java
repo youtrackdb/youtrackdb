@@ -4,16 +4,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
-import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
-import com.orientechnologies.orient.client.remote.db.document.YTDatabaseSessionRemote;
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.ORecordCallback;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.orientechnologies.orient.client.binary.SocketChannelBinaryAsynchClient;
+import com.orientechnologies.orient.client.remote.db.document.DatabaseSessionRemote;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.storage.RecordCallback;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +32,7 @@ public class StorageRemoteAsyncOperationTest {
   private StorageRemote storage;
 
   @Mock
-  private OChannelBinaryAsynchClient channel;
+  private SocketChannelBinaryAsynchClient channel;
 
   @Mock
   private ORemoteConnectionManager connectionManager;
@@ -52,7 +52,7 @@ public class StorageRemoteAsyncOperationTest {
     Mockito.when(session.getServerSession(Mockito.anyString())).thenReturn(nodeSession);
     storage =
         new StorageRemote(
-            new ORemoteURLs(new String[]{}, new YTContextConfiguration()),
+            new ORemoteURLs(new String[]{}, new ContextConfiguration()),
             "mock",
             null,
             "mock",
@@ -60,7 +60,7 @@ public class StorageRemoteAsyncOperationTest {
             null) {
           @Override
           public <T> T baseNetworkOperation(
-              YTDatabaseSessionRemote remoteSession, OStorageRemoteOperation<T> operation,
+              DatabaseSessionRemote remoteSession, OStorageRemoteOperation<T> operation,
               String errorMessage, int retry) {
             try {
               return operation.execute(channel, session);
@@ -84,7 +84,7 @@ public class StorageRemoteAsyncOperationTest {
           }
 
           @Override
-          public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
+          public void write(DatabaseSessionInternal database, ChannelDataOutput network,
               OStorageRemoteSession session)
               throws IOException {
             assertNull(status.status);
@@ -93,8 +93,8 @@ public class StorageRemoteAsyncOperationTest {
 
           @Override
           public void read(
-              YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
-              ORecordSerializer serializer)
+              DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+              RecordSerializer serializer)
               throws IOException {
           }
 
@@ -121,7 +121,7 @@ public class StorageRemoteAsyncOperationTest {
           public OBinaryResponse createResponse() {
             return new OBinaryResponse() {
               @Override
-              public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
+              public void read(DatabaseSessionInternal db, ChannelDataInput network,
                   OStorageRemoteSession session)
                   throws IOException {
                 assertEquals(status.status, "write");
@@ -130,16 +130,16 @@ public class StorageRemoteAsyncOperationTest {
 
               @Override
               public void write(
-                  YTDatabaseSessionInternal session, OChannelDataOutput channel,
+                  DatabaseSessionInternal session, ChannelDataOutput channel,
                   int protocolVersion,
-                  ORecordSerializer serializer)
+                  RecordSerializer serializer)
                   throws IOException {
               }
             };
           }
         },
         0,
-        new YTRecordId(-1, -1),
+        new RecordId(-1, -1),
         null, "");
 
     assertEquals(status.status, "read");
@@ -157,7 +157,7 @@ public class StorageRemoteAsyncOperationTest {
           }
 
           @Override
-          public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
+          public void write(DatabaseSessionInternal database, ChannelDataOutput network,
               OStorageRemoteSession session)
               throws IOException {
             assertNull(status.status);
@@ -166,8 +166,8 @@ public class StorageRemoteAsyncOperationTest {
 
           @Override
           public void read(
-              YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
-              ORecordSerializer serializer)
+              DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+              RecordSerializer serializer)
               throws IOException {
           }
 
@@ -195,7 +195,7 @@ public class StorageRemoteAsyncOperationTest {
 
             return new OBinaryResponse() {
               @Override
-              public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
+              public void read(DatabaseSessionInternal db, ChannelDataInput network,
                   OStorageRemoteSession session)
                   throws IOException {
                 fail();
@@ -203,16 +203,16 @@ public class StorageRemoteAsyncOperationTest {
 
               @Override
               public void write(
-                  YTDatabaseSessionInternal session, OChannelDataOutput channel,
+                  DatabaseSessionInternal session, ChannelDataOutput channel,
                   int protocolVersion,
-                  ORecordSerializer serializer)
+                  RecordSerializer serializer)
                   throws IOException {
               }
             };
           }
         },
         1,
-        new YTRecordId(-1, -1),
+        new RecordId(-1, -1),
         null, "");
 
     assertEquals(status.status, "write");
@@ -234,7 +234,7 @@ public class StorageRemoteAsyncOperationTest {
           }
 
           @Override
-          public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
+          public void write(DatabaseSessionInternal database, ChannelDataOutput network,
               OStorageRemoteSession session)
               throws IOException {
             assertNull(status.status);
@@ -243,8 +243,8 @@ public class StorageRemoteAsyncOperationTest {
 
           @Override
           public void read(
-              YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
-              ORecordSerializer serializer)
+              DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+              RecordSerializer serializer)
               throws IOException {
           }
 
@@ -271,7 +271,7 @@ public class StorageRemoteAsyncOperationTest {
           public OBinaryResponse createResponse() {
             return new OBinaryResponse() {
               @Override
-              public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
+              public void read(DatabaseSessionInternal db, ChannelDataInput network,
                   OStorageRemoteSession session)
                   throws IOException {
                 try {
@@ -285,19 +285,19 @@ public class StorageRemoteAsyncOperationTest {
 
               @Override
               public void write(
-                  YTDatabaseSessionInternal session, OChannelDataOutput channel,
+                  DatabaseSessionInternal session, ChannelDataOutput channel,
                   int protocolVersion,
-                  ORecordSerializer serializer)
+                  RecordSerializer serializer)
                   throws IOException {
               }
             };
           }
         },
         1,
-        new YTRecordId(-1, -1),
-        new ORecordCallback<OBinaryResponse>() {
+        new RecordId(-1, -1),
+        new RecordCallback<OBinaryResponse>() {
           @Override
-          public void call(YTRecordId iRID, OBinaryResponse iParameter) {
+          public void call(RecordId iRID, OBinaryResponse iParameter) {
             callBackDone.countDown();
           }
         }, "");

@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ResultMapper;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
@@ -29,7 +29,7 @@ public class InsertValuesStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
     ExecutionStream upstream = prev.start(ctx);
 
@@ -39,17 +39,17 @@ public class InsertValuesStep extends AbstractExecutionStep {
           private int nextValueSet = 0;
 
           @Override
-          public YTResult map(YTResult result, CommandContext ctx) {
-            if (!(result instanceof YTResultInternal)) {
+          public Result map(Result result, CommandContext ctx) {
+            if (!(result instanceof ResultInternal)) {
               if (!result.isEntity()) {
-                throw new YTCommandExecutionException(
+                throw new CommandExecutionException(
                     "Error executing INSERT, cannot modify element: " + result);
               }
-              result = new YTUpdatableResult(ctx.getDatabase(), result.toEntity());
+              result = new UpdatableResult(ctx.getDatabase(), result.toEntity());
             }
             List<SQLExpression> currentValues = values.get(nextValueSet++);
             if (currentValues.size() != identifiers.size()) {
-              throw new YTCommandExecutionException(
+              throw new CommandExecutionException(
                   "Cannot execute INSERT, the number of fields is different from the number of"
                       + " expressions: "
                       + identifiers
@@ -62,8 +62,8 @@ public class InsertValuesStep extends AbstractExecutionStep {
               Object value = currentValues.get(i).execute(result, ctx);
               value =
                   SQLUpdateItem.convertToPropertyType(
-                      (YTResultInternal) result, identifier, value, ctx);
-              ((YTResultInternal) result).setProperty(identifier.getStringValue(), value);
+                      (ResultInternal) result, identifier, value, ctx);
+              ((ResultInternal) result).setProperty(identifier.getStringValue(), value);
             }
             return result;
           }

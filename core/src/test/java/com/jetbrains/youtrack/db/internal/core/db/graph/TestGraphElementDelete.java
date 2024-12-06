@@ -4,15 +4,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.OCreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConcurrentModificationException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentModificationException;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.ODirection;
+import com.jetbrains.youtrack.db.internal.core.record.Direction;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import org.junit.After;
 import org.junit.Assert;
@@ -25,14 +25,14 @@ import org.junit.Test;
 public class TestGraphElementDelete {
 
   private YouTrackDB youTrackDB;
-  private YTDatabaseSession database;
+  private DatabaseSession database;
 
   @Before
   public void before() {
     youTrackDB =
-        OCreateDatabaseUtil.createDatabase("test", DBTestBase.embeddedDBUrl(getClass()),
-            OCreateDatabaseUtil.TYPE_MEMORY);
-    database = youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        CreateDatabaseUtil.createDatabase("test", DbTestBase.embeddedDBUrl(getClass()),
+            CreateDatabaseUtil.TYPE_MEMORY);
+    database = youTrackDB.open("test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @After
@@ -57,7 +57,7 @@ public class TestGraphElementDelete {
     try {
       database.load(edge.getIdentity());
       Assert.fail();
-    } catch (YTRecordNotFoundException e) {
+    } catch (RecordNotFoundException e) {
       // ignore
     }
   }
@@ -76,7 +76,7 @@ public class TestGraphElementDelete {
     database.delete(database.bindToSession(edge));
     database.commit();
 
-    assertFalse(database.bindToSession(vertex).getEdges(ODirection.OUT, "E").iterator().hasNext());
+    assertFalse(database.bindToSession(vertex).getEdges(Direction.OUT, "E").iterator().hasNext());
   }
 
   @Test
@@ -95,7 +95,7 @@ public class TestGraphElementDelete {
         new Thread(
             () -> {
               try (var database =
-                  youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
+                  youTrackDB.open("test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
                 database.begin();
                 Entity element = database.load(edge.getIdentity());
                 element.setProperty("one", "two");
@@ -110,7 +110,7 @@ public class TestGraphElementDelete {
       database.delete(instance);
       database.commit();
       Assert.fail();
-    } catch (YTConcurrentModificationException e) {
+    } catch (ConcurrentModificationException e) {
     }
 
     assertNotNull(database.load(edge.getIdentity()));
@@ -118,12 +118,12 @@ public class TestGraphElementDelete {
     assertNotNull(database.load(vertex1.getIdentity()));
     assertTrue(
         ((Vertex) database.load(vertex.getIdentity()))
-            .getEdges(ODirection.OUT, "E")
+            .getEdges(Direction.OUT, "E")
             .iterator()
             .hasNext());
     assertTrue(
         ((Vertex) database.load(vertex1.getIdentity()))
-            .getEdges(ODirection.IN, "E")
+            .getEdges(Direction.IN, "E")
             .iterator()
             .hasNext());
   }

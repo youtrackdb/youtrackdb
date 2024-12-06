@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.db.document;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.OCreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -14,11 +14,11 @@ public class DefaultClusterTest {
   @Test
   public void defaultClusterTest() {
     final YouTrackDB context =
-        OCreateDatabaseUtil.createDatabase("test",
-            DBTestBase.embeddedDBUrl(getClass()),
-            OCreateDatabaseUtil.TYPE_MEMORY);
-    try (final YTDatabaseSession db =
-        context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
+        CreateDatabaseUtil.createDatabase("test",
+            DbTestBase.embeddedDBUrl(getClass()),
+            CreateDatabaseUtil.TYPE_MEMORY);
+    try (final DatabaseSession db =
+        context.open("test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       var v =
           db.computeInTx(
               () -> {

@@ -1,17 +1,17 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
-import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.DocumentSerializerDelta;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
@@ -38,40 +38,40 @@ public class OCommit38Request implements OBinaryRequest<OCommit37Response> {
   }
 
   public OCommit38Request(
-      YTDatabaseSessionInternal session, long txId,
+      DatabaseSessionInternal session, long txId,
       boolean hasContent,
       boolean usingLong,
-      Iterable<ORecordOperation> operations,
-      Map<String, OTransactionIndexChanges> indexChanges) {
+      Iterable<RecordOperation> operations,
+      Map<String, FrontendTransactionIndexChanges> indexChanges) {
     this.txId = txId;
     this.hasContent = hasContent;
     this.usingLog = usingLong;
     if (hasContent) {
       this.indexChanges = new ArrayList<>();
       List<ORecordOperationRequest> netOperations = new ArrayList<>();
-      for (ORecordOperation txEntry : operations) {
+      for (RecordOperation txEntry : operations) {
         ORecordOperationRequest request = new ORecordOperationRequest();
         request.setType(txEntry.type);
         request.setVersion(txEntry.record.getVersion());
         request.setId(txEntry.record.getIdentity());
         switch (txEntry.type) {
-          case ORecordOperation.CREATED:
-            request.setRecordType(ORecordInternal.getRecordType(txEntry.record));
+          case RecordOperation.CREATED:
+            request.setRecordType(RecordInternal.getRecordType(txEntry.record));
             request.setRecord(
-                ORecordSerializerNetworkV37Client.INSTANCE.toStream(session, txEntry.record));
-            request.setContentChanged(ORecordInternal.isContentChanged(txEntry.record));
+                RecordSerializerNetworkV37Client.INSTANCE.toStream(session, txEntry.record));
+            request.setContentChanged(RecordInternal.isContentChanged(txEntry.record));
             break;
-          case ORecordOperation.UPDATED:
-            if (EntityImpl.RECORD_TYPE == ORecordInternal.getRecordType(txEntry.record)) {
-              request.setRecordType(ODocumentSerializerDelta.DELTA_RECORD_TYPE);
-              ODocumentSerializerDelta delta = ODocumentSerializerDelta.instance();
+          case RecordOperation.UPDATED:
+            if (EntityImpl.RECORD_TYPE == RecordInternal.getRecordType(txEntry.record)) {
+              request.setRecordType(DocumentSerializerDelta.DELTA_RECORD_TYPE);
+              DocumentSerializerDelta delta = DocumentSerializerDelta.instance();
               request.setRecord(delta.serializeDelta((EntityImpl) txEntry.record));
-              request.setContentChanged(ORecordInternal.isContentChanged(txEntry.record));
+              request.setContentChanged(RecordInternal.isContentChanged(txEntry.record));
             } else {
-              request.setRecordType(ORecordInternal.getRecordType(txEntry.record));
+              request.setRecordType(RecordInternal.getRecordType(txEntry.record));
               request.setRecord(
-                  ORecordSerializerNetworkV37.INSTANCE.toStream(session, txEntry.record));
-              request.setContentChanged(ORecordInternal.isContentChanged(txEntry.record));
+                  RecordSerializerNetworkV37.INSTANCE.toStream(session, txEntry.record));
+              request.setContentChanged(RecordInternal.isContentChanged(txEntry.record));
             }
             break;
         }
@@ -79,17 +79,17 @@ public class OCommit38Request implements OBinaryRequest<OCommit37Response> {
       }
       this.operations = netOperations;
 
-      for (Map.Entry<String, OTransactionIndexChanges> change : indexChanges.entrySet()) {
+      for (Map.Entry<String, FrontendTransactionIndexChanges> change : indexChanges.entrySet()) {
         this.indexChanges.add(new IndexChange(change.getKey(), change.getValue()));
       }
     }
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     // from 3.0 the the serializer is bound to the protocol
-    ORecordSerializerNetworkV37Client serializer = ORecordSerializerNetworkV37Client.INSTANCE;
+    RecordSerializerNetworkV37Client serializer = RecordSerializerNetworkV37Client.INSTANCE;
     network.writeLong(txId);
     network.writeBoolean(hasContent);
     network.writeBoolean(usingLog);
@@ -108,8 +108,8 @@ public class OCommit38Request implements OBinaryRequest<OCommit37Response> {
   }
 
   @Override
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
-      ORecordSerializer serializer)
+  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+      RecordSerializer serializer)
       throws IOException {
     txId = channel.readLong();
     hasContent = channel.readBoolean();
@@ -128,13 +128,13 @@ public class OCommit38Request implements OBinaryRequest<OCommit37Response> {
       // RECEIVE MANUAL INDEX CHANGES
       this.indexChanges =
           OMessageHelper.readTransactionIndexChanges(db,
-              channel, (ORecordSerializerNetworkV37) serializer);
+              channel, (RecordSerializerNetworkV37) serializer);
     }
   }
 
   @Override
   public byte getCommand() {
-    return OChannelBinaryProtocol.REQUEST_TX_COMMIT;
+    return ChannelBinaryProtocol.REQUEST_TX_COMMIT;
   }
 
   @Override

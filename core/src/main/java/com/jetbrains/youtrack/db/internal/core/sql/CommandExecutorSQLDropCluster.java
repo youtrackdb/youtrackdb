@@ -21,11 +21,11 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import java.util.Map;
 
 /**
@@ -33,7 +33,7 @@ import java.util.Map;
  */
 @SuppressWarnings("unchecked")
 public class CommandExecutorSQLDropCluster extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String KEYWORD_DROP = "DROP";
   public static final String KEYWORD_CLUSTER = "CLUSTER";
@@ -56,25 +56,25 @@ public class CommandExecutorSQLDropCluster extends CommandExecutorSQLAbstract
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_DROP)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_DROP + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CLUSTER)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_CLUSTER + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, false);
       if (pos == -1) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Expected <cluster>. Use " + getSyntax(), parserText, pos);
       }
 
       clusterName = word.toString();
       if (clusterName == null) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Cluster is null. Use " + getSyntax(), parserText, pos);
       }
 
@@ -89,17 +89,17 @@ public class CommandExecutorSQLDropCluster extends CommandExecutorSQLAbstract
   /**
    * Execute the DROP CLUSTER.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (clusterName == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final YTDatabaseSessionInternal database = getDatabase();
+    final DatabaseSessionInternal database = getDatabase();
 
     // CHECK IF ANY CLASS IS USING IT
     final int clusterId = database.getClusterIdByName(clusterName);
-    for (YTClass iClass : database.getMetadata().getSchema().getClasses()) {
+    for (SchemaClass iClass : database.getMetadata().getSchema().getClasses()) {
       for (int i : iClass.getClusterIds()) {
         if (i == clusterId)
         // IN USE
@@ -131,7 +131,7 @@ public class CommandExecutorSQLDropCluster extends CommandExecutorSQLAbstract
 
   protected boolean isClusterDeletable(int clusterId) {
     final var database = getDatabase();
-    for (YTClass iClass : database.getMetadata().getSchema().getClasses()) {
+    for (SchemaClass iClass : database.getMetadata().getSchema().getClasses()) {
       for (int i : iClass.getClusterIds()) {
         if (i == clusterId) {
           return false;

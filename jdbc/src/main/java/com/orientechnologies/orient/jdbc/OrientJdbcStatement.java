@@ -15,15 +15,14 @@ package com.orientechnologies.orient.jdbc;
 
 import static java.lang.Boolean.parseBoolean;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTQueryParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTInternalResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLSyntaxErrorException;
 import java.sql.SQLWarning;
@@ -39,7 +38,7 @@ import java.util.Properties;
 public class OrientJdbcStatement implements Statement {
 
   protected final OrientJdbcConnection connection;
-  protected final YTDatabaseSessionInternal database;
+  protected final DatabaseSessionInternal database;
   protected final List<String> batches;
   protected final int resultSetType;
   protected final int resultSetConcurrency;
@@ -49,15 +48,15 @@ public class OrientJdbcStatement implements Statement {
   protected String sql;
   //  protected       List<EntityImpl>      documents;
   protected boolean closed;
-  protected YTResultSet oResultSet;
+  protected ResultSet oResultSet;
   protected OrientJdbcResultSet resultSet;
 
   public OrientJdbcStatement(final OrientJdbcConnection iConnection) {
     this(
         iConnection,
-        ResultSet.TYPE_FORWARD_ONLY,
-        ResultSet.CONCUR_READ_ONLY,
-        ResultSet.HOLD_CURSORS_OVER_COMMIT);
+        java.sql.ResultSet.TYPE_FORWARD_ONLY,
+        java.sql.ResultSet.CONCUR_READ_ONLY,
+        java.sql.ResultSet.HOLD_CURSORS_OVER_COMMIT);
   }
 
   /**
@@ -83,7 +82,7 @@ public class OrientJdbcStatement implements Statement {
       int resultSetConcurrency,
       int resultSetHoldability) {
     this.connection = iConnection;
-    this.database = (YTDatabaseSessionInternal) iConnection.getDatabase();
+    this.database = (DatabaseSessionInternal) iConnection.getDatabase();
     database.activateOnCurrentThread();
     batches = new ArrayList<>();
     this.resultSetType = resultSetType;
@@ -102,9 +101,9 @@ public class OrientJdbcStatement implements Statement {
     sql = mayCleanForSpark(sqlCommand);
 
     if (sql.equalsIgnoreCase("select 1")) {
-      YTResultInternal element = new YTResultInternal(database);
+      ResultInternal element = new ResultInternal(database);
       element.setProperty("1", 1);
-      YTInternalResultSet rs = new YTInternalResultSet();
+      InternalResultSet rs = new InternalResultSet();
       rs.add(element);
       oResultSet = rs;
     } else {
@@ -112,9 +111,9 @@ public class OrientJdbcStatement implements Statement {
 
         oResultSet = executeCommand(sql);
 
-      } catch (YTQueryParsingException e) {
+      } catch (QueryParsingException e) {
         throw new SQLSyntaxErrorException("Error while parsing query", e);
-      } catch (YTException e) {
+      } catch (BaseException e) {
         throw new SQLException("Error while executing query", e);
       }
     }
@@ -125,7 +124,7 @@ public class OrientJdbcStatement implements Statement {
     return true;
   }
 
-  public ResultSet executeQuery(final String sql) throws SQLException {
+  public java.sql.ResultSet executeQuery(final String sql) throws SQLException {
     if (execute(sql)) {
       return resultSet;
     } else {
@@ -141,7 +140,7 @@ public class OrientJdbcStatement implements Statement {
   private int doExecuteUpdate(String sql) throws SQLException {
     try {
       oResultSet = executeCommand(sql);
-      Optional<YTResult> res = oResultSet.stream().findFirst();
+      Optional<Result> res = oResultSet.stream().findFirst();
 
       if (res.isPresent()) {
         if (res.get().getProperty("count") != null) {
@@ -159,13 +158,13 @@ public class OrientJdbcStatement implements Statement {
     }
   }
 
-  protected YTResultSet executeCommand(String query) throws SQLException {
+  protected ResultSet executeCommand(String query) throws SQLException {
 
     try {
       return database.command(query);
-    } catch (YTQueryParsingException e) {
+    } catch (QueryParsingException e) {
       throw new SQLSyntaxErrorException("Error while parsing command", e);
-    } catch (YTException e) {
+    } catch (BaseException e) {
       throw new SQLException("Error while executing command", e);
     }
   }
@@ -245,7 +244,7 @@ public class OrientJdbcStatement implements Statement {
   public void setFetchSize(final int rows) throws SQLException {
   }
 
-  public ResultSet getGeneratedKeys() throws SQLException {
+  public java.sql.ResultSet getGeneratedKeys() throws SQLException {
 
     return null;
   }
@@ -284,7 +283,7 @@ public class OrientJdbcStatement implements Statement {
   public void setQueryTimeout(final int seconds) throws SQLException {
   }
 
-  public ResultSet getResultSet() throws SQLException {
+  public java.sql.ResultSet getResultSet() throws SQLException {
 
     return resultSet;
   }

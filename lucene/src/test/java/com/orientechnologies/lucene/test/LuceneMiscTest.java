@@ -18,13 +18,13 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +50,7 @@ public class LuceneMiscTest extends BaseLuceneTest {
     db.command("insert into Test set attr1='bar', attr2='foo'").close();
     db.commit();
 
-    YTResultSet results =
+    ResultSet results =
         db.command("select from Test where attr1 lucene 'foo*' OR attr2 lucene 'foo*'");
     Assert.assertEquals(2, results.stream().count());
 
@@ -80,7 +80,7 @@ public class LuceneMiscTest extends BaseLuceneTest {
     db.command("insert into Person set name='Enrico', age=18").close();
     db.commit();
 
-    YTResultSet results =
+    ResultSet results =
         db.query("select  from (select from Person where age = 18) where name lucene 'Enrico'");
     Assert.assertEquals(1, results.stream().count());
 
@@ -107,24 +107,24 @@ public class LuceneMiscTest extends BaseLuceneTest {
 
     Map params = new HashMap();
     params.put("name", "FOO or");
-    YTResultSet results = db.query("select from Test where attr1 lucene :name", params);
+    ResultSet results = db.query("select from Test where attr1 lucene :name", params);
     Assert.assertEquals(1, results.stream().count());
   }
 
   @Test
   public void dottedNotationTest() {
 
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass v = schema.getClass("V");
-    YTClass e = schema.getClass("E");
-    YTClass author = schema.createClass("Author", v);
-    author.createProperty(db, "name", YTType.STRING);
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass v = schema.getClass("V");
+    SchemaClass e = schema.getClass("E");
+    SchemaClass author = schema.createClass("Author", v);
+    author.createProperty(db, "name", PropertyType.STRING);
 
-    YTClass song = schema.createClass("Song", v);
-    song.createProperty(db, "title", YTType.STRING);
+    SchemaClass song = schema.createClass("Song", v);
+    song.createProperty(db, "title", PropertyType.STRING);
 
-    YTClass authorOf = schema.createClass("AuthorOf", e);
-    authorOf.createProperty(db, "in", YTType.LINK, song);
+    SchemaClass authorOf = schema.createClass("AuthorOf", e);
+    authorOf.createProperty(db, "in", PropertyType.LINK, song);
 
     db.command("create index AuthorOf.in on AuthorOf (in) NOTUNIQUE").close();
     db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE").close();
@@ -150,7 +150,7 @@ public class LuceneMiscTest extends BaseLuceneTest {
     db.save(edge);
     db.commit();
 
-    YTResultSet results = db.query("select from AuthorOf");
+    ResultSet results = db.query("select from AuthorOf");
     Assert.assertEquals(results.stream().count(), 1);
 
     List<?> results1 =
@@ -175,7 +175,7 @@ public class LuceneMiscTest extends BaseLuceneTest {
 
     Map params = new HashMap();
     params.put("name", "anyPerson");
-    YTResultSet results = db.command("select from Test where _attr1 lucene :name", params);
+    ResultSet results = db.command("select from Test where _attr1 lucene :name", params);
     Assert.assertEquals(results.stream().count(), 1);
   }
 }

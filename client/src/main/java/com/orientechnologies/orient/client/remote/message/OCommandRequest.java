@@ -20,12 +20,12 @@
 package com.orientechnologies.orient.client.remote.message;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.stream.OStreamSerializerAnyStreamable;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.stream.StreamSerializerAnyStreamable;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
@@ -34,13 +34,13 @@ import java.io.IOException;
 
 public final class OCommandRequest implements OBinaryRequest<OCommandResponse> {
 
-  private YTDatabaseSessionInternal database;
+  private DatabaseSessionInternal database;
   private boolean asynch;
   private CommandRequestText query;
   private boolean live;
 
   public OCommandRequest(
-      YTDatabaseSessionInternal database,
+      DatabaseSessionInternal database,
       boolean asynch,
       CommandRequestText iCommand,
       boolean live) {
@@ -54,18 +54,18 @@ public final class OCommandRequest implements OBinaryRequest<OCommandResponse> {
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     if (live) {
       network.writeByte((byte) 'l');
     } else {
       network.writeByte((byte) (asynch ? 'a' : 's')); // ASYNC / SYNC
     }
-    network.writeBytes(OStreamSerializerAnyStreamable.INSTANCE.toStream(query));
+    network.writeBytes(StreamSerializerAnyStreamable.INSTANCE.toStream(query));
   }
 
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
-      ORecordSerializer serializer)
+  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+      RecordSerializer serializer)
       throws IOException {
 
     byte type = channel.readByte();
@@ -75,12 +75,12 @@ public final class OCommandRequest implements OBinaryRequest<OCommandResponse> {
     if (type == (byte) 'a') {
       asynch = true;
     }
-    query = OStreamSerializerAnyStreamable.INSTANCE.fromStream(db, channel.readBytes(), serializer);
+    query = StreamSerializerAnyStreamable.INSTANCE.fromStream(db, channel.readBytes(), serializer);
   }
 
   @Override
   public byte getCommand() {
-    return OChannelBinaryProtocol.REQUEST_COMMAND;
+    return ChannelBinaryProtocol.REQUEST_COMMAND;
   }
 
   @Override

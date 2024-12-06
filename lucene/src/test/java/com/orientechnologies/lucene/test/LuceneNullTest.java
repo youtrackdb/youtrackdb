@@ -1,6 +1,6 @@
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,7 +31,7 @@ public class LuceneNullTest extends BaseLuceneTest {
     db.commit();
 
     db.begin();
-    OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Test.names");
+    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Test.names");
     Assert.assertEquals(1, index.getInternal().size(db));
     db.commit();
   }
@@ -59,7 +59,7 @@ public class LuceneNullTest extends BaseLuceneTest {
     db.commit();
 
     db.begin();
-    OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Test.names");
+    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Test.names");
     Assert.assertEquals(index.getInternal().size(db), 0);
     db.commit();
   }

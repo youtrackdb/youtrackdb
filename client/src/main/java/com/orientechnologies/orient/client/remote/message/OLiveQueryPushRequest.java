@@ -1,14 +1,14 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.common.exception.OErrorCode;
+import com.jetbrains.youtrack.db.internal.common.exception.ErrorCode;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,12 +25,12 @@ public class OLiveQueryPushRequest implements OBinaryPushRequest {
   private int monitorId;
   private byte status;
   private int errorIdentifier;
-  private OErrorCode errorCode;
+  private ErrorCode errorCode;
   private String errorMessage;
   private List<OLiveQueryResult> events;
 
   public OLiveQueryPushRequest(
-      int monitorId, int errorIdentifier, OErrorCode errorCode, String errorMessage) {
+      int monitorId, int errorIdentifier, ErrorCode errorCode, String errorMessage) {
     this.monitorId = monitorId;
     this.status = ERROR;
     this.errorIdentifier = errorIdentifier;
@@ -48,7 +48,7 @@ public class OLiveQueryPushRequest implements OBinaryPushRequest {
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel)
+  public void write(DatabaseSessionInternal session, ChannelDataOutput channel)
       throws IOException {
     channel.writeInt(monitorId);
     channel.writeByte(status);
@@ -61,30 +61,30 @@ public class OLiveQueryPushRequest implements OBinaryPushRequest {
       for (OLiveQueryResult event : events) {
         channel.writeByte(event.getEventType());
         OMessageHelper.writeResult(session,
-            event.getCurrentValue(), channel, ORecordSerializerNetworkV37.INSTANCE);
+            event.getCurrentValue(), channel, RecordSerializerNetworkV37.INSTANCE);
         if (event.getEventType() == OLiveQueryResult.UPDATE_EVENT) {
           OMessageHelper.writeResult(session,
-              event.getOldValue(), channel, ORecordSerializerNetworkV37.INSTANCE);
+              event.getOldValue(), channel, RecordSerializerNetworkV37.INSTANCE);
         }
       }
     }
   }
 
   @Override
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput network) throws IOException {
+  public void read(DatabaseSessionInternal db, ChannelDataInput network) throws IOException {
     monitorId = network.readInt();
     status = network.readByte();
     if (status == ERROR) {
       errorIdentifier = network.readInt();
-      errorCode = OErrorCode.getErrorCode(network.readInt());
+      errorCode = ErrorCode.getErrorCode(network.readInt());
       errorMessage = network.readString();
     } else {
       int eventSize = network.readInt();
       events = new ArrayList<>(eventSize);
       while (eventSize-- > 0) {
         byte type = network.readByte();
-        YTResult currentValue = OMessageHelper.readResult(db, network);
-        YTResult oldValue = null;
+        Result currentValue = OMessageHelper.readResult(db, network);
+        Result oldValue = null;
         if (type == OLiveQueryResult.UPDATE_EVENT) {
           oldValue = OMessageHelper.readResult(db, network);
         }
@@ -94,7 +94,7 @@ public class OLiveQueryPushRequest implements OBinaryPushRequest {
   }
 
   @Override
-  public OBinaryPushResponse execute(YTDatabaseSessionInternal session, ORemotePushHandler remote) {
+  public OBinaryPushResponse execute(DatabaseSessionInternal session, ORemotePushHandler remote) {
     remote.executeLiveQueryPush(this);
     return null;
   }
@@ -106,7 +106,7 @@ public class OLiveQueryPushRequest implements OBinaryPushRequest {
 
   @Override
   public byte getPushCommand() {
-    return OChannelBinaryProtocol.REQUEST_PUSH_LIVE_QUERY;
+    return ChannelBinaryProtocol.REQUEST_PUSH_LIVE_QUERY;
   }
 
   public int getMonitorId() {
@@ -133,7 +133,7 @@ public class OLiveQueryPushRequest implements OBinaryPushRequest {
     return errorMessage;
   }
 
-  public OErrorCode getErrorCode() {
+  public ErrorCode getErrorCode() {
     return errorCode;
   }
 }

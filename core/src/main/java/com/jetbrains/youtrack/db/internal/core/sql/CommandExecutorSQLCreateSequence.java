@@ -1,16 +1,16 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.OSequenceHelper;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.YTSequence;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.YTSequence.SEQUENCE_TYPE;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceHelper;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence.SEQUENCE_TYPE;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -18,7 +18,7 @@ import java.util.Map;
  * @since 2/28/2015
  */
 public class CommandExecutorSQLCreateSequence extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String KEYWORD_CREATE = "CREATE";
   public static final String KEYWORD_SEQUENCE = "SEQUENCE";
@@ -29,7 +29,7 @@ public class CommandExecutorSQLCreateSequence extends CommandExecutorSQLAbstract
 
   private String sequenceName;
   private SEQUENCE_TYPE sequenceType;
-  private YTSequence.CreateParams params;
+  private Sequence.CreateParams params;
 
   @Override
   public CommandExecutorSQLCreateSequence parse(CommandRequest iRequest) {
@@ -46,7 +46,7 @@ public class CommandExecutorSQLCreateSequence extends CommandExecutorSQLAbstract
       parserRequiredKeyword(KEYWORD_CREATE);
       parserRequiredKeyword(KEYWORD_SEQUENCE);
       this.sequenceName = parserRequiredWord(false, "Expected <sequence name>");
-      this.params = new YTSequence.CreateParams().setDefaults();
+      this.params = new Sequence.CreateParams().setDefaults();
 
       String temp;
       while ((temp = parseOptionalWord(true)) != null) {
@@ -57,10 +57,10 @@ public class CommandExecutorSQLCreateSequence extends CommandExecutorSQLAbstract
         if (temp.equals(KEYWORD_TYPE)) {
           String typeAsString = parserRequiredWord(true, "Expected <sequence type>");
           try {
-            this.sequenceType = OSequenceHelper.getSequenceTyeFromString(typeAsString);
+            this.sequenceType = SequenceHelper.getSequenceTyeFromString(typeAsString);
           } catch (IllegalArgumentException e) {
-            throw YTException.wrapException(
-                new YTCommandSQLParsingException(
+            throw BaseException.wrapException(
+                new CommandSQLParsingException(
                     "Unknown sequence type '"
                         + typeAsString
                         + "'. Supported attributes are: "
@@ -80,7 +80,7 @@ public class CommandExecutorSQLCreateSequence extends CommandExecutorSQLAbstract
       }
 
       if (this.sequenceType == null) {
-        this.sequenceType = OSequenceHelper.DEFAULT_SEQUENCE_TYPE;
+        this.sequenceType = SequenceHelper.DEFAULT_SEQUENCE_TYPE;
       }
     } finally {
       textRequest.setText(originalQuery);
@@ -89,9 +89,9 @@ public class CommandExecutorSQLCreateSequence extends CommandExecutorSQLAbstract
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (this.sequenceName == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -102,10 +102,10 @@ public class CommandExecutorSQLCreateSequence extends CommandExecutorSQLAbstract
           .getMetadata()
           .getSequenceLibrary()
           .createSequence(this.sequenceName, this.sequenceType, this.params);
-    } catch (YTDatabaseException exc) {
+    } catch (DatabaseException exc) {
       String message = "Unable to execute command: " + exc.getMessage();
       LogManager.instance().error(this, message, exc, (Object) null);
-      throw new YTCommandExecutionException(message);
+      throw new CommandExecutionException(message);
     }
 
     return database.getMetadata().getSequenceLibrary().getSequenceCount();

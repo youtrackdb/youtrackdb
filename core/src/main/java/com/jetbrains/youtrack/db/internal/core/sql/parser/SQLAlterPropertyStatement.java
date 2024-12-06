@@ -2,21 +2,21 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-public class SQLAlterPropertyStatement extends ODDLStatement {
+public class SQLAlterPropertyStatement extends DDLStatement {
 
   SQLIdentifier className;
 
@@ -38,26 +38,26 @@ public class SQLAlterPropertyStatement extends ODDLStatement {
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
     var db = ctx.getDatabase();
-    YTClass clazz = db.getMetadata().getSchema().getClass(className.getStringValue());
+    SchemaClass clazz = db.getMetadata().getSchema().getClass(className.getStringValue());
 
     if (clazz == null) {
-      throw new YTCommandExecutionException("Invalid class name or class not found: " + clazz);
+      throw new CommandExecutionException("Invalid class name or class not found: " + clazz);
     }
 
-    YTProperty property = clazz.getProperty(propertyName.getStringValue());
+    Property property = clazz.getProperty(propertyName.getStringValue());
     if (property == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Property " + propertyName.getStringValue() + " not found on class " + clazz);
     }
 
-    YTResultInternal result = new YTResultInternal(db);
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("class", className.getStringValue());
     result.setProperty("property", propertyName.getStringValue());
 
     if (customPropertyName != null) {
       String customName = customPropertyName.getStringValue();
       Object oldValue = property.getCustom(customName);
-      Object finalValue = customPropertyValue.execute((YTIdentifiable) null, ctx);
+      Object finalValue = customPropertyValue.execute((Identifiable) null, ctx);
       property.setCustom(db, customName, finalValue == null ? null : "" + finalValue);
 
       result.setProperty("operation", "alter property custom");
@@ -67,7 +67,7 @@ public class SQLAlterPropertyStatement extends ODDLStatement {
     } else {
       String setting = settingName.getStringValue();
       boolean isCollate = setting.equalsIgnoreCase("collate");
-      Object finalValue = settingValue.execute((YTIdentifiable) null, ctx);
+      Object finalValue = settingValue.execute((Identifiable) null, ctx);
       if (finalValue == null
           && (setting.equalsIgnoreCase("name")
           || setting.equalsIgnoreCase("shortname")
@@ -82,16 +82,16 @@ public class SQLAlterPropertyStatement extends ODDLStatement {
           finalValue = stringFinalValue;
         }
       }
-      YTProperty.ATTRIBUTES attribute;
+      Property.ATTRIBUTES attribute;
       try {
-        attribute = YTProperty.ATTRIBUTES.valueOf(setting.toUpperCase(Locale.ENGLISH));
+        attribute = Property.ATTRIBUTES.valueOf(setting.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
-        throw YTException.wrapException(
-            new YTCommandExecutionException(
+        throw BaseException.wrapException(
+            new CommandExecutionException(
                 "Unknown property attribute '"
                     + setting
                     + "'. Supported attributes are: "
-                    + Arrays.toString(YTProperty.ATTRIBUTES.values())),
+                    + Arrays.toString(Property.ATTRIBUTES.values())),
             e);
       }
       Object oldValue = property.get(attribute);
@@ -107,7 +107,7 @@ public class SQLAlterPropertyStatement extends ODDLStatement {
   }
 
   @Override
-  public void validate() throws YTCommandSQLParsingException {
+  public void validate() throws CommandSQLParsingException {
     super.validate(); // TODO
   }
 

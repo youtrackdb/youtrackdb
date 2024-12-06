@@ -3,17 +3,17 @@ package com.jetbrains.youtrack.db.internal.core.record.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import java.util.Set;
 import org.apache.commons.collections4.SetUtils;
 import org.junit.Test;
 
-public class CollectionOfLinkInNestedDocumentTest extends DBTestBase {
+public class CollectionOfLinkInNestedDocumentTest extends DbTestBase {
 
   @Test
   public void nestedLinkSet() {
@@ -30,8 +30,8 @@ public class CollectionOfLinkInNestedDocumentTest extends DBTestBase {
 
     db.begin();
     EntityImpl base = new EntityImpl();
-    base.field("nested", nested, YTType.EMBEDDED);
-    YTIdentifiable id = db.save(base);
+    base.field("nested", nested, PropertyType.EMBEDDED);
+    Identifiable id = db.save(base);
     db.commit();
 
     EntityImpl base1 = db.load(id.getIdentity());
@@ -39,7 +39,7 @@ public class CollectionOfLinkInNestedDocumentTest extends DBTestBase {
     assertNotNull(nest1);
 
     assertEquals(SetUtils.hashSet(doc1.getIdentity(), doc2.getIdentity()),
-        nest1.<Set<YTIdentifiable>>field("set"));
+        nest1.<Set<Identifiable>>field("set"));
   }
 
   @Test
@@ -57,8 +57,8 @@ public class CollectionOfLinkInNestedDocumentTest extends DBTestBase {
 
     db.begin();
     EntityImpl base = new EntityImpl();
-    base.field("nested", nested, YTType.EMBEDDED);
-    YTIdentifiable id = db.save(base, db.getClusterNameById(db.getDefaultClusterId()));
+    base.field("nested", nested, PropertyType.EMBEDDED);
+    Identifiable id = db.save(base, db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
     EntityImpl base1 = db.load(id.getIdentity());
@@ -82,8 +82,8 @@ public class CollectionOfLinkInNestedDocumentTest extends DBTestBase {
 
     db.begin();
     EntityImpl base = new EntityImpl();
-    base.field("nested", nested, YTType.EMBEDDED);
-    YTIdentifiable id = db.save(base, db.getClusterNameById(db.getDefaultClusterId()));
+    base.field("nested", nested, PropertyType.EMBEDDED);
+    Identifiable id = db.save(base, db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
     EntityImpl base1 = db.load(id.getIdentity());

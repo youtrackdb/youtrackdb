@@ -3,9 +3,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.ServerCommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.OSystemDatabase;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.SystemDatabase;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,10 +28,10 @@ public class SQLExistsSystemUserStatement extends SQLSimpleExecServerStatement {
   @Override
   public ExecutionStream executeSimple(ServerCommandContext ctx) {
 
-    OSystemDatabase systemDb = ctx.getServer().getSystemDatabase();
+    SystemDatabase systemDb = ctx.getServer().getSystemDatabase();
     var res = systemDb.executeWithDB(
         (db) -> {
-          YTResultInternal result = new YTResultInternal(db);
+          ResultInternal result = new ResultInternal(db);
           result.setProperty("operation", "exists system user");
           if (name != null) {
             result.setProperty("name", name.getStringValue());
@@ -46,7 +46,7 @@ public class SQLExistsSystemUserStatement extends SQLSimpleExecServerStatement {
           }
           // INSERT INTO OUser SET
 
-          try (YTResultSet rs = db.command("SELECT FROM OUser WHERE name = ?", params.toArray())) {
+          try (ResultSet rs = db.command("SELECT FROM OUser WHERE name = ?", params.toArray())) {
             if (rs.hasNext()) {
               result.setProperty("exists", true);
             } else {

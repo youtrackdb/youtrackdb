@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.HashMap;
@@ -36,19 +36,19 @@ public class MapIndexTest extends DocumentDBBaseTest {
       database.getMetadata().getSchema().dropClass("Mapper");
     }
 
-    final YTClass mapper = database.getMetadata().getSchema().createClass("Mapper");
-    mapper.createProperty(database, "id", YTType.STRING);
-    mapper.createProperty(database, "intMap", YTType.EMBEDDEDMAP, YTType.INTEGER);
+    final SchemaClass mapper = database.getMetadata().getSchema().createClass("Mapper");
+    mapper.createProperty(database, "id", PropertyType.STRING);
+    mapper.createProperty(database, "intMap", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
 
-    mapper.createIndex(database, "mapIndexTestKey", YTClass.INDEX_TYPE.NOTUNIQUE, "intMap");
-    mapper.createIndex(database, "mapIndexTestValue", YTClass.INDEX_TYPE.NOTUNIQUE,
+    mapper.createIndex(database, "mapIndexTestKey", SchemaClass.INDEX_TYPE.NOTUNIQUE, "intMap");
+    mapper.createIndex(database, "mapIndexTestValue", SchemaClass.INDEX_TYPE.NOTUNIQUE,
         "intMap by value");
 
-    final YTClass movie = database.getMetadata().getSchema().createClass("MapIndexTestMovie");
-    movie.createProperty(database, "title", YTType.STRING);
-    movie.createProperty(database, "thumbs", YTType.EMBEDDEDMAP, YTType.INTEGER);
+    final SchemaClass movie = database.getMetadata().getSchema().createClass("MapIndexTestMovie");
+    movie.createProperty(database, "title", PropertyType.STRING);
+    movie.createProperty(database, "thumbs", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
 
-    movie.createIndex(database, "indexForMap", YTClass.INDEX_TYPE.NOTUNIQUE, "thumbs by key");
+    movie.createIndex(database, "indexForMap", SchemaClass.INDEX_TYPE.NOTUNIQUE, "thumbs by key");
   }
 
   @AfterClass
@@ -82,7 +82,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
     database.save(mapper);
     database.commit();
 
-    final OIndex keyIndex = getIndex("mapIndexTestKey");
+    final Index keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(database), 2);
     try (final Stream<Object> keyStream = keyIndex.getInternal().keyStream()) {
       final Iterator<Object> keyIterator = keyStream.iterator();
@@ -94,7 +94,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
       }
     }
 
-    final OIndex valueIndex = getIndex("mapIndexTestValue");
+    final Index valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(database), 2);
     try (final Stream<Object> valueStream = valueIndex.getInternal().keyStream()) {
       final Iterator<Object> valuesIterator = valueStream.iterator();
@@ -126,7 +126,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
       throw e;
     }
 
-    OIndex keyIndex = getIndex("mapIndexTestKey");
+    Index keyIndex = getIndex("mapIndexTestKey");
 
     Assert.assertEquals(keyIndex.getInternal().size(database), 2);
     Iterator<Object> keysIterator;
@@ -141,7 +141,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
       }
     }
 
-    OIndex valueIndex = getIndex("mapIndexTestValue");
+    Index valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(database), 2);
 
     Iterator<Object> valuesIterator;
@@ -184,7 +184,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
     database.save(mapper);
     database.commit();
 
-    OIndex keyIndex = getIndex("mapIndexTestKey");
+    Index keyIndex = getIndex("mapIndexTestKey");
 
     Assert.assertEquals(keyIndex.getInternal().size(database), 2);
 
@@ -200,7 +200,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
       }
     }
 
-    OIndex valueIndex = getIndex("mapIndexTestValue");
+    Index valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(database), 2);
 
     Iterator<Object> valuesIterator;
@@ -246,7 +246,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
       throw e;
     }
 
-    OIndex keyIndex = getIndex("mapIndexTestKey");
+    Index keyIndex = getIndex("mapIndexTestKey");
 
     Assert.assertEquals(keyIndex.getInternal().size(database), 2);
 
@@ -262,7 +262,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
       }
     }
 
-    OIndex valueIndex = getIndex("mapIndexTestValue");
+    Index valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(database), 2);
 
     Iterator<Object> valuesIterator;
@@ -303,7 +303,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
     database.save(mapper);
     database.rollback();
 
-    OIndex keyIndex = getIndex("mapIndexTestKey");
+    Index keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
@@ -318,7 +318,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
       }
     }
 
-    OIndex valueIndex = getIndex("mapIndexTestValue");
+    Index valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(database), 2);
 
     Iterator<Object> valuesIterator;
@@ -353,7 +353,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
     database.command("UPDATE " + mapper.getIdentity() + " set intMap['key3'] = 30").close();
     database.commit();
 
-    OIndex keyIndex = getIndex("mapIndexTestKey");
+    Index keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(database), 3);
 
     Iterator<Object> keysIterator;
@@ -368,7 +368,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
       }
     }
 
-    OIndex valueIndex = getIndex("mapIndexTestValue");
+    Index valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(database), 3);
 
     Iterator<Object> valuesIterator;
@@ -410,7 +410,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
       throw e;
     }
 
-    OIndex keyIndex = getIndex("mapIndexTestKey");
+    Index keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(database), 3);
 
     Iterator<Object> keysIterator;
@@ -425,7 +425,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
       }
     }
 
-    OIndex valueIndex = getIndex("mapIndexTestValue");
+    Index valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(database), 3);
 
     Iterator<Object> valuesIterator;
@@ -461,7 +461,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
     database.save(loadedMapper);
     database.rollback();
 
-    OIndex keyIndex = getIndex("mapIndexTestKey");
+    Index keyIndex = getIndex("mapIndexTestKey");
 
     Assert.assertEquals(keyIndex.getInternal().size(database), 2);
 
@@ -477,7 +477,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
       }
     }
 
-    OIndex valueIndex = getIndex("mapIndexTestValue");
+    Index valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(database), 2);
 
     Iterator<Object> valuesIterator;
@@ -511,7 +511,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
     database.command("UPDATE " + mapper.getIdentity() + " set intMap['key2'] = 40").close();
     database.commit();
 
-    OIndex keyIndex = getIndex("mapIndexTestKey");
+    Index keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
@@ -526,7 +526,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
       }
     }
 
-    OIndex valueIndex = getIndex("mapIndexTestValue");
+    Index valueIndex = getIndex("mapIndexTestValue");
 
     Assert.assertEquals(valueIndex.getInternal().size(database), 2);
 
@@ -568,7 +568,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
       throw e;
     }
 
-    OIndex keyIndex = getIndex("mapIndexTestKey");
+    Index keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
@@ -583,7 +583,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
       }
     }
 
-    OIndex valueIndex = getIndex("mapIndexTestValue");
+    Index valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(database), 2);
 
     Iterator<Object> valuesIterator;
@@ -615,12 +615,12 @@ public class MapIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    Entity loadedMapper = database.load(new YTRecordId(mapper.getIdentity()));
+    Entity loadedMapper = database.load(new RecordId(mapper.getIdentity()));
     loadedMapper.<Map<String, Integer>>getProperty("intMap").put("key2", 40);
     database.save(loadedMapper);
     database.rollback();
 
-    OIndex keyIndex = getIndex("mapIndexTestKey");
+    Index keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
@@ -635,7 +635,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
       }
     }
 
-    OIndex valueIndex = getIndex("mapIndexTestValue");
+    Index valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(database), 2);
 
     Iterator<Object> valuesIterator;
@@ -671,7 +671,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
     database.command("UPDATE " + mapper.getIdentity() + " remove intMap = 'key2'").close();
     database.commit();
 
-    OIndex keyIndex = getIndex("mapIndexTestKey");
+    Index keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
@@ -686,7 +686,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
       }
     }
 
-    OIndex valueIndex = getIndex("mapIndexTestValue");
+    Index valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(database), 2);
 
     Iterator<Object> valuesIterator;
@@ -728,7 +728,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
       throw e;
     }
 
-    OIndex keyIndex = getIndex("mapIndexTestKey");
+    Index keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
@@ -743,7 +743,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
       }
     }
 
-    OIndex valueIndex = getIndex("mapIndexTestValue");
+    Index valueIndex = getIndex("mapIndexTestValue");
 
     Assert.assertEquals(valueIndex.getInternal().size(database), 2);
     Iterator<Object> valuesIterator;
@@ -781,7 +781,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
     database.save(loadedMapper);
     database.rollback();
 
-    OIndex keyIndex = getIndex("mapIndexTestKey");
+    Index keyIndex = getIndex("mapIndexTestKey");
 
     Assert.assertEquals(keyIndex.getInternal().size(database), 3);
     Iterator<Object> keysIterator;
@@ -796,7 +796,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
       }
     }
 
-    OIndex valueIndex = getIndex("mapIndexTestValue");
+    Index valueIndex = getIndex("mapIndexTestValue");
 
     Assert.assertEquals(valueIndex.getInternal().size(database), 3);
     Iterator<Object> valuesIterator;
@@ -830,10 +830,10 @@ public class MapIndexTest extends DocumentDBBaseTest {
     database.delete(database.bindToSession(mapper));
     database.commit();
 
-    OIndex keyIndex = getIndex("mapIndexTestKey");
+    Index keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(database), 0);
 
-    OIndex valueIndex = getIndex("mapIndexTestValue");
+    Index valueIndex = getIndex("mapIndexTestValue");
 
     Assert.assertEquals(valueIndex.getInternal().size(database), 0);
   }
@@ -862,10 +862,10 @@ public class MapIndexTest extends DocumentDBBaseTest {
       throw e;
     }
 
-    OIndex keyIndex = getIndex("mapIndexTestKey");
+    Index keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(database), 0);
 
-    OIndex valueIndex = getIndex("mapIndexTestValue");
+    Index valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(database), 0);
   }
 
@@ -888,7 +888,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
     database.delete(database.bindToSession(mapper));
     database.rollback();
 
-    OIndex keyIndex = getIndex("mapIndexTestKey");
+    Index keyIndex = getIndex("mapIndexTestKey");
     Assert.assertEquals(keyIndex.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
@@ -903,7 +903,7 @@ public class MapIndexTest extends DocumentDBBaseTest {
       }
     }
 
-    OIndex valueIndex = getIndex("mapIndexTestValue");
+    Index valueIndex = getIndex("mapIndexTestValue");
     Assert.assertEquals(valueIndex.getInternal().size(database), 2);
 
     Iterator<Object> valuesIterator;

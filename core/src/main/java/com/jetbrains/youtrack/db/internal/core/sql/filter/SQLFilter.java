@@ -19,11 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.filter;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandPredicate;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTQueryParsingException;
+import com.jetbrains.youtrack.db.internal.core.command.CommandPredicate;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Locale;
 import javax.annotation.Nonnull;
@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
 /**
  * Parsed query. It's built once a query is parsed.
  */
-public class SQLFilter extends SQLPredicate implements OCommandPredicate {
+public class SQLFilter extends SQLPredicate implements CommandPredicate {
 
   public SQLFilter(
       final String iText, @Nonnull final CommandContext iContext, final String iFilterKeyword) {
@@ -55,20 +55,20 @@ public class SQLFilter extends SQLPredicate implements OCommandPredicate {
       parserTextUpperCase = lastTextUpperCase;
       parserMoveCurrentPosition(lastPos);
 
-    } catch (YTQueryParsingException e) {
+    } catch (QueryParsingException e) {
       if (e.getText() == null)
       // QUERY EXCEPTION BUT WITHOUT TEXT: NEST IT
       {
-        throw YTException.wrapException(
-            new YTQueryParsingException(
+        throw BaseException.wrapException(
+            new QueryParsingException(
                 "Error on parsing query", parserText, parserGetCurrentPosition()),
             e);
       }
 
       throw e;
     } catch (Exception e) {
-      throw YTException.wrapException(
-          new YTQueryParsingException(
+      throw BaseException.wrapException(
+          new QueryParsingException(
               "Error on parsing query", parserText, parserGetCurrentPosition()),
           e);
     }
@@ -76,22 +76,22 @@ public class SQLFilter extends SQLPredicate implements OCommandPredicate {
     this.rootCondition = resetOperatorPrecedence(rootCondition);
   }
 
-  private OSQLFilterCondition resetOperatorPrecedence(OSQLFilterCondition iCondition) {
+  private SQLFilterCondition resetOperatorPrecedence(SQLFilterCondition iCondition) {
     if (iCondition == null) {
       return iCondition;
     }
-    if (iCondition.left != null && iCondition.left instanceof OSQLFilterCondition) {
-      iCondition.left = resetOperatorPrecedence((OSQLFilterCondition) iCondition.left);
+    if (iCondition.left != null && iCondition.left instanceof SQLFilterCondition) {
+      iCondition.left = resetOperatorPrecedence((SQLFilterCondition) iCondition.left);
     }
 
-    if (iCondition.right != null && iCondition.right instanceof OSQLFilterCondition right) {
+    if (iCondition.right != null && iCondition.right instanceof SQLFilterCondition right) {
       iCondition.right = resetOperatorPrecedence(right);
       if (iCondition.operator != null) {
         if (!right.inBraces
             && right.operator != null
             && right.operator.precedence < iCondition.operator.precedence) {
-          OSQLFilterCondition newLeft =
-              new OSQLFilterCondition(iCondition.left, iCondition.operator, right.left);
+          SQLFilterCondition newLeft =
+              new SQLFilterCondition(iCondition.left, iCondition.operator, right.left);
           right.setLeft(newLeft);
           resetOperatorPrecedence(right);
           return right;
@@ -103,7 +103,7 @@ public class SQLFilter extends SQLPredicate implements OCommandPredicate {
   }
 
   public Object evaluate(
-      final YTIdentifiable iRecord, final EntityImpl iCurrentResult,
+      final Identifiable iRecord, final EntityImpl iCurrentResult,
       final CommandContext iContext) {
     if (rootCondition == null) {
       return true;
@@ -112,7 +112,7 @@ public class SQLFilter extends SQLPredicate implements OCommandPredicate {
     return rootCondition.evaluate(iRecord, iCurrentResult, iContext);
   }
 
-  public OSQLFilterCondition getRootCondition() {
+  public SQLFilterCondition getRootCondition() {
     return rootCondition;
   }
 

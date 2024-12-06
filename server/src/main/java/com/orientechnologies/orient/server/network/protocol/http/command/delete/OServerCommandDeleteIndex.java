@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.delete;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -39,18 +39,18 @@ public class OServerCommandDeleteIndex extends OServerCommandDocumentAbstract {
 
     iRequest.getData().commandInfo = "Index remove";
 
-    YTDatabaseSessionInternal db = null;
+    DatabaseSessionInternal db = null;
     try {
       db = getProfiledDatabaseInstance(iRequest);
 
-      final OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, urlParts[2]);
+      final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, urlParts[2]);
       if (index == null) {
         throw new IllegalArgumentException("Index name '" + urlParts[2] + "' not found");
       }
 
       final boolean found;
       if (urlParts.length > 4) {
-        found = index.remove(db, urlParts[3], new YTRecordId(urlParts[3]));
+        found = index.remove(db, urlParts[3], new RecordId(urlParts[3]));
       } else {
         found = index.remove(db, urlParts[3]);
       }

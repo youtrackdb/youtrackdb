@@ -1,15 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.OSharedContextEmbedded;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.SharedContextEmbedded;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
 import java.util.Map;
 
 /**
- * Returns an YTResult containing metadata regarding the database
+ * Returns an Result containing metadata regarding the database
  */
 public class FetchFromDistributedMetadataStep extends AbstractExecutionStep {
 
@@ -18,7 +18,7 @@ public class FetchFromDistributedMetadataStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -26,12 +26,12 @@ public class FetchFromDistributedMetadataStep extends AbstractExecutionStep {
     return new ProduceExecutionStream(this::produce).limit(1);
   }
 
-  private YTResult produce(CommandContext ctx) {
-    YTDatabaseSessionInternal session = ctx.getDatabase();
-    OSharedContextEmbedded value = (OSharedContextEmbedded) session.getSharedContext();
+  private Result produce(CommandContext ctx) {
+    DatabaseSessionInternal session = ctx.getDatabase();
+    SharedContextEmbedded value = (SharedContextEmbedded) session.getSharedContext();
 
     Map<String, Object> map = value.loadDistributedConfig(session);
-    YTResultInternal result = new YTResultInternal(session);
+    ResultInternal result = new ResultInternal(session);
 
     for (var entry : map.entrySet()) {
       result.setProperty(entry.getKey(), entry.getValue());

@@ -25,12 +25,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -42,7 +42,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class CommandExecutorSQLUpdateTest extends DBTestBase {
+public class CommandExecutorSQLUpdateTest extends DbTestBase {
 
   @Test
   public void testUpdateRemoveAll() throws Exception {
@@ -87,8 +87,8 @@ public class CommandExecutorSQLUpdateTest extends DBTestBase {
     db.command("UPDATE V content {\"value\":\"foo\"}").close();
     db.commit();
 
-    try (YTResultSet result = db.query("select from V")) {
-      YTResult doc = result.next();
+    try (ResultSet result = db.query("select from V")) {
+      Result doc = result.next();
       assertEquals(doc.getProperty("value"), "foo");
     }
   }
@@ -100,14 +100,14 @@ public class CommandExecutorSQLUpdateTest extends DBTestBase {
     db.command("UPDATE V content {\"value\":\"foo\\\\\"}").close();
     db.commit();
 
-    try (YTResultSet result = db.query("select from V")) {
+    try (ResultSet result = db.query("select from V")) {
       assertEquals(result.next().getProperty("value"), "foo\\");
     }
 
     db.begin();
     db.command("UPDATE V content {\"value\":\"foo\\\\\\\\\"}").close();
 
-    try (YTResultSet result = db.query("select from V")) {
+    try (ResultSet result = db.query("select from V")) {
       assertEquals(result.next().getProperty("value"), "foo\\\\");
     }
     db.commit();
@@ -126,7 +126,7 @@ public class CommandExecutorSQLUpdateTest extends DBTestBase {
             "INSERT INTO i_have_a_list CONTENT {\"id\": \"the_id\", \"types\": [\"aaa\", \"bbb\"]}")
         .close();
 
-    YTResultSet result = db.query("SELECT * FROM i_have_a_list WHERE types = 'aaa'");
+    ResultSet result = db.query("SELECT * FROM i_have_a_list WHERE types = 'aaa'");
     assertEquals(result.stream().count(), 1);
 
     db.command(
@@ -187,8 +187,8 @@ public class CommandExecutorSQLUpdateTest extends DBTestBase {
     db.command("UPDATE test SET id = 1 , addField=[\"xxxx\"] UPSERT WHERE id = 1").close();
     db.commit();
 
-    try (YTResultSet result = db.query("select from test")) {
-      YTResult doc = result.next();
+    try (ResultSet result = db.query("select from test")) {
+      Result doc = result.next();
       Set<?> set = doc.getProperty("addField");
       assertEquals(set.size(), 1);
       assertEquals(set.iterator().next(), "xxxx");
@@ -203,8 +203,8 @@ public class CommandExecutorSQLUpdateTest extends DBTestBase {
     db.begin();
     db.command("insert into test set birthDate = ?", date).close();
     db.commit();
-    try (YTResultSet result = db.query("select from test")) {
-      YTResult doc = result.next();
+    try (ResultSet result = db.query("select from test")) {
+      Result doc = result.next();
       assertEquals(doc.getProperty("birthDate"), date);
     }
 
@@ -213,8 +213,8 @@ public class CommandExecutorSQLUpdateTest extends DBTestBase {
     db.command("UPDATE test set birthDate = ?", date).close();
     db.commit();
 
-    try (YTResultSet result = db.query("select from test")) {
-      YTResult doc = result.next();
+    try (ResultSet result = db.query("select from test")) {
+      Result doc = result.next();
       assertEquals(doc.getProperty("birthDate"), date);
     }
   }
@@ -253,8 +253,8 @@ public class CommandExecutorSQLUpdateTest extends DBTestBase {
         .close();
     db.commit();
 
-    try (YTResultSet queryResult = db.command("SELECT * FROM test WHERE id = 1")) {
-      YTResult docResult = queryResult.next();
+    try (ResultSet queryResult = db.command("SELECT * FROM test WHERE id = 1")) {
+      Result docResult = queryResult.next();
       List<?> resultBooleanList = docResult.getProperty("booleanList");
       assertNotNull(resultBooleanList);
       assertEquals(resultBooleanList.size(), 1);
@@ -383,7 +383,7 @@ public class CommandExecutorSQLUpdateTest extends DBTestBase {
     db.command(new CommandScript(script)).execute(db);
     db.commit();
 
-    try (YTResultSet result = db.query("select from A")) {
+    try (ResultSet result = db.query("select from A")) {
       assertEquals(result.next().getProperty("name"), "baz");
       assertFalse(result.hasNext());
     }
@@ -397,7 +397,7 @@ public class CommandExecutorSQLUpdateTest extends DBTestBase {
     db.command("UPDATE `foo-bar` set name = 'bar' where name = 'foo'").close();
     db.commit();
 
-    try (YTResultSet result = db.query("select from `foo-bar`")) {
+    try (ResultSet result = db.query("select from `foo-bar`")) {
       assertEquals(result.next().getProperty("name"), "bar");
     }
   }
@@ -408,7 +408,7 @@ public class CommandExecutorSQLUpdateTest extends DBTestBase {
     db.getMetadata().getSchema().createClass("foo");
     db.command("insert into foo set name = 'foo'").close();
     db.command("UPDATE foo set name = 'bar' where name = 'foo' lock record limit 1").close();
-    try (YTResultSet result = db.query("select from foo")) {
+    try (ResultSet result = db.query("select from foo")) {
       assertEquals(result.next().getProperty("name"), "bar");
     }
     db.command("UPDATE foo set name = 'foo' where name = 'bar' lock record limit 1").close();
@@ -425,8 +425,8 @@ public class CommandExecutorSQLUpdateTest extends DBTestBase {
     db.command("UPDATE cluster:foo set bar = {\"value\":\"foo\\\\\"}").close();
     db.commit();
 
-    try (YTResultSet result = db.query("select from cluster:foo")) {
-      assertEquals(((YTResult) result.next().getProperty("bar")).getProperty("value"), "foo\\");
+    try (ResultSet result = db.query("select from cluster:foo")) {
+      assertEquals(((Result) result.next().getProperty("bar")).getProperty("value"), "foo\\");
     }
   }
 
@@ -443,10 +443,10 @@ public class CommandExecutorSQLUpdateTest extends DBTestBase {
     db.command("UPDATE cluster:foo set bar = {\"value\":\"foo\\\\\"}").close();
     db.commit();
 
-    try (YTResultSet result = db.query("select from cluster:foo")) {
+    try (ResultSet result = db.query("select from cluster:foo")) {
       assertTrue(result.hasNext());
-      YTResult doc = result.next();
-      assertEquals(((YTResult) doc.getProperty("bar")).getProperty("value"), "foo\\");
+      Result doc = result.next();
+      assertEquals(((Result) doc.getProperty("bar")).getProperty("value"), "foo\\");
       assertFalse(result.hasNext());
     }
 
@@ -455,10 +455,10 @@ public class CommandExecutorSQLUpdateTest extends DBTestBase {
     db.command("UPDATE cluster:fooadditional1 set bar = {\"value\":\"foo\\\\\"}").close();
     db.commit();
 
-    try (YTResultSet result = db.query("select from cluster:fooadditional1")) {
+    try (ResultSet result = db.query("select from cluster:fooadditional1")) {
       assertTrue(result.hasNext());
-      YTResult doc = result.next();
-      assertEquals(((YTResult) doc.getProperty("bar")).getProperty("value"), "foo\\");
+      Result doc = result.next();
+      assertEquals(((Result) doc.getProperty("bar")).getProperty("value"), "foo\\");
       assertFalse(result.hasNext());
     }
   }
@@ -480,13 +480,13 @@ public class CommandExecutorSQLUpdateTest extends DBTestBase {
         .close();
     db.commit();
 
-    YTResultSet resultSet = db.query("select from cluster:[ fooadditional1, fooadditional2 ]");
+    ResultSet resultSet = db.query("select from cluster:[ fooadditional1, fooadditional2 ]");
     assertTrue(resultSet.hasNext());
-    YTResult doc = resultSet.next();
-    assertEquals(((YTResult) doc.getProperty("bar")).getProperty("value"), "foo\\");
+    Result doc = resultSet.next();
+    assertEquals(((Result) doc.getProperty("bar")).getProperty("value"), "foo\\");
     assertTrue(resultSet.hasNext());
     doc = resultSet.next();
-    assertEquals(((YTResult) doc.getProperty("bar")).getProperty("value"), "foo\\");
+    assertEquals(((Result) doc.getProperty("bar")).getProperty("value"), "foo\\");
     assertFalse(resultSet.hasNext());
     resultSet.close();
   }
@@ -505,9 +505,9 @@ public class CommandExecutorSQLUpdateTest extends DBTestBase {
     db.command("update Foo CONTENT {\"a\":1}").close();
     db.commit();
 
-    try (YTResultSet result = db.query("select from Foo")) {
+    try (ResultSet result = db.query("select from Foo")) {
 
-      YTResult doc = result.next();
+      Result doc = result.next();
       assertNull(doc.getProperty("_allowRead"));
       assertFalse(result.hasNext());
     }
@@ -531,7 +531,7 @@ public class CommandExecutorSQLUpdateTest extends DBTestBase {
     db.commit();
 
     db.begin();
-    YTResultSet result = db.command("update Foo set surname = 'baz' return count");
+    ResultSet result = db.command("update Foo set surname = 'baz' return count");
     db.commit();
 
     assertEquals(2, (long) result.next().getProperty("count"));
@@ -566,9 +566,9 @@ public class CommandExecutorSQLUpdateTest extends DBTestBase {
         .close();
     db.commit();
 
-    YTResultSet result = db.query("select from TestLinked where id = \"idvalue\"");
+    ResultSet result = db.query("select from TestLinked where id = \"idvalue\"");
     while (result.hasNext()) {
-      YTResult res = result.next();
+      Result res = result.next();
       assertTrue(res.hasProperty("flag"));
       assertTrue(res.getProperty("flag"));
     }

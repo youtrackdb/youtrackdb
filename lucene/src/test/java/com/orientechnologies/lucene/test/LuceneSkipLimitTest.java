@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,14 +34,14 @@ public class LuceneSkipLimitTest extends BaseLuceneTest {
   @Test
   public void testContext() {
 
-    List<YTRID> docs =
+    List<RID> docs =
         db.query("select * from Song where [title] LUCENE \"(title:man)\"").stream()
             .map((r) -> r.getIdentity().get())
             .collect(Collectors.toList());
 
     Assert.assertEquals(docs.size(), 14);
 
-    YTRID doc = docs.get(9);
+    RID doc = docs.get(9);
     docs =
         db
             .query("select * from Song where [title] LUCENE \"(title:man)\" skip 10 limit 10")

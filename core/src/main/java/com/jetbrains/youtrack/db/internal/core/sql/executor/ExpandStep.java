@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Iterator;
@@ -20,15 +20,15 @@ public class ExpandStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev == null) {
-      throw new YTCommandExecutionException("Cannot expand without a target");
+      throw new CommandExecutionException("Cannot expand without a target");
     }
     ExecutionStream resultSet = prev.start(ctx);
     return resultSet.flatMap(ExpandStep::nextResults);
   }
 
-  private static ExecutionStream nextResults(YTResult nextAggregateItem, CommandContext ctx) {
+  private static ExecutionStream nextResults(Result nextAggregateItem, CommandContext ctx) {
     if (nextAggregateItem.getPropertyNames().isEmpty()) {
       return ExecutionStream.empty();
     }
@@ -41,18 +41,18 @@ public class ExpandStep extends AbstractExecutionStep {
     if (projValue == null) {
       return ExecutionStream.empty();
     }
-    if (projValue instanceof YTIdentifiable) {
+    if (projValue instanceof Identifiable) {
       Record rec;
       try {
-        rec = ((YTIdentifiable) projValue).getRecord();
-      } catch (YTRecordNotFoundException rnf) {
+        rec = ((Identifiable) projValue).getRecord();
+      } catch (RecordNotFoundException rnf) {
         return ExecutionStream.empty();
       }
 
-      YTResultInternal res = new YTResultInternal(ctx.getDatabase(), rec);
+      ResultInternal res = new ResultInternal(ctx.getDatabase(), rec);
       return ExecutionStream.singleton(res);
-    } else if (projValue instanceof YTResult) {
-      return ExecutionStream.singleton((YTResult) projValue);
+    } else if (projValue instanceof Result) {
+      return ExecutionStream.singleton((Result) projValue);
     } else if (projValue instanceof Iterator) {
       //noinspection unchecked
       return ExecutionStream.iterator((Iterator<Object>) projValue);

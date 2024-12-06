@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.internal.core.collate.OCaseInsensitiveCollate;
-import com.jetbrains.youtrack.db.internal.core.collate.ODefaultCollate;
-import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.OBinaryField;
+import com.jetbrains.youtrack.db.internal.core.collate.CaseInsensitiveCollate;
+import com.jetbrains.youtrack.db.internal.core.collate.DefaultCollate;
+import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BinaryField;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,60 +20,60 @@ public class BinaryComparatorEqualsTest extends AbstractComparatorTest {
 
   @Before
   public void before() {
-    ODatabaseRecordThreadLocal.instance().remove();
+    DatabaseRecordThreadLocal.instance().remove();
   }
 
   @Test
   public void testInteger() {
-    testEquals(YTType.INTEGER, 10);
+    testEquals(PropertyType.INTEGER, 10);
   }
 
   @Test
   public void testLong() {
-    testEquals(YTType.LONG, 10L);
+    testEquals(PropertyType.LONG, 10L);
   }
 
   @Test
   public void testShort() {
-    testEquals(YTType.SHORT, (short) 10);
+    testEquals(PropertyType.SHORT, (short) 10);
   }
 
   @Test
   public void testByte() {
-    testEquals(YTType.BYTE, (byte) 10);
+    testEquals(PropertyType.BYTE, (byte) 10);
   }
 
   @Test
   public void testFloat() {
-    testEquals(YTType.FLOAT, 10f);
+    testEquals(PropertyType.FLOAT, 10f);
   }
 
   @Test
   public void testDouble() {
-    testEquals(YTType.DOUBLE, 10d);
+    testEquals(PropertyType.DOUBLE, 10d);
   }
 
   @Test
   public void testDatetime() throws ParseException {
-    testEquals(YTType.DATETIME, 10L);
+    testEquals(PropertyType.DATETIME, 10L);
 
     final SimpleDateFormat format =
-        new SimpleDateFormat(OStorageConfiguration.DEFAULT_DATETIME_FORMAT);
+        new SimpleDateFormat(StorageConfiguration.DEFAULT_DATETIME_FORMAT);
 
     String now1 = format.format(new Date());
     Date now = format.parse(now1);
 
     Assert.assertTrue(
-        comparator.isEqual(field(db, YTType.DATETIME, now),
-            field(db, YTType.STRING, format.format(now))));
+        comparator.isEqual(field(db, PropertyType.DATETIME, now),
+            field(db, PropertyType.STRING, format.format(now))));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.DATETIME, new Date(now.getTime() + 1)),
-            field(db, YTType.STRING, format.format(now))));
+            field(db, PropertyType.DATETIME, new Date(now.getTime() + 1)),
+            field(db, PropertyType.STRING, format.format(now))));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.DATETIME, new Date(now.getTime() - 1)),
-            field(db, YTType.STRING, format.format(now))));
+            field(db, PropertyType.DATETIME, new Date(now.getTime() - 1)),
+            field(db, PropertyType.STRING, format.format(now))));
   }
 
   @Test
@@ -83,191 +83,203 @@ public class BinaryComparatorEqualsTest extends AbstractComparatorTest {
     final byte[] b3 = new byte[]{1, 1, 2, 4};
 
     Assert.assertTrue(
-        comparator.isEqual(field(db, YTType.BINARY, b1), field(db, YTType.BINARY, b1)));
+        comparator.isEqual(field(db, PropertyType.BINARY, b1), field(db, PropertyType.BINARY, b1)));
     Assert.assertFalse(
-        comparator.isEqual(field(db, YTType.BINARY, b1), field(db, YTType.BINARY, b2)));
+        comparator.isEqual(field(db, PropertyType.BINARY, b1), field(db, PropertyType.BINARY, b2)));
     Assert.assertFalse(
-        comparator.isEqual(field(db, YTType.BINARY, b1), field(db, YTType.BINARY, b3)));
+        comparator.isEqual(field(db, PropertyType.BINARY, b1), field(db, PropertyType.BINARY, b3)));
   }
 
   @Test
   public void testLinks() throws ParseException {
     Assert.assertTrue(
         comparator.isEqual(
-            field(db, YTType.LINK, new YTRecordId(1, 2)),
-            field(db, YTType.LINK, new YTRecordId(1, 2))));
+            field(db, PropertyType.LINK, new RecordId(1, 2)),
+            field(db, PropertyType.LINK, new RecordId(1, 2))));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.LINK, new YTRecordId(1, 2)),
-            field(db, YTType.LINK, new YTRecordId(2, 1))));
+            field(db, PropertyType.LINK, new RecordId(1, 2)),
+            field(db, PropertyType.LINK, new RecordId(2, 1))));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.LINK, new YTRecordId(1, 2)),
-            field(db, YTType.LINK, new YTRecordId(0, 2))));
+            field(db, PropertyType.LINK, new RecordId(1, 2)),
+            field(db, PropertyType.LINK, new RecordId(0, 2))));
 
     Assert.assertTrue(
         comparator.isEqual(
-            field(db, YTType.LINK, new YTRecordId(1, 2)),
-            field(db, YTType.STRING, new YTRecordId(1, 2).toString())));
+            field(db, PropertyType.LINK, new RecordId(1, 2)),
+            field(db, PropertyType.STRING, new RecordId(1, 2).toString())));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.LINK, new YTRecordId(1, 2)),
-            field(db, YTType.STRING, new YTRecordId(0, 2).toString())));
+            field(db, PropertyType.LINK, new RecordId(1, 2)),
+            field(db, PropertyType.STRING, new RecordId(0, 2).toString())));
   }
 
   @Test
   public void testString() {
-    Assert.assertTrue(comparator.isEqual(field(db, YTType.STRING, "test"), field(db, YTType.STRING,
+    Assert.assertTrue(
+        comparator.isEqual(field(db, PropertyType.STRING, "test"), field(db, PropertyType.STRING,
         "test")));
     Assert.assertFalse(
-        comparator.isEqual(field(db, YTType.STRING, "test2"), field(db, YTType.STRING, "test")));
+        comparator.isEqual(field(db, PropertyType.STRING, "test2"),
+            field(db, PropertyType.STRING, "test")));
     Assert.assertFalse(
-        comparator.isEqual(field(db, YTType.STRING, "test"), field(db, YTType.STRING, "test2")));
+        comparator.isEqual(field(db, PropertyType.STRING, "test"),
+            field(db, PropertyType.STRING, "test2")));
     Assert.assertFalse(
-        comparator.isEqual(field(db, YTType.STRING, "t"), field(db, YTType.STRING, "te")));
+        comparator.isEqual(field(db, PropertyType.STRING, "t"),
+            field(db, PropertyType.STRING, "te")));
 
     // DEF COLLATE
     Assert.assertTrue(
         comparator.isEqual(
-            field(db, YTType.STRING, "test", new ODefaultCollate()),
-            field(db, YTType.STRING, "test")));
+            field(db, PropertyType.STRING, "test", new DefaultCollate()),
+            field(db, PropertyType.STRING, "test")));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.STRING, "test2", new ODefaultCollate()),
-            field(db, YTType.STRING, "test")));
+            field(db, PropertyType.STRING, "test2", new DefaultCollate()),
+            field(db, PropertyType.STRING, "test")));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.STRING, "test", new ODefaultCollate()),
-            field(db, YTType.STRING, "test2")));
+            field(db, PropertyType.STRING, "test", new DefaultCollate()),
+            field(db, PropertyType.STRING, "test2")));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.STRING, "t", new ODefaultCollate()), field(db, YTType.STRING, "te")));
+            field(db, PropertyType.STRING, "t", new DefaultCollate()),
+            field(db, PropertyType.STRING, "te")));
 
     Assert.assertTrue(
         comparator.isEqual(
-            field(db, YTType.STRING, "test", new ODefaultCollate()),
-            field(db, YTType.STRING, "test", new ODefaultCollate())));
+            field(db, PropertyType.STRING, "test", new DefaultCollate()),
+            field(db, PropertyType.STRING, "test", new DefaultCollate())));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.STRING, "test2", new ODefaultCollate()),
-            field(db, YTType.STRING, "test", new ODefaultCollate())));
+            field(db, PropertyType.STRING, "test2", new DefaultCollate()),
+            field(db, PropertyType.STRING, "test", new DefaultCollate())));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.STRING, "test", new ODefaultCollate()),
-            field(db, YTType.STRING, "test2", new ODefaultCollate())));
+            field(db, PropertyType.STRING, "test", new DefaultCollate()),
+            field(db, PropertyType.STRING, "test2", new DefaultCollate())));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.STRING, "t", new ODefaultCollate()),
-            field(db, YTType.STRING, "te", new ODefaultCollate())));
+            field(db, PropertyType.STRING, "t", new DefaultCollate()),
+            field(db, PropertyType.STRING, "te", new DefaultCollate())));
 
     Assert.assertTrue(
         comparator.isEqual(
-            field(db, YTType.STRING, "test"),
-            field(db, YTType.STRING, "test", new ODefaultCollate())));
+            field(db, PropertyType.STRING, "test"),
+            field(db, PropertyType.STRING, "test", new DefaultCollate())));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.STRING, "test2"),
-            field(db, YTType.STRING, "test", new ODefaultCollate())));
+            field(db, PropertyType.STRING, "test2"),
+            field(db, PropertyType.STRING, "test", new DefaultCollate())));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.STRING, "test"),
-            field(db, YTType.STRING, "test2", new ODefaultCollate())));
+            field(db, PropertyType.STRING, "test"),
+            field(db, PropertyType.STRING, "test2", new DefaultCollate())));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.STRING, "t"), field(db, YTType.STRING, "te", new ODefaultCollate())));
+            field(db, PropertyType.STRING, "t"),
+            field(db, PropertyType.STRING, "te", new DefaultCollate())));
 
     // CASE INSENSITIVE COLLATE
     Assert.assertTrue(
         comparator.isEqual(
-            field(db, YTType.STRING, "test"),
-            field(db, YTType.STRING, "test", new OCaseInsensitiveCollate())));
+            field(db, PropertyType.STRING, "test"),
+            field(db, PropertyType.STRING, "test", new CaseInsensitiveCollate())));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.STRING, "test2"),
-            field(db, YTType.STRING, "test", new OCaseInsensitiveCollate())));
+            field(db, PropertyType.STRING, "test2"),
+            field(db, PropertyType.STRING, "test", new CaseInsensitiveCollate())));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.STRING, "test"),
-            field(db, YTType.STRING, "test2", new OCaseInsensitiveCollate())));
+            field(db, PropertyType.STRING, "test"),
+            field(db, PropertyType.STRING, "test2", new CaseInsensitiveCollate())));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.STRING, "t"),
-            field(db, YTType.STRING, "te", new OCaseInsensitiveCollate())));
+            field(db, PropertyType.STRING, "t"),
+            field(db, PropertyType.STRING, "te", new CaseInsensitiveCollate())));
 
     Assert.assertTrue(
         comparator.isEqual(
-            field(db, YTType.STRING, "test"),
-            field(db, YTType.STRING, "TEST", new OCaseInsensitiveCollate())));
+            field(db, PropertyType.STRING, "test"),
+            field(db, PropertyType.STRING, "TEST", new CaseInsensitiveCollate())));
     Assert.assertTrue(
         comparator.isEqual(
-            field(db, YTType.STRING, "TEST"),
-            field(db, YTType.STRING, "TEST", new OCaseInsensitiveCollate())));
+            field(db, PropertyType.STRING, "TEST"),
+            field(db, PropertyType.STRING, "TEST", new CaseInsensitiveCollate())));
     Assert.assertTrue(
         comparator.isEqual(
-            field(db, YTType.STRING, "TE"),
-            field(db, YTType.STRING, "te", new OCaseInsensitiveCollate())));
+            field(db, PropertyType.STRING, "TE"),
+            field(db, PropertyType.STRING, "te", new CaseInsensitiveCollate())));
 
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.STRING, "test2"),
-            field(db, YTType.STRING, "TEST", new OCaseInsensitiveCollate())));
+            field(db, PropertyType.STRING, "test2"),
+            field(db, PropertyType.STRING, "TEST", new CaseInsensitiveCollate())));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.STRING, "test"),
-            field(db, YTType.STRING, "TEST2", new OCaseInsensitiveCollate())));
+            field(db, PropertyType.STRING, "test"),
+            field(db, PropertyType.STRING, "TEST2", new CaseInsensitiveCollate())));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.STRING, "t"),
-            field(db, YTType.STRING, "tE", new OCaseInsensitiveCollate())));
+            field(db, PropertyType.STRING, "t"),
+            field(db, PropertyType.STRING, "tE", new CaseInsensitiveCollate())));
   }
 
   @Test
   public void testDecimal() {
     Assert.assertTrue(
         comparator.isEqual(
-            field(db, YTType.DECIMAL, new BigDecimal(10)),
-            field(db, YTType.DECIMAL, new BigDecimal(10))));
+            field(db, PropertyType.DECIMAL, new BigDecimal(10)),
+            field(db, PropertyType.DECIMAL, new BigDecimal(10))));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.DECIMAL, new BigDecimal(10)),
-            field(db, YTType.DECIMAL, new BigDecimal(11))));
+            field(db, PropertyType.DECIMAL, new BigDecimal(10)),
+            field(db, PropertyType.DECIMAL, new BigDecimal(11))));
     Assert.assertFalse(
         comparator.isEqual(
-            field(db, YTType.DECIMAL, new BigDecimal(10)),
-            field(db, YTType.DECIMAL, new BigDecimal(9))));
+            field(db, PropertyType.DECIMAL, new BigDecimal(10)),
+            field(db, PropertyType.DECIMAL, new BigDecimal(9))));
   }
 
   @Test
   public void testBoolean() {
     Assert.assertTrue(
-        comparator.isEqual(field(db, YTType.BOOLEAN, true), field(db, YTType.BOOLEAN, true)));
-    Assert.assertFalse(comparator.isEqual(field(db, YTType.BOOLEAN, true), field(db, YTType.BOOLEAN,
+        comparator.isEqual(field(db, PropertyType.BOOLEAN, true),
+            field(db, PropertyType.BOOLEAN, true)));
+    Assert.assertFalse(
+        comparator.isEqual(field(db, PropertyType.BOOLEAN, true), field(db, PropertyType.BOOLEAN,
         false)));
     Assert.assertFalse(
-        comparator.isEqual(field(db, YTType.BOOLEAN, false), field(db, YTType.BOOLEAN,
+        comparator.isEqual(field(db, PropertyType.BOOLEAN, false), field(db, PropertyType.BOOLEAN,
         true)));
 
     Assert.assertTrue(
-        comparator.isEqual(field(db, YTType.BOOLEAN, true), field(db, YTType.STRING, "true")));
+        comparator.isEqual(field(db, PropertyType.BOOLEAN, true),
+            field(db, PropertyType.STRING, "true")));
     Assert.assertTrue(
-        comparator.isEqual(field(db, YTType.BOOLEAN, false), field(db, YTType.STRING, "false")));
+        comparator.isEqual(field(db, PropertyType.BOOLEAN, false),
+            field(db, PropertyType.STRING, "false")));
     Assert.assertFalse(
-        comparator.isEqual(field(db, YTType.BOOLEAN, false), field(db, YTType.STRING, "true")));
+        comparator.isEqual(field(db, PropertyType.BOOLEAN, false),
+            field(db, PropertyType.STRING, "true")));
     Assert.assertFalse(
-        comparator.isEqual(field(db, YTType.BOOLEAN, true), field(db, YTType.STRING, "false")));
+        comparator.isEqual(field(db, PropertyType.BOOLEAN, true),
+            field(db, PropertyType.STRING, "false")));
   }
 
   @Test
   public void testBinaryFieldCopy() {
-    final OBinaryField f = field(db, YTType.BYTE, 10, new OCaseInsensitiveCollate()).copy();
-    Assert.assertEquals(f.type, YTType.BYTE);
+    final BinaryField f = field(db, PropertyType.BYTE, 10, new CaseInsensitiveCollate()).copy();
+    Assert.assertEquals(f.type, PropertyType.BYTE);
     Assert.assertNotNull(f.bytes);
-    Assert.assertEquals(f.collate.getName(), OCaseInsensitiveCollate.NAME);
+    Assert.assertEquals(f.collate.getName(), CaseInsensitiveCollate.NAME);
   }
 
   @Test
   public void testBinaryComparable() {
-    for (YTType t : YTType.values()) {
+    for (PropertyType t : PropertyType.values()) {
       switch (t) {
         case INTEGER:
         case LONG:
@@ -291,13 +303,14 @@ public class BinaryComparatorEqualsTest extends AbstractComparatorTest {
     }
   }
 
-  protected void testEquals(YTType sourceType, Number value10AsSourceType) {
-    YTType[] numberTypes =
-        new YTType[]{YTType.BYTE, YTType.DOUBLE, YTType.FLOAT, YTType.SHORT, YTType.INTEGER,
-            YTType.LONG};
+  protected void testEquals(PropertyType sourceType, Number value10AsSourceType) {
+    PropertyType[] numberTypes =
+        new PropertyType[]{PropertyType.BYTE, PropertyType.DOUBLE, PropertyType.FLOAT,
+            PropertyType.SHORT, PropertyType.INTEGER,
+            PropertyType.LONG};
 
-    for (YTType t : numberTypes) {
-      if (sourceType == YTType.DATETIME && t == YTType.BYTE)
+    for (PropertyType t : numberTypes) {
+      if (sourceType == PropertyType.DATETIME && t == PropertyType.BYTE)
       // SKIP TEST
       {
         continue;
@@ -306,47 +319,48 @@ public class BinaryComparatorEqualsTest extends AbstractComparatorTest {
       testEquals(db, sourceType, t);
     }
 
-    for (YTType t : numberTypes) {
+    for (PropertyType t : numberTypes) {
       testEquals(db, t, sourceType);
     }
 
-    if (sourceType != YTType.DATETIME) {
+    if (sourceType != PropertyType.DATETIME) {
       // STRING
       Assert.assertTrue(
           comparator.isEqual(
               field(db, sourceType, value10AsSourceType),
-              field(db, YTType.STRING, value10AsSourceType.toString())));
+              field(db, PropertyType.STRING, value10AsSourceType.toString())));
       Assert.assertFalse(
           comparator.isEqual(field(db, sourceType, value10AsSourceType),
-              field(db, YTType.STRING, "9")));
+              field(db, PropertyType.STRING, "9")));
       Assert.assertFalse(
           comparator.isEqual(field(db, sourceType, value10AsSourceType),
-              field(db, YTType.STRING, "11")));
+              field(db, PropertyType.STRING, "11")));
       Assert.assertFalse(
           comparator.isEqual(
               field(db, sourceType, value10AsSourceType.intValue() * 2),
-              field(db, YTType.STRING, "11")));
+              field(db, PropertyType.STRING, "11")));
 
       Assert.assertTrue(
           comparator.isEqual(
-              field(db, YTType.STRING, value10AsSourceType.toString()),
+              field(db, PropertyType.STRING, value10AsSourceType.toString()),
               field(db, sourceType, value10AsSourceType)));
       Assert.assertFalse(
           comparator.isEqual(
-              field(db, YTType.STRING, value10AsSourceType.toString()),
+              field(db, PropertyType.STRING, value10AsSourceType.toString()),
               field(db, sourceType, value10AsSourceType.intValue() - 1)));
       Assert.assertFalse(
           comparator.isEqual(
-              field(db, YTType.STRING, value10AsSourceType.toString()),
+              field(db, PropertyType.STRING, value10AsSourceType.toString()),
               field(db, sourceType, value10AsSourceType.intValue() + 1)));
       Assert.assertFalse(
           comparator.isEqual(
-              field(db, YTType.STRING, "" + value10AsSourceType.intValue() * 2),
+              field(db, PropertyType.STRING, "" + value10AsSourceType.intValue() * 2),
               field(db, sourceType, value10AsSourceType.intValue())));
     }
   }
 
-  protected void testEquals(YTDatabaseSessionInternal db, YTType sourceType, YTType destType) {
+  protected void testEquals(DatabaseSessionInternal db, PropertyType sourceType,
+      PropertyType destType) {
     try {
       Assert.assertTrue(comparator.isEqual(field(db, sourceType, 10), field(db, destType, 10)));
       Assert.assertFalse(comparator.isEqual(field(db, sourceType, 10), field(db, destType, 9)));

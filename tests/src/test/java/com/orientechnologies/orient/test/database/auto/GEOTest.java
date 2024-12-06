@@ -15,13 +15,13 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.List;
 import java.util.Set;
 import org.testng.Assert;
@@ -39,18 +39,18 @@ public class GEOTest extends DocumentDBBaseTest {
 
   @Test
   public void geoSchema() {
-    final YTClass mapPointClass = database.getMetadata().getSchema().createClass("MapPoint");
-    mapPointClass.createProperty(database, "x", YTType.DOUBLE)
-        .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
-    mapPointClass.createProperty(database, "y", YTType.DOUBLE)
-        .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
+    final SchemaClass mapPointClass = database.getMetadata().getSchema().createClass("MapPoint");
+    mapPointClass.createProperty(database, "x", PropertyType.DOUBLE)
+        .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+    mapPointClass.createProperty(database, "y", PropertyType.DOUBLE)
+        .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
-    final Set<OIndex> xIndexes =
+    final Set<Index> xIndexes =
         database.getMetadata().getSchema().getClass("MapPoint").getProperty("x")
             .getIndexes(database);
     Assert.assertEquals(xIndexes.size(), 1);
 
-    final Set<OIndex> yIndexes =
+    final Set<Index> yIndexes =
         database.getMetadata().getSchema().getClass("MapPoint").getProperty("y")
             .getIndexes(database);
     Assert.assertEquals(yIndexes.size(), 1);
@@ -58,12 +58,12 @@ public class GEOTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "geoSchema")
   public void checkGeoIndexes() {
-    final Set<OIndex> xIndexes =
+    final Set<Index> xIndexes =
         database.getMetadata().getSchema().getClass("MapPoint").getProperty("x")
             .getIndexes(database);
     Assert.assertEquals(xIndexes.size(), 1);
 
-    final Set<OIndex> yIndexDefinitions =
+    final Set<Index> yIndexDefinitions =
         database.getMetadata().getSchema().getClass("MapPoint").getProperty("y")
             .getIndexes(database);
     Assert.assertEquals(yIndexDefinitions.size(), 1);
@@ -93,7 +93,7 @@ public class GEOTest extends DocumentDBBaseTest {
     List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select from MapPoint where distance(x, y,52.20472, 0.14056 ) <= 30"))
             .execute(database);
 
@@ -101,7 +101,7 @@ public class GEOTest extends DocumentDBBaseTest {
 
     for (EntityImpl d : result) {
       Assert.assertEquals(d.getClassName(), "MapPoint");
-      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
@@ -111,12 +111,12 @@ public class GEOTest extends DocumentDBBaseTest {
 
     // MAKE THE FIRST RECORD DIRTY TO TEST IF DISTANCE JUMP IT
     List<EntityImpl> result =
-        database.command(new OSQLSynchQuery<EntityImpl>("select from MapPoint limit 1"))
+        database.command(new SQLSynchQuery<EntityImpl>("select from MapPoint limit 1"))
             .execute(database);
     try {
       result.get(0).field("x", "--wrong--");
       Assert.fail();
-    } catch (YTDatabaseException e) {
+    } catch (DatabaseException e) {
       Assert.assertTrue(true);
     }
 

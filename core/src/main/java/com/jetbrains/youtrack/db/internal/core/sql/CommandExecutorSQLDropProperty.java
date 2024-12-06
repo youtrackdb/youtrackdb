@@ -19,16 +19,16 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.comparator.OCaseInsentiveComparator;
-import com.jetbrains.youtrack.db.internal.common.util.OCollections;
+import com.jetbrains.youtrack.db.internal.common.comparator.CaseInsentiveComparator;
+import com.jetbrains.youtrack.db.internal.common.util.Collections;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClassImpl;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +38,7 @@ import java.util.Map;
  */
 @SuppressWarnings("unchecked")
 public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String KEYWORD_DROP = "DROP";
   public static final String KEYWORD_PROPERTY = "PROPERTY";
@@ -64,31 +64,31 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_DROP)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_DROP + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_PROPERTY)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_PROPERTY + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, false);
       if (pos == -1) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Expected <class>.<property>. Use " + getSyntax(), parserText, pos);
       }
 
       String[] parts = word.toString().split("\\.");
       if (parts.length != 2) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Expected <class>.<property>. Use " + getSyntax(), parserText, pos);
       }
 
       className = decodeClassName(parts[0]);
       if (className == null) {
-        throw new YTCommandSQLParsingException("Class not found", parserText, pos);
+        throw new CommandSQLParsingException("Class not found", parserText, pos);
       }
       fieldName = decodeClassName(parts[1]);
 
@@ -102,11 +102,11 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
           if ("EXISTS".contentEquals(word)) {
             this.ifExists = true;
           } else {
-            throw new YTCommandSQLParsingException(
+            throw new CommandSQLParsingException(
                 "Wrong query parameter, expecting EXISTS after IF", parserText, pos);
           }
         } else {
-          throw new YTCommandSQLParsingException("Wrong query parameter", parserText, pos);
+          throw new CommandSQLParsingException("Wrong query parameter", parserText, pos);
         }
       }
     } finally {
@@ -119,24 +119,24 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
   /**
    * Execute the CREATE PROPERTY.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (fieldName == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not yet been parsed");
     }
 
     final var database = getDatabase();
-    final YTClassImpl sourceClass =
-        (YTClassImpl) database.getMetadata().getSchema().getClass(className);
+    final SchemaClassImpl sourceClass =
+        (SchemaClassImpl) database.getMetadata().getSchema().getClass(className);
     if (sourceClass == null) {
-      throw new YTCommandExecutionException("Source class '" + className + "' not found");
+      throw new CommandExecutionException("Source class '" + className + "' not found");
     }
 
     if (ifExists && !sourceClass.existsProperty(fieldName)) {
       return null;
     }
 
-    final List<OIndex> indexes = relatedIndexes(fieldName);
+    final List<Index> indexes = relatedIndexes(fieldName);
     if (!indexes.isEmpty()) {
       if (force) {
         dropRelatedIndexes(indexes);
@@ -144,7 +144,7 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
         final StringBuilder indexNames = new StringBuilder();
 
         boolean first = true;
-        for (final OIndex index : sourceClass.getClassInvolvedIndexes(database, fieldName)) {
+        for (final Index index : sourceClass.getClassInvolvedIndexes(database, fieldName)) {
           if (!first) {
             indexNames.append(", ");
           } else {
@@ -153,7 +153,7 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
           indexNames.append(index.getName());
         }
 
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "Property used in indexes ("
                 + indexNames
                 + "). Please drop these indexes before removing property or use FORCE parameter.");
@@ -178,23 +178,23 @@ public class CommandExecutorSQLDropProperty extends CommandExecutorSQLAbstract
     return QUORUM_TYPE.ALL;
   }
 
-  private void dropRelatedIndexes(final List<OIndex> indexes) {
+  private void dropRelatedIndexes(final List<Index> indexes) {
     var database = getDatabase();
-    for (final OIndex index : indexes) {
+    for (final Index index : indexes) {
       database.command("DROP INDEX " + index.getName()).close();
     }
   }
 
-  private List<OIndex> relatedIndexes(final String fieldName) {
-    final List<OIndex> result = new ArrayList<OIndex>();
+  private List<Index> relatedIndexes(final String fieldName) {
+    final List<Index> result = new ArrayList<Index>();
 
-    final YTDatabaseSessionInternal database = getDatabase();
-    for (final OIndex oIndex :
+    final DatabaseSessionInternal database = getDatabase();
+    for (final Index index :
         database.getMetadata().getIndexManagerInternal().getClassIndexes(database, className)) {
-      if (OCollections.indexOf(
-          oIndex.getDefinition().getFields(), fieldName, new OCaseInsentiveComparator())
+      if (Collections.indexOf(
+          index.getDefinition().getFields(), fieldName, new CaseInsentiveComparator())
           > -1) {
-        result.add(oIndex);
+        result.add(index);
       }
     }
 

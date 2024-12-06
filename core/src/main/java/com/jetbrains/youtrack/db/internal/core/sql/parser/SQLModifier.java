@@ -2,16 +2,16 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OPath;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.MetadataPath;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -104,7 +104,7 @@ public class SQLModifier extends SimpleNode {
     }
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, Object result, CommandContext ctx) {
+  public Object execute(Identifiable iCurrentRecord, Object result, CommandContext ctx) {
     if (ctx.getVariable("$current") == null) {
       ctx.setVariable("$current", iCurrentRecord);
     }
@@ -127,7 +127,7 @@ public class SQLModifier extends SimpleNode {
     return result;
   }
 
-  public Object execute(YTResult iCurrentRecord, Object result, CommandContext ctx) {
+  public Object execute(Result iCurrentRecord, Object result, CommandContext ctx) {
     if (ctx.getVariable("$current") == null) {
       ctx.setVariable("$current", iCurrentRecord);
     }
@@ -164,7 +164,7 @@ public class SQLModifier extends SimpleNode {
       }
       return result;
     }
-    if (iResult instanceof YTIdentifiable) {
+    if (iResult instanceof Identifiable) {
       iResult = Collections.singleton(iResult);
     }
     if (iResult instanceof Iterable) {
@@ -311,7 +311,7 @@ public class SQLModifier extends SimpleNode {
     return suffix != null && suffix.refersToParent();
   }
 
-  protected void setValue(YTResult currentRecord, Object target, Object value,
+  protected void setValue(Result currentRecord, Object target, Object value,
       CommandContext ctx) {
     if (next == null) {
       doSetValue(currentRecord, target, value, ctx);
@@ -323,7 +323,7 @@ public class SQLModifier extends SimpleNode {
     }
   }
 
-  private void doSetValue(YTResult currentRecord, Object target, Object value,
+  private void doSetValue(Result currentRecord, Object target, Object value,
       CommandContext ctx) {
     value = SQLUpdateItem.convertResultToDocument(value);
     value = SQLUpdateItem.cleanValue(value);
@@ -345,7 +345,7 @@ public class SQLModifier extends SimpleNode {
     }
   }
 
-  private Object calculateLocal(YTResult currentRecord, Object target, CommandContext ctx) {
+  private Object calculateLocal(Result currentRecord, Object target, CommandContext ctx) {
     if (methodCall != null) {
       return methodCall.execute(target, ctx);
     } else if (suffix != null) {
@@ -353,15 +353,15 @@ public class SQLModifier extends SimpleNode {
     } else if (arrayRange != null) {
       return arrayRange.execute(currentRecord, target, ctx);
     } else if (condition != null) {
-      if (target instanceof YTResult || target instanceof YTIdentifiable || target instanceof Map) {
+      if (target instanceof Result || target instanceof Identifiable || target instanceof Map) {
         if (condition.evaluate(target, ctx)) {
           return target;
         } else {
           return null;
         }
-      } else if (OMultiValue.isMultiValue(target)) {
+      } else if (MultiValue.isMultiValue(target)) {
         List<Object> result = new ArrayList<>();
-        for (Object o : OMultiValue.getMultiValueIterable(target)) {
+        for (Object o : MultiValue.getMultiValueIterable(target)) {
           if (condition.evaluate(o, ctx)) {
             result.add(o);
           }
@@ -379,7 +379,7 @@ public class SQLModifier extends SimpleNode {
   }
 
   public void applyRemove(
-      Object currentValue, YTResultInternal originalRecord, CommandContext ctx) {
+      Object currentValue, ResultInternal originalRecord, CommandContext ctx) {
     if (next != null) {
       Object val = calculateLocal(originalRecord, currentValue, ctx);
       next.applyRemove(val, originalRecord, ctx);
@@ -398,13 +398,13 @@ public class SQLModifier extends SimpleNode {
       } else if (suffix != null) {
         suffix.applyRemove(currentValue, ctx);
       } else {
-        throw new YTCommandExecutionException("cannot apply REMOVE " + this);
+        throw new CommandExecutionException("cannot apply REMOVE " + this);
       }
     }
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("squareBrackets", squareBrackets);
     if (arrayRange != null) {
       result.setProperty("arrayRange", arrayRange.serialize(db));
@@ -430,7 +430,7 @@ public class SQLModifier extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     squareBrackets = fromResult.getProperty("squareBrackets");
 
     if (fromResult.getProperty("arrayRange") != null) {
@@ -464,7 +464,7 @@ public class SQLModifier extends SimpleNode {
     }
   }
 
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     if (arrayRange != null || arraySingleValues != null || rightBinaryCondition != null) {
       return false; // TODO enhance a bit
     }
@@ -480,14 +480,14 @@ public class SQLModifier extends SimpleNode {
     return next == null || next.isCacheable(session);
   }
 
-  public boolean isIndexChain(CommandContext ctx, YTClass clazz) {
+  public boolean isIndexChain(CommandContext ctx, SchemaClass clazz) {
     if (suffix != null && suffix.isBaseIdentifier()) {
-      YTProperty prop = clazz.getProperty(suffix.getIdentifier().getStringValue());
+      Property prop = clazz.getProperty(suffix.getIdentifier().getStringValue());
       if (prop != null
           && prop.getAllIndexes(ctx.getDatabase()).stream()
           .anyMatch(idx -> idx.getDefinition().getFields().size() == 1)) {
         if (next != null) {
-          YTClass linkedClazz = prop.getLinkedClass();
+          SchemaClass linkedClazz = prop.getLinkedClass();
           return next.isIndexChain(ctx, linkedClazz);
         }
         return true;
@@ -496,16 +496,16 @@ public class SQLModifier extends SimpleNode {
     return false;
   }
 
-  public Optional<OPath> getPath() {
+  public Optional<MetadataPath> getPath() {
     if (this.suffix != null && this.suffix.isBaseIdentifier()) {
       if (this.next != null) {
-        Optional<OPath> path = this.next.getPath();
+        Optional<MetadataPath> path = this.next.getPath();
         if (path.isPresent()) {
           path.get().addPre(suffix.identifier.getValue());
         }
         return path;
       } else {
-        return Optional.of(new OPath(suffix.identifier.getValue()));
+        return Optional.of(new MetadataPath(suffix.identifier.getValue()));
       }
     }
     return Optional.empty();

@@ -20,8 +20,8 @@
 package com.jetbrains.youtrack.db.internal.core.query;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestAbstract;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.fetch.OFetchHelper;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.fetch.FetchHelper;
 import javax.annotation.Nonnull;
 
 @SuppressWarnings("serial")
@@ -33,7 +33,7 @@ public abstract class QueryAbstract<T extends Object> extends CommandRequestAbst
   }
 
   @SuppressWarnings("unchecked")
-  public <RET> RET execute(@Nonnull YTDatabaseSessionInternal querySession, final Object... iArgs) {
+  public <RET> RET execute(@Nonnull DatabaseSessionInternal querySession, final Object... iArgs) {
     return (RET) run(iArgs);
   }
 
@@ -48,7 +48,7 @@ public abstract class QueryAbstract<T extends Object> extends CommandRequestAbst
    * Sets the fetch plan to use.
    */
   public QueryAbstract setFetchPlan(final String fetchPlan) {
-    OFetchHelper.checkFetchPlanValid(fetchPlan);
+    FetchHelper.checkFetchPlanValid(fetchPlan);
     if (fetchPlan != null && fetchPlan.length() == 0) {
       this.fetchPlan = null;
     } else {

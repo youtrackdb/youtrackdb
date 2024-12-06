@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Collection;
@@ -23,15 +23,15 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     var prev = this.prev;
     assert prev != null;
     ExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
-  private YTResult mapResult(YTResult result, CommandContext ctx) {
-    if (result instanceof YTResultInternal) {
+  private Result mapResult(Result result, CommandContext ctx) {
+    if (result instanceof ResultInternal) {
       handleUpdateEdge(result.toEntity().getRecord());
     }
     return result;
@@ -66,10 +66,10 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
 
     validateOutInForEdge(currentOut, currentIn);
 
-    var prevInIdentifiable = (YTIdentifiable) prevIn;
-    var currentInIdentifiable = (YTIdentifiable) currentIn;
-    var currentOutIdentifiable = (YTIdentifiable) currentOut;
-    var prevOutIdentifiable = (YTIdentifiable) prevOut;
+    var prevInIdentifiable = (Identifiable) prevIn;
+    var currentInIdentifiable = (Identifiable) currentIn;
+    var currentOutIdentifiable = (Identifiable) currentOut;
+    var prevOutIdentifiable = (Identifiable) prevOut;
 
     VertexInternal.changeVertexEdgePointers(
         record,
@@ -81,11 +81,11 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
 
   private static void validateOutInForEdge(Object currentOut, Object currentIn) {
     if (recordIsNotInstanceOfVertex(currentOut)) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Error updating edge: 'out' is not a vertex - " + currentOut);
     }
     if (recordIsNotInstanceOfVertex(currentIn)) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Error updating edge: 'in' is not a vertex - " + currentIn);
     }
   }
@@ -99,14 +99,14 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
     if (iRecord == null) {
       return true;
     }
-    if (!(iRecord instanceof YTIdentifiable)) {
+    if (!(iRecord instanceof Identifiable)) {
       return true;
     }
     try {
-      EntityImpl record = ((YTIdentifiable) iRecord).getRecord();
-      return (!ODocumentInternal.getImmutableSchemaClass(record)
-          .isSubClassOf(YTClass.VERTEX_CLASS_NAME));
-    } catch (YTRecordNotFoundException rnf) {
+      EntityImpl record = ((Identifiable) iRecord).getRecord();
+      return (!DocumentInternal.getImmutableSchemaClass(record)
+          .isSubClassOf(SchemaClass.VERTEX_CLASS_NAME));
+    } catch (RecordNotFoundException rnf) {
       return true;
     }
   }

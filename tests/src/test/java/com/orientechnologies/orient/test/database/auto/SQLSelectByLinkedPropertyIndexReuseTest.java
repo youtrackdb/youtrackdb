@@ -3,12 +3,12 @@ package com.orientechnologies.orient.test.database.auto;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.OChainedIndexProxy;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.ChainedIndexProxy;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.Arrays;
 import java.util.List;
 import org.testng.annotations.AfterClass;
@@ -17,7 +17,7 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 /**
- * Testing functionality of {@link OChainedIndexProxy}.
+ * Testing functionality of {@link ChainedIndexProxy}.
  *
  * <p>Each test method tests different traverse index combination with different operations.
  *
@@ -66,7 +66,7 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from lpirtStudent where group.curator.name = 'Someone'"));
     assertEquals(result.size(), 1);
     assertEquals(containsDocumentWithFieldValue(result, "name", "John Smith"), 1);
@@ -81,7 +81,7 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from lpirtStudent where group.curator.salary = 600"));
     assertEquals(result.size(), 3);
     assertEquals(containsDocumentWithFieldValue(result, "name", "James Bell"), 1);
@@ -98,7 +98,7 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from lpirtStudent where group.curator.name = 'Someone else' limit 1"));
     assertEquals(result.size(), 1);
     assertTrue(
@@ -115,7 +115,7 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from lpirtStudent where group.curator.salary < 1000"));
     assertEquals(result.size(), 4);
     assertEquals(containsDocumentWithFieldValue(result, "name", "Jane Smith"), 1);
@@ -133,7 +133,7 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from lpirtStudent where group.curator.salary < 1000 limit 2"));
     assertEquals(result.size(), 2);
 
@@ -154,7 +154,7 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>("select from lpirtStudent where diploma.GPA <= 4"));
+            new SQLSynchQuery<EntityImpl>("select from lpirtStudent where diploma.GPA <= 4"));
     assertEquals(result.size(), 3);
     assertEquals(containsDocumentWithFieldValue(result, "name", "John Smith"), 1);
     assertEquals(containsDocumentWithFieldValue(result, "name", "James Bell"), 1);
@@ -170,7 +170,7 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from lpirtStudent where diploma.GPA <= 4 limit 1"));
     assertEquals(result.size(), 1);
     assertTrue(
@@ -187,7 +187,7 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from lpirtStudent where group.curator.salary > 1000"));
     assertEquals(result.size(), 1);
     assertEquals(containsDocumentWithFieldValue(result, "name", "John Smith"), 1);
@@ -202,7 +202,7 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from lpirtStudent where group.curator.salary > 550 limit 1"));
     assertEquals(result.size(), 1);
     final List<String> expectedNames =
@@ -221,7 +221,7 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from lpirtGroup where curator.salary between 500 and 1000"));
     assertEquals(result.size(), 2);
     assertEquals(containsDocumentWithFieldValue(result, "name", "PZ-08-2"), 1);
@@ -237,7 +237,7 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from lpirtGroup where curator.salary between 500 and 1000 limit 1"));
     assertEquals(result.size(), 1);
 
@@ -256,7 +256,7 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from lpirtGroup where curator.salary in [500, 600]"));
     assertEquals(result.size(), 2);
     assertEquals(containsDocumentWithFieldValue(result, "name", "PZ-08-2"), 1);
@@ -272,7 +272,7 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from lpirtGroup where curator.salary in [500, 600] limit 1"));
     assertEquals(result.size(), 1);
 
@@ -294,7 +294,7 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from lpirtStudent where diploma.name = 'diploma3'"));
 
     assertEquals(result.size(), 2);
@@ -312,7 +312,7 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>("select from lpirtStudent where transcript.id = '1'"));
+            new SQLSynchQuery<EntityImpl>("select from lpirtStudent where transcript.id = '1'"));
 
     assertEquals(result.size(), 1);
 
@@ -325,7 +325,7 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>("select from lpirtStudent where skill.name = 'math'"));
+            new SQLSynchQuery<EntityImpl>("select from lpirtStudent where skill.name = 'math'"));
 
     assertEquals(result.size(), 1);
 
@@ -435,83 +435,83 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
   }
 
   private void createSchemaForTest() {
-    final YTSchema schema = database.getMetadata().getSchema();
+    final Schema schema = database.getMetadata().getSchema();
     if (!schema.existsClass("lpirtStudent")) {
-      final YTClass curatorClass = schema.createClass("lpirtCurator");
-      curatorClass.createProperty(database, "name", YTType.STRING)
-          .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
+      final SchemaClass curatorClass = schema.createClass("lpirtCurator");
+      curatorClass.createProperty(database, "name", PropertyType.STRING)
+          .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
       curatorClass
-          .createProperty(database, "salary", YTType.INTEGER)
-          .createIndex(database, YTClass.INDEX_TYPE.UNIQUE,
+          .createProperty(database, "salary", PropertyType.INTEGER)
+          .createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE,
               new EntityImpl().field("ignoreNullValues", true));
       curatorClass.createIndex(database,
           "curotorCompositeIndex",
-          YTClass.INDEX_TYPE.UNIQUE.name(),
+          SchemaClass.INDEX_TYPE.UNIQUE.name(),
           null,
           new EntityImpl().field("ignoreNullValues", true), new String[]{"salary", "name"});
 
-      final YTClass groupClass = schema.createClass("lpirtGroup");
+      final SchemaClass groupClass = schema.createClass("lpirtGroup");
       groupClass
-          .createProperty(database, "name", YTType.STRING)
-          .createIndex(database, YTClass.INDEX_TYPE.UNIQUE,
+          .createProperty(database, "name", PropertyType.STRING)
+          .createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE,
               new EntityImpl().field("ignoreNullValues", true));
       groupClass
-          .createProperty(database, "curator", YTType.LINK, curatorClass)
-          .createIndex(database, YTClass.INDEX_TYPE.UNIQUE,
+          .createProperty(database, "curator", PropertyType.LINK, curatorClass)
+          .createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE,
               new EntityImpl().field("ignoreNullValues", true));
 
-      final YTClass diplomaClass = schema.createClass("lpirtDiploma");
-      diplomaClass.createProperty(database, "GPA", YTType.DOUBLE)
-          .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
-      diplomaClass.createProperty(database, "thesis", YTType.STRING);
+      final SchemaClass diplomaClass = schema.createClass("lpirtDiploma");
+      diplomaClass.createProperty(database, "GPA", PropertyType.DOUBLE)
+          .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+      diplomaClass.createProperty(database, "thesis", PropertyType.STRING);
       diplomaClass
-          .createProperty(database, "name", YTType.STRING)
-          .createIndex(database, YTClass.INDEX_TYPE.UNIQUE,
+          .createProperty(database, "name", PropertyType.STRING)
+          .createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE,
               new EntityImpl().field("ignoreNullValues", true));
       diplomaClass.createIndex(database,
           "diplomaThesisUnique",
-          YTClass.INDEX_TYPE.UNIQUE.name(),
+          SchemaClass.INDEX_TYPE.UNIQUE.name(),
           null,
           new EntityImpl().field("ignoreNullValues", true), new String[]{"thesis"});
 
-      final YTClass transcriptClass = schema.createClass("lpirtTranscript");
+      final SchemaClass transcriptClass = schema.createClass("lpirtTranscript");
       transcriptClass
-          .createProperty(database, "id", YTType.STRING)
+          .createProperty(database, "id", PropertyType.STRING)
           .createIndex(database,
-              YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX,
+              SchemaClass.INDEX_TYPE.UNIQUE_HASH_INDEX,
               new EntityImpl().field("ignoreNullValues", true));
 
-      final YTClass skillClass = schema.createClass("lpirtSkill");
+      final SchemaClass skillClass = schema.createClass("lpirtSkill");
       skillClass
-          .createProperty(database, "name", YTType.STRING)
-          .createIndex(database, YTClass.INDEX_TYPE.UNIQUE,
+          .createProperty(database, "name", PropertyType.STRING)
+          .createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE,
               new EntityImpl().field("ignoreNullValues", true));
 
-      final YTClass studentClass = schema.createClass("lpirtStudent");
+      final SchemaClass studentClass = schema.createClass("lpirtStudent");
       studentClass
-          .createProperty(database, "name", YTType.STRING)
-          .createIndex(database, YTClass.INDEX_TYPE.UNIQUE,
+          .createProperty(database, "name", PropertyType.STRING)
+          .createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE,
               new EntityImpl().field("ignoreNullValues", true));
       studentClass
-          .createProperty(database, "group", YTType.LINK, groupClass)
-          .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
-      studentClass.createProperty(database, "diploma", YTType.LINK, diplomaClass);
+          .createProperty(database, "group", PropertyType.LINK, groupClass)
+          .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+      studentClass.createProperty(database, "diploma", PropertyType.LINK, diplomaClass);
       studentClass
-          .createProperty(database, "transcript", YTType.LINK, transcriptClass)
+          .createProperty(database, "transcript", PropertyType.LINK, transcriptClass)
           .createIndex(database,
-              YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX,
+              SchemaClass.INDEX_TYPE.UNIQUE_HASH_INDEX,
               new EntityImpl().field("ignoreNullValues", true));
-      studentClass.createProperty(database, "skill", YTType.LINK, skillClass);
+      studentClass.createProperty(database, "skill", PropertyType.LINK, skillClass);
 
       final EntityImpl metadata = new EntityImpl().field("ignoreNullValues", false);
       studentClass.createIndex(database,
           "studentDiplomaAndNameIndex",
-          YTClass.INDEX_TYPE.UNIQUE.toString(),
+          SchemaClass.INDEX_TYPE.UNIQUE.toString(),
           null,
           metadata.copy(), new String[]{"diploma", "name"});
       studentClass.createIndex(database,
           "studentSkillAndGroupIndex",
-          YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.toString(),
+          SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.toString(),
           null,
           metadata.copy(), new String[]{"skill", "group"});
     }

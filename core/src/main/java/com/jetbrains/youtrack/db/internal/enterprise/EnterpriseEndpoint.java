@@ -1,0 +1,12 @@
+package com.jetbrains.youtrack.db.internal.enterprise;
+
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+
+public interface EnterpriseEndpoint {
+
+  void haSetDbStatus(DatabaseSession db, String nodeName, String status);
+
+  void haSetRole(DatabaseSession db, String nodeName, String role);
+
+  void haSetOwner(DatabaseSession db, String clusterName, String owner);
+}

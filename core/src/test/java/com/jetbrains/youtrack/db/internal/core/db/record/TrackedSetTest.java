@@ -1,9 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.OMemoryStream;
+import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.NotSerializableException;
@@ -16,19 +17,19 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TrackedSetTest extends DBTestBase {
+public class TrackedSetTest extends DbTestBase {
 
   @Test
   public void testAddOne() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
     trackedSet.enableTracking(doc);
-    OMultiValueChangeEvent<Object, Object> event =
-        new OMultiValueChangeEvent<Object, Object>(
-            OMultiValueChangeEvent.OChangeType.ADD, "value1", "value1", null);
+    MultiValueChangeEvent<Object, Object> event =
+        new MultiValueChangeEvent<Object, Object>(
+            ChangeType.ADD, "value1", "value1", null);
     trackedSet.add("value1");
     Assert.assertEquals(event, trackedSet.getTimeLine().getMultiValueChangeEvents().get(0));
     Assert.assertTrue(trackedSet.isModified());
@@ -38,7 +39,7 @@ public class TrackedSetTest extends DBTestBase {
   @Test
   public void testAddTwo() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
@@ -50,7 +51,7 @@ public class TrackedSetTest extends DBTestBase {
   @Test
   public void testAddThree() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
@@ -64,14 +65,14 @@ public class TrackedSetTest extends DBTestBase {
   @Test
   public void testAddFour() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
 
     trackedSet.add("value1");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     trackedSet.disableTracking(doc);
@@ -85,7 +86,7 @@ public class TrackedSetTest extends DBTestBase {
   @Test
   public void testRemoveNotificationOne() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
@@ -93,14 +94,14 @@ public class TrackedSetTest extends DBTestBase {
     trackedSet.add("value2");
     trackedSet.add("value3");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     trackedSet.enableTracking(doc);
     trackedSet.remove("value2");
-    OMultiValueChangeEvent<Object, Object> event =
-        new OMultiValueChangeEvent<Object, Object>(
-            OMultiValueChangeEvent.OChangeType.REMOVE, "value2", null, "value2");
+    MultiValueChangeEvent<Object, Object> event =
+        new MultiValueChangeEvent<Object, Object>(
+            ChangeType.REMOVE, "value2", null, "value2");
     Assert.assertEquals(trackedSet.getTimeLine().getMultiValueChangeEvents().get(0), event);
     Assert.assertTrue(trackedSet.isModified());
     Assert.assertTrue(doc.isDirty());
@@ -109,7 +110,7 @@ public class TrackedSetTest extends DBTestBase {
   @Test
   public void testRemoveNotificationTwo() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
@@ -118,7 +119,7 @@ public class TrackedSetTest extends DBTestBase {
     trackedSet.add("value2");
     trackedSet.add("value3");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     trackedSet.remove("value2");
@@ -128,7 +129,7 @@ public class TrackedSetTest extends DBTestBase {
   @Test
   public void testRemoveNotificationFour() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
@@ -136,7 +137,7 @@ public class TrackedSetTest extends DBTestBase {
     trackedSet.add("value2");
     trackedSet.add("value3");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
     trackedSet.disableTracking(doc);
     trackedSet.enableTracking(doc);
@@ -148,7 +149,7 @@ public class TrackedSetTest extends DBTestBase {
   @Test
   public void testClearOne() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
@@ -156,19 +157,19 @@ public class TrackedSetTest extends DBTestBase {
     trackedSet.add("value2");
     trackedSet.add("value3");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final List<OMultiValueChangeEvent<String, String>> firedEvents = new ArrayList<>();
+    final List<MultiValueChangeEvent<String, String>> firedEvents = new ArrayList<>();
     firedEvents.add(
-        new OMultiValueChangeEvent<String, String>(
-            OMultiValueChangeEvent.OChangeType.REMOVE, "value1", null, "value1"));
+        new MultiValueChangeEvent<String, String>(
+            ChangeType.REMOVE, "value1", null, "value1"));
     firedEvents.add(
-        new OMultiValueChangeEvent<String, String>(
-            OMultiValueChangeEvent.OChangeType.REMOVE, "value2", null, "value2"));
+        new MultiValueChangeEvent<String, String>(
+            ChangeType.REMOVE, "value2", null, "value2"));
     firedEvents.add(
-        new OMultiValueChangeEvent<String, String>(
-            OMultiValueChangeEvent.OChangeType.REMOVE, "value3", null, "value3"));
+        new MultiValueChangeEvent<String, String>(
+            ChangeType.REMOVE, "value3", null, "value3"));
 
     trackedSet.enableTracking(doc);
     trackedSet.clear();
@@ -181,7 +182,7 @@ public class TrackedSetTest extends DBTestBase {
   @Test
   public void testClearThree() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedSet<String> trackedSet = new TrackedSet<String>(doc);
@@ -189,7 +190,7 @@ public class TrackedSetTest extends DBTestBase {
     trackedSet.add("value2");
     trackedSet.add("value3");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     trackedSet.clear();
@@ -245,7 +246,7 @@ public class TrackedSetTest extends DBTestBase {
     beforeSerialization.add("firstVal");
     beforeSerialization.add("secondVal");
 
-    final OMemoryStream memoryStream = new OMemoryStream();
+    final MemoryStream memoryStream = new MemoryStream();
     ObjectOutputStream out = new ObjectOutputStream(memoryStream);
     out.writeObject(beforeSerialization);
     out.close();

@@ -4,11 +4,11 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceOrderType;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.YTSequence;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
@@ -27,8 +27,8 @@ public class SQLCreateSequenceStatement extends SQLSimpleExecStatement {
   SQLExpression start;
   SQLExpression increment;
   SQLExpression cache;
-  boolean positive = YTSequence.DEFAULT_ORDER_TYPE == SequenceOrderType.ORDER_POSITIVE;
-  boolean cyclic = YTSequence.DEFAULT_RECYCLABLE_VALUE;
+  boolean positive = Sequence.DEFAULT_ORDER_TYPE == SequenceOrderType.ORDER_POSITIVE;
+  boolean cyclic = Sequence.DEFAULT_RECYCLABLE_VALUE;
   SQLExpression limitValue;
 
   public SQLCreateSequenceStatement(int id) {
@@ -42,7 +42,7 @@ public class SQLCreateSequenceStatement extends SQLSimpleExecStatement {
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
     var db = ctx.getDatabase();
-    YTSequence seq =
+    Sequence seq =
         db
             .getMetadata()
             .getSequenceLibrary()
@@ -51,11 +51,11 @@ public class SQLCreateSequenceStatement extends SQLSimpleExecStatement {
       if (ifNotExists) {
         return ExecutionStream.empty();
       } else {
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "Sequence " + name.getStringValue() + " already exists");
       }
     }
-    YTResultInternal result = new YTResultInternal(db);
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("operation", "create sequence");
     result.setProperty("name", name.getStringValue());
 
@@ -64,17 +64,17 @@ public class SQLCreateSequenceStatement extends SQLSimpleExecStatement {
     } catch (ExecutionException | InterruptedException exc) {
       String message = "Unable to execute command: " + exc.getMessage();
       LogManager.instance().error(this, message, exc, (Object) null);
-      throw new YTCommandExecutionException(message);
+      throw new CommandExecutionException(message);
     }
 
     return ExecutionStream.singleton(result);
   }
 
-  private void executeInternal(CommandContext ctx, YTResultInternal result)
+  private void executeInternal(CommandContext ctx, ResultInternal result)
       throws ExecutionException, InterruptedException {
-    YTSequence.CreateParams params = createParams(ctx, result);
-    YTSequence.SEQUENCE_TYPE seqType =
-        type == TYPE_CACHED ? YTSequence.SEQUENCE_TYPE.CACHED : YTSequence.SEQUENCE_TYPE.ORDERED;
+    Sequence.CreateParams params = createParams(ctx, result);
+    Sequence.SEQUENCE_TYPE seqType =
+        type == TYPE_CACHED ? Sequence.SEQUENCE_TYPE.CACHED : Sequence.SEQUENCE_TYPE.ORDERED;
     result.setProperty("type", seqType.toString());
     ctx.getDatabase()
         .getMetadata()
@@ -82,43 +82,43 @@ public class SQLCreateSequenceStatement extends SQLSimpleExecStatement {
         .createSequence(this.name.getStringValue(), seqType, params);
   }
 
-  private YTSequence.CreateParams createParams(CommandContext ctx, YTResultInternal result) {
-    YTSequence.CreateParams params = new YTSequence.CreateParams();
+  private Sequence.CreateParams createParams(CommandContext ctx, ResultInternal result) {
+    Sequence.CreateParams params = new Sequence.CreateParams();
     if (start != null) {
-      Object o = start.execute((YTIdentifiable) null, ctx);
+      Object o = start.execute((Identifiable) null, ctx);
       if (o instanceof Number) {
         params.setStart(((Number) o).longValue());
         result.setProperty("start", o);
       } else {
-        throw new YTCommandExecutionException("Invalid start value: " + o);
+        throw new CommandExecutionException("Invalid start value: " + o);
       }
     }
     if (increment != null) {
-      Object o = increment.execute((YTIdentifiable) null, ctx);
+      Object o = increment.execute((Identifiable) null, ctx);
       if (o instanceof Number) {
         params.setIncrement(((Number) o).intValue());
         result.setProperty("increment", o);
       } else {
-        throw new YTCommandExecutionException("Invalid increment value: " + o);
+        throw new CommandExecutionException("Invalid increment value: " + o);
       }
     }
     if (cache != null) {
-      Object o = cache.execute((YTIdentifiable) null, ctx);
+      Object o = cache.execute((Identifiable) null, ctx);
       if (o instanceof Number) {
         params.setCacheSize(((Number) o).intValue());
         result.setProperty("cacheSize", o);
       } else {
-        throw new YTCommandExecutionException("Invalid cache value: " + o);
+        throw new CommandExecutionException("Invalid cache value: " + o);
       }
     }
 
     if (limitValue != null) {
-      Object o = limitValue.execute((YTIdentifiable) null, ctx);
+      Object o = limitValue.execute((Identifiable) null, ctx);
       if (o instanceof Number) {
         params.setLimitValue(((Number) o).longValue());
         result.setProperty("limitValue", o);
       } else {
-        throw new YTCommandExecutionException("Invalid limit value: " + o);
+        throw new CommandExecutionException("Invalid limit value: " + o);
       }
     }
 
@@ -166,7 +166,7 @@ public class SQLCreateSequenceStatement extends SQLSimpleExecStatement {
       builder.append(" LIMIT ");
       limitValue.toString(params, builder);
     }
-    if (cyclic != YTSequence.DEFAULT_RECYCLABLE_VALUE) {
+    if (cyclic != Sequence.DEFAULT_RECYCLABLE_VALUE) {
       builder.append(" CYCLE ").append(Boolean.toString(cyclic).toUpperCase());
     }
     if (positive) {
@@ -211,7 +211,7 @@ public class SQLCreateSequenceStatement extends SQLSimpleExecStatement {
       builder.append(" LIMIT ");
       limitValue.toGenericStatement(builder);
     }
-    if (cyclic != YTSequence.DEFAULT_RECYCLABLE_VALUE) {
+    if (cyclic != Sequence.DEFAULT_RECYCLABLE_VALUE) {
       builder.append(" CYCLE ").append(Boolean.toString(cyclic).toUpperCase());
     }
     if (positive) {

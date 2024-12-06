@@ -3,17 +3,17 @@ package com.jetbrains.youtrack.db.internal.core.db.hook;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.hook.YTDocumentHookAbstract;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.hook.DocumentHookAbstract;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.UUID;
 import org.junit.Test;
 
-public class CheckHookCallCountTest extends DBTestBase {
+public class CheckHookCallCountTest extends DbTestBase {
 
   private final String CLASS_NAME = "Data";
   private final String FIELD_ID = "ID";
@@ -22,10 +22,10 @@ public class CheckHookCallCountTest extends DBTestBase {
 
   @Test
   public void testMultipleCallHook() {
-    YTClass aClass = db.getMetadata().getSchema().createClass(CLASS_NAME);
-    aClass.createProperty(db, FIELD_ID, YTType.STRING);
-    aClass.createProperty(db, FIELD_STATUS, YTType.STRING);
-    aClass.createIndex(db, "IDX", YTClass.INDEX_TYPE.NOTUNIQUE, FIELD_ID);
+    SchemaClass aClass = db.getMetadata().getSchema().createClass(CLASS_NAME);
+    aClass.createProperty(db, FIELD_ID, PropertyType.STRING);
+    aClass.createProperty(db, FIELD_STATUS, PropertyType.STRING);
+    aClass.createIndex(db, "IDX", SchemaClass.INDEX_TYPE.NOTUNIQUE, FIELD_ID);
     TestHook hook = new TestHook();
     db.registerHook(hook);
 
@@ -50,11 +50,11 @@ public class CheckHookCallCountTest extends DBTestBase {
 
   @Test
   public void testInHook() throws Exception {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass oClass = schema.createClass("TestInHook");
-    oClass.createProperty(db, "a", YTType.INTEGER);
-    oClass.createProperty(db, "b", YTType.INTEGER);
-    oClass.createProperty(db, "c", YTType.INTEGER);
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass oClass = schema.createClass("TestInHook");
+    oClass.createProperty(db, "a", PropertyType.INTEGER);
+    oClass.createProperty(db, "b", PropertyType.INTEGER);
+    oClass.createProperty(db, "c", PropertyType.INTEGER);
 
     db.begin();
     EntityImpl doc = new EntityImpl(oClass);
@@ -71,7 +71,7 @@ public class CheckHookCallCountTest extends DBTestBase {
     db.rollback();
 
     db.registerHook(
-        new YTDocumentHookAbstract(db) {
+        new DocumentHookAbstract(db) {
 
           {
             setIncludeClasses("TestInHook");
@@ -85,7 +85,7 @@ public class CheckHookCallCountTest extends DBTestBase {
           @Override
           public void onRecordAfterRead(EntityImpl iDocument) {
             String script = "select sum(a, b) as value from " + iDocument.getIdentity();
-            try (YTResultSet calculated = database.query(script)) {
+            try (ResultSet calculated = database.query(script)) {
               if (calculated.hasNext()) {
                 iDocument.field("c", calculated.next().<Object>getProperty("value"));
               }
@@ -120,7 +120,7 @@ public class CheckHookCallCountTest extends DBTestBase {
     db.rollback();
   }
 
-  public class TestHook extends YTDocumentHookAbstract {
+  public class TestHook extends DocumentHookAbstract {
 
     public int readCount;
 

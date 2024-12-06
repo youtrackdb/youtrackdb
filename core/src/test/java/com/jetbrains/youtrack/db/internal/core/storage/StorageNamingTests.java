@@ -19,11 +19,11 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.exception.YTInvalidDatabaseNameException;
+import com.jetbrains.youtrack.db.internal.core.exception.InvalidDatabaseNameException;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,12 +35,12 @@ public class StorageNamingTests {
 
   @Test
   public void testSpecialLettersOne() {
-    try (YouTrackDB youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+    try (YouTrackDB youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig())) {
       try {
-        youTrackDB.create("name%", ODatabaseType.MEMORY);
+        youTrackDB.create("name%", DatabaseType.MEMORY);
         Assert.fail();
-      } catch (YTInvalidDatabaseNameException e) {
+      } catch (InvalidDatabaseNameException e) {
         // skip
       }
     }
@@ -48,12 +48,12 @@ public class StorageNamingTests {
 
   @Test
   public void testSpecialLettersTwo() {
-    try (YouTrackDB youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+    try (YouTrackDB youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig())) {
       try {
-        youTrackDB.create("na.me", ODatabaseType.MEMORY);
+        youTrackDB.create("na.me", DatabaseType.MEMORY);
         Assert.fail();
-      } catch (YTInvalidDatabaseNameException e) {
+      } catch (InvalidDatabaseNameException e) {
         // skip
       }
     }
@@ -61,9 +61,9 @@ public class StorageNamingTests {
 
   @Test
   public void testSpecialLettersThree() {
-    try (YouTrackDB youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+    try (YouTrackDB youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig())) {
-      youTrackDB.create("na_me$", ODatabaseType.MEMORY);
+      youTrackDB.create("na_me$", DatabaseType.MEMORY);
       youTrackDB.drop("na_me$");
     }
   }
@@ -74,12 +74,12 @@ public class StorageNamingTests {
     AbstractPaginatedStorage.checkName("/,,,/,/,/name");
   }
 
-  @Test(expected = YTInvalidDatabaseNameException.class)
+  @Test(expected = InvalidDatabaseNameException.class)
   public void commaInNameShouldThrow() {
     AbstractPaginatedStorage.checkName("/path/with/,/name/with,");
   }
 
-  @Test(expected = YTInvalidDatabaseNameException.class)
+  @Test(expected = InvalidDatabaseNameException.class)
   public void name() throws Exception {
     AbstractPaginatedStorage.checkName("/name/with,");
   }

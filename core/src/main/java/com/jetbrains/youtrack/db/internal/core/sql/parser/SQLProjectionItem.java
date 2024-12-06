@@ -3,19 +3,19 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.OEdgeToVertexIterable;
-import com.jetbrains.youtrack.db.internal.core.record.impl.OEdgeToVertexIterator;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeToVertexIterable;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeToVertexIterator;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.AggregationContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTInternalResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -126,7 +126,7 @@ public class SQLProjectionItem extends SimpleNode {
     }
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
+  public Object execute(Identifiable iCurrentRecord, CommandContext ctx) {
     Object result;
     if (all) {
       result = iCurrentRecord;
@@ -145,27 +145,27 @@ public class SQLProjectionItem extends SimpleNode {
       ((RidBag) value).iterator().forEachRemaining(result::add);
       return result;
     }
-    if (value instanceof OEdgeToVertexIterable) {
-      value = ((OEdgeToVertexIterable) value).iterator();
+    if (value instanceof EdgeToVertexIterable) {
+      value = ((EdgeToVertexIterable) value).iterator();
     }
-    if (value instanceof OEdgeToVertexIterator) {
-      List<YTRID> result = new ArrayList<>();
-      while (((OEdgeToVertexIterator) value).hasNext()) {
-        Vertex v = ((OEdgeToVertexIterator) value).next();
+    if (value instanceof EdgeToVertexIterator) {
+      List<RID> result = new ArrayList<>();
+      while (((EdgeToVertexIterator) value).hasNext()) {
+        Vertex v = ((EdgeToVertexIterator) value).next();
         if (v != null) {
           result.add(v.getIdentity());
         }
       }
       return result;
     }
-    if (value instanceof YTInternalResultSet) {
-      ((YTInternalResultSet) value).reset();
-      value = ((YTInternalResultSet) value).stream().collect(Collectors.toList());
+    if (value instanceof InternalResultSet) {
+      ((InternalResultSet) value).reset();
+      value = ((InternalResultSet) value).stream().collect(Collectors.toList());
     }
     if (value instanceof ExecutionStream) {
       value = ((ExecutionStream) value).stream(context).collect(Collectors.toList());
     }
-    if (!(value instanceof YTIdentifiable)) {
+    if (!(value instanceof Identifiable)) {
       Iterator<?> iter = null;
       if (value instanceof Iterator) {
         iter = (Iterator<?>) value;
@@ -186,7 +186,7 @@ public class SQLProjectionItem extends SimpleNode {
     return value;
   }
 
-  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
+  public Object execute(Result iCurrentRecord, CommandContext ctx) {
     Object result;
     if (all) {
       result = iCurrentRecord;
@@ -235,7 +235,7 @@ public class SQLProjectionItem extends SimpleNode {
     return result;
   }
 
-  public boolean isAggregate(YTDatabaseSessionInternal session) {
+  public boolean isAggregate(DatabaseSessionInternal session) {
     if (aggregate != null) {
       return aggregate;
     }
@@ -271,7 +271,7 @@ public class SQLProjectionItem extends SimpleNode {
 
   public AggregationContext getAggregationContext(CommandContext ctx) {
     if (expression == null) {
-      throw new YTCommandExecutionException("Cannot aggregate on this projection: " + this);
+      throw new CommandExecutionException("Cannot aggregate on this projection: " + this);
     }
     return expression.getAggregationContext(ctx);
   }
@@ -322,8 +322,8 @@ public class SQLProjectionItem extends SimpleNode {
     return false;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("all", all);
     if (alias != null) {
       result.setProperty("alias", alias.serialize(db));
@@ -339,7 +339,7 @@ public class SQLProjectionItem extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     all = fromResult.getProperty("all");
     if (fromResult.getProperty("alias") != null) {
       alias = SQLIdentifier.deserialize(fromResult.getProperty("alias"));
@@ -362,7 +362,7 @@ public class SQLProjectionItem extends SimpleNode {
     this.nestedProjection = nestedProjection;
   }
 
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     if (expression != null) {
       return expression.isCacheable(session);
     }

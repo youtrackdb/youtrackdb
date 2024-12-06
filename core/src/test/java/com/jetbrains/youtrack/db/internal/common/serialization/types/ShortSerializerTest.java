@@ -16,9 +16,8 @@
 
 package com.jetbrains.youtrack.db.internal.common.serialization.types;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OShortSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALChanges;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALPageChangesPortion;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALPageChangesPortion;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import org.junit.Assert;
@@ -33,11 +32,11 @@ public class ShortSerializerTest {
   private static final int FIELD_SIZE = 2;
   byte[] stream = new byte[FIELD_SIZE];
   private static final Short OBJECT = 1;
-  private OShortSerializer shortSerializer;
+  private ShortSerializer shortSerializer;
 
   @Before
   public void beforeClass() {
-    shortSerializer = new OShortSerializer();
+    shortSerializer = new ShortSerializer();
   }
 
   @Test
@@ -95,12 +94,12 @@ public class ShortSerializerTest {
 
     final ByteBuffer buffer =
         ByteBuffer.allocateDirect(
-                FIELD_SIZE + serializationOffset + OWALPageChangesPortion.PORTION_BYTES)
+                FIELD_SIZE + serializationOffset + WALPageChangesPortion.PORTION_BYTES)
             .order(ByteOrder.nativeOrder());
     final byte[] data = new byte[FIELD_SIZE];
     shortSerializer.serializeNative(OBJECT, data, 0);
 
-    final OWALChanges walChanges = new OWALPageChangesPortion();
+    final WALChanges walChanges = new WALPageChangesPortion();
     walChanges.setBinaryValue(buffer, data, serializationOffset);
 
     Assert.assertEquals(

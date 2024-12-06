@@ -1,13 +1,13 @@
 package com.orientechnologies.lucene.benchmark;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
@@ -49,9 +49,9 @@ public class FulltextIndexFunctionBenchmark {
     new Runner(opt).run();
   }
 
-  private YTDatabaseSessionInternal db;
+  private DatabaseSessionInternal db;
   private YouTrackDB context;
-  private ODatabaseType type;
+  private DatabaseType type;
 
   private final String name = "lucene-benchmark";
 
@@ -70,12 +70,12 @@ public class FulltextIndexFunctionBenchmark {
 
   private void setupDatabase() {
     final String config =
-        System.getProperty("youtrackdb.test.env", ODatabaseType.MEMORY.name().toLowerCase());
-    String path = DBTestBase.embeddedDBUrl(getClass());
+        System.getProperty("youtrackdb.test.env", DatabaseType.MEMORY.name().toLowerCase());
+    String path = DbTestBase.embeddedDBUrl(getClass());
     if ("ci".equals(config) || "release".equals(config)) {
-      type = ODatabaseType.PLOCAL;
+      type = DatabaseType.PLOCAL;
     } else {
-      type = ODatabaseType.MEMORY;
+      type = DatabaseType.MEMORY;
     }
     context = new YouTrackDB(path, YouTrackDBConfig.defaultConfig());
 
@@ -86,13 +86,13 @@ public class FulltextIndexFunctionBenchmark {
     context.execute(
         "create database " + name + " plocal users ( admin identified by 'admin' role admin)");
 
-    db = (YTDatabaseSessionInternal) context.open(name, "admin", "admin");
+    db = (DatabaseSessionInternal) context.open(name, "admin", "admin");
     db.set(ATTRIBUTES.MINIMUMCLUSTERS, 8);
   }
 
   private String getScriptFromStream(final InputStream scriptStream) {
     try {
-      return OIOUtils.readStreamAsString(scriptStream);
+      return IOUtils.readStreamAsString(scriptStream);
     } catch (final IOException e) {
       throw new RuntimeException("Could not read script stream.", e);
     }
@@ -106,14 +106,14 @@ public class FulltextIndexFunctionBenchmark {
 
   @Benchmark
   public void searchOnSingleField() {
-    final YTResultSet resultSet =
+    final ResultSet resultSet =
         db.query("SELECT from Song where SEARCH_FIELDS(['title'], 'BELIEVE') = true");
     resultSet.close();
   }
 
   @Benchmark
   public void searhOnTwoFieldsInOR() {
-    final YTResultSet resultSet =
+    final ResultSet resultSet =
         db.query(
             "SELECT from Song where SEARCH_FIELDS(['title'], 'BELIEVE') = true OR"
                 + " SEARCH_FIELDS(['author'], 'Bob') = true ");
@@ -122,7 +122,7 @@ public class FulltextIndexFunctionBenchmark {
 
   @Benchmark
   public void searhOnTwoFieldsInAND() throws Exception {
-    final YTResultSet resultSet =
+    final ResultSet resultSet =
         db.query(
             "SELECT from Song where SEARCH_FIELDS(['title'], 'tambourine') = true AND"
                 + " SEARCH_FIELDS(['author'], 'Bob') = true ");

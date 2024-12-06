@@ -15,9 +15,9 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.common.parser.OStringParser;
+import com.jetbrains.youtrack.db.internal.common.parser.StringParser;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -28,7 +28,7 @@ public class StringsTest {
   @Test
   public void splitArray() {
     List<String> pieces =
-        OStringSerializerHelper.smartSplit(
+        StringSerializerHelper.smartSplit(
             "first, orders : ['this is mine', 'that is your']",
             new char[]{','},
             0,
@@ -49,28 +49,28 @@ public class StringsTest {
     String test1 = "test string number 1";
     String test2 =
         "test \\string\\ \"number\" \\2\\ \\\\ \"\"\"\" test String number 2 test string number 2";
-    Assert.assertEquals(OStringParser.replaceAll(test1, "", ""), test1);
-    Assert.assertEquals(OStringParser.replaceAll(test1, "1", "10"), test1 + "0");
+    Assert.assertEquals(StringParser.replaceAll(test1, "", ""), test1);
+    Assert.assertEquals(StringParser.replaceAll(test1, "1", "10"), test1 + "0");
     Assert.assertEquals(
-        OStringParser.replaceAll(test1, "string", "number"), "test number number 1");
-    Assert.assertEquals(OStringParser.replaceAll(test1, "string", "test"), "test test number 1");
+        StringParser.replaceAll(test1, "string", "number"), "test number number 1");
+    Assert.assertEquals(StringParser.replaceAll(test1, "string", "test"), "test test number 1");
     Assert.assertEquals(
-        OStringParser.replaceAll(test1, "test", "string"), "string string number 1");
-    Assert.assertEquals(OStringParser.replaceAll(test2, "", ""), test2);
+        StringParser.replaceAll(test1, "test", "string"), "string string number 1");
+    Assert.assertEquals(StringParser.replaceAll(test2, "", ""), test2);
     Assert.assertEquals(
-        OStringParser.replaceAll(test2, "\\", ""),
+        StringParser.replaceAll(test2, "\\", ""),
         "test string \"number\" 2  \"\"\"\" test String number 2 test string number 2");
     Assert.assertEquals(
-        OStringParser.replaceAll(test2, "\"", "'"),
+        StringParser.replaceAll(test2, "\"", "'"),
         "test \\string\\ 'number' \\2\\ \\\\ '''' test String number 2 test string number 2");
     Assert.assertEquals(
-        OStringParser.replaceAll(test2, "\\\\", "replacement"),
+        StringParser.replaceAll(test2, "\\\\", "replacement"),
         "test \\string\\ \"number\" \\2\\ replacement \"\"\"\" test String number 2 test string"
             + " number 2");
-    String subsequentReplaceTest = OStringParser.replaceAll(test2, "\\", "");
-    subsequentReplaceTest = OStringParser.replaceAll(subsequentReplaceTest, "\"", "");
+    String subsequentReplaceTest = StringParser.replaceAll(test2, "\\", "");
+    subsequentReplaceTest = StringParser.replaceAll(subsequentReplaceTest, "\"", "");
     subsequentReplaceTest =
-        OStringParser.replaceAll(
+        StringParser.replaceAll(
             subsequentReplaceTest, "test string number 2", "text replacement 1");
     Assert.assertEquals(
         subsequentReplaceTest, "text replacement 1   test String number 2 text replacement 1");
@@ -78,7 +78,7 @@ public class StringsTest {
 
   public void testNoEmptyFields() {
     List<String> pieces =
-        OStringSerializerHelper.split(
+        StringSerializerHelper.split(
             "1811000032;03/27/2014;HA297000610K;+3415.4000;+3215.4500;+0.0000;+1117.0000;+916.7500;3583;890;+64.8700;4;4;+198.0932",
             ';');
     Assert.assertEquals(pieces.size(), 14);
@@ -86,7 +86,7 @@ public class StringsTest {
 
   public void testEmptyFields() {
     List<String> pieces =
-        OStringSerializerHelper.split(
+        StringSerializerHelper.split(
             "1811000032;03/27/2014;HA297000960C;+0.0000;+0.0000;+0.0000;+0.0000;+0.0000;0;0;+0.0000;;5;+0.0000",
             ';');
     Assert.assertEquals(pieces.size(), 14);

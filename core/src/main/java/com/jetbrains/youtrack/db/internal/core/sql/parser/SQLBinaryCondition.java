@@ -2,19 +2,19 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.core.collate.Collate;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OIndexSearchInfo;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexCandidate;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexFinder;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OPath;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.IndexSearchInfo;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexCandidate;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.MetadataPath;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,12 +38,12 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
+  public boolean evaluate(Identifiable currentRecord, CommandContext ctx) {
     return operator.execute(left.execute(currentRecord, ctx), right.execute(currentRecord, ctx));
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
+  public boolean evaluate(Result currentRecord, CommandContext ctx) {
     if (left.isFunctionAny()) {
       return evaluateAny(currentRecord, ctx);
     }
@@ -53,7 +53,7 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
     }
     Object leftVal = left.execute(currentRecord, ctx);
     Object rightVal = right.execute(currentRecord, ctx);
-    OCollate collate = left.getCollate(currentRecord, ctx);
+    Collate collate = left.getCollate(currentRecord, ctx);
     if (collate == null) {
       collate = right.getCollate(currentRecord, ctx);
     }
@@ -64,7 +64,7 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
     return operator.execute(leftVal, rightVal);
   }
 
-  private boolean evaluateAny(YTResult currentRecord, CommandContext ctx) {
+  private boolean evaluateAny(Result currentRecord, CommandContext ctx) {
     for (String s : currentRecord.getPropertyNames()) {
       Object leftVal = currentRecord.getProperty(s);
       Object rightVal = right.execute(currentRecord, ctx);
@@ -78,7 +78,7 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
     return false;
   }
 
-  private boolean evaluateAllFunction(YTResult currentRecord, CommandContext ctx) {
+  private boolean evaluateAllFunction(Result currentRecord, CommandContext ctx) {
     for (String s : currentRecord.getPropertyNames()) {
       Object leftVal = currentRecord.getProperty(s);
       Object rightVal = right.execute(currentRecord, ctx);
@@ -146,7 +146,7 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
   }
 
   public SQLBinaryCondition isIndexedFunctionCondition(
-      YTClass iSchemaClass, YTDatabaseSessionInternal database) {
+      SchemaClass iSchemaClass, DatabaseSessionInternal database) {
     if (left.isIndexedFunctionCal(database)) {
       return this;
     }
@@ -155,13 +155,13 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
 
   public long estimateIndexed(SQLFromClause target, CommandContext context) {
     return left.estimateIndexedFunction(
-        target, context, operator, right.execute((YTResult) null, context));
+        target, context, operator, right.execute((Result) null, context));
   }
 
-  public Iterable<YTIdentifiable> executeIndexedFunction(
+  public Iterable<Identifiable> executeIndexedFunction(
       SQLFromClause target, CommandContext context) {
     return left.executeIndexedFunction(
-        target, context, operator, right.execute((YTResult) null, context));
+        target, context, operator, right.execute((Result) null, context));
   }
 
   /**
@@ -176,7 +176,7 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
   public boolean canExecuteIndexedFunctionWithoutIndex(
       SQLFromClause target, CommandContext context) {
     return left.canExecuteIndexedFunctionWithoutIndex(
-        target, context, operator, right.execute((YTResult) null, context));
+        target, context, operator, right.execute((Result) null, context));
   }
 
   /**
@@ -191,7 +191,7 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
   public boolean allowsIndexedFunctionExecutionOnTarget(
       SQLFromClause target, CommandContext context) {
     return left.allowsIndexedFunctionExecutionOnTarget(
-        target, context, operator, right.execute((YTResult) null, context));
+        target, context, operator, right.execute((Result) null, context));
   }
 
   /**
@@ -208,11 +208,11 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
   public boolean executeIndexedFunctionAfterIndexSearch(
       SQLFromClause target, CommandContext context) {
     return left.executeIndexedFunctionAfterIndexSearch(
-        target, context, operator, right.execute((YTResult) null, context));
+        target, context, operator, right.execute((Result) null, context));
   }
 
   public List<SQLBinaryCondition> getIndexedFunctionConditions(
-      YTClass iSchemaClass, YTDatabaseSessionInternal database) {
+      SchemaClass iSchemaClass, DatabaseSessionInternal database) {
     if (left.isIndexedFunctionCal(database)) {
       return Collections.singletonList(this);
     }
@@ -397,7 +397,7 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
             SQLExpression val = identifierToStringExpr(identifier);
             newColl.expressions.add(val);
           } else {
-            throw new YTCommandExecutionException(
+            throw new CommandExecutionException(
                 "Cannot execute because of invalid LUCENE expression");
           }
         }
@@ -411,7 +411,7 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
         return result;
       }
     }
-    throw new YTCommandExecutionException("Cannot execute because of invalid LUCENE expression");
+    throw new CommandExecutionException("Cannot execute because of invalid LUCENE expression");
   }
 
   private SQLExpression identifierToStringExpr(SQLIdentifier identifier) {
@@ -422,15 +422,15 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
     return result;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("left", left.serialize(db));
     result.setProperty("operator", operator.getClass().getName());
     result.setProperty("right", right.serialize(db));
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     left = new SQLExpression(-1);
     left.deserialize(fromResult.getProperty("left"));
     try {
@@ -438,19 +438,20 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
           (SQLBinaryCompareOperator)
               Class.forName(String.valueOf(fromResult.getProperty("operator"))).newInstance();
     } catch (Exception e) {
-      throw YTException.wrapException(new YTCommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(""), e);
     }
     right = new SQLExpression(-1);
     right.deserialize(fromResult.getProperty("right"));
   }
 
   @Override
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     return left.isCacheable(session) && right.isCacheable(session);
   }
 
   @Override
-  public SQLBooleanExpression rewriteIndexChainsAsSubqueries(CommandContext ctx, YTClass clazz) {
+  public SQLBooleanExpression rewriteIndexChainsAsSubqueries(CommandContext ctx,
+      SchemaClass clazz) {
     if (operator instanceof SQLEqualsCompareOperator
         && right.isEarlyCalculated(ctx)
         && left.isIndexChain(ctx, clazz)) {
@@ -467,7 +468,7 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
 
       result.operator = new SQLInOperator(-1);
 
-      YTClass nextClazz =
+      SchemaClass nextClazz =
           clazz
               .getProperty(base.getIdentifier().suffix.getIdentifier().getStringValue())
               .getLinkedClass();
@@ -480,8 +481,8 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
   }
 
   public static SQLSelectStatement indexChainToStatement(
-      SQLModifier modifier, YTClass clazz, SQLExpression right, CommandContext ctx) {
-    YTClass queryClass = clazz;
+      SQLModifier modifier, SchemaClass clazz, SQLExpression right, CommandContext ctx) {
+    SchemaClass queryClass = clazz;
 
     SQLSelectStatement result = new SQLSelectStatement(-1);
     result.target = new SQLFromClause(-1);
@@ -507,12 +508,12 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
     return result;
   }
 
-  public Optional<OIndexCandidate> findIndex(OIndexFinder info, CommandContext ctx) {
-    Optional<OPath> path = left.getPath();
+  public Optional<IndexCandidate> findIndex(IndexFinder info, CommandContext ctx) {
+    Optional<MetadataPath> path = left.getPath();
     if (path.isPresent()) {
-      OPath p = path.get();
+      MetadataPath p = path.get();
       if (right.isEarlyCalculated(ctx)) {
-        Object value = right.execute((YTResult) null, ctx);
+        Object value = right.execute((Result) null, ctx);
         if (operator instanceof SQLEqualsCompareOperator) {
           return info.findExactIndex(p, value, ctx);
         } else if (operator instanceof SQLContainsKeyOperator) {
@@ -526,7 +527,7 @@ public class SQLBinaryCondition extends SQLBooleanExpression {
     return Optional.empty();
   }
 
-  public boolean isIndexAware(OIndexSearchInfo info) {
+  public boolean isIndexAware(IndexSearchInfo info) {
     if (left.isBaseIdentifier()) {
       if (info.getField().equals(left.getDefaultAlias().getStringValue())) {
         if (right.isEarlyCalculated(info.getCtx())) {

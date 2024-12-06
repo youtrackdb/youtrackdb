@@ -19,14 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.serialization.OMemoryStream;
+import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,29 +44,29 @@ public class RecordBytes extends RecordAbstract implements Blob {
   private static final byte[] EMPTY_SOURCE = new byte[]{};
 
   public RecordBytes() {
-    setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
+    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
   }
 
-  public RecordBytes(final YTDatabaseSessionInternal iDatabase) {
+  public RecordBytes(final DatabaseSessionInternal iDatabase) {
     setup(iDatabase);
-    ODatabaseRecordThreadLocal.instance().set(iDatabase);
+    DatabaseRecordThreadLocal.instance().set(iDatabase);
   }
 
-  public RecordBytes(final YTDatabaseSessionInternal iDatabase, final byte[] iSource) {
+  public RecordBytes(final DatabaseSessionInternal iDatabase, final byte[] iSource) {
     this(iSource);
-    ODatabaseRecordThreadLocal.instance().set(iDatabase);
+    DatabaseRecordThreadLocal.instance().set(iDatabase);
   }
 
   public RecordBytes(final byte[] iSource) {
     super(iSource);
     dirty = true;
     contentChanged = true;
-    setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
+    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
   }
 
-  public RecordBytes(final YTRID iRecordId) {
-    recordId = (YTRecordId) iRecordId.copy();
-    setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
+  public RecordBytes(final RID iRecordId) {
+    recordId = (RecordId) iRecordId.copy();
+    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
   }
 
   public RecordBytes copy() {
@@ -76,7 +76,7 @@ public class RecordBytes extends RecordAbstract implements Blob {
   @Override
   public RecordBytes fromStream(final byte[] iRecordBuffer) {
     if (dirty) {
-      throw new YTDatabaseException("Cannot call fromStream() on dirty records");
+      throw new DatabaseException("Cannot call fromStream() on dirty records");
     }
 
     checkForBinding();
@@ -115,9 +115,9 @@ public class RecordBytes extends RecordAbstract implements Blob {
   public int fromInputStream(final InputStream in) throws IOException {
     incrementLoading();
     try {
-      final OMemoryStream out = new OMemoryStream();
+      final MemoryStream out = new MemoryStream();
       try {
-        final byte[] buffer = new byte[OMemoryStream.DEF_SIZE];
+        final byte[] buffer = new byte[MemoryStream.DEF_SIZE];
         int readBytesCount;
         while (true) {
           readBytesCount = in.read(buffer, 0, buffer.length);

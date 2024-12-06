@@ -3,19 +3,19 @@ package com.jetbrains.youtrack.db.internal.core.db.record;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Test;
 
-public class RecordLazySetPersistentTest extends DBTestBase {
+public class RecordLazySetPersistentTest extends DbTestBase {
 
   @Test
   public void test1() {
-    YTRID orid1;
-    YTRID orid2;
+    RID orid1;
+    RID orid2;
 
     db.activateOnCurrentThread();
     db.begin();
@@ -37,7 +37,7 @@ public class RecordLazySetPersistentTest extends DBTestBase {
     {
       EntityImpl doc1 = db.load(orid1);
       assertNotNull(doc1);
-      Set<YTIdentifiable> linkset = doc1.field("linkset");
+      Set<Identifiable> linkset = doc1.field("linkset");
       assertNotNull(linkset);
       assertEquals(1, linkset.size());
 
@@ -55,15 +55,15 @@ public class RecordLazySetPersistentTest extends DBTestBase {
 
   @Test
   public void test2() {
-    YTRID orid1;
-    YTRID orid2;
+    RID orid1;
+    RID orid2;
 
     db.activateOnCurrentThread();
     db.begin();
     {
       EntityImpl doc1 = new EntityImpl();
-      doc1.field("linkset", new HashSet<YTIdentifiable>());
-      Set<YTIdentifiable> linkset = doc1.field("linkset");
+      doc1.field("linkset", new HashSet<Identifiable>());
+      Set<Identifiable> linkset = doc1.field("linkset");
       EntityImpl doc2 = new EntityImpl();
       doc2.save(db.getClusterNameById(db.getDefaultClusterId()));
       orid2 = doc2.getIdentity();
@@ -78,7 +78,7 @@ public class RecordLazySetPersistentTest extends DBTestBase {
     {
       EntityImpl doc1 = db.load(orid1);
       assertNotNull(doc1);
-      Set<YTIdentifiable> linkset = doc1.field("linkset");
+      Set<Identifiable> linkset = doc1.field("linkset");
 
       assertNotNull(linkset);
       assertEquals(1, linkset.size());

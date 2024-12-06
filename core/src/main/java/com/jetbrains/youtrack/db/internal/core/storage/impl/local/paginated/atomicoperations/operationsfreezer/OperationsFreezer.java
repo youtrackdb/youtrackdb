@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.operationsfreezer;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.types.OModifiableInteger;
+import com.jetbrains.youtrack.db.internal.common.types.ModifiableInteger;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -24,11 +24,11 @@ public final class OperationsFreezer {
   private final ConcurrentMap<Long, FreezeParameters> freezeParametersIdMap =
       new ConcurrentHashMap<>();
 
-  private final ThreadLocal<OModifiableInteger> operationDepth =
-      ThreadLocal.withInitial(OModifiableInteger::new);
+  private final ThreadLocal<ModifiableInteger> operationDepth =
+      ThreadLocal.withInitial(ModifiableInteger::new);
 
   public void startOperation() {
-    final OModifiableInteger operationDepth = this.operationDepth.get();
+    final ModifiableInteger operationDepth = this.operationDepth.get();
     if (operationDepth.value == 0) {
       operationsCount.increment();
 
@@ -57,7 +57,7 @@ public final class OperationsFreezer {
   }
 
   public void endOperation() {
-    final OModifiableInteger operationDepth = this.operationDepth.get();
+    final ModifiableInteger operationDepth = this.operationDepth.get();
     if (operationDepth.value <= 0) {
       throw new IllegalStateException("Invalid operation depth " + operationDepth.value);
     } else {
@@ -70,7 +70,7 @@ public final class OperationsFreezer {
   }
 
   public long freezeOperations(
-      final Class<? extends YTException> exceptionClass, final String message) {
+      final Class<? extends BaseException> exceptionClass, final String message) {
     final long id = freezeIdGen.incrementAndGet();
 
     freezeRequests.incrementAndGet();
@@ -118,7 +118,7 @@ public final class OperationsFreezer {
 
       if (freezeParameters.message != null) {
         try {
-          final Constructor<? extends YTException> mConstructor =
+          final Constructor<? extends BaseException> mConstructor =
               freezeParameters.exceptionClass.getConstructor(String.class);
           throw mConstructor.newInstance(freezeParameters.message);
         } catch (InstantiationException
@@ -159,9 +159,9 @@ public final class OperationsFreezer {
   private static final class FreezeParameters {
 
     private final String message;
-    private final Class<? extends YTException> exceptionClass;
+    private final Class<? extends BaseException> exceptionClass;
 
-    private FreezeParameters(String message, Class<? extends YTException> exceptionClass) {
+    private FreezeParameters(String message, Class<? extends BaseException> exceptionClass) {
       this.message = message;
       this.exceptionClass = exceptionClass;
     }

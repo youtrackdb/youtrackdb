@@ -3,8 +3,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
@@ -24,14 +24,14 @@ public class SQLExpressionStatement extends SQLSimpleExecStatement {
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
     var db = ctx.getDatabase();
-    Object expResult = expression.execute(new YTResultInternal(db), ctx);
-    YTResultInternal item = new YTResultInternal(db);
+    Object expResult = expression.execute(new ResultInternal(db), ctx);
+    ResultInternal item = new ResultInternal(db);
     item.setProperty("result", expResult);
     return ExecutionStream.singleton(item);
   }
 
   @Override
-  public boolean executinPlanCanBeCached(YTDatabaseSessionInternal session) {
+  public boolean executinPlanCanBeCached(DatabaseSessionInternal session) {
     return false;
   }
 

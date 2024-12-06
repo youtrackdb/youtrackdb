@@ -1,11 +1,11 @@
 package com.orientechnologies.lucene.integration;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.orientechnologies.orient.server.OServer;
 import org.junit.After;
@@ -28,7 +28,7 @@ public class LuceneCreateIndexIntegrationTest {
     remote.execute(
         "create database LuceneCreateIndexIntegrationTest plocal users(admin identified by 'admin'"
             + " role admin) ");
-    final YTDatabaseSession session =
+    final DatabaseSession session =
         remote.open("LuceneCreateIndexIntegrationTest", "admin", "admin");
 
     session.command("create class Person");
@@ -46,19 +46,19 @@ public class LuceneCreateIndexIntegrationTest {
 
   @Test
   public void testCreateIndexJavaAPI() {
-    final YTDatabaseSessionInternal session =
-        (YTDatabaseSessionInternal) remote.open("LuceneCreateIndexIntegrationTest", "admin",
+    final DatabaseSessionInternal session =
+        (DatabaseSessionInternal) remote.open("LuceneCreateIndexIntegrationTest", "admin",
             "admin");
-    YTClass person = session.getMetadata().getSchema().getClass("Person");
+    SchemaClass person = session.getMetadata().getSchema().getClass("Person");
 
     if (person == null) {
       person = session.getMetadata().getSchema().createClass("Person");
     }
     if (!person.existsProperty("name")) {
-      person.createProperty(session, "name", YTType.STRING);
+      person.createProperty(session, "name", PropertyType.STRING);
     }
     if (!person.existsProperty("surname")) {
-      person.createProperty(session, "surname", YTType.STRING);
+      person.createProperty(session, "surname", PropertyType.STRING);
     }
 
     person.createIndex(session,

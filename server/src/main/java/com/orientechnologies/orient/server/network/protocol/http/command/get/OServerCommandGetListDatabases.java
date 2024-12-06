@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.jetbrains.youtrack.db.internal.core.db.OSystemDatabase;
+import com.jetbrains.youtrack.db.internal.core.db.SystemDatabase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -65,7 +65,7 @@ public class OServerCommandGetListDatabases extends OServerCommandAuthenticatedS
         && server
         .getSecurity()
         .isAuthorized(null, OServerConfiguration.GUEST_USER, "server.listDatabases.system")) {
-      storageNames.add(OSystemDatabase.SYSTEM_DB_NAME);
+      storageNames.add(SystemDatabase.SYSTEM_DB_NAME);
     }
 
     // ORDER DATABASE NAMES (CASE INSENSITIVE)

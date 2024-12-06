@@ -15,14 +15,14 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = "sql-select")
 public class SQLEscapingTest extends DocumentDBBaseTest {
 
-  private YTDatabaseSessionInternal database;
+  private DatabaseSessionInternal database;
 
   @Parameters(value = "remote")
   public SQLEscapingTest(boolean remote) {

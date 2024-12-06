@@ -3,15 +3,15 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTView;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaView;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
 
-public class SQLDropViewStatement extends ODDLStatement {
+public class SQLDropViewStatement extends DDLStatement {
 
   public SQLIdentifier name;
   public boolean ifExists = false;
@@ -27,25 +27,25 @@ public class SQLDropViewStatement extends ODDLStatement {
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
     var db = ctx.getDatabase();
-    YTSchema schema = db.getMetadata().getSchema();
-    YTView view = schema.getView(name.getStringValue());
+    Schema schema = db.getMetadata().getSchema();
+    SchemaView view = schema.getView(name.getStringValue());
     if (view == null) {
       if (ifExists) {
         return ExecutionStream.empty();
       }
-      throw new YTCommandExecutionException("View " + name.getStringValue() + " does not exist");
+      throw new CommandExecutionException("View " + name.getStringValue() + " does not exist");
     }
 
     if (view.count(db) > 0) {
       // no need for this probably, but perhaps in the future...
       if (view.isVertexType()) {
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "'DROP VIEW' command cannot drop view '"
                 + name.getStringValue()
                 + "' because it contains Vertices. Use 'DELETE VERTEX' command first to avoid"
                 + " broken edges in a database, or apply the 'UNSAFE' keyword to force it");
       } else if (view.isEdgeType()) {
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "'DROP VIEW' command cannot drop view '"
                 + name.getStringValue()
                 + "' because it contains Edges. Use 'DELETE EDGE' command first to avoid broken"
@@ -55,7 +55,7 @@ public class SQLDropViewStatement extends ODDLStatement {
 
     schema.dropView(name.getStringValue());
 
-    YTResultInternal result = new YTResultInternal(db);
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("operation", "drop view");
     result.setProperty("viewName", name.getStringValue());
     return ExecutionStream.singleton(result);

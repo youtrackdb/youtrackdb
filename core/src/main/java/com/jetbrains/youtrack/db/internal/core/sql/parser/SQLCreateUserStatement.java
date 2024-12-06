@@ -3,9 +3,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurity;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +76,7 @@ public class SQLCreateUserStatement extends SQLSimpleExecStatement {
     sb.append(DEFAULT_STATUS);
     sb.append("'");
 
-    // role=(select from ORole where name in [<input_role || 'writer'>)]
+    // role=(select from Role where name in [<input_role || 'writer'>)]
     List<SQLIdentifier> roles = new ArrayList<>();
     roles.addAll(this.roles);
     if (roles.size() == 0) {
@@ -90,12 +90,12 @@ public class SQLCreateUserStatement extends SQLSimpleExecStatement {
     sb.append(" WHERE ");
     sb.append(ROLE_FIELD_NAME);
     sb.append(" IN [");
-    OSecurity security = ctx.getDatabase().getMetadata().getSecurity();
+    Security security = ctx.getDatabase().getMetadata().getSecurity();
     for (int i = 0; i < this.roles.size(); ++i) {
       String roleName = this.roles.get(i).getStringValue();
-      ORole role = security.getRole(roleName);
+      Role role = security.getRole(roleName);
       if (role == null) {
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "Cannot create user " + this.name + ": role " + roleName + " does not exist");
       }
       if (i > 0) {

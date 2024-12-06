@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import java.io.File;
@@ -12,7 +12,7 @@ import org.junit.rules.TestName;
 
 public class BaseServerMemoryDatabase {
 
-  protected YTDatabaseSessionInternal db;
+  protected DatabaseSessionInternal db;
   protected YouTrackDB context;
   @Rule
   public TestName name = new TestName();
@@ -35,7 +35,7 @@ public class BaseServerMemoryDatabase {
                 + name.getMethodName()
                 + " memory users(admin identified by 'adminpwd' role admin) ")
         .close();
-    db = (YTDatabaseSessionInternal) context.open(name.getMethodName(), "admin", "adminpwd");
+    db = (DatabaseSessionInternal) context.open(name.getMethodName(), "admin", "adminpwd");
   }
 
   @After

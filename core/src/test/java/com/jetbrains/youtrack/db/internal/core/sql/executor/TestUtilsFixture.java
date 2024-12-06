@@ -1,24 +1,24 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import org.apache.commons.lang.RandomStringUtils;
 
 /**
  *
  */
-public class TestUtilsFixture extends DBTestBase {
+public class TestUtilsFixture extends DbTestBase {
 
-  protected YTClass createClassInstance() {
+  protected SchemaClass createClassInstance() {
     return getDBSchema().createClass(generateClassName());
   }
 
-  protected YTClass createChildClassInstance(YTClass superclass) {
+  protected SchemaClass createChildClassInstance(SchemaClass superclass) {
     return getDBSchema().createClass(generateClassName(), superclass);
   }
 
-  private YTSchema getDBSchema() {
+  private Schema getDBSchema() {
     return db.getMetadata().getSchema();
   }
 

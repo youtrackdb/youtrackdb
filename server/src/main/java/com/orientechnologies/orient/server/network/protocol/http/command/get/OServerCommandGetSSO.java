@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OJSONWriter;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -31,7 +31,7 @@ public class OServerCommandGetSSO extends OServerCommandAbstract {
   private void getJSON(final OHttpResponse iResponse) {
     try {
       final StringWriter buffer = new StringWriter();
-      final OJSONWriter json = new OJSONWriter(buffer, OHttpResponse.JSON_FORMAT);
+      final JSONWriter json = new JSONWriter(buffer, OHttpResponse.JSON_FORMAT);
 
       json.beginObject();
 

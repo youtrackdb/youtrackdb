@@ -15,15 +15,15 @@
 package com.orientechnologies.spatial;
 
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.spatial.collections.OSpatialCompositeKey;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
+import com.orientechnologies.spatial.collections.SpatialCompositeKey;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -41,13 +41,13 @@ public class LuceneSpatialMemoryTest {
   @Test
   public void boundingBoxTest() {
     //noinspection deprecation
-    try (YTDatabaseSessionInternal db = new YTDatabaseDocumentTx("memory:test")) {
+    try (DatabaseSessionInternal db = new DatabaseDocumentTx("memory:test")) {
       db.create();
       try {
 
-        YTClass point = db.getMetadata().getSchema().createClass("Point");
-        point.createProperty(db, "latitude", YTType.DOUBLE);
-        point.createProperty(db, "longitude", YTType.DOUBLE);
+        SchemaClass point = db.getMetadata().getSchema().createClass("Point");
+        point.createProperty(db, "latitude", PropertyType.DOUBLE);
+        point.createProperty(db, "longitude", PropertyType.DOUBLE);
 
         db.command("CREATE INDEX Point.ll ON Point(latitude,longitude) SPATIAL ENGINE LUCENE")
             .close();
@@ -63,7 +63,7 @@ public class LuceneSpatialMemoryTest {
 
         List<?> query =
             db.query(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
                         + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
 
@@ -78,13 +78,13 @@ public class LuceneSpatialMemoryTest {
   public void boundingBoxTestTxRollBack() {
 
     @SuppressWarnings("deprecation")
-    YTDatabaseSessionInternal db = new YTDatabaseDocumentTx("memory:test");
+    DatabaseSessionInternal db = new DatabaseDocumentTx("memory:test");
     db.create();
     try {
 
-      YTClass point = db.getMetadata().getSchema().createClass("Point");
-      point.createProperty(db, "latitude", YTType.DOUBLE);
-      point.createProperty(db, "longitude", YTType.DOUBLE);
+      SchemaClass point = db.getMetadata().getSchema().createClass("Point");
+      point.createProperty(db, "latitude", PropertyType.DOUBLE);
+      point.createProperty(db, "longitude", PropertyType.DOUBLE);
 
       db.command("CREATE INDEX Point.ll ON Point(latitude,longitude) SPATIAL ENGINE LUCENE")
           .close();
@@ -102,14 +102,14 @@ public class LuceneSpatialMemoryTest {
 
       List<?> query =
           db.query(
-              new OSQLSynchQuery<EntityImpl>(
+              new SQLSynchQuery<EntityImpl>(
                   "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
                       + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
 
       Assert.assertEquals(1, query.size());
 
-      OSpatialCompositeKey oSpatialCompositeKey =
-          new OSpatialCompositeKey(
+      SpatialCompositeKey oSpatialCompositeKey =
+          new SpatialCompositeKey(
               new ArrayList<List<Number>>() {
                 {
                   add(
@@ -129,14 +129,14 @@ public class LuceneSpatialMemoryTest {
                 }
               })
               .setOperation(SpatialOperation.IsWithin);
-      OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Point.ll");
+      Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Point.ll");
 
       var baseContext = new BasicCommandContext();
       baseContext.setDatabase(db);
       oSpatialCompositeKey.setContext(baseContext);
 
       Collection coll;
-      try (Stream<YTRID> stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
+      try (Stream<RID> stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
         coll = stream.collect(Collectors.toList());
       }
       Assert.assertEquals(1, coll.size());
@@ -144,7 +144,7 @@ public class LuceneSpatialMemoryTest {
 
       query =
           db.query(
-              new OSQLSynchQuery<EntityImpl>(
+              new SQLSynchQuery<EntityImpl>(
                   "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
                       + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
 
@@ -158,15 +158,15 @@ public class LuceneSpatialMemoryTest {
   @Test
   public void boundingBoxTestTxCommit() {
 
-    YTDatabaseSessionInternal db = new YTDatabaseDocumentTx("memory:test");
+    DatabaseSessionInternal db = new DatabaseDocumentTx("memory:test");
 
     db.create();
 
     try {
 
-      YTClass point = db.getMetadata().getSchema().createClass("Point");
-      point.createProperty(db, "latitude", YTType.DOUBLE);
-      point.createProperty(db, "longitude", YTType.DOUBLE);
+      SchemaClass point = db.getMetadata().getSchema().createClass("Point");
+      point.createProperty(db, "latitude", PropertyType.DOUBLE);
+      point.createProperty(db, "longitude", PropertyType.DOUBLE);
 
       db.command("CREATE INDEX Point.ll ON Point(latitude,longitude) SPATIAL ENGINE LUCENE")
           .close();
@@ -184,14 +184,14 @@ public class LuceneSpatialMemoryTest {
 
       List<?> query =
           db.query(
-              new OSQLSynchQuery<EntityImpl>(
+              new SQLSynchQuery<EntityImpl>(
                   "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
                       + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
 
       Assert.assertEquals(1, query.size());
 
-      OSpatialCompositeKey oSpatialCompositeKey =
-          new OSpatialCompositeKey(
+      SpatialCompositeKey oSpatialCompositeKey =
+          new SpatialCompositeKey(
               new ArrayList<List<Number>>() {
                 {
                   add(
@@ -215,10 +215,10 @@ public class LuceneSpatialMemoryTest {
       context.setDatabase(db);
       oSpatialCompositeKey.setContext(context);
 
-      OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Point.ll");
+      Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Point.ll");
 
       Collection coll;
-      try (Stream<YTRID> stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
+      try (Stream<RID> stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
         coll = stream.collect(Collectors.toList());
       }
       Assert.assertEquals(1, coll.size());
@@ -230,13 +230,13 @@ public class LuceneSpatialMemoryTest {
 
       query =
           db.query(
-              new OSQLSynchQuery<EntityImpl>(
+              new SQLSynchQuery<EntityImpl>(
                   "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
                       + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
 
       Assert.assertEquals(0, query.size());
 
-      try (Stream<YTRID> stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
+      try (Stream<RID> stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -246,7 +246,7 @@ public class LuceneSpatialMemoryTest {
 
       query =
           db.query(
-              new OSQLSynchQuery<EntityImpl>(
+              new SQLSynchQuery<EntityImpl>(
                   "SELECT FROM Point WHERE [latitude, longitude] WITHIN"
                       + " [[42.26531323615103,-83.71986351411135],[42.29239784478525,-83.7662120858887]]"));
 

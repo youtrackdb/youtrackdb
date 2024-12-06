@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.client.remote.message.sequence;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.YTSequence;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.OSequenceAction;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceAction;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceOrderType;
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -28,12 +28,12 @@ import java.nio.charset.StandardCharsets;
  */
 public class OSequenceActionRequest {
 
-  private OSequenceAction action = null;
+  private SequenceAction action = null;
 
   public OSequenceActionRequest() {
   }
 
-  public OSequenceActionRequest(OSequenceAction action) {
+  public OSequenceActionRequest(SequenceAction action) {
     this.action = action;
   }
 
@@ -126,7 +126,7 @@ public class OSequenceActionRequest {
       serializeLong(action.getCurrentValue(), out);
       out.writeByte(action.getSequenceType().getVal());
 
-      YTSequence.CreateParams params = action.getParameters();
+      Sequence.CreateParams params = action.getParameters();
       if (params == null) {
         out.writeByte(0);
       } else {
@@ -154,15 +154,15 @@ public class OSequenceActionRequest {
       String sequenceName = new String(nameBytes, StandardCharsets.UTF_8);
       Long currentValue = deserializeLong(in);
       byte sequenceTypeByte = in.readByte();
-      YTSequence.SEQUENCE_TYPE sequenceType = YTSequence.SEQUENCE_TYPE.fromVal(sequenceTypeByte);
+      Sequence.SEQUENCE_TYPE sequenceType = Sequence.SEQUENCE_TYPE.fromVal(sequenceTypeByte);
       if (sequenceType == null) {
         throw new IOException("Inavlid sequnce type value: " + sequenceTypeByte);
       }
 
-      YTSequence.CreateParams params = null;
+      Sequence.CreateParams params = null;
       byte paramsNullFlag = in.readByte();
       if (paramsNullFlag > 0) {
-        params = new YTSequence.CreateParams();
+        params = new Sequence.CreateParams();
         params.resetNull();
         params.setStart(deserializeLong(in));
         params.setIncrement(deserializeInt(in));
@@ -174,16 +174,16 @@ public class OSequenceActionRequest {
         params.setCurrentValue(deserializeLong(in));
       }
       if (currentValue != null) {
-        action = new OSequenceAction(sequenceName, currentValue);
+        action = new SequenceAction(sequenceName, currentValue);
       } else {
-        action = new OSequenceAction(actionType, sequenceName, params, sequenceType);
+        action = new SequenceAction(actionType, sequenceName, params, sequenceType);
       }
     } else {
       action = null;
     }
   }
 
-  public OSequenceAction getAction() {
+  public SequenceAction getAction() {
     return action;
   }
 }

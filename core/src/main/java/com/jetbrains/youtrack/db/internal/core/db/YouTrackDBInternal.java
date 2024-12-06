@@ -20,14 +20,14 @@
 
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
-import com.jetbrains.youtrack.db.internal.core.command.script.OScriptManager;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.OAuthenticationInfo;
-import com.jetbrains.youtrack.db.internal.core.security.OSecuritySystem;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.command.script.ScriptManager;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
+import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
@@ -42,7 +42,7 @@ import java.util.concurrent.Future;
 /**
  *
  */
-public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
+public interface YouTrackDBInternal extends AutoCloseable, SchedulerInternal {
 
   /**
    * Create a new factory from a given url.
@@ -62,7 +62,7 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
     } else if ("remote".equals(what)) {
       return remote(url.substring(url.indexOf(':') + 1).split(";"), configuration);
     }
-    throw new YTDatabaseException("not supported database type");
+    throw new DatabaseException("not supported database type");
   }
 
   default YouTrackDB newOrientDB() {
@@ -105,11 +105,11 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
              | NoSuchMethodException
              | IllegalAccessException
              | InstantiationException e) {
-      throw YTException.wrapException(new YTDatabaseException("YouTrackDB client API missing"), e);
+      throw BaseException.wrapException(new DatabaseException("YouTrackDB client API missing"), e);
     } catch (InvocationTargetException e) {
       //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
-      throw YTException.wrapException(
-          new YTDatabaseException("Error creating YouTrackDB remote factory"),
+      throw BaseException.wrapException(
+          new DatabaseException("Error creating YouTrackDB remote factory"),
           e.getTargetException());
     }
     return factory;
@@ -154,12 +154,12 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
              | NoSuchMethodException
              | IllegalAccessException
              | InstantiationException e) {
-      throw YTException.wrapException(new YTDatabaseException("YouTrackDB distributed API missing"),
+      throw BaseException.wrapException(new DatabaseException("YouTrackDB distributed API missing"),
           e);
     } catch (InvocationTargetException e) {
       //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
-      throw YTException.wrapException(
-          new YTDatabaseException("Error creating YouTrackDB remote factory"),
+      throw BaseException.wrapException(
+          new DatabaseException("Error creating YouTrackDB remote factory"),
           e.getTargetException());
     }
     return factory;
@@ -173,7 +173,7 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
    * @param password related to the specified username
    * @return the opened database
    */
-  YTDatabaseSessionInternal open(String name, String user, String password);
+  DatabaseSessionInternal open(String name, String user, String password);
 
   /**
    * Open a database specified by name using the username and password if needed, with specific
@@ -186,7 +186,7 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
    *                 needed.
    * @return the opened database
    */
-  YTDatabaseSessionInternal open(String name, String user, String password,
+  DatabaseSessionInternal open(String name, String user, String password,
       YouTrackDBConfig config);
 
   /**
@@ -198,7 +198,7 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
    *                           settings where needed.
    * @return the opened database
    */
-  YTDatabaseSessionInternal open(OAuthenticationInfo authenticationInfo, YouTrackDBConfig config);
+  DatabaseSessionInternal open(AuthenticationInfo authenticationInfo, YouTrackDBConfig config);
 
   /**
    * Create a new database
@@ -209,7 +209,7 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
    * @param password the password relative to the user
    * @param type     can be plocal or memory
    */
-  void create(String name, String user, String password, ODatabaseType type);
+  void create(String name, String user, String password, DatabaseType type);
 
   /**
    * Create a new database
@@ -222,7 +222,7 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
    *                 needed.
    * @param type     can be plocal or memory
    */
-  void create(String name, String user, String password, ODatabaseType type,
+  void create(String name, String user, String password, DatabaseType type,
       YouTrackDBConfig config);
 
   /**
@@ -264,7 +264,7 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
    * @param password the password relative to the user
    * @return a new pool of databases.
    */
-  ODatabasePoolInternal openPool(String name, String user, String password);
+  DatabasePoolInternal openPool(String name, String user, String password);
 
   /**
    * Open a pool of databases, similar to open but with multiple instances.
@@ -276,25 +276,25 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
    *                 needed.
    * @return a new pool of databases.
    */
-  ODatabasePoolInternal openPool(String name, String user, String password,
+  DatabasePoolInternal openPool(String name, String user, String password,
       YouTrackDBConfig config);
 
-  ODatabasePoolInternal cachedPool(String database, String user, String password);
+  DatabasePoolInternal cachedPool(String database, String user, String password);
 
-  ODatabasePoolInternal cachedPool(
+  DatabasePoolInternal cachedPool(
       String database, String user, String password, YouTrackDBConfig config);
 
   /**
    * Internal api for request to open a database with a pool
    */
-  YTDatabaseSessionInternal poolOpen(
-      String name, String user, String password, ODatabasePoolInternal pool);
+  DatabaseSessionInternal poolOpen(
+      String name, String user, String password, DatabasePoolInternal pool);
 
   void restore(
       String name,
       String user,
       String password,
-      ODatabaseType type,
+      DatabaseType type,
       String path,
       YouTrackDBConfig config);
 
@@ -303,7 +303,7 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
       InputStream in,
       Map<String, Object> options,
       Callable<Object> callable,
-      OCommandOutputListener iListener);
+      CommandOutputListener iListener);
 
   /**
    * Close the factory with all related databases and pools.
@@ -318,7 +318,7 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
   /**
    * Internal API for pool close
    */
-  void removePool(ODatabasePoolInternal toRemove);
+  void removePool(DatabasePoolInternal toRemove);
 
   /**
    * Check if the current instance is open
@@ -339,9 +339,9 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
     return youTrackDB.serverUser;
   }
 
-  YTDatabaseSessionInternal openNoAuthenticate(String iDbUrl, String user);
+  DatabaseSessionInternal openNoAuthenticate(String iDbUrl, String user);
 
-  YTDatabaseSessionInternal openNoAuthorization(String name);
+  DatabaseSessionInternal openNoAuthorization(String name);
 
   void initCustomStorage(String name, String baseUrl, String userName, String userPassword);
 
@@ -357,11 +357,11 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
 
   <X> Future<X> execute(Callable<X> task);
 
-  <X> Future<X> execute(String database, String user, ODatabaseTask<X> task);
+  <X> Future<X> execute(String database, String user, DatabaseTask<X> task);
 
-  <X> Future<X> executeNoAuthorizationAsync(String database, ODatabaseTask<X> task);
+  <X> Future<X> executeNoAuthorizationAsync(String database, DatabaseTask<X> task);
 
-  <X> X executeNoAuthorizationSync(YTDatabaseSessionInternal database, ODatabaseTask<X> task);
+  <X> X executeNoAuthorizationSync(DatabaseSessionInternal database, DatabaseTask<X> task);
 
   default Storage fullSync(String dbName, InputStream backupStream, YouTrackDBConfig config) {
     throw new UnsupportedOperationException();
@@ -371,7 +371,7 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
     throw new UnsupportedOperationException();
   }
 
-  default OScriptManager getScriptManager() {
+  default ScriptManager getScriptManager() {
     throw new UnsupportedOperationException();
   }
 
@@ -379,17 +379,17 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
     throw new UnsupportedOperationException();
   }
 
-  default YTResultSet executeServerStatementNamedParams(String script, String user, String pw,
+  default ResultSet executeServerStatementNamedParams(String script, String user, String pw,
       Map<String, Object> params) {
     throw new UnsupportedOperationException();
   }
 
-  default YTResultSet executeServerStatementPositionalParams(String script, String user, String pw,
+  default ResultSet executeServerStatementPositionalParams(String script, String user, String pw,
       Object... params) {
     throw new UnsupportedOperationException();
   }
 
-  default OSystemDatabase getSystemDatabase() {
+  default SystemDatabase getSystemDatabase() {
     throw new UnsupportedOperationException();
   }
 
@@ -406,13 +406,13 @@ public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
       String name,
       String user,
       String password,
-      ODatabaseType type,
+      DatabaseType type,
       YouTrackDBConfig config,
-      ODatabaseTask<Void> createOps);
+      DatabaseTask<Void> createOps);
 
   YouTrackDBConfig getConfigurations();
 
-  OSecuritySystem getSecuritySystem();
+  SecuritySystem getSecuritySystem();
 
   default Set<String> listLodadedDatabases() {
     throw new UnsupportedOperationException();

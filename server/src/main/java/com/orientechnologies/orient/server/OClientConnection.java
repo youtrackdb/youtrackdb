@@ -19,21 +19,21 @@
  */
 package com.orientechnologies.orient.server;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.exception.YTSystemException;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.OQueryDatabaseState;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OToken;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
-import com.jetbrains.youtrack.db.internal.core.security.OParsedToken;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OInternalExecutionPlan;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinary;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTTokenSecurityException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.common.exception.SystemException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.QueryDatabaseState;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
+import com.jetbrains.youtrack.db.internal.core.security.ParsedToken;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinary;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.TokenSecurityException;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
-import com.orientechnologies.orient.server.network.protocol.ONetworkProtocol;
+import com.orientechnologies.orient.server.network.protocol.NetworkProtocol;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
-import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
+import com.orientechnologies.orient.server.network.protocol.binary.NetworkProtocolBinary;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -53,21 +53,21 @@ public class OClientConnection {
 
   private final int id;
   private final long since;
-  private final Set<ONetworkProtocol> protocols =
-      Collections.newSetFromMap(new WeakHashMap<ONetworkProtocol, Boolean>());
-  private volatile ONetworkProtocol protocol;
-  private volatile YTDatabaseSessionInternal database;
-  private volatile YTSecurityUser serverUser;
+  private final Set<NetworkProtocol> protocols =
+      Collections.newSetFromMap(new WeakHashMap<NetworkProtocol, Boolean>());
+  private volatile NetworkProtocol protocol;
+  private volatile DatabaseSessionInternal database;
+  private volatile SecurityUser serverUser;
   private ONetworkProtocolData data = new ONetworkProtocolData();
   private final OClientConnectionStats stats = new OClientConnectionStats();
   private final Lock lock = new ReentrantLock();
   private Boolean tokenBased;
   private byte[] tokenBytes;
-  private OParsedToken token;
+  private ParsedToken token;
   private boolean disconnectOnAfter;
   private final OBinaryRequestExecutor executor;
 
-  public OClientConnection(final int id, final ONetworkProtocol protocol) {
+  public OClientConnection(final int id, final NetworkProtocol protocol) {
     this.id = id;
     this.protocol = protocol;
     this.protocols.add(protocol);
@@ -124,7 +124,7 @@ public class OClientConnection {
     if (protocol != null) {
       socket = protocol.getChannel().socket;
     } else {
-      for (ONetworkProtocol protocol : this.protocols) {
+      for (NetworkProtocol protocol : this.protocols) {
         socket = protocol.getChannel().socket;
         if (socket != null) {
           break;
@@ -159,11 +159,11 @@ public class OClientConnection {
     return id == other.id;
   }
 
-  public OChannelBinary getChannel() {
-    return (OChannelBinary) protocol.getChannel();
+  public SocketChannelBinary getChannel() {
+    return (SocketChannelBinary) protocol.getChannel();
   }
 
-  public ONetworkProtocol getProtocol() {
+  public NetworkProtocol getProtocol() {
     return protocol;
   }
 
@@ -172,10 +172,10 @@ public class OClientConnection {
   }
 
   public void validateSession(
-      byte[] tokenFromNetwork, OTokenHandler handler, ONetworkProtocolBinary protocol) {
+      byte[] tokenFromNetwork, OTokenHandler handler, NetworkProtocolBinary protocol) {
     if (tokenFromNetwork == null || tokenFromNetwork.length == 0) {
       if (!protocols.contains(protocol)) {
-        throw new YTTokenSecurityException("No valid session found, provide a token");
+        throw new TokenSecurityException("No valid session found, provide a token");
       }
     } else {
       // IF the byte from the network are the same of the one i have a don't check them
@@ -187,25 +187,25 @@ public class OClientConnection {
         }
       }
 
-      OParsedToken token = null;
+      ParsedToken token = null;
       try {
         if (tokenFromNetwork != null) {
           token = handler.parseOnlyBinary(tokenFromNetwork);
         }
       } catch (Exception e) {
-        throw YTException.wrapException(new YTSystemException("Error on token parse"), e);
+        throw BaseException.wrapException(new SystemException("Error on token parse"), e);
       }
 
       if (token == null || !handler.validateBinaryToken(token)) {
         cleanSession();
         protocol.getServer().getClientConnectionManager().disconnect(this);
-        throw new YTTokenSecurityException(
+        throw new TokenSecurityException(
             "The token provided is not a valid token, signature does not match");
       }
       if (!handler.validateBinaryToken(token)) {
         cleanSession();
         protocol.getServer().getClientConnectionManager().disconnect(this);
-        throw new YTTokenSecurityException("The token provided is expired");
+        throw new TokenSecurityException("The token provided is expired");
       }
       if (tokenBased == null) {
         tokenBased = Boolean.TRUE;
@@ -252,7 +252,7 @@ public class OClientConnection {
       data = server.getTokenHandler().getProtocolDataFromToken(this, token.getToken());
 
       if (data == null) {
-        throw new YTTokenSecurityException("missing in token data");
+        throw new TokenSecurityException("missing in token data");
       }
 
       final String db = token.getToken().getDatabase();
@@ -275,7 +275,7 @@ public class OClientConnection {
     this.tokenBytes = tokenBytes;
   }
 
-  public OToken getToken() {
+  public Token getToken() {
     if (token != null) {
       return token.getToken();
     } else {
@@ -291,12 +291,12 @@ public class OClientConnection {
     return since;
   }
 
-  public void setProtocol(ONetworkProtocol protocol) {
+  public void setProtocol(NetworkProtocol protocol) {
     this.protocol = protocol;
   }
 
   @Nullable
-  public YTDatabaseSessionInternal getDatabase() {
+  public DatabaseSessionInternal getDatabase() {
     return database;
   }
 
@@ -327,15 +327,15 @@ public class OClientConnection {
     }
   }
 
-  public void setDatabase(YTDatabaseSessionInternal database) {
+  public void setDatabase(DatabaseSessionInternal database) {
     this.database = database;
   }
 
-  public YTSecurityUser getServerUser() {
+  public SecurityUser getServerUser() {
     return serverUser;
   }
 
-  public void setServerUser(YTSecurityUser serverUser) {
+  public void setServerUser(SecurityUser serverUser) {
     this.serverUser = serverUser;
   }
 
@@ -368,18 +368,18 @@ public class OClientConnection {
     stats.lastCommandReceived = System.currentTimeMillis();
   }
 
-  private List<String> getActiveQueries(YTDatabaseSessionInternal database) {
+  private List<String> getActiveQueries(DatabaseSessionInternal database) {
     try {
       List<String> result = new ArrayList<>();
-      Map<String, OQueryDatabaseState> queries = database.getActiveQueries();
-      for (OQueryDatabaseState oResultSet : queries.values()) {
-        Optional<OExecutionPlan> plan = oResultSet.getResultSet().getExecutionPlan();
+      Map<String, QueryDatabaseState> queries = database.getActiveQueries();
+      for (QueryDatabaseState oResultSet : queries.values()) {
+        Optional<ExecutionPlan> plan = oResultSet.getResultSet().getExecutionPlan();
         if (!plan.isPresent()) {
           continue;
         }
-        OExecutionPlan p = plan.get();
-        if (p instanceof OInternalExecutionPlan) {
-          String stm = ((OInternalExecutionPlan) p).getStatement();
+        ExecutionPlan p = plan.get();
+        if (p instanceof InternalExecutionPlan) {
+          String stm = ((InternalExecutionPlan) p).getStatement();
           if (stm != null) {
             result.add(stm);
           }
@@ -412,7 +412,7 @@ public class OClientConnection {
     return false;
   }
 
-  public void setToken(OParsedToken parsedToken, byte[] tokenBytes) {
+  public void setToken(ParsedToken parsedToken, byte[] tokenBytes) {
     this.token = parsedToken;
     this.tokenBytes = tokenBytes;
     this.tokenBased = true;

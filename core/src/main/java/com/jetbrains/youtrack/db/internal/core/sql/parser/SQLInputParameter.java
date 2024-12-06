@@ -2,13 +2,13 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -79,12 +79,12 @@ public class SQLInputParameter extends SimpleNode {
     if (value instanceof String) {
       return value;
     }
-    if (OMultiValue.isMultiValue(value)
+    if (MultiValue.isMultiValue(value)
         && !(value instanceof byte[])
         && !(value instanceof Byte[])) {
       SQLCollection coll = new SQLCollection(-1);
       coll.expressions = new ArrayList<SQLExpression>();
-      Iterator iterator = OMultiValue.getMultiValueIterator(value);
+      Iterator iterator = MultiValue.getMultiValueIterator(value);
       while (iterator.hasNext()) {
         Object o = iterator.next();
         SQLExpression exp = new SQLExpression(-1);
@@ -106,10 +106,10 @@ public class SQLInputParameter extends SimpleNode {
       }
       return json;
     }
-    if (value instanceof YTIdentifiable) {
+    if (value instanceof Identifiable) {
       // TODO if invalid build a JSON
       SQLRid rid = new SQLRid(-1);
-      String stringVal = ((YTIdentifiable) value).getIdentity().toString().substring(1);
+      String stringVal = ((Identifiable) value).getIdentity().toString().substring(1);
       String[] splitted = stringVal.split(":");
       SQLInteger c = new SQLInteger(-1);
       c.setValue(Integer.parseInt(splitted[0]));
@@ -150,7 +150,7 @@ public class SQLInputParameter extends SimpleNode {
     throw new UnsupportedOperationException();
   }
 
-  public static SQLInputParameter deserializeFromOResult(YTResult doc) {
+  public static SQLInputParameter deserializeFromOResult(Result doc) {
     try {
       SQLInputParameter result =
           (SQLInputParameter)
@@ -159,7 +159,7 @@ public class SQLInputParameter extends SimpleNode {
                   .newInstance(-1);
       result.deserialize(doc);
     } catch (Exception e) {
-      throw YTException.wrapException(new YTCommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(""), e);
     }
     return null;
   }
@@ -174,13 +174,13 @@ public class SQLInputParameter extends SimpleNode {
     throw new UnsupportedOperationException();
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("__class", getClass().getName());
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     throw new UnsupportedOperationException();
   }
 }

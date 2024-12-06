@@ -1,18 +1,18 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.singlevalue.v3;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.exception.YTHighLevelException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.common.exception.HighLevelException;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OUTF8Serializer;
-import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.UTF8Serializer;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperationsManager;
 import java.io.File;
 import java.util.Iterator;
 import java.util.Map;
@@ -29,7 +29,7 @@ import org.junit.Test;
 
 public class CellBTreeSingleValueV3TestIT {
 
-  private OAtomicOperationsManager atomicOperationsManager;
+  private AtomicOperationsManager atomicOperationsManager;
   private CellBTreeSingleValueV3<String> singleValueTree;
   private YouTrackDB youTrackDB;
 
@@ -52,16 +52,16 @@ public class CellBTreeSingleValueV3TestIT {
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
     AbstractPaginatedStorage storage;
-    try (YTDatabaseSession databaseDocumentTx = youTrackDB.open(dbName, "admin", "admin")) {
+    try (DatabaseSession databaseDocumentTx = youTrackDB.open(dbName, "admin", "admin")) {
       storage =
-          (AbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
+          (AbstractPaginatedStorage) ((DatabaseSessionInternal) databaseDocumentTx).getStorage();
     }
     singleValueTree = new CellBTreeSingleValueV3<>("singleBTree", ".sbt", ".nbt", storage);
     atomicOperationsManager = storage.getAtomicOperationsManager();
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
         atomicOperation ->
-            singleValueTree.create(atomicOperation, OUTF8Serializer.INSTANCE, null, 1, null));
+            singleValueTree.create(atomicOperation, UTF8Serializer.INSTANCE, null, 1, null));
   }
 
   @After
@@ -89,7 +89,7 @@ public class CellBTreeSingleValueV3TestIT {
                   singleValueTree.put(
                       atomicOperation,
                       key,
-                      new YTRecordId(
+                      new RecordId(
                           (iterationCounter * rollbackInterval + j) % 32000,
                           iterationCounter * rollbackInterval + j));
 
@@ -121,7 +121,7 @@ public class CellBTreeSingleValueV3TestIT {
     for (int i = 0; i < keysCount; i++) {
       Assert.assertEquals(
           i + " key is absent",
-          new YTRecordId(i % 32000, i),
+          new RecordId(i % 32000, i),
           singleValueTree.get(Integer.toString(i)));
       if (i % 100_000 == 0) {
         System.out.printf("%d items tested out of %d%n", i, keysCount);
@@ -149,12 +149,12 @@ public class CellBTreeSingleValueV3TestIT {
                 for (int i = 0; i < rollbackRange; i++) {
                   int val = random.nextInt(Integer.MAX_VALUE);
                   String key = Integer.toString(val);
-                  singleValueTree.put(atomicOperation, key, new YTRecordId(val % 32000, val));
+                  singleValueTree.put(atomicOperation, key, new RecordId(val % 32000, val));
 
                   if (rollbackCounter == 1) {
                     keys.add(key);
                   }
-                  Assert.assertEquals(singleValueTree.get(key), new YTRecordId(val % 32000, val));
+                  Assert.assertEquals(singleValueTree.get(key), new RecordId(val % 32000, val));
                 }
                 if (rollbackCounter == 0) {
                   throw new RollbackException();
@@ -169,7 +169,7 @@ public class CellBTreeSingleValueV3TestIT {
     Assert.assertEquals(singleValueTree.lastKey(), keys.last());
     for (String key : keys) {
       final int val = Integer.parseInt(key);
-      Assert.assertEquals(singleValueTree.get(key), new YTRecordId(val % 32000, val));
+      Assert.assertEquals(singleValueTree.get(key), new RecordId(val % 32000, val));
     }
   }
 
@@ -197,11 +197,11 @@ public class CellBTreeSingleValueV3TestIT {
                   } while (val < 0);
 
                   String key = Integer.toString(val);
-                  singleValueTree.put(atomicOperation, key, new YTRecordId(val % 32000, val));
+                  singleValueTree.put(atomicOperation, key, new RecordId(val % 32000, val));
                   if (rollbackCounter == 1) {
                     keys.add(key);
                   }
-                  Assert.assertEquals(singleValueTree.get(key), new YTRecordId(val % 32000, val));
+                  Assert.assertEquals(singleValueTree.get(key), new RecordId(val % 32000, val));
                 }
                 if (rollbackCounter == 0) {
                   throw new RollbackException();
@@ -216,7 +216,7 @@ public class CellBTreeSingleValueV3TestIT {
 
     for (String key : keys) {
       int val = Integer.parseInt(key);
-      Assert.assertEquals(singleValueTree.get(key), new YTRecordId(val % 32000, val));
+      Assert.assertEquals(singleValueTree.get(key), new RecordId(val % 32000, val));
     }
   }
 
@@ -231,7 +231,7 @@ public class CellBTreeSingleValueV3TestIT {
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
           atomicOperation ->
-              singleValueTree.put(atomicOperation, key, new YTRecordId(k % 32000, k)));
+              singleValueTree.put(atomicOperation, key, new RecordId(k % 32000, k)));
       keys.add(key);
     }
 
@@ -269,7 +269,7 @@ public class CellBTreeSingleValueV3TestIT {
       if (val % 3 == 0) {
         Assert.assertNull(singleValueTree.get(key));
       } else {
-        Assert.assertEquals(singleValueTree.get(key), new YTRecordId(val % 32000, val));
+        Assert.assertEquals(singleValueTree.get(key), new RecordId(val % 32000, val));
       }
     }
   }
@@ -291,10 +291,10 @@ public class CellBTreeSingleValueV3TestIT {
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
           atomicOperation ->
-              singleValueTree.put(atomicOperation, key, new YTRecordId(val % 32000, val)));
+              singleValueTree.put(atomicOperation, key, new RecordId(val % 32000, val)));
       keys.add(key);
 
-      Assert.assertEquals(singleValueTree.get(key), new YTRecordId(val % 32000, val));
+      Assert.assertEquals(singleValueTree.get(key), new RecordId(val % 32000, val));
     }
     Iterator<String> keysIterator = keys.iterator();
 
@@ -331,7 +331,7 @@ public class CellBTreeSingleValueV3TestIT {
       if (val % 3 == 0) {
         Assert.assertNull(singleValueTree.get(key));
       } else {
-        Assert.assertEquals(singleValueTree.get(key), new YTRecordId(val % 32000, val));
+        Assert.assertEquals(singleValueTree.get(key), new RecordId(val % 32000, val));
       }
     }
   }
@@ -346,7 +346,7 @@ public class CellBTreeSingleValueV3TestIT {
           null,
           atomicOperation ->
               singleValueTree.put(
-                  atomicOperation, Integer.toString(k), new YTRecordId(k % 32000, k)));
+                  atomicOperation, Integer.toString(k), new RecordId(k % 32000, k)));
     }
     final int rollbackInterval = 100;
 
@@ -364,7 +364,7 @@ public class CellBTreeSingleValueV3TestIT {
                   if (key % 3 == 0) {
                     Assert.assertEquals(
                         singleValueTree.remove(atomicOperation, Integer.toString(key)),
-                        new YTRecordId(key % 32000, key));
+                        new RecordId(key % 32000, key));
                   }
                 }
                 if (rollbackCounter == 0) {
@@ -379,7 +379,7 @@ public class CellBTreeSingleValueV3TestIT {
       if (i % 3 == 0) {
         Assert.assertNull(singleValueTree.get(Integer.toString(i)));
       } else {
-        Assert.assertEquals(singleValueTree.get(Integer.toString(i)), new YTRecordId(i % 32000, i));
+        Assert.assertEquals(singleValueTree.get(Integer.toString(i)), new RecordId(i % 32000, i));
       }
     }
   }
@@ -394,9 +394,9 @@ public class CellBTreeSingleValueV3TestIT {
           null,
           atomicOperation ->
               singleValueTree.put(
-                  atomicOperation, Integer.toString(key), new YTRecordId(key % 32000, key)));
+                  atomicOperation, Integer.toString(key), new RecordId(key % 32000, key)));
 
-      Assert.assertEquals(singleValueTree.get(Integer.toString(i)), new YTRecordId(i % 32000, i));
+      Assert.assertEquals(singleValueTree.get(Integer.toString(i)), new RecordId(i % 32000, i));
     }
     final int rollbackInterval = 100;
 
@@ -415,14 +415,14 @@ public class CellBTreeSingleValueV3TestIT {
                   if (key % 3 == 0) {
                     Assert.assertEquals(
                         singleValueTree.remove(atomicOperation, Integer.toString(key)),
-                        new YTRecordId(key % 32000, key));
+                        new RecordId(key % 32000, key));
                   }
 
                   if (key % 2 == 0) {
                     singleValueTree.put(
                         atomicOperation,
                         Integer.toString(keysCount + key),
-                        new YTRecordId((keysCount + key) % 32000, keysCount + key));
+                        new RecordId((keysCount + key) % 32000, keysCount + key));
                   }
                 }
                 if (rollbackCounter == 0) {
@@ -438,13 +438,13 @@ public class CellBTreeSingleValueV3TestIT {
       if (i % 3 == 0) {
         Assert.assertNull(singleValueTree.get(Integer.toString(i)));
       } else {
-        Assert.assertEquals(singleValueTree.get(Integer.toString(i)), new YTRecordId(i % 32000, i));
+        Assert.assertEquals(singleValueTree.get(Integer.toString(i)), new RecordId(i % 32000, i));
       }
 
       if (i % 2 == 0) {
         Assert.assertEquals(
             singleValueTree.get(Integer.toString(keysCount + i)),
-            new YTRecordId((keysCount + i) % 32000, keysCount + i));
+            new RecordId((keysCount + i) % 32000, keysCount + i));
       }
     }
   }
@@ -462,9 +462,9 @@ public class CellBTreeSingleValueV3TestIT {
             null,
             atomicOperation ->
                 singleValueTree.put(
-                    atomicOperation, Integer.toString(key), new YTRecordId(key % 32000, key)));
+                    atomicOperation, Integer.toString(key), new RecordId(key % 32000, key)));
 
-        Assert.assertEquals(singleValueTree.get(Integer.toString(i)), new YTRecordId(i % 32000, i));
+        Assert.assertEquals(singleValueTree.get(Integer.toString(i)), new RecordId(i % 32000, i));
       }
 
       for (int i = 0; i < keysCount; i++) {
@@ -474,13 +474,13 @@ public class CellBTreeSingleValueV3TestIT {
             atomicOperation -> {
               Assert.assertEquals(
                   singleValueTree.remove(atomicOperation, Integer.toString(key)),
-                  new YTRecordId(key % 32000, key));
+                  new RecordId(key % 32000, key));
 
               if (key > 0 && key % 100_000 == 0) {
                 for (int keyToVerify = 0; keyToVerify < keysCount; keyToVerify++) {
                   if (keyToVerify > key) {
                     Assert.assertEquals(
-                        new YTRecordId(keyToVerify % 32000, keyToVerify),
+                        new RecordId(keyToVerify % 32000, keyToVerify),
                         singleValueTree.get(Integer.toString(keyToVerify)));
                   } else {
                     Assert.assertNull(singleValueTree.get(Integer.toString(keyToVerify)));
@@ -507,9 +507,9 @@ public class CellBTreeSingleValueV3TestIT {
           null,
           atomicOperation ->
               singleValueTree.put(
-                  atomicOperation, Integer.toString(key), new YTRecordId(key % 32000, key)));
+                  atomicOperation, Integer.toString(key), new RecordId(key % 32000, key)));
 
-      Assert.assertEquals(singleValueTree.get(Integer.toString(i)), new YTRecordId(i % 32000, i));
+      Assert.assertEquals(singleValueTree.get(Integer.toString(i)), new RecordId(i % 32000, i));
     }
 
     for (int iterations = 0; iterations < 4; iterations++) {
@@ -521,10 +521,10 @@ public class CellBTreeSingleValueV3TestIT {
             null,
             atomicOperation ->
                 singleValueTree.put(
-                    atomicOperation, Integer.toString(key), new YTRecordId(key % 32000, key)));
+                    atomicOperation, Integer.toString(key), new RecordId(key % 32000, key)));
 
         Assert.assertEquals(
-            singleValueTree.get(Integer.toString(key)), new YTRecordId(key % 32000, key));
+            singleValueTree.get(Integer.toString(key)), new RecordId(key % 32000, key));
       }
 
       final int offset = iterations * (keysCount / 2);
@@ -536,7 +536,7 @@ public class CellBTreeSingleValueV3TestIT {
             atomicOperation ->
                 Assert.assertEquals(
                     singleValueTree.remove(atomicOperation, Integer.toString(key)),
-                    new YTRecordId(key % 32000, key)));
+                    new RecordId(key % 32000, key)));
       }
 
       final int start = (iterations + 1) * (keysCount / 2);
@@ -545,7 +545,7 @@ public class CellBTreeSingleValueV3TestIT {
           Assert.assertNull(singleValueTree.get(Integer.toString(i)));
         } else {
           Assert.assertEquals(
-              new YTRecordId(i % 32000, i), singleValueTree.get(Integer.toString(i)));
+              new RecordId(i % 32000, i), singleValueTree.get(Integer.toString(i)));
         }
       }
 
@@ -557,7 +557,7 @@ public class CellBTreeSingleValueV3TestIT {
   public void testKeyCursor() throws Exception {
     final int keysCount = 1_000_000;
 
-    NavigableMap<String, YTRID> keyValues = new TreeMap<>();
+    NavigableMap<String, RID> keyValues = new TreeMap<>();
     final long seed = System.nanoTime();
 
     System.out.println("testKeyCursor: " + seed);
@@ -577,9 +577,9 @@ public class CellBTreeSingleValueV3TestIT {
                   int val = random.nextInt(Integer.MAX_VALUE);
                   String key = Integer.toString(val);
 
-                  singleValueTree.put(atomicOperation, key, new YTRecordId(val % 32000, val));
+                  singleValueTree.put(atomicOperation, key, new RecordId(val % 32000, val));
                   if (rollbackCounter == 1) {
-                    keyValues.put(key, new YTRecordId(val % 32000, val));
+                    keyValues.put(key, new RecordId(val % 32000, val));
                   }
                 }
                 if (rollbackCounter == 0) {
@@ -611,7 +611,7 @@ public class CellBTreeSingleValueV3TestIT {
   public void testIterateEntriesMajor() throws Exception {
     final int keysCount = 1_000_000;
 
-    NavigableMap<String, YTRID> keyValues = new TreeMap<>();
+    NavigableMap<String, RID> keyValues = new TreeMap<>();
     final long seed = System.nanoTime();
 
     System.out.println("testIterateEntriesMajor: " + seed);
@@ -633,9 +633,9 @@ public class CellBTreeSingleValueV3TestIT {
                   int val = random.nextInt(Integer.MAX_VALUE);
                   String key = Integer.toString(val);
 
-                  singleValueTree.put(atomicOperation, key, new YTRecordId(val % 32000, val));
+                  singleValueTree.put(atomicOperation, key, new RecordId(val % 32000, val));
                   if (rollbackCounter == 1) {
-                    keyValues.put(key, new YTRecordId(val % 32000, val));
+                    keyValues.put(key, new RecordId(val % 32000, val));
                   }
                 }
                 if (rollbackCounter == 0) {
@@ -665,7 +665,7 @@ public class CellBTreeSingleValueV3TestIT {
   @Test
   public void testIterateEntriesMinor() throws Exception {
     final int keysCount = 1_000_000;
-    NavigableMap<String, YTRID> keyValues = new TreeMap<>();
+    NavigableMap<String, RID> keyValues = new TreeMap<>();
 
     final long seed = System.nanoTime();
 
@@ -686,9 +686,9 @@ public class CellBTreeSingleValueV3TestIT {
                   int val = random.nextInt(Integer.MAX_VALUE);
                   String key = Integer.toString(val);
 
-                  singleValueTree.put(atomicOperation, key, new YTRecordId(val % 32000, val));
+                  singleValueTree.put(atomicOperation, key, new RecordId(val % 32000, val));
                   if (rollbackCounter == 1) {
-                    keyValues.put(key, new YTRecordId(val % 32000, val));
+                    keyValues.put(key, new RecordId(val % 32000, val));
                   }
                 }
                 if (rollbackCounter == 0) {
@@ -717,7 +717,7 @@ public class CellBTreeSingleValueV3TestIT {
   @Test
   public void testIterateEntriesBetween() throws Exception {
     final int keysCount = 1_000_000;
-    NavigableMap<String, YTRID> keyValues = new TreeMap<>();
+    NavigableMap<String, RID> keyValues = new TreeMap<>();
     final Random random = new Random();
 
     final int rollbackInterval = 100;
@@ -735,9 +735,9 @@ public class CellBTreeSingleValueV3TestIT {
                   int val = random.nextInt(Integer.MAX_VALUE);
                   String key = Integer.toString(val);
 
-                  singleValueTree.put(atomicOperation, key, new YTRecordId(val % 32000, val));
+                  singleValueTree.put(atomicOperation, key, new RecordId(val % 32000, val));
                   if (rollbackCounter == 1) {
-                    keyValues.put(key, new YTRecordId(val % 32000, val));
+                    keyValues.put(key, new RecordId(val % 32000, val));
                   }
                 }
 
@@ -771,7 +771,7 @@ public class CellBTreeSingleValueV3TestIT {
   @Test
   public void testIterateEntriesBetweenString() throws Exception {
     final int keysCount = 10;
-    final NavigableMap<String, YTRID> keyValues = new TreeMap<>();
+    final NavigableMap<String, RID> keyValues = new TreeMap<>();
     final Random random = new Random();
     try {
       atomicOperationsManager.executeInsideAtomicOperation(
@@ -781,10 +781,10 @@ public class CellBTreeSingleValueV3TestIT {
               final String key = "name" + j;
               final int val = random.nextInt(Integer.MAX_VALUE);
               final int clusterId = val % 32000;
-              singleValueTree.put(atomicOperation, key, new YTRecordId(clusterId, val));
+              singleValueTree.put(atomicOperation, key, new RecordId(clusterId, val));
               System.out.println("Added key=" + key + ", value=" + val);
 
-              keyValues.put(key, new YTRecordId(clusterId, val));
+              keyValues.put(key, new RecordId(clusterId, val));
             }
           });
     } catch (final RollbackException ignore) {
@@ -797,7 +797,7 @@ public class CellBTreeSingleValueV3TestIT {
   }
 
   private void assertIterateMajorEntries(
-      NavigableMap<String, YTRID> keyValues,
+      NavigableMap<String, RID> keyValues,
       Random random,
       boolean keyInclusive,
       boolean ascSortOrder) {
@@ -818,12 +818,12 @@ public class CellBTreeSingleValueV3TestIT {
             fromKey.substring(0, fromKey.length() - 2) + (fromKey.charAt(fromKey.length() - 1) - 1);
       }
 
-      final Iterator<ORawPair<String, YTRID>> indexIterator;
-      try (Stream<ORawPair<String, YTRID>> stream =
+      final Iterator<RawPair<String, RID>> indexIterator;
+      try (Stream<RawPair<String, RID>> stream =
           singleValueTree.iterateEntriesMajor(fromKey, keyInclusive, ascSortOrder)) {
         indexIterator = stream.iterator();
 
-        Iterator<Map.Entry<String, YTRID>> iterator;
+        Iterator<Map.Entry<String, RID>> iterator;
         if (ascSortOrder) {
           iterator = keyValues.tailMap(fromKey, keyInclusive).entrySet().iterator();
         } else {
@@ -836,8 +836,8 @@ public class CellBTreeSingleValueV3TestIT {
         }
 
         while (iterator.hasNext()) {
-          final ORawPair<String, YTRID> indexEntry = indexIterator.next();
-          final Map.Entry<String, YTRID> entry = iterator.next();
+          final RawPair<String, RID> indexEntry = indexIterator.next();
+          final Map.Entry<String, RID> entry = iterator.next();
 
           Assert.assertEquals(indexEntry.first, entry.getKey());
           Assert.assertEquals(indexEntry.second, entry.getValue());
@@ -851,7 +851,7 @@ public class CellBTreeSingleValueV3TestIT {
   }
 
   private void assertIterateMinorEntries(
-      NavigableMap<String, YTRID> keyValues,
+      NavigableMap<String, RID> keyValues,
       Random random,
       boolean keyInclusive,
       boolean ascSortOrder) {
@@ -870,12 +870,12 @@ public class CellBTreeSingleValueV3TestIT {
         toKey = toKey.substring(0, toKey.length() - 2) + (toKey.charAt(toKey.length() - 1) + 1);
       }
 
-      final Iterator<ORawPair<String, YTRID>> indexIterator;
-      try (Stream<ORawPair<String, YTRID>> stream =
+      final Iterator<RawPair<String, RID>> indexIterator;
+      try (Stream<RawPair<String, RID>> stream =
           singleValueTree.iterateEntriesMinor(toKey, keyInclusive, ascSortOrder)) {
         indexIterator = stream.iterator();
 
-        Iterator<Map.Entry<String, YTRID>> iterator;
+        Iterator<Map.Entry<String, RID>> iterator;
         if (ascSortOrder) {
           iterator = keyValues.headMap(toKey, keyInclusive).entrySet().iterator();
         } else {
@@ -883,8 +883,8 @@ public class CellBTreeSingleValueV3TestIT {
         }
 
         while (iterator.hasNext()) {
-          ORawPair<String, YTRID> indexEntry = indexIterator.next();
-          Map.Entry<String, YTRID> entry = iterator.next();
+          RawPair<String, RID> indexEntry = indexIterator.next();
+          Map.Entry<String, RID> entry = iterator.next();
 
           Assert.assertEquals(indexEntry.first, entry.getKey());
           Assert.assertEquals(indexEntry.second, entry.getValue());
@@ -898,7 +898,7 @@ public class CellBTreeSingleValueV3TestIT {
   }
 
   private void assertIterateBetweenEntries(
-      NavigableMap<String, YTRID> keyValues,
+      NavigableMap<String, RID> keyValues,
       Random random,
       boolean fromInclusive,
       boolean toInclusive,
@@ -935,13 +935,13 @@ public class CellBTreeSingleValueV3TestIT {
         fromKey = toKey;
       }
 
-      final Iterator<ORawPair<String, YTRID>> indexIterator;
-      try (Stream<ORawPair<String, YTRID>> stream =
+      final Iterator<RawPair<String, RID>> indexIterator;
+      try (Stream<RawPair<String, RID>> stream =
           singleValueTree.iterateEntriesBetween(
               fromKey, fromInclusive, toKey, toInclusive, ascSortOrder)) {
         indexIterator = stream.iterator();
 
-        Iterator<Map.Entry<String, YTRID>> iterator;
+        Iterator<Map.Entry<String, RID>> iterator;
         if (ascSortOrder) {
           iterator =
               keyValues.subMap(fromKey, fromInclusive, toKey, toInclusive).entrySet().iterator();
@@ -955,10 +955,10 @@ public class CellBTreeSingleValueV3TestIT {
         }
 
         while (iterator.hasNext()) {
-          ORawPair<String, YTRID> indexEntry = indexIterator.next();
+          RawPair<String, RID> indexEntry = indexIterator.next();
           Assert.assertNotNull(indexEntry);
 
-          Map.Entry<String, YTRID> mapEntry = iterator.next();
+          Map.Entry<String, RID> mapEntry = iterator.next();
           Assert.assertEquals(indexEntry.first, mapEntry.getKey());
           Assert.assertEquals(indexEntry.second, mapEntry.getValue());
         }
@@ -971,7 +971,7 @@ public class CellBTreeSingleValueV3TestIT {
 
   private void assertIterateBetweenEntriesNonRandom(
       final String fromKey,
-      final NavigableMap<String, YTRID> keyValues,
+      final NavigableMap<String, RID> keyValues,
       final boolean fromInclusive,
       final boolean toInclusive,
       final boolean ascSortOrder,
@@ -986,8 +986,8 @@ public class CellBTreeSingleValueV3TestIT {
 
     for (int i = startFrom; i < keyValues.size(); i++) {
       final String toKey = keys[i];
-      final Iterator<ORawPair<String, YTRID>> indexIterator;
-      try (final Stream<ORawPair<String, YTRID>> stream =
+      final Iterator<RawPair<String, RID>> indexIterator;
+      try (final Stream<RawPair<String, RID>> stream =
           singleValueTree.iterateEntriesBetween(
               fromKey, fromInclusive, toKey, toInclusive, ascSortOrder)) {
         indexIterator = stream.iterator();
@@ -996,7 +996,7 @@ public class CellBTreeSingleValueV3TestIT {
     }
   }
 
-  static final class RollbackException extends YTException implements YTHighLevelException {
+  static final class RollbackException extends BaseException implements HighLevelException {
 
     @SuppressWarnings("WeakerAccess")
     public RollbackException() {

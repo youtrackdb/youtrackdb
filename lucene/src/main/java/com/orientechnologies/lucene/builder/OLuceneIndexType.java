@@ -16,13 +16,13 @@
 
 package com.orientechnologies.lucene.builder;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.orientechnologies.lucene.engine.OLuceneIndexEngineAbstract;
-import com.orientechnologies.lucene.exception.YTLuceneIndexException;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
+import com.orientechnologies.lucene.engine.LuceneIndexEngineAbstract;
+import com.orientechnologies.lucene.exception.LuceneIndexException;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -80,16 +80,16 @@ public class OLuceneIndexType {
     }
   }
 
-  public static Field createIdField(final YTIdentifiable id, final Object key) {
+  public static Field createIdField(final Identifiable id, final Object key) {
     return new StringField(RID_HASH, genValueId(id, key), Field.Store.YES);
   }
 
-  public static Field createOldIdField(final YTIdentifiable id) {
+  public static Field createOldIdField(final Identifiable id) {
     return new StringField(
-        OLuceneIndexEngineAbstract.RID, id.getIdentity().toString(), Field.Store.YES);
+        LuceneIndexEngineAbstract.RID, id.getIdentity().toString(), Field.Store.YES);
   }
 
-  public static String genValueId(final YTIdentifiable id, final Object key) {
+  public static String genValueId(final Identifiable id, final Object key) {
     String value = id.getIdentity().toString() + "|";
     value += hashKey(key);
     return value;
@@ -127,7 +127,7 @@ public class OLuceneIndexType {
     return fields;
   }
 
-  public static Query createExactQuery(OIndexDefinition index, Object key) {
+  public static Query createExactQuery(IndexDefinition index, Object key) {
     Query query = null;
     if (key instanceof String) {
       final BooleanQuery.Builder queryBuilder = new BooleanQuery.Builder();
@@ -138,11 +138,11 @@ public class OLuceneIndexType {
         }
       } else {
         queryBuilder.add(
-            new TermQuery(new Term(OLuceneIndexEngineAbstract.KEY, key.toString())),
+            new TermQuery(new Term(LuceneIndexEngineAbstract.KEY, key.toString())),
             BooleanClause.Occur.SHOULD);
       }
       query = queryBuilder.build();
-    } else if (key instanceof OCompositeKey keys) {
+    } else if (key instanceof CompositeKey keys) {
       final BooleanQuery.Builder queryBuilder = new BooleanQuery.Builder();
       int i = 0;
       for (String idx : index.getFields()) {
@@ -155,11 +155,11 @@ public class OLuceneIndexType {
     return query;
   }
 
-  public static Query createQueryId(YTIdentifiable value) {
-    return new TermQuery(new Term(OLuceneIndexEngineAbstract.RID, value.getIdentity().toString()));
+  public static Query createQueryId(Identifiable value) {
+    return new TermQuery(new Term(LuceneIndexEngineAbstract.RID, value.getIdentity().toString()));
   }
 
-  public static Query createQueryId(YTIdentifiable value, Object key) {
+  public static Query createQueryId(Identifiable value, Object key) {
     return new TermQuery(new Term(RID_HASH, genValueId(value, key)));
   }
 
@@ -175,12 +175,12 @@ public class OLuceneIndexType {
       byte[] bytes = sha256.digest(keyString.getBytes(StandardCharsets.UTF_8));
       return Base64.getEncoder().encodeToString(bytes);
     } catch (NoSuchAlgorithmException e) {
-      throw YTException.wrapException(new YTLuceneIndexException("fail to find sha algorithm"), e);
+      throw BaseException.wrapException(new LuceneIndexException("fail to find sha algorithm"), e);
     }
   }
 
   public static Query createDeleteQuery(
-      YTIdentifiable value, List<String> fields, Object key) {
+      Identifiable value, List<String> fields, Object key) {
 
     // TODO Implementation of Composite keys with Collection
     final BooleanQuery.Builder filter = new BooleanQuery.Builder();

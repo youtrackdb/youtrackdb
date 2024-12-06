@@ -23,12 +23,12 @@ package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.bas
 import com.jetbrains.youtrack.db.internal.common.concur.resource.SharedResourceAbstract;
 import com.jetbrains.youtrack.db.internal.common.function.TxConsumer;
 import com.jetbrains.youtrack.db.internal.common.function.TxFunction;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OReadCache;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OWriteCache;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.ReadCache;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperationsManager;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
@@ -41,10 +41,10 @@ import javax.annotation.Nonnull;
  */
 public abstract class DurableComponent extends SharedResourceAbstract {
 
-  protected final OAtomicOperationsManager atomicOperationsManager;
+  protected final AtomicOperationsManager atomicOperationsManager;
   protected final AbstractPaginatedStorage storage;
-  protected final OReadCache readCache;
-  protected final OWriteCache writeCache;
+  protected final ReadCache readCache;
+  protected final WriteCache writeCache;
 
   private volatile String name;
   private volatile String fullName;
@@ -92,25 +92,25 @@ public abstract class DurableComponent extends SharedResourceAbstract {
   }
 
   protected <T> T calculateInsideComponentOperation(
-      final OAtomicOperation atomicOperation, final TxFunction<T> function) {
+      final AtomicOperation atomicOperation, final TxFunction<T> function) {
     return atomicOperationsManager.calculateInsideComponentOperation(
         atomicOperation, this, function);
   }
 
   protected void executeInsideComponentOperation(
-      final OAtomicOperation operation, final TxConsumer consumer) {
+      final AtomicOperation operation, final TxConsumer consumer) {
     atomicOperationsManager.executeInsideComponentOperation(operation, this, consumer);
   }
 
-  protected long getFilledUpTo(final OAtomicOperation atomicOperation, final long fileId) {
+  protected long getFilledUpTo(final AtomicOperation atomicOperation, final long fileId) {
     if (atomicOperation == null) {
       return writeCache.getFilledUpTo(fileId);
     }
     return atomicOperation.filledUpTo(fileId);
   }
 
-  protected static OCacheEntry loadPageForWrite(
-      final OAtomicOperation atomicOperation,
+  protected static CacheEntry loadPageForWrite(
+      final AtomicOperation atomicOperation,
       final long fileId,
       final long pageIndex,
       final boolean verifyCheckSum)
@@ -118,18 +118,18 @@ public abstract class DurableComponent extends SharedResourceAbstract {
     return atomicOperation.loadPageForWrite(fileId, pageIndex, 1, verifyCheckSum);
   }
 
-  protected OCacheEntry loadOrAddPageForWrite(
-      final OAtomicOperation atomicOperation, final long fileId, final long pageIndex)
+  protected CacheEntry loadOrAddPageForWrite(
+      final AtomicOperation atomicOperation, final long fileId, final long pageIndex)
       throws IOException {
-    OCacheEntry entry = atomicOperation.loadPageForWrite(fileId, pageIndex, 1, true);
+    CacheEntry entry = atomicOperation.loadPageForWrite(fileId, pageIndex, 1, true);
     if (entry == null) {
       entry = addPage(atomicOperation, fileId);
     }
     return entry;
   }
 
-  protected OCacheEntry loadPageForRead(
-      final OAtomicOperation atomicOperation, final long fileId, final long pageIndex)
+  protected CacheEntry loadPageForRead(
+      final AtomicOperation atomicOperation, final long fileId, final long pageIndex)
       throws IOException {
     if (atomicOperation == null) {
       return readCache.loadForRead(fileId, pageIndex, writeCache, true);
@@ -137,20 +137,20 @@ public abstract class DurableComponent extends SharedResourceAbstract {
     return atomicOperation.loadPageForRead(fileId, pageIndex);
   }
 
-  protected OCacheEntry addPage(final OAtomicOperation atomicOperation, final long fileId)
+  protected CacheEntry addPage(final AtomicOperation atomicOperation, final long fileId)
       throws IOException {
     assert atomicOperation != null;
     return atomicOperation.addPage(fileId);
   }
 
   protected void releasePageFromWrite(
-      final OAtomicOperation atomicOperation, final OCacheEntry cacheEntry) throws IOException {
+      final AtomicOperation atomicOperation, final CacheEntry cacheEntry) throws IOException {
     assert atomicOperation != null;
     atomicOperation.releasePageFromWrite(cacheEntry);
   }
 
   protected void releasePageFromRead(
-      final OAtomicOperation atomicOperation, final OCacheEntry cacheEntry) {
+      final AtomicOperation atomicOperation, final CacheEntry cacheEntry) {
     if (atomicOperation == null) {
       readCache.releaseFromRead(cacheEntry);
     } else {
@@ -158,13 +158,13 @@ public abstract class DurableComponent extends SharedResourceAbstract {
     }
   }
 
-  protected long addFile(final OAtomicOperation atomicOperation, final String fileName)
+  protected long addFile(final AtomicOperation atomicOperation, final String fileName)
       throws IOException {
     assert atomicOperation != null;
     return atomicOperation.addFile(fileName);
   }
 
-  protected long openFile(final OAtomicOperation atomicOperation, final String fileName)
+  protected long openFile(final AtomicOperation atomicOperation, final String fileName)
       throws IOException {
     if (atomicOperation == null) {
       return writeCache.loadFile(fileName);
@@ -172,20 +172,20 @@ public abstract class DurableComponent extends SharedResourceAbstract {
     return atomicOperation.loadFile(fileName);
   }
 
-  protected void deleteFile(final OAtomicOperation atomicOperation, final long fileId)
+  protected void deleteFile(final AtomicOperation atomicOperation, final long fileId)
       throws IOException {
     assert atomicOperation != null;
     atomicOperation.deleteFile(fileId);
   }
 
-  protected boolean isFileExists(final OAtomicOperation atomicOperation, final String fileName) {
+  protected boolean isFileExists(final AtomicOperation atomicOperation, final String fileName) {
     if (atomicOperation == null) {
       return writeCache.exists(fileName);
     }
     return atomicOperation.isFileExists(fileName);
   }
 
-  protected void truncateFile(final OAtomicOperation atomicOperation, final long filedId)
+  protected void truncateFile(final AtomicOperation atomicOperation, final long filedId)
       throws IOException {
     assert atomicOperation != null;
     atomicOperation.truncateFile(filedId);

@@ -2,19 +2,19 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
+import com.jetbrains.youtrack.db.internal.core.collate.Collate;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.AggregationContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OPath;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.MetadataPath;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +49,7 @@ public class SQLBaseExpression extends SQLMathExpression {
 
   public SQLBaseExpression(String string) {
     super(-1);
-    this.string = "\"" + OStringSerializerHelper.encode(string) + "\"";
+    this.string = "\"" + StringSerializerHelper.encode(string) + "\"";
   }
 
   public SQLBaseExpression(SQLIdentifier identifier, SQLModifier modifier) {
@@ -103,14 +103,14 @@ public class SQLBaseExpression extends SQLMathExpression {
     }
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
+  public Object execute(Identifiable iCurrentRecord, CommandContext ctx) {
     Object result = null;
     if (number != null) {
       result = number.getValue();
     } else if (identifier != null) {
       result = identifier.execute(iCurrentRecord, ctx);
     } else if (string != null && string.length() > 1) {
-      result = OStringSerializerHelper.decode(string.substring(1, string.length() - 1));
+      result = StringSerializerHelper.decode(string.substring(1, string.length() - 1));
     } else if (inputParam != null) {
       result = inputParam.getValue(ctx.getInputParameters());
     }
@@ -122,14 +122,14 @@ public class SQLBaseExpression extends SQLMathExpression {
     return result;
   }
 
-  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
+  public Object execute(Result iCurrentRecord, CommandContext ctx) {
     Object result = null;
     if (number != null) {
       result = number.getValue();
     } else if (identifier != null) {
       result = identifier.execute(iCurrentRecord, ctx);
     } else if (string != null && string.length() > 1) {
-      result = OStringSerializerHelper.decode(string.substring(1, string.length() - 1));
+      result = StringSerializerHelper.decode(string.substring(1, string.length() - 1));
     } else if (inputParam != null) {
       result = inputParam.getValue(ctx.getInputParameters());
     }
@@ -161,7 +161,7 @@ public class SQLBaseExpression extends SQLMathExpression {
   }
 
   @Override
-  public boolean isIndexedFunctionCall(YTDatabaseSessionInternal session) {
+  public boolean isIndexedFunctionCall(DatabaseSessionInternal session) {
     if (this.identifier == null) {
       return false;
     }
@@ -177,7 +177,7 @@ public class SQLBaseExpression extends SQLMathExpression {
     return identifier.estimateIndexedFunction(target, context, operator, right);
   }
 
-  public Iterable<YTIdentifiable> executeIndexedFunction(
+  public Iterable<Identifiable> executeIndexedFunction(
       SQLFromClause target, CommandContext context, SQLBinaryCompareOperator operator,
       Object right) {
     if (this.identifier == null) {
@@ -251,10 +251,10 @@ public class SQLBaseExpression extends SQLMathExpression {
     return identifier != null && modifier == null && identifier.isBaseIdentifier();
   }
 
-  public Optional<OPath> getPath() {
+  public Optional<MetadataPath> getPath() {
     if (identifier != null && identifier.isBaseIdentifier()) {
       if (modifier != null) {
-        Optional<OPath> path = modifier.getPath();
+        Optional<MetadataPath> path = modifier.getPath();
         if (path.isPresent()) {
           path.get().addPre(this.identifier.getSuffix().identifier.getStringValue());
           return path;
@@ -262,14 +262,15 @@ public class SQLBaseExpression extends SQLMathExpression {
           return Optional.empty();
         }
       } else {
-        return Optional.of(new OPath(this.identifier.getSuffix().identifier.getStringValue()));
+        return Optional.of(
+            new MetadataPath(this.identifier.getSuffix().identifier.getStringValue()));
       }
     }
     return Optional.empty();
   }
 
   @Override
-  public OCollate getCollate(YTResult currentRecord, CommandContext ctx) {
+  public Collate getCollate(Result currentRecord, CommandContext ctx) {
     return identifier != null && modifier == null
         ? identifier.getCollate(currentRecord, ctx)
         : null;
@@ -303,7 +304,7 @@ public class SQLBaseExpression extends SQLMathExpression {
   }
 
   @Override
-  public boolean isAggregate(YTDatabaseSessionInternal session) {
+  public boolean isAggregate(DatabaseSessionInternal session) {
     return identifier != null && identifier.isAggregate(session);
   }
 
@@ -331,7 +332,7 @@ public class SQLBaseExpression extends SQLMathExpression {
     if (identifier != null) {
       return identifier.getAggregationContext(ctx);
     } else {
-      throw new YTCommandExecutionException("cannot aggregate on " + this);
+      throw new CommandExecutionException("cannot aggregate on " + this);
     }
   }
 
@@ -411,7 +412,7 @@ public class SQLBaseExpression extends SQLMathExpression {
   }
 
   @Override
-  public void applyRemove(YTResultInternal result, CommandContext ctx) {
+  public void applyRemove(ResultInternal result, CommandContext ctx) {
     if (identifier != null) {
       if (modifier == null) {
         identifier.applyRemove(result, ctx);
@@ -422,8 +423,8 @@ public class SQLBaseExpression extends SQLMathExpression {
     }
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = (YTResultInternal) super.serialize(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = (ResultInternal) super.serialize(db);
 
     if (number != null) {
       result.setProperty("number", number.serialize(db));
@@ -443,7 +444,7 @@ public class SQLBaseExpression extends SQLMathExpression {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     super.deserialize(fromResult);
 
     if (fromResult.getProperty("number") != null) {
@@ -468,7 +469,7 @@ public class SQLBaseExpression extends SQLMathExpression {
   }
 
   @Override
-  public boolean isDefinedFor(YTResult currentRecord) {
+  public boolean isDefinedFor(Result currentRecord) {
     if (this.identifier != null) {
       if (modifier == null) {
         return identifier.isDefinedFor(currentRecord);
@@ -499,7 +500,7 @@ public class SQLBaseExpression extends SQLMathExpression {
     }
   }
 
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     if (modifier != null && !modifier.isCacheable(session)) {
       return false;
     }
@@ -514,13 +515,13 @@ public class SQLBaseExpression extends SQLMathExpression {
     this.inputParam = inputParam;
   }
 
-  public boolean isIndexChain(CommandContext ctx, YTClass clazz) {
+  public boolean isIndexChain(CommandContext ctx, SchemaClass clazz) {
     if (modifier == null) {
       return false;
     }
     if (identifier.isIndexChain(ctx, clazz)) {
-      YTProperty prop = clazz.getProperty(identifier.getSuffix().getIdentifier().getStringValue());
-      YTClass linkedClass = prop.getLinkedClass();
+      Property prop = clazz.getProperty(identifier.getSuffix().getIdentifier().getStringValue());
+      SchemaClass linkedClass = prop.getLinkedClass();
       if (linkedClass != null) {
         return modifier.isIndexChain(ctx, linkedClass);
       }

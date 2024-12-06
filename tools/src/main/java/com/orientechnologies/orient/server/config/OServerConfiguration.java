@@ -52,8 +52,8 @@ public class OServerConfiguration {
   public OServerStorageConfiguration[] storages;
 
   @XmlElementWrapper(required = false)
-  @XmlElementRef(type = OServerUserConfiguration.class)
-  public OServerUserConfiguration[] users;
+  @XmlElementRef(type = ServerUserConfiguration.class)
+  public ServerUserConfiguration[] users;
 
   @XmlElementRef(type = OServerSecurityConfiguration.class)
   public OServerSecurityConfiguration security;

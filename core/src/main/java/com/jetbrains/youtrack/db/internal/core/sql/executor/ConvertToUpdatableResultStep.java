@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 
@@ -17,7 +17,7 @@ public class ConvertToUpdatableResultStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
@@ -25,14 +25,14 @@ public class ConvertToUpdatableResultStep extends AbstractExecutionStep {
     return resultSet.filter(this::filterMap);
   }
 
-  private YTResult filterMap(YTResult result, CommandContext ctx) {
-    if (result instanceof YTUpdatableResult) {
+  private Result filterMap(Result result, CommandContext ctx) {
+    if (result instanceof UpdatableResult) {
       return result;
     }
     if (result.isEntity()) {
       var element = result.toEntity();
       if (element != null) {
-        return new YTUpdatableResult(ctx.getDatabase(), element);
+        return new UpdatableResult(ctx.getDatabase(), element);
       }
       return result;
     }

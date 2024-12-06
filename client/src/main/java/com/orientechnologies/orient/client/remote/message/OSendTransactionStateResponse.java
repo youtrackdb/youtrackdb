@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 import java.util.Map;
 
 public class OSendTransactionStateResponse extends OBeginTransactionResponse {
@@ -9,7 +9,7 @@ public class OSendTransactionStateResponse extends OBeginTransactionResponse {
   }
 
   public OSendTransactionStateResponse(long txId,
-      Map<YTRID, YTRID> updatedIds) {
+      Map<RID, RID> updatedIds) {
     super(txId, updatedIds);
   }
 

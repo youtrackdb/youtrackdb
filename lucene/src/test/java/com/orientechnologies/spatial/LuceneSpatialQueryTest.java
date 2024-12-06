@@ -17,11 +17,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.lucene.test.BaseLuceneTest;
 import java.io.File;
 import java.io.InputStream;
@@ -42,14 +42,14 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass v = schema.getClass("V");
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass v = schema.getClass("V");
 
-    YTClass oClass = schema.createClass("Place");
+    SchemaClass oClass = schema.createClass("Place");
     oClass.setSuperClass(db, v);
-    oClass.createProperty(db, "latitude", YTType.DOUBLE);
-    oClass.createProperty(db, "longitude", YTType.DOUBLE);
-    oClass.createProperty(db, "name", YTType.STRING);
+    oClass.createProperty(db, "latitude", PropertyType.DOUBLE);
+    oClass.createProperty(db, "longitude", PropertyType.DOUBLE);
+    oClass.createProperty(db, "name", PropertyType.STRING);
 
     db.command("CREATE INDEX Place.l_lon ON Place(latitude,longitude) SPATIAL ENGINE LUCENE")
         .close();
@@ -99,8 +99,8 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
             doc.field("country", nextLine[1]);
             try {
 
-              Double lat = YTType.convert(db, nextLine[5], Double.class).doubleValue();
-              Double lng = YTType.convert(db, nextLine[6], Double.class).doubleValue();
+              Double lat = PropertyType.convert(db, nextLine[5], Double.class).doubleValue();
+              Double lng = PropertyType.convert(db, nextLine[6], Double.class).doubleValue();
               doc.field("latitude", lat);
               doc.field("longitude", lng);
             } catch (Exception e) {
@@ -133,7 +133,7 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
     String query =
         "select *,$distance from Place where [latitude,longitude,$spatial] NEAR"
             + " [41.893056,12.482778,{\"maxDistance\": 0.5}]";
-    YTResultSet docs = db.query(query);
+    ResultSet docs = db.query(query);
 
     Assert.assertTrue(docs.hasNext());
 
@@ -151,7 +151,7 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
     String query =
         "select * from Place where [latitude,longitude] WITHIN"
             + " [[51.507222,-0.1275],[55.507222,-0.1275]]";
-    YTResultSet docs = db.query(query);
+    ResultSet docs = db.query(query);
     Assert.assertEquals(238, docs.stream().count());
   }
 }

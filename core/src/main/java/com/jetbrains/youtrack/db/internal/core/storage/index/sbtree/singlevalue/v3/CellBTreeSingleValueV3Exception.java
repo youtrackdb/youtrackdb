@@ -20,12 +20,12 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.singlevalue.v3;
 
-import com.jetbrains.youtrack.db.internal.core.exception.YTDurableComponentException;
+import com.jetbrains.youtrack.db.internal.core.exception.DurableComponentException;
 
 /**
  * @since 8/30/13
  */
-public final class CellBTreeSingleValueV3Exception extends YTDurableComponentException {
+public final class CellBTreeSingleValueV3Exception extends DurableComponentException {
 
   @SuppressWarnings("unused")
   public CellBTreeSingleValueV3Exception(final CellBTreeSingleValueV3Exception exception) {

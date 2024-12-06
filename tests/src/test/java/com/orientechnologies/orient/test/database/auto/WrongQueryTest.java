@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import org.testng.Assert;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -30,11 +30,11 @@ public class WrongQueryTest extends DocumentDBBaseTest {
   }
 
   public void queryFieldOperatorNotSupported() {
-    try (YTResultSet result = database.command(
+    try (ResultSet result = database.command(
         "select * from Account where name.not() like 'G%'")) {
 
       Assert.fail();
-    } catch (YTCommandSQLParsingException e) {
+    } catch (CommandSQLParsingException e) {
     }
   }
 }

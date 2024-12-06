@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.resultset;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 
 public interface FilterResult {
 
@@ -12,5 +12,5 @@ public interface FilterResult {
    * @param ctx    TODO
    * @return a new result or null if the current result need to be skipped
    */
-  YTResult filterMap(YTResult result, CommandContext ctx);
+  Result filterMap(Result result, CommandContext ctx);
 }

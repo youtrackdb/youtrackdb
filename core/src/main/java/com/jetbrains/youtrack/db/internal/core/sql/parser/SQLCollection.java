@@ -3,12 +3,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +58,7 @@ public class SQLCollection extends SimpleNode {
     this.expressions.add(exp);
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
+  public Object execute(Identifiable iCurrentRecord, CommandContext ctx) {
     List<Object> result = new ArrayList<Object>();
     for (SQLExpression exp : expressions) {
       result.add(exp.execute(iCurrentRecord, ctx));
@@ -66,7 +66,7 @@ public class SQLCollection extends SimpleNode {
     return result;
   }
 
-  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
+  public Object execute(Result iCurrentRecord, CommandContext ctx) {
     List<Object> result = new ArrayList<Object>();
     for (SQLExpression exp : expressions) {
       result.add(convert(exp.execute(iCurrentRecord, ctx)));
@@ -75,8 +75,8 @@ public class SQLCollection extends SimpleNode {
   }
 
   private Object convert(Object item) {
-    if (item instanceof YTResultSet) {
-      return ((YTResultSet) item).stream().collect(Collectors.toList());
+    if (item instanceof ResultSet) {
+      return ((ResultSet) item).stream().collect(Collectors.toList());
     }
     return item;
   }
@@ -90,7 +90,7 @@ public class SQLCollection extends SimpleNode {
     return false;
   }
 
-  public boolean isAggregate(YTDatabaseSessionInternal session) {
+  public boolean isAggregate(DatabaseSessionInternal session) {
     for (SQLExpression exp : this.expressions) {
       if (exp.isAggregate(session)) {
         return true;
@@ -108,7 +108,7 @@ public class SQLCollection extends SimpleNode {
         if (exp.isAggregate(db) || exp.isEarlyCalculated(ctx)) {
           result.expressions.add(exp.splitForAggregation(aggregateProj, ctx));
         } else {
-          throw new YTCommandExecutionException(
+          throw new CommandExecutionException(
               "Cannot mix aggregate and non-aggregate operations in a collection: " + this);
         }
       }
@@ -166,8 +166,8 @@ public class SQLCollection extends SimpleNode {
     return false;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     if (expressions != null) {
       result.setProperty(
           "expressions",
@@ -176,11 +176,11 @@ public class SQLCollection extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     if (fromResult.getProperty("expressions") != null) {
       expressions = new ArrayList<>();
-      List<YTResult> ser = fromResult.getProperty("expressions");
-      for (YTResult item : ser) {
+      List<Result> ser = fromResult.getProperty("expressions");
+      for (Result item : ser) {
         SQLExpression exp = new SQLExpression(-1);
         exp.deserialize(item);
         expressions.add(exp);
@@ -188,7 +188,7 @@ public class SQLCollection extends SimpleNode {
     }
   }
 
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     for (SQLExpression exp : expressions) {
       if (!exp.isCacheable(session)) {
         return false;

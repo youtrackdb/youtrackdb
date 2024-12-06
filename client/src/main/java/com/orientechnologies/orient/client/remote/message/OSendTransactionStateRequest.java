@@ -1,18 +1,18 @@
 package com.orientechnologies.orient.client.remote.message;
 
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,24 +29,24 @@ public class OSendTransactionStateRequest implements OBinaryRequest<OSendTransac
     operations = new ArrayList<>();
   }
 
-  public OSendTransactionStateRequest(YTDatabaseSessionInternal session, long txId,
-      Iterable<ORecordOperation> operations) {
+  public OSendTransactionStateRequest(DatabaseSessionInternal session, long txId,
+      Iterable<RecordOperation> operations) {
     this.txId = txId;
     this.operations = new ArrayList<>();
 
-    for (ORecordOperation txEntry : operations) {
+    for (RecordOperation txEntry : operations) {
       ORecordOperationRequest request = new ORecordOperationRequest();
       request.setType(txEntry.type);
       request.setVersion(txEntry.record.getVersion());
       request.setId(txEntry.record.getIdentity());
-      request.setRecordType(ORecordInternal.getRecordType(txEntry.record));
+      request.setRecordType(RecordInternal.getRecordType(txEntry.record));
 
       switch (txEntry.type) {
-        case ORecordOperation.CREATED:
-        case ORecordOperation.UPDATED:
+        case RecordOperation.CREATED:
+        case RecordOperation.UPDATED:
           request.setRecord(
-              ORecordSerializerNetworkV37Client.INSTANCE.toStream(session, txEntry.record));
-          request.setContentChanged(ORecordInternal.isContentChanged(txEntry.record));
+              RecordSerializerNetworkV37Client.INSTANCE.toStream(session, txEntry.record));
+          request.setContentChanged(RecordInternal.isContentChanged(txEntry.record));
           break;
       }
 
@@ -55,7 +55,7 @@ public class OSendTransactionStateRequest implements OBinaryRequest<OSendTransac
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     network.writeLong(txId);
 
@@ -68,8 +68,8 @@ public class OSendTransactionStateRequest implements OBinaryRequest<OSendTransac
   }
 
   @Override
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
-      ORecordSerializer serializer)
+  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+      RecordSerializer serializer)
       throws IOException {
     txId = channel.readLong();
     operations.clear();
@@ -97,7 +97,7 @@ public class OSendTransactionStateRequest implements OBinaryRequest<OSendTransac
 
   @Override
   public byte getCommand() {
-    return OChannelBinaryProtocol.REQUEST_SEND_TRANSACTION_STATE;
+    return ChannelBinaryProtocol.REQUEST_SEND_TRANSACTION_STATE;
   }
 
   @Override

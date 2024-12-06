@@ -16,11 +16,11 @@
 
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OLongSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OShortSerializer;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALChanges;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALPageChangesPortion;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALPageChangesPortion;
 import java.nio.ByteBuffer;
 import org.junit.Assert;
 import org.junit.Before;
@@ -31,17 +31,17 @@ import org.junit.Test;
  */
 public class LinkSerializerTest {
 
-  private static final int FIELD_SIZE = OShortSerializer.SHORT_SIZE + OLongSerializer.LONG_SIZE;
+  private static final int FIELD_SIZE = ShortSerializer.SHORT_SIZE + LongSerializer.LONG_SIZE;
   byte[] stream = new byte[FIELD_SIZE];
   private static final int clusterId = 5;
   private static final long position = 100500L;
-  private YTRecordId OBJECT;
-  private OLinkSerializer linkSerializer;
+  private RecordId OBJECT;
+  private LinkSerializer linkSerializer;
 
   @Before
   public void beforeClass() {
-    OBJECT = new YTRecordId(clusterId, position);
-    linkSerializer = new OLinkSerializer();
+    OBJECT = new RecordId(clusterId, position);
+    linkSerializer = new LinkSerializer();
   }
 
   @Test
@@ -104,11 +104,11 @@ public class LinkSerializerTest {
 
     final ByteBuffer buffer =
         ByteBuffer.allocateDirect(
-            FIELD_SIZE + serializationOffset + OWALPageChangesPortion.PORTION_BYTES);
+            FIELD_SIZE + serializationOffset + WALPageChangesPortion.PORTION_BYTES);
     final byte[] data = new byte[FIELD_SIZE];
     linkSerializer.serializeNativeObject(OBJECT, data, 0);
 
-    final OWALChanges walChanges = new OWALPageChangesPortion();
+    final WALChanges walChanges = new WALPageChangesPortion();
     walChanges.setBinaryValue(buffer, data, serializationOffset);
 
     Assert.assertEquals(

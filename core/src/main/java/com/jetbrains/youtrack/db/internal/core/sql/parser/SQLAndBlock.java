@@ -3,13 +3,13 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexCandidate;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexFinder;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OMultipleIndexCanditate;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexCandidate;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.MultipleIndexCanditate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +30,7 @@ public class SQLAndBlock extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
+  public boolean evaluate(Identifiable currentRecord, CommandContext ctx) {
     if (subBlocks == null) {
       return true;
     }
@@ -44,7 +44,7 @@ public class SQLAndBlock extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
+  public boolean evaluate(Result currentRecord, CommandContext ctx) {
     if (subBlocks == null) {
       return true;
     }
@@ -127,7 +127,7 @@ public class SQLAndBlock extends SQLBooleanExpression {
   }
 
   public List<SQLBinaryCondition> getIndexedFunctionConditions(
-      YTClass iSchemaClass, YTDatabaseSessionInternal database) {
+      SchemaClass iSchemaClass, DatabaseSessionInternal database) {
     if (subBlocks == null) {
       return null;
     }
@@ -261,7 +261,7 @@ public class SQLAndBlock extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     for (SQLBooleanExpression exp : subBlocks) {
       if (!exp.isCacheable(session)) {
         return false;
@@ -271,7 +271,8 @@ public class SQLAndBlock extends SQLBooleanExpression {
   }
 
   @Override
-  public SQLBooleanExpression rewriteIndexChainsAsSubqueries(CommandContext ctx, YTClass clazz) {
+  public SQLBooleanExpression rewriteIndexChainsAsSubqueries(CommandContext ctx,
+      SchemaClass clazz) {
     for (SQLBooleanExpression exp : subBlocks) {
       exp.rewriteIndexChainsAsSubqueries(ctx, clazz);
       // this is on purpose. Multiple optimizations in this case in an AND block can
@@ -281,16 +282,16 @@ public class SQLAndBlock extends SQLBooleanExpression {
     return this;
   }
 
-  public Optional<OIndexCandidate> findIndex(OIndexFinder info, CommandContext ctx) {
-    Optional<OIndexCandidate> result = Optional.empty();
+  public Optional<IndexCandidate> findIndex(IndexFinder info, CommandContext ctx) {
+    Optional<IndexCandidate> result = Optional.empty();
     for (SQLBooleanExpression exp : subBlocks) {
-      Optional<OIndexCandidate> singleResult = exp.findIndex(info, ctx);
+      Optional<IndexCandidate> singleResult = exp.findIndex(info, ctx);
       if (singleResult.isPresent()) {
         if (result.isPresent()) {
-          if (result.get() instanceof OMultipleIndexCanditate) {
-            ((OMultipleIndexCanditate) result.get()).addCanditate(singleResult.get());
+          if (result.get() instanceof MultipleIndexCanditate) {
+            ((MultipleIndexCanditate) result.get()).addCanditate(singleResult.get());
           } else {
-            OMultipleIndexCanditate mult = new OMultipleIndexCanditate();
+            MultipleIndexCanditate mult = new MultipleIndexCanditate();
             mult.addCanditate(result.get());
             mult.addCanditate(singleResult.get());
             result = Optional.of(mult);

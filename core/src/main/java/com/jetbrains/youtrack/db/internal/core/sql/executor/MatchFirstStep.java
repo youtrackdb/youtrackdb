@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
 public class MatchFirstStep extends AbstractExecutionStep {
 
   private final PatternNode node;
-  private final OInternalExecutionPlan executionPlan;
+  private final InternalExecutionPlan executionPlan;
 
   public MatchFirstStep(CommandContext context, PatternNode node, boolean profilingEnabled) {
     this(context, node, null, profilingEnabled);
@@ -20,7 +20,7 @@ public class MatchFirstStep extends AbstractExecutionStep {
   public MatchFirstStep(
       CommandContext context,
       PatternNode node,
-      OInternalExecutionPlan subPlan,
+      InternalExecutionPlan subPlan,
       boolean profilingEnabled) {
     super(context, profilingEnabled);
     this.node = node;
@@ -35,7 +35,7 @@ public class MatchFirstStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -44,8 +44,8 @@ public class MatchFirstStep extends AbstractExecutionStep {
     String alias = getAlias();
 
     @SuppressWarnings("unchecked")
-    List<YTResult> matchedNodes =
-        (List<YTResult>) ctx.getVariable(MatchPrefetchStep.PREFETCHED_MATCH_ALIAS_PREFIX + alias);
+    List<Result> matchedNodes =
+        (List<Result>) ctx.getVariable(MatchPrefetchStep.PREFETCHED_MATCH_ALIAS_PREFIX + alias);
     if (matchedNodes != null) {
       data = ExecutionStream.resultIterator(matchedNodes.iterator());
     } else {
@@ -54,7 +54,7 @@ public class MatchFirstStep extends AbstractExecutionStep {
 
     return data.map(
         (result, context) -> {
-          YTResultInternal newResult = new YTResultInternal(context.getDatabase());
+          ResultInternal newResult = new ResultInternal(context.getDatabase());
           newResult.setProperty(getAlias(), result);
           context.setVariable("$matched", newResult);
           return newResult;

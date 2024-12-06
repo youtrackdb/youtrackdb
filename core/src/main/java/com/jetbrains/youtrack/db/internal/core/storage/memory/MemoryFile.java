@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.storage.memory;
 
-import com.jetbrains.youtrack.db.internal.common.directmemory.OByteBufferPool;
-import com.jetbrains.youtrack.db.internal.common.directmemory.ODirectMemoryAllocator.Intention;
-import com.jetbrains.youtrack.db.internal.common.directmemory.OPointer;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntryImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCachePointer;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OReadCache;
+import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
+import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator.Intention;
+import com.jetbrains.youtrack.db.internal.common.directmemory.Pointer;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntryImpl;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CachePointer;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.ReadCache;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -19,14 +19,14 @@ public final class MemoryFile {
 
   private final ReadWriteLock clearLock = new ReentrantReadWriteLock();
 
-  private final ConcurrentSkipListMap<Long, OCacheEntry> content = new ConcurrentSkipListMap<>();
+  private final ConcurrentSkipListMap<Long, CacheEntry> content = new ConcurrentSkipListMap<>();
 
   public MemoryFile(final int storageId, final int id) {
     this.storageId = storageId;
     this.id = id;
   }
 
-  public OCacheEntry loadPage(final long index) {
+  public CacheEntry loadPage(final long index) {
     clearLock.readLock().lock();
     try {
       return content.get(index);
@@ -35,10 +35,10 @@ public final class MemoryFile {
     }
   }
 
-  public OCacheEntry addNewPage(OReadCache readCache) {
+  public CacheEntry addNewPage(ReadCache readCache) {
     clearLock.readLock().lock();
     try {
-      OCacheEntry cacheEntry;
+      CacheEntry cacheEntry;
 
       long index;
       do {
@@ -49,22 +49,22 @@ public final class MemoryFile {
           index = lastIndex + 1;
         }
 
-        final OByteBufferPool bufferPool = OByteBufferPool.instance(null);
-        final OPointer pointer =
+        final ByteBufferPool bufferPool = ByteBufferPool.instance(null);
+        final Pointer pointer =
             bufferPool.acquireDirect(true, Intention.ADD_NEW_PAGE_IN_MEMORY_STORAGE);
 
-        final OCachePointer cachePointer = new OCachePointer(pointer, bufferPool, id, (int) index);
+        final CachePointer cachePointer = new CachePointer(pointer, bufferPool, id, (int) index);
         cachePointer.incrementReferrer();
 
         cacheEntry =
-            new OCacheEntryImpl(
-                ODirectMemoryOnlyDiskCache.composeFileId(storageId, id),
+            new CacheEntryImpl(
+                DirectMemoryOnlyDiskCache.composeFileId(storageId, id),
                 (int) index,
                 cachePointer,
                 true,
                 readCache);
 
-        final OCacheEntry oldCacheEntry = content.putIfAbsent(index, cacheEntry);
+        final CacheEntry oldCacheEntry = content.putIfAbsent(index, cacheEntry);
 
         if (oldCacheEntry != null) {
           cachePointer.decrementReferrer();
@@ -105,7 +105,7 @@ public final class MemoryFile {
 
     clearLock.writeLock().lock();
     try {
-      for (final OCacheEntry entry : content.values()) {
+      for (final CacheEntry entry : content.values()) {
         //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (entry) {
           thereAreNotReleased |= entry.getUsagesCount() > 0;

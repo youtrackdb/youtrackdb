@@ -18,15 +18,15 @@
 
 package com.orientechnologies.lucene.collections;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTContextualRecordId;
-import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
-import com.orientechnologies.lucene.engine.OLuceneIndexEngineAbstract;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.ContextualRecordId;
+import com.orientechnologies.lucene.engine.LuceneIndexEngine;
+import com.orientechnologies.lucene.engine.LuceneIndexEngineAbstract;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngineUtils;
-import com.orientechnologies.lucene.exception.YTLuceneIndexException;
+import com.orientechnologies.lucene.exception.LuceneIndexException;
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
 import com.orientechnologies.lucene.tx.OLuceneTxChangesAbstract;
 import java.io.IOException;
@@ -56,11 +56,11 @@ import org.apache.lucene.search.highlight.TokenSources;
 /**
  *
  */
-public class OLuceneResultSet implements Set<YTIdentifiable> {
+public class OLuceneResultSet implements Set<Identifiable> {
 
   private static final Integer PAGE_SIZE = 10000;
   private Query query;
-  private OLuceneIndexEngine engine;
+  private LuceneIndexEngine engine;
   private OLuceneQueryContext queryContext;
   private String indexName;
   private Highlighter highlighter;
@@ -75,7 +75,7 @@ public class OLuceneResultSet implements Set<YTIdentifiable> {
   }
 
   public OLuceneResultSet(
-      final OLuceneIndexEngine engine,
+      final LuceneIndexEngine engine,
       final OLuceneQueryContext queryContext,
       final Map<String, ?> metadata) {
     this.engine = engine;
@@ -138,7 +138,7 @@ public class OLuceneResultSet implements Set<YTIdentifiable> {
   }
 
   @Override
-  public boolean add(YTIdentifiable oIdentifiable) {
+  public boolean add(Identifiable oIdentifiable) {
     throw new UnsupportedOperationException();
   }
 
@@ -153,7 +153,7 @@ public class OLuceneResultSet implements Set<YTIdentifiable> {
   }
 
   @Override
-  public boolean addAll(Collection<? extends YTIdentifiable> c) {
+  public boolean addAll(Collection<? extends Identifiable> c) {
     throw new UnsupportedOperationException();
   }
 
@@ -186,11 +186,11 @@ public class OLuceneResultSet implements Set<YTIdentifiable> {
   }
 
   @Override
-  public Iterator<YTIdentifiable> iterator() {
+  public Iterator<Identifiable> iterator() {
     return new OLuceneResultSetIteratorTx();
   }
 
-  private class OLuceneResultSetIteratorTx implements Iterator<YTIdentifiable> {
+  private class OLuceneResultSetIteratorTx implements Iterator<Identifiable> {
 
     private ScoreDoc[] scoreDocs;
     private int index;
@@ -220,9 +220,9 @@ public class OLuceneResultSet implements Set<YTIdentifiable> {
     }
 
     @Override
-    public YTIdentifiable next() {
+    public Identifiable next() {
       ScoreDoc scoreDoc;
-      YTContextualRecordId res;
+      ContextualRecordId res;
       Document doc;
       do {
         scoreDoc = fetchNext();
@@ -252,9 +252,9 @@ public class OLuceneResultSet implements Set<YTIdentifiable> {
       }
     }
 
-    private YTContextualRecordId toRecordId(final Document doc, final ScoreDoc score) {
-      final String rId = doc.get(OLuceneIndexEngineAbstract.RID);
-      final YTContextualRecordId res = new YTContextualRecordId(rId);
+    private ContextualRecordId toRecordId(final Document doc, final ScoreDoc score) {
+      final String rId = doc.get(LuceneIndexEngineAbstract.RID);
+      final ContextualRecordId res = new ContextualRecordId(rId);
 
       final IndexReader indexReader = queryContext.getSearcher().getIndexReader();
       try {
@@ -272,11 +272,11 @@ public class OLuceneResultSet implements Set<YTIdentifiable> {
         engine.onRecordAddedToResultSet(queryContext, res, doc, score);
         return res;
       } catch (IOException | InvalidTokenOffsetsException e) {
-        throw YTException.wrapException(new YTLuceneIndexException("error while highlighting"), e);
+        throw BaseException.wrapException(new LuceneIndexException("error while highlighting"), e);
       }
     }
 
-    private boolean isToSkip(final YTContextualRecordId recordId, final Document doc) {
+    private boolean isToSkip(final ContextualRecordId recordId, final Document doc) {
       return isDeleted(recordId, doc) || isUpdatedDiskMatch(recordId, doc);
     }
 
@@ -298,15 +298,15 @@ public class OLuceneResultSet implements Set<YTIdentifiable> {
       }
     }
 
-    private boolean isDeleted(YTIdentifiable value, Document doc) {
+    private boolean isDeleted(Identifiable value, Document doc) {
       return queryContext.isDeleted(doc, null, value);
     }
 
-    private boolean isUpdatedDiskMatch(YTIdentifiable value, Document doc) {
+    private boolean isUpdatedDiskMatch(Identifiable value, Document doc) {
       return isUpdated(value) && !isTempMatch(doc);
     }
 
-    private boolean isUpdated(YTIdentifiable value) {
+    private boolean isUpdated(Identifiable value) {
       return queryContext.isUpdated(null, null, value);
     }
 

@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.nkbtree.normalizers;
 
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.Collator;
@@ -38,14 +38,14 @@ public class KeyNormalizerBenchmark {
 
   private KeyNormalizer keyNormalizer;
 
-  private OCompositeKey binaryCompositeKey;
-  private YTType[] binaryTypes;
+  private CompositeKey binaryCompositeKey;
+  private PropertyType[] binaryTypes;
 
-  private OCompositeKey dateCompositeKey;
-  private YTType[] dateTypes;
+  private CompositeKey dateCompositeKey;
+  private PropertyType[] dateTypes;
 
-  private OCompositeKey dateTimeCompositeKey;
-  private YTType[] dateTimeTypes;
+  private CompositeKey dateTimeCompositeKey;
+  private PropertyType[] dateTimeTypes;
 
   public static void main(String[] args) throws RunnerException {
     final Options opt =
@@ -70,37 +70,37 @@ public class KeyNormalizerBenchmark {
   private void binaryFixture() {
     keyNormalizer = new KeyNormalizer();
     final byte[] binaryKey = new byte[]{1, 2, 3, 4, 5, 6};
-    binaryCompositeKey = new OCompositeKey();
+    binaryCompositeKey = new CompositeKey();
     binaryCompositeKey.addKey(binaryKey);
-    binaryTypes = new YTType[1];
-    binaryTypes[0] = YTType.BINARY;
+    binaryTypes = new PropertyType[1];
+    binaryTypes[0] = PropertyType.BINARY;
   }
 
   private void dateFixture() {
     final Date key = new GregorianCalendar(2013, Calendar.NOVEMBER, 5).getTime();
-    dateCompositeKey = new OCompositeKey();
+    dateCompositeKey = new CompositeKey();
     dateCompositeKey.addKey(key);
-    dateTypes = new YTType[1];
-    dateTypes[0] = YTType.DATE;
+    dateTypes = new PropertyType[1];
+    dateTypes[0] = PropertyType.DATE;
   }
 
   private void dateTimeFixture() {
     final LocalDateTime ldt = LocalDateTime.of(2013, 11, 5, 3, 3, 3);
     final Date key = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
-    dateTimeCompositeKey = new OCompositeKey();
+    dateTimeCompositeKey = new CompositeKey();
     dateTimeCompositeKey.addKey(key);
-    dateTimeTypes = new YTType[1];
-    dateTimeTypes[0] = YTType.DATETIME;
+    dateTimeTypes = new PropertyType[1];
+    dateTimeTypes[0] = PropertyType.DATETIME;
   }
 
   // final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
   @Benchmark
   public void normalizeCompositeNull() {
-    final OCompositeKey compositeKey = new OCompositeKey();
+    final CompositeKey compositeKey = new CompositeKey();
     compositeKey.addKey(null);
 
-    final YTType[] types = new YTType[1];
+    final PropertyType[] types = new PropertyType[1];
     types[0] = null;
 
     keyNormalizer.normalize(compositeKey, types, Collator.NO_DECOMPOSITION);
@@ -108,132 +108,132 @@ public class KeyNormalizerBenchmark {
 
   @Benchmark
   public void normalizeCompositeAddKeyNull() {
-    final OCompositeKey compositeKey = new OCompositeKey();
+    final CompositeKey compositeKey = new CompositeKey();
     compositeKey.addKey(null);
   }
 
   @Benchmark
   public void normalizeCompositeNullInt() {
-    final OCompositeKey compositeKey = new OCompositeKey();
+    final CompositeKey compositeKey = new CompositeKey();
     compositeKey.addKey(null);
     compositeKey.addKey(5);
 
-    final YTType[] types = new YTType[2];
+    final PropertyType[] types = new PropertyType[2];
     types[0] = null;
-    types[1] = YTType.INTEGER;
+    types[1] = PropertyType.INTEGER;
 
     keyNormalizer.normalize(compositeKey, types, Collator.NO_DECOMPOSITION);
   }
 
   @Benchmark
   public void normalizeCompositeInt() {
-    final OCompositeKey compositeKey = new OCompositeKey();
+    final CompositeKey compositeKey = new CompositeKey();
     compositeKey.addKey(5);
 
-    final YTType[] types = new YTType[1];
-    types[0] = YTType.INTEGER;
+    final PropertyType[] types = new PropertyType[1];
+    types[0] = PropertyType.INTEGER;
 
     keyNormalizer.normalize(compositeKey, types, Collator.NO_DECOMPOSITION);
   }
 
   @Benchmark
   public void normalizeCompositeFloat() {
-    final OCompositeKey compositeKey = new OCompositeKey();
+    final CompositeKey compositeKey = new CompositeKey();
     compositeKey.addKey(1.5f);
 
-    final YTType[] types = new YTType[1];
-    types[0] = YTType.FLOAT;
+    final PropertyType[] types = new PropertyType[1];
+    types[0] = PropertyType.FLOAT;
 
     keyNormalizer.normalize(compositeKey, types, Collator.NO_DECOMPOSITION);
   }
 
   @Benchmark
   public void normalizeCompositeDouble() {
-    final OCompositeKey compositeKey = new OCompositeKey();
+    final CompositeKey compositeKey = new CompositeKey();
     compositeKey.addKey(1.5d);
 
-    final YTType[] types = new YTType[1];
-    types[0] = YTType.DOUBLE;
+    final PropertyType[] types = new PropertyType[1];
+    types[0] = PropertyType.DOUBLE;
 
     keyNormalizer.normalize(compositeKey, types, Collator.NO_DECOMPOSITION);
   }
 
   @Benchmark
   public void normalizeCompositeBoolean() {
-    final OCompositeKey compositeKey = new OCompositeKey();
+    final CompositeKey compositeKey = new CompositeKey();
     compositeKey.addKey(true);
 
-    final YTType[] types = new YTType[1];
-    types[0] = YTType.BOOLEAN;
+    final PropertyType[] types = new PropertyType[1];
+    types[0] = PropertyType.BOOLEAN;
 
     keyNormalizer.normalize(compositeKey, types, Collator.NO_DECOMPOSITION);
   }
 
   @Benchmark
   public void normalizeCompositeLong() {
-    final OCompositeKey compositeKey = new OCompositeKey();
+    final CompositeKey compositeKey = new CompositeKey();
     compositeKey.addKey(5L);
 
-    final YTType[] types = new YTType[1];
-    types[0] = YTType.LONG;
+    final PropertyType[] types = new PropertyType[1];
+    types[0] = PropertyType.LONG;
 
     keyNormalizer.normalize(compositeKey, types, Collator.NO_DECOMPOSITION);
   }
 
   @Benchmark
   public void normalizeCompositeByte() {
-    final OCompositeKey compositeKey = new OCompositeKey();
+    final CompositeKey compositeKey = new CompositeKey();
     compositeKey.addKey((byte) 3);
 
-    final YTType[] types = new YTType[1];
-    types[0] = YTType.BYTE;
+    final PropertyType[] types = new PropertyType[1];
+    types[0] = PropertyType.BYTE;
 
     keyNormalizer.normalize(compositeKey, types, Collator.NO_DECOMPOSITION);
   }
 
   @Benchmark
   public void normalizeCompositeShort() {
-    final OCompositeKey compositeKey = new OCompositeKey();
+    final CompositeKey compositeKey = new CompositeKey();
     compositeKey.addKey((short) 3);
 
-    final YTType[] types = new YTType[1];
-    types[0] = YTType.SHORT;
+    final PropertyType[] types = new PropertyType[1];
+    types[0] = PropertyType.SHORT;
 
     keyNormalizer.normalize(compositeKey, types, Collator.NO_DECOMPOSITION);
   }
 
   @Benchmark
   public void normalizeCompositeDecimal() {
-    final OCompositeKey compositeKey = new OCompositeKey();
+    final CompositeKey compositeKey = new CompositeKey();
     compositeKey.addKey(new BigDecimal("3.14159265359"));
 
-    final YTType[] types = new YTType[1];
-    types[0] = YTType.DECIMAL;
+    final PropertyType[] types = new PropertyType[1];
+    types[0] = PropertyType.DECIMAL;
 
     keyNormalizer.normalize(compositeKey, types, Collator.NO_DECOMPOSITION);
   }
 
   @Benchmark
   public void normalizeCompositeString() {
-    final OCompositeKey compositeKey = new OCompositeKey();
+    final CompositeKey compositeKey = new CompositeKey();
     compositeKey.addKey("abcd");
 
-    final YTType[] types = new YTType[1];
-    types[0] = YTType.STRING;
+    final PropertyType[] types = new PropertyType[1];
+    types[0] = PropertyType.STRING;
     keyNormalizer.normalize(compositeKey, types, Collator.NO_DECOMPOSITION);
   }
 
   @Benchmark
   public void normalizeCompositeTwoStrings() {
-    final OCompositeKey compositeKey = new OCompositeKey();
+    final CompositeKey compositeKey = new CompositeKey();
     final String key = "abcd";
     compositeKey.addKey(key);
     final String secondKey = "test";
     compositeKey.addKey(secondKey);
 
-    final YTType[] types = new YTType[2];
-    types[0] = YTType.STRING;
-    types[1] = YTType.STRING;
+    final PropertyType[] types = new PropertyType[2];
+    types[0] = PropertyType.STRING;
+    types[1] = PropertyType.STRING;
     keyNormalizer.normalize(compositeKey, types, Collator.NO_DECOMPOSITION);
   }
 
@@ -254,11 +254,11 @@ public class KeyNormalizerBenchmark {
 
   @Benchmark
   public void decimalNormalizer() {
-    final OCompositeKey compositeKey = new OCompositeKey();
+    final CompositeKey compositeKey = new CompositeKey();
     compositeKey.addKey(new BigDecimal(new BigInteger("20"), 2));
 
-    final YTType[] types = new YTType[1];
-    types[0] = YTType.DECIMAL;
+    final PropertyType[] types = new PropertyType[1];
+    types[0] = PropertyType.DECIMAL;
     keyNormalizer.normalize(compositeKey, types, Collator.NO_DECOMPOSITION);
   }
 }

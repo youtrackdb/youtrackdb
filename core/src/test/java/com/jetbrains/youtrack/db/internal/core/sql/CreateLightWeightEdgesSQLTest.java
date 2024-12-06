@@ -2,13 +2,13 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.OCreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabasePool;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
+import com.jetbrains.youtrack.db.internal.core.db.DatabasePool;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConcurrentModificationException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentModificationException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.IntStream;
 import org.junit.After;
@@ -22,19 +22,19 @@ public class CreateLightWeightEdgesSQLTest {
   @Before
   public void before() {
     youTrackDB =
-        OCreateDatabaseUtil.createDatabase(
+        CreateDatabaseUtil.createDatabase(
             CreateLightWeightEdgesSQLTest.class.getSimpleName(),
-            DBTestBase.embeddedDBUrl(getClass()),
-            OCreateDatabaseUtil.TYPE_MEMORY);
+            DbTestBase.embeddedDBUrl(getClass()),
+            CreateDatabaseUtil.TYPE_MEMORY);
   }
 
   @Test
   public void test() {
-    YTDatabaseSession session =
+    DatabaseSession session =
         youTrackDB.open(
             CreateLightWeightEdgesSQLTest.class.getSimpleName(),
             "admin",
-            OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+            CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     session.command("ALTER DATABASE CUSTOM useLightweightEdges = true");
 
@@ -45,7 +45,7 @@ public class CreateLightWeightEdgesSQLTest {
         "create edge e from (select from v where name='a') to (select from v where name='a') ");
     session.commit();
 
-    try (YTResultSet res = session.query("select expand(out()) from v where name='a' ")) {
+    try (ResultSet res = session.query("select expand(out()) from v where name='a' ")) {
       assertEquals(res.stream().count(), 1);
     }
     session.close();
@@ -54,14 +54,14 @@ public class CreateLightWeightEdgesSQLTest {
   @Test
   public void mtTest() throws InterruptedException {
 
-    ODatabasePool pool =
-        new ODatabasePool(
+    DatabasePool pool =
+        new DatabasePool(
             youTrackDB,
             CreateLightWeightEdgesSQLTest.class.getSimpleName(),
             "admin",
-            OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+            CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-    YTDatabaseSession session = pool.acquire();
+    DatabaseSession session = pool.acquire();
 
     session.command("ALTER DATABASE CUSTOM useLightweightEdges = true");
 
@@ -79,7 +79,7 @@ public class CreateLightWeightEdgesSQLTest {
             (i) -> {
               new Thread(
                   () -> {
-                    try (YTDatabaseSession session1 = pool.acquire()) {
+                    try (DatabaseSession session1 = pool.acquire()) {
                       for (int j = 0; j < 100; j++) {
 
                         try {
@@ -88,7 +88,7 @@ public class CreateLightWeightEdgesSQLTest {
                               "create edge e from (select from v where id=1) to (select from v"
                                   + " where id=2) ");
                           session1.commit();
-                        } catch (YTConcurrentModificationException e) {
+                        } catch (ConcurrentModificationException e) {
                           // ignore
                         }
                       }
@@ -102,8 +102,8 @@ public class CreateLightWeightEdgesSQLTest {
     latch.await();
 
     session = pool.acquire();
-    try (YTResultSet res = session.query("select sum(out().size()) as size from V where id = 1");
-        YTResultSet res1 = session.query("select sum(in().size()) as size from V where id = 2")) {
+    try (ResultSet res = session.query("select sum(out().size()) as size from V where id = 1");
+        ResultSet res1 = session.query("select sum(in().size()) as size from V where id = 2")) {
 
       Integer s1 = res.stream().findFirst().get().getProperty("size");
       Integer s2 = res1.stream().findFirst().get().getProperty("size");

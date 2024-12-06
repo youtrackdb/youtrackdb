@@ -3,11 +3,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
@@ -29,10 +29,10 @@ public class SQLRevokeStatement extends SQLSimpleExecStatement {
 
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    YTDatabaseSessionInternal db = ctx.getDatabase();
-    ORole role = db.getMetadata().getSecurity().getRole(actor.getStringValue());
+    DatabaseSessionInternal db = ctx.getDatabase();
+    Role role = db.getMetadata().getSecurity().getRole(actor.getStringValue());
     if (role == null) {
-      throw new YTCommandExecutionException("Invalid role: " + actor.getStringValue());
+      throw new CommandExecutionException("Invalid role: " + actor.getStringValue());
     }
 
     String resourcePath = securityResource.toString();
@@ -40,11 +40,11 @@ public class SQLRevokeStatement extends SQLSimpleExecStatement {
       role.revoke(db, resourcePath, toPrivilege(permission.permission));
       role.save(db);
     } else {
-      OSecurityInternal security = db.getSharedContext().getSecurity();
+      SecurityInternal security = db.getSharedContext().getSecurity();
       security.removeSecurityPolicy(db, role, resourcePath);
     }
 
-    YTResultInternal result = new YTResultInternal(db);
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("operation", "grant");
     result.setProperty("role", actor.getStringValue());
     if (permission != null) {
@@ -57,21 +57,21 @@ public class SQLRevokeStatement extends SQLSimpleExecStatement {
   protected int toPrivilege(String privilegeName) {
     int privilege;
     if ("CREATE".equals(privilegeName)) {
-      privilege = ORole.PERMISSION_CREATE;
+      privilege = Role.PERMISSION_CREATE;
     } else if ("READ".equals(privilegeName)) {
-      privilege = ORole.PERMISSION_READ;
+      privilege = Role.PERMISSION_READ;
     } else if ("UPDATE".equals(privilegeName)) {
-      privilege = ORole.PERMISSION_UPDATE;
+      privilege = Role.PERMISSION_UPDATE;
     } else if ("DELETE".equals(privilegeName)) {
-      privilege = ORole.PERMISSION_DELETE;
+      privilege = Role.PERMISSION_DELETE;
     } else if ("EXECUTE".equals(privilegeName)) {
-      privilege = ORole.PERMISSION_EXECUTE;
+      privilege = Role.PERMISSION_EXECUTE;
     } else if ("ALL".equals(privilegeName)) {
-      privilege = ORole.PERMISSION_ALL;
+      privilege = Role.PERMISSION_ALL;
     } else if ("NONE".equals(privilegeName)) {
-      privilege = ORole.PERMISSION_NONE;
+      privilege = Role.PERMISSION_NONE;
     } else {
-      throw new YTCommandExecutionException("Unrecognized privilege '" + privilegeName + "'");
+      throw new CommandExecutionException("Unrecognized privilege '" + privilegeName + "'");
     }
     return privilege;
   }

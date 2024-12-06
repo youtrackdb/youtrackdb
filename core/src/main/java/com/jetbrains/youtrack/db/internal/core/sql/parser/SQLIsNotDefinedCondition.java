@@ -3,11 +3,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -27,20 +27,20 @@ public class SQLIsNotDefinedCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
+  public boolean evaluate(Identifiable currentRecord, CommandContext ctx) {
     try {
       Object elem = currentRecord.getRecord();
       if (elem instanceof Entity) {
         return !expression.isDefinedFor((Entity) elem);
       }
-    } catch (YTRecordNotFoundException rnf) {
+    } catch (RecordNotFoundException rnf) {
       return true;
     }
     return true;
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
+  public boolean evaluate(Result currentRecord, CommandContext ctx) {
     if (expression.isFunctionAny() || expression.isFunctionAll()) {
       return false;
     }
@@ -114,7 +114,7 @@ public class SQLIsNotDefinedCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     return expression.isCacheable(session);
   }
 

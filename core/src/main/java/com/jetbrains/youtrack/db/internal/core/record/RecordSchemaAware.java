@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 
 /**
  * Generic record representation with a schema definition. The record has multiple fields. Fields
@@ -41,10 +41,10 @@ public interface RecordSchemaAware extends Entity {
    * types.
    *
    * @param iFieldName Field name
-   * @param iType      Type between the values defined in the {@link YTType} enum
+   * @param iType      Type between the values defined in the {@link PropertyType} enum
    * @return Field value if exists, otherwise null
    */
-  <RET> RET field(String iFieldName, YTType iType);
+  <RET> RET field(String iFieldName, PropertyType iType);
 
   /**
    * Sets the value for a field.
@@ -63,9 +63,9 @@ public interface RecordSchemaAware extends Entity {
    * @param iFieldName  Field name
    * @param iFieldValue Field value to set
    * @param iType       Type between the values defined in the
-   *                    {@link YTType} enum
+   *                    {@link PropertyType} enum
    */
-  RecordSchemaAware field(String iFieldName, Object iFieldValue, YTType... iType);
+  RecordSchemaAware field(String iFieldName, Object iFieldValue, PropertyType... iType);
 
   /**
    * Removes a field. This operation does not set the field value to null but remove the field

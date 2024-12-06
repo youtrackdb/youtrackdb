@@ -16,8 +16,8 @@
 
 package com.jetbrains.youtrack.db.internal.common.serialization.types;
 
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALChanges;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALPageChangesPortion;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALPageChangesPortion;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -34,11 +34,11 @@ public class DecimalSerializerTest {
   private static final int FIELD_SIZE = 9;
   private static final byte[] stream = new byte[FIELD_SIZE];
   private static final BigDecimal OBJECT = new BigDecimal(new BigInteger("20"), 2);
-  private ODecimalSerializer decimalSerializer;
+  private DecimalSerializer decimalSerializer;
 
   @Before
   public void beforeClass() {
-    decimalSerializer = new ODecimalSerializer();
+    decimalSerializer = new DecimalSerializer();
   }
 
   @Test
@@ -118,12 +118,12 @@ public class DecimalSerializerTest {
     final int serializationOffset = 5;
     final ByteBuffer buffer =
         ByteBuffer.allocateDirect(
-                FIELD_SIZE + serializationOffset + OWALPageChangesPortion.PORTION_BYTES)
+                FIELD_SIZE + serializationOffset + WALPageChangesPortion.PORTION_BYTES)
             .order(ByteOrder.nativeOrder());
 
     final byte[] data = new byte[FIELD_SIZE];
     decimalSerializer.serializeNativeObject(OBJECT, data, 0);
-    final OWALChanges walChanges = new OWALPageChangesPortion();
+    final WALChanges walChanges = new WALPageChangesPortion();
     walChanges.setBinaryValue(buffer, data, serializationOffset);
 
     Assert.assertEquals(

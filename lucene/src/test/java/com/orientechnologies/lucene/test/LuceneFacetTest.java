@@ -18,9 +18,9 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
@@ -37,11 +37,11 @@ public class LuceneFacetTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass oClass = schema.createClass("Item");
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass oClass = schema.createClass("Item");
 
-    oClass.createProperty(db, "name", YTType.STRING);
-    oClass.createProperty(db, "category", YTType.STRING);
+    oClass.createProperty(db, "name", PropertyType.STRING);
+    oClass.createProperty(db, "category", PropertyType.STRING);
 
     db.command(
             "create index Item.name_category on Item (name,category) FULLTEXT ENGINE LUCENE"

@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 
 /**
  * SQL GRANT command: Grant a privilege to a database role.
@@ -30,27 +30,27 @@ public abstract class CommandExecutorSQLPermissionAbstract extends CommandExecut
   protected static final String KEYWORD_ON = "ON";
   protected int privilege;
   protected String resource;
-  protected ORole role;
+  protected Role role;
 
   protected void parsePrivilege(final StringBuilder word, final int oldPos) {
     final String privilegeName = word.toString();
 
     if ("CREATE".equals(privilegeName)) {
-      privilege = ORole.PERMISSION_CREATE;
+      privilege = Role.PERMISSION_CREATE;
     } else if ("READ".equals(privilegeName)) {
-      privilege = ORole.PERMISSION_READ;
+      privilege = Role.PERMISSION_READ;
     } else if ("UPDATE".equals(privilegeName)) {
-      privilege = ORole.PERMISSION_UPDATE;
+      privilege = Role.PERMISSION_UPDATE;
     } else if ("DELETE".equals(privilegeName)) {
-      privilege = ORole.PERMISSION_DELETE;
+      privilege = Role.PERMISSION_DELETE;
     } else if ("EXECUTE".equals(privilegeName)) {
-      privilege = ORole.PERMISSION_EXECUTE;
+      privilege = Role.PERMISSION_EXECUTE;
     } else if ("ALL".equals(privilegeName)) {
-      privilege = ORole.PERMISSION_ALL;
+      privilege = Role.PERMISSION_ALL;
     } else if ("NONE".equals(privilegeName)) {
-      privilege = ORole.PERMISSION_NONE;
+      privilege = Role.PERMISSION_NONE;
     } else {
-      throw new YTCommandSQLParsingException(
+      throw new CommandSQLParsingException(
           "Unrecognized privilege '" + privilegeName + "'", parserText, oldPos);
     }
   }

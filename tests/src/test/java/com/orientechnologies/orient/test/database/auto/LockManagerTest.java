@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.common.concur.lock.OOneEntryPerKeyLockManager;
-import com.jetbrains.youtrack.db.internal.common.concur.lock.OOneEntryPerKeyLockManager.LOCK;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.OneEntryPerKeyLockManager;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.OneEntryPerKeyLockManager.LOCK;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,15 +26,15 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- * Test class for OLockManager
+ * Test class for LockManager
  */
 public class LockManagerTest {
 
   public static final int THREADS = 64;
   public static int cyclesByProcess = 10000000;
   public static boolean verbose = false;
-  public static OOneEntryPerKeyLockManager<Callable<?>> lockMgr =
-      new OOneEntryPerKeyLockManager<Callable<?>>(true, 5000, 10000);
+  public static OneEntryPerKeyLockManager<Callable<?>> lockMgr =
+      new OneEntryPerKeyLockManager<Callable<?>>(true, 5000, 10000);
   protected List<Callable<?>> resources = new ArrayList<Callable<?>>();
   protected List<Thread> processes = Collections.synchronizedList(new ArrayList<Thread>());
   protected List<Throwable> exceptions = Collections.synchronizedList(new ArrayList<Throwable>());

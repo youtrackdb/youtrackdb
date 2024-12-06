@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
@@ -36,7 +36,7 @@ public class ForEachStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
 
     ExecutionStream prevStream = prev.start(ctx);
@@ -44,7 +44,7 @@ public class ForEachStep extends AbstractExecutionStep {
     Iterator<?> iterator = init(ctx);
     while (iterator.hasNext()) {
       ctx.setVariable(loopVariable.getStringValue(), iterator.next());
-      OScriptExecutionPlan plan = initPlan(ctx);
+      ScriptExecutionPlan plan = initPlan(ctx);
       ExecutionStepInternal result = plan.executeFull();
       if (result != null) {
         return result.start(ctx);
@@ -56,14 +56,14 @@ public class ForEachStep extends AbstractExecutionStep {
 
   protected Iterator<?> init(CommandContext ctx) {
     var db = ctx.getDatabase();
-    Object val = source.execute(new YTResultInternal(db), ctx);
-    return OMultiValue.getMultiValueIterator(val);
+    Object val = source.execute(new ResultInternal(db), ctx);
+    return MultiValue.getMultiValueIterator(val);
   }
 
-  public OScriptExecutionPlan initPlan(CommandContext ctx) {
+  public ScriptExecutionPlan initPlan(CommandContext ctx) {
     BasicCommandContext subCtx1 = new BasicCommandContext();
     subCtx1.setParent(ctx);
-    OScriptExecutionPlan plan = new OScriptExecutionPlan(subCtx1);
+    ScriptExecutionPlan plan = new ScriptExecutionPlan(subCtx1);
     for (SQLStatement stm : body) {
       plan.chain(stm.createExecutionPlan(subCtx1, profilingEnabled), profilingEnabled);
     }

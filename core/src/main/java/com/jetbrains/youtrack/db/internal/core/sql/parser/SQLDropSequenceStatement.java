@@ -4,15 +4,15 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.YTSequence;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
 
-public class SQLDropSequenceStatement extends ODDLStatement {
+public class SQLDropSequenceStatement extends DDLStatement {
 
   SQLIdentifier name;
 
@@ -29,25 +29,25 @@ public class SQLDropSequenceStatement extends ODDLStatement {
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
     final var database = ctx.getDatabase();
-    YTSequence sequence =
+    Sequence sequence =
         database.getMetadata().getSequenceLibrary().getSequence(this.name.getStringValue());
     if (sequence == null) {
       if (ifExists) {
         return ExecutionStream.empty();
       } else {
-        throw new YTCommandExecutionException("Sequence not found: " + name);
+        throw new CommandExecutionException("Sequence not found: " + name);
       }
     }
 
     try {
       database.getMetadata().getSequenceLibrary().dropSequence(name.getStringValue());
-    } catch (YTDatabaseException exc) {
+    } catch (DatabaseException exc) {
       String message = "Unable to execute command: " + exc.getMessage();
       LogManager.instance().error(this, message, exc, (Object) null);
-      throw new YTCommandExecutionException(message);
+      throw new CommandExecutionException(message);
     }
 
-    YTResultInternal result = new YTResultInternal(database);
+    ResultInternal result = new ResultInternal(database);
     result.setProperty("operation", "drop sequence");
     result.setProperty("sequenceName", name.getStringValue());
     return ExecutionStream.singleton(result);

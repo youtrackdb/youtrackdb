@@ -1,6 +1,5 @@
 package com.jetbrains.youtrack.db.internal.common.comparator;
 
-import com.jetbrains.youtrack.db.internal.common.comparator.OUnsafeByteArrayComparator;
 import java.util.Comparator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -10,7 +9,7 @@ import org.junit.Test;
  */
 public class UnsafeComparatorTest {
 
-  private final OUnsafeByteArrayComparator comparator = OUnsafeByteArrayComparator.INSTANCE;
+  private final UnsafeByteArrayComparator comparator = UnsafeByteArrayComparator.INSTANCE;
 
   @Test
   public void testOneByteArray() {

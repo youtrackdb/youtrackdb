@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.iterator;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection.ODefaultClusterSelectionStrategy;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.clusterselection.DefaultClusterSelectionStrategy;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,7 +14,7 @@ import org.junit.Test;
 /**
  *
  */
-public class ClassIteratorTest extends DBTestBase {
+public class ClassIteratorTest extends DbTestBase {
 
   private Set<String> names;
 
@@ -30,12 +30,12 @@ public class ClassIteratorTest extends DBTestBase {
   public void beforeTest() throws Exception {
     super.beforeTest();
 
-    final YTSchema schema = db.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
 
     // Create Person class
-    final YTClass personClass = schema.createClass("Person");
+    final SchemaClass personClass = schema.createClass("Person");
     personClass
-        .createProperty(db, "First", YTType.STRING)
+        .createProperty(db, "First", PropertyType.STRING)
         .setMandatory(db, true)
         .setNotNull(db, true)
         .setMin(db, "1");
@@ -54,7 +54,7 @@ public class ClassIteratorTest extends DBTestBase {
 
   @Test
   public void testDescendentOrderIteratorWithMultipleClusters() throws Exception {
-    final YTClass personClass = db.getMetadata().getSchema().getClass("Person");
+    final SchemaClass personClass = db.getMetadata().getSchema().getClass("Person");
 
     // empty old cluster but keep it attached
     personClass.truncate(db);
@@ -62,7 +62,7 @@ public class ClassIteratorTest extends DBTestBase {
     // reload the data in a new 'test' cluster
     int testClusterId = db.addCluster("test");
     personClass.addClusterId(db, testClusterId);
-    personClass.setClusterSelection(db, new ODefaultClusterSelectionStrategy());
+    personClass.setClusterSelection(db, new DefaultClusterSelectionStrategy());
     personClass.setDefaultClusterId(db, testClusterId);
 
     for (String name : names) {
@@ -70,8 +70,8 @@ public class ClassIteratorTest extends DBTestBase {
     }
 
     // Use descending class iterator.
-    final ORecordIteratorClass<EntityImpl> personIter =
-        new ORecordIteratorClassDescendentOrder<EntityImpl>(db, db, "Person", true);
+    final RecordIteratorClass<EntityImpl> personIter =
+        new RecordIteratorClassDescendentOrder<EntityImpl>(db, db, "Person", true);
 
     personIter.setRange(null, null); // open range
 
@@ -89,14 +89,14 @@ public class ClassIteratorTest extends DBTestBase {
 
   @Test
   public void testMultipleClusters() throws Exception {
-    final YTClass personClass =
+    final SchemaClass personClass =
         db.getMetadata().getSchema().createClass("PersonMultipleClusters", 4, null);
     for (String name : names) {
       createPerson("PersonMultipleClusters", name);
     }
 
-    final ORecordIteratorClass<EntityImpl> personIter =
-        new ORecordIteratorClass<EntityImpl>(db, "PersonMultipleClusters", true);
+    final RecordIteratorClass<EntityImpl> personIter =
+        new RecordIteratorClass<EntityImpl>(db, "PersonMultipleClusters", true);
 
     int docNum = 0;
 

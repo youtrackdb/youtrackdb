@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.client.remote.message.tx;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -11,8 +11,8 @@ public class ORecordOperationRequest {
 
   private byte type;
   private byte recordType;
-  private YTRID id;
-  private YTRID oldId;
+  private RID id;
+  private RID oldId;
   private byte[] record;
   private int version;
   private boolean contentChanged;
@@ -23,8 +23,8 @@ public class ORecordOperationRequest {
   public ORecordOperationRequest(
       byte type,
       byte recordType,
-      YTRID id,
-      YTRID oldId,
+      RID id,
+      RID oldId,
       byte[] record,
       int version,
       boolean contentChanged) {
@@ -37,19 +37,19 @@ public class ORecordOperationRequest {
     this.contentChanged = contentChanged;
   }
 
-  public YTRID getId() {
+  public RID getId() {
     return id;
   }
 
-  public void setId(YTRID id) {
+  public void setId(RID id) {
     this.id = id;
   }
 
-  public YTRID getOldId() {
+  public RID getOldId() {
     return oldId;
   }
 
-  public void setOldId(YTRID oldId) {
+  public void setOldId(RID oldId) {
     this.oldId = oldId;
   }
 
@@ -96,9 +96,9 @@ public class ORecordOperationRequest {
   public void deserialize(DataInput input) throws IOException {
     type = input.readByte();
     recordType = input.readByte();
-    id = YTRecordId.deserialize(input);
-    oldId = YTRecordId.deserialize(input);
-    if (type != ORecordOperation.DELETED) {
+    id = RecordId.deserialize(input);
+    oldId = RecordId.deserialize(input);
+    if (type != RecordOperation.DELETED) {
       int size = input.readInt();
       record = new byte[size];
       input.readFully(record);
@@ -110,9 +110,9 @@ public class ORecordOperationRequest {
   public void serialize(DataOutput output) throws IOException {
     output.writeByte(type);
     output.writeByte(recordType);
-    YTRecordId.serialize(id, output);
-    YTRecordId.serialize(oldId, output);
-    if (type != ORecordOperation.DELETED) {
+    RecordId.serialize(id, output);
+    RecordId.serialize(oldId, output);
+    if (type != RecordOperation.DELETED) {
       output.writeInt(record.length);
       output.write(record);
     }

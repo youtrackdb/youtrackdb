@@ -19,17 +19,17 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.OExecutionThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandInterruptedException;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.ExecutionThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandInterruptedException;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,17 +44,17 @@ import java.util.Set;
 @SuppressWarnings("unchecked")
 public abstract class CommandExecutorAbstract extends BaseParser implements CommandExecutor {
 
-  protected OProgressListener progressListener;
+  protected ProgressListener progressListener;
   protected int limit = -1;
   protected Map<Object, Object> parameters;
   protected CommandContext context;
 
-  public static YTDatabaseSessionInternal getDatabase() {
-    return ODatabaseRecordThreadLocal.instance().get();
+  public static DatabaseSessionInternal getDatabase() {
+    return DatabaseRecordThreadLocal.instance().get();
   }
 
   public CommandExecutorAbstract init(final CommandRequestText iRequest) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.COMMAND, ORole.PERMISSION_READ);
+    getDatabase().checkSecurity(Rule.ResourceGeneric.COMMAND, Role.PERMISSION_READ);
     parserText = iRequest.getText().trim();
     parserTextUpperCase = SQLPredicate.upperCase(parserText);
     return this;
@@ -65,12 +65,12 @@ public abstract class CommandExecutorAbstract extends BaseParser implements Comm
     return getClass().getSimpleName() + " [text=" + parserText + "]";
   }
 
-  public OProgressListener getProgressListener() {
+  public ProgressListener getProgressListener() {
     return progressListener;
   }
 
   public <RET extends CommandExecutor> RET setProgressListener(
-      final OProgressListener progressListener) {
+      final ProgressListener progressListener) {
     this.progressListener = progressListener;
     return (RET) this;
   }
@@ -118,7 +118,7 @@ public abstract class CommandExecutorAbstract extends BaseParser implements Comm
 
   @Override
   public int getSecurityOperationType() {
-    return ORole.PERMISSION_READ;
+    return Role.PERMISSION_READ;
   }
 
   public boolean involveSchema() {
@@ -130,16 +130,16 @@ public abstract class CommandExecutorAbstract extends BaseParser implements Comm
   }
 
   public static boolean checkInterruption(final CommandContext iContext) {
-    if (OExecutionThreadLocal.isInterruptCurrentOperation()) {
-      throw new YTCommandInterruptedException("The command has been interrupted");
+    if (ExecutionThreadLocal.isInterruptCurrentOperation()) {
+      throw new CommandInterruptedException("The command has been interrupted");
     }
 
     return iContext == null || iContext.checkTimeout();
   }
 
-  public OCommandDistributedReplicateRequest.DISTRIBUTED_RESULT_MGMT
+  public CommandDistributedReplicateRequest.DISTRIBUTED_RESULT_MGMT
   getDistributedResultManagement() {
-    return OCommandDistributedReplicateRequest.DISTRIBUTED_RESULT_MGMT.CHECK_FOR_EQUALS;
+    return CommandDistributedReplicateRequest.DISTRIBUTED_RESULT_MGMT.CHECK_FOR_EQUALS;
   }
 
   @Override
@@ -176,7 +176,7 @@ public abstract class CommandExecutorAbstract extends BaseParser implements Comm
       // RECEIVED EXCEPTION
       {
         throw (Exception) nodeResult;
-      } else if (nodeResult instanceof YTIdentifiable) {
+      } else if (nodeResult instanceof Identifiable) {
         if (aggregatedResult == null) {
           aggregatedResult = new ArrayList();
         }
@@ -187,7 +187,7 @@ public abstract class CommandExecutorAbstract extends BaseParser implements Comm
         if (aggregatedResult == null) {
           aggregatedResult = nodeResult;
         } else {
-          OMultiValue.add(aggregatedResult, nodeResult);
+          MultiValue.add(aggregatedResult, nodeResult);
         }
       }
     }

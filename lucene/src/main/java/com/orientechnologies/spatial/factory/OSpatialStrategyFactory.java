@@ -13,10 +13,10 @@
  */
 package com.orientechnologies.spatial.factory;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.orientechnologies.spatial.shape.OShapeBuilder;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.bbox.BBoxStrategy;
@@ -37,15 +37,15 @@ public class OSpatialStrategyFactory {
 
   public static SpatialStrategy createStrategy(
       SpatialContext ctx,
-      YTDatabaseSessionInternal db,
-      OIndexDefinition indexDefinition) {
+      DatabaseSessionInternal db,
+      IndexDefinition indexDefinition) {
 
-    YTClass aClass =
+    SchemaClass aClass =
         db.getMetadata().getImmutableSchemaSnapshot().getClass(indexDefinition.getClassName());
 
-    YTProperty property = aClass.getProperty(indexDefinition.getFields().get(0));
+    Property property = aClass.getProperty(indexDefinition.getFields().get(0));
 
-    YTClass linkedClass = property.getLinkedClass();
+    SchemaClass linkedClass = property.getLinkedClass();
 
     if ("OPoint".equalsIgnoreCase(linkedClass.getName())) {
       RecursivePrefixTreeStrategy strategy =

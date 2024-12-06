@@ -13,9 +13,9 @@
  */
 package com.orientechnologies.spatial.shape.legacy;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.shape.Point;
 
@@ -25,16 +25,16 @@ import org.locationtech.spatial4j.shape.Point;
 public class OPointLegecyBuilder implements OShapeBuilderLegacy<Point> {
 
   @Override
-  public Point makeShape(YTDatabaseSessionInternal session, OCompositeKey key, SpatialContext ctx) {
-    double lat = ((Double) YTType.convert(session, key.getKeys().get(0),
+  public Point makeShape(DatabaseSessionInternal session, CompositeKey key, SpatialContext ctx) {
+    double lat = ((Double) PropertyType.convert(session, key.getKeys().get(0),
         Double.class)).doubleValue();
-    double lng = ((Double) YTType.convert(session, key.getKeys().get(1),
+    double lng = ((Double) PropertyType.convert(session, key.getKeys().get(1),
         Double.class)).doubleValue();
     return ctx.makePoint(lng, lat);
   }
 
   @Override
-  public boolean canHandle(OCompositeKey key) {
+  public boolean canHandle(CompositeKey key) {
 
     boolean canHandle = key.getKeys().size() == 2;
     for (Object o : key.getKeys()) {

@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.base;
 
-import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
 import java.io.File;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -40,7 +40,7 @@ public class DeleteDirectory {
         if (f.isDirectory()) {
           deleteDirectory(f);
         } else if (!f.delete()) {
-          throw new YTConfigurationException("Cannot delete the file: " + f);
+          throw new ConfigurationException("Cannot delete the file: " + f);
         }
       }
     }

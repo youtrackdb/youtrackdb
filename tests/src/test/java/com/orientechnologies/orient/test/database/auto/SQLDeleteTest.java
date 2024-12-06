@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import org.testng.Assert;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -37,12 +37,12 @@ public class SQLDeleteTest extends DocumentDBBaseTest {
 
     final Long total = database.countClass("Profile");
 
-    YTResultSet resultset =
+    ResultSet resultset =
         database.query("select from Profile where sex = 'female' and salary = 2100");
     long queryCount = resultset.stream().count();
 
     database.begin();
-    YTResultSet result =
+    ResultSet result =
         database.command("delete from Profile where sex = 'female' and salary = 2100");
     database.commit();
     long count = result.next().getProperty("count");
@@ -54,17 +54,17 @@ public class SQLDeleteTest extends DocumentDBBaseTest {
 
   @Test
   public void deleteInPool() {
-    YTDatabaseSessionInternal db = acquireSession();
+    DatabaseSessionInternal db = acquireSession();
 
     final Long total = db.countClass("Profile");
 
-    YTResultSet resultset =
+    ResultSet resultset =
         db.query("select from Profile where sex = 'male' and salary > 120 and salary <= 133");
 
     long queryCount = resultset.stream().count();
 
     db.begin();
-    YTResultSet records =
+    ResultSet records =
         db.command("delete from Profile where sex = 'male' and salary > 120 and salary <= 133");
     db.commit();
 

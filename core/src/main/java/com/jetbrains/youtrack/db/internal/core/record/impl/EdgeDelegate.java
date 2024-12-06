@@ -19,17 +19,17 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTImmutableClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -44,13 +44,13 @@ public class EdgeDelegate implements EdgeInternal {
 
   protected Vertex vOut;
   protected Vertex vIn;
-  protected YTImmutableClass lightweightEdgeType;
+  protected SchemaImmutableClass lightweightEdgeType;
   protected String lightwightEdgeLabel;
 
   protected EntityImpl element;
 
   public EdgeDelegate(
-      Vertex out, Vertex in, YTImmutableClass lightweightEdgeType, String edgeLabel) {
+      Vertex out, Vertex in, SchemaImmutableClass lightweightEdgeType, String edgeLabel) {
     vOut = out;
     vIn = in;
     this.lightweightEdgeType = lightweightEdgeType;
@@ -71,7 +71,7 @@ public class EdgeDelegate implements EdgeInternal {
     final EntityImpl doc;
     try {
       doc = getRecord();
-    } catch (YTRecordNotFoundException rnf) {
+    } catch (RecordNotFoundException rnf) {
       return null;
     }
 
@@ -87,7 +87,7 @@ public class EdgeDelegate implements EdgeInternal {
   }
 
   @Override
-  public YTIdentifiable getFromIdentifiable() {
+  public Identifiable getFromIdentifiable() {
     if (vOut != null) {
       // LIGHTWEIGHT EDGE
       return vOut;
@@ -96,7 +96,7 @@ public class EdgeDelegate implements EdgeInternal {
     final EntityImpl doc;
     try {
       doc = getRecord();
-    } catch (YTRecordNotFoundException rnf) {
+    } catch (RecordNotFoundException rnf) {
       return null;
     }
 
@@ -130,7 +130,7 @@ public class EdgeDelegate implements EdgeInternal {
     final EntityImpl doc;
     try {
       doc = getRecord();
-    } catch (YTRecordNotFoundException rnf) {
+    } catch (RecordNotFoundException rnf) {
       return null;
     }
 
@@ -146,7 +146,7 @@ public class EdgeDelegate implements EdgeInternal {
   }
 
   @Override
-  public YTIdentifiable getToIdentifiable() {
+  public Identifiable getToIdentifiable() {
     if (vIn != null) {
       // LIGHTWEIGHT EDGE
       return vIn;
@@ -156,7 +156,7 @@ public class EdgeDelegate implements EdgeInternal {
 
     try {
       doc = getRecord();
-    } catch (YTRecordNotFoundException rnf) {
+    } catch (RecordNotFoundException rnf) {
       return null;
     }
 
@@ -243,7 +243,7 @@ public class EdgeDelegate implements EdgeInternal {
   }
 
   @Override
-  public Optional<YTClass> getSchemaType() {
+  public Optional<SchemaClass> getSchemaType() {
     if (element == null) {
       return Optional.ofNullable(lightweightEdgeType);
     }
@@ -252,7 +252,7 @@ public class EdgeDelegate implements EdgeInternal {
 
   @Nullable
   @Override
-  public YTClass getSchemaClass() {
+  public SchemaClass getSchemaClass() {
     if (element == null) {
       return lightweightEdgeType;
     }
@@ -268,7 +268,7 @@ public class EdgeDelegate implements EdgeInternal {
     }
     Set<String> types = new HashSet<>();
 
-    Optional<YTClass> typeClass = getSchemaType();
+    Optional<SchemaClass> typeClass = getSchemaType();
     if (typeClass.isPresent()) {
       types.add(typeClass.get().getName());
       typeClass.get().getAllSuperClasses().stream()
@@ -293,7 +293,7 @@ public class EdgeDelegate implements EdgeInternal {
   }
 
   @Override
-  public YTRID getIdentity() {
+  public RID getIdentity() {
     if (element == null) {
       return null;
     }
@@ -311,12 +311,12 @@ public class EdgeDelegate implements EdgeInternal {
   }
 
   @Override
-  public int compare(YTIdentifiable o1, YTIdentifiable o2) {
+  public int compare(Identifiable o1, Identifiable o2) {
     return o1.compareTo(o2);
   }
 
   @Override
-  public int compareTo(YTIdentifiable o) {
+  public int compareTo(Identifiable o) {
     return 0;
   }
 
@@ -326,11 +326,11 @@ public class EdgeDelegate implements EdgeInternal {
       return this == obj;
       // TODO double-check this logic for lightweight edges
     }
-    if (!(obj instanceof YTIdentifiable)) {
+    if (!(obj instanceof Identifiable)) {
       return false;
     }
     if (!(obj instanceof Entity)) {
-      obj = ((YTIdentifiable) obj).getRecord();
+      obj = ((Identifiable) obj).getRecord();
     }
 
     return element.equals(((Entity) obj).getRecord());
@@ -395,7 +395,7 @@ public class EdgeDelegate implements EdgeInternal {
           + "\", \"in\":\""
           + vIn.getIdentity()
           + "\", \"@class\":\""
-          + OStringSerializerHelper.encode(lightweightEdgeType.getName())
+          + StringSerializerHelper.encode(lightweightEdgeType.getName())
           + "\"}";
     }
   }
@@ -410,7 +410,7 @@ public class EdgeDelegate implements EdgeInternal {
           + "\", \"in\":\""
           + vIn.getIdentity()
           + "\", \"@class\":\""
-          + OStringSerializerHelper.encode(lightweightEdgeType.getName())
+          + StringSerializerHelper.encode(lightweightEdgeType.getName())
           + "\"}";
     }
   }
@@ -430,7 +430,7 @@ public class EdgeDelegate implements EdgeInternal {
   }
 
   @Override
-  public boolean isNotBound(YTDatabaseSession session) {
+  public boolean isNotBound(DatabaseSession session) {
     if (element != null) {
       return element.isNotBound(session);
     }

@@ -2,20 +2,20 @@ package com.jetbrains.youtrack.db.internal.core.db.hook;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.hook.YTRecordHook;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityPolicy;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityPolicy;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import org.junit.Test;
 
-public class HookReadTest extends DBTestBase {
+public class HookReadTest extends DbTestBase {
 
   @Test
   public void testSelectChangedInHook() {
     db.registerHook(
-        new YTRecordHook() {
+        new RecordHook() {
           @Override
           public void onUnregister() {
           }
@@ -25,7 +25,7 @@ public class HookReadTest extends DBTestBase {
             if (iType == TYPE.AFTER_READ
                 && !((EntityImpl) iRecord)
                 .getClassName()
-                .equalsIgnoreCase(OSecurityPolicy.class.getSimpleName())) {
+                .equalsIgnoreCase(SecurityPolicy.class.getSimpleName())) {
               ((EntityImpl) iRecord).field("read", "test");
             }
             return RESULT.RECORD_CHANGED;
@@ -43,7 +43,7 @@ public class HookReadTest extends DBTestBase {
     db.commit();
 
     db.begin();
-    YTResultSet res = db.query("select from TestClass");
+    ResultSet res = db.query("select from TestClass");
     assertEquals(res.next().getProperty("read"), "test");
     db.commit();
   }

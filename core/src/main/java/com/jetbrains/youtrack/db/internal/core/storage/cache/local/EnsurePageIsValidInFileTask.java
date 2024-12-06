@@ -5,9 +5,9 @@ final class EnsurePageIsValidInFileTask implements Runnable {
   private final int internalFileId;
   private final int pageIndex;
 
-  private final OWOWCache writeCache;
+  private final WOWCache writeCache;
 
-  EnsurePageIsValidInFileTask(int internalFileId, int pageIndex, OWOWCache writeCache) {
+  EnsurePageIsValidInFileTask(int internalFileId, int pageIndex, WOWCache writeCache) {
     this.internalFileId = internalFileId;
     this.pageIndex = pageIndex;
     this.writeCache = writeCache;

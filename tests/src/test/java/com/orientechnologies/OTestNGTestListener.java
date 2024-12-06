@@ -19,7 +19,7 @@
 
 package com.orientechnologies;
 
-import com.jetbrains.youtrack.db.internal.common.directmemory.OByteBufferPool;
+import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import org.testng.Assert;
@@ -55,7 +55,7 @@ public class OTestNGTestListener implements ISuiteListener {
         // state is verified during shutdown
         youTrack.shutdown();
       } else {
-        OByteBufferPool.instance(null).checkMemoryLeaks();
+        ByteBufferPool.instance(null).checkMemoryLeaks();
       }
     }
   }

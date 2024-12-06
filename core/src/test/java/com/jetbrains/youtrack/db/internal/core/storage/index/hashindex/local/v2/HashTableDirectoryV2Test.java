@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v2;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandInterruptedException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandInterruptedException;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperationsManager;
 import java.io.IOException;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
@@ -17,13 +17,13 @@ import org.junit.Test;
 
 public class HashTableDirectoryV2Test {
 
-  private static YTDatabaseSessionInternal db;
+  private static DatabaseSessionInternal db;
 
   private static HashTableDirectory directory;
 
   @BeforeClass
   public static void beforeClass() throws IOException {
-    db = new YTDatabaseDocumentTx("memory:" + HashTableDirectoryV2Test.class.getSimpleName());
+    db = new DatabaseDocumentTx("memory:" + HashTableDirectoryV2Test.class.getSimpleName());
     if (db.exists()) {
       db.open("admin", "admin");
       db.drop();
@@ -35,14 +35,14 @@ public class HashTableDirectoryV2Test {
     directory =
         new HashTableDirectory(".tsc", "hashTableDirectoryTest", "hashTableDirectoryTest", storage);
 
-    final OAtomicOperation atomicOperation = startTx();
+    final AtomicOperation atomicOperation = startTx();
     directory.create(atomicOperation);
     completeTx();
   }
 
   @AfterClass
   public static void afterClass() throws Exception {
-    final OAtomicOperation atomicOperation = startTx();
+    final AtomicOperation atomicOperation = startTx();
     directory.delete(atomicOperation);
     completeTx();
 
@@ -55,35 +55,35 @@ public class HashTableDirectoryV2Test {
 
   @After
   public void afterMethod() throws IOException {
-    final OAtomicOperation atomicOperation = startTx();
+    final AtomicOperation atomicOperation = startTx();
     directory.clear(atomicOperation);
     completeTx();
   }
 
-  private static OAtomicOperation startTx() throws IOException {
+  private static AtomicOperation startTx() throws IOException {
     AbstractPaginatedStorage storage = (AbstractPaginatedStorage) db.getStorage();
-    OAtomicOperationsManager manager = storage.getAtomicOperationsManager();
+    AtomicOperationsManager manager = storage.getAtomicOperationsManager();
     Assert.assertNull(manager.getCurrentOperation());
     return manager.startAtomicOperation(null);
   }
 
   private static void rollbackTx() throws IOException {
     AbstractPaginatedStorage storage = (AbstractPaginatedStorage) db.getStorage();
-    OAtomicOperationsManager manager = storage.getAtomicOperationsManager();
-    manager.endAtomicOperation(new YTCommandInterruptedException(""));
+    AtomicOperationsManager manager = storage.getAtomicOperationsManager();
+    manager.endAtomicOperation(new CommandInterruptedException(""));
     Assert.assertNull(manager.getCurrentOperation());
   }
 
   private static void completeTx() throws IOException {
     AbstractPaginatedStorage storage = (AbstractPaginatedStorage) db.getStorage();
-    OAtomicOperationsManager manager = storage.getAtomicOperationsManager();
+    AtomicOperationsManager manager = storage.getAtomicOperationsManager();
     manager.endAtomicOperation(null);
     Assert.assertNull(manager.getCurrentOperation());
   }
 
   @Test
   public void addFirstLevel() throws IOException {
-    OAtomicOperation atomicOperation = startTx();
+    AtomicOperation atomicOperation = startTx();
 
     long[] level = new long[LocalHashTableV2.MAX_LEVEL_SIZE];
     for (int i = 0; i < level.length; i++) {
@@ -107,7 +107,7 @@ public class HashTableDirectoryV2Test {
 
   @Test
   public void changeFirstLevel() throws IOException {
-    OAtomicOperation atomicOperation = startTx();
+    AtomicOperation atomicOperation = startTx();
     long[] level = new long[LocalHashTableV2.MAX_LEVEL_SIZE];
     for (int i = 0; i < level.length; i++) {
       level[i] = i;
@@ -136,7 +136,7 @@ public class HashTableDirectoryV2Test {
 
   @Test
   public void addThreeRemoveSecondAddNewAndChange() throws IOException {
-    OAtomicOperation atomicOperation = startTx();
+    AtomicOperation atomicOperation = startTx();
 
     long[] level = new long[LocalHashTableV2.MAX_LEVEL_SIZE];
     for (int i = 0; i < level.length; i++) {
@@ -182,7 +182,7 @@ public class HashTableDirectoryV2Test {
 
   @Test
   public void addRemoveChangeMix() throws IOException {
-    OAtomicOperation atomicOperation = startTx();
+    AtomicOperation atomicOperation = startTx();
 
     long[] level = new long[LocalHashTableV2.MAX_LEVEL_SIZE];
     for (int i = 0; i < level.length; i++) {
@@ -273,7 +273,7 @@ public class HashTableDirectoryV2Test {
 
   @Test
   public void addThreePages() throws IOException {
-    OAtomicOperation atomicOperation = startTx();
+    AtomicOperation atomicOperation = startTx();
 
     int firsIndex = -1;
     int secondIndex = -1;
@@ -390,7 +390,7 @@ public class HashTableDirectoryV2Test {
 
   @Test
   public void changeLastNodeSecondPage() throws IOException {
-    OAtomicOperation atomicOperation = startTx();
+    AtomicOperation atomicOperation = startTx();
 
     long[] level = new long[LocalHashTableV2.MAX_LEVEL_SIZE];
 

@@ -15,12 +15,12 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import org.testng.Assert;
@@ -42,14 +42,14 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass oClass = schema.createClass("PropertyIndexTestClass");
-    oClass.createProperty(database, "prop0", YTType.LINK);
-    oClass.createProperty(database, "prop1", YTType.STRING);
-    oClass.createProperty(database, "prop2", YTType.INTEGER);
-    oClass.createProperty(database, "prop3", YTType.BOOLEAN);
-    oClass.createProperty(database, "prop4", YTType.INTEGER);
-    oClass.createProperty(database, "prop5", YTType.STRING);
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass oClass = schema.createClass("PropertyIndexTestClass");
+    oClass.createProperty(database, "prop0", PropertyType.LINK);
+    oClass.createProperty(database, "prop1", PropertyType.STRING);
+    oClass.createProperty(database, "prop2", PropertyType.INTEGER);
+    oClass.createProperty(database, "prop3", PropertyType.BOOLEAN);
+    oClass.createProperty(database, "prop4", PropertyType.INTEGER);
+    oClass.createProperty(database, "prop5", PropertyType.STRING);
   }
 
   @AfterClass
@@ -69,17 +69,17 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testCreateUniqueIndex() {
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass oClass = schema.getClass("PropertyIndexTestClass");
-    final YTProperty propOne = oClass.getProperty("prop1");
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass oClass = schema.getClass("PropertyIndexTestClass");
+    final Property propOne = oClass.getProperty("prop1");
 
-    propOne.createIndex(database, YTClass.INDEX_TYPE.UNIQUE,
+    propOne.createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE,
         new EntityImpl().field("ignoreNullValues", true));
 
-    final Collection<OIndex> indexes = propOne.getIndexes(database);
-    OIndexDefinition indexDefinition = null;
+    final Collection<Index> indexes = propOne.getIndexes(database);
+    IndexDefinition indexDefinition = null;
 
-    for (final OIndex index : indexes) {
+    for (final Index index : indexes) {
       if (index.getName().equals("PropertyIndexTestClass.prop1")) {
         indexDefinition = index.getDefinition();
         break;
@@ -91,59 +91,59 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
     Assert.assertEquals(indexDefinition.getFields().size(), 1);
     Assert.assertTrue(indexDefinition.getFields().contains("prop1"));
     Assert.assertEquals(indexDefinition.getTypes().length, 1);
-    Assert.assertEquals(indexDefinition.getTypes()[0], YTType.STRING);
+    Assert.assertEquals(indexDefinition.getTypes()[0], PropertyType.STRING);
   }
 
   @Test(dependsOnMethods = {"testCreateUniqueIndex"})
   public void createAdditionalSchemas() {
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass oClass = schema.getClass("PropertyIndexTestClass");
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass oClass = schema.getClass("PropertyIndexTestClass");
 
     oClass.createIndex(database,
         "propOne0",
-        YTClass.INDEX_TYPE.UNIQUE.toString(),
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
         new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop0", "prop1"});
     oClass.createIndex(database,
         "propOne1",
-        YTClass.INDEX_TYPE.UNIQUE.toString(),
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
         new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop1", "prop2"});
     oClass.createIndex(database,
         "propOne2",
-        YTClass.INDEX_TYPE.UNIQUE.toString(),
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
         new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop1", "prop3"});
     oClass.createIndex(database,
         "propOne3",
-        YTClass.INDEX_TYPE.UNIQUE.toString(),
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
         new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop2", "prop3"});
     oClass.createIndex(database,
         "propOne4",
-        YTClass.INDEX_TYPE.UNIQUE.toString(),
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
         new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop2", "prop1"});
   }
 
   @Test(dependsOnMethods = "createAdditionalSchemas")
   public void testGetIndexes() {
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass oClass = schema.getClass("PropertyIndexTestClass");
-    final YTProperty propOne = oClass.getProperty("prop1");
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass oClass = schema.getClass("PropertyIndexTestClass");
+    final Property propOne = oClass.getProperty("prop1");
 
-    final Collection<OIndex> indexes = propOne.getIndexes(database);
+    final Collection<Index> indexes = propOne.getIndexes(database);
     Assert.assertEquals(indexes.size(), 1);
     Assert.assertNotNull(containsIndex(indexes, "PropertyIndexTestClass.prop1"));
   }
 
   @Test(dependsOnMethods = "createAdditionalSchemas")
   public void testGetAllIndexes() {
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass oClass = schema.getClass("PropertyIndexTestClass");
-    final YTProperty propOne = oClass.getProperty("prop1");
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass oClass = schema.getClass("PropertyIndexTestClass");
+    final Property propOne = oClass.getProperty("prop1");
 
-    final Collection<OIndex> indexes = propOne.getAllIndexes(database);
+    final Collection<Index> indexes = propOne.getAllIndexes(database);
     Assert.assertEquals(indexes.size(), 5);
     Assert.assertNotNull(containsIndex(indexes, "PropertyIndexTestClass.prop1"));
     Assert.assertNotNull(containsIndex(indexes, "propOne0"));
@@ -154,17 +154,17 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testIsIndexedNonIndexedField() {
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass oClass = schema.getClass("PropertyIndexTestClass");
-    final YTProperty propThree = oClass.getProperty("prop3");
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass oClass = schema.getClass("PropertyIndexTestClass");
+    final Property propThree = oClass.getProperty("prop3");
     Assert.assertFalse(propThree.isIndexed(database));
   }
 
   @Test(dependsOnMethods = {"testCreateUniqueIndex"})
   public void testIsIndexedIndexedField() {
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass oClass = schema.getClass("PropertyIndexTestClass");
-    final YTProperty propOne = oClass.getProperty("prop1");
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass oClass = schema.getClass("PropertyIndexTestClass");
+    final Property propOne = oClass.getProperty("prop1");
     Assert.assertTrue(propOne.isIndexed(database));
   }
 
@@ -262,17 +262,17 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testDropIndexes() throws Exception {
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass oClass = schema.getClass("PropertyIndexTestClass");
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass oClass = schema.getClass("PropertyIndexTestClass");
 
     oClass.createIndex(database,
         "PropertyIndexFirstIndex",
-        YTClass.INDEX_TYPE.UNIQUE.toString(),
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
         new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop4"});
     oClass.createIndex(database,
         "PropertyIndexSecondIndex",
-        YTClass.INDEX_TYPE.UNIQUE.toString(),
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
         new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop4"});
 
@@ -292,17 +292,17 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testDropIndexesForComposite() throws Exception {
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass oClass = schema.getClass("PropertyIndexTestClass");
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass oClass = schema.getClass("PropertyIndexTestClass");
 
     oClass.createIndex(database,
         "PropertyIndexFirstIndex",
-        YTClass.INDEX_TYPE.UNIQUE.toString(),
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
         new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop4"});
     oClass.createIndex(database,
         "PropertyIndexSecondIndex",
-        YTClass.INDEX_TYPE.UNIQUE.toString(),
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
         null,
         new EntityImpl().fields("ignoreNullValues", true), new String[]{"prop4", "prop5"});
 
@@ -326,8 +326,8 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
             .getIndex(database, "PropertyIndexSecondIndex"));
   }
 
-  private OIndex containsIndex(final Collection<OIndex> indexes, final String indexName) {
-    for (final OIndex index : indexes) {
+  private Index containsIndex(final Collection<Index> indexes, final String indexName) {
+    for (final Index index : indexes) {
       if (index.getName().equals(indexName)) {
         return index;
       }

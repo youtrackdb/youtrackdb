@@ -19,13 +19,13 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OLazyIterator;
-import com.jetbrains.youtrack.db.internal.common.collection.OLazyIteratorListWrapper;
-import com.jetbrains.youtrack.db.internal.common.util.OSizeable;
-import com.jetbrains.youtrack.db.internal.core.db.record.ORecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.common.collection.LazyIterator;
+import com.jetbrains.youtrack.db.internal.common.collection.LazyIteratorListWrapper;
+import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
@@ -38,9 +38,9 @@ import java.util.ListIterator;
  * contentType to speed up some operations like conversion to/from record/links.
  */
 @SuppressWarnings({"serial"})
-public class LinkList extends TrackedList<YTIdentifiable> implements OSizeable {
+public class LinkList extends TrackedList<Identifiable> implements Sizeable {
 
-  protected ORecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE contentType =
+  protected RecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE contentType =
       MULTIVALUE_CONTENT_TYPE.EMPTY;
   protected boolean ridOnly = false;
 
@@ -59,7 +59,7 @@ public class LinkList extends TrackedList<YTIdentifiable> implements OSizeable {
   }
 
   public LinkList(
-      final RecordElement iSourceRecord, final Collection<? extends YTIdentifiable> iOrigin) {
+      final RecordElement iSourceRecord, final Collection<? extends Identifiable> iOrigin) {
     this(iSourceRecord);
     if (iOrigin != null && !iOrigin.isEmpty()) {
       addAll(iOrigin);
@@ -67,8 +67,8 @@ public class LinkList extends TrackedList<YTIdentifiable> implements OSizeable {
   }
 
   @Override
-  public boolean addAll(Collection<? extends YTIdentifiable> c) {
-    for (YTIdentifiable o : c) {
+  public boolean addAll(Collection<? extends Identifiable> c) {
+    for (Identifiable o : c) {
       add(o);
     }
 
@@ -83,16 +83,16 @@ public class LinkList extends TrackedList<YTIdentifiable> implements OSizeable {
   /**
    * @return iterator that just returns the elements without conversion.
    */
-  public Iterator<YTIdentifiable> rawIterator() {
+  public Iterator<Identifiable> rawIterator() {
 
-    return new OLazyIterator<>() {
+    return new LazyIterator<>() {
       private int pos = -1;
 
       public boolean hasNext() {
         return pos < size() - 1;
       }
 
-      public YTIdentifiable next() {
+      public Identifiable next() {
         return LinkList.this.rawGet(++pos);
       }
 
@@ -100,28 +100,28 @@ public class LinkList extends TrackedList<YTIdentifiable> implements OSizeable {
         LinkList.this.remove(pos);
       }
 
-      public YTIdentifiable update(final YTIdentifiable iValue) {
+      public Identifiable update(final Identifiable iValue) {
         return LinkList.this.set(pos, iValue);
       }
     };
   }
 
-  public YTIdentifiable rawGet(final int index) {
+  public Identifiable rawGet(final int index) {
     return super.get(index);
   }
 
   @Override
-  public OLazyIterator<YTIdentifiable> iterator() {
-    return new OLazyIteratorListWrapper<>(super.listIterator());
+  public LazyIterator<Identifiable> iterator() {
+    return new LazyIteratorListWrapper<>(super.listIterator());
   }
 
   @Override
-  public ListIterator<YTIdentifiable> listIterator() {
+  public ListIterator<Identifiable> listIterator() {
     return super.listIterator();
   }
 
   @Override
-  public ListIterator<YTIdentifiable> listIterator(int index) {
+  public ListIterator<Identifiable> listIterator(int index) {
     return super.listIterator(index);
   }
 
@@ -131,26 +131,26 @@ public class LinkList extends TrackedList<YTIdentifiable> implements OSizeable {
   }
 
   @Override
-  public boolean add(YTIdentifiable e) {
+  public boolean add(Identifiable e) {
     preAdd(e);
     return super.add(e);
   }
 
   @Override
-  public void add(int index, YTIdentifiable e) {
+  public void add(int index, Identifiable e) {
     preAdd(e);
     super.add(index, e);
   }
 
   @Override
-  public boolean addInternal(YTIdentifiable e) {
+  public boolean addInternal(Identifiable e) {
     preAdd(e);
     return super.addInternal(e);
   }
 
-  private void preAdd(YTIdentifiable e) {
+  private void preAdd(Identifiable e) {
     if (e != null) {
-      ORecordInternal.track(sourceRecord, e);
+      RecordInternal.track(sourceRecord, e);
       if ((ridOnly || contentType == MULTIVALUE_CONTENT_TYPE.ALL_RIDS)
           && e.getIdentity().isPersistent()
           && (e instanceof EntityImpl && !((EntityImpl) e).isDirty()))
@@ -158,16 +158,16 @@ public class LinkList extends TrackedList<YTIdentifiable> implements OSizeable {
       {
         e = e.getIdentity();
       } else {
-        contentType = ORecordMultiValueHelper.updateContentType(contentType, e);
+        contentType = RecordMultiValueHelper.updateContentType(contentType, e);
       }
     }
   }
 
   @Override
-  public YTIdentifiable set(int index, YTIdentifiable e) {
+  public Identifiable set(int index, Identifiable e) {
 
     if (e != null) {
-      ORecordInternal.track(sourceRecord, e);
+      RecordInternal.track(sourceRecord, e);
       if (e != null) {
         if ((ridOnly || contentType == MULTIVALUE_CONTENT_TYPE.ALL_RIDS)
             && e.getIdentity().isPersistent()
@@ -176,7 +176,7 @@ public class LinkList extends TrackedList<YTIdentifiable> implements OSizeable {
         {
           e = e.getIdentity();
         } else {
-          contentType = ORecordMultiValueHelper.updateContentType(contentType, e);
+          contentType = RecordMultiValueHelper.updateContentType(contentType, e);
         }
       }
     }
@@ -184,7 +184,7 @@ public class LinkList extends TrackedList<YTIdentifiable> implements OSizeable {
   }
 
   @Override
-  public YTIdentifiable get(final int index) {
+  public Identifiable get(final int index) {
     return super.get(index);
   }
 
@@ -199,7 +199,7 @@ public class LinkList extends TrackedList<YTIdentifiable> implements OSizeable {
   }
 
   @Override
-  public YTIdentifiable remove(final int iIndex) {
+  public Identifiable remove(final int iIndex) {
     return super.remove(iIndex);
   }
 
@@ -252,7 +252,7 @@ public class LinkList extends TrackedList<YTIdentifiable> implements OSizeable {
         if (!convertRecord2Link(i)) {
           allConverted = false;
         }
-      } catch (YTRecordNotFoundException ignore) {
+      } catch (RecordNotFoundException ignore) {
         // LEAVE THE RID DIRTY
       }
     }
@@ -266,7 +266,7 @@ public class LinkList extends TrackedList<YTIdentifiable> implements OSizeable {
 
   @Override
   public String toString() {
-    return ORecordMultiValueHelper.toString(this);
+    return RecordMultiValueHelper.toString(this);
   }
 
   public LinkList copy(final EntityImpl iSourceRecord) {
@@ -298,19 +298,19 @@ public class LinkList extends TrackedList<YTIdentifiable> implements OSizeable {
       return true;
     }
 
-    final YTIdentifiable o = super.get(iIndex);
-    if (o instanceof YTIdentifiable && o.getIdentity().isPersistent()) {
+    final Identifiable o = super.get(iIndex);
+    if (o instanceof Identifiable && o.getIdentity().isPersistent()) {
       // ALREADY CONVERTED
       if (o instanceof Record && !((Record) o).isDirty()) {
         try {
           super.setInternal(iIndex, o.getIdentity());
           // CONVERTED
           return true;
-        } catch (YTRecordNotFoundException ignore) {
+        } catch (RecordNotFoundException ignore) {
           // IGNORE THIS
         }
       } else {
-        return o instanceof YTRID;
+        return o instanceof RID;
       }
     }
     return false;
@@ -320,9 +320,9 @@ public class LinkList extends TrackedList<YTIdentifiable> implements OSizeable {
     var db = getOwnerRecord().getSession();
 
     boolean removed = false;
-    Iterator<YTIdentifiable> it = super.iterator();
+    Iterator<Identifiable> it = super.iterator();
     while (it.hasNext()) {
-      YTIdentifiable rec = it.next();
+      Identifiable rec = it.next();
       if (!db.exists(rec.getIdentity())) {
         it.remove();
         removed = true;
@@ -332,7 +332,7 @@ public class LinkList extends TrackedList<YTIdentifiable> implements OSizeable {
   }
 
   @Override
-  public void replace(OMultiValueChangeEvent<Object, Object> event, Object newValue) {
+  public void replace(MultiValueChangeEvent<Object, Object> event, Object newValue) {
     // not needed do nothing
   }
 }

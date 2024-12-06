@@ -1,18 +1,18 @@
 package com.jetbrains.youtrack.db.internal.core.storage.cache.chm;
 
-import com.jetbrains.youtrack.db.internal.common.directmemory.OByteBufferPool;
-import com.jetbrains.youtrack.db.internal.common.directmemory.ODirectMemoryAllocator;
-import com.jetbrains.youtrack.db.internal.common.directmemory.ODirectMemoryAllocator.Intention;
-import com.jetbrains.youtrack.db.internal.common.directmemory.OPointer;
-import com.jetbrains.youtrack.db.internal.common.types.OModifiableBoolean;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCachePointer;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OPageDataVerificationError;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OWriteCache;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.local.OBackgroundExceptionListener;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OPageIsBrokenListener;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
+import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
+import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator;
+import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator.Intention;
+import com.jetbrains.youtrack.db.internal.common.directmemory.Pointer;
+import com.jetbrains.youtrack.db.internal.common.types.ModifiableBoolean;
+import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CachePointer;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.PageDataVerificationError;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.local.BackgroundExceptionListener;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.PageIsBrokenListener;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.LogSequenceNumber;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -35,12 +35,12 @@ public class AsyncReadCacheTestIT {
   public void testEvenDistribution() throws Exception {
     final int pageSize = 4 * 1024;
 
-    final ODirectMemoryAllocator allocator = new ODirectMemoryAllocator();
-    final OByteBufferPool byteBufferPool = new OByteBufferPool(pageSize, allocator, 256);
+    final DirectMemoryAllocator allocator = new DirectMemoryAllocator();
+    final ByteBufferPool byteBufferPool = new ByteBufferPool(pageSize, allocator, 256);
     final long maxMemory = 1024 * 1024 * 1024;
 
     final AsyncReadCache readCache = new AsyncReadCache(byteBufferPool, maxMemory, pageSize, true);
-    final OWriteCache writeCache = new MockedWriteCache(byteBufferPool);
+    final WriteCache writeCache = new MockedWriteCache(byteBufferPool);
 
     final ExecutorService executor = Executors.newCachedThreadPool();
     final List<Future<Void>> futures = new ArrayList<>();
@@ -111,12 +111,12 @@ public class AsyncReadCacheTestIT {
   public void testZiphianDistribution() throws Exception {
     final int pageSize = 4 * 1024;
 
-    final ODirectMemoryAllocator allocator = new ODirectMemoryAllocator();
-    final OByteBufferPool byteBufferPool = new OByteBufferPool(pageSize, allocator, 2048);
+    final DirectMemoryAllocator allocator = new DirectMemoryAllocator();
+    final ByteBufferPool byteBufferPool = new ByteBufferPool(pageSize, allocator, 2048);
     final long maxMemory = 1024 * 1024 * 1024;
 
     final AsyncReadCache readCache = new AsyncReadCache(byteBufferPool, maxMemory, pageSize, true);
-    final OWriteCache writeCache = new MockedWriteCache(byteBufferPool);
+    final WriteCache writeCache = new MockedWriteCache(byteBufferPool);
 
     final ExecutorService executor = Executors.newCachedThreadPool();
     final List<Future<Void>> futures = new ArrayList<>();
@@ -192,7 +192,7 @@ public class AsyncReadCacheTestIT {
 
     private final int fileLimit;
     private final int pageLimit;
-    private final OWriteCache writeCache;
+    private final WriteCache writeCache;
     private final int pageCount;
 
     private final AsyncReadCache readCache;
@@ -200,7 +200,7 @@ public class AsyncReadCacheTestIT {
     private PageWriter(
         final int fileLimit,
         final int pageLimit,
-        final OWriteCache writeCache,
+        final WriteCache writeCache,
         final int pageCount,
         final AsyncReadCache readCache) {
       this.fileLimit = fileLimit;
@@ -219,7 +219,7 @@ public class AsyncReadCacheTestIT {
         final int fileId = random.nextInt(fileLimit);
         final int pageIndex = random.nextInt(pageLimit);
 
-        final OCacheEntry cacheEntry =
+        final CacheEntry cacheEntry =
             readCache.loadForWrite(fileId, pageIndex, writeCache, true, null);
         readCache.releaseFromWrite(cacheEntry, writeCache, true);
         pageCounter++;
@@ -233,7 +233,7 @@ public class AsyncReadCacheTestIT {
 
     private final int fileLimit;
     private final int pageLimit;
-    private final OWriteCache writeCache;
+    private final WriteCache writeCache;
     private final int pageCount;
 
     private final AsyncReadCache readCache;
@@ -241,7 +241,7 @@ public class AsyncReadCacheTestIT {
     private PageReader(
         final int fileLimit,
         final int pageLimit,
-        final OWriteCache writeCache,
+        final WriteCache writeCache,
         final int pageCount,
         final AsyncReadCache readCache) {
       this.fileLimit = fileLimit;
@@ -260,7 +260,7 @@ public class AsyncReadCacheTestIT {
         final int fileId = random.nextInt(fileLimit);
         final int pageIndex = random.nextInt(pageLimit);
 
-        final OCacheEntry cacheEntry = readCache.loadForRead(fileId, pageIndex, writeCache, true);
+        final CacheEntry cacheEntry = readCache.loadForRead(fileId, pageIndex, writeCache, true);
         readCache.releaseFromRead(cacheEntry);
         pageCounter++;
       }
@@ -272,14 +272,14 @@ public class AsyncReadCacheTestIT {
   private static final class ZiphianPageWriter implements Callable<Void> {
 
     private final int pageLimit;
-    private final OWriteCache writeCache;
+    private final WriteCache writeCache;
     private final int pageCount;
 
     private final AsyncReadCache readCache;
 
     private ZiphianPageWriter(
         final int pageLimit,
-        final OWriteCache writeCache,
+        final WriteCache writeCache,
         final int pageCount,
         final AsyncReadCache readCache) {
       this.pageLimit = pageLimit;
@@ -296,7 +296,7 @@ public class AsyncReadCacheTestIT {
       while (pageCounter < pageCount) {
         final int pageIndex = random.nextInt();
         assert pageIndex < pageLimit;
-        final OCacheEntry cacheEntry = readCache.loadForWrite(0, pageIndex, writeCache, true, null);
+        final CacheEntry cacheEntry = readCache.loadForWrite(0, pageIndex, writeCache, true, null);
         readCache.releaseFromWrite(cacheEntry, writeCache, true);
         pageCounter++;
       }
@@ -308,14 +308,14 @@ public class AsyncReadCacheTestIT {
   private static final class ZiphianPageReader implements Callable<Void> {
 
     private final int pageLimit;
-    private final OWriteCache writeCache;
+    private final WriteCache writeCache;
     private final int pageCount;
 
     private final AsyncReadCache readCache;
 
     private ZiphianPageReader(
         final int pageLimit,
-        final OWriteCache writeCache,
+        final WriteCache writeCache,
         final int pageCount,
         final AsyncReadCache readCache) {
       this.pageLimit = pageLimit;
@@ -332,7 +332,7 @@ public class AsyncReadCacheTestIT {
       while (pageCounter < pageCount) {
         final int pageIndex = random.nextInt();
         assert pageIndex < pageLimit;
-        final OCacheEntry cacheEntry = readCache.loadForRead(0, pageIndex, writeCache, true);
+        final CacheEntry cacheEntry = readCache.loadForRead(0, pageIndex, writeCache, true);
         readCache.releaseFromRead(cacheEntry);
         pageCounter++;
       }
@@ -341,20 +341,20 @@ public class AsyncReadCacheTestIT {
     }
   }
 
-  private static final class MockedWriteCache implements OWriteCache {
+  private static final class MockedWriteCache implements WriteCache {
 
-    private final OByteBufferPool byteBufferPool;
+    private final ByteBufferPool byteBufferPool;
 
-    MockedWriteCache(final OByteBufferPool byteBufferPool) {
+    MockedWriteCache(final ByteBufferPool byteBufferPool) {
       this.byteBufferPool = byteBufferPool;
     }
 
     @Override
-    public void addPageIsBrokenListener(final OPageIsBrokenListener listener) {
+    public void addPageIsBrokenListener(final PageIsBrokenListener listener) {
     }
 
     @Override
-    public void removePageIsBrokenListener(final OPageIsBrokenListener listener) {
+    public void removePageIsBrokenListener(final PageIsBrokenListener listener) {
     }
 
     @Override
@@ -414,7 +414,7 @@ public class AsyncReadCacheTestIT {
     }
 
     @Override
-    public void store(final long fileId, final long pageIndex, final OCachePointer dataPointer) {
+    public void store(final long fileId, final long pageIndex, final CachePointer dataPointer) {
     }
 
     @Override
@@ -427,14 +427,14 @@ public class AsyncReadCacheTestIT {
     }
 
     @Override
-    public OCachePointer load(
+    public CachePointer load(
         final long fileId,
         final long startPageIndex,
-        final OModifiableBoolean cacheHit,
+        final ModifiableBoolean cacheHit,
         final boolean verifyChecksums) {
-      final OPointer pointer = byteBufferPool.acquireDirect(true, Intention.TEST);
-      final OCachePointer cachePointer =
-          new OCachePointer(pointer, byteBufferPool, fileId, (int) startPageIndex);
+      final Pointer pointer = byteBufferPool.acquireDirect(true, Intention.TEST);
+      final CachePointer cachePointer =
+          new CachePointer(pointer, byteBufferPool, fileId, (int) startPageIndex);
       cachePointer.incrementReadersReferrer();
       return cachePointer;
     }
@@ -479,9 +479,9 @@ public class AsyncReadCacheTestIT {
     }
 
     @Override
-    public OPageDataVerificationError[] checkStoredPages(
-        final OCommandOutputListener commandOutputListener) {
-      return new OPageDataVerificationError[0];
+    public PageDataVerificationError[] checkStoredPages(
+        final CommandOutputListener commandOutputListener) {
+      return new PageDataVerificationError[0];
     }
 
     @Override
@@ -520,11 +520,11 @@ public class AsyncReadCacheTestIT {
     }
 
     @Override
-    public void addBackgroundExceptionListener(final OBackgroundExceptionListener listener) {
+    public void addBackgroundExceptionListener(final BackgroundExceptionListener listener) {
     }
 
     @Override
-    public void removeBackgroundExceptionListener(final OBackgroundExceptionListener listener) {
+    public void removeBackgroundExceptionListener(final BackgroundExceptionListener listener) {
     }
 
     @Override
@@ -554,7 +554,7 @@ public class AsyncReadCacheTestIT {
 
     @Override
     public void updateDirtyPagesTable(
-        final OCachePointer pointer, final OLogSequenceNumber startLSN) {
+        final CachePointer pointer, final LogSequenceNumber startLSN) {
     }
 
     @Override

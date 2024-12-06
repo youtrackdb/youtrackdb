@@ -19,9 +19,9 @@
 package com.orientechnologies.lucene.builder;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
 import com.orientechnologies.lucene.analyzer.OLuceneAnalyzerFactory;
 import com.orientechnologies.lucene.parser.OLuceneMultiFieldQueryParser;
@@ -64,7 +64,7 @@ public class OLuceneQueryBuilder {
   }
 
   public Query query(
-      final OIndexDefinition index,
+      final IndexDefinition index,
       final Object key,
       final Map<String, ?> metadata,
       final Analyzer analyzer)
@@ -77,8 +77,8 @@ public class OLuceneQueryBuilder {
   }
 
   private static String constructQueryString(final Object key) {
-    if (key instanceof OCompositeKey) {
-      final Object params = ((OCompositeKey) key).getKeys().get(0);
+    if (key instanceof CompositeKey) {
+      final Object params = ((CompositeKey) key).getKeys().get(0);
       return params.toString();
     } else {
       return key.toString();
@@ -86,7 +86,7 @@ public class OLuceneQueryBuilder {
   }
 
   protected Query buildQuery(
-      final OIndexDefinition index,
+      final IndexDefinition index,
       final String query,
       final Map<String, ?> metadata,
       final Analyzer queryAnalyzer)
@@ -101,7 +101,7 @@ public class OLuceneQueryBuilder {
         fields[i] = "k" + i;
       }
     }
-    final Map<String, YTType> types = new HashMap<>();
+    final Map<String, PropertyType> types = new HashMap<>();
     for (int i = 0; i < fields.length; i++) {
       final String field = fields[i];
       types.put(field, index.getTypes()[i]);
@@ -110,12 +110,12 @@ public class OLuceneQueryBuilder {
   }
 
   private Query getQuery(
-      final OIndexDefinition index,
+      final IndexDefinition index,
       final String query,
       final Map<String, ?> metadata,
       final Analyzer queryAnalyzer,
       final String[] fields,
-      final Map<String, YTType> types)
+      final Map<String, PropertyType> types)
       throws ParseException {
     @SuppressWarnings("unchecked") final Map<String, Float> boost =
         Optional.ofNullable((Map<String, Number>) metadata.get("boost"))

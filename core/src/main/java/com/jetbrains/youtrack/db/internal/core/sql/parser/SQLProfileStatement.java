@@ -4,13 +4,13 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseStats;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OInternalExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OUpdateExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseStats;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.UpdateExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -40,8 +40,8 @@ public class SQLProfileStatement extends SQLStatement {
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
+  public ResultSet execute(
+      DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
     db.resetRecordLoadStats();
     BasicCommandContext ctx = new BasicCommandContext();
@@ -57,36 +57,36 @@ public class SQLProfileStatement extends SQLStatement {
     }
     ctx.setInputParameters(params);
 
-    OExecutionPlan executionPlan;
+    ExecutionPlan executionPlan;
     if (usePlanCache) {
       executionPlan = statement.createExecutionPlan(ctx, true);
     } else {
       executionPlan = statement.createExecutionPlanNoCache(ctx, true);
     }
 
-    if (executionPlan instanceof OUpdateExecutionPlan) {
-      ((OUpdateExecutionPlan) executionPlan).executeInternal();
+    if (executionPlan instanceof UpdateExecutionPlan) {
+      ((UpdateExecutionPlan) executionPlan).executeInternal();
     }
 
-    YTLocalResultSet rs = new YTLocalResultSet((OInternalExecutionPlan) executionPlan);
+    LocalResultSet rs = new LocalResultSet((InternalExecutionPlan) executionPlan);
 
     while (rs.hasNext()) {
       rs.next();
     }
-    ODatabaseStats dbStats = db.getStats();
-    YTExplainResultSet result =
-        new YTExplainResultSet(db,
+    DatabaseStats dbStats = db.getStats();
+    ExplainResultSet result =
+        new ExplainResultSet(db,
             rs.getExecutionPlan()
                 .orElseThrow(
-                    () -> new YTCommandExecutionException("Cannot profile command: " + statement)),
+                    () -> new CommandExecutionException("Cannot profile command: " + statement)),
             dbStats);
     rs.close();
     return result;
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Map args, CommandContext parentCtx, boolean usePlanCache) {
+  public ResultSet execute(
+      DatabaseSessionInternal db, Map args, CommandContext parentCtx, boolean usePlanCache) {
     db.resetRecordLoadStats();
     BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
@@ -95,31 +95,31 @@ public class SQLProfileStatement extends SQLStatement {
     ctx.setDatabase(db);
     ctx.setInputParameters(args);
 
-    OExecutionPlan executionPlan;
+    ExecutionPlan executionPlan;
     if (usePlanCache) {
       executionPlan = statement.createExecutionPlan(ctx, true);
     } else {
       executionPlan = statement.createExecutionPlanNoCache(ctx, true);
     }
 
-    YTLocalResultSet rs = new YTLocalResultSet((OInternalExecutionPlan) executionPlan);
+    LocalResultSet rs = new LocalResultSet((InternalExecutionPlan) executionPlan);
 
     while (rs.hasNext()) {
       rs.next();
     }
-    ODatabaseStats dbStats = db.getStats();
-    YTExplainResultSet result =
-        new YTExplainResultSet(db,
+    DatabaseStats dbStats = db.getStats();
+    ExplainResultSet result =
+        new ExplainResultSet(db,
             rs.getExecutionPlan()
                 .orElseThrow(
-                    () -> new YTCommandExecutionException("Cannot profile command: " + statement)),
+                    () -> new CommandExecutionException("Cannot profile command: " + statement)),
             dbStats);
     rs.close();
     return result;
   }
 
   @Override
-  public OInternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean profile) {
+  public InternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean profile) {
     return statement.createExecutionPlan(ctx, true);
   }
 

@@ -19,15 +19,15 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.common.concur.lock.YTInterruptedException;
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.ThreadInterruptedException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTStorageExistsException;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OToken;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.StorageExistsException;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.util.HashMap;
 import java.util.Locale;
@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * acquire new connection to database.
  *
  * <p>To acquire connection from the pool call {@link #acquire()} method but to release connection
- * you just need to call {@link YTDatabaseSession#close()} method.
+ * you just need to call {@link DatabaseSession#close()} method.
  *
  * <p>In case of remote storage database pool will keep connections to the remote storage till you
  * close pool. So in case of remote storage you should close pool at the end of it's usage, it also
@@ -173,7 +173,7 @@ public class PartitionedDatabasePool extends YouTrackDBListenerAbstract {
     return result;
   }
 
-  public YTDatabaseDocumentTx acquire() {
+  public DatabaseDocumentTx acquire() {
     checkForClose();
 
     final PoolData data = poolData.get();
@@ -182,7 +182,7 @@ public class PartitionedDatabasePool extends YouTrackDBListenerAbstract {
 
       assert data.acquiredDatabase != null;
 
-      final YTDatabaseDocumentTx db = data.acquiredDatabase;
+      final DatabaseDocumentTx db = data.acquiredDatabase;
 
       db.activateOnCurrentThread();
 
@@ -194,9 +194,9 @@ public class PartitionedDatabasePool extends YouTrackDBListenerAbstract {
       if (connectionsCounter != null) {
         connectionsCounter.acquire();
       }
-    } catch (InterruptedException ie) {
-      throw YTException.wrapException(
-          new YTInterruptedException("Acquiring of new connection was interrupted"), ie);
+    } catch (java.lang.InterruptedException ie) {
+      throw BaseException.wrapException(
+          new ThreadInterruptedException("Acquiring of new connection was interrupted"), ie);
     }
 
     boolean acquired = false;
@@ -300,7 +300,7 @@ public class PartitionedDatabasePool extends YouTrackDBListenerAbstract {
       if (!db.getURL().startsWith("remote:") && !db.exists()) {
         try {
           db.create();
-        } catch (YTStorageExistsException ex) {
+        } catch (StorageExistsException ex) {
           LogManager.instance()
               .debug(
                   this,
@@ -425,7 +425,7 @@ public class PartitionedDatabasePool extends YouTrackDBListenerAbstract {
     }
   }
 
-  private final class DatabaseDocumentTxPooled extends YTDatabaseDocumentTx {
+  private final class DatabaseDocumentTxPooled extends DatabaseDocumentTx {
 
     private PoolPartition partition;
 
@@ -434,13 +434,13 @@ public class PartitionedDatabasePool extends YouTrackDBListenerAbstract {
     }
 
     @Override
-    public YTDatabaseSession open(OToken iToken) {
-      throw new YTDatabaseException("Impossible to open a database managed by a pool ");
+    public DatabaseSession open(Token iToken) {
+      throw new DatabaseException("Impossible to open a database managed by a pool ");
     }
 
     @Override
-    public YTDatabaseSession open(String iUserName, String iUserPassword) {
-      throw new YTDatabaseException("Impossible to open a database managed by a pool ");
+    public DatabaseSession open(String iUserName, String iUserPassword) {
+      throw new DatabaseException("Impossible to open a database managed by a pool ");
     }
 
     /**

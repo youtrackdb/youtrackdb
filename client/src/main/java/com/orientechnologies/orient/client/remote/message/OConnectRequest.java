@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.core.OConstants;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
@@ -19,10 +19,10 @@ public class OConnectRequest implements OBinaryRequest<OConnectResponse> {
   private String username;
   private String password;
   private String driverName = StorageRemote.DRIVER_NAME;
-  private String driverVersion = OConstants.getRawVersion();
-  private short protocolVersion = OChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION;
+  private String driverVersion = YouTrackDBConstants.getRawVersion();
+  private short protocolVersion = ChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION;
   private String clientId = null;
-  private String recordFormat = ORecordSerializerNetworkV37.NAME;
+  private String recordFormat = RecordSerializerNetworkV37.NAME;
   private boolean tokenBased = true;
   private boolean supportPush = true;
   private boolean collectStats = true;
@@ -36,7 +36,7 @@ public class OConnectRequest implements OBinaryRequest<OConnectResponse> {
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     network.writeString(driverName);
     network.writeString(driverVersion);
@@ -53,8 +53,8 @@ public class OConnectRequest implements OBinaryRequest<OConnectResponse> {
   }
 
   @Override
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
-      ORecordSerializer serializer)
+  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+      RecordSerializer serializer)
       throws IOException {
 
     driverName = channel.readString();
@@ -63,13 +63,13 @@ public class OConnectRequest implements OBinaryRequest<OConnectResponse> {
     clientId = channel.readString();
     recordFormat = channel.readString();
 
-    if (this.protocolVersion > OChannelBinaryProtocol.PROTOCOL_VERSION_26) {
+    if (this.protocolVersion > ChannelBinaryProtocol.PROTOCOL_VERSION_26) {
       tokenBased = channel.readBoolean();
     } else {
       tokenBased = false;
     }
 
-    if (this.protocolVersion > OChannelBinaryProtocol.PROTOCOL_VERSION_33) {
+    if (this.protocolVersion > ChannelBinaryProtocol.PROTOCOL_VERSION_33) {
       supportPush = channel.readBoolean();
       collectStats = channel.readBoolean();
     } else {
@@ -83,7 +83,7 @@ public class OConnectRequest implements OBinaryRequest<OConnectResponse> {
 
   @Override
   public byte getCommand() {
-    return OChannelBinaryProtocol.REQUEST_CONNECT;
+    return ChannelBinaryProtocol.REQUEST_CONNECT;
   }
 
   @Override

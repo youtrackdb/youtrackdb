@@ -2,11 +2,11 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,9 +48,9 @@ public class SQLContainsAllCondition extends SQLBooleanExpression {
           boolean found = false;
           if (((Collection) left).contains(next)) {
             found = true;
-          } else if (next instanceof YTResult
-              && ((YTResult) next).isEntity()
-              && ((Collection) left).contains(((YTResult) next).toEntity())) {
+          } else if (next instanceof Result
+              && ((Result) next).isEntity()
+              && ((Collection) left).contains(((Result) next).toEntity())) {
             found = true;
           }
           if (!found) {
@@ -91,24 +91,24 @@ public class SQLContainsAllCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
+  public boolean evaluate(Identifiable currentRecord, CommandContext ctx) {
     Object leftValue = left.execute(currentRecord, ctx);
     if (right != null) {
       Object rightValue = right.execute(currentRecord, ctx);
       return execute(leftValue, rightValue);
     } else {
-      if (!OMultiValue.isMultiValue(leftValue)) {
+      if (!MultiValue.isMultiValue(leftValue)) {
         return false;
       }
-      Iterator<?> iter = OMultiValue.getMultiValueIterator(leftValue);
+      Iterator<?> iter = MultiValue.getMultiValueIterator(leftValue);
       while (iter.hasNext()) {
         Object item = iter.next();
-        if (item instanceof YTIdentifiable) {
-          if (!rightBlock.evaluate((YTIdentifiable) item, ctx)) {
+        if (item instanceof Identifiable) {
+          if (!rightBlock.evaluate((Identifiable) item, ctx)) {
             return false;
           }
-        } else if (item instanceof YTResult) {
-          if (!rightBlock.evaluate((YTResult) item, ctx)) {
+        } else if (item instanceof Result) {
+          if (!rightBlock.evaluate((Result) item, ctx)) {
             return false;
           }
         } else {
@@ -120,7 +120,7 @@ public class SQLContainsAllCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
+  public boolean evaluate(Result currentRecord, CommandContext ctx) {
     if (left.isFunctionAny()) {
       return evaluateAny(currentRecord, ctx);
     }
@@ -133,7 +133,7 @@ public class SQLContainsAllCondition extends SQLBooleanExpression {
     return evaluateSingle(leftValue, currentRecord, ctx);
   }
 
-  private boolean evaluateAllFunction(YTResult currentRecord, CommandContext ctx) {
+  private boolean evaluateAllFunction(Result currentRecord, CommandContext ctx) {
     for (String propertyName : currentRecord.getPropertyNames()) {
       Object leftValue = currentRecord.getProperty(propertyName);
       if (!evaluateSingle(leftValue, currentRecord, ctx)) {
@@ -143,7 +143,7 @@ public class SQLContainsAllCondition extends SQLBooleanExpression {
     return true;
   }
 
-  private boolean evaluateAny(YTResult currentRecord, CommandContext ctx) {
+  private boolean evaluateAny(Result currentRecord, CommandContext ctx) {
     for (String propertyName : currentRecord.getPropertyNames()) {
       Object leftValue = currentRecord.getProperty(propertyName);
       if (evaluateSingle(leftValue, currentRecord, ctx)) {
@@ -153,23 +153,23 @@ public class SQLContainsAllCondition extends SQLBooleanExpression {
     return false;
   }
 
-  private boolean evaluateSingle(Object leftValue, YTResult currentRecord, CommandContext ctx) {
+  private boolean evaluateSingle(Object leftValue, Result currentRecord, CommandContext ctx) {
     if (right != null) {
       Object rightValue = right.execute(currentRecord, ctx);
       return execute(leftValue, rightValue);
     } else {
-      if (!OMultiValue.isMultiValue(leftValue)) {
+      if (!MultiValue.isMultiValue(leftValue)) {
         return false;
       }
-      Iterator<?> iter = OMultiValue.getMultiValueIterator(leftValue);
+      Iterator<?> iter = MultiValue.getMultiValueIterator(leftValue);
       while (iter.hasNext()) {
         Object item = iter.next();
-        if (item instanceof YTIdentifiable) {
-          if (!rightBlock.evaluate((YTIdentifiable) item, ctx)) {
+        if (item instanceof Identifiable) {
+          if (!rightBlock.evaluate((Identifiable) item, ctx)) {
             return false;
           }
-        } else if (item instanceof YTResult) {
-          if (!rightBlock.evaluate((YTResult) item, ctx)) {
+        } else if (item instanceof Result) {
+          if (!rightBlock.evaluate((Result) item, ctx)) {
             return false;
           }
         } else {
@@ -355,7 +355,7 @@ public class SQLContainsAllCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     if (left != null && !left.isCacheable(session)) {
       return false;
     }

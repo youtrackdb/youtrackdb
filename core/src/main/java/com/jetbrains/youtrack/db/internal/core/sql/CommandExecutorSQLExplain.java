@@ -22,7 +22,7 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import java.util.Map;
@@ -59,7 +59,7 @@ public class CommandExecutorSQLExplain extends CommandExecutorSQLDelegate {
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     delegate.getContext().setRecordingMetrics(true);
 
     final long startTime = System.nanoTime();

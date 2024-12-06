@@ -19,13 +19,13 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentHelper;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStep;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,7 +47,7 @@ public class BasicCommandContext implements CommandContext {
   public static final String TIMEOUT_STRATEGY = "TIMEOUT_STARTEGY";
   public static final String INVALID_COMPARE_COUNT = "INVALID_COMPARE_COUNT";
 
-  protected YTDatabaseSessionInternal database;
+  protected DatabaseSessionInternal database;
   protected Object[] args;
 
   protected boolean recordMetrics = false;
@@ -72,7 +72,7 @@ public class BasicCommandContext implements CommandContext {
   public BasicCommandContext() {
   }
 
-  public BasicCommandContext(YTDatabaseSessionInternal session) {
+  public BasicCommandContext(DatabaseSessionInternal session) {
     this.database = session;
   }
 
@@ -91,7 +91,7 @@ public class BasicCommandContext implements CommandContext {
       iName = iName.substring(1);
     }
 
-    int pos = OStringSerializerHelper.getLowerIndexOf(iName, 0, ".", "[");
+    int pos = StringSerializerHelper.getLowerIndexOf(iName, 0, ".", "[");
 
     String firstPart;
     String lastPart;
@@ -106,7 +106,7 @@ public class BasicCommandContext implements CommandContext {
         if (lastPart.startsWith("$")) {
           result = parent.getVariable(lastPart.substring(1));
         } else {
-          result = ODocumentHelper.getFieldValue(getDatabase(), parent, lastPart);
+          result = DocumentHelper.getFieldValue(getDatabase(), parent, lastPart);
         }
 
         return result != null ? resolveValue(result) : iDefault;
@@ -120,7 +120,7 @@ public class BasicCommandContext implements CommandContext {
         if (lastPart.startsWith("$")) {
           result = p.getVariable(lastPart.substring(1));
         } else {
-          result = ODocumentHelper.getFieldValue(getDatabase(), p, lastPart, this);
+          result = DocumentHelper.getFieldValue(getDatabase(), p, lastPart, this);
         }
 
         return result != null ? resolveValue(result) : iDefault;
@@ -153,15 +153,15 @@ public class BasicCommandContext implements CommandContext {
     }
 
     if (pos > -1) {
-      result = ODocumentHelper.getFieldValue(getDatabase(), result, lastPart, this);
+      result = DocumentHelper.getFieldValue(getDatabase(), result, lastPart, this);
     }
 
     return result != null ? resolveValue(result) : iDefault;
   }
 
   private Object resolveValue(Object value) {
-    if (value instanceof ODynamicVariable) {
-      value = ((ODynamicVariable) value).resolve(this);
+    if (value instanceof DynamicVariable) {
+      value = ((DynamicVariable) value).resolve(this);
     }
     return value;
   }
@@ -176,7 +176,7 @@ public class BasicCommandContext implements CommandContext {
     return null;
   }
 
-  public CommandContext setDynamicVariable(String iName, final ODynamicVariable iValue) {
+  public CommandContext setDynamicVariable(String iName, final DynamicVariable iValue) {
     return setVariable(iName, iValue);
   }
 
@@ -191,7 +191,7 @@ public class BasicCommandContext implements CommandContext {
 
     init();
 
-    int pos = OStringSerializerHelper.getHigherIndexOf(iName, 0, ".", "[");
+    int pos = StringSerializerHelper.getHigherIndexOf(iName, 0, ".", "[");
     if (pos > -1) {
       Object nested = getVariable(iName.substring(0, pos));
       if (nested != null && nested instanceof CommandContext) {
@@ -238,7 +238,7 @@ public class BasicCommandContext implements CommandContext {
 
       init();
 
-      int pos = OStringSerializerHelper.getHigherIndexOf(iName, 0, ".", "[");
+      int pos = StringSerializerHelper.getHigherIndexOf(iName, 0, ".", "[");
       if (pos > -1) {
         Object nested = getVariable(iName.substring(0, pos));
         if (nested != null && nested instanceof CommandContext) {
@@ -249,7 +249,7 @@ public class BasicCommandContext implements CommandContext {
         if (v == null) {
           variables.put(iName, 1);
         } else if (v instanceof Number) {
-          variables.put(iName, YTType.increment((Number) v, 1));
+          variables.put(iName, PropertyType.increment((Number) v, 1));
         } else {
           throw new IllegalArgumentException(
               "Variable '" + iName + "' is not a number, but: " + v.getClass());
@@ -367,7 +367,7 @@ public class BasicCommandContext implements CommandContext {
           case RETURN:
             return false;
           case EXCEPTION:
-            throw new YTTimeoutException("Command execution timeout exceed (" + timeoutMs + "ms)");
+            throw new TimeoutException("Command execution timeout exceed (" + timeoutMs + "ms)");
         }
       }
     } else if (parent != null)
@@ -441,12 +441,12 @@ public class BasicCommandContext implements CommandContext {
   public synchronized boolean addToUniqueResult(Object o) {
     Object toAdd = o;
     if (o instanceof EntityImpl && ((EntityImpl) o).getIdentity().isNew()) {
-      toAdd = new ODocumentEqualityWrapper((EntityImpl) o);
+      toAdd = new DocumentEqualityWrapper((EntityImpl) o);
     }
     return this.uniqueResult.add(toAdd);
   }
 
-  public YTDatabaseSessionInternal getDatabase() {
+  public DatabaseSessionInternal getDatabase() {
     if (database != null) {
       return database;
     }
@@ -456,14 +456,14 @@ public class BasicCommandContext implements CommandContext {
     }
 
     if (database == null && !(this instanceof ServerCommandContext)) {
-      throw new YTDatabaseException("No database found in SQL context");
+      throw new DatabaseException("No database found in SQL context");
     }
 
     return database;
   }
 
 
-  public void setDatabase(YTDatabaseSessionInternal database) {
+  public void setDatabase(DatabaseSessionInternal database) {
     this.database = database;
 
     if (child != null) {

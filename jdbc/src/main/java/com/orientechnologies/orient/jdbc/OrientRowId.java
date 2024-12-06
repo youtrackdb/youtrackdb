@@ -13,14 +13,14 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 import java.sql.RowId;
 
 public class OrientRowId implements RowId {
 
-  protected final YTRID rid;
+  protected final RID rid;
 
-  public OrientRowId(final YTRID rid) {
+  public OrientRowId(final RID rid) {
     this.rid = rid;
   }
 

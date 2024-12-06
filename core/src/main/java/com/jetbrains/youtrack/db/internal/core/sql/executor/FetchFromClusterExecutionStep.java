@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.iterator.ORecordIteratorCluster;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
@@ -48,14 +48,14 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
     long minClusterPosition = calculateMinClusterPosition();
     long maxClusterPosition = calculateMaxClusterPosition();
-    ORecordIteratorCluster<Record> iterator =
-        new ORecordIteratorCluster<>(
+    RecordIteratorCluster<Record> iterator =
+        new RecordIteratorCluster<>(
             ctx.getDatabase(), clusterId, minClusterPosition, maxClusterPosition);
     Iterator<Record> iter;
     if (ORDER_DESC.equals(order)) {
@@ -107,7 +107,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
 
     for (SQLBooleanExpression ridRangeCondition : queryPlanning.ridRangeConditions.getSubBlocks()) {
       if (ridRangeCondition instanceof SQLBinaryCondition cond) {
-        YTRID conditionRid;
+        RID conditionRid;
 
         Object obj;
         if (cond.getRight().getRid() != null) {
@@ -115,12 +115,12 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
               ((SQLBinaryCondition) ridRangeCondition)
                   .getRight()
                   .getRid()
-                  .toRecordId((YTResult) null, ctx);
+                  .toRecordId((Result) null, ctx);
         } else {
-          obj = ((SQLBinaryCondition) ridRangeCondition).getRight().execute((YTResult) null, ctx);
+          obj = ((SQLBinaryCondition) ridRangeCondition).getRight().execute((Result) null, ctx);
         }
 
-        conditionRid = ((YTIdentifiable) obj).getIdentity();
+        conditionRid = ((Identifiable) obj).getIdentity();
         SQLBinaryCompareOperator operator = cond.getOperator();
         if (conditionRid != null) {
           if (conditionRid.getClusterId() != this.clusterId) {
@@ -166,15 +166,15 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("clusterId", clusterId);
     result.setProperty("order", order);
     return result;
   }
 
   @Override
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     try {
       ExecutionStepInternal.basicDeserialize(fromResult, this);
       this.clusterId = fromResult.getProperty("clusterId");
@@ -183,7 +183,7 @@ public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
         this.order = ORDER_ASC.equals(fromResult.getProperty("order")) ? ORDER_ASC : ORDER_DESC;
       }
     } catch (Exception e) {
-      throw YTException.wrapException(new YTCommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(""), e);
     }
   }
 

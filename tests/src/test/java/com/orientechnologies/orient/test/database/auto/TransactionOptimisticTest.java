@@ -15,17 +15,17 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConcurrentModificationException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentModificationException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
-import com.jetbrains.youtrack.db.internal.core.tx.YTRollbackException;
+import com.jetbrains.youtrack.db.internal.core.tx.RollbackException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -88,7 +88,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       database.addBlobCluster("binary");
     }
 
-    YTDatabaseSessionInternal db2 = acquireSession();
+    DatabaseSessionInternal db2 = acquireSession();
     database.activateOnCurrentThread();
     Blob record1 = new RecordBytes("This is the first version".getBytes());
 
@@ -102,9 +102,9 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       // RE-READ THE RECORD
       record1 = database.load(record1.getIdentity());
 
-      ODatabaseRecordThreadLocal.instance().set(db2);
+      DatabaseRecordThreadLocal.instance().set(db2);
       Blob record2 = db2.load(record1.getIdentity());
-      ORecordInternal.fill(
+      RecordInternal.fill(
           record2,
           record2.getIdentity(),
           record2.getVersion(),
@@ -114,8 +114,8 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       record2.save();
       db2.commit();
 
-      ODatabaseRecordThreadLocal.instance().set(database);
-      ORecordInternal.fill(
+      DatabaseRecordThreadLocal.instance().set(database);
+      RecordInternal.fill(
           record1,
           record1.getIdentity(),
           record1.getVersion(),
@@ -127,7 +127,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
       Assert.fail();
 
-    } catch (YTConcurrentModificationException e) {
+    } catch (ConcurrentModificationException e) {
       Assert.assertTrue(true);
       database.rollback();
 
@@ -156,7 +156,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       // RE-READ THE RECORD
       record = database.load(record.getIdentity());
       int v1 = record.getVersion();
-      ORecordInternal.fill(
+      RecordInternal.fill(
           record, record.getIdentity(), v1, "This is the second version".getBytes(), true);
       record.save();
       database.commit();
@@ -175,20 +175,20 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       database.addBlobCluster("binary");
     }
 
-    YTDatabaseSessionInternal db2 = acquireSession();
+    DatabaseSessionInternal db2 = acquireSession();
     Blob record1 = new RecordBytes("This is the first version".getBytes());
     db2.begin();
     record1.save();
     db2.commit();
 
     try {
-      ODatabaseRecordThreadLocal.instance().set(database);
+      DatabaseRecordThreadLocal.instance().set(database);
       database.begin();
 
       // RE-READ THE RECORD
       record1 = database.load(record1.getIdentity());
       int v1 = record1.getVersion();
-      ORecordInternal.fill(
+      RecordInternal.fill(
           record1, record1.getIdentity(), v1, "This is the second version".getBytes(), true);
       record1.save();
 
@@ -212,7 +212,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testTransactionOptimisticCacheMgmt2Db")
   public void testTransactionMultipleRecords() throws IOException {
-    final YTSchema schema = database.getMetadata().getSchema();
+    final Schema schema = database.getMetadata().getSchema();
 
     if (!schema.existsClass("Account")) {
       schema.createClass("Account");
@@ -240,7 +240,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
   @SuppressWarnings("unchecked")
   public void createGraphInTx() {
-    final YTSchema schema = database.getMetadata().getSchema();
+    final Schema schema = database.getMetadata().getSchema();
 
     if (!schema.existsClass("Profile")) {
       schema.createClass("Profile");
@@ -270,19 +270,19 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
     EntityImpl loadedJack = database.load(jack.getIdentity());
     Assert.assertEquals(loadedJack.field("name"), "Jack");
-    Collection<YTIdentifiable> jackFollowings = loadedJack.field("following");
+    Collection<Identifiable> jackFollowings = loadedJack.field("following");
     Assert.assertNotNull(jackFollowings);
     Assert.assertEquals(jackFollowings.size(), 1);
 
     var loadedKim = jackFollowings.iterator().next().getEntity();
     Assert.assertEquals(loadedKim.getProperty("name"), "Kim");
-    Collection<YTIdentifiable> kimFollowings = loadedKim.getProperty("following");
+    Collection<Identifiable> kimFollowings = loadedKim.getProperty("following");
     Assert.assertNotNull(kimFollowings);
     Assert.assertEquals(kimFollowings.size(), 1);
 
     var loadedTeri = kimFollowings.iterator().next().getEntity();
     Assert.assertEquals(loadedTeri.getProperty("name"), "Teri");
-    Collection<YTIdentifiable> teriFollowings = loadedTeri.getProperty("following");
+    Collection<Identifiable> teriFollowings = loadedTeri.getProperty("following");
     Assert.assertNotNull(teriFollowings);
     Assert.assertEquals(teriFollowings.size(), 1);
 
@@ -298,7 +298,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
         new Callable<Void>() {
           @Override
           public Void call() throws Exception {
-            final YTDatabaseSessionInternal db = acquireSession();
+            final DatabaseSessionInternal db = acquireSession();
             try {
               Assert.assertEquals(db.countClass("NestedTxClass"), 0);
             } finally {
@@ -309,7 +309,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
           }
         };
 
-    final YTSchema schema = database.getMetadata().getSchema();
+    final Schema schema = database.getMetadata().getSchema();
     if (!schema.existsClass("NestedTxClass")) {
       schema.createClass("NestedTxClass");
     }
@@ -354,7 +354,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
         new Callable<Void>() {
           @Override
           public Void call() throws Exception {
-            final YTDatabaseSessionInternal db = acquireSession();
+            final DatabaseSessionInternal db = acquireSession();
             try {
               Assert.assertEquals(db.countClass("NestedTxRollbackOne"), 1);
             } finally {
@@ -365,7 +365,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
           }
         };
 
-    final YTSchema schema = database.getMetadata().getSchema();
+    final Schema schema = database.getMetadata().getSchema();
     if (!schema.existsClass("NestedTxRollbackOne")) {
       schema.createClass("NestedTxRollbackOne");
     }
@@ -412,7 +412,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
       executorService
           .submit(
               () -> {
-                try (YTDatabaseSessionInternal db = acquireSession()) {
+                try (DatabaseSessionInternal db = acquireSession()) {
                   db.executeInTx(() -> {
                     EntityImpl brokenDocTwo = db.load(brokenRid);
                     brokenDocTwo.field("v", "vstr");
@@ -424,7 +424,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
       database.commit();
       Assert.fail();
-    } catch (YTConcurrentModificationException e) {
+    } catch (ConcurrentModificationException e) {
       database.rollback();
     }
 
@@ -433,7 +433,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
   }
 
   public void testNestedTxRollbackTwo() {
-    final YTSchema schema = database.getMetadata().getSchema();
+    final Schema schema = database.getMetadata().getSchema();
     if (!schema.existsClass("NestedTxRollbackTwo")) {
       schema.createClass("NestedTxRollbackTwo");
     }
@@ -454,7 +454,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
       database.begin();
       Assert.fail();
-    } catch (YTRollbackException e) {
+    } catch (RollbackException e) {
       database.rollback();
     }
 

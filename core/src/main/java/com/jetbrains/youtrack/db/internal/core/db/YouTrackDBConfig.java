@@ -19,12 +19,12 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.db.config.ONodeConfiguration;
-import com.jetbrains.youtrack.db.internal.core.security.ODefaultSecurityConfig;
-import com.jetbrains.youtrack.db.internal.core.security.OGlobalUser;
-import com.jetbrains.youtrack.db.internal.core.security.OSecurityConfig;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.db.config.NodeConfiguration;
+import com.jetbrains.youtrack.db.internal.core.security.GlobalUser;
+import com.jetbrains.youtrack.db.internal.core.security.DefaultSecurityConfig;
+import com.jetbrains.youtrack.db.internal.core.security.SecurityConfig;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,32 +42,32 @@ public class YouTrackDBConfig {
   public static final String LOCK_TYPE_READWRITE = "readwrite";
 
   private YouTrackDBConfig parent;
-  private YTContextConfiguration configurations;
+  private ContextConfiguration configurations;
   private Map<ATTRIBUTES, Object> attributes;
-  private Set<YTDatabaseListener> listeners;
+  private Set<DatabaseListener> listeners;
   private ClassLoader classLoader;
-  private ONodeConfiguration nodeConfiguration;
-  private final OSecurityConfig securityConfig;
-  private final List<OGlobalUser> users;
+  private NodeConfiguration nodeConfiguration;
+  private final SecurityConfig securityConfig;
+  private final List<GlobalUser> users;
 
   protected YouTrackDBConfig() {
-    configurations = new YTContextConfiguration();
+    configurations = new ContextConfiguration();
     attributes = new HashMap<>();
     parent = null;
     listeners = new HashSet<>();
     classLoader = this.getClass().getClassLoader();
-    this.securityConfig = new ODefaultSecurityConfig();
-    this.users = new ArrayList<OGlobalUser>();
+    this.securityConfig = new DefaultSecurityConfig();
+    this.users = new ArrayList<GlobalUser>();
   }
 
   protected YouTrackDBConfig(
-      YTContextConfiguration configurations,
+      ContextConfiguration configurations,
       Map<ATTRIBUTES, Object> attributes,
-      Set<YTDatabaseListener> listeners,
+      Set<DatabaseListener> listeners,
       ClassLoader classLoader,
-      ONodeConfiguration nodeConfiguration,
-      OSecurityConfig securityConfig,
-      List<OGlobalUser> users) {
+      NodeConfiguration nodeConfiguration,
+      SecurityConfig securityConfig,
+      List<GlobalUser> users) {
     this.configurations = configurations;
     this.attributes = attributes;
     parent = null;
@@ -94,11 +94,11 @@ public class YouTrackDBConfig {
     return new YouTrackDBConfigBuilder();
   }
 
-  public Set<YTDatabaseListener> getListeners() {
+  public Set<DatabaseListener> getListeners() {
     return listeners;
   }
 
-  public YTContextConfiguration getConfigurations() {
+  public ContextConfiguration getConfigurations() {
     return configurations;
   }
 
@@ -106,7 +106,7 @@ public class YouTrackDBConfig {
     return attributes;
   }
 
-  public ONodeConfiguration getNodeConfiguration() {
+  public NodeConfiguration getNodeConfiguration() {
     return nodeConfiguration;
   }
 
@@ -114,11 +114,11 @@ public class YouTrackDBConfig {
     return classLoader;
   }
 
-  public OSecurityConfig getSecurityConfig() {
+  public SecurityConfig getSecurityConfig() {
     return securityConfig;
   }
 
-  public List<OGlobalUser> getUsers() {
+  public List<GlobalUser> getUsers() {
     return users;
   }
 
@@ -135,7 +135,7 @@ public class YouTrackDBConfig {
       }
 
       if (parent.configurations != null) {
-        YTContextConfiguration confis = new YTContextConfiguration();
+        ContextConfiguration confis = new ContextConfiguration();
         confis.merge(parent.configurations);
         if (this.configurations != null) {
           confis.merge(this.configurations);
@@ -148,7 +148,7 @@ public class YouTrackDBConfig {
       }
 
       if (parent.listeners != null) {
-        Set<YTDatabaseListener> lis = new HashSet<>();
+        Set<DatabaseListener> lis = new HashSet<>();
         lis.addAll(parent.listeners);
         if (this.listeners != null) {
           lis.addAll(this.listeners);

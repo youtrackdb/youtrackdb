@@ -4,9 +4,9 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
@@ -26,8 +26,8 @@ public class SQLConsoleStatement extends SQLSimpleExecStatement {
 
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    YTResultInternal item = new YTResultInternal(ctx.getDatabase());
-    Object msg = "" + message.execute((YTIdentifiable) null, ctx);
+    ResultInternal item = new ResultInternal(ctx.getDatabase());
+    Object msg = "" + message.execute((Identifiable) null, ctx);
 
     if (logLevel.getStringValue().equalsIgnoreCase("log")) {
       LogManager.instance().info(this, "%s", msg);
@@ -41,7 +41,7 @@ public class SQLConsoleStatement extends SQLSimpleExecStatement {
     } else if (logLevel.getStringValue().equalsIgnoreCase("debug")) {
       LogManager.instance().debug(this, "%s", msg);
     } else {
-      throw new YTCommandExecutionException("Unsupported log level: " + logLevel);
+      throw new CommandExecutionException("Unsupported log level: " + logLevel);
     }
 
     item.setProperty("operation", "console");

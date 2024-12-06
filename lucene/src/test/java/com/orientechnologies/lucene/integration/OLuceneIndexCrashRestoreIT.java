@@ -5,13 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabasePool;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabasePool;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
 import java.io.File;
@@ -39,7 +39,7 @@ public class OLuceneIndexCrashRestoreIT {
   private List<String> names;
   private List<String> surnames;
   private YouTrackDB youTrackDB;
-  private ODatabasePool databasePool;
+  private DatabasePool databasePool;
   private static final String BUILD_DIRECTORY = "./target/testLuceneCrash";
 
   @Before
@@ -53,7 +53,7 @@ public class OLuceneIndexCrashRestoreIT {
     youTrackDB.execute(
         "create database testLuceneCrash plocal users (admin identified by 'admin' role admin)");
 
-    databasePool = new ODatabasePool(youTrackDB, "testLuceneCrash", "admin", "admin");
+    databasePool = new DatabasePool(youTrackDB, "testLuceneCrash", "admin", "admin");
 
     // names to be used for person to be indexed
     names =
@@ -130,8 +130,8 @@ public class OLuceneIndexCrashRestoreIT {
   @Test
   public void testEntriesAddition() throws Exception {
     List<DataPropagationTask> futures = new ArrayList<>();
-    YTDatabaseSessionInternal db;
-    YTResultSet res;
+    DatabaseSessionInternal db;
+    ResultSet res;
     try {
       createSchema(databasePool);
 
@@ -149,7 +149,7 @@ public class OLuceneIndexCrashRestoreIT {
         System.out.println("Wait for 30 seconds");
         TimeUnit.SECONDS.sleep(30);
 
-        db = (YTDatabaseSessionInternal) databasePool.acquire();
+        db = (DatabaseSessionInternal) databasePool.acquire();
         // wildcard will not work
         res = db.query("select from Person where name lucene 'Robert' ");
         assertThat(res).hasSize(0);
@@ -200,13 +200,13 @@ public class OLuceneIndexCrashRestoreIT {
 
     youTrackDB =
         new YouTrackDB("remote:localhost:3900", "root", "root", YouTrackDBConfig.defaultConfig());
-    databasePool = new ODatabasePool(youTrackDB, "testLuceneCrash", "admin", "admin");
+    databasePool = new DatabasePool(youTrackDB, "testLuceneCrash", "admin", "admin");
 
     // test query
-    db = (YTDatabaseSessionInternal) databasePool.acquire();
+    db = (DatabaseSessionInternal) databasePool.acquire();
     db.getMetadata().reload();
 
-    OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.name");
+    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.name");
     assertThat(index).isNotNull();
 
     // sometimes the metadata is null!!!!!
@@ -248,9 +248,9 @@ public class OLuceneIndexCrashRestoreIT {
     return futures;
   }
 
-  private void createSchema(ODatabasePool pool) {
+  private void createSchema(DatabasePool pool) {
 
-    final YTDatabaseSessionInternal db = (YTDatabaseSessionInternal) pool.acquire();
+    final DatabaseSessionInternal db = (DatabaseSessionInternal) pool.acquire();
 
     System.out.println("create index for db:: " + db.getURL());
     db.command("Create class Person");
@@ -302,11 +302,11 @@ public class OLuceneIndexCrashRestoreIT {
 
   public class DataPropagationTask implements Callable<Void> {
 
-    private final ODatabasePool pool;
+    private final DatabasePool pool;
 
     private volatile boolean stop;
 
-    public DataPropagationTask(ODatabasePool pool) {
+    public DataPropagationTask(DatabasePool pool) {
       stop = false;
       this.pool = pool;
     }
@@ -318,7 +318,7 @@ public class OLuceneIndexCrashRestoreIT {
     @Override
     public Void call() throws Exception {
 
-      YTDatabaseSession testDB = null;
+      DatabaseSession testDB = null;
       try {
         testDB = pool.acquire();
         while (!stop) {
@@ -330,7 +330,7 @@ public class OLuceneIndexCrashRestoreIT {
             testDB.commit();
           }
           if (id % 2000 == 0) {
-            final YTResultSet resultSet =
+            final ResultSet resultSet =
                 testDB.command("delete from Person where name lucene 'Robert' ");
             System.out.println(
                 Thread.currentThread().getName()

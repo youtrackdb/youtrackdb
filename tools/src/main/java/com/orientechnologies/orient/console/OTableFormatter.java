@@ -19,20 +19,20 @@
  */
 package com.orientechnologies.orient.console;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiCollectionIterator;
-import com.jetbrains.youtrack.db.internal.common.util.OCallable;
-import com.jetbrains.youtrack.db.internal.common.util.OPair;
-import com.jetbrains.youtrack.db.internal.common.util.OSizeable;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiCollectionIterator;
+import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
+import com.jetbrains.youtrack.db.internal.common.util.Pair;
+import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.id.YTImmutableRecordId;
+import com.jetbrains.youtrack.db.internal.core.id.ImmutableRecordId;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.util.ODateHelper;
+import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,7 +62,7 @@ public class OTableFormatter {
   protected static final SimpleDateFormat DEF_DATEFORMAT =
       new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
-  protected OPair<String, Boolean> columnSorting = null;
+  protected Pair<String, Boolean> columnSorting = null;
   protected final Map<String, ALIGNMENT> columnAlignment = new HashMap<String, ALIGNMENT>();
   protected final Map<String, Map<String, String>> columnMetadata =
       new HashMap<String, Map<String, String>>();
@@ -88,29 +88,29 @@ public class OTableFormatter {
   }
 
   public void setColumnSorting(final String column, final boolean ascending) {
-    columnSorting = new OPair<String, Boolean>(column, ascending);
+    columnSorting = new Pair<String, Boolean>(column, ascending);
   }
 
   public void setColumnHidden(final String column) {
     columnHidden.add(column);
   }
 
-  public void writeRecords(final List<? extends YTIdentifiable> resultSet, final int limit) {
+  public void writeRecords(final List<? extends Identifiable> resultSet, final int limit) {
     writeRecords(resultSet, limit, null);
   }
 
   public void writeRecords(
-      final List<? extends YTIdentifiable> resultSet,
+      final List<? extends Identifiable> resultSet,
       final int limit,
-      final OCallable<Object, YTIdentifiable> iAfterDump) {
+      final CallableFunction<Object, Identifiable> iAfterDump) {
     final Map<String, Integer> columns = parseColumns(resultSet, limit);
 
     if (columnSorting != null) {
       resultSet.sort(
           (Comparator<Object>)
               (o1, o2) -> {
-                final EntityImpl doc1 = ((YTIdentifiable) o1).getRecord();
-                final EntityImpl doc2 = ((YTIdentifiable) o2).getRecord();
+                final EntityImpl doc1 = ((Identifiable) o1).getRecord();
+                final EntityImpl doc2 = ((Identifiable) o2).getRecord();
                 final Object value1 = doc1.field(columnSorting.getKey());
                 final Object value2 = doc2.field(columnSorting.getKey());
                 final boolean ascending = columnSorting.getValue();
@@ -131,7 +131,7 @@ public class OTableFormatter {
     }
 
     int fetched = 0;
-    for (YTIdentifiable record : resultSet) {
+    for (Identifiable record : resultSet) {
       dumpRecordInTable(fetched++, record, columns);
       if (iAfterDump != null) {
         iAfterDump.call(record);
@@ -188,7 +188,7 @@ public class OTableFormatter {
   }
 
   public void dumpRecordInTable(
-      final int iIndex, final YTIdentifiable iRecord, final Map<String, Integer> iColumns) {
+      final int iIndex, final Identifiable iRecord, final Map<String, Integer> iColumns) {
     if (iIndex == 0) {
       printHeader(iColumns);
     }
@@ -282,7 +282,7 @@ public class OTableFormatter {
   }
 
   private Object getFieldValue(
-      final int iIndex, final YTIdentifiable iRecord, final String iColumnName) {
+      final int iIndex, final Identifiable iRecord, final String iColumnName) {
     Object value = null;
 
     if (iColumnName.equals("#"))
@@ -297,7 +297,7 @@ public class OTableFormatter {
       value = ((EntityImpl) iRecord).getProperty(iColumnName);
     } else if (iRecord instanceof Blob) {
       value = "<binary> (size=" + ((RecordAbstract) iRecord).toStream().length + " bytes)";
-    } else if (iRecord instanceof YTIdentifiable) {
+    } else if (iRecord instanceof Identifiable) {
       final Record rec = iRecord.getRecord();
       if (rec instanceof EntityImpl) {
         value = ((EntityImpl) rec).getProperty(iColumnName);
@@ -326,9 +326,9 @@ public class OTableFormatter {
     final StringBuilder value = new StringBuilder("[");
     for (int i = 0; iterator.hasNext(); i++) {
       if (i >= maxMultiValueEntries) {
-        if (iterator instanceof OSizeable) {
+        if (iterator instanceof Sizeable) {
           value.append("(size=");
-          value.append(((OSizeable) iterator).size());
+          value.append(((Sizeable) iterator).size());
           value.append(")");
         } else {
           value.append("(more)");
@@ -354,10 +354,10 @@ public class OTableFormatter {
   }
 
   public static Object getPrettyFieldValue(Object value, final int multiValueMaxEntries) {
-    if (value instanceof OMultiCollectionIterator<?>) {
+    if (value instanceof MultiCollectionIterator<?>) {
       value =
           getPrettyFieldMultiValue(
-              ((OMultiCollectionIterator<?>) value).iterator(), multiValueMaxEntries);
+              ((MultiCollectionIterator<?>) value).iterator(), multiValueMaxEntries);
     } else if (value instanceof RidBag) {
       value = getPrettyFieldMultiValue(((RidBag) value).iterator(), multiValueMaxEntries);
     } else if (value instanceof Iterator) {
@@ -365,15 +365,15 @@ public class OTableFormatter {
     } else if (value instanceof Collection<?>) {
       value = getPrettyFieldMultiValue(((Collection<?>) value).iterator(), multiValueMaxEntries);
     } else if (value instanceof Record) {
-      if (((Record) value).getIdentity().equals(YTImmutableRecordId.EMPTY_RECORD_ID)) {
+      if (((Record) value).getIdentity().equals(ImmutableRecordId.EMPTY_RECORD_ID)) {
         value = value.toString();
       } else {
         value = ((Record) value).getIdentity().toString();
       }
     } else if (value instanceof Date) {
-      final YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+      final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
       if (db != null) {
-        value = ODateHelper.getDateTimeFormatInstance(db).format((Date) value);
+        value = DateHelper.getDateTimeFormatInstance(db).format((Date) value);
       } else {
         value = DEF_DATEFORMAT.format((Date) value);
       }
@@ -524,7 +524,7 @@ public class OTableFormatter {
    * @return
    */
   private Map<String, Integer> parseColumns(
-      final Collection<? extends YTIdentifiable> resultSet, final int limit) {
+      final Collection<? extends Identifiable> resultSet, final int limit) {
     final Map<String, Integer> columns = new LinkedHashMap<String, Integer>();
 
     for (String c : prefixedColumns) {
@@ -535,7 +535,7 @@ public class OTableFormatter {
     boolean hasClass = false;
 
     int fetched = 0;
-    for (YTIdentifiable id : resultSet) {
+    for (Identifiable id : resultSet) {
       Record rec = id.getRecord();
 
       for (String c : prefixedColumns) {

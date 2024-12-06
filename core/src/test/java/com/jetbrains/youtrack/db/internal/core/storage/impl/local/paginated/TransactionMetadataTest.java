@@ -3,20 +3,20 @@ package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.tx.OTransactionId;
-import com.jetbrains.youtrack.db.internal.core.tx.OTransactionInternal;
-import com.jetbrains.youtrack.db.internal.core.tx.OTransactionSequenceStatus;
-import com.jetbrains.youtrack.db.internal.core.tx.OTxMetadataHolder;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionId;
+import com.jetbrains.youtrack.db.internal.core.tx.TransactionInternal;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionSequenceStatus;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransacationMetadataHolder;
 import java.io.File;
 import java.util.Optional;
 import org.junit.After;
@@ -26,25 +26,25 @@ import org.junit.Test;
 public class TransactionMetadataTest {
 
   private YouTrackDB youTrackDB;
-  private YTDatabaseSessionInternal db;
+  private DatabaseSessionInternal db;
   private static final String DB_NAME = TransactionMetadataTest.class.getSimpleName();
 
   @Before
   public void before() {
 
-    youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+    youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database `" + DB_NAME + "` plocal users(admin identified by 'admin' role admin)");
-    db = (YTDatabaseSessionInternal) youTrackDB.open(DB_NAME, "admin", "admin");
+    db = (DatabaseSessionInternal) youTrackDB.open(DB_NAME, "admin", "admin");
   }
 
   @Test
   public void testBackupRestore() {
     db.begin();
     byte[] metadata = new byte[]{1, 2, 4};
-    ((OTransactionInternal) db.getTransaction())
-        .setMetadataHolder(new TestMetadataHolder(metadata));
+    ((TransactionInternal) db.getTransaction())
+        .setMetadataHolder(new TestTransacationMetadataHolder(metadata));
     Vertex v = db.newVertex("V");
     v.setProperty("name", "Foo");
     db.save(v);
@@ -56,12 +56,12 @@ public class TransactionMetadataTest {
             DB_NAME + "_re",
             null,
             null,
-            ODatabaseType.PLOCAL,
+            DatabaseType.PLOCAL,
             "target/backup_metadata",
             YouTrackDBConfig.defaultConfig());
-    YTDatabaseSession db1 = youTrackDB.open(DB_NAME + "_re", "admin", "admin");
+    DatabaseSession db1 = youTrackDB.open(DB_NAME + "_re", "admin", "admin");
     Optional<byte[]> fromStorage =
-        ((AbstractPaginatedStorage) ((YTDatabaseSessionInternal) db1).getStorage())
+        ((AbstractPaginatedStorage) ((DatabaseSessionInternal) db1).getStorage())
             .getLastMetadata();
     assertTrue(fromStorage.isPresent());
     assertArrayEquals(fromStorage.get(), metadata);
@@ -78,11 +78,12 @@ public class TransactionMetadataTest {
     youTrackDB.close();
   }
 
-  private static class TestMetadataHolder implements OTxMetadataHolder {
+  private static class TestTransacationMetadataHolder implements
+      FrontendTransacationMetadataHolder {
 
     private final byte[] metadata;
 
-    public TestMetadataHolder(byte[] metadata) {
+    public TestTransacationMetadataHolder(byte[] metadata) {
       this.metadata = metadata;
     }
 
@@ -96,12 +97,12 @@ public class TransactionMetadataTest {
     }
 
     @Override
-    public OTransactionId getId() {
+    public FrontendTransactionId getId() {
       return null;
     }
 
     @Override
-    public OTransactionSequenceStatus getStatus() {
+    public FrontendTransactionSequenceStatus getStatus() {
       return null;
     }
   }

@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
-import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import java.util.Map;
 
 /**
@@ -12,10 +12,10 @@ import java.util.Map;
 public class ORebeginTransactionRequest extends OBeginTransactionRequest {
 
   public ORebeginTransactionRequest(
-      YTDatabaseSessionInternal session, int txId,
+      DatabaseSessionInternal session, int txId,
       boolean usingLong,
-      Iterable<ORecordOperation> operations,
-      Map<String, OTransactionIndexChanges> changes) {
+      Iterable<RecordOperation> operations,
+      Map<String, FrontendTransactionIndexChanges> changes) {
     super(session, txId, true, usingLong, operations, changes);
   }
 
@@ -24,7 +24,7 @@ public class ORebeginTransactionRequest extends OBeginTransactionRequest {
 
   @Override
   public byte getCommand() {
-    return OChannelBinaryProtocol.REQUEST_TX_REBEGIN;
+    return ChannelBinaryProtocol.REQUEST_TX_REBEGIN;
   }
 
   @Override

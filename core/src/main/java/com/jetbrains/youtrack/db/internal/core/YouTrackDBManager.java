@@ -19,27 +19,27 @@
  */
 package com.jetbrains.youtrack.db.internal.core;
 
-import com.jetbrains.youtrack.db.internal.common.directmemory.OByteBufferPool;
-import com.jetbrains.youtrack.db.internal.common.directmemory.ODirectMemoryAllocator;
+import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
+import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.common.listener.OListenerManger;
+import com.jetbrains.youtrack.db.internal.common.listener.ListenerManger;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.parser.OSystemVariableResolver;
+import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
 import com.jetbrains.youtrack.db.internal.common.profiler.AbstractProfiler;
-import com.jetbrains.youtrack.db.internal.common.profiler.OProfiler;
+import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
 import com.jetbrains.youtrack.db.internal.common.profiler.ProfilerStub;
-import com.jetbrains.youtrack.db.internal.common.util.OClassLoaderHelper;
-import com.jetbrains.youtrack.db.internal.core.cache.OLocalRecordCacheFactory;
-import com.jetbrains.youtrack.db.internal.core.cache.OLocalRecordCacheFactoryImpl;
+import com.jetbrains.youtrack.db.internal.common.util.ClassLoaderHelper;
+import com.jetbrains.youtrack.db.internal.core.cache.LocalRecordCacheFactory;
+import com.jetbrains.youtrack.db.internal.core.cache.LocalRecordCacheFactoryImpl;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.conflict.ORecordConflictStrategyFactory;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseLifecycleListener;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseThreadLocalFactory;
+import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategyFactory;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseLifecycleListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseThreadLocalFactory;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBEmbedded;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.engine.OEngine;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordFactoryManager;
-import com.jetbrains.youtrack.db.internal.core.shutdown.OShutdownHandler;
+import com.jetbrains.youtrack.db.internal.core.engine.Engine;
+import com.jetbrains.youtrack.db.internal.core.record.RecordFactoryManager;
+import com.jetbrains.youtrack.db.internal.core.shutdown.ShutdownHandler;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -66,7 +66,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
+public class YouTrackDBManager extends ListenerManger<YouTrackDBListener> {
 
   public static final String YOU_TRACK_DB_HOME = "YOU_TRACK_DB_HOME";
   public static final String URL_SYNTAX =
@@ -77,15 +77,15 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
 
   private static volatile boolean registerDatabaseByPath = false;
 
-  private final ConcurrentMap<String, OEngine> engines = new ConcurrentHashMap<String, OEngine>();
+  private final ConcurrentMap<String, Engine> engines = new ConcurrentHashMap<String, Engine>();
 
-  private final Map<ODatabaseLifecycleListener, ODatabaseLifecycleListener.PRIORITY>
+  private final Map<DatabaseLifecycleListener, DatabaseLifecycleListener.PRIORITY>
       dbLifecycleListeners =
-      new LinkedHashMap<ODatabaseLifecycleListener, ODatabaseLifecycleListener.PRIORITY>();
+      new LinkedHashMap<DatabaseLifecycleListener, DatabaseLifecycleListener.PRIORITY>();
   private final ThreadGroup threadGroup;
   private final ReadWriteLock engineLock = new ReentrantReadWriteLock();
-  private final ORecordConflictStrategyFactory recordConflictStrategy =
-      new ORecordConflictStrategyFactory();
+  private final RecordConflictStrategyFactory recordConflictStrategy =
+      new RecordConflictStrategyFactory();
   private final ReferenceQueue<YouTrackDBStartupListener> removedStartupListenersQueue =
       new ReferenceQueue<YouTrackDBStartupListener>();
   private final ReferenceQueue<YouTrackDBShutdownListener> removedShutdownListenersQueue =
@@ -99,12 +99,12 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
       Collections.newSetFromMap(
           new ConcurrentHashMap<WeakHashSetValueHolder<YouTrackDBShutdownListener>, Boolean>());
 
-  private final PriorityQueue<OShutdownHandler> shutdownHandlers =
-      new PriorityQueue<OShutdownHandler>(
+  private final PriorityQueue<ShutdownHandler> shutdownHandlers =
+      new PriorityQueue<ShutdownHandler>(
           11,
-          new Comparator<OShutdownHandler>() {
+          new Comparator<ShutdownHandler>() {
             @Override
-            public int compare(OShutdownHandler handlerOne, OShutdownHandler handlerTwo) {
+            public int compare(ShutdownHandler handlerOne, ShutdownHandler handlerTwo) {
               if (handlerOne.getPriority() > handlerTwo.getPriority()) {
                 return 1;
               }
@@ -117,7 +117,7 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
             }
           });
 
-  private final OLocalRecordCacheFactory localRecordCache = new OLocalRecordCacheFactoryImpl();
+  private final LocalRecordCacheFactory localRecordCache = new LocalRecordCacheFactoryImpl();
 
   private final Set<YouTrackDBEmbedded> factories =
       Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -127,12 +127,12 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
   private final String os;
 
   private volatile Timer timer;
-  private volatile ORecordFactoryManager recordFactoryManager = new ORecordFactoryManager();
+  private volatile RecordFactoryManager recordFactoryManager = new RecordFactoryManager();
   private YouTrackDBShutdownHook shutdownHook;
   private volatile AbstractProfiler profiler;
-  private ODatabaseThreadLocalFactory databaseThreadFactory;
+  private DatabaseThreadLocalFactory databaseThreadFactory;
   private volatile boolean active = false;
-  private OSignalHandler signalHandler;
+  private SignalHandler signalHandler;
 
   /**
    * Indicates that engine is initialized inside of web application container.
@@ -235,7 +235,7 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
     String v = System.getProperty("orient.home");
 
     if (v == null) {
-      v = OSystemVariableResolver.resolveVariable(YOU_TRACK_DB_HOME);
+      v = SystemVariableResolver.resolveVariable(YOU_TRACK_DB_HOME);
     }
 
     return FileUtils.getPath(v);
@@ -263,7 +263,7 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
     registerDatabaseByPath = iValue;
   }
 
-  public ORecordConflictStrategyFactory getRecordConflictStrategy() {
+  public RecordConflictStrategyFactory getRecordConflictStrategy() {
     return recordConflictStrategy;
   }
 
@@ -284,7 +284,7 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
 
       shutdownHook = new YouTrackDBShutdownHook();
       if (signalHandler == null) {
-        signalHandler = new OSignalHandler();
+        signalHandler = new SignalHandler();
         signalHandler.installDefaultSignals();
       }
 
@@ -335,7 +335,7 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
    *
    * @param shutdownHandler Shutdown handler instance.
    */
-  public void addShutdownHandler(OShutdownHandler shutdownHandler) {
+  public void addShutdownHandler(ShutdownHandler shutdownHandler) {
     engineLock.writeLock().lock();
     try {
       shutdownHandlers.add(shutdownHandler);
@@ -357,7 +357,7 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
   /**
    * Shutdown whole YouTrackDB ecosystem. Usually is called during JVM shutdown by JVM shutdown
    * handler. During shutdown all handlers which were registered by the call of
-   * {@link #addShutdownHandler(OShutdownHandler)} are called together with pre-registered system
+   * {@link #addShutdownHandler(ShutdownHandler)} are called together with pre-registered system
    * shoutdown handlers according to their priority.
    *
    * @see OShutdownWorkersHandler
@@ -366,10 +366,10 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
   private void registerEngines() {
     ClassLoader classLoader = YouTrackDBManager.class.getClassLoader();
 
-    Iterator<OEngine> engines =
-        OClassLoaderHelper.lookupProviderWithYouTrackDBClassLoader(OEngine.class, classLoader);
+    Iterator<Engine> engines =
+        ClassLoaderHelper.lookupProviderWithYouTrackDBClassLoader(Engine.class, classLoader);
 
-    OEngine engine = null;
+    Engine engine = null;
     while (engines.hasNext()) {
       try {
         engine = engines.next();
@@ -392,7 +392,7 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
       active = false;
 
       LogManager.instance().info(this, "Orient Engine is shutting down...");
-      for (OShutdownHandler handler : shutdownHandlers) {
+      for (ShutdownHandler handler : shutdownHandlers) {
         try {
           LogManager.instance().debug(this, "Shutdown handler %s is going to be called", handler);
           handler.shutdown();
@@ -406,10 +406,10 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
       shutdownHandlers.clear();
 
       LogManager.instance().info(this, "Clearing byte buffer pool");
-      OByteBufferPool.instance(null).clear();
+      ByteBufferPool.instance(null).clear();
 
-      OByteBufferPool.instance(null).checkMemoryLeaks();
-      ODirectMemoryAllocator.instance().checkMemoryLeaks();
+      ByteBufferPool.instance(null).checkMemoryLeaks();
+      DirectMemoryAllocator.instance().checkMemoryLeaks();
 
       LogManager.instance().info(this, "YouTrackDB Engine shutdown complete");
       LogManager.instance().flush();
@@ -520,11 +520,11 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
     return os.contains("win");
   }
 
-  public void registerEngine(final OEngine iEngine) throws IllegalArgumentException {
-    OEngine oEngine = engines.get(iEngine.getName());
+  public void registerEngine(final Engine iEngine) throws IllegalArgumentException {
+    Engine engine = engines.get(iEngine.getName());
 
-    if (oEngine != null) {
-      if (!oEngine.getClass().isAssignableFrom(iEngine.getClass())) {
+    if (engine != null) {
+      if (!engine.getClass().isAssignableFrom(iEngine.getClass())) {
         throw new IllegalArgumentException("Cannot replace storage " + iEngine.getName());
       }
     }
@@ -535,9 +535,9 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
    * Returns the engine by its name.
    *
    * @param engineName Engine name to retrieve
-   * @return OEngine instance of found, otherwise null
+   * @return Engine instance of found, otherwise null
    */
-  public OEngine getEngine(final String engineName) {
+  public Engine getEngine(final String engineName) {
     engineLock.readLock().lock();
     try {
       return engines.get(engineName);
@@ -547,17 +547,17 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
   }
 
   /**
-   * Obtains an {@link OEngine engine} instance with the given {@code engineName}, if it is
-   * {@link OEngine#isRunning() running}.
+   * Obtains an {@link Engine engine} instance with the given {@code engineName}, if it is
+   * {@link Engine#isRunning() running}.
    *
    * @param engineName the name of the engine to obtain.
    * @return the obtained engine instance or {@code null} if no such engine known or the engine is
    * not running.
    */
-  public OEngine getEngineIfRunning(final String engineName) {
+  public Engine getEngineIfRunning(final String engineName) {
     engineLock.readLock().lock();
     try {
-      final OEngine engine = engines.get(engineName);
+      final Engine engine = engines.get(engineName);
       return engine == null || !engine.isRunning() ? null : engine;
     } finally {
       engineLock.readLock().unlock();
@@ -565,17 +565,17 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
   }
 
   /**
-   * Obtains a {@link OEngine#isRunning() running} {@link OEngine engine} instance with the given
+   * Obtains a {@link Engine#isRunning() running} {@link Engine engine} instance with the given
    * {@code engineName}. If engine is not running, starts it.
    *
    * @param engineName the name of the engine to obtain.
    * @return the obtained running engine instance, never {@code null}.
    * @throws IllegalStateException if an engine with the given is not found or failed to start.
    */
-  public OEngine getRunningEngine(final String engineName) {
+  public Engine getRunningEngine(final String engineName) {
     engineLock.readLock().lock();
     try {
-      OEngine engine = engines.get(engineName);
+      Engine engine = engines.get(engineName);
       if (engine == null) {
         throw new IllegalStateException("Engine '" + engineName + "' is not found.");
       }
@@ -614,7 +614,7 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
     }
   }
 
-  public OSignalHandler getSignalHandler() {
+  public SignalHandler getSignalHandler() {
     return signalHandler;
   }
 
@@ -629,13 +629,13 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
     return shutdownHook != null;
   }
 
-  public Iterator<ODatabaseLifecycleListener> getDbLifecycleListeners() {
+  public Iterator<DatabaseLifecycleListener> getDbLifecycleListeners() {
     return new LinkedHashSet<>(dbLifecycleListeners.keySet()).iterator();
   }
 
-  public void addDbLifecycleListener(final ODatabaseLifecycleListener iListener) {
-    final Map<ODatabaseLifecycleListener, ODatabaseLifecycleListener.PRIORITY> tmp =
-        new LinkedHashMap<ODatabaseLifecycleListener, ODatabaseLifecycleListener.PRIORITY>(
+  public void addDbLifecycleListener(final DatabaseLifecycleListener iListener) {
+    final Map<DatabaseLifecycleListener, DatabaseLifecycleListener.PRIORITY> tmp =
+        new LinkedHashMap<DatabaseLifecycleListener, DatabaseLifecycleListener.PRIORITY>(
             dbLifecycleListeners);
     if (iListener.getPriority() == null) {
       throw new IllegalArgumentException(
@@ -644,8 +644,8 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
 
     tmp.put(iListener, iListener.getPriority());
     dbLifecycleListeners.clear();
-    for (ODatabaseLifecycleListener.PRIORITY p : ODatabaseLifecycleListener.PRIORITY.values()) {
-      for (Map.Entry<ODatabaseLifecycleListener, ODatabaseLifecycleListener.PRIORITY> e :
+    for (DatabaseLifecycleListener.PRIORITY p : DatabaseLifecycleListener.PRIORITY.values()) {
+      for (Map.Entry<DatabaseLifecycleListener, DatabaseLifecycleListener.PRIORITY> e :
           tmp.entrySet()) {
         if (e.getValue() == p) {
           dbLifecycleListeners.put(e.getKey(), e.getValue());
@@ -654,7 +654,7 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
     }
   }
 
-  public void removeDbLifecycleListener(final ODatabaseLifecycleListener iListener) {
+  public void removeDbLifecycleListener(final DatabaseLifecycleListener iListener) {
     dbLifecycleListeners.remove(iListener);
   }
 
@@ -662,19 +662,19 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
     return threadGroup;
   }
 
-  public ODatabaseThreadLocalFactory getDatabaseThreadFactory() {
+  public DatabaseThreadLocalFactory getDatabaseThreadFactory() {
     return databaseThreadFactory;
   }
 
-  public ORecordFactoryManager getRecordFactoryManager() {
+  public RecordFactoryManager getRecordFactoryManager() {
     return recordFactoryManager;
   }
 
-  public void setRecordFactoryManager(final ORecordFactoryManager iRecordFactoryManager) {
+  public void setRecordFactoryManager(final RecordFactoryManager iRecordFactoryManager) {
     recordFactoryManager = iRecordFactoryManager;
   }
 
-  public OProfiler getProfiler() {
+  public Profiler getProfiler() {
     return profiler;
   }
 
@@ -682,7 +682,7 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
     profiler = iProfiler;
   }
 
-  public void registerThreadDatabaseFactory(final ODatabaseThreadLocalFactory iDatabaseFactory) {
+  public void registerThreadDatabaseFactory(final DatabaseThreadLocalFactory iDatabaseFactory) {
     databaseThreadFactory = iDatabaseFactory;
   }
 
@@ -748,7 +748,7 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
     weakStartupListeners.clear();
   }
 
-  public OLocalRecordCacheFactory getLocalRecordCache() {
+  public LocalRecordCacheFactory getLocalRecordCache() {
     return localRecordCache;
   }
 
@@ -775,7 +775,7 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
     }
   }
 
-  private boolean startEngine(OEngine engine) {
+  private boolean startEngine(Engine engine) {
     final String name = engine.getName();
 
     try {
@@ -801,7 +801,7 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
   /**
    * Closes all storages and shutdown all engines.
    */
-  public class ShutdownYouTrackDBInstancesHandler implements OShutdownHandler {
+  public class ShutdownYouTrackDBInstancesHandler implements ShutdownHandler {
 
     @Override
     public int getPriority() {
@@ -826,7 +826,7 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
    * Interrupts all threads in YouTrackDB thread group and stops timer is used in methods
    * {@link #scheduleTask(Runnable, Date, long)} and {@link #scheduleTask(Runnable, long, long)}.
    */
-  private class ShutdownPendingThreadsHandler implements OShutdownHandler {
+  private class ShutdownPendingThreadsHandler implements ShutdownHandler {
 
     @Override
     public int getPriority() {
@@ -858,7 +858,7 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
   /**
    * Shutdown YouTrackDB profiler.
    */
-  private class ShutdownProfilerHandler implements OShutdownHandler {
+  private class ShutdownProfilerHandler implements ShutdownHandler {
 
     @Override
     public int getPriority() {
@@ -880,7 +880,7 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
   /**
    * Calls all shutdown listeners.
    */
-  private class ShutdownCallListenersHandler implements OShutdownHandler {
+  private class ShutdownCallListenersHandler implements ShutdownHandler {
 
     @Override
     public int getPriority() {
@@ -925,11 +925,11 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
   }
 
   public void onEmbeddedFactoryInit(YouTrackDBEmbedded embeddedFactory) {
-    OEngine memory = engines.get("memory");
+    Engine memory = engines.get("memory");
     if (memory != null && !memory.isRunning()) {
       memory.startup();
     }
-    OEngine disc = engines.get("plocal");
+    Engine disc = engines.get("plocal");
     if (disc != null && !disc.isRunning()) {
       disc.startup();
     }
@@ -939,11 +939,11 @@ public class YouTrackDBManager extends OListenerManger<YouTrackDBListener> {
   public void onEmbeddedFactoryClose(YouTrackDBEmbedded embeddedFactory) {
     factories.remove(embeddedFactory);
     if (factories.isEmpty()) {
-      OEngine memory = engines.get("memory");
+      Engine memory = engines.get("memory");
       if (memory != null && memory.isRunning()) {
         memory.shutdown();
       }
-      OEngine disc = engines.get("plocal");
+      Engine disc = engines.get("plocal");
       if (disc != null && disc.isRunning()) {
         disc.shutdown();
       }

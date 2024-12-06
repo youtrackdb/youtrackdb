@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ public class SQLCommitStatement extends SQLSimpleExecStatement {
   public ExecutionStream executeSimple(CommandContext ctx) {
     var db = ctx.getDatabase();
     db.commit(); // no RETRY and ELSE here, that case is allowed only for batch scripts;
-    YTResultInternal item = new YTResultInternal(db);
+    ResultInternal item = new ResultInternal(db);
     item.setProperty("operation", "commit");
     return ExecutionStream.singleton(item);
   }

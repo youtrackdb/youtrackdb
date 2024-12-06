@@ -18,10 +18,10 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,10 +37,10 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
   @Before
   public void init() {
 
-    YTClass type = db.createVertexClass("City");
-    type.createProperty(db, "latitude", YTType.DOUBLE);
-    type.createProperty(db, "longitude", YTType.DOUBLE);
-    type.createProperty(db, "name", YTType.STRING);
+    SchemaClass type = db.createVertexClass("City");
+    type.createProperty(db, "latitude", PropertyType.DOUBLE);
+    type.createProperty(db, "longitude", PropertyType.DOUBLE);
+    type.createProperty(db, "name", PropertyType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
@@ -62,7 +62,7 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
 
     db.begin();
 
-    YTResultSet resultSet = db.query("SELECT from City where name = 'London / a' ");
+    ResultSet resultSet = db.query("SELECT from City where name = 'London / a' ");
 
     Assertions.assertThat(resultSet).hasSize(1);
 
@@ -73,12 +73,12 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
 
   @Test
   public void testGetVericesFilterClass() {
-    YTClass v = db.getClass("V");
-    v.createProperty(db, "name", YTType.STRING);
+    SchemaClass v = db.getClass("V");
+    v.createProperty(db, "name", PropertyType.STRING);
     db.command("CREATE INDEX V.name ON V(name) NOTUNIQUE");
 
-    YTClass oneClass = db.createVertexClass("One");
-    YTClass twoClass = db.createVertexClass("Two");
+    SchemaClass oneClass = db.createVertexClass("One");
+    SchemaClass twoClass = db.createVertexClass("Two");
 
     Vertex one = db.newVertex(oneClass);
     one.setProperty("name", "Same");
@@ -93,7 +93,7 @@ public class GraphEmbeddedTest extends BaseLuceneTest {
     db.save(two);
     db.commit();
 
-    YTResultSet resultSet = db.query("SELECT from One where name = 'Same' ");
+    ResultSet resultSet = db.query("SELECT from One where name = 'Same' ");
 
     Assertions.assertThat(resultSet).hasSize(1);
   }

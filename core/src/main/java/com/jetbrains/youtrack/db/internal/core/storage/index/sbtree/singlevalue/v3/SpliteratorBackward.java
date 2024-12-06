@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.singlevalue.v3;
 
-import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.LogSequenceNumber;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-public final class SpliteratorBackward<K> implements Spliterator<ORawPair<K, YTRID>> {
+public final class SpliteratorBackward<K> implements Spliterator<RawPair<K, RID>> {
 
   /**
    *
@@ -26,10 +26,10 @@ public final class SpliteratorBackward<K> implements Spliterator<ORawPair<K, YTR
   private int pageIndex = -1;
   private int itemIndex = -1;
 
-  private OLogSequenceNumber lastLSN = null;
+  private LogSequenceNumber lastLSN = null;
 
-  private final List<ORawPair<K, YTRID>> dataCache = new ArrayList<>();
-  private Iterator<ORawPair<K, YTRID>> cacheIterator = Collections.emptyIterator();
+  private final List<RawPair<K, RID>> dataCache = new ArrayList<>();
+  private Iterator<RawPair<K, RID>> cacheIterator = Collections.emptyIterator();
 
   public SpliteratorBackward(
       CellBTreeSingleValueV3<K> cellBTreeSingleValueV3,
@@ -45,7 +45,7 @@ public final class SpliteratorBackward<K> implements Spliterator<ORawPair<K, YTR
   }
 
   @Override
-  public boolean tryAdvance(Consumer<? super ORawPair<K, YTRID>> action) {
+  public boolean tryAdvance(Consumer<? super RawPair<K, RID>> action) {
     if (cacheIterator == null) {
       return false;
     }
@@ -70,7 +70,7 @@ public final class SpliteratorBackward<K> implements Spliterator<ORawPair<K, YTR
   }
 
   @Override
-  public Spliterator<ORawPair<K, YTRID>> trySplit() {
+  public Spliterator<RawPair<K, RID>> trySplit() {
     return null;
   }
 
@@ -85,7 +85,7 @@ public final class SpliteratorBackward<K> implements Spliterator<ORawPair<K, YTR
   }
 
   @Override
-  public Comparator<? super ORawPair<K, YTRID>> getComparator() {
+  public Comparator<? super RawPair<K, RID>> getComparator() {
     return (pairOne, pairTwo) -> -btree.comparator.compare(pairOne.first, pairTwo.first);
   }
 
@@ -105,15 +105,15 @@ public final class SpliteratorBackward<K> implements Spliterator<ORawPair<K, YTR
     this.pageIndex = pageIndex;
   }
 
-  List<ORawPair<K, YTRID>> getDataCache() {
+  List<RawPair<K, RID>> getDataCache() {
     return dataCache;
   }
 
-  OLogSequenceNumber getLastLSN() {
+  LogSequenceNumber getLastLSN() {
     return lastLSN;
   }
 
-  void setLastLSN(OLogSequenceNumber lastLSN) {
+  void setLastLSN(LogSequenceNumber lastLSN) {
     this.lastLSN = lastLSN;
   }
 
@@ -133,7 +133,7 @@ public final class SpliteratorBackward<K> implements Spliterator<ORawPair<K, YTR
     return toKeyInclusive;
   }
 
-  public void setCacheIterator(Iterator<ORawPair<K, YTRID>> cacheIterator) {
+  public void setCacheIterator(Iterator<RawPair<K, RID>> cacheIterator) {
     this.cacheIterator = cacheIterator;
   }
 }

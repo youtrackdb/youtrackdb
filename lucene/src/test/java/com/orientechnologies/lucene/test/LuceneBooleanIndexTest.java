@@ -18,11 +18,11 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -42,11 +42,11 @@ public class LuceneBooleanIndexTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass v = schema.getClass("V");
-    YTClass song = schema.createClass("Person");
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass v = schema.getClass("V");
+    SchemaClass song = schema.createClass("Person");
     song.setSuperClass(db, v);
-    song.createProperty(db, "isDeleted", YTType.BOOLEAN);
+    song.createProperty(db, "isDeleted", PropertyType.BOOLEAN);
 
     db.command("create index Person.isDeleted on Person (isDeleted) FULLTEXT ENGINE LUCENE")
         .close();
@@ -63,7 +63,7 @@ public class LuceneBooleanIndexTest extends BaseLuceneTest {
       db.commit();
     }
 
-    YTResultSet docs = db.query("select from Person where isDeleted lucene false");
+    ResultSet docs = db.query("select from Person where isDeleted lucene false");
 
     Assert.assertEquals(
         500, docs.stream().filter((doc) -> !((Boolean) doc.getProperty("isDeleted"))).count());

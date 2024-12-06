@@ -2,13 +2,13 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -77,12 +77,12 @@ public class SQLRightBinaryCondition extends SimpleNode {
     }
   }
 
-  public Object execute(YTResult iCurrentRecord, Object elementToFilter, CommandContext ctx) {
+  public Object execute(Result iCurrentRecord, Object elementToFilter, CommandContext ctx) {
     if (elementToFilter == null) {
       return null;
     }
     Iterator iterator;
-    if (elementToFilter instanceof YTIdentifiable) {
+    if (elementToFilter instanceof Identifiable) {
       iterator = Collections.singleton(elementToFilter).iterator();
     } else if (elementToFilter instanceof Iterable) {
       iterator = ((Iterable) elementToFilter).iterator();
@@ -102,13 +102,13 @@ public class SQLRightBinaryCondition extends SimpleNode {
     return result;
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, Object elementToFilter,
+  public Object execute(Identifiable iCurrentRecord, Object elementToFilter,
       CommandContext ctx) {
     if (elementToFilter == null) {
       return null;
     }
     Iterator iterator;
-    if (elementToFilter instanceof YTIdentifiable) {
+    if (elementToFilter instanceof Identifiable) {
       iterator = Collections.singleton(elementToFilter).iterator();
     } else if (elementToFilter instanceof Iterable) {
       iterator = ((Iterable) elementToFilter).iterator();
@@ -129,7 +129,7 @@ public class SQLRightBinaryCondition extends SimpleNode {
   }
 
   private boolean matchesFilters(
-      YTIdentifiable iCurrentRecord, Object element, CommandContext ctx) {
+      Identifiable iCurrentRecord, Object element, CommandContext ctx) {
     if (operator != null) {
       operator.execute(element, right.execute(iCurrentRecord, ctx));
     } else if (inOperator != null) {
@@ -147,7 +147,7 @@ public class SQLRightBinaryCondition extends SimpleNode {
     return false;
   }
 
-  private boolean matchesFilters(YTResult iCurrentRecord, Object element, CommandContext ctx) {
+  private boolean matchesFilters(Result iCurrentRecord, Object element, CommandContext ctx) {
     if (operator != null) {
       return operator.execute(element, right.execute(iCurrentRecord, ctx));
     } else if (inOperator != null) {
@@ -165,11 +165,11 @@ public class SQLRightBinaryCondition extends SimpleNode {
     return false;
   }
 
-  public Object evaluateRight(YTIdentifiable currentRecord, CommandContext ctx) {
+  public Object evaluateRight(Identifiable currentRecord, CommandContext ctx) {
     return right.execute(currentRecord, ctx);
   }
 
-  public Object evaluateRight(YTResult currentRecord, CommandContext ctx) {
+  public Object evaluateRight(Result currentRecord, CommandContext ctx) {
     return right.execute(currentRecord, ctx);
   }
 
@@ -187,8 +187,8 @@ public class SQLRightBinaryCondition extends SimpleNode {
     return right != null && right.refersToParent();
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("operator", operator.getClass().getName());
     result.setProperty("not", not);
     result.setProperty("in", inOperator != null);
@@ -196,13 +196,13 @@ public class SQLRightBinaryCondition extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     try {
       operator =
           (SQLBinaryCompareOperator)
               Class.forName(String.valueOf(fromResult.getProperty("operator"))).newInstance();
     } catch (Exception e) {
-      throw YTException.wrapException(new YTCommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(""), e);
     }
     not = fromResult.getProperty("not");
     if (Boolean.TRUE.equals(fromResult.getProperty("in"))) {

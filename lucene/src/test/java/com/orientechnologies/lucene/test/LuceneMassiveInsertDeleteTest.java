@@ -18,12 +18,12 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,11 +38,11 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass v = schema.getClass("V");
-    YTClass song = schema.createClass("City");
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass v = schema.getClass("V");
+    SchemaClass song = schema.createClass("City");
     song.addSuperClass(db, v);
-    song.createProperty(db, "name", YTType.STRING);
+    song.createProperty(db, "name", PropertyType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
@@ -60,7 +60,7 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
       db.commit();
     }
     String query = "select * from City where name LUCENE 'name:Rome'";
-    YTResultSet docs = db.query(query);
+    ResultSet docs = db.query(query);
     Assert.assertEquals(docs.stream().count(), size);
 
     db.close();
@@ -84,7 +84,7 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
     db.getMetadata().reload();
 
     db.begin();
-    OIndex idx = db.getMetadata().getSchema().getClass("City").getClassIndex(db, "City.name");
+    Index idx = db.getMetadata().getSchema().getClass("City").getClassIndex(db, "City.name");
     Assert.assertEquals(idx.getInternal().size(db), 0);
     db.commit();
   }

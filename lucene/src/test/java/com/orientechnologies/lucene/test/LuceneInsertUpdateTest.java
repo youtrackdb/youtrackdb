@@ -18,12 +18,12 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -44,17 +44,17 @@ public class LuceneInsertUpdateTest extends BaseLuceneTest {
   @Before
   public void init() {
 
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass oClass = schema.createClass("City");
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass oClass = schema.createClass("City");
 
-    oClass.createProperty(db, "name", YTType.STRING);
+    oClass.createProperty(db, "name", PropertyType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
 
   @Test
   public void testInsertUpdateWithIndex() {
 
-    YTSchema schema = db.getMetadata().getSchema();
+    Schema schema = db.getMetadata().getSchema();
 
     db.begin();
     EntityImpl doc = new EntityImpl("City");
@@ -64,14 +64,14 @@ public class LuceneInsertUpdateTest extends BaseLuceneTest {
     db.commit();
 
     db.begin();
-    OIndex idx = schema.getClass("City").getClassIndex(db, "City.name");
+    Index idx = schema.getClass("City").getClassIndex(db, "City.name");
     Collection<?> coll;
-    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 1);
 
-    YTIdentifiable next = (YTIdentifiable) coll.iterator().next();
+    Identifiable next = (Identifiable) coll.iterator().next();
     doc = db.load(next.getIdentity());
     Assert.assertEquals(doc.field("name"), "Rome");
 
@@ -81,16 +81,16 @@ public class LuceneInsertUpdateTest extends BaseLuceneTest {
     db.commit();
 
     db.begin();
-    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 0);
-    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "London")) {
+    try (Stream<RID> stream = idx.getInternal().getRids(db, "London")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 1);
 
-    next = (YTIdentifiable) coll.iterator().next();
+    next = (Identifiable) coll.iterator().next();
     doc = db.load(next.getIdentity());
     Assert.assertEquals(doc.field("name"), "London");
 
@@ -99,15 +99,15 @@ public class LuceneInsertUpdateTest extends BaseLuceneTest {
     db.save(doc);
     db.commit();
 
-    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 0);
-    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "London")) {
+    try (Stream<RID> stream = idx.getInternal().getRids(db, "London")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 0);
-    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Berlin")) {
+    try (Stream<RID> stream = idx.getInternal().getRids(db, "Berlin")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 1);

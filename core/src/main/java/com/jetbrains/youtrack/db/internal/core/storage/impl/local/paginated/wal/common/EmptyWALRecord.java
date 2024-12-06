@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.common;
 
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OAbstractWALRecord;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.AbstractWALRecord;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALRecordTypes;
 import java.nio.ByteBuffer;
 
-public final class EmptyWALRecord extends OAbstractWALRecord {
+public final class EmptyWALRecord extends AbstractWALRecord {
 
   public EmptyWALRecord() {
   }

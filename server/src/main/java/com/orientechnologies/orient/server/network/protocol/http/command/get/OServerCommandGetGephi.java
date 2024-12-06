@@ -19,13 +19,13 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.record.ODirection;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.record.Direction;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OJSONWriter;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -70,7 +70,7 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
 
     try {
 
-      final YTResultSet resultSet;
+      final ResultSet resultSet;
       if (language.equals("sql")) {
         resultSet = executeStatement(language, text, new HashMap<>(), db);
       } else if (language.equals("gremlin")) {
@@ -105,13 +105,13 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
   protected void sendRecordsContent(
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
-      YTResultSet resultSet,
+      ResultSet resultSet,
       String iFetchPlan,
       int limit)
       throws IOException {
 
     final StringWriter buffer = new StringWriter();
-    final OJSONWriter json = new OJSONWriter(buffer, OHttpResponse.JSON_FORMAT);
+    final JSONWriter json = new JSONWriter(buffer, OHttpResponse.JSON_FORMAT);
     json.setPrettyPrint(true);
 
     generateGraphDbOutput(resultSet, limit, json);
@@ -125,7 +125,7 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
   }
 
   protected void generateGraphDbOutput(
-      final YTResultSet resultSet, int limit, final OJSONWriter json) throws IOException {
+      final ResultSet resultSet, int limit, final JSONWriter json) throws IOException {
     if (resultSet == null) {
       return;
     }
@@ -139,7 +139,7 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
       if (limit >= 0 && i >= limit) {
         break;
       }
-      YTResult next = resultSet.next();
+      Result next = resultSet.next();
       if (next.isVertex()) {
         vertexes.add(next.getVertex().get());
       } else if (next.isEdge()) {
@@ -156,7 +156,7 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
       json.beginObject(2, false, vertex.getIdentity());
 
       // ADD ALL THE EDGES
-      vertex.getEdges(ODirection.BOTH).forEach(edges::add);
+      vertex.getEdges(Direction.BOTH).forEach(edges::add);
 
       // ADD ALL THE PROPERTIES
       for (String field : vertex.getPropertyNames()) {
@@ -202,9 +202,9 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
     return NAMES;
   }
 
-  protected YTResultSet executeStatement(
-      String language, String text, Object params, YTDatabaseSession db) {
-    YTResultSet result;
+  protected ResultSet executeStatement(
+      String language, String text, Object params, DatabaseSession db) {
+    ResultSet result;
     if (params instanceof Map) {
       result = db.command(text, (Map) params);
     } else if (params instanceof Object[]) {

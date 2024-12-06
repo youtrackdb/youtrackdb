@@ -19,16 +19,16 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.util.OPair;
+import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionRuntime;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionRuntime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,12 +39,12 @@ import java.util.Set;
  * SQL CREATE VERTEX command.
  */
 public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String NAME = "CREATE VERTEX";
-  private YTClass clazz;
+  private SchemaClass clazz;
   private String clusterName;
-  private List<OPair<String, Object>> fields;
+  private List<Pair<String, Object>> fields;
 
   @SuppressWarnings("unchecked")
   public CommandExecutorSQLCreateVertex parse(final CommandRequest iRequest) {
@@ -73,7 +73,7 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
           clusterName = parserRequiredWord(false);
 
         } else if (temp.equals(KEYWORD_SET)) {
-          fields = new ArrayList<OPair<String, Object>>();
+          fields = new ArrayList<Pair<String, Object>>();
           parseSetFields(clazz, fields);
 
         } else if (temp.equals(KEYWORD_CONTENT)) {
@@ -90,7 +90,7 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
           // GET/CHECK CLASS NAME
           clazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
           if (clazz == null) {
-            throw new YTCommandSQLParsingException("Class '" + className + "' was not found");
+            throw new CommandSQLParsingException("Class '" + className + "' was not found");
           }
         }
 
@@ -107,7 +107,7 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
         // GET/CHECK CLASS NAME
         clazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
         if (clazz == null) {
-          throw new YTCommandSQLParsingException("Class '" + className + "' was not found");
+          throw new CommandSQLParsingException("Class '" + className + "' was not found");
         }
       }
     } finally {
@@ -119,9 +119,9 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
   /**
    * Execute the command and return the EntityImpl object created.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (clazz == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -131,15 +131,15 @@ public class CommandExecutorSQLCreateVertex extends CommandExecutorSQLSetAware
     if (fields != null)
     // EVALUATE FIELDS
     {
-      for (final OPair<String, Object> f : fields) {
-        if (f.getValue() instanceof OSQLFunctionRuntime) {
+      for (final Pair<String, Object> f : fields) {
+        if (f.getValue() instanceof SQLFunctionRuntime) {
           f.setValue(
-              ((OSQLFunctionRuntime) f.getValue()).getValue(vertex.getRecord(), null, context));
+              ((SQLFunctionRuntime) f.getValue()).getValue(vertex.getRecord(), null, context));
         }
       }
     }
 
-    OSQLHelper.bindParameters(vertex.getRecord(), fields, new OCommandParameters(iArgs), context);
+    SQLHelper.bindParameters(vertex.getRecord(), fields, new CommandParameters(iArgs), context);
 
     if (content != null) {
       ((EntityImpl) vertex.getRecord()).merge(content, true, false);

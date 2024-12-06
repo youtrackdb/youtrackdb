@@ -15,9 +15,9 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
@@ -26,8 +26,8 @@ import org.testng.annotations.Test;
 @Test(groups = {"index"})
 public class SQLDropClassIndexTest extends DocumentDBBaseTest {
 
-  private static final YTType EXPECTED_PROP1_TYPE = YTType.DOUBLE;
-  private static final YTType EXPECTED_PROP2_TYPE = YTType.INTEGER;
+  private static final PropertyType EXPECTED_PROP1_TYPE = PropertyType.DOUBLE;
+  private static final PropertyType EXPECTED_PROP2_TYPE = PropertyType.INTEGER;
 
   @Parameters(value = "remote")
   public SQLDropClassIndexTest(boolean remote) {
@@ -38,8 +38,8 @@ public class SQLDropClassIndexTest extends DocumentDBBaseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass oClass = schema.createClass("SQLDropClassTestClass");
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass oClass = schema.createClass("SQLDropClassTestClass");
     oClass.createProperty(database, "prop1", EXPECTED_PROP1_TYPE);
     oClass.createProperty(database, "prop2", EXPECTED_PROP2_TYPE);
   }

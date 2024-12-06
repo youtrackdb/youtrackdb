@@ -19,22 +19,22 @@
  */
 package com.jetbrains.youtrack.db.internal.core.storage;
 
-import com.jetbrains.youtrack.db.internal.common.util.OCallable;
+import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.memory.DirectMemoryStorage;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.conflict.ORecordConflictStrategy;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.OCurrentStorageComponentsFactory;
-import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
-import com.jetbrains.youtrack.db.internal.core.tx.OTransactionOptimistic;
-import com.jetbrains.youtrack.db.internal.core.util.OBackupable;
+import com.jetbrains.youtrack.db.internal.core.db.record.CurrentStorageComponentsFactory;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.core.util.Backupable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -51,7 +51,7 @@ import javax.annotation.Nullable;
  *
  * @see DirectMemoryStorage
  */
-public interface Storage extends OBackupable, OStorageInfo {
+public interface Storage extends Backupable, StorageInfo {
 
   String CLUSTER_DEFAULT_NAME = "default";
 
@@ -65,45 +65,45 @@ public interface Storage extends OBackupable, OStorageInfo {
   }
 
   void open(
-      YTDatabaseSessionInternal remote, String iUserName, String iUserPassword,
-      final YTContextConfiguration contextConfiguration);
+      DatabaseSessionInternal remote, String iUserName, String iUserPassword,
+      final ContextConfiguration contextConfiguration);
 
-  void create(YTContextConfiguration contextConfiguration) throws IOException;
+  void create(ContextConfiguration contextConfiguration) throws IOException;
 
   boolean exists();
 
-  void reload(YTDatabaseSessionInternal database);
+  void reload(DatabaseSessionInternal database);
 
   void delete();
 
-  void close(@Nullable YTDatabaseSessionInternal session);
+  void close(@Nullable DatabaseSessionInternal session);
 
-  void close(@Nullable YTDatabaseSessionInternal database, boolean iForce);
+  void close(@Nullable DatabaseSessionInternal database, boolean iForce);
 
-  boolean isClosed(YTDatabaseSessionInternal database);
+  boolean isClosed(DatabaseSessionInternal database);
 
   // CRUD OPERATIONS
   @Nonnull
-  ORawBuffer readRecord(
-      YTDatabaseSessionInternal session, YTRecordId iRid,
+  RawBuffer readRecord(
+      DatabaseSessionInternal session, RecordId iRid,
       boolean iIgnoreCache,
       boolean prefetchRecords,
-      ORecordCallback<ORawBuffer> iCallback);
+      RecordCallback<RawBuffer> iCallback);
 
-  boolean recordExists(YTDatabaseSessionInternal session, YTRID rid);
+  boolean recordExists(DatabaseSessionInternal session, RID rid);
 
-  ORecordMetadata getRecordMetadata(YTDatabaseSessionInternal session, final YTRID rid);
+  RecordMetadata getRecordMetadata(DatabaseSessionInternal session, final RID rid);
 
   boolean cleanOutRecord(
-      YTDatabaseSessionInternal session, YTRecordId recordId, int recordVersion, int iMode,
-      ORecordCallback<Boolean> callback);
+      DatabaseSessionInternal session, RecordId recordId, int recordVersion, int iMode,
+      RecordCallback<Boolean> callback);
 
   // TX OPERATIONS
-  List<ORecordOperation> commit(OTransactionOptimistic iTx);
+  List<RecordOperation> commit(TransactionOptimistic iTx);
 
   Set<String> getClusterNames();
 
-  Collection<? extends OCluster> getClusterInstances();
+  Collection<? extends StorageCluster> getClusterInstances();
 
   /**
    * Add a new cluster into the storage.
@@ -111,7 +111,7 @@ public interface Storage extends OBackupable, OStorageInfo {
    * @param database
    * @param iClusterName name of the cluster
    */
-  int addCluster(YTDatabaseSessionInternal database, String iClusterName, Object... iParameters);
+  int addCluster(DatabaseSessionInternal database, String iClusterName, Object... iParameters);
 
   /**
    * Add a new cluster into the storage.
@@ -120,13 +120,13 @@ public interface Storage extends OBackupable, OStorageInfo {
    * @param iClusterName name of the cluster
    * @param iRequestedId requested id of the cluster
    */
-  int addCluster(YTDatabaseSessionInternal database, String iClusterName, int iRequestedId);
+  int addCluster(DatabaseSessionInternal database, String iClusterName, int iRequestedId);
 
-  boolean dropCluster(YTDatabaseSessionInternal session, String iClusterName);
+  boolean dropCluster(DatabaseSessionInternal session, String iClusterName);
 
-  String getClusterName(YTDatabaseSessionInternal database, final int clusterId);
+  String getClusterName(DatabaseSessionInternal database, final int clusterId);
 
-  boolean setClusterAttribute(final int id, OCluster.ATTRIBUTES attribute, Object value);
+  boolean setClusterAttribute(final int id, StorageCluster.ATTRIBUTES attribute, Object value);
 
   /**
    * Drops a cluster.
@@ -135,7 +135,7 @@ public interface Storage extends OBackupable, OStorageInfo {
    * @param iId      id of the cluster to delete
    * @return true if has been removed, otherwise false
    */
-  boolean dropCluster(YTDatabaseSessionInternal database, int iId);
+  boolean dropCluster(DatabaseSessionInternal database, int iId);
 
   String getClusterNameById(final int clusterId);
 
@@ -153,25 +153,25 @@ public interface Storage extends OBackupable, OStorageInfo {
 
   long getClusterNextPosition(final int clusterId);
 
-  PaginatedCluster.RECORD_STATUS getRecordStatus(final YTRID rid);
+  PaginatedCluster.RECORD_STATUS getRecordStatus(final RID rid);
 
-  long count(YTDatabaseSessionInternal session, int iClusterId);
+  long count(DatabaseSessionInternal session, int iClusterId);
 
-  long count(YTDatabaseSessionInternal session, int iClusterId, boolean countTombstones);
+  long count(DatabaseSessionInternal session, int iClusterId, boolean countTombstones);
 
-  long count(YTDatabaseSessionInternal session, int[] iClusterIds);
+  long count(DatabaseSessionInternal session, int[] iClusterIds);
 
-  long count(YTDatabaseSessionInternal session, int[] iClusterIds, boolean countTombstones);
+  long count(DatabaseSessionInternal session, int[] iClusterIds, boolean countTombstones);
 
   /**
    * Returns the size of the database.
    */
-  long getSize(YTDatabaseSessionInternal session);
+  long getSize(DatabaseSessionInternal session);
 
   /**
    * Returns the total number of records.
    */
-  long countRecords(YTDatabaseSessionInternal session);
+  long countRecords(DatabaseSessionInternal session);
 
   void setDefaultClusterId(final int defaultClusterId);
 
@@ -179,7 +179,7 @@ public interface Storage extends OBackupable, OStorageInfo {
 
   String getPhysicalClusterNameById(int iClusterId);
 
-  boolean checkForRecordValidity(OPhysicalPosition ppos);
+  boolean checkForRecordValidity(PhysicalPosition ppos);
 
   String getName();
 
@@ -195,7 +195,7 @@ public interface Storage extends OBackupable, OStorageInfo {
   /**
    * Execute the command request and return the result back.
    */
-  Object command(YTDatabaseSessionInternal database, CommandRequestText iCommand);
+  Object command(DatabaseSessionInternal database, CommandRequestText iCommand);
 
   /**
    * Returns a pair of long values telling the begin and end positions of data in the requested
@@ -204,19 +204,19 @@ public interface Storage extends OBackupable, OStorageInfo {
    * @param session
    * @param currentClusterId Cluster id
    */
-  long[] getClusterDataRange(YTDatabaseSessionInternal session, int currentClusterId);
+  long[] getClusterDataRange(DatabaseSessionInternal session, int currentClusterId);
 
-  OPhysicalPosition[] higherPhysicalPositions(YTDatabaseSessionInternal session, int clusterId,
-      OPhysicalPosition physicalPosition);
+  PhysicalPosition[] higherPhysicalPositions(DatabaseSessionInternal session, int clusterId,
+      PhysicalPosition physicalPosition);
 
-  OPhysicalPosition[] lowerPhysicalPositions(YTDatabaseSessionInternal session, int clusterId,
-      OPhysicalPosition physicalPosition);
+  PhysicalPosition[] lowerPhysicalPositions(DatabaseSessionInternal session, int clusterId,
+      PhysicalPosition physicalPosition);
 
-  OPhysicalPosition[] ceilingPhysicalPositions(YTDatabaseSessionInternal session, int clusterId,
-      OPhysicalPosition physicalPosition);
+  PhysicalPosition[] ceilingPhysicalPositions(DatabaseSessionInternal session, int clusterId,
+      PhysicalPosition physicalPosition);
 
-  OPhysicalPosition[] floorPhysicalPositions(YTDatabaseSessionInternal session, int clusterId,
-      OPhysicalPosition physicalPosition);
+  PhysicalPosition[] floorPhysicalPositions(DatabaseSessionInternal session, int clusterId,
+      PhysicalPosition physicalPosition);
 
   /**
    * Returns the current storage's status
@@ -237,28 +237,28 @@ public interface Storage extends OBackupable, OStorageInfo {
 
   boolean isAssigningClusterIds();
 
-  OSBTreeCollectionManager getSBtreeCollectionManager();
+  SBTreeCollectionManager getSBtreeCollectionManager();
 
-  OCurrentStorageComponentsFactory getComponentsFactory();
+  CurrentStorageComponentsFactory getComponentsFactory();
 
-  ORecordConflictStrategy getRecordConflictStrategy();
+  RecordConflictStrategy getRecordConflictStrategy();
 
-  void setConflictStrategy(ORecordConflictStrategy iResolver);
+  void setConflictStrategy(RecordConflictStrategy iResolver);
 
   /**
    * @return Backup file name
    */
-  String incrementalBackup(YTDatabaseSessionInternal session, String backupDirectory,
-      OCallable<Void, Void> started)
+  String incrementalBackup(DatabaseSessionInternal session, String backupDirectory,
+      CallableFunction<Void, Void> started)
       throws UnsupportedOperationException;
 
   boolean supportIncremental();
 
   void fullIncrementalBackup(OutputStream stream) throws UnsupportedOperationException;
 
-  void restoreFromIncrementalBackup(YTDatabaseSessionInternal session, String filePath);
+  void restoreFromIncrementalBackup(DatabaseSessionInternal session, String filePath);
 
-  void restoreFullIncrementalBackup(YTDatabaseSessionInternal session, InputStream stream)
+  void restoreFullIncrementalBackup(DatabaseSessionInternal session, InputStream stream)
       throws UnsupportedOperationException;
 
   /**

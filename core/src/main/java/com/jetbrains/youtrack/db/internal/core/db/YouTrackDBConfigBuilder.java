@@ -20,14 +20,14 @@
 
 package com.jetbrains.youtrack.db.internal.core.db;
 
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.db.config.ONodeConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.config.ONodeConfigurationBuilder;
-import com.jetbrains.youtrack.db.internal.core.security.OGlobalUser;
-import com.jetbrains.youtrack.db.internal.core.security.OGlobalUserImpl;
-import com.jetbrains.youtrack.db.internal.core.security.OSecurityConfig;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.db.config.NodeConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.config.NodeConfigurationBuilder;
+import com.jetbrains.youtrack.db.internal.core.security.GlobalUser;
+import com.jetbrains.youtrack.db.internal.core.security.GlobalUserImpl;
+import com.jetbrains.youtrack.db.internal.core.security.SecurityConfig;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,13 +37,13 @@ import java.util.Set;
 
 public class YouTrackDBConfigBuilder {
 
-  private YTContextConfiguration configurations = new YTContextConfiguration();
+  private ContextConfiguration configurations = new ContextConfiguration();
   private final Map<ATTRIBUTES, Object> attributes = new HashMap<>();
-  private final Set<YTDatabaseListener> listeners = new HashSet<>();
+  private final Set<DatabaseListener> listeners = new HashSet<>();
   private ClassLoader classLoader;
-  private final ONodeConfigurationBuilder nodeConfigurationBuilder = ONodeConfiguration.builder();
-  private OSecurityConfig securityConfig;
-  private final List<OGlobalUser> users = new ArrayList<OGlobalUser>();
+  private final NodeConfigurationBuilder nodeConfigurationBuilder = NodeConfiguration.builder();
+  private SecurityConfig securityConfig;
+  private final List<GlobalUser> users = new ArrayList<GlobalUser>();
 
   public YouTrackDBConfigBuilder fromGlobalMap(Map<GlobalConfiguration, Object> values) {
     for (Map.Entry<GlobalConfiguration, Object> entry : values.entrySet()) {
@@ -59,7 +59,7 @@ public class YouTrackDBConfigBuilder {
     return this;
   }
 
-  public YouTrackDBConfigBuilder addListener(YTDatabaseListener listener) {
+  public YouTrackDBConfigBuilder addListener(DatabaseListener listener) {
     listeners.add(listener);
     return this;
   }
@@ -80,11 +80,11 @@ public class YouTrackDBConfigBuilder {
     return this;
   }
 
-  public ONodeConfigurationBuilder getNodeConfigurationBuilder() {
+  public NodeConfigurationBuilder getNodeConfigurationBuilder() {
     return nodeConfigurationBuilder;
   }
 
-  public YouTrackDBConfigBuilder setSecurityConfig(OSecurityConfig securityConfig) {
+  public YouTrackDBConfigBuilder setSecurityConfig(SecurityConfig securityConfig) {
     this.securityConfig = securityConfig;
     return this;
   }
@@ -100,14 +100,14 @@ public class YouTrackDBConfigBuilder {
         users);
   }
 
-  public YouTrackDBConfigBuilder fromContext(final YTContextConfiguration contextConfiguration) {
+  public YouTrackDBConfigBuilder fromContext(final ContextConfiguration contextConfiguration) {
     configurations = contextConfiguration;
     return this;
   }
 
   public YouTrackDBConfigBuilder addGlobalUser(
       final String user, final String password, final String resource) {
-    users.add(new OGlobalUserImpl(user, password, resource));
+    users.add(new GlobalUserImpl(user, password, resource));
     return this;
   }
 }

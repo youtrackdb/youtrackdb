@@ -15,13 +15,13 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import java.util.Arrays;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
@@ -32,8 +32,8 @@ import org.testng.annotations.Test;
 @Test(groups = {"index"})
 public class SQLDropPropertyIndexTest extends DocumentDBBaseTest {
 
-  private static final YTType EXPECTED_PROP1_TYPE = YTType.DOUBLE;
-  private static final YTType EXPECTED_PROP2_TYPE = YTType.INTEGER;
+  private static final PropertyType EXPECTED_PROP1_TYPE = PropertyType.DOUBLE;
+  private static final PropertyType EXPECTED_PROP2_TYPE = PropertyType.INTEGER;
 
   @Parameters(value = "remote")
   public SQLDropPropertyIndexTest(boolean remote) {
@@ -44,8 +44,8 @@ public class SQLDropPropertyIndexTest extends DocumentDBBaseTest {
   public void beforeMethod() throws Exception {
     super.beforeMethod();
 
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass oClass = schema.createClass("DropPropertyIndexTestClass");
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass oClass = schema.createClass("DropPropertyIndexTestClass");
     oClass.createProperty(database, "prop1", EXPECTED_PROP1_TYPE);
     oClass.createProperty(database, "prop2", EXPECTED_PROP2_TYPE);
   }
@@ -65,7 +65,7 @@ public class SQLDropPropertyIndexTest extends DocumentDBBaseTest {
                 + " prop1) UNIQUE")
         .close();
 
-    OIndex index =
+    Index index =
         database
             .getMetadata()
             .getSchema()
@@ -93,7 +93,7 @@ public class SQLDropPropertyIndexTest extends DocumentDBBaseTest {
                 + " prop1) UNIQUE")
         .close();
 
-    OIndex index =
+    Index index =
         database
             .getMetadata()
             .getSchema()
@@ -121,7 +121,7 @@ public class SQLDropPropertyIndexTest extends DocumentDBBaseTest {
                 + " prop2) UNIQUE")
         .close();
 
-    OIndex index =
+    Index index =
         database
             .getMetadata()
             .getSchema()
@@ -132,7 +132,7 @@ public class SQLDropPropertyIndexTest extends DocumentDBBaseTest {
     try {
       database.command("DROP PROPERTY DropPropertyIndexTestClass.prop1").close();
       Assert.fail();
-    } catch (YTCommandExecutionException e) {
+    } catch (CommandExecutionException e) {
       Assert.assertTrue(
           e.getMessage()
               .contains(
@@ -149,12 +149,12 @@ public class SQLDropPropertyIndexTest extends DocumentDBBaseTest {
 
     Assert.assertNotNull(index);
 
-    final OIndexDefinition indexDefinition = index.getDefinition();
+    final IndexDefinition indexDefinition = index.getDefinition();
 
-    Assert.assertTrue(indexDefinition instanceof OCompositeIndexDefinition);
+    Assert.assertTrue(indexDefinition instanceof CompositeIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), Arrays.asList("prop1", "prop2"));
     Assert.assertEquals(
-        indexDefinition.getTypes(), new YTType[]{EXPECTED_PROP1_TYPE, EXPECTED_PROP2_TYPE});
+        indexDefinition.getTypes(), new PropertyType[]{EXPECTED_PROP1_TYPE, EXPECTED_PROP2_TYPE});
     Assert.assertEquals(index.getType(), "UNIQUE");
   }
 
@@ -169,7 +169,7 @@ public class SQLDropPropertyIndexTest extends DocumentDBBaseTest {
     try {
       database.command("DROP PROPERTY DropPropertyIndextestclass.prop1").close();
       Assert.fail();
-    } catch (YTCommandExecutionException e) {
+    } catch (CommandExecutionException e) {
       Assert.assertTrue(
           e.getMessage()
               .contains(
@@ -177,7 +177,7 @@ public class SQLDropPropertyIndexTest extends DocumentDBBaseTest {
                       + " indexes before removing property or use FORCE parameter."));
     }
 
-    final OIndex index =
+    final Index index =
         database
             .getMetadata()
             .getSchema()
@@ -186,12 +186,12 @@ public class SQLDropPropertyIndexTest extends DocumentDBBaseTest {
 
     Assert.assertNotNull(index);
 
-    final OIndexDefinition indexDefinition = index.getDefinition();
+    final IndexDefinition indexDefinition = index.getDefinition();
 
-    Assert.assertTrue(indexDefinition instanceof OCompositeIndexDefinition);
+    Assert.assertTrue(indexDefinition instanceof CompositeIndexDefinition);
     Assert.assertEquals(indexDefinition.getFields(), Arrays.asList("prop1", "prop2"));
     Assert.assertEquals(
-        indexDefinition.getTypes(), new YTType[]{EXPECTED_PROP1_TYPE, EXPECTED_PROP2_TYPE});
+        indexDefinition.getTypes(), new PropertyType[]{EXPECTED_PROP1_TYPE, EXPECTED_PROP2_TYPE});
     Assert.assertEquals(index.getType(), "UNIQUE");
   }
 }

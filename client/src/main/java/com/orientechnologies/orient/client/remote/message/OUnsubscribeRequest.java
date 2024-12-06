@@ -1,15 +1,15 @@
 package com.orientechnologies.orient.client.remote.message;
 
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 
 /**
@@ -29,15 +29,15 @@ public class OUnsubscribeRequest implements OBinaryRequest<OUnsubscribeResponse>
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     network.writeByte(unsubscribeMessage);
     unsubscribeRequest.write(database, network, session);
   }
 
   @Override
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
-      ORecordSerializer serializer)
+  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+      RecordSerializer serializer)
       throws IOException {
     unsubscribeMessage = channel.readByte();
     unsubscribeRequest = createBinaryRequest(unsubscribeMessage);
@@ -45,16 +45,16 @@ public class OUnsubscribeRequest implements OBinaryRequest<OUnsubscribeResponse>
   }
 
   private OBinaryRequest<? extends OBinaryResponse> createBinaryRequest(byte message) {
-    if (message == OChannelBinaryProtocol.UNSUBSCRIBE_PUSH_LIVE_QUERY) {
+    if (message == ChannelBinaryProtocol.UNSUBSCRIBE_PUSH_LIVE_QUERY) {
       return new OUnsubscribeLiveQueryRequest();
     }
 
-    throw new YTDatabaseException("Unknown message response for code:" + message);
+    throw new DatabaseException("Unknown message response for code:" + message);
   }
 
   @Override
   public byte getCommand() {
-    return OChannelBinaryProtocol.UNSUBSCRIBE_PUSH;
+    return ChannelBinaryProtocol.UNSUBSCRIBE_PUSH;
   }
 
   @Override

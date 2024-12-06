@@ -1,24 +1,24 @@
 package com.jetbrains.youtrack.db.internal.core.storage;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.OConstants;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.OSharedContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
-import com.jetbrains.youtrack.db.internal.core.metadata.OMetadata;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
+import com.jetbrains.youtrack.db.internal.core.metadata.Metadata;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OWriteCache;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.fs.OFile;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurablePage;
+import com.jetbrains.youtrack.db.internal.core.storage.fs.File;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
@@ -50,21 +50,21 @@ public class StorageTestIT {
         YouTrackDBConfig.builder()
             .addConfig(
                 GlobalConfiguration.STORAGE_CHECKSUM_MODE,
-                OChecksumMode.StoreAndSwitchReadOnlyMode)
+                ChecksumMode.StoreAndSwitchReadOnlyMode)
             .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
-    youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
+    youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()), config);
     youTrackDB.execute(
         "create database "
             + StorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
     var session =
-        (YTDatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(), "admin",
+        (DatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(), "admin",
             "admin", config);
-    OMetadata metadata = session.getMetadata();
-    YTSchema schema = metadata.getSchema();
+    Metadata metadata = session.getMetadata();
+    Schema schema = metadata.getSchema();
     schema.createClass("PageBreak");
 
     for (int i = 0; i < 10; i++) {
@@ -75,8 +75,8 @@ public class StorageTestIT {
 
     LocalPaginatedStorage storage =
         (LocalPaginatedStorage) session.getStorage();
-    OWriteCache wowCache = storage.getWriteCache();
-    OSharedContext ctx = session.getSharedContext();
+    WriteCache wowCache = storage.getWriteCache();
+    SharedContext ctx = session.getSharedContext();
     session.close();
 
     final Path storagePath = storage.getStoragePath();
@@ -98,14 +98,14 @@ public class StorageTestIT {
     file.write(bt + 1);
     file.close();
 
-    session = (YTDatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(),
+    session = (DatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(),
         "admin", "admin");
     try {
       session.query("select from PageBreak").close();
       Assert.fail();
-    } catch (YTStorageException e) {
+    } catch (StorageException e) {
       youTrackDB.close();
-      youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
+      youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()), config);
       youTrackDB.open(StorageTestIT.class.getSimpleName(), "admin", "admin");
     }
   }
@@ -116,21 +116,21 @@ public class StorageTestIT {
         YouTrackDBConfig.builder()
             .addConfig(
                 GlobalConfiguration.STORAGE_CHECKSUM_MODE,
-                OChecksumMode.StoreAndSwitchReadOnlyMode)
+                ChecksumMode.StoreAndSwitchReadOnlyMode)
             .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
-    youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
+    youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()), config);
     youTrackDB.execute(
         "create database "
             + StorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
     var session =
-        (YTDatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(), "admin",
+        (DatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(), "admin",
             "admin", config);
-    OMetadata metadata = session.getMetadata();
-    YTSchema schema = metadata.getSchema();
+    Metadata metadata = session.getMetadata();
+    Schema schema = metadata.getSchema();
     schema.createClass("PageBreak");
 
     for (int i = 0; i < 10; i++) {
@@ -141,8 +141,8 @@ public class StorageTestIT {
 
     LocalPaginatedStorage storage =
         (LocalPaginatedStorage) session.getStorage();
-    OWriteCache wowCache = storage.getWriteCache();
-    OSharedContext ctx = session.getSharedContext();
+    WriteCache wowCache = storage.getWriteCache();
+    SharedContext ctx = session.getSharedContext();
     session.close();
 
     final Path storagePath = storage.getStoragePath();
@@ -153,7 +153,7 @@ public class StorageTestIT {
     storage.shutdown();
     ctx.close();
 
-    int position = OFile.HEADER_SIZE + ODurablePage.MAGIC_NUMBER_OFFSET;
+    int position = File.HEADER_SIZE + DurablePage.MAGIC_NUMBER_OFFSET;
 
     RandomAccessFile file =
         new RandomAccessFile(storagePath.resolve(nativeFileName).toFile(), "rw");
@@ -161,14 +161,14 @@ public class StorageTestIT {
     file.write(1);
     file.close();
 
-    session = (YTDatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(),
+    session = (DatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(),
         "admin", "admin");
     try {
       session.query("select from PageBreak").close();
       Assert.fail();
-    } catch (YTStorageException e) {
+    } catch (StorageException e) {
       youTrackDB.close();
-      youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
+      youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()), config);
       youTrackDB.open(StorageTestIT.class.getSimpleName(), "admin", "admin");
     }
   }
@@ -178,21 +178,21 @@ public class StorageTestIT {
 
     YouTrackDBConfig config =
         YouTrackDBConfig.builder()
-            .addConfig(GlobalConfiguration.STORAGE_CHECKSUM_MODE, OChecksumMode.StoreAndVerify)
+            .addConfig(GlobalConfiguration.STORAGE_CHECKSUM_MODE, ChecksumMode.StoreAndVerify)
             .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
-    youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
+    youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()), config);
     youTrackDB.execute(
         "create database "
             + StorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
     var session =
-        (YTDatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(), "admin",
+        (DatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(), "admin",
             "admin", config);
-    OMetadata metadata = session.getMetadata();
-    YTSchema schema = metadata.getSchema();
+    Metadata metadata = session.getMetadata();
+    Schema schema = metadata.getSchema();
     schema.createClass("PageBreak");
 
     for (int i = 0; i < 10; i++) {
@@ -203,8 +203,8 @@ public class StorageTestIT {
 
     LocalPaginatedStorage storage =
         (LocalPaginatedStorage) session.getStorage();
-    OWriteCache wowCache = storage.getWriteCache();
-    OSharedContext ctx = session.getSharedContext();
+    WriteCache wowCache = storage.getWriteCache();
+    SharedContext ctx = session.getSharedContext();
     session.close();
 
     final Path storagePath = storage.getStoragePath();
@@ -215,7 +215,7 @@ public class StorageTestIT {
     storage.shutdown();
     ctx.close();
 
-    int position = OFile.HEADER_SIZE + ODurablePage.MAGIC_NUMBER_OFFSET;
+    int position = File.HEADER_SIZE + DurablePage.MAGIC_NUMBER_OFFSET;
 
     RandomAccessFile file =
         new RandomAccessFile(storagePath.resolve(nativeFileName).toFile(), "rw");
@@ -223,7 +223,7 @@ public class StorageTestIT {
     file.write(1);
     file.close();
 
-    session = (YTDatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(),
+    session = (DatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(),
         "admin", "admin");
     session.query("select from PageBreak").close();
 
@@ -242,21 +242,21 @@ public class StorageTestIT {
 
     YouTrackDBConfig config =
         YouTrackDBConfig.builder()
-            .addConfig(GlobalConfiguration.STORAGE_CHECKSUM_MODE, OChecksumMode.StoreAndVerify)
+            .addConfig(GlobalConfiguration.STORAGE_CHECKSUM_MODE, ChecksumMode.StoreAndVerify)
             .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
-    youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
+    youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()), config);
     youTrackDB.execute(
         "create database "
             + StorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
     var session =
-        (YTDatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(), "admin",
+        (DatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(), "admin",
             "admin", config);
-    OMetadata metadata = session.getMetadata();
-    YTSchema schema = metadata.getSchema();
+    Metadata metadata = session.getMetadata();
+    Schema schema = metadata.getSchema();
     schema.createClass("PageBreak");
 
     for (int i = 0; i < 10; i++) {
@@ -267,8 +267,8 @@ public class StorageTestIT {
 
     LocalPaginatedStorage storage =
         (LocalPaginatedStorage) session.getStorage();
-    OWriteCache wowCache = storage.getWriteCache();
-    OSharedContext ctx = session.getSharedContext();
+    WriteCache wowCache = storage.getWriteCache();
+    SharedContext ctx = session.getSharedContext();
     session.close();
 
     final Path storagePath = storage.getStoragePath();
@@ -290,7 +290,7 @@ public class StorageTestIT {
     file.write(bt + 1);
     file.close();
 
-    session = (YTDatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(),
+    session = (DatabaseSessionInternal) youTrackDB.open(StorageTestIT.class.getSimpleName(),
         "admin", "admin");
     session.query("select from PageBreak").close();
 
@@ -308,19 +308,19 @@ public class StorageTestIT {
   public void testCreatedVersionIsStored() {
     youTrackDB =
         new YouTrackDB(
-            DBTestBase.embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig());
+            DbTestBase.embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database "
             + StorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
-    final YTDatabaseSession session =
+    final DatabaseSession session =
         youTrackDB.open(StorageTestIT.class.getSimpleName(), "admin", "admin");
-    try (YTResultSet resultSet = session.query("SELECT FROM metadata:storage")) {
+    try (ResultSet resultSet = session.query("SELECT FROM metadata:storage")) {
       Assert.assertTrue(resultSet.hasNext());
 
-      final YTResult result = resultSet.next();
-      Assert.assertEquals(OConstants.getVersion(), result.getProperty("createdAtVersion"));
+      final Result result = resultSet.next();
+      Assert.assertEquals(YouTrackDBConstants.getVersion(), result.getProperty("createdAtVersion"));
     }
   }
 

@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
@@ -18,7 +18,7 @@ public class EmptyDataGeneratorStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -26,8 +26,8 @@ public class EmptyDataGeneratorStep extends AbstractExecutionStep {
     return new ProduceExecutionStream(EmptyDataGeneratorStep::create).limit(size);
   }
 
-  private static YTResult create(CommandContext ctx) {
-    YTResultInternal result = new YTResultInternal(ctx.getDatabase());
+  private static Result create(CommandContext ctx) {
+    ResultInternal result = new ResultInternal(ctx.getDatabase());
     ctx.setVariable("$current", result);
     return result;
   }

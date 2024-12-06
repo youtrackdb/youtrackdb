@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.client.remote.message;
 
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,11 +28,11 @@ public class OPushDistributedConfigurationRequest
 
   @Override
   public byte getPushCommand() {
-    return OChannelBinaryProtocol.REQUEST_PUSH_DISTRIB_CONFIG;
+    return ChannelBinaryProtocol.REQUEST_PUSH_DISTRIB_CONFIG;
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel)
+  public void write(DatabaseSessionInternal session, ChannelDataOutput channel)
       throws IOException {
     channel.writeInt(hosts.size());
     for (String host : hosts) {
@@ -41,7 +41,7 @@ public class OPushDistributedConfigurationRequest
   }
 
   @Override
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput network) throws IOException {
+  public void read(DatabaseSessionInternal db, ChannelDataInput network) throws IOException {
     int size = network.readInt();
     hosts = new ArrayList<>(size);
     while (size-- > 0) {
@@ -49,7 +49,7 @@ public class OPushDistributedConfigurationRequest
     }
   }
 
-  public OBinaryPushResponse execute(YTDatabaseSessionInternal session, ORemotePushHandler remote) {
+  public OBinaryPushResponse execute(DatabaseSessionInternal session, ORemotePushHandler remote) {
     return remote.executeUpdateDistributedConfig(this);
   }
 

@@ -2,24 +2,24 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
+import com.jetbrains.youtrack.db.internal.core.collate.Collate;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinitionFactory;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexFactory;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexes;
-import com.jetbrains.youtrack.db.internal.core.index.OSimpleKeyIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.YTIndexException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClassImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.index.IndexFactory;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionFactory;
+import com.jetbrains.youtrack.db.internal.core.index.Indexes;
+import com.jetbrains.youtrack.db.internal.core.index.SimpleKeyIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.IndexException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class SQLCreateIndexStatement extends ODDLStatement {
+public class SQLCreateIndexStatement extends DDLStatement {
 
   protected SQLIndexName name;
   protected SQLIdentifier className;
@@ -60,7 +60,7 @@ public class SQLCreateIndexStatement extends ODDLStatement {
   public ExecutionStream executeDDL(CommandContext ctx) {
     Object execResult = execute(ctx);
     if (execResult != null) {
-      YTResultInternal result = new YTResultInternal(ctx.getDatabase());
+      ResultInternal result = new ResultInternal(ctx.getDatabase());
       result.setProperty("operation", "create index");
       result.setProperty("name", name.getValue());
       return ExecutionStream.singleton(result);
@@ -70,26 +70,26 @@ public class SQLCreateIndexStatement extends ODDLStatement {
   }
 
   Object execute(CommandContext ctx) {
-    final YTDatabaseSessionInternal database = ctx.getDatabase();
+    final DatabaseSessionInternal database = ctx.getDatabase();
 
     if (database.getMetadata().getIndexManagerInternal().existsIndex(name.getValue())) {
       if (ifNotExists) {
         return null;
       } else {
-        throw new YTCommandExecutionException("Index " + name + " already exists");
+        throw new CommandExecutionException("Index " + name + " already exists");
       }
     }
 
-    final OIndex idx;
-    List<OCollate> collatesList = calculateCollates(ctx);
+    final Index idx;
+    List<Collate> collatesList = calculateCollates(ctx);
     String engine =
         this.engine == null ? null : this.engine.getStringValue().toUpperCase(Locale.ENGLISH);
     EntityImpl metadataDoc = calculateMetadata(ctx);
 
     if (propertyList == null || propertyList.size() == 0) {
-      OIndexFactory factory = OIndexes.getFactory(type.getStringValue(), engine);
+      IndexFactory factory = Indexes.getFactory(type.getStringValue(), engine);
 
-      YTType[] keyTypes = calculateKeyTypes(ctx);
+      PropertyType[] keyTypes = calculateKeyTypes(ctx);
 
       if (keyTypes != null && keyTypes.length > 0) {
         idx =
@@ -100,7 +100,7 @@ public class SQLCreateIndexStatement extends ODDLStatement {
                     database,
                     name.getValue(),
                     type.getStringValue(),
-                    new OSimpleKeyIndexDefinition(keyTypes, collatesList),
+                    new SimpleKeyIndexDefinition(keyTypes, collatesList),
                     null,
                     null,
                     metadataDoc,
@@ -109,8 +109,8 @@ public class SQLCreateIndexStatement extends ODDLStatement {
           && keyTypes.length == 0
           && "LUCENE_CROSS_CLASS".equalsIgnoreCase(engine)) {
         // handle special case of cross class  Lucene index: awful but works
-        OIndexDefinition keyDef =
-            new OSimpleKeyIndexDefinition(new YTType[]{YTType.STRING}, collatesList);
+        IndexDefinition keyDef =
+            new SimpleKeyIndexDefinition(new PropertyType[]{PropertyType.STRING}, collatesList);
         idx =
             database
                 .getMetadata()
@@ -129,32 +129,32 @@ public class SQLCreateIndexStatement extends ODDLStatement {
         // legacy: create index without specifying property names
         String[] split = name.getValue().split("\\.");
         if (split.length != 2) {
-          throw new YTDatabaseException(
+          throw new DatabaseException(
               "Impossible to create an index without specify class and property name nor key types:"
                   + " "
                   + this);
         }
-        YTClass oClass = database.getClass(split[0]);
+        SchemaClass oClass = database.getClass(split[0]);
         if (oClass == null) {
-          throw new YTDatabaseException(
+          throw new DatabaseException(
               "Impossible to create an index, class not found: " + split[0]);
         }
         if (oClass.getProperty(split[1]) == null) {
-          throw new YTDatabaseException(
+          throw new DatabaseException(
               "Impossible to create an index, property not found: " + name.getValue());
         }
         String[] fields = new String[]{split[1]};
         idx = getoIndex(oClass, fields, engine, database, collatesList, metadataDoc);
 
       } else {
-        throw new YTDatabaseException(
+        throw new DatabaseException(
             "Impossible to create an index without specify the key type or the associated property:"
                 + " "
                 + this);
       }
     } else {
       String[] fields = calculateProperties(ctx);
-      YTClass oClass = getIndexClass(ctx);
+      SchemaClass oClass = getIndexClass(ctx);
       idx = getoIndex(oClass, fields, engine, database, collatesList, metadataDoc);
     }
 
@@ -165,25 +165,25 @@ public class SQLCreateIndexStatement extends ODDLStatement {
     return null;
   }
 
-  private OIndex getoIndex(
-      YTClass oClass,
+  private Index getoIndex(
+      SchemaClass oClass,
       String[] fields,
       String engine,
-      YTDatabaseSessionInternal database,
-      List<OCollate> collatesList,
+      DatabaseSessionInternal database,
+      List<Collate> collatesList,
       EntityImpl metadataDoc) {
-    OIndex idx;
+    Index idx;
     if ((keyTypes == null || keyTypes.size() == 0) && collatesList == null) {
 
       idx =
           oClass.createIndex(database,
               name.getValue(), type.getStringValue(), null, metadataDoc, engine, fields);
     } else {
-      final List<YTType> fieldTypeList;
+      final List<PropertyType> fieldTypeList;
       if (keyTypes == null || keyTypes.size() == 0 && fields.length > 0) {
         for (final String fieldName : fields) {
           if (!fieldName.equals("@rid") && !oClass.existsProperty(fieldName)) {
-            throw new YTIndexException(
+            throw new IndexException(
                 "Index with name : '"
                     + name.getValue()
                     + "' cannot be created on class : '"
@@ -193,16 +193,16 @@ public class SQLCreateIndexStatement extends ODDLStatement {
                     + "' is absent in class definition.");
           }
         }
-        fieldTypeList = ((YTClassImpl) oClass).extractFieldTypes(fields);
+        fieldTypeList = ((SchemaClassImpl) oClass).extractFieldTypes(fields);
       } else {
         fieldTypeList =
             keyTypes.stream()
-                .map(x -> YTType.valueOf(x.getStringValue()))
+                .map(x -> PropertyType.valueOf(x.getStringValue()))
                 .collect(Collectors.toList());
       }
 
-      final OIndexDefinition idxDef =
-          OIndexDefinitionFactory.createIndexDefinition(
+      final IndexDefinition idxDef =
+          IndexDefinitionFactory.createIndexDefinition(
               oClass,
               Arrays.asList(fields),
               fieldTypeList,
@@ -246,14 +246,14 @@ public class SQLCreateIndexStatement extends ODDLStatement {
   /**
    * calculates the indexed class based on the class name
    */
-  private YTClass getIndexClass(CommandContext ctx) {
+  private SchemaClass getIndexClass(CommandContext ctx) {
     if (className == null) {
       return null;
     }
-    YTClass result =
+    SchemaClass result =
         ctx.getDatabase().getMetadata().getSchema().getClass(className.getStringValue());
     if (result == null) {
-      throw new YTCommandExecutionException("Cannot find class " + className);
+      throw new CommandExecutionException("Cannot find class " + className);
     }
     return result;
   }
@@ -268,23 +268,23 @@ public class SQLCreateIndexStatement extends ODDLStatement {
     return metadata.toDocument(null, ctx);
   }
 
-  private YTType[] calculateKeyTypes(CommandContext ctx) {
+  private PropertyType[] calculateKeyTypes(CommandContext ctx) {
     if (keyTypes == null) {
-      return new YTType[0];
+      return new PropertyType[0];
     }
     return keyTypes.stream()
-        .map(x -> YTType.valueOf(x.getStringValue()))
+        .map(x -> PropertyType.valueOf(x.getStringValue()))
         .collect(Collectors.toList())
-        .toArray(new YTType[]{});
+        .toArray(new PropertyType[]{});
   }
 
-  private List<OCollate> calculateCollates(CommandContext ctx) {
-    List<OCollate> result = new ArrayList<>();
+  private List<Collate> calculateCollates(CommandContext ctx) {
+    List<Collate> result = new ArrayList<>();
     boolean found = false;
     for (Property prop : this.propertyList) {
       String collate = prop.collate == null ? null : prop.collate.getStringValue();
       if (collate != null) {
-        final OCollate col = OSQLEngine.getCollate(collate);
+        final Collate col = SQLEngine.getCollate(collate);
         result.add(col);
         found = true;
       } else {

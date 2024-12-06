@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
@@ -25,7 +25,7 @@ public class GlobalLetExpressionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -38,7 +38,7 @@ public class GlobalLetExpressionStep extends AbstractExecutionStep {
     if (executed) {
       return;
     }
-    Object value = expression.execute((YTResult) null, ctx);
+    Object value = expression.execute((Result) null, ctx);
     ctx.setVariable(varname.getStringValue(), value);
     executed = true;
   }

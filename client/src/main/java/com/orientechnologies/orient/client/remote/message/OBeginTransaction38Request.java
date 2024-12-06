@@ -1,17 +1,17 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
-import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.DocumentSerializerDelta;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
@@ -32,11 +32,11 @@ public class OBeginTransaction38Request implements OBinaryRequest<OBeginTransact
   private List<IndexChange> indexChanges;
 
   public OBeginTransaction38Request(
-      YTDatabaseSessionInternal session, long txId,
+      DatabaseSessionInternal session, long txId,
       boolean hasContent,
       boolean usingLog,
-      Iterable<ORecordOperation> operations,
-      Map<String, OTransactionIndexChanges> indexChanges) {
+      Iterable<RecordOperation> operations,
+      Map<String, FrontendTransactionIndexChanges> indexChanges) {
     super();
     this.txId = txId;
     this.hasContent = hasContent;
@@ -45,34 +45,34 @@ public class OBeginTransaction38Request implements OBinaryRequest<OBeginTransact
     this.operations = new ArrayList<>();
 
     if (hasContent) {
-      for (ORecordOperation txEntry : operations) {
+      for (RecordOperation txEntry : operations) {
         ORecordOperationRequest request = new ORecordOperationRequest();
         request.setType(txEntry.type);
         request.setVersion(txEntry.record.getVersion());
         request.setId(txEntry.record.getIdentity());
-        request.setRecordType(ORecordInternal.getRecordType(txEntry.record));
+        request.setRecordType(RecordInternal.getRecordType(txEntry.record));
         switch (txEntry.type) {
-          case ORecordOperation.CREATED:
+          case RecordOperation.CREATED:
             request.setRecord(
-                ORecordSerializerNetworkV37Client.INSTANCE.toStream(session, txEntry.record));
-            request.setContentChanged(ORecordInternal.isContentChanged(txEntry.record));
+                RecordSerializerNetworkV37Client.INSTANCE.toStream(session, txEntry.record));
+            request.setContentChanged(RecordInternal.isContentChanged(txEntry.record));
             break;
-          case ORecordOperation.UPDATED:
-            if (EntityImpl.RECORD_TYPE == ORecordInternal.getRecordType(txEntry.record)) {
-              request.setRecordType(ODocumentSerializerDelta.DELTA_RECORD_TYPE);
-              ODocumentSerializerDelta delta = ODocumentSerializerDelta.instance();
+          case RecordOperation.UPDATED:
+            if (EntityImpl.RECORD_TYPE == RecordInternal.getRecordType(txEntry.record)) {
+              request.setRecordType(DocumentSerializerDelta.DELTA_RECORD_TYPE);
+              DocumentSerializerDelta delta = DocumentSerializerDelta.instance();
               request.setRecord(delta.serializeDelta((EntityImpl) txEntry.record));
             } else {
               request.setRecord(
-                  ORecordSerializerNetworkV37.INSTANCE.toStream(session, txEntry.record));
+                  RecordSerializerNetworkV37.INSTANCE.toStream(session, txEntry.record));
             }
-            request.setContentChanged(ORecordInternal.isContentChanged(txEntry.record));
+            request.setContentChanged(RecordInternal.isContentChanged(txEntry.record));
             break;
         }
         this.operations.add(request);
       }
 
-      for (Map.Entry<String, OTransactionIndexChanges> change : indexChanges.entrySet()) {
+      for (Map.Entry<String, FrontendTransactionIndexChanges> change : indexChanges.entrySet()) {
         this.indexChanges.add(new IndexChange(change.getKey(), change.getValue()));
       }
     }
@@ -82,10 +82,10 @@ public class OBeginTransaction38Request implements OBinaryRequest<OBeginTransact
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     // from 3.0 the the serializer is bound to the protocol
-    ORecordSerializerNetworkV37Client serializer = ORecordSerializerNetworkV37Client.INSTANCE;
+    RecordSerializerNetworkV37Client serializer = RecordSerializerNetworkV37Client.INSTANCE;
 
     network.writeLong(txId);
     network.writeBoolean(hasContent);
@@ -104,8 +104,8 @@ public class OBeginTransaction38Request implements OBinaryRequest<OBeginTransact
   }
 
   @Override
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
-      ORecordSerializer serializer)
+  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+      RecordSerializer serializer)
       throws IOException {
     txId = channel.readLong();
     hasContent = channel.readBoolean();
@@ -124,7 +124,7 @@ public class OBeginTransaction38Request implements OBinaryRequest<OBeginTransact
       // RECEIVE MANUAL INDEX CHANGES
       this.indexChanges =
           OMessageHelper.readTransactionIndexChanges(db,
-              channel, (ORecordSerializerNetworkV37) serializer);
+              channel, (RecordSerializerNetworkV37) serializer);
     } else {
       this.indexChanges = new ArrayList<>();
     }
@@ -132,7 +132,7 @@ public class OBeginTransaction38Request implements OBinaryRequest<OBeginTransact
 
   @Override
   public byte getCommand() {
-    return OChannelBinaryProtocol.REQUEST_TX_BEGIN;
+    return ChannelBinaryProtocol.REQUEST_TX_BEGIN;
   }
 
   @Override
@@ -170,22 +170,22 @@ public class OBeginTransaction38Request implements OBinaryRequest<OBeginTransact
     return hasContent;
   }
 
-  static ORecordOperationRequest readTransactionEntry(OChannelDataInput channel)
+  static ORecordOperationRequest readTransactionEntry(ChannelDataInput channel)
       throws IOException {
     ORecordOperationRequest entry = new ORecordOperationRequest();
     entry.setType(channel.readByte());
     entry.setId(channel.readRID());
     entry.setRecordType(channel.readByte());
     switch (entry.getType()) {
-      case ORecordOperation.CREATED:
+      case RecordOperation.CREATED:
         entry.setRecord(channel.readBytes());
         break;
-      case ORecordOperation.UPDATED:
+      case RecordOperation.UPDATED:
         entry.setVersion(channel.readVersion());
         entry.setRecord(channel.readBytes());
         entry.setContentChanged(channel.readBoolean());
         break;
-      case ORecordOperation.DELETED:
+      case RecordOperation.DELETED:
         entry.setVersion(channel.readVersion());
         break;
       default:
@@ -195,24 +195,24 @@ public class OBeginTransaction38Request implements OBinaryRequest<OBeginTransact
   }
 
   static void writeTransactionEntry(
-      final OChannelDataOutput iNetwork, final ORecordOperationRequest txEntry) throws IOException {
+      final ChannelDataOutput iNetwork, final ORecordOperationRequest txEntry) throws IOException {
     iNetwork.writeByte((byte) 1);
     iNetwork.writeByte(txEntry.getType());
     iNetwork.writeRID(txEntry.getId());
     iNetwork.writeByte(txEntry.getRecordType());
 
     switch (txEntry.getType()) {
-      case ORecordOperation.CREATED:
+      case RecordOperation.CREATED:
         iNetwork.writeBytes(txEntry.getRecord());
         break;
 
-      case ORecordOperation.UPDATED:
+      case RecordOperation.UPDATED:
         iNetwork.writeVersion(txEntry.getVersion());
         iNetwork.writeBytes(txEntry.getRecord());
         iNetwork.writeBoolean(txEntry.isContentChanged());
         break;
 
-      case ORecordOperation.DELETED:
+      case RecordOperation.DELETED:
         iNetwork.writeVersion(txEntry.getVersion());
         break;
     }

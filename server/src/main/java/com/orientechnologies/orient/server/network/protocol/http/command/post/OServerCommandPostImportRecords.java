@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.ORecordSerializerCSVAbstract;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerCSVAbstract;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -56,7 +56,7 @@ public class OServerCommandPostImportRecords extends OServerCommandDocumentAbstr
     iRequest.getData().commandInfo = "Import records";
 
     try (var db = getProfiledDatabaseInstance(iRequest)) {
-      final YTClass cls = db.getMetadata().getSchema().getClass(urlParts[3]);
+      final SchemaClass cls = db.getMetadata().getSchema().getClass(urlParts[3]);
       if (cls == null) {
         throw new IllegalArgumentException("Class '" + urlParts[3] + " is not defined");
       }
@@ -77,8 +77,8 @@ public class OServerCommandPostImportRecords extends OServerCommandDocumentAbstr
           throw new InputMismatchException("Missing CSV file header");
         }
 
-        final List<String> columns = OStringSerializerHelper.smartSplit(header, separator);
-        columns.replaceAll(OIOUtils::getStringContent);
+        final List<String> columns = StringSerializerHelper.smartSplit(header, separator);
+        columns.replaceAll(IOUtils::getStringContent);
 
         int imported = 0;
         int errors = 0;
@@ -100,7 +100,7 @@ public class OServerCommandPostImportRecords extends OServerCommandDocumentAbstr
 
             final EntityImpl doc = new EntityImpl(cls);
             final String row = parsedRow.trim();
-            final List<String> cells = OStringSerializerHelper.smartSplit(row, CSV_SEPARATOR);
+            final List<String> cells = StringSerializerHelper.smartSplit(row, CSV_SEPARATOR);
 
             for (col = 0; col < columns.size(); ++col) {
               parsedCell = cells.get(col);
@@ -116,12 +116,12 @@ public class OServerCommandPostImportRecords extends OServerCommandDocumentAbstr
               if (cellValue.length() >= 2
                   && cellValue.charAt(0) == stringDelimiter
                   && cellValue.charAt(cellValue.length() - 1) == stringDelimiter) {
-                value = OIOUtils.getStringContent(cellValue);
+                value = IOUtils.getStringContent(cellValue);
               } else {
                 try {
                   value = numberFormat.parse(cellValue);
                 } catch (Exception e) {
-                  value = ORecordSerializerCSVAbstract.getTypeValue(db, cellValue);
+                  value = RecordSerializerCSVAbstract.getTypeValue(db, cellValue);
                 }
               }
 

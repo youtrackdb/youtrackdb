@@ -19,15 +19,15 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.TreeEntry;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,19 +36,19 @@ import java.util.Map.Entry;
 
 public class OSBTFetchEntriesMajorResponse<K, V> implements OBinaryResponse {
 
-  private final OBinarySerializer<K> keySerializer;
-  private final OBinarySerializer<V> valueSerializer;
+  private final BinarySerializer<K> keySerializer;
+  private final BinarySerializer<V> valueSerializer;
   private List<Map.Entry<K, V>> list;
 
   public OSBTFetchEntriesMajorResponse(
-      OBinarySerializer<K> keySerializer, OBinarySerializer<V> valueSerializer) {
+      BinarySerializer<K> keySerializer, BinarySerializer<V> valueSerializer) {
     this.keySerializer = keySerializer;
     this.valueSerializer = valueSerializer;
   }
 
   public OSBTFetchEntriesMajorResponse(
-      OBinarySerializer<K> keySerializer,
-      OBinarySerializer<V> valueSerializer,
+      BinarySerializer<K> keySerializer,
+      BinarySerializer<V> valueSerializer,
       List<Map.Entry<K, V>> list) {
     this.keySerializer = keySerializer;
     this.valueSerializer = valueSerializer;
@@ -56,12 +56,12 @@ public class OSBTFetchEntriesMajorResponse<K, V> implements OBinaryResponse {
   }
 
   @Override
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
+  public void read(DatabaseSessionInternal db, ChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
     byte[] stream = network.readBytes();
     int offset = 0;
-    final int count = OIntegerSerializer.INSTANCE.deserializeLiteral(stream, 0);
-    offset += OIntegerSerializer.INT_SIZE;
+    final int count = IntegerSerializer.INSTANCE.deserializeLiteral(stream, 0);
+    offset += IntegerSerializer.INT_SIZE;
     list = new ArrayList<Map.Entry<K, V>>(count);
     for (int i = 0; i < count; i++) {
       final K resultKey = keySerializer.deserialize(stream, offset);
@@ -72,18 +72,18 @@ public class OSBTFetchEntriesMajorResponse<K, V> implements OBinaryResponse {
     }
   }
 
-  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel,
-      int protocolVersion, ORecordSerializer serializer)
+  public void write(DatabaseSessionInternal session, ChannelDataOutput channel,
+      int protocolVersion, RecordSerializer serializer)
       throws IOException {
     byte[] stream =
         new byte
-            [OIntegerSerializer.INT_SIZE
+            [IntegerSerializer.INT_SIZE
             + list.size()
             * (keySerializer.getFixedLength() + valueSerializer.getFixedLength())];
     int offset = 0;
 
-    OIntegerSerializer.INSTANCE.serializeLiteral(list.size(), stream, offset);
-    offset += OIntegerSerializer.INT_SIZE;
+    IntegerSerializer.INSTANCE.serializeLiteral(list.size(), stream, offset);
+    offset += IntegerSerializer.INT_SIZE;
 
     for (Entry<K, V> entry : list) {
       keySerializer.serialize(entry.getKey(), stream, offset);

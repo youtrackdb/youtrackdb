@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -35,7 +35,7 @@ public interface Edge extends Entity {
   /**
    * The name of the class of the edge record
    */
-  String CLASS_NAME = YTClass.EDGE_CLASS_NAME;
+  String CLASS_NAME = SchemaClass.EDGE_CLASS_NAME;
 
   /**
    * The name of the property that represents link to the vertex from which the edge is going out.
@@ -68,7 +68,7 @@ public interface Edge extends Entity {
    *
    * @return the identifiable object from where this edge originates
    */
-  YTIdentifiable getFromIdentifiable();
+  Identifiable getFromIdentifiable();
 
   /**
    * Retrieves the vertex that this edge connects to.
@@ -82,7 +82,7 @@ public interface Edge extends Entity {
    *
    * @return the identifiable object from where the edge connects to
    */
-  YTIdentifiable getToIdentifiable();
+  Identifiable getToIdentifiable();
 
   /**
    * Checks if the edge is lightweight.
@@ -98,10 +98,10 @@ public interface Edge extends Entity {
    * @return the vertex connected to this edge in the specified direction, or null if no vertex is
    * connected
    */
-  default Vertex getVertex(ODirection dir) {
-    if (dir == ODirection.IN) {
+  default Vertex getVertex(Direction dir) {
+    if (dir == Direction.IN) {
       return getTo();
-    } else if (dir == ODirection.OUT) {
+    } else if (dir == Direction.OUT) {
       return getFrom();
     }
     throw new IllegalArgumentException("Direction not supported: " + dir);
@@ -115,10 +115,10 @@ public interface Edge extends Entity {
    * @return the identifiable object of the vertex connected to this edge in the specified
    * direction, or null if no vertex is connected
    */
-  default YTIdentifiable getVertexLink(ODirection dir) {
-    if (dir == ODirection.IN) {
+  default Identifiable getVertexLink(Direction dir) {
+    if (dir == Direction.IN) {
       return getToIdentifiable();
-    } else if (dir == ODirection.OUT) {
+    } else if (dir == Direction.OUT) {
       return getFromIdentifiable();
     }
     throw new IllegalArgumentException("Direction not supported: " + dir);
@@ -139,10 +139,10 @@ public interface Edge extends Entity {
     }
     Set<String> types = new HashSet<>();
 
-    Optional<YTClass> typeClass = getSchemaType();
+    Optional<SchemaClass> typeClass = getSchemaType();
     if (typeClass.isPresent()) {
       types.add(typeClass.get().getName());
-      typeClass.get().getAllSuperClasses().stream().map(YTClass::getName).forEach(types::add);
+      typeClass.get().getAllSuperClasses().stream().map(SchemaClass::getName).forEach(types::add);
     } else {
       types.add(CLASS_NAME);
     }
@@ -189,7 +189,7 @@ public interface Edge extends Entity {
    */
   @Nullable
   @Override
-  YTIdentifiable getLinkProperty(String name);
+  Identifiable getLinkProperty(String name);
 
   /**
    * Check if a property exists in the Element. if the property name equals to {@link #DIRECTION_IN}
@@ -222,7 +222,7 @@ public interface Edge extends Entity {
    * @param fieldType Forced type (not auto-determined)
    * @throws IllegalArgumentException if booked property name is used.
    */
-  void setProperty(String name, Object value, YTType... fieldType);
+  void setProperty(String name, Object value, PropertyType... fieldType);
 
   /**
    * Remove a property, if the property name equals to {@link #DIRECTION_IN} or

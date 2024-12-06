@@ -16,8 +16,8 @@
 
 package com.jetbrains.youtrack.db.internal.common.serialization.types;
 
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALChanges;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALPageChangesPortion;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALPageChangesPortion;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Random;
@@ -33,11 +33,11 @@ public class CharSerializerTest {
   private static final int FIELD_SIZE = 2;
   private static final Character OBJECT = (char) (new Random()).nextInt();
   byte[] stream = new byte[FIELD_SIZE];
-  private OCharSerializer charSerializer;
+  private CharSerializer charSerializer;
 
   @Before
   public void beforeClass() {
-    charSerializer = new OCharSerializer();
+    charSerializer = new CharSerializer();
   }
 
   @Test
@@ -113,13 +113,13 @@ public class CharSerializerTest {
     final int serializationOffset = 5;
     final ByteBuffer buffer =
         ByteBuffer.allocateDirect(
-                FIELD_SIZE + serializationOffset + OWALPageChangesPortion.PORTION_BYTES)
+                FIELD_SIZE + serializationOffset + WALPageChangesPortion.PORTION_BYTES)
             .order(ByteOrder.nativeOrder());
 
     final byte[] data = new byte[FIELD_SIZE];
     charSerializer.serializeNative(OBJECT, data, 0);
 
-    OWALChanges walChanges = new OWALPageChangesPortion();
+    WALChanges walChanges = new WALPageChangesPortion();
     walChanges.setBinaryValue(buffer, data, serializationOffset);
 
     Assert.assertEquals(

@@ -19,14 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.multivalue.v2;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OByteSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OLongSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OShortSerializer;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurablePage;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,18 +43,18 @@ import java.util.List;
  *
  * @since 4/15/14
  */
-public final class CellBTreeMultiValueV2NullBucket extends ODurablePage {
+public final class CellBTreeMultiValueV2NullBucket extends DurablePage {
 
   private static final int EMBEDDED_RIDS_BOUNDARY = 64;
 
-  private static final int RID_SIZE = OShortSerializer.SHORT_SIZE + OLongSerializer.LONG_SIZE;
+  private static final int RID_SIZE = ShortSerializer.SHORT_SIZE + LongSerializer.LONG_SIZE;
 
   private static final int M_ID_OFFSET = NEXT_FREE_POSITION;
-  private static final int EMBEDDED_RIDS_SIZE_OFFSET = M_ID_OFFSET + OLongSerializer.LONG_SIZE;
-  private static final int RIDS_SIZE_OFFSET = EMBEDDED_RIDS_SIZE_OFFSET + OByteSerializer.BYTE_SIZE;
-  private static final int RIDS_OFFSET = RIDS_SIZE_OFFSET + OIntegerSerializer.INT_SIZE;
+  private static final int EMBEDDED_RIDS_SIZE_OFFSET = M_ID_OFFSET + LongSerializer.LONG_SIZE;
+  private static final int RIDS_SIZE_OFFSET = EMBEDDED_RIDS_SIZE_OFFSET + ByteSerializer.BYTE_SIZE;
+  private static final int RIDS_OFFSET = RIDS_SIZE_OFFSET + IntegerSerializer.INT_SIZE;
 
-  public CellBTreeMultiValueV2NullBucket(final OCacheEntry cacheEntry) {
+  public CellBTreeMultiValueV2NullBucket(final CacheEntry cacheEntry) {
     super(cacheEntry);
   }
 
@@ -64,14 +64,14 @@ public final class CellBTreeMultiValueV2NullBucket extends ODurablePage {
     setIntValue(RIDS_SIZE_OFFSET, 0);
   }
 
-  public long addValue(final YTRID rid) {
+  public long addValue(final RID rid) {
     final int embeddedSize = getByteValue(EMBEDDED_RIDS_SIZE_OFFSET);
 
     if (embeddedSize < EMBEDDED_RIDS_BOUNDARY) {
       final int position = embeddedSize * RID_SIZE + RIDS_OFFSET;
 
       setShortValue(position, (short) rid.getClusterId());
-      setLongValue(position + OShortSerializer.SHORT_SIZE, rid.getClusterPosition());
+      setLongValue(position + ShortSerializer.SHORT_SIZE, rid.getClusterPosition());
 
       setByteValue(EMBEDDED_RIDS_SIZE_OFFSET, (byte) (embeddedSize + 1));
 
@@ -95,18 +95,18 @@ public final class CellBTreeMultiValueV2NullBucket extends ODurablePage {
     setIntValue(RIDS_SIZE_OFFSET, size - 1);
   }
 
-  public List<YTRID> getValues() {
+  public List<RID> getValues() {
     final int size = getIntValue(RIDS_SIZE_OFFSET);
-    final List<YTRID> rids = new ArrayList<>(size);
+    final List<RID> rids = new ArrayList<>(size);
 
     final int embeddedSize = getByteValue(EMBEDDED_RIDS_SIZE_OFFSET);
     final int end = embeddedSize * RID_SIZE + RIDS_OFFSET;
 
     for (int position = RIDS_OFFSET; position < end; position += RID_SIZE) {
       final int clusterId = getShortValue(position);
-      final long clusterPosition = getLongValue(position + OShortSerializer.SHORT_SIZE);
+      final long clusterPosition = getLongValue(position + ShortSerializer.SHORT_SIZE);
 
-      rids.add(new YTRecordId(clusterId, clusterPosition));
+      rids.add(new RecordId(clusterId, clusterPosition));
     }
 
     return rids;
@@ -120,7 +120,7 @@ public final class CellBTreeMultiValueV2NullBucket extends ODurablePage {
     return getIntValue(RIDS_SIZE_OFFSET);
   }
 
-  public int removeValue(final YTRID rid) {
+  public int removeValue(final RID rid) {
     final int size = getIntValue(RIDS_SIZE_OFFSET);
 
     final int embeddedSize = getByteValue(EMBEDDED_RIDS_SIZE_OFFSET);
@@ -132,7 +132,7 @@ public final class CellBTreeMultiValueV2NullBucket extends ODurablePage {
         continue;
       }
 
-      final long clusterPosition = getLongValue(position + OShortSerializer.SHORT_SIZE);
+      final long clusterPosition = getLongValue(position + ShortSerializer.SHORT_SIZE);
       if (clusterPosition == rid.getClusterPosition()) {
         moveData(position + RID_SIZE, position, end - (position + RID_SIZE));
         setByteValue(EMBEDDED_RIDS_SIZE_OFFSET, (byte) (embeddedSize - 1));

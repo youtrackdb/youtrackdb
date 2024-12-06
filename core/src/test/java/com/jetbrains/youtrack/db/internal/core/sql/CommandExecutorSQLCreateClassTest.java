@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,11 +29,11 @@ import org.junit.Test;
 /**
  *
  */
-public class CommandExecutorSQLCreateClassTest extends DBTestBase {
+public class CommandExecutorSQLCreateClassTest extends DbTestBase {
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    final YTSchema schema = db.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     schema.createClass("User", schema.getClass("V"));
   }
 
@@ -42,7 +42,7 @@ public class CommandExecutorSQLCreateClassTest extends DBTestBase {
 
     db.command("create class `UserVertex` extends `V` , `User`").close();
 
-    YTClass userVertex = db.getMetadata().getSchema().getClass("UserVertex");
+    SchemaClass userVertex = db.getMetadata().getSchema().getClass("UserVertex");
 
     Assert.assertNotNull(userVertex);
 

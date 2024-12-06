@@ -19,15 +19,15 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import java.util.Map;
 
 public abstract class OServerCommandDocumentAbstract extends OServerCommandAuthenticatedDbAbstract {
 
   protected String bindToFields(
-      final OHttpRequest iRequest, final Map<String, String> iFields, final YTRecordId iRid)
+      final OHttpRequest iRequest, final Map<String, String> iFields, final RecordId iRid)
       throws Exception {
     if (iRequest.getContent() == null) {
       throw new IllegalArgumentException("HTTP Request content is empty");
@@ -42,7 +42,7 @@ public abstract class OServerCommandDocumentAbstract extends OServerCommandAuthe
     String value;
 
     for (String p : params) {
-      if (OStringSerializerHelper.contains(p, '=')) {
+      if (StringSerializerHelper.contains(p, '=')) {
         String[] pairs = p.split("=");
         value = pairs.length == 1 ? null : pairs[1];
 

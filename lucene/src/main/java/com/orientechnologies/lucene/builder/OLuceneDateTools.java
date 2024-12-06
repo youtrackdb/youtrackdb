@@ -1,7 +1,7 @@
 package com.orientechnologies.lucene.builder;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.util.ODateHelper;
+import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -107,7 +107,7 @@ public class OLuceneDateTools {
 
       SimpleDateFormat format =
           new SimpleDateFormat("yyyyMMddHHmmssSSS".substring(0, formatLen), Locale.ROOT);
-      format.setTimeZone(ODateHelper.getDatabaseTimeZone());
+      format.setTimeZone(DateHelper.getDatabaseTimeZone());
 
       return format;
     }

@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
@@ -36,15 +36,15 @@ import java.util.UUID;
 
 public final class OCommit37Response implements OBinaryResponse {
 
-  private Map<UUID, OBonsaiCollectionPointer> collectionChanges;
-  private List<ObjectObjectImmutablePair<YTRID, YTRID>> updatedRids;
+  private Map<UUID, BonsaiCollectionPointer> collectionChanges;
+  private List<ObjectObjectImmutablePair<RID, RID>> updatedRids;
 
   public OCommit37Response(
-      Map<YTRID, YTRID> updatedRids, Map<UUID, OBonsaiCollectionPointer> collectionChanges) {
+      Map<RID, RID> updatedRids, Map<UUID, BonsaiCollectionPointer> collectionChanges) {
     super();
     this.updatedRids = new ArrayList<>(updatedRids.size());
 
-    for (Map.Entry<YTRID, YTRID> entry : updatedRids.entrySet()) {
+    for (Map.Entry<RID, RID> entry : updatedRids.entrySet()) {
       this.updatedRids.add(new ObjectObjectImmutablePair<>(entry.getValue(), entry.getKey()));
     }
 
@@ -55,8 +55,8 @@ public final class OCommit37Response implements OBinaryResponse {
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel,
-      int protocolVersion, ORecordSerializer serializer)
+  public void write(DatabaseSessionInternal session, ChannelDataOutput channel,
+      int protocolVersion, RecordSerializer serializer)
       throws IOException {
 
     channel.writeInt(updatedRids.size());
@@ -69,14 +69,14 @@ public final class OCommit37Response implements OBinaryResponse {
   }
 
   @Override
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
+  public void read(DatabaseSessionInternal db, ChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
 
     int updatedRidsSize = network.readInt();
     updatedRids = new ArrayList<>(updatedRidsSize);
     for (int i = 0; i < updatedRidsSize; i++) {
-      YTRID first = network.readRID();
-      YTRID second = network.readRID();
+      RID first = network.readRID();
+      RID second = network.readRID();
 
       updatedRids.add(new ObjectObjectImmutablePair<>(first, second));
     }
@@ -84,11 +84,11 @@ public final class OCommit37Response implements OBinaryResponse {
     collectionChanges = OMessageHelper.readCollectionChanges(network);
   }
 
-  public List<ObjectObjectImmutablePair<YTRID, YTRID>> getUpdatedRids() {
+  public List<ObjectObjectImmutablePair<RID, RID>> getUpdatedRids() {
     return updatedRids;
   }
 
-  public Map<UUID, OBonsaiCollectionPointer> getCollectionChanges() {
+  public Map<UUID, BonsaiCollectionPointer> getCollectionChanges() {
     return collectionChanges;
   }
 }

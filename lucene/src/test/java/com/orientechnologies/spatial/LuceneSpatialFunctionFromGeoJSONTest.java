@@ -13,8 +13,8 @@
  */
 package com.orientechnologies.spatial;
 
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.HashMap;
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class LuceneSpatialFunctionFromGeoJSONTest extends BaseSpatialLuceneTest 
 
   protected void queryAndMatch(String input, String match) {
 
-    YTResultSet query =
+    ResultSet query =
         db.query(
             "SELECT ST_AsGeoJSON(ST_GeomFromText(:geo)) as geo;",
             new HashMap() {
@@ -46,7 +46,7 @@ public class LuceneSpatialFunctionFromGeoJSONTest extends BaseSpatialLuceneTest 
                 put("geo", input);
               }
             });
-    YTResult result = query.stream().findFirst().get();
+    Result result = query.stream().findFirst().get();
     String geo = result.getProperty("geo");
     Assert.assertEquals(match, geo);
   }

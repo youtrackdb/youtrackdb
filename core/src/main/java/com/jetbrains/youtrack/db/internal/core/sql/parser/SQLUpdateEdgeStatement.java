@@ -3,8 +3,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OUpdateExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OUpdateExecutionPlanner;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.UpdateExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.UpdateExecutionPlanner;
 import java.util.stream.Collectors;
 
 public class SQLUpdateEdgeStatement extends SQLUpdateStatement {
@@ -22,9 +22,9 @@ public class SQLUpdateEdgeStatement extends SQLUpdateStatement {
   }
 
   @Override
-  public OUpdateExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    OUpdateExecutionPlanner planner = new OUpdateExecutionPlanner(this);
-    OUpdateExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling);
+  public UpdateExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
+    UpdateExecutionPlanner planner = new UpdateExecutionPlanner(this);
+    UpdateExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling);
     result.setStatement(originalStatement);
     result.setGenericStatement(this.toGenericStatement());
     return result;

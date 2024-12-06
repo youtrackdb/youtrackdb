@@ -20,27 +20,27 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.util.OPair;
+import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTQueryParsingException;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexAbstract;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexAbstract;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItemField;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLAsynchQuery;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,17 +55,17 @@ import java.util.concurrent.atomic.AtomicLong;
  * SQL INSERT command.
  */
 public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
-    implements OCommandDistributedReplicateRequest, OCommandResultListener {
+    implements CommandDistributedReplicateRequest, CommandResultListener {
 
   public static final String KEYWORD_INSERT = "INSERT";
   protected static final String KEYWORD_RETURN = "RETURN";
   private static final String KEYWORD_VALUES = "VALUES";
   private String className = null;
-  private YTClass clazz = null;
+  private SchemaClass clazz = null;
   private String clusterName = null;
   private String indexName = null;
   private List<Map<String, Object>> newRecords;
-  private OSQLAsynchQuery<YTIdentifiable> subQuery = null;
+  private SQLAsynchQuery<Identifiable> subQuery = null;
   private final AtomicLong saved = new AtomicLong(0);
   private Object returnExpression = null;
   private List<EntityImpl> queryResult = null;
@@ -117,7 +117,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
           subjectName = subjectName.substring(CommandExecutorSQLAbstract.CLASS_PREFIX.length());
         }
 
-        final YTClass cls =
+        final SchemaClass cls =
             database.getMetadata().getImmutableSchemaSnapshot().getClass(subjectName);
         if (cls == null) {
           throwParsingException("Class " + subjectName + " not found in database");
@@ -126,7 +126,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
         if (!unsafe && cls.isSubClassOf("E"))
         // FOUND EDGE
         {
-          throw new YTCommandExecutionException(
+          throw new CommandExecutionException(
               "'INSERT' command cannot create Edges. Use 'CREATE EDGE' command instead, or apply"
                   + " the 'UNSAFE' keyword to force it");
         }
@@ -134,12 +134,12 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
         className = cls.getName();
         clazz = database.getMetadata().getSchema().getClass(className);
         if (clazz == null) {
-          throw new YTQueryParsingException("Class '" + className + "' was not found");
+          throw new QueryParsingException("Class '" + className + "' was not found");
         }
       }
 
       if (clusterName != null && className == null) {
-        YTDatabaseSessionInternal db = getDatabase();
+        DatabaseSessionInternal db = getDatabase();
         final int clusterId = db.getClusterIdByName(clusterName);
         if (clusterId >= 0) {
           clazz = db.getMetadata().getSchema().getClassByClusterId(clusterId);
@@ -182,10 +182,10 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
           parseContent();
           sourceClauseProcessed = true;
         } else if (parserGetLastWord().equals(KEYWORD_SET)) {
-          final List<OPair<String, Object>> fields = new ArrayList<OPair<String, Object>>();
+          final List<Pair<String, Object>> fields = new ArrayList<Pair<String, Object>>();
           parseSetFields(clazz, fields);
 
-          newRecords.add(OPair.convertToMap(fields));
+          newRecords.add(Pair.convertToMap(fields));
 
           sourceClauseProcessed = true;
         }
@@ -203,7 +203,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
         if (parserGetLastWord().equals(KEYWORD_FROM)) {
           newRecords = null;
           subQuery =
-              new OSQLAsynchQuery<YTIdentifiable>(
+              new SQLAsynchQuery<Identifiable>(
                   parserText.substring(parserGetCurrentPosition()), this);
         }
       }
@@ -218,25 +218,25 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
   /**
    * Execute the INSERT and return the EntityImpl object created.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
-    final YTDatabaseSessionInternal database = getDatabase();
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
+    final DatabaseSessionInternal database = getDatabase();
     if (newRecords == null && content == null && subQuery == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final OCommandParameters commandParameters = new OCommandParameters(iArgs);
+    final CommandParameters commandParameters = new CommandParameters(iArgs);
     if (indexName != null) {
       if (newRecords == null) {
-        throw new YTCommandExecutionException("No key/value found");
+        throw new CommandExecutionException("No key/value found");
       }
 
-      OIndexAbstract.manualIndexesWarning();
+      IndexAbstract.manualIndexesWarning();
 
-      final OIndex index =
+      final Index index =
           database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
       if (index == null) {
-        throw new YTCommandExecutionException("Target index '" + indexName + "' not found");
+        throw new CommandExecutionException("Target index '" + indexName + "' not found");
       }
 
       // BIND VALUES
@@ -244,7 +244,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
 
       for (Map<String, Object> candidate : newRecords) {
         Object indexKey = getIndexKeyValue(database, commandParameters, candidate);
-        YTIdentifiable indexValue = getIndexValue(database, commandParameters, candidate);
+        Identifiable indexValue = getIndexValue(database, commandParameters, candidate);
         index.put(database, indexKey, indexValue);
 
         result.put(KEYWORD_KEY, indexKey);
@@ -260,7 +260,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
         for (Map<String, Object> candidate : newRecords) {
           final EntityImpl doc =
               className != null ? new EntityImpl(className) : new EntityImpl();
-          OSQLHelper.bindParameters(doc, candidate, commandParameters, context);
+          SQLHelper.bindParameters(doc, candidate, commandParameters, context);
 
           saveRecord(doc);
           docs.add(doc);
@@ -290,7 +290,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
   }
 
   @Override
-  public OCommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
+  public CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
   getDistributedExecutionMode() {
     return indexName != null
         ? DISTRIBUTED_EXECUTION_MODE.REPLICATE
@@ -300,7 +300,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
   @Override
   public Set<String> getInvolvedClusters() {
     if (className != null) {
-      final YTClass clazz =
+      final SchemaClass clazz =
           getDatabase().getMetadata().getImmutableSchemaSnapshot().getClass(className);
       return Collections.singleton(
           getDatabase().getClusterNameById(clazz.getClusterSelection().getCluster(clazz, null)));
@@ -319,12 +319,12 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
   }
 
   @Override
-  public boolean result(YTDatabaseSessionInternal querySession, final Object iRecord) {
-    YTClass oldClass = null;
-    RecordAbstract oldRecord = ((YTIdentifiable) iRecord).getRecord();
+  public boolean result(DatabaseSessionInternal querySession, final Object iRecord) {
+    SchemaClass oldClass = null;
+    RecordAbstract oldRecord = ((Identifiable) iRecord).getRecord();
 
     if (oldRecord instanceof EntityImpl) {
-      oldClass = ODocumentInternal.getImmutableSchemaClass(((EntityImpl) oldRecord));
+      oldClass = DocumentInternal.getImmutableSchemaClass(((EntityImpl) oldRecord));
     }
     final RecordAbstract rec = oldRecord.copy();
 
@@ -353,16 +353,16 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
         for (String field : fields) {
           if (field.startsWith("out_") || field.startsWith("in_")) {
             Object edges = doc.getPropertyInternal(field);
-            if (edges instanceof YTIdentifiable) {
-              EntityImpl edgeRec = ((YTIdentifiable) edges).getRecord();
-              YTClass clazz = ODocumentInternal.getImmutableSchemaClass(edgeRec);
+            if (edges instanceof Identifiable) {
+              EntityImpl edgeRec = ((Identifiable) edges).getRecord();
+              SchemaClass clazz = DocumentInternal.getImmutableSchemaClass(edgeRec);
               if (clazz != null && clazz.isSubClassOf("E")) {
                 doc.removeProperty(field);
               }
             } else if (edges instanceof Iterable) {
               for (Object edge : (Iterable) edges) {
-                if (edge instanceof YTIdentifiable) {
-                  Entity edgeRec = ((YTIdentifiable) edge).getRecord();
+                if (edge instanceof Identifiable) {
+                  Entity edgeRec = ((Identifiable) edge).getRecord();
                   if (edgeRec.getSchemaType().isPresent()
                       && edgeRec.getSchemaType().get().isSubClassOf("E")) {
                     doc.removeProperty(field);
@@ -407,8 +407,8 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
     }
 
     this.getContext().setVariable("current", item);
-    final Object res = OSQLHelper.getValue(returnExpression, item, this.getContext());
-    if (res instanceof YTIdentifiable) {
+    final Object res = SQLHelper.getValue(returnExpression, item, this.getContext());
+    if (res instanceof Identifiable) {
       return res;
     } else { // wrapping doc
       final EntityImpl wrappingDoc = new EntityImpl("result", res);
@@ -438,7 +438,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
 
     final ArrayList<String> fieldNamesQuoted = new ArrayList<String>();
     parserSetCurrentPosition(
-        OStringSerializerHelper.getParameters(
+        StringSerializerHelper.getParameters(
             parserText, beginFields, endFields, fieldNamesQuoted));
     final ArrayList<String> fieldNames = new ArrayList<String>();
     for (String fieldName : fieldNamesQuoted) {
@@ -451,7 +451,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
 
     // REMOVE QUOTATION MARKS IF ANY
     for (int i = 0; i < fieldNames.size(); ++i) {
-      fieldNames.set(i, OStringSerializerHelper.removeQuotationMarks(fieldNames.get(i)));
+      fieldNames.set(i, StringSerializerHelper.removeQuotationMarks(fieldNames.get(i)));
     }
 
     parserRequiredKeyword(KEYWORD_VALUES);
@@ -464,27 +464,27 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
     int blockEnd = parserGetCurrentPosition();
 
     final List<String> records =
-        OStringSerializerHelper.smartSplit(
+        StringSerializerHelper.smartSplit(
             parserText, new char[]{','}, blockStart, -1, true, true, false, false);
     for (String record : records) {
 
       final List<String> values = new ArrayList<String>();
-      blockEnd += OStringSerializerHelper.getParameters(record, 0, -1, values);
+      blockEnd += StringSerializerHelper.getParameters(record, 0, -1, values);
 
       if (blockEnd == -1) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Missed closed brace. Use " + getSyntax(), parserText, blockStart);
       }
 
       if (values.isEmpty()) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Set of values is empty. Example: ('Bill', 'Stuart', 300). Use " + getSyntax(),
             parserText,
             blockStart);
       }
 
       if (values.size() != fieldNames.size()) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Fields not match with values", parserText, blockStart);
       }
 
@@ -493,8 +493,8 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
       for (int i = 0; i < values.size(); ++i) {
         fields.put(
             fieldNames.get(i),
-            OSQLHelper.parseValue(
-                this, OStringSerializerHelper.decode(values.get(i).trim()), context));
+            SQLHelper.parseValue(
+                this, StringSerializerHelper.decode(values.get(i).trim()), context));
       }
 
       newRecords.add(fields);
@@ -505,7 +505,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
   /**
    * Parses the returning keyword if found.
    */
-  protected void parseReturn(Boolean subQueryExpected) throws YTCommandSQLParsingException {
+  protected void parseReturn(Boolean subQueryExpected) throws CommandSQLParsingException {
     parserNextWord(false, " ");
     String returning = parserGetLastWord().trim();
     if (returning.startsWith("$") || returning.startsWith("@")) {
@@ -514,7 +514,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
       }
       returnExpression =
           (returning.length() > 0)
-              ? OSQLHelper.parseValue(this, returning, this.getContext())
+              ? SQLHelper.parseValue(this, returning, this.getContext())
               : null;
     } else {
       throwSyntaxErrorException(
@@ -523,10 +523,10 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
   }
 
   private Object getIndexKeyValue(
-      YTDatabaseSession session, OCommandParameters commandParameters,
+      DatabaseSession session, CommandParameters commandParameters,
       Map<String, Object> candidate) {
     final Object parsedKey = candidate.get(KEYWORD_KEY);
-    if (parsedKey instanceof OSQLFilterItemField f) {
+    if (parsedKey instanceof SQLFilterItemField f) {
       if (f.getRoot(session).equals("?"))
       // POSITIONAL PARAMETER
       {
@@ -540,22 +540,22 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
     return parsedKey;
   }
 
-  private YTIdentifiable getIndexValue(
-      YTDatabaseSession session, OCommandParameters commandParameters,
+  private Identifiable getIndexValue(
+      DatabaseSession session, CommandParameters commandParameters,
       Map<String, Object> candidate) {
     final Object parsedRid = candidate.get(KEYWORD_RID);
-    if (parsedRid instanceof OSQLFilterItemField f) {
+    if (parsedRid instanceof SQLFilterItemField f) {
       if (f.getRoot(session).equals("?"))
       // POSITIONAL PARAMETER
       {
-        return (YTIdentifiable) commandParameters.getNext();
+        return (Identifiable) commandParameters.getNext();
       } else if (f.getRoot(session).startsWith(":"))
       // NAMED PARAMETER
       {
-        return (YTIdentifiable) commandParameters.getByName(f.getRoot(session).substring(1));
+        return (Identifiable) commandParameters.getByName(f.getRoot(session).substring(1));
       }
     }
-    return (YTIdentifiable) parsedRid;
+    return (Identifiable) parsedRid;
   }
 
   @Override

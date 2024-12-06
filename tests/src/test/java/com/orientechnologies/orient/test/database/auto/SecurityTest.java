@@ -15,22 +15,22 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityAccessException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTValidationException;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurity;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityRole;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.YTUser;
+import com.jetbrains.youtrack.db.internal.core.exception.SecurityAccessException;
+import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
+import com.jetbrains.youtrack.db.internal.core.exception.ValidationException;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityRole;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -67,13 +67,13 @@ public class SecurityTest extends DocumentDBBaseTest {
   public void testWrongPassword() throws IOException {
     try {
       database = createSessionInstance("reader", "swdsds");
-    } catch (YTException e) {
+    } catch (BaseException e) {
       Assert.assertTrue(
-          e instanceof YTSecurityAccessException
+          e instanceof SecurityAccessException
               || e.getCause() != null
               && e.getCause()
               .toString()
-              .contains("com.orientechnologies.core.exception.YTSecurityAccessException"));
+              .contains("com.orientechnologies.core.exception.SecurityAccessException"));
     }
   }
 
@@ -86,7 +86,7 @@ public class SecurityTest extends DocumentDBBaseTest {
       database.commit();
 
       Assert.fail();
-    } catch (YTSecurityAccessException e) {
+    } catch (SecurityAccessException e) {
       Assert.assertTrue(true);
     } finally {
       database.close();
@@ -113,7 +113,7 @@ public class SecurityTest extends DocumentDBBaseTest {
               new Date())
           .save();
       database.commit();
-    } catch (YTSecurityAccessException e) {
+    } catch (SecurityAccessException e) {
       Assert.assertTrue(true);
     } finally {
       database.close();
@@ -135,7 +135,7 @@ public class SecurityTest extends DocumentDBBaseTest {
     Assert.assertEquals(updated.intValue(), 1);
 
     database.begin();
-    YTResultSet result = database.query("select from ouser where name = 'reader'");
+    ResultSet result = database.query("select from ouser where name = 'reader'");
     Assert.assertNotEquals(result.next().getProperty("password"), "test");
     database.commit();
 
@@ -161,25 +161,25 @@ public class SecurityTest extends DocumentDBBaseTest {
     database = createSessionInstance("admin", "admin");
 
     database.begin();
-    OSecurity security = database.getMetadata().getSecurity();
-    ORole writer = security.getRole("writer");
+    Security security = database.getMetadata().getSecurity();
+    Role writer = security.getRole("writer");
 
-    ORole writerChild =
-        security.createRole("writerChild", writer, OSecurityRole.ALLOW_MODES.ALLOW_ALL_BUT);
+    Role writerChild =
+        security.createRole("writerChild", writer, SecurityRole.ALLOW_MODES.ALLOW_ALL_BUT);
     writerChild.save(database);
     database.commit();
 
     try {
       database.begin();
-      ORole writerGrandChild =
+      Role writerGrandChild =
           security.createRole(
-              "writerGrandChild", writerChild, OSecurityRole.ALLOW_MODES.ALLOW_ALL_BUT);
+              "writerGrandChild", writerChild, SecurityRole.ALLOW_MODES.ALLOW_ALL_BUT);
       writerGrandChild.save(database);
       database.commit();
 
       try {
         database.begin();
-        YTUser child = security.createUser("writerChild", "writerChild", writerGrandChild);
+        SecurityUserIml child = security.createUser("writerChild", "writerChild", writerGrandChild);
         child.save(database);
         database.commit();
 
@@ -194,7 +194,7 @@ public class SecurityTest extends DocumentDBBaseTest {
             database = createSessionInstance("writerChild", "writerChild");
 
             database.begin();
-            YTSecurityUser user = database.getUser();
+            SecurityUser user = database.getUser();
             Assert.assertTrue(user.hasRole(database, "writer", true));
             Assert.assertFalse(user.hasRole(database, "wrter", true));
             database.commit();
@@ -225,9 +225,9 @@ public class SecurityTest extends DocumentDBBaseTest {
     database = createSessionInstance();
 
     database.begin();
-    OSecurity security = database.getMetadata().getSecurity();
+    Security security = database.getMetadata().getSecurity();
 
-    ORole adminRole = security.getRole("admin");
+    Role adminRole = security.getRole("admin");
     security.createUser("user'quoted", "foobar", adminRole);
     database.commit();
     database.close();
@@ -235,7 +235,7 @@ public class SecurityTest extends DocumentDBBaseTest {
     database = createSessionInstance();
     database.begin();
     security = database.getMetadata().getSecurity();
-    YTUser user = security.getUser("user'quoted");
+    SecurityUserIml user = security.getUser("user'quoted");
     Assert.assertNotNull(user);
     security.dropUser(user.getName(database));
     database.commit();
@@ -253,7 +253,7 @@ public class SecurityTest extends DocumentDBBaseTest {
   public void testUserNoRole() {
     database = createSessionInstance();
 
-    OSecurity security = database.getMetadata().getSecurity();
+    Security security = database.getMetadata().getSecurity();
 
     database.begin();
     security.createUser("noRole", "noRole", (String[]) null);
@@ -264,7 +264,7 @@ public class SecurityTest extends DocumentDBBaseTest {
     try {
       database = createSessionInstance("noRole", "noRole");
       Assert.fail();
-    } catch (YTSecurityAccessException e) {
+    } catch (SecurityAccessException e) {
       database = createSessionInstance();
       database.begin();
       security = database.getMetadata().getSecurity();
@@ -278,7 +278,7 @@ public class SecurityTest extends DocumentDBBaseTest {
     database = createSessionInstance();
 
     database.begin();
-    List<YTResult> result =
+    List<Result> result =
         database.command("select from ouser").stream().collect(Collectors.toList());
     Assert.assertFalse(result.isEmpty());
     database.commit();
@@ -299,19 +299,19 @@ public class SecurityTest extends DocumentDBBaseTest {
 
     try {
       database.command(new CommandSQL("select from ouser")).execute(database);
-    } catch (YTSecurityException e) {
+    } catch (SecurityException e) {
     }
 
     try {
       Assert.assertFalse(database.browseClass("OUser").hasNext());
       Assert.fail();
-    } catch (YTSecurityException e) {
+    } catch (SecurityException e) {
     }
 
     try {
       Assert.assertFalse(database.browseCluster("OUser").hasNext());
       Assert.fail();
-    } catch (YTSecurityException e) {
+    } catch (SecurityException e) {
     }
   }
 
@@ -326,7 +326,7 @@ public class SecurityTest extends DocumentDBBaseTest {
     try {
       database.command(new CommandSQL("alter class Protected superclass OUser")).execute(database);
       Assert.fail();
-    } catch (YTSecurityException e) {
+    } catch (SecurityException e) {
     } finally {
       database.close();
 
@@ -351,15 +351,15 @@ public class SecurityTest extends DocumentDBBaseTest {
   public void testEmptyUserName() {
     database = createSessionInstance();
     try {
-      OSecurity security = database.getMetadata().getSecurity();
+      Security security = database.getMetadata().getSecurity();
       String userName = "";
       try {
         database.begin();
-        ORole reader = security.getRole("reader");
+        Role reader = security.getRole("reader");
         security.createUser(userName, "foobar", reader);
         database.commit();
         Assert.fail();
-      } catch (YTValidationException ve) {
+      } catch (ValidationException ve) {
         Assert.assertTrue(true);
       }
       Assert.assertNull(security.getUser(userName));
@@ -372,10 +372,10 @@ public class SecurityTest extends DocumentDBBaseTest {
   public void testUserNameWithAllSpaces() {
     database = createSessionInstance();
     try {
-      OSecurity security = database.getMetadata().getSecurity();
+      Security security = database.getMetadata().getSecurity();
 
       database.begin();
-      ORole reader = security.getRole("reader");
+      Role reader = security.getRole("reader");
       database.commit();
       final String userName = "  ";
       try {
@@ -383,7 +383,7 @@ public class SecurityTest extends DocumentDBBaseTest {
         security.createUser(userName, "foobar", reader);
         database.commit();
         Assert.fail();
-      } catch (YTValidationException ve) {
+      } catch (ValidationException ve) {
         Assert.assertTrue(true);
       }
       Assert.assertNull(security.getUser(userName));
@@ -396,10 +396,10 @@ public class SecurityTest extends DocumentDBBaseTest {
   public void testUserNameWithSurroundingSpacesOne() {
     database = createSessionInstance();
     try {
-      OSecurity security = database.getMetadata().getSecurity();
+      Security security = database.getMetadata().getSecurity();
 
       database.begin();
-      ORole reader = security.getRole("reader");
+      Role reader = security.getRole("reader");
       database.commit();
       final String userName = " sas";
       try {
@@ -407,7 +407,7 @@ public class SecurityTest extends DocumentDBBaseTest {
         security.createUser(userName, "foobar", reader);
         database.commit();
         Assert.fail();
-      } catch (YTValidationException ve) {
+      } catch (ValidationException ve) {
         Assert.assertTrue(true);
       }
       Assert.assertNull(security.getUser(userName));
@@ -420,16 +420,16 @@ public class SecurityTest extends DocumentDBBaseTest {
   public void testUserNameWithSurroundingSpacesTwo() {
     database = createSessionInstance();
     try {
-      OSecurity security = database.getMetadata().getSecurity();
+      Security security = database.getMetadata().getSecurity();
 
       database.begin();
-      ORole reader = security.getRole("reader");
+      Role reader = security.getRole("reader");
       final String userName = "sas ";
       try {
         security.createUser(userName, "foobar", reader);
         database.commit();
         Assert.fail();
-      } catch (YTValidationException ve) {
+      } catch (ValidationException ve) {
         Assert.assertTrue(true);
       }
       Assert.assertNull(security.getUser(userName));
@@ -442,10 +442,10 @@ public class SecurityTest extends DocumentDBBaseTest {
   public void testUserNameWithSurroundingSpacesThree() {
     database = createSessionInstance();
     try {
-      OSecurity security = database.getMetadata().getSecurity();
+      Security security = database.getMetadata().getSecurity();
 
       database.begin();
-      ORole reader = security.getRole("reader");
+      Role reader = security.getRole("reader");
       database.commit();
       final String userName = " sas ";
       try {
@@ -453,7 +453,7 @@ public class SecurityTest extends DocumentDBBaseTest {
         security.createUser(userName, "foobar", reader);
         database.commit();
         Assert.fail();
-      } catch (YTValidationException ve) {
+      } catch (ValidationException ve) {
         Assert.assertTrue(true);
       }
       Assert.assertNull(security.getUser(userName));
@@ -466,10 +466,10 @@ public class SecurityTest extends DocumentDBBaseTest {
   public void testUserNameWithSpacesInTheMiddle() {
     database = createSessionInstance();
     try {
-      OSecurity security = database.getMetadata().getSecurity();
+      Security security = database.getMetadata().getSecurity();
 
       database.begin();
-      ORole reader = security.getRole("reader");
+      Role reader = security.getRole("reader");
       database.commit();
       final String userName = "s a s";
       database.begin();

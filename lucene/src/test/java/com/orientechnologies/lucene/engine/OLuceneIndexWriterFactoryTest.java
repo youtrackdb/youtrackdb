@@ -2,7 +2,7 @@ package com.orientechnologies.lucene.engine;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.File;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -24,7 +24,7 @@ public class OLuceneIndexWriterFactoryTest {
     // sample metadata json
     var meta = new EntityImpl();
     meta.fromJSON(
-        OIOUtils.readFileAsString(
+        IOUtils.readFileAsString(
             new File("./src/test/resources/index_metadata_new.json")));
 
     IndexWriter writer = fc.createIndexWriter(new RAMDirectory(), meta.toMap(),

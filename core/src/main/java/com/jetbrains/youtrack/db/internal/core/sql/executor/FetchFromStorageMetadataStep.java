@@ -1,21 +1,21 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.OStorageEntryConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.StorageEntryConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.storage.OCluster;
+import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 /**
- * Returns an YTResult containing metadata regarding the storage
+ * Returns an Result containing metadata regarding the storage
  */
 public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
 
@@ -24,7 +24,7 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -32,9 +32,9 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
     return new ProduceExecutionStream(this::produce).limit(1);
   }
 
-  private YTResult produce(CommandContext ctx) {
-    YTDatabaseSessionInternal db = ctx.getDatabase();
-    YTResultInternal result = new YTResultInternal(db);
+  private Result produce(CommandContext ctx) {
+    DatabaseSessionInternal db = ctx.getDatabase();
+    ResultInternal result = new ResultInternal(db);
 
     Storage storage = db.getStorage();
     result.setProperty("clusters", toResult(db, storage.getClusterInstances()));
@@ -54,9 +54,9 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
     return result;
   }
 
-  private static Object toResult(YTDatabaseSessionInternal db,
-      OStorageConfiguration configuration) {
-    YTResultInternal result = new YTResultInternal(db);
+  private static Object toResult(DatabaseSessionInternal db,
+      StorageConfiguration configuration) {
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("charset", configuration.getCharset());
     result.setProperty("clusterSelection", configuration.getClusterSelection());
     result.setProperty("conflictStrategy", configuration.getConflictStrategy());
@@ -70,12 +70,12 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
     return result;
   }
 
-  private static List<YTResult> toResult(YTDatabaseSessionInternal db,
-      List<OStorageEntryConfiguration> properties) {
-    List<YTResult> result = new ArrayList<>();
+  private static List<Result> toResult(DatabaseSessionInternal db,
+      List<StorageEntryConfiguration> properties) {
+    List<Result> result = new ArrayList<>();
     if (properties != null) {
-      for (OStorageEntryConfiguration entry : properties) {
-        YTResultInternal item = new YTResultInternal(db);
+      for (StorageEntryConfiguration entry : properties) {
+        ResultInternal item = new ResultInternal(db);
         item.setProperty("name", entry.name);
         item.setProperty("value", entry.value);
         result.add(item);
@@ -84,12 +84,12 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
     return result;
   }
 
-  private List<YTResult> toResult(YTDatabaseSessionInternal db,
-      Collection<? extends OCluster> clusterInstances) {
-    List<YTResult> result = new ArrayList<>();
+  private List<Result> toResult(DatabaseSessionInternal db,
+      Collection<? extends StorageCluster> clusterInstances) {
+    List<Result> result = new ArrayList<>();
     if (clusterInstances != null) {
-      for (OCluster cluster : clusterInstances) {
-        YTResultInternal item = new YTResultInternal(db);
+      for (StorageCluster cluster : clusterInstances) {
+        ResultInternal item = new ResultInternal(db);
         item.setProperty("name", cluster.getName());
         item.setProperty("fileName", cluster.getFileName());
         item.setProperty("id", cluster.getId());

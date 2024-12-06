@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.config;
 
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexMetadata;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +30,7 @@ public final class IndexEngineData {
   private final byte valueSerializerId;
   private final byte keySerializedId;
   private final boolean isAutomatic;
-  private final YTType[] keyTypes;
+  private final PropertyType[] keyTypes;
   private final boolean nullValuesSupport;
   private final int keySize;
   private final Map<String, String> engineProperties;
@@ -39,17 +39,17 @@ public final class IndexEngineData {
 
   public IndexEngineData(
       int indexId,
-      final OIndexMetadata metadata,
+      final IndexMetadata metadata,
       final Boolean durableInNonTxMode,
       final byte valueSerializerId,
       final byte keySerializedId,
-      final YTType[] keyTypes,
+      final PropertyType[] keyTypes,
       final int keySize,
       final String encryption,
       final String encryptionOptions,
       final Map<String, String> engineProperties) {
     this.indexId = indexId;
-    OIndexDefinition definition = metadata.getIndexDefinition();
+    IndexDefinition definition = metadata.getIndexDefinition();
     this.name = metadata.getName();
     this.algorithm = metadata.getAlgorithm();
     this.indexType = metadata.getType();
@@ -83,7 +83,7 @@ public final class IndexEngineData {
       final byte valueSerializerId,
       final byte keySerializedId,
       final boolean isAutomatic,
-      final YTType[] keyTypes,
+      final PropertyType[] keyTypes,
       final boolean nullValuesSupport,
       final int keySize,
       final String encryption,
@@ -159,7 +159,7 @@ public final class IndexEngineData {
     return isAutomatic;
   }
 
-  public YTType[] getKeyTypes() {
+  public PropertyType[] getKeyTypes() {
     return keyTypes;
   }
 

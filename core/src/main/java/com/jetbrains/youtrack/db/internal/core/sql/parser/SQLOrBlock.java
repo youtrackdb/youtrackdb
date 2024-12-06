@@ -3,14 +3,14 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexCandidate;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexFinder;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.ORequiredIndexCanditate;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexCandidate;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.RequiredIndexCanditate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +32,7 @@ public class SQLOrBlock extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
+  public boolean evaluate(Identifiable currentRecord, CommandContext ctx) {
     if (subBlocks == null) {
       return true;
     }
@@ -46,7 +46,7 @@ public class SQLOrBlock extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
+  public boolean evaluate(Result currentRecord, CommandContext ctx) {
     if (subBlocks == null) {
       return true;
     }
@@ -60,10 +60,10 @@ public class SQLOrBlock extends SQLBooleanExpression {
   }
 
   public boolean evaluate(Object currentRecord, CommandContext ctx) {
-    if (currentRecord instanceof YTResult) {
-      return evaluate((YTResult) currentRecord, ctx);
-    } else if (currentRecord instanceof YTIdentifiable) {
-      return evaluate((YTIdentifiable) currentRecord, ctx);
+    if (currentRecord instanceof Result) {
+      return evaluate((Result) currentRecord, ctx);
+    } else if (currentRecord instanceof Identifiable) {
+      return evaluate((Identifiable) currentRecord, ctx);
     } else if (currentRecord instanceof Map) {
       EntityImpl doc = new EntityImpl();
       doc.fromMap((Map<String, Object>) currentRecord);
@@ -143,7 +143,7 @@ public class SQLOrBlock extends SQLBooleanExpression {
   }
 
   public List<SQLBinaryCondition> getIndexedFunctionConditions(
-      YTClass iSchemaClass, YTDatabaseSessionInternal database) {
+      SchemaClass iSchemaClass, DatabaseSessionInternal database) {
     if (subBlocks == null || subBlocks.size() > 1) {
       return null;
     }
@@ -252,7 +252,7 @@ public class SQLOrBlock extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     for (SQLBooleanExpression block : this.subBlocks) {
       if (!block.isCacheable(session)) {
         return false;
@@ -262,27 +262,28 @@ public class SQLOrBlock extends SQLBooleanExpression {
   }
 
   @Override
-  public SQLBooleanExpression rewriteIndexChainsAsSubqueries(CommandContext ctx, YTClass clazz) {
+  public SQLBooleanExpression rewriteIndexChainsAsSubqueries(CommandContext ctx,
+      SchemaClass clazz) {
     for (SQLBooleanExpression exp : subBlocks) {
       exp.rewriteIndexChainsAsSubqueries(ctx, clazz);
     }
     return this;
   }
 
-  public Optional<OIndexCandidate> findIndex(OIndexFinder info, CommandContext ctx) {
-    Optional<OIndexCandidate> result = Optional.empty();
+  public Optional<IndexCandidate> findIndex(IndexFinder info, CommandContext ctx) {
+    Optional<IndexCandidate> result = Optional.empty();
     boolean first = true;
     for (SQLBooleanExpression exp : subBlocks) {
-      Optional<OIndexCandidate> singleResult = exp.findIndex(info, ctx);
+      Optional<IndexCandidate> singleResult = exp.findIndex(info, ctx);
       if (singleResult.isPresent()) {
         if (first) {
           result = singleResult;
 
         } else if (result.isPresent()) {
-          if (result.get() instanceof ORequiredIndexCanditate) {
-            ((ORequiredIndexCanditate) result.get()).addCanditate(singleResult.get());
+          if (result.get() instanceof RequiredIndexCanditate) {
+            ((RequiredIndexCanditate) result.get()).addCanditate(singleResult.get());
           } else {
-            ORequiredIndexCanditate req = new ORequiredIndexCanditate();
+            RequiredIndexCanditate req = new RequiredIndexCanditate();
             req.addCanditate(result.get());
             req.addCanditate(singleResult.get());
             result = Optional.of(req);

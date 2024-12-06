@@ -16,9 +16,8 @@
 
 package com.jetbrains.youtrack.db.internal.common.serialization.types;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OStringSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALChanges;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALPageChangesPortion;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALPageChangesPortion;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Random;
@@ -34,11 +33,11 @@ public class StringSerializerTest {
   byte[] stream;
   private int FIELD_SIZE;
   private String OBJECT;
-  private OStringSerializer stringSerializer;
+  private StringSerializer stringSerializer;
 
   @Before
   public void beforeClass() {
-    stringSerializer = new OStringSerializer();
+    stringSerializer = new StringSerializer();
     Random random = new Random();
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < random.nextInt(20) + 5; i++) {
@@ -123,13 +122,13 @@ public class StringSerializerTest {
     final int serializationOffset = 5;
     final ByteBuffer buffer =
         ByteBuffer.allocateDirect(
-                FIELD_SIZE - 7 + serializationOffset + OWALPageChangesPortion.PORTION_BYTES)
+                FIELD_SIZE - 7 + serializationOffset + WALPageChangesPortion.PORTION_BYTES)
             .order(ByteOrder.nativeOrder());
 
     final byte[] data = new byte[FIELD_SIZE - 7];
     stringSerializer.serializeNativeObject(OBJECT, data, 0);
 
-    OWALChanges walChanges = new OWALPageChangesPortion();
+    WALChanges walChanges = new WALPageChangesPortion();
     walChanges.setBinaryValue(buffer, data, serializationOffset);
 
     Assert.assertEquals(

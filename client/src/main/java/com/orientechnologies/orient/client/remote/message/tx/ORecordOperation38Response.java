@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.client.remote.message.tx;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 
 public class ORecordOperation38Response {
 
   private byte type;
   private byte recordType;
-  private YTRID id;
-  private YTRID oldId;
+  private RID id;
+  private RID oldId;
   private byte[] record;
   private byte[] original;
   private int version;
@@ -19,8 +19,8 @@ public class ORecordOperation38Response {
   public ORecordOperation38Response(
       byte type,
       byte recordType,
-      YTRID id,
-      YTRID oldId,
+      RID id,
+      RID oldId,
       byte[] record,
       int version,
       boolean contentChanged) {
@@ -33,19 +33,19 @@ public class ORecordOperation38Response {
     this.contentChanged = contentChanged;
   }
 
-  public YTRID getId() {
+  public RID getId() {
     return id;
   }
 
-  public void setId(YTRID id) {
+  public void setId(RID id) {
     this.id = id;
   }
 
-  public YTRID getOldId() {
+  public RID getOldId() {
     return oldId;
   }
 
-  public void setOldId(YTRID oldId) {
+  public void setOldId(RID oldId) {
     this.oldId = oldId;
   }
 

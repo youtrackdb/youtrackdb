@@ -19,19 +19,19 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.util.OCallable;
+import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OJSONWriter;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import com.orientechnologies.orient.server.OClientConnection;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -64,7 +64,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
 
   private final String httpVersion;
   private final OutputStream out;
-  private final YTContextConfiguration contextConfiguration;
+  private final ContextConfiguration contextConfiguration;
   private String headers;
   private String[] additionalHeaders;
   private String characterSet;
@@ -96,7 +96,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final String iCallbackFunction,
       final boolean iKeepAlive,
       OClientConnection connection,
-      YTContextConfiguration contextConfiguration) {
+      ContextConfiguration contextConfiguration) {
     streaming = contextConfiguration.getValueAsBoolean(
         GlobalConfiguration.NETWORK_HTTP_STREAMING);
     out = iOutStream;
@@ -167,7 +167,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
   }
 
   @Override
-  public void writeResult(final Object result, YTDatabaseSessionInternal databaseDocumentInternal)
+  public void writeResult(final Object result, DatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException {
     writeResult(result, null, null, null, databaseDocumentInternal);
   }
@@ -177,7 +177,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       Object iResult,
       final String iFormat,
       final String iAccept,
-      YTDatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException {
     writeResult(iResult, iFormat, iAccept, null, databaseDocumentInternal);
   }
@@ -188,7 +188,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final String iFormat,
       final String iAccept,
       final Map<String, Object> iAdditionalProperties,
-      YTDatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException {
     writeResult(iResult, iFormat, iAccept, iAdditionalProperties, null, databaseDocumentInternal);
   }
@@ -200,7 +200,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final String iAccept,
       final Map<String, Object> iAdditionalProperties,
       final String mode,
-      YTDatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException {
     if (iResult == null) {
       send(OHttpUtils.STATUS_OK_NOCONTENT_CODE, "", OHttpUtils.CONTENT_TEXT_PLAIN, null, null);
@@ -214,18 +214,18 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
           doc.field(key, entry.getValue());
         }
         newResult = Collections.singleton(doc).iterator();
-      } else if (OMultiValue.isMultiValue(iResult)
-          && (OMultiValue.getSize(iResult) > 0
-          && !((OMultiValue.getFirstValue(iResult) instanceof YTIdentifiable)
-          || ((OMultiValue.getFirstValue(iResult) instanceof YTResult))))) {
+      } else if (MultiValue.isMultiValue(iResult)
+          && (MultiValue.getSize(iResult) > 0
+          && !((MultiValue.getFirstValue(iResult) instanceof Identifiable)
+          || ((MultiValue.getFirstValue(iResult) instanceof Result))))) {
         newResult = Collections.singleton(new EntityImpl().field("value", iResult)).iterator();
-      } else if (iResult instanceof YTIdentifiable) {
+      } else if (iResult instanceof Identifiable) {
         // CONVERT SINGLE VALUE IN A COLLECTION
         newResult = Collections.singleton(iResult).iterator();
       } else if (iResult instanceof Iterable<?>) {
-        newResult = ((Iterable<YTIdentifiable>) iResult).iterator();
-      } else if (OMultiValue.isMultiValue(iResult)) {
-        newResult = OMultiValue.getMultiValueIterator(iResult);
+        newResult = ((Iterable<Identifiable>) iResult).iterator();
+      } else if (MultiValue.isMultiValue(iResult)) {
+        newResult = MultiValue.getMultiValueIterator(iResult);
       } else {
         newResult = Collections.singleton(new EntityImpl().field("value", iResult)).iterator();
       }
@@ -247,7 +247,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
 
   @Override
   public void writeRecords(final Object iRecords,
-      YTDatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     writeRecords(iRecords, null, null, null, null, databaseDocumentInternal);
   }
@@ -256,7 +256,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
   public void writeRecords(
       final Object iRecords,
       final String iFetchPlan,
-      YTDatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     writeRecords(iRecords, iFetchPlan, null, null, null, databaseDocumentInternal);
   }
@@ -267,7 +267,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final String iFetchPlan,
       String iFormat,
       final String accept,
-      YTDatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     writeRecords(iRecords, iFetchPlan, iFormat, accept, null, databaseDocumentInternal);
   }
@@ -279,7 +279,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       String iFormat,
       final String accept,
       final Map<String, Object> iAdditionalProperties,
-      YTDatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     writeRecords(
         iRecords,
@@ -299,14 +299,14 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final String accept,
       final Map<String, Object> iAdditionalProperties,
       final String mode,
-      YTDatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     if (iRecords == null) {
       send(OHttpUtils.STATUS_OK_NOCONTENT_CODE, "", OHttpUtils.CONTENT_TEXT_PLAIN, null, null);
       return;
     }
-    final int size = OMultiValue.getSize(iRecords);
-    final Iterator<?> it = OMultiValue.getMultiValueIterator(iRecords);
+    final int size = MultiValue.getSize(iRecords);
+    final Iterator<?> it = MultiValue.getMultiValueIterator(iRecords);
 
     if (accept != null && accept.contains("text/csv")) {
       sendStream(
@@ -314,7 +314,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
           OHttpUtils.STATUS_OK_DESCRIPTION,
           OHttpUtils.CONTENT_CSV,
           "data.csv",
-          new OCallable<Void, OChunkedResponse>() {
+          new CallableFunction<Void, OChunkedResponse>() {
 
             @Override
             public Void call(final OChunkedResponse iArgument) {
@@ -326,7 +326,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
               while (it.hasNext()) {
                 final Object r = it.next();
 
-                if (r instanceof YTResult result) {
+                if (r instanceof Result result) {
 
                   records.add(result.toEntity());
 
@@ -339,14 +339,14 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
                     colNames.add(fieldName);
                   }
 
-                } else if (r instanceof YTIdentifiable) {
+                } else if (r instanceof Identifiable) {
                   try {
-                    final Record rec = ((YTIdentifiable) r).getRecord();
+                    final Record rec = ((Identifiable) r).getRecord();
                     if (rec instanceof EntityImpl doc) {
                       records.add(doc);
                       Collections.addAll(colNames, doc.fieldNames());
                     }
-                  } catch (YTRecordNotFoundException rnf) {
+                  } catch (RecordNotFoundException rnf) {
                     // IGNORE IT
                   }
                 }
@@ -444,9 +444,9 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       Map<String, Object> iAdditionalProperties,
       Iterator<?> it,
       Writer buffer,
-      YTDatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
-    final OJSONWriter json = new OJSONWriter(buffer, iFormat);
+    final JSONWriter json = new JSONWriter(buffer, iFormat);
     json.beginObject();
 
     final String format = iFetchPlan != null ? iFormat + ",fetchPlan:" + iFetchPlan : iFormat;
@@ -460,10 +460,10 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       for (Map.Entry<String, Object> entry : iAdditionalProperties.entrySet()) {
 
         final Object v = entry.getValue();
-        if (OMultiValue.isMultiValue(v)) {
+        if (MultiValue.isMultiValue(v)) {
           json.beginCollection(-1, true, entry.getKey());
           formatMultiValue(
-              OMultiValue.getMultiValueIterator(v), buffer, format, databaseDocumentInternal);
+              MultiValue.getMultiValueIterator(v), buffer, format, databaseDocumentInternal);
           json.endCollection(-1, true);
         } else {
           json.writeAttribute(entry.getKey(), v);
@@ -483,7 +483,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final Iterator<?> iIterator,
       final Writer buffer,
       final String format,
-      YTDatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     if (iIterator != null) {
       int counter = 0;
@@ -496,10 +496,10 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
             buffer.append(", ");
           }
 
-          if (entry instanceof YTResult) {
-            objectJson = ((YTResult) entry).toJSON();
+          if (entry instanceof Result) {
+            objectJson = ((Result) entry).toJSON();
             buffer.append(objectJson);
-          } else if (entry instanceof YTIdentifiable identifiable) {
+          } else if (entry instanceof Identifiable identifiable) {
             try {
               Record rec = identifiable.getRecord();
               if (rec.isNotBound(databaseDocumentInternal)) {
@@ -513,13 +513,13 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
               LogManager.instance()
                   .error(this, "Error transforming record " + identifiable + " to JSON", e);
             }
-          } else if (OMultiValue.isMultiValue(entry)) {
+          } else if (MultiValue.isMultiValue(entry)) {
             buffer.append("[");
             formatMultiValue(
-                OMultiValue.getMultiValueIterator(entry), buffer, format, databaseDocumentInternal);
+                MultiValue.getMultiValueIterator(entry), buffer, format, databaseDocumentInternal);
             buffer.append("]");
           } else {
-            buffer.append(OJSONWriter.writeValue(entry, format));
+            buffer.append(JSONWriter.writeValue(entry, format));
           }
         }
         checkConnection();
@@ -582,7 +582,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       String iReason,
       String iContentType,
       String iFileName,
-      OCallable<Void, OChunkedResponse> iWriter)
+      CallableFunction<Void, OChunkedResponse> iWriter)
       throws IOException;
 
   // Compress content string
@@ -826,7 +826,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
   }
 
   @Override
-  public YTContextConfiguration getContextConfiguration() {
+  public ContextConfiguration getContextConfiguration() {
     return contextConfiguration;
   }
 

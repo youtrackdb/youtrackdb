@@ -13,13 +13,13 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.INDEX_TYPE;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.INDEX_TYPE;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -38,14 +38,14 @@ import java.util.TimeZone;
 
 public class OrientDbCreationHelper {
 
-  public static void loadDB(YTDatabaseSession db, int documents) throws IOException {
+  public static void loadDB(DatabaseSession db, int documents) throws IOException {
 
     db.begin();
     for (int i = 1; i <= documents; i++) {
       EntityImpl doc = new EntityImpl();
       doc.setClassName("Item");
       doc = createItem(i, doc);
-      ((YTDatabaseSessionInternal) db).save(doc, "Item");
+      ((DatabaseSessionInternal) db).save(doc, "Item");
     }
 
     createAuthorAndArticles(db, 50, 50);
@@ -77,22 +77,22 @@ public class OrientDbCreationHelper {
     doc.field("text", contents);
     doc.field("title", "youTrackDB");
     doc.field("score", BigDecimal.valueOf(contents.length() / id));
-    doc.field("length", contents.length(), YTType.LONG);
+    doc.field("length", contents.length(), PropertyType.LONG);
     doc.field("published", (id % 2 > 0));
     doc.field("author", "anAuthor" + id);
     // doc.field("tags", asList("java", "orient", "nosql"),
-    // YTType.EMBEDDEDLIST);
+    // PropertyType.EMBEDDEDLIST);
     Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
     instance.add(Calendar.HOUR_OF_DAY, -id);
     Date time = instance.getTime();
-    doc.field("date", time, YTType.DATE);
-    doc.field("time", time, YTType.DATETIME);
+    doc.field("date", time, PropertyType.DATE);
+    doc.field("time", time, PropertyType.DATETIME);
 
     return doc;
   }
 
-  public static void createAuthorAndArticles(YTDatabaseSession db, int totAuthors, int totArticles)
+  public static void createAuthorAndArticles(DatabaseSession db, int totAuthors, int totArticles)
       throws IOException {
     int articleSerial = 0;
     for (int a = 1; a <= totAuthors; ++a) {
@@ -100,7 +100,7 @@ public class OrientDbCreationHelper {
       List<EntityImpl> articles = new ArrayList<>(totArticles);
       author.field("articles", articles);
 
-      author.field("uuid", a, YTType.DOUBLE);
+      author.field("uuid", a, PropertyType.DOUBLE);
       author.field("name", "Jay");
       author.field("rating", new Random().nextDouble());
 
@@ -109,7 +109,7 @@ public class OrientDbCreationHelper {
 
         Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         Date time = instance.getTime();
-        article.field("date", time, YTType.DATE);
+        article.field("date", time, PropertyType.DATE);
 
         article.field("uuid", articleSerial++);
         article.field("title", "the title for article " + articleSerial);
@@ -123,14 +123,14 @@ public class OrientDbCreationHelper {
     }
   }
 
-  public static EntityImpl createArticleWithAttachmentSplitted(YTDatabaseSession db)
+  public static EntityImpl createArticleWithAttachmentSplitted(DatabaseSession db)
       throws IOException {
 
     EntityImpl article = new EntityImpl("Article");
     Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
     Date time = instance.getTime();
-    article.field("date", time, YTType.DATE);
+    article.field("date", time, PropertyType.DATE);
 
     article.field("uuid", 1000000);
     article.field("title", "the title 2");
@@ -144,7 +144,7 @@ public class OrientDbCreationHelper {
     return article;
   }
 
-  public static void createWriterAndPosts(YTDatabaseSession db, int totAuthors, int totArticles)
+  public static void createWriterAndPosts(DatabaseSession db, int totAuthors, int totArticles)
       throws IOException {
     int articleSerial = 0;
     for (int a = 1; a <= totAuthors; ++a) {
@@ -160,7 +160,7 @@ public class OrientDbCreationHelper {
 
         Calendar instance = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         Date time = instance.getTime();
-        post.setProperty("date", time, YTType.DATE);
+        post.setProperty("date", time, PropertyType.DATE);
         post.setProperty("uuid", articleSerial++);
         post.setProperty("title", "the title");
         post.setProperty("content", "the content");
@@ -187,7 +187,7 @@ public class OrientDbCreationHelper {
     db.newEdge(writer, post, "Writes");
   }
 
-  private static Blob loadFile(YTDatabaseSession database, String filePath) throws IOException {
+  private static Blob loadFile(DatabaseSession database, String filePath) throws IOException {
     final File f = new File(filePath);
     if (f.exists()) {
       BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(f));
@@ -199,7 +199,7 @@ public class OrientDbCreationHelper {
     return null;
   }
 
-  private static List<YTRID> loadFile(YTDatabaseSession database, String filePath, int bufferSize)
+  private static List<RID> loadFile(DatabaseSession database, String filePath, int bufferSize)
       throws IOException {
     File binaryFile = new File(filePath);
     long binaryFileLength = binaryFile.length();
@@ -208,7 +208,7 @@ public class OrientDbCreationHelper {
     if (remainder > 0) {
       numberOfRecords++;
     }
-    List<YTRID> binaryChuncks = new ArrayList<>(numberOfRecords);
+    List<RID> binaryChuncks = new ArrayList<>(numberOfRecords);
     BufferedInputStream binaryStream = new BufferedInputStream(new FileInputStream(binaryFile));
 
     for (int i = 0; i < numberOfRecords; i++) {
@@ -239,65 +239,66 @@ public class OrientDbCreationHelper {
     return binaryChuncks;
   }
 
-  public static void createSchemaDB(YTDatabaseSessionInternal db) {
+  public static void createSchemaDB(DatabaseSessionInternal db) {
 
-    YTSchema schema = db.getMetadata().getSchema();
+    Schema schema = db.getMetadata().getSchema();
 
     // item
-    YTClass item = schema.createClass("Item");
+    SchemaClass item = schema.createClass("Item");
 
-    item.createProperty(db, "stringKey", YTType.STRING).createIndex(db, INDEX_TYPE.UNIQUE);
-    item.createProperty(db, "intKey", YTType.INTEGER).createIndex(db, INDEX_TYPE.UNIQUE);
-    item.createProperty(db, "date", YTType.DATE).createIndex(db, INDEX_TYPE.NOTUNIQUE);
-    item.createProperty(db, "time", YTType.DATETIME).createIndex(db, INDEX_TYPE.NOTUNIQUE);
-    item.createProperty(db, "text", YTType.STRING);
-    item.createProperty(db, "score", YTType.DECIMAL);
-    item.createProperty(db, "length", YTType.INTEGER).createIndex(db, INDEX_TYPE.NOTUNIQUE);
-    item.createProperty(db, "published", YTType.BOOLEAN).createIndex(db, INDEX_TYPE.NOTUNIQUE);
-    item.createProperty(db, "title", YTType.STRING).createIndex(db, INDEX_TYPE.NOTUNIQUE);
-    item.createProperty(db, "author", YTType.STRING).createIndex(db, INDEX_TYPE.NOTUNIQUE);
-    item.createProperty(db, "tags", YTType.EMBEDDEDLIST);
+    item.createProperty(db, "stringKey", PropertyType.STRING).createIndex(db, INDEX_TYPE.UNIQUE);
+    item.createProperty(db, "intKey", PropertyType.INTEGER).createIndex(db, INDEX_TYPE.UNIQUE);
+    item.createProperty(db, "date", PropertyType.DATE).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    item.createProperty(db, "time", PropertyType.DATETIME).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    item.createProperty(db, "text", PropertyType.STRING);
+    item.createProperty(db, "score", PropertyType.DECIMAL);
+    item.createProperty(db, "length", PropertyType.INTEGER).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    item.createProperty(db, "published", PropertyType.BOOLEAN)
+        .createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    item.createProperty(db, "title", PropertyType.STRING).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    item.createProperty(db, "author", PropertyType.STRING).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    item.createProperty(db, "tags", PropertyType.EMBEDDEDLIST);
 
     // class Article
-    YTClass article = schema.createClass("Article");
+    SchemaClass article = schema.createClass("Article");
 
-    article.createProperty(db, "uuid", YTType.LONG).createIndex(db, INDEX_TYPE.UNIQUE);
-    article.createProperty(db, "date", YTType.DATE).createIndex(db, INDEX_TYPE.NOTUNIQUE);
-    article.createProperty(db, "title", YTType.STRING);
-    article.createProperty(db, "content", YTType.STRING);
-    // article.createProperty("attachment", YTType.LINK);
+    article.createProperty(db, "uuid", PropertyType.LONG).createIndex(db, INDEX_TYPE.UNIQUE);
+    article.createProperty(db, "date", PropertyType.DATE).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    article.createProperty(db, "title", PropertyType.STRING);
+    article.createProperty(db, "content", PropertyType.STRING);
+    // article.createProperty("attachment", PropertyType.LINK);
 
     // author
-    YTClass author = schema.createClass("Author");
+    SchemaClass author = schema.createClass("Author");
 
-    author.createProperty(db, "uuid", YTType.LONG).createIndex(db, INDEX_TYPE.UNIQUE);
-    author.createProperty(db, "name", YTType.STRING).setMin(db, "3");
-    author.createProperty(db, "rating", YTType.DOUBLE);
-    author.createProperty(db, "articles", YTType.LINKLIST, article);
+    author.createProperty(db, "uuid", PropertyType.LONG).createIndex(db, INDEX_TYPE.UNIQUE);
+    author.createProperty(db, "name", PropertyType.STRING).setMin(db, "3");
+    author.createProperty(db, "rating", PropertyType.DOUBLE);
+    author.createProperty(db, "articles", PropertyType.LINKLIST, article);
 
     // link article-->author
-    article.createProperty(db, "author", YTType.LINK, author);
+    article.createProperty(db, "author", PropertyType.LINK, author);
 
     // Graph
 
-    YTClass v = schema.getClass("V");
+    SchemaClass v = schema.getClass("V");
     if (v == null) {
       schema.createClass("V");
     }
 
-    YTClass post = schema.createClass("Post", v);
-    post.createProperty(db, "uuid", YTType.LONG);
-    post.createProperty(db, "title", YTType.STRING);
-    post.createProperty(db, "date", YTType.DATE).createIndex(db, INDEX_TYPE.NOTUNIQUE);
-    post.createProperty(db, "content", YTType.STRING);
+    SchemaClass post = schema.createClass("Post", v);
+    post.createProperty(db, "uuid", PropertyType.LONG);
+    post.createProperty(db, "title", PropertyType.STRING);
+    post.createProperty(db, "date", PropertyType.DATE).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    post.createProperty(db, "content", PropertyType.STRING);
 
-    YTClass writer = schema.createClass("Writer", v);
-    writer.createProperty(db, "uuid", YTType.LONG).createIndex(db, INDEX_TYPE.UNIQUE);
-    writer.createProperty(db, "name", YTType.STRING);
-    writer.createProperty(db, "is_active", YTType.BOOLEAN);
-    writer.createProperty(db, "isActive", YTType.BOOLEAN);
+    SchemaClass writer = schema.createClass("Writer", v);
+    writer.createProperty(db, "uuid", PropertyType.LONG).createIndex(db, INDEX_TYPE.UNIQUE);
+    writer.createProperty(db, "name", PropertyType.STRING);
+    writer.createProperty(db, "is_active", PropertyType.BOOLEAN);
+    writer.createProperty(db, "isActive", PropertyType.BOOLEAN);
 
-    YTClass e = schema.getClass("E");
+    SchemaClass e = schema.getClass("E");
     if (e == null) {
       schema.createClass("E");
     }

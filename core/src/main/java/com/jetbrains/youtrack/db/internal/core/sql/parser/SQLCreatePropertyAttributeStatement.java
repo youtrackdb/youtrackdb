@@ -2,11 +2,11 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTPropertyImpl;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
 import java.util.Map;
 import java.util.Objects;
 
@@ -72,11 +72,11 @@ public class SQLCreatePropertyAttributeStatement extends SimpleNode {
     return result;
   }
 
-  public Object setOnProperty(YTPropertyImpl internalProp, CommandContext ctx) {
+  public Object setOnProperty(PropertyImpl internalProp, CommandContext ctx) {
     String attrName = settingName.getStringValue();
     var db = ctx.getDatabase();
     Object attrValue =
-        this.settingValue == null ? true : this.settingValue.execute((YTIdentifiable) null, ctx);
+        this.settingValue == null ? true : this.settingValue.execute((Identifiable) null, ctx);
     try {
       if (attrName.equalsIgnoreCase("readonly")) {
         internalProp.setReadonly(db, (boolean) attrValue);
@@ -90,7 +90,7 @@ public class SQLCreatePropertyAttributeStatement extends SimpleNode {
         internalProp.setMin(db, "" + attrValue);
       } else if (attrName.equalsIgnoreCase("default")) {
         if (this.settingValue == null) {
-          throw new YTCommandExecutionException("");
+          throw new CommandExecutionException("");
         }
         internalProp.setDefaultValue(db, "" + attrValue);
       } else if (attrName.equalsIgnoreCase("collate")) {
@@ -98,11 +98,11 @@ public class SQLCreatePropertyAttributeStatement extends SimpleNode {
       } else if (attrName.equalsIgnoreCase("regexp")) {
         internalProp.setRegexp(db, "" + attrValue);
       } else {
-        throw new YTCommandExecutionException("Invalid attribute definition: '" + attrName + "'");
+        throw new CommandExecutionException("Invalid attribute definition: '" + attrName + "'");
       }
     } catch (Exception e) {
-      throw YTException.wrapException(
-          new YTCommandExecutionException(
+      throw BaseException.wrapException(
+          new CommandExecutionException(
               "Cannot set attribute on property " + settingName.getStringValue() + " " + attrValue),
           e);
     }

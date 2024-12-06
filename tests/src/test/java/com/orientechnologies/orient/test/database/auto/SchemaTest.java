@@ -16,24 +16,24 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
-import com.jetbrains.youtrack.db.internal.core.exception.YTClusterDoesNotExistException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSchemaException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTValidationException;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityShared;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.ValidationException;
+import com.jetbrains.youtrack.db.internal.core.exception.ClusterDoesNotExistException;
+import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
-import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -59,30 +59,32 @@ public class SchemaTest extends DocumentDBBaseTest {
 
   @Test
   public void checkSchema() {
-    YTSchema schema = database.getMetadata().getSchema();
+    Schema schema = database.getMetadata().getSchema();
 
     assert schema != null;
     assert schema.getClass("Profile") != null;
-    assert schema.getClass("Profile").getProperty("nick").getType() == YTType.STRING;
-    assert schema.getClass("Profile").getProperty("name").getType() == YTType.STRING;
-    assert schema.getClass("Profile").getProperty("surname").getType() == YTType.STRING;
-    assert schema.getClass("Profile").getProperty("registeredOn").getType() == YTType.DATETIME;
-    assert schema.getClass("Profile").getProperty("lastAccessOn").getType() == YTType.DATETIME;
+    assert schema.getClass("Profile").getProperty("nick").getType() == PropertyType.STRING;
+    assert schema.getClass("Profile").getProperty("name").getType() == PropertyType.STRING;
+    assert schema.getClass("Profile").getProperty("surname").getType() == PropertyType.STRING;
+    assert
+        schema.getClass("Profile").getProperty("registeredOn").getType() == PropertyType.DATETIME;
+    assert
+        schema.getClass("Profile").getProperty("lastAccessOn").getType() == PropertyType.DATETIME;
 
     assert schema.getClass("Whiz") != null;
-    assert schema.getClass("whiz").getProperty("account").getType() == YTType.LINK;
+    assert schema.getClass("whiz").getProperty("account").getType() == PropertyType.LINK;
     assert schema
         .getClass("whiz")
         .getProperty("account")
         .getLinkedClass()
         .getName()
         .equalsIgnoreCase("Account");
-    assert schema.getClass("WHIZ").getProperty("date").getType() == YTType.DATE;
-    assert schema.getClass("WHIZ").getProperty("text").getType() == YTType.STRING;
+    assert schema.getClass("WHIZ").getProperty("date").getType() == PropertyType.DATE;
+    assert schema.getClass("WHIZ").getProperty("text").getType() == PropertyType.STRING;
     assert schema.getClass("WHIZ").getProperty("text").isMandatory();
     assert schema.getClass("WHIZ").getProperty("text").getMin().equals("1");
     assert schema.getClass("WHIZ").getProperty("text").getMax().equals("140");
-    assert schema.getClass("whiz").getProperty("replyTo").getType() == YTType.LINK;
+    assert schema.getClass("whiz").getProperty("replyTo").getType() == PropertyType.LINK;
     assert schema
         .getClass("Whiz")
         .getProperty("replyTo")
@@ -94,7 +96,7 @@ public class SchemaTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "checkSchema")
   public void checkInvalidNamesBefore30() {
 
-    YTSchema schema = database.getMetadata().getSchema();
+    Schema schema = database.getMetadata().getSchema();
 
     schema.createClass("TestInvalidName,");
     Assert.assertNotNull(schema.getClass("TestInvalidName,"));
@@ -109,18 +111,18 @@ public class SchemaTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "checkSchema")
   public void checkSchemaApi() {
 
-    YTSchema schema = database.getMetadata().getSchema();
+    Schema schema = database.getMetadata().getSchema();
 
     try {
       Assert.assertNull(schema.getClass("Animal33"));
-    } catch (YTSchemaException e) {
+    } catch (SchemaException e) {
     }
   }
 
   @Test(dependsOnMethods = "checkSchemaApi")
   public void checkClusters() {
 
-    for (YTClass cls : database.getMetadata().getSchema().getClasses()) {
+    for (SchemaClass cls : database.getMetadata().getSchema().getClasses()) {
       assert cls.isAbstract() || database.getClusterNameById(cls.getDefaultClusterId()) != null;
     }
   }
@@ -131,7 +133,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     Assert.assertTrue(database.getStorage().countRecords(database) > 0);
   }
 
-  @Test(expectedExceptions = YTValidationException.class)
+  @Test(expectedExceptions = ValidationException.class)
   public void checkErrorOnUserNoPasswd() {
     database.begin();
     database.getMetadata().getSecurity().createUser("error", null, (String) null);
@@ -147,7 +149,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
               @Override
               public void run() {
-                ODatabaseRecordThreadLocal.instance().set(database);
+                DatabaseRecordThreadLocal.instance().set(database);
                 EntityImpl doc = new EntityImpl("NewClass");
 
                 database.begin();
@@ -172,7 +174,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
     final String testClassName = "dropTestClass";
     final int clusterId;
-    YTClass dropTestClass = database.getMetadata().getSchema().createClass(testClassName);
+    SchemaClass dropTestClass = database.getMetadata().getSchema().createClass(testClassName);
     clusterId = dropTestClass.getDefaultClusterId();
     dropTestClass = database.getMetadata().getSchema().getClass(testClassName);
     Assert.assertNotNull(dropTestClass);
@@ -200,7 +202,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
     final String testClassName = "dropTestClass";
     final int clusterId;
-    YTClass dropTestClass = database.getMetadata().getSchema().createClass(testClassName);
+    SchemaClass dropTestClass = database.getMetadata().getSchema().createClass(testClassName);
     clusterId = dropTestClass.getDefaultClusterId();
     dropTestClass = database.getMetadata().getSchema().getClass(testClassName);
     Assert.assertNotNull(dropTestClass);
@@ -330,12 +332,12 @@ public class SchemaTest extends DocumentDBBaseTest {
   @Test
   public void alterAttributes() {
 
-    YTClass company = database.getMetadata().getSchema().getClass("Company");
-    YTClass superClass = company.getSuperClass();
+    SchemaClass company = database.getMetadata().getSchema().getClass("Company");
+    SchemaClass superClass = company.getSuperClass();
 
     Assert.assertNotNull(superClass);
     boolean found = false;
-    for (YTClass c : superClass.getSubclasses()) {
+    for (SchemaClass c : superClass.getSubclasses()) {
       if (c.equals(company)) {
         found = true;
         break;
@@ -345,7 +347,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
     company.setSuperClass(database, null);
     Assert.assertNull(company.getSuperClass());
-    for (YTClass c : superClass.getSubclasses()) {
+    for (SchemaClass c : superClass.getSubclasses()) {
       Assert.assertNotSame(c, company);
     }
 
@@ -358,7 +360,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
     Assert.assertNotNull(company.getSuperClass());
     found = false;
-    for (YTClass c : superClass.getSubclasses()) {
+    for (SchemaClass c : superClass.getSubclasses()) {
       if (c.equals(company)) {
         found = true;
         break;
@@ -374,7 +376,7 @@ public class SchemaTest extends DocumentDBBaseTest {
       database.command(new CommandSQL("create class Antani cluster 212121")).execute(database);
       Assert.fail();
     } catch (Exception e) {
-      Assert.assertTrue(e instanceof YTClusterDoesNotExistException);
+      Assert.assertTrue(e instanceof ClusterDoesNotExistException);
     }
   }
 
@@ -385,7 +387,7 @@ public class SchemaTest extends DocumentDBBaseTest {
       Assert.fail();
 
     } catch (Exception e) {
-      Assert.assertTrue(e instanceof YTCommandSQLParsingException);
+      Assert.assertTrue(e instanceof CommandSQLParsingException);
     }
   }
 
@@ -397,14 +399,14 @@ public class SchemaTest extends DocumentDBBaseTest {
           .execute(database);
       Assert.fail();
     } catch (Exception e) {
-      Assert.assertTrue(e instanceof YTCommandSQLParsingException);
+      Assert.assertTrue(e instanceof CommandSQLParsingException);
     }
   }
 
   @Test
   public void testRenameClass() {
 
-    YTClass oClass = database.getMetadata().getSchema().createClass("RenameClassTest");
+    SchemaClass oClass = database.getMetadata().getSchema().createClass("RenameClassTest");
 
     database.begin();
     EntityImpl document = new EntityImpl("RenameClassTest");
@@ -417,11 +419,11 @@ public class SchemaTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    YTResultSet result = database.query("select from RenameClassTest");
+    ResultSet result = database.query("select from RenameClassTest");
     Assert.assertEquals(result.stream().count(), 2);
     database.commit();
 
-    oClass.set(database, YTClass.ATTRIBUTES.NAME, "RenameClassTest2");
+    oClass.set(database, SchemaClass.ATTRIBUTES.NAME, "RenameClassTest2");
 
     database.begin();
     result = database.query("select from RenameClassTest2");
@@ -498,8 +500,8 @@ public class SchemaTest extends DocumentDBBaseTest {
     try {
       database.getMetadata().getSchema().getClass("V").setName(database, "OUser");
       Assert.fail();
-    } catch (YTSchemaException e) {
-    } catch (YTCommandExecutionException e) {
+    } catch (SchemaException e) {
+    } catch (CommandExecutionException e) {
     }
   }
 
@@ -508,16 +510,16 @@ public class SchemaTest extends DocumentDBBaseTest {
       database.getMetadata().getSchema().getClass("V").setShortName(database, "OUser");
       Assert.fail();
     } catch (IllegalArgumentException e) {
-    } catch (YTCommandExecutionException e) {
+    } catch (CommandExecutionException e) {
     }
   }
 
   @Test
   public void testDeletionOfDependentClass() {
-    YTSchema schema = database.getMetadata().getSchema();
-    YTClass oRestricted = schema.getClass(OSecurityShared.RESTRICTED_CLASSNAME);
-    YTClass classA = schema.createClass("TestDeletionOfDependentClassA", oRestricted);
-    YTClass classB = schema.createClass("TestDeletionOfDependentClassB", classA);
+    Schema schema = database.getMetadata().getSchema();
+    SchemaClass oRestricted = schema.getClass(SecurityShared.RESTRICTED_CLASSNAME);
+    SchemaClass classA = schema.createClass("TestDeletionOfDependentClassA", oRestricted);
+    SchemaClass classB = schema.createClass("TestDeletionOfDependentClassB", classA);
     schema.dropClass(classB.getName());
   }
 
@@ -580,7 +582,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    try (YTResultSet rs =
+    try (ResultSet rs =
         database.command(
             "select from "
                 + className
@@ -593,7 +595,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     }
     database.commit();
 
-    try (YTResultSet rs =
+    try (ResultSet rs =
         database.command(
             "select from "
                 + className
@@ -604,7 +606,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    try (YTResultSet rs =
+    try (ResultSet rs =
         database.command(
             "select from "
                 + className
@@ -618,7 +620,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    try (YTResultSet rs =
+    try (ResultSet rs =
         database.command(
             "select from "
                 + className
@@ -629,11 +631,11 @@ public class SchemaTest extends DocumentDBBaseTest {
     }
     database.commit();
 
-    YTSchema schema = database.getSchema();
-    YTClass clazz = schema.getClass(className);
-    Set<OIndex> idx = clazz.getIndexes(database);
+    Schema schema = database.getSchema();
+    SchemaClass clazz = schema.getClass(className);
+    Set<Index> idx = clazz.getIndexes(database);
     Set<String> indexes = new HashSet<>();
-    for (OIndex id : idx) {
+    for (Index id : idx) {
       indexes.add(id.getName());
     }
     Assert.assertTrue(indexes.contains(className + "." + propertyName.toLowerCase(Locale.ENGLISH)));
@@ -641,7 +643,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     schema.dropClass(className);
   }
 
-  private void swapClusters(YTDatabaseSessionInternal databaseDocumentTx, int i) {
+  private void swapClusters(DatabaseSessionInternal databaseDocumentTx, int i) {
     databaseDocumentTx
         .command("CREATE CLASS TestRenameClusterNew extends TestRenameClusterOriginal clusters 2")
         .close();
@@ -671,7 +673,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     database.begin();
     List<EntityImpl> result =
         databaseDocumentTx.query(
-            new OSQLSynchQuery<EntityImpl>("select * from TestRenameClusterOriginal"));
+            new SQLSynchQuery<EntityImpl>("select * from TestRenameClusterOriginal"));
     Assert.assertEquals(result.size(), 1);
 
     EntityImpl document = result.get(0);

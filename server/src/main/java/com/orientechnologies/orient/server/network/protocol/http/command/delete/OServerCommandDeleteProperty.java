@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.delete;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -39,13 +39,13 @@ public class OServerCommandDeleteProperty extends OServerCommandAuthenticatedDbA
     iRequest.getData().commandInfo = "Delete property";
     iRequest.getData().commandDetail = urlParts[2] + "." + urlParts[3];
 
-    try (YTDatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
+    try (DatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
 
       if (db.getMetadata().getSchema().getClass(urlParts[2]) == null) {
         throw new IllegalArgumentException("Invalid class '" + urlParts[2] + "'");
       }
 
-      final YTClass cls = db.getMetadata().getSchema().getClass(urlParts[2]);
+      final SchemaClass cls = db.getMetadata().getSchema().getClass(urlParts[2]);
 
       cls.dropProperty(db, urlParts[3]);
 

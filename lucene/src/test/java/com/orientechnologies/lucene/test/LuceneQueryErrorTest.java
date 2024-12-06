@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.io.InputStream;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
@@ -45,7 +45,7 @@ public class LuceneQueryErrorTest extends BaseLuceneTest {
   public void testQueryError() {
 
     String query = "select * from Song where [title] LUCENE \"\" ";
-    YTResultSet result = db.query(query);
+    ResultSet result = db.query(query);
 
     Assertions.assertThat(result).isEmpty();
   }

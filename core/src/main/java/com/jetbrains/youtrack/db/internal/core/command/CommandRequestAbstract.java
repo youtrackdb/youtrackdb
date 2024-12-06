@@ -19,13 +19,13 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command;
 
-import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
+import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext.TIMEOUT_STRATEGY;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.replication.OAsyncReplicationError;
-import com.jetbrains.youtrack.db.internal.core.replication.OAsyncReplicationOk;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.replication.AsyncReplicationError;
+import com.jetbrains.youtrack.db.internal.core.replication.AsyncReplicationOk;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,10 +37,10 @@ import java.util.Set;
  */
 @SuppressWarnings("serial")
 public abstract class CommandRequestAbstract
-    implements CommandRequestInternal, ODistributedCommand {
+    implements CommandRequestInternal, DistributedCommand {
 
-  protected OCommandResultListener resultListener;
-  protected OProgressListener progressListener;
+  protected CommandResultListener resultListener;
+  protected ProgressListener progressListener;
   protected int limit = -1;
   protected long timeoutMs = GlobalConfiguration.COMMAND_TIMEOUT.getValueAsLong();
   protected TIMEOUT_STRATEGY timeoutStrategy = TIMEOUT_STRATEGY.EXCEPTION;
@@ -49,8 +49,8 @@ public abstract class CommandRequestAbstract
   protected boolean useCache = false;
   protected boolean cacheableResult = false;
   protected CommandContext context;
-  protected OAsyncReplicationOk onAsyncReplicationOk;
-  protected OAsyncReplicationError onAsyncReplicationError;
+  protected AsyncReplicationOk onAsyncReplicationOk;
+  protected AsyncReplicationError onAsyncReplicationError;
 
   private final Set<String> nodesToExclude = new HashSet<String>();
   private boolean recordResultSet = true;
@@ -58,11 +58,11 @@ public abstract class CommandRequestAbstract
   protected CommandRequestAbstract() {
   }
 
-  public OCommandResultListener getResultListener() {
+  public CommandResultListener getResultListener() {
     return resultListener;
   }
 
-  public void setResultListener(OCommandResultListener iListener) {
+  public void setResultListener(CommandResultListener iListener) {
     resultListener = iListener;
   }
 
@@ -94,10 +94,10 @@ public abstract class CommandRequestAbstract
       for (int i = 0; i < iArgs.length; ++i) {
         Object par = iArgs[i];
 
-        if (par instanceof YTIdentifiable && ((YTIdentifiable) par).getIdentity().isValid())
+        if (par instanceof Identifiable && ((Identifiable) par).getIdentity().isValid())
         // USE THE RID ONLY
         {
-          par = ((YTIdentifiable) par).getIdentity();
+          par = ((Identifiable) par).getIdentity();
         }
 
         params.put(i, par);
@@ -110,7 +110,7 @@ public abstract class CommandRequestAbstract
    * Defines a callback to call in case of the asynchronous replication succeed.
    */
   @Override
-  public CommandRequestAbstract onAsyncReplicationOk(final OAsyncReplicationOk iCallback) {
+  public CommandRequestAbstract onAsyncReplicationOk(final AsyncReplicationOk iCallback) {
     onAsyncReplicationOk = iCallback;
     return this;
   }
@@ -119,17 +119,17 @@ public abstract class CommandRequestAbstract
    * Defines a callback to call in case of error during the asynchronous replication.
    */
   @Override
-  public CommandRequestAbstract onAsyncReplicationError(final OAsyncReplicationError iCallback) {
+  public CommandRequestAbstract onAsyncReplicationError(final AsyncReplicationError iCallback) {
     if (iCallback != null) {
       onAsyncReplicationError =
-          new OAsyncReplicationError() {
+          new AsyncReplicationError() {
             private int retry = 0;
 
             @Override
             public ACTION onAsyncReplicationError(Throwable iException, final int iRetry) {
               switch (iCallback.onAsyncReplicationError(iException, ++retry)) {
                 case RETRY:
-                  execute(ODatabaseRecordThreadLocal.instance().getIfDefined());
+                  execute(DatabaseRecordThreadLocal.instance().getIfDefined());
                   break;
 
                 case IGNORE:
@@ -144,11 +144,11 @@ public abstract class CommandRequestAbstract
     return this;
   }
 
-  public OProgressListener getProgressListener() {
+  public ProgressListener getProgressListener() {
     return progressListener;
   }
 
-  public CommandRequestAbstract setProgressListener(OProgressListener progressListener) {
+  public CommandRequestAbstract setProgressListener(ProgressListener progressListener) {
     this.progressListener = progressListener;
     return this;
   }
@@ -232,11 +232,11 @@ public abstract class CommandRequestAbstract
     nodesToExclude.remove(node);
   }
 
-  public OAsyncReplicationOk getOnAsyncReplicationOk() {
+  public AsyncReplicationOk getOnAsyncReplicationOk() {
     return onAsyncReplicationOk;
   }
 
-  public OAsyncReplicationError getOnAsyncReplicationError() {
+  public AsyncReplicationError getOnAsyncReplicationError() {
     return onAsyncReplicationError;
   }
 

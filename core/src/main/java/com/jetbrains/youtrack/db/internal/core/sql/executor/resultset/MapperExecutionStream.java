@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.resultset;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 
 public class MapperExecutionStream implements ExecutionStream {
 
@@ -22,7 +22,7 @@ public class MapperExecutionStream implements ExecutionStream {
   }
 
   @Override
-  public YTResult next(CommandContext ctx) {
+  public Result next(CommandContext ctx) {
     return this.mapper.map(upstream.next(ctx), ctx);
   }
 

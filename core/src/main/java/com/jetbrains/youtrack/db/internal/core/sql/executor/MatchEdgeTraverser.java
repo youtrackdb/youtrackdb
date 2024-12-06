@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchPathItem;
@@ -19,18 +19,18 @@ import java.util.Optional;
  */
 public class MatchEdgeTraverser {
 
-  protected YTResult sourceRecord;
+  protected Result sourceRecord;
   protected EdgeTraversal edge;
   protected SQLMatchPathItem item;
   protected ExecutionStream downstream;
 
-  public MatchEdgeTraverser(YTResult lastUpstreamRecord, EdgeTraversal edge) {
+  public MatchEdgeTraverser(Result lastUpstreamRecord, EdgeTraversal edge) {
     this.sourceRecord = lastUpstreamRecord;
     this.edge = edge;
     this.item = edge.edge.item;
   }
 
-  public MatchEdgeTraverser(YTResult lastUpstreamRecord, SQLMatchPathItem item) {
+  public MatchEdgeTraverser(Result lastUpstreamRecord, SQLMatchPathItem item) {
     this.sourceRecord = lastUpstreamRecord;
     this.item = item;
   }
@@ -40,21 +40,21 @@ public class MatchEdgeTraverser {
     return downstream.hasNext(ctx);
   }
 
-  public YTResult next(CommandContext ctx) {
+  public Result next(CommandContext ctx) {
     init(ctx);
     if (!downstream.hasNext(ctx)) {
       throw new IllegalStateException();
     }
     String endPointAlias = getEndpointAlias();
-    YTResult nextR = downstream.next(ctx);
-    YTIdentifiable nextElement = nextR.getEntity().get();
+    Result nextR = downstream.next(ctx);
+    Identifiable nextElement = nextR.getEntity().get();
     Object prevValue = sourceRecord.getProperty(endPointAlias);
     if (prevValue != null && !equals(prevValue, nextElement)) {
       return null;
     }
 
     var db = ctx.getDatabase();
-    YTResultInternal result = new YTResultInternal(db);
+    ResultInternal result = new ResultInternal(db);
     for (String prop : sourceRecord.getPropertyNames()) {
       result.setProperty(prop, sourceRecord.getProperty(prop));
     }
@@ -69,18 +69,18 @@ public class MatchEdgeTraverser {
     return result;
   }
 
-  protected boolean equals(Object prevValue, YTIdentifiable nextElement) {
-    if (prevValue instanceof YTResult) {
-      prevValue = ((YTResult) prevValue).getEntity().orElse(null);
+  protected boolean equals(Object prevValue, Identifiable nextElement) {
+    if (prevValue instanceof Result) {
+      prevValue = ((Result) prevValue).getEntity().orElse(null);
     }
-    if (nextElement instanceof YTResult) {
-      nextElement = ((YTResult) nextElement).getEntity().orElse(null);
+    if (nextElement instanceof Result) {
+      nextElement = ((Result) nextElement).getEntity().orElse(null);
     }
     return prevValue != null && prevValue.equals(nextElement);
   }
 
-  protected static Object toResult(YTDatabaseSessionInternal db, YTIdentifiable nextElement) {
-    return new YTResultInternal(db, nextElement);
+  protected static Object toResult(DatabaseSessionInternal db, Identifiable nextElement) {
+    return new ResultInternal(db, nextElement);
   }
 
   protected String getStartingPointAlias() {
@@ -97,19 +97,19 @@ public class MatchEdgeTraverser {
   protected void init(CommandContext ctx) {
     if (downstream == null) {
       Object startingElem = sourceRecord.getProperty(getStartingPointAlias());
-      if (startingElem instanceof YTResult) {
-        startingElem = ((YTResult) startingElem).getEntity().orElse(null);
+      if (startingElem instanceof Result) {
+        startingElem = ((Result) startingElem).getEntity().orElse(null);
       }
-      downstream = executeTraversal(ctx, this.item, (YTIdentifiable) startingElem, 0, null);
+      downstream = executeTraversal(ctx, this.item, (Identifiable) startingElem, 0, null);
     }
   }
 
   protected ExecutionStream executeTraversal(
       CommandContext iCommandContext,
       SQLMatchPathItem item,
-      YTIdentifiable startingPoint,
+      Identifiable startingPoint,
       int depth,
-      List<YTIdentifiable> pathToHere) {
+      List<Identifiable> pathToHere) {
 
     SQLWhereClause filter = null;
     SQLWhereClause whileCondition = null;
@@ -145,7 +145,7 @@ public class MatchEdgeTraverser {
                   iCommandContext, theFilter, theClassName, theClusterId, theTargetRid, next, ctx));
     } else { // in this case also zero level (starting point) is considered and traversal depth is
       // given by the while condition
-      List<YTResult> result = new ArrayList<>();
+      List<Result> result = new ArrayList<>();
       iCommandContext.setVariable("$depth", depth);
       Object previousMatch = iCommandContext.getVariable("$currentMatch");
       iCommandContext.setVariable("$currentMatch", startingPoint);
@@ -154,7 +154,7 @@ public class MatchEdgeTraverser {
           && matchesClass(iCommandContext, className, startingPoint)
           && matchesCluster(iCommandContext, clusterId, startingPoint)
           && matchesRid(iCommandContext, targetRid, startingPoint)) {
-        YTResultInternal rs = new YTResultInternal(iCommandContext.getDatabase(), startingPoint);
+        ResultInternal rs = new ResultInternal(iCommandContext.getDatabase(), startingPoint);
         // set traversal depth in the metadata
         rs.setMetadata("$depth", depth);
         // set traversal path in the metadata
@@ -170,13 +170,13 @@ public class MatchEdgeTraverser {
         ExecutionStream queryResult = traversePatternEdge(startingPoint, iCommandContext);
 
         while (queryResult.hasNext(iCommandContext)) {
-          YTResult origin = queryResult.next(iCommandContext);
+          Result origin = queryResult.next(iCommandContext);
           //          if(origin.equals(startingPoint)){
           //            continue;
           //          }
           // TODO consider break strategies (eg. re-traverse nodes)
 
-          List<YTIdentifiable> newPath = new ArrayList<>();
+          List<Identifiable> newPath = new ArrayList<>();
           if (pathToHere != null) {
             newPath.addAll(pathToHere);
           }
@@ -187,7 +187,7 @@ public class MatchEdgeTraverser {
           ExecutionStream subResult =
               executeTraversal(iCommandContext, item, elem, depth + 1, newPath);
           while (subResult.hasNext(iCommandContext)) {
-            YTResult sub = subResult.next(iCommandContext);
+            Result sub = subResult.next(iCommandContext);
             result.add(sub);
           }
         }
@@ -197,16 +197,16 @@ public class MatchEdgeTraverser {
     }
   }
 
-  private YTResult filter(
+  private Result filter(
       CommandContext iCommandContext,
       final SQLWhereClause theFilter,
       final String theClassName,
       final Integer theClusterId,
       final SQLRid theTargetRid,
-      YTResult next,
+      Result next,
       CommandContext ctx) {
     Object previousMatch = ctx.getVariable("$currentMatch");
-    YTResultInternal matched = (YTResultInternal) ctx.getVariable("matched");
+    ResultInternal matched = (ResultInternal) ctx.getVariable("matched");
     if (matched != null) {
       matched.setProperty(
           getStartingPointAlias(), sourceRecord.getProperty(getStartingPointAlias()));
@@ -242,7 +242,7 @@ public class MatchEdgeTraverser {
   }
 
   private boolean matchesClass(
-      CommandContext iCommandContext, String className, YTIdentifiable origin) {
+      CommandContext iCommandContext, String className, Identifiable origin) {
     if (className == null) {
       return true;
     }
@@ -256,7 +256,7 @@ public class MatchEdgeTraverser {
       }
     }
     if (element != null) {
-      Optional<YTClass> clazz = element.getSchemaType();
+      Optional<SchemaClass> clazz = element.getSchemaType();
       if (!clazz.isPresent()) {
         return false;
       }
@@ -266,7 +266,7 @@ public class MatchEdgeTraverser {
   }
 
   private boolean matchesCluster(
-      CommandContext iCommandContext, Integer clusterId, YTIdentifiable origin) {
+      CommandContext iCommandContext, Integer clusterId, Identifiable origin) {
     if (clusterId == null) {
       return true;
     }
@@ -280,7 +280,7 @@ public class MatchEdgeTraverser {
     return clusterId.equals(origin.getIdentity().getClusterId());
   }
 
-  private boolean matchesRid(CommandContext iCommandContext, SQLRid rid, YTIdentifiable origin) {
+  private boolean matchesRid(CommandContext iCommandContext, SQLRid rid, Identifiable origin) {
     if (rid == null) {
       return true;
     }
@@ -295,14 +295,14 @@ public class MatchEdgeTraverser {
   }
 
   protected boolean matchesFilters(
-      CommandContext iCommandContext, SQLWhereClause filter, YTIdentifiable origin) {
+      CommandContext iCommandContext, SQLWhereClause filter, Identifiable origin) {
     return filter == null || filter.matchesFilters(origin, iCommandContext);
   }
 
   // TODO refactor this method to receive the item.
 
   protected ExecutionStream traversePatternEdge(
-      YTIdentifiable startingPoint, CommandContext iCommandContext) {
+      Identifiable startingPoint, CommandContext iCommandContext) {
 
     Object prevCurrent = iCommandContext.getVariable("$current");
     iCommandContext.setVariable("$current", startingPoint);
@@ -316,9 +316,9 @@ public class MatchEdgeTraverser {
     if (qR == null) {
       return ExecutionStream.empty();
     }
-    if (qR instanceof YTIdentifiable) {
-      return ExecutionStream.singleton(new YTResultInternal(
-          iCommandContext.getDatabase(), (YTIdentifiable) qR));
+    if (qR instanceof Identifiable) {
+      return ExecutionStream.singleton(new ResultInternal(
+          iCommandContext.getDatabase(), (Identifiable) qR));
     }
     if (qR instanceof Iterable) {
       return ExecutionStream.iterator(((Iterable) qR).iterator());

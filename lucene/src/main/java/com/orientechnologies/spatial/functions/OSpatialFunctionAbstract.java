@@ -13,14 +13,14 @@
  */
 package com.orientechnologies.spatial.functions;
 
-import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionAbstract;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionAbstract;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 import org.locationtech.spatial4j.shape.Shape;
 
 /**
  *
  */
-public abstract class OSpatialFunctionAbstract extends OSQLFunctionAbstract {
+public abstract class OSpatialFunctionAbstract extends SQLFunctionAbstract {
 
   protected OShapeFactory factory = OShapeFactory.INSTANCE;
 

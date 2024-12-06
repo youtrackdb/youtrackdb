@@ -41,13 +41,13 @@ import javax.annotation.Nullable;
  *
  * <p>
  */
-public class LinkSet extends TrackedSet<YTIdentifiable> implements IdentityChangeListener {
+public class LinkSet extends TrackedSet<Identifiable> implements IdentityChangeListener {
 
   public LinkSet(final RecordElement iSourceRecord) {
     super(iSourceRecord);
   }
 
-  public LinkSet(RecordElement iSourceRecord, Collection<YTIdentifiable> iOrigin) {
+  public LinkSet(RecordElement iSourceRecord, Collection<Identifiable> iOrigin) {
     this(iSourceRecord);
 
     if (iOrigin != null && !iOrigin.isEmpty()) {
@@ -55,7 +55,7 @@ public class LinkSet extends TrackedSet<YTIdentifiable> implements IdentityChang
     }
   }
 
-  public boolean addInternal(final YTIdentifiable e) {
+  public boolean addInternal(final Identifiable e) {
     var result = super.addInternal(e);
 
     if (result) {
@@ -95,13 +95,13 @@ public class LinkSet extends TrackedSet<YTIdentifiable> implements IdentityChang
     return result;
   }
 
-  public boolean addAll(final Collection<? extends YTIdentifiable> c) {
+  public boolean addAll(final Collection<? extends Identifiable> c) {
     if (c == null || c.isEmpty()) {
       return false;
     }
 
     var result = false;
-    for (YTIdentifiable o : c) {
+    for (Identifiable o : c) {
       var resultAdd = super.add(o);
       result = result || resultAdd;
 
@@ -123,7 +123,7 @@ public class LinkSet extends TrackedSet<YTIdentifiable> implements IdentityChang
 
     Objects.requireNonNull(c);
     boolean modified = false;
-    Iterator<YTIdentifiable> it = iterator();
+    Iterator<Identifiable> it = iterator();
 
     while (it.hasNext()) {
       if (!c.contains(it.next())) {
@@ -137,20 +137,20 @@ public class LinkSet extends TrackedSet<YTIdentifiable> implements IdentityChang
 
   @Override
   public Class<?> getGenericClass() {
-    return YTIdentifiable.class;
+    return Identifiable.class;
   }
 
   @Override
-  public void replace(OMultiValueChangeEvent<Object, Object> event, Object newValue) {
+  public void replace(MultiValueChangeEvent<Object, Object> event, Object newValue) {
     // not needed do nothing
   }
 
   @Override
   @Nonnull
-  public Iterator<YTIdentifiable> iterator() {
+  public Iterator<Identifiable> iterator() {
     var iterator = super.iterator();
     return new Iterator<>() {
-      private YTIdentifiable current = null;
+      private Identifiable current = null;
 
       @Override
       public boolean hasNext() {
@@ -158,7 +158,7 @@ public class LinkSet extends TrackedSet<YTIdentifiable> implements IdentityChang
       }
 
       @Override
-      public YTIdentifiable next() {
+      public Identifiable next() {
         current = iterator.next();
         return current;
       }
@@ -176,7 +176,7 @@ public class LinkSet extends TrackedSet<YTIdentifiable> implements IdentityChang
   }
 
   @Override
-  public boolean add(@Nullable YTIdentifiable e) {
+  public boolean add(@Nullable Identifiable e) {
     var result = super.add(e);
 
     if (result) {
@@ -196,7 +196,7 @@ public class LinkSet extends TrackedSet<YTIdentifiable> implements IdentityChang
 
   @Override
   public void onAfterIdentityChange(Object source) {
-    super.addInternal((YTIdentifiable) source);
+    super.addInternal((Identifiable) source);
   }
 
   public boolean remove(Object o) {
@@ -216,7 +216,7 @@ public class LinkSet extends TrackedSet<YTIdentifiable> implements IdentityChang
 
   @Override
   public String toString() {
-    return ORecordMultiValueHelper.toString(this);
+    return RecordMultiValueHelper.toString(this);
   }
 
 }

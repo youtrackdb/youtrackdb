@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.command.script.transformer.result;
 
-import com.jetbrains.youtrack.db.internal.core.command.script.transformer.OScriptTransformer;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.command.script.transformer.ScriptTransformer;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.Map;
 import java.util.Spliterator;
 import java.util.stream.Collectors;
@@ -12,17 +12,17 @@ import java.util.stream.StreamSupport;
 /**
  *
  */
-public class MapTransformer implements OResultTransformer<Map<Object, Object>> {
+public class MapTransformer implements ResultTransformer<Map<Object, Object>> {
 
-  private final OScriptTransformer transformer;
+  private final ScriptTransformer transformer;
 
-  public MapTransformer(OScriptTransformer transformer) {
+  public MapTransformer(ScriptTransformer transformer) {
     this.transformer = transformer;
   }
 
   @Override
-  public YTResult transform(YTDatabaseSessionInternal db, Map<Object, Object> element) {
-    YTResultInternal internal = new YTResultInternal(db);
+  public Result transform(DatabaseSessionInternal db, Map<Object, Object> element) {
+    ResultInternal internal = new ResultInternal(db);
     element.forEach(
         (key, val) -> {
           if (transformer.doesHandleResult(val)) {

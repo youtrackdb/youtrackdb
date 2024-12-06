@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTView;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaView;
 import java.util.Set;
 
 /**
@@ -20,8 +20,8 @@ public class FetchFromViewExecutionStep extends FetchFromClassExecutionStep {
       boolean profilingEnabled) {
     super(className, clusters, planningInfo, ctx, ridOrder, profilingEnabled);
 
-    YTDatabaseSessionInternal database = ctx.getDatabase();
-    YTView view = loadClassFromSchema(className, ctx);
+    DatabaseSessionInternal database = ctx.getDatabase();
+    SchemaView view = loadClassFromSchema(className, ctx);
     int[] classClusters = view.getPolymorphicClusterIds();
     for (int clusterId : classClusters) {
       String clusterName = ctx.getDatabase().getClusterNameById(clusterId);
@@ -36,10 +36,11 @@ public class FetchFromViewExecutionStep extends FetchFromClassExecutionStep {
     super.close();
   }
 
-  protected YTView loadClassFromSchema(String className, CommandContext ctx) {
-    YTView clazz = ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot().getView(className);
+  protected SchemaView loadClassFromSchema(String className, CommandContext ctx) {
+    SchemaView clazz = ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot()
+        .getView(className);
     if (clazz == null) {
-      throw new YTCommandExecutionException("View " + className + " not found");
+      throw new CommandExecutionException("View " + className + " not found");
     }
     return clazz;
   }

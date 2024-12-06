@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -49,7 +49,7 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
       EntityImpl servers = configuration.field(SERVERS);
       if (servers == null) {
         servers = new EntityImpl();
-        configuration.field(SERVERS, servers, YTType.EMBEDDED);
+        configuration.field(SERVERS, servers, PropertyType.EMBEDDED);
       }
 
       servers.field(iServerName, role);
@@ -120,7 +120,7 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
         // CHECK IF THE OWNER IS ALREADY CONFIGURED
         final String owner = cluster.field(OWNER);
         if (owner != null && !iServerName.equalsIgnoreCase(owner)) {
-          throw new YTDistributedException(
+          throw new DistributedException(
               "Cannot overwrite ownership of cluster '"
                   + iClusterName
                   + "' to the server '"
@@ -153,7 +153,7 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
       }
 
       if (!removed) {
-        throw new YTDistributedException(
+        throw new DistributedException(
             "Cannot set ownership of cluster '"
                 + iClusterName
                 + "' to the server '"
@@ -285,8 +285,8 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
     }
 
     cluster = new EntityImpl();
-    ODocumentInternal.addOwner(cluster, clusters);
-    clusters.field(iClusterName, cluster, YTType.EMBEDDED);
+    DocumentInternal.addOwner(cluster, clusters);
+    clusters.field(iClusterName, cluster, PropertyType.EMBEDDED);
 
     final List<String> servers = initClusterServers(cluster);
 

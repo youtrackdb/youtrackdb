@@ -19,35 +19,32 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record;
 
-import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableIdentity;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.IdentityChangeListener;
-import com.jetbrains.youtrack.db.internal.core.id.YTImmutableRecordId;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODirtyManager;
-import com.jetbrains.youtrack.db.internal.core.serialization.OSerializableStream;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.ORecordSerializerJSON;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.id.ImmutableRecordId;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DirtyManager;
+import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJSON;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Set;
-import java.util.WeakHashMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 @SuppressWarnings({"unchecked"})
-public abstract class RecordAbstract implements Record, RecordElement, OSerializableStream,
+public abstract class RecordAbstract implements Record, RecordElement, SerializableStream,
     ChangeableIdentity {
 
   public static final String BASE_FORMAT =
@@ -55,22 +52,21 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
   private static final String DEFAULT_FORMAT = BASE_FORMAT + "," + "fetchPlan:*:0";
   public static final String OLD_FORMAT_WITH_LATE_TYPES = BASE_FORMAT + "," + "fetchPlan:*:0";
 
-  protected YTRecordId recordId;
+  protected RecordId recordId;
   protected int recordVersion = 0;
 
   protected byte[] source;
   protected int size;
 
-  protected transient ORecordSerializer recordFormat;
+  protected transient RecordSerializer recordFormat;
   protected boolean dirty = true;
   protected boolean contentChanged = true;
   protected RecordElement.STATUS status = RecordElement.STATUS.LOADED;
 
-  private transient Set<OIdentityChangeListener> newIdentityChangeListeners = null;
-  protected ODirtyManager dirtyManager;
+  protected DirtyManager dirtyManager;
 
   private long loadingCounter;
-  private YTDatabaseSessionInternal session;
+  private DatabaseSessionInternal session;
 
   public RecordAbstract() {
   }
@@ -81,11 +77,11 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
     unsetDirty();
   }
 
-  public final YTRID getIdentity() {
+  public final RID getIdentity() {
     return recordId;
   }
 
-  public final RecordAbstract setIdentity(final YTRecordId iIdentity) {
+  public final RecordAbstract setIdentity(final RecordId iIdentity) {
     recordId = iIdentity;
     return this;
   }
@@ -135,7 +131,7 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
 
   public RecordAbstract fromStream(final byte[] iRecordBuffer) {
     if (dirty) {
-      throw new YTDatabaseException("Cannot call fromStream() on dirty records");
+      throw new DatabaseException("Cannot call fromStream() on dirty records");
     }
 
     contentChanged = false;
@@ -147,9 +143,9 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
     return this;
   }
 
-  protected RecordAbstract fromStream(final byte[] iRecordBuffer, YTDatabaseSessionInternal db) {
+  protected RecordAbstract fromStream(final byte[] iRecordBuffer, DatabaseSessionInternal db) {
     if (dirty) {
-      throw new YTDatabaseException("Cannot call fromStream() on dirty records");
+      throw new DatabaseException("Cannot call fromStream() on dirty records");
     }
 
     contentChanged = false;
@@ -164,12 +160,12 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
   public RecordAbstract setDirty() {
     if (!dirty && recordId.isPersistent()) {
       if (session == null) {
-        throw new YTDatabaseException(createNotBoundToSessionMessage());
+        throw new DatabaseException(createNotBoundToSessionMessage());
       }
 
       var tx = session.getTransaction();
       if (!tx.isActive()) {
-        throw new YTDatabaseException("Cannot modify persisted record outside of transaction");
+        throw new DatabaseException("Cannot modify persisted record outside of transaction");
       }
     }
 
@@ -206,7 +202,7 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
   public <RET extends Record> RET fromJSON(final String iSource, final String iOptions) {
     status = STATUS.UNMARSHALLING;
     try {
-      ORecordSerializerJSON.INSTANCE.fromString(getSession(),
+      RecordSerializerJSON.INSTANCE.fromString(getSession(),
           iSource, this, null, iOptions, false); // Add new parameter to accommodate new API,
       // nothing change
       return (RET) this;
@@ -218,7 +214,7 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
   public void fromJSON(final String iSource) {
     status = STATUS.UNMARSHALLING;
     try {
-      ORecordSerializerJSON.INSTANCE.fromString(getSessionIfDefined(), iSource, this, null);
+      RecordSerializerJSON.INSTANCE.fromString(getSessionIfDefined(), iSource, this, null);
     } finally {
       status = STATUS.LOADED;
     }
@@ -228,7 +224,7 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
   public final <RET extends Record> RET fromJSON(final String iSource, boolean needReload) {
     status = STATUS.UNMARSHALLING;
     try {
-      return (RET) ORecordSerializerJSON.INSTANCE.fromString(getSession(), iSource, this, null,
+      return (RET) RecordSerializerJSON.INSTANCE.fromString(getSession(), iSource, this, null,
           needReload);
     } finally {
       status = STATUS.LOADED;
@@ -240,8 +236,8 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
     status = STATUS.UNMARSHALLING;
     try {
       final ByteArrayOutputStream out = new ByteArrayOutputStream();
-      OIOUtils.copyStream(iContentResult, out);
-      ORecordSerializerJSON.INSTANCE.fromString(getSession(), out.toString(), this, null);
+      IOUtils.copyStream(iContentResult, out);
+      RecordSerializerJSON.INSTANCE.fromString(getSession(), out.toString(), this, null);
       return (RET) this;
     } finally {
       status = STATUS.LOADED;
@@ -256,7 +252,7 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
   public String toJSON(final String format) {
     checkForBinding();
 
-    return ORecordSerializerJSON.INSTANCE
+    return RecordSerializerJSON.INSTANCE
         .toString(this, new StringBuilder(1024), format == null ? "" : format)
         .toString();
   }
@@ -306,23 +302,23 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
   }
 
   @Override
-  public boolean isNotBound(YTDatabaseSession session) {
+  public boolean isNotBound(DatabaseSession session) {
     return isUnloaded() || this.session != session;
   }
 
   @Nonnull
-  public YTDatabaseSessionInternal getSession() {
+  public DatabaseSessionInternal getSession() {
     assert session != null && session.assertIfNotActive();
 
     if (session == null) {
-      throw new YTDatabaseException(createNotBoundToSessionMessage());
+      throw new DatabaseException(createNotBoundToSessionMessage());
     }
 
     return session;
   }
 
   @Nullable
-  protected YTDatabaseSessionInternal getSessionIfDefined() {
+  protected DatabaseSessionInternal getSessionIfDefined() {
     assert session == null || session.assertIfNotActive();
     return session;
   }
@@ -357,14 +353,14 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
       return false;
     }
 
-    if (obj instanceof YTIdentifiable) {
-      return recordId.equals(((YTIdentifiable) obj).getIdentity());
+    if (obj instanceof Identifiable) {
+      return recordId.equals(((Identifiable) obj).getIdentity());
     }
 
     return false;
   }
 
-  public int compare(final YTIdentifiable iFirst, final YTIdentifiable iSecond) {
+  public int compare(final Identifiable iFirst, final Identifiable iSecond) {
     if (iFirst == null || iSecond == null) {
       return -1;
     }
@@ -372,7 +368,7 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
     return iFirst.compareTo(iSecond);
   }
 
-  public int compareTo(@Nonnull final YTIdentifiable iOther) {
+  public int compareTo(@Nonnull final Identifiable iOther) {
     if (recordId == null) {
       return iOther.getIdentity() == null ? 0 : 1;
     }
@@ -397,7 +393,7 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
     checkForBinding();
 
     if (cloned.dirty) {
-      throw new YTDatabaseException("Cannot copy to dirty records");
+      throw new DatabaseException("Cannot copy to dirty records");
     }
 
     cloned.source = source;
@@ -415,9 +411,9 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
   }
 
   protected RecordAbstract fill(
-      final YTRID iRid, final int iVersion, final byte[] iBuffer, boolean iDirty) {
+      final RID iRid, final int iVersion, final byte[] iBuffer, boolean iDirty) {
     if (dirty) {
-      throw new YTDatabaseException("Cannot call fill() on dirty records");
+      throw new DatabaseException("Cannot call fill() on dirty records");
     }
 
     recordId.setClusterId(iRid.getClusterId());
@@ -441,13 +437,13 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
   }
 
   protected RecordAbstract fill(
-      final YTRID iRid,
+      final RID iRid,
       final int iVersion,
       final byte[] iBuffer,
       boolean iDirty,
-      YTDatabaseSessionInternal db) {
+      DatabaseSessionInternal db) {
     if (dirty) {
-      throw new YTDatabaseException("Cannot call fill() on dirty records");
+      throw new DatabaseException("Cannot call fill() on dirty records");
     }
 
     recordId.setClusterId(iRid.getClusterId());
@@ -471,8 +467,8 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
   }
 
   protected final RecordAbstract setIdentity(final int iClusterId, final long iClusterPosition) {
-    if (recordId == null || recordId == YTImmutableRecordId.EMPTY_RECORD_ID) {
-      recordId = new YTRecordId(iClusterId, iClusterPosition);
+    if (recordId == null || recordId == ImmutableRecordId.EMPTY_RECORD_ID) {
+      recordId = new RecordId(iClusterId, iClusterPosition);
     } else {
       recordId.setClusterId(iClusterId);
       recordId.setClusterPosition(iClusterPosition);
@@ -488,37 +484,7 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
 
   protected abstract byte getRecordType();
 
-  void onBeforeIdentityChanged() {
-    if (newIdentityChangeListeners != null) {
-      for (OIdentityChangeListener changeListener : newIdentityChangeListeners) {
-        changeListener.onBeforeIdentityChange(this);
-      }
-    }
-  }
-
-  void onAfterIdentityChanged() {
-    if (newIdentityChangeListeners != null) {
-      for (OIdentityChangeListener changeListener : newIdentityChangeListeners) {
-        changeListener.onAfterIdentityChange(this);
-      }
-    }
-  }
-
-
-  void addIdentityChangeListener(OIdentityChangeListener identityChangeListener) {
-    if (newIdentityChangeListeners == null) {
-      newIdentityChangeListeners = Collections.newSetFromMap(new WeakHashMap<>());
-    }
-    newIdentityChangeListeners.add(identityChangeListener);
-  }
-
-  void removeIdentityChangeListener(OIdentityChangeListener identityChangeListener) {
-    if (newIdentityChangeListeners != null) {
-      newIdentityChangeListeners.remove(identityChangeListener);
-    }
-  }
-
-  public void setup(YTDatabaseSessionInternal db) {
+  public void setup(DatabaseSessionInternal db) {
     if (recordId == null) {
       recordId = new ChangeableRecordId();
     }
@@ -537,7 +503,7 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
         return;
       }
 
-      throw new YTDatabaseException(createNotBoundToSessionMessage());
+      throw new DatabaseException(createNotBoundToSessionMessage());
     }
 
     assert session == null || session.assertIfNotActive();
@@ -548,7 +514,7 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
         + getIdentity()
         + " is not bound to the current session. Please bind record to the database session"
         + " by calling : "
-        + YTDatabaseSession.class.getSimpleName()
+        + DatabaseSession.class.getSimpleName()
         + ".bindToSession(record) before using it.";
   }
 
@@ -576,10 +542,10 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
     this.source = null;
   }
 
-  protected ODirtyManager getDirtyManager() {
+  protected DirtyManager getDirtyManager() {
     if (this.dirtyManager == null) {
 
-      this.dirtyManager = new ODirtyManager();
+      this.dirtyManager = new DirtyManager();
       if (this.getIdentity().isNew() && getOwner() == null) {
         this.dirtyManager.setDirty(this);
       }
@@ -587,7 +553,7 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
     return this.dirtyManager;
   }
 
-  void setDirtyManager(ODirtyManager dirtyManager) {
+  void setDirtyManager(DirtyManager dirtyManager) {
     checkForBinding();
 
     if (this.dirtyManager != null && dirtyManager != null) {
@@ -599,11 +565,11 @@ public abstract class RecordAbstract implements Record, RecordElement, OSerializ
     }
   }
 
-  protected void track(YTIdentifiable id) {
+  protected void track(Identifiable id) {
     this.getDirtyManager().track(this, id);
   }
 
-  protected void unTrack(YTIdentifiable id) {
+  protected void unTrack(Identifiable id) {
     this.getDirtyManager().unTrack(this, id);
   }
 

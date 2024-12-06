@@ -2,13 +2,13 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import static org.junit.Assert.assertNotEquals;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
 import org.junit.Test;
 
-public class BatchUniqueProjectionRid extends DBTestBase {
+public class BatchUniqueProjectionRid extends DbTestBase {
 
   @Test
   public void testBatchUniqueRid() {

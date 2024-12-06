@@ -3,16 +3,16 @@ package com.orientechnologies.orient.server.network;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
 import com.orientechnologies.orient.client.remote.OStorageRemotePushThread;
 import com.orientechnologies.orient.client.remote.message.OBinaryPushRequest;
 import com.orientechnologies.orient.client.remote.message.OBinaryPushResponse;
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import com.orientechnologies.orient.server.OServer;
-import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
+import com.orientechnologies.orient.server.network.protocol.binary.NetworkProtocolBinary;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
@@ -32,11 +32,11 @@ public class PushMessageUnitTest {
   public class MockPushResponse implements OBinaryPushResponse {
 
     @Override
-    public void write(OChannelDataOutput network) throws IOException {
+    public void write(ChannelDataOutput network) throws IOException {
     }
 
     @Override
-    public void read(OChannelDataInput channel) throws IOException {
+    public void read(ChannelDataInput channel) throws IOException {
       responseRead.countDown();
     }
   }
@@ -44,7 +44,7 @@ public class PushMessageUnitTest {
   public class MockPushRequest implements OBinaryPushRequest<OBinaryPushResponse> {
 
     @Override
-    public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel)
+    public void write(DatabaseSessionInternal session, ChannelDataOutput channel)
         throws IOException {
       requestWritten.countDown();
     }
@@ -55,11 +55,11 @@ public class PushMessageUnitTest {
     }
 
     @Override
-    public void read(YTDatabaseSessionInternal db, OChannelDataInput network) throws IOException {
+    public void read(DatabaseSessionInternal db, ChannelDataInput network) throws IOException {
     }
 
     @Override
-    public OBinaryPushResponse execute(YTDatabaseSessionInternal session,
+    public OBinaryPushResponse execute(DatabaseSessionInternal session,
         ORemotePushHandler remote) {
       executed.countDown();
       return new MockPushResponse();
@@ -74,7 +74,7 @@ public class PushMessageUnitTest {
   public class MockPushRequestNoResponse implements OBinaryPushRequest<OBinaryPushResponse> {
 
     @Override
-    public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel)
+    public void write(DatabaseSessionInternal session, ChannelDataOutput channel)
         throws IOException {
       requestWritten.countDown();
     }
@@ -85,11 +85,11 @@ public class PushMessageUnitTest {
     }
 
     @Override
-    public void read(YTDatabaseSessionInternal db, OChannelDataInput network) throws IOException {
+    public void read(DatabaseSessionInternal db, ChannelDataInput network) throws IOException {
     }
 
     @Override
-    public OBinaryPushResponse execute(YTDatabaseSessionInternal session,
+    public OBinaryPushResponse execute(DatabaseSessionInternal session,
         ORemotePushHandler remote) {
       executed.countDown();
       return null;
@@ -121,7 +121,7 @@ public class PushMessageUnitTest {
     PipedOutputStream outputClient = new PipedOutputStream(inputServer);
     this.channelBinaryClient = new MockPipeChannel(inputClient, outputClient);
     this.channelBinaryServer = new MockPipeChannel(inputServer, outputServer);
-    Mockito.when(server.getContextConfiguration()).thenReturn(new YTContextConfiguration());
+    Mockito.when(server.getContextConfiguration()).thenReturn(new ContextConfiguration());
     Mockito.when(remote.getNetwork(Mockito.anyString())).thenReturn(channelBinaryClient);
     Mockito.when(remote.createPush((byte) 100)).thenReturn(new MockPushRequest());
     Mockito.when(remote.createPush((byte) 101)).thenReturn(new MockPushRequestNoResponse());
@@ -132,7 +132,7 @@ public class PushMessageUnitTest {
 
   @Test
   public void testPushMessage() throws IOException, InterruptedException {
-    ONetworkProtocolBinary binary = new ONetworkProtocolBinary(server);
+    NetworkProtocolBinary binary = new NetworkProtocolBinary(server);
     binary.initVariables(server, channelBinaryServer);
     new Thread(
         () -> {
@@ -157,7 +157,7 @@ public class PushMessageUnitTest {
 
   @Test
   public void testPushMessageNoResponse() throws IOException, InterruptedException {
-    ONetworkProtocolBinary binary = new ONetworkProtocolBinary(server);
+    NetworkProtocolBinary binary = new NetworkProtocolBinary(server);
     binary.initVariables(server, channelBinaryServer);
     Thread thread =
         new Thread(

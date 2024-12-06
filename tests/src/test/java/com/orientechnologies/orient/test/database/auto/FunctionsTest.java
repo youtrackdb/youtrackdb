@@ -16,10 +16,10 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +39,7 @@ public class FunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void createFunctionBug2415() {
-    YTIdentifiable result =
+    Identifiable result =
         database
             .command(
                 new CommandSQL(
@@ -60,19 +60,19 @@ public class FunctionsTest extends DocumentDBBaseTest {
   public void testFunctionDefinitionAndCall() {
     database.command("create function testCall \"return 0;\" LANGUAGE Javascript").close();
 
-    YTResultSet res1 = database.command("select testCall() as testCall");
+    ResultSet res1 = database.command("select testCall() as testCall");
     Assert.assertEquals((int) res1.next().getProperty("testCall"), 0);
   }
 
   @Test
   public void testFunctionCacheAndReload() {
-    YTIdentifiable f =
+    Identifiable f =
         database
             .command(new CommandSQL("create function testCache \"return 1;\" LANGUAGE Javascript"))
             .execute(database);
     Assert.assertNotNull(f);
 
-    try (YTResultSet res1 = database.command("select testCache() as testCache")) {
+    try (ResultSet res1 = database.command("select testCache() as testCache")) {
       Assert.assertEquals(res1.next().<Object>getProperty("testCache"), 1);
     }
 
@@ -82,7 +82,7 @@ public class FunctionsTest extends DocumentDBBaseTest {
     func.save();
     database.commit();
 
-    try (YTResultSet res2 = database.command("select testCache() as testCache")) {
+    try (ResultSet res2 = database.command("select testCache() as testCache")) {
       Assert.assertEquals(res2.next().<Object>getProperty("testCache"), 2);
     }
   }
@@ -101,7 +101,7 @@ public class FunctionsTest extends DocumentDBBaseTest {
           new Thread() {
             public void run() {
               for (int cycle = 0; cycle < TOT; ++cycle) {
-                YTResultSet res1 = database.command("select testMTCall() as testMTCall");
+                ResultSet res1 = database.command("select testMTCall() as testMTCall");
                 Assert.assertNotNull(res1);
                 Assert.assertEquals(res1.next().<Object>getProperty("testMTCall"), 3);
 
@@ -131,7 +131,7 @@ public class FunctionsTest extends DocumentDBBaseTest {
                 + " country;\" PARAMETERS [name,surname,country] LANGUAGE Javascript")
         .close();
 
-    try (YTResultSet res1 =
+    try (ResultSet res1 =
         database.command("select testParams('Jay', 'Miner', 'USA') as testParams")) {
       Assert.assertEquals(res1.next().getProperty("testParams"), "Hello Jay Miner from USA");
     }
@@ -166,7 +166,7 @@ public class FunctionsTest extends DocumentDBBaseTest {
     theMap.put("foo", theList);
     params.put("theParam", theMap);
 
-    YTResultSet res1 = database.command("select testMapParamToFunction(:theParam) as a", params);
+    ResultSet res1 = database.command("select testMapParamToFunction(:theParam) as a", params);
     Assert.assertEquals(res1.next().getProperty("a"), "bar");
   }
 }

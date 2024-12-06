@@ -18,12 +18,12 @@
 
 package com.orientechnologies.spatial;
 
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Before;
@@ -37,18 +37,18 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
   @Before
   public void init() {
 
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass v = schema.getClass("V");
-    YTClass oClass = schema.createClass("City");
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass v = schema.getClass("V");
+    SchemaClass oClass = schema.createClass("City");
     oClass.setSuperClass(db, v);
-    oClass.createProperty(db, "location", YTType.EMBEDDED, schema.getClass("OPoint"));
-    oClass.createProperty(db, "name", YTType.STRING);
+    oClass.createProperty(db, "location", PropertyType.EMBEDDED, schema.getClass("OPoint"));
+    oClass.createProperty(db, "name", PropertyType.STRING);
 
-    YTClass place = schema.createClass("Place");
+    SchemaClass place = schema.createClass("Place");
     place.setSuperClass(db, v);
-    place.createProperty(db, "latitude", YTType.DOUBLE);
-    place.createProperty(db, "longitude", YTType.DOUBLE);
-    place.createProperty(db, "name", YTType.STRING);
+    place.createProperty(db, "latitude", PropertyType.DOUBLE);
+    place.createProperty(db, "longitude", PropertyType.DOUBLE);
+    place.createProperty(db, "name", PropertyType.STRING);
 
     db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
   }
@@ -88,7 +88,7 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
     String query =
         "select * from City where  ST_WITHIN(location,{ 'shape' : { 'type' : 'ORectangle' ,"
             + " 'coordinates' : [12.314015,41.8262816,12.6605063,41.963125]} }) = true";
-    YTResultSet docs = db.query(query);
+    ResultSet docs = db.query(query);
 
     Assert.assertEquals(1, docs.stream().count());
 
@@ -123,11 +123,11 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
     String query =
         "select * from City where  ST_WITHIN(location,{ 'shape' : { 'type' : 'ORectangle' ,"
             + " 'coordinates' : [12.314015,41.8262816,12.6605063,41.963125]} }) = true";
-    YTResultSet docs = db.query(query);
+    ResultSet docs = db.query(query);
 
     Assert.assertEquals(1, docs.stream().count());
 
-    OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
+    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
 
     db.begin();
     Assert.assertEquals(1, index.getInternal().size(db));
@@ -161,7 +161,7 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
     db.commit();
 
     db.begin();
-    OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
+    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
 
     Assert.assertEquals(2, index.getInternal().size(db));
     db.commit();

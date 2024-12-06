@@ -18,18 +18,18 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.engine.local.OEngineLocalPaginated;
-import com.jetbrains.youtrack.db.internal.core.engine.memory.OEngineMemory;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.engine.local.EngineLocalPaginated;
+import com.jetbrains.youtrack.db.internal.core.engine.memory.EngineMemory;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,7 +46,7 @@ public class LuceneInsertMultithreadTest {
   private static final int CYCLE = 100;
   private static String buildDirectory;
   private static final String dbName;
-  private static final ODatabaseType databaseType;
+  private static final DatabaseType databaseType;
   private static final YouTrackDB YOU_TRACK_DB;
 
   static {
@@ -59,11 +59,11 @@ public class LuceneInsertMultithreadTest {
 
     String storageType;
     if ("ci".equals(config) || "release".equals(config)) {
-      storageType = OEngineLocalPaginated.NAME;
-      databaseType = ODatabaseType.PLOCAL;
+      storageType = EngineLocalPaginated.NAME;
+      databaseType = DatabaseType.PLOCAL;
     } else {
-      storageType = OEngineMemory.NAME;
-      databaseType = ODatabaseType.MEMORY;
+      storageType = EngineMemory.NAME;
+      databaseType = DatabaseType.MEMORY;
     }
 
     dbName = "multiThread";
@@ -83,15 +83,15 @@ public class LuceneInsertMultithreadTest {
     YOU_TRACK_DB.execute(
         "create database ? " + databaseType + " users(admin identified by 'admin' role admin)",
         dbName);
-    YTSchema schema;
-    try (YTDatabaseSessionInternal databaseDocumentTx = (YTDatabaseSessionInternal) YOU_TRACK_DB.open(
+    Schema schema;
+    try (DatabaseSessionInternal databaseDocumentTx = (DatabaseSessionInternal) YOU_TRACK_DB.open(
         dbName, "admin", "admin")) {
       schema = databaseDocumentTx.getMetadata().getSchema();
 
       if (schema.getClass("City") == null) {
-        YTClass oClass = schema.createClass("City");
+        SchemaClass oClass = schema.createClass("City");
 
-        oClass.createProperty(databaseDocumentTx, "name", YTType.STRING);
+        oClass.createProperty(databaseDocumentTx, "name", PropertyType.STRING);
         oClass.createIndex(databaseDocumentTx, "City.name", "FULLTEXT", null, null, "LUCENE",
             new String[]{"name"});
       }
@@ -113,7 +113,7 @@ public class LuceneInsertMultithreadTest {
         threads[i].join();
       }
 
-      OIndex idx = schema.getClass("City").getClassIndex(databaseDocumentTx, "City.name");
+      Index idx = schema.getClass("City").getClassIndex(databaseDocumentTx, "City.name");
 
       databaseDocumentTx.begin();
       Assertions.assertThat(idx.getInternal().size(databaseDocumentTx))
@@ -134,7 +134,7 @@ public class LuceneInsertMultithreadTest {
     @Override
     public void run() {
 
-      try (YTDatabaseSession db = YOU_TRACK_DB.open(dbName, "admin", "admin")) {
+      try (DatabaseSession db = YOU_TRACK_DB.open(dbName, "admin", "admin")) {
         db.begin();
         for (int i = 0; i < cycle; i++) {
           EntityImpl doc = new EntityImpl("City");
@@ -165,15 +165,15 @@ public class LuceneInsertMultithreadTest {
 
     @Override
     public void run() {
-      YTSchema schema;
-      try (YTDatabaseSessionInternal databaseDocumentTx = (YTDatabaseSessionInternal) YOU_TRACK_DB.open(
+      Schema schema;
+      try (DatabaseSessionInternal databaseDocumentTx = (DatabaseSessionInternal) YOU_TRACK_DB.open(
           dbName, "admin", "admin")) {
         schema = databaseDocumentTx.getMetadata().getSchema();
 
-        OIndex idx = schema.getClass("City").getClassIndex(databaseDocumentTx, "City.name");
+        Index idx = schema.getClass("City").getClassIndex(databaseDocumentTx, "City.name");
 
         for (int i = 0; i < cycle; i++) {
-          try (Stream<YTRID> stream = idx.getInternal()
+          try (Stream<RID> stream = idx.getInternal()
               .getRids(databaseDocumentTx, "Rome")) {
             //noinspection ResultOfMethodCallIgnored
             stream.collect(Collectors.toList());

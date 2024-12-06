@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLProjectionItem;
@@ -17,7 +17,7 @@ public class GuaranteeEmptyCountStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
@@ -26,9 +26,9 @@ public class GuaranteeEmptyCountStep extends AbstractExecutionStep {
     if (upstream.hasNext(ctx)) {
       return upstream.limit(1);
     } else {
-      YTResultInternal result = new YTResultInternal(ctx.getDatabase());
+      ResultInternal result = new ResultInternal(ctx.getDatabase());
       result.setProperty(item.getProjectionAliasAsString(), 0L);
-      return ExecutionStream.resultIterator(Collections.singleton((YTResult) result).iterator());
+      return ExecutionStream.resultIterator(Collections.singleton((Result) result).iterator());
     }
   }
 

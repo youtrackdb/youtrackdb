@@ -19,27 +19,27 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.util.OPatternConst;
-import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.common.util.PatternConst;
+import com.jetbrains.youtrack.db.internal.core.collate.Collate;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinitionFactory;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexFactory;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexes;
-import com.jetbrains.youtrack.db.internal.core.index.OPropertyMapIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.ORuntimeKeyIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.OSimpleKeyIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.YTIndexException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClassImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.IndexException;
+import com.jetbrains.youtrack.db.internal.core.index.IndexFactory;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionFactory;
+import com.jetbrains.youtrack.db.internal.core.index.Indexes;
+import com.jetbrains.youtrack.db.internal.core.index.PropertyMapIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.RuntimeKeyIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.SimpleKeyIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,7 +59,7 @@ import java.util.Map;
  */
 @SuppressWarnings("unchecked")
 public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String KEYWORD_CREATE = "CREATE";
   public static final String KEYWORD_INDEX = "INDEX";
@@ -68,10 +68,10 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
   public static final String KEYWORD_ENGINE = "ENGINE";
 
   private String indexName;
-  private YTClass oClass;
+  private SchemaClass oClass;
   private String[] fields;
-  private YTClass.INDEX_TYPE indexType;
-  private YTType[] keyTypes;
+  private SchemaClass.INDEX_TYPE indexType;
+  private PropertyType[] keyTypes;
   private byte serializerKeyId;
   private String engine;
   private EntityImpl metadataDoc = null;
@@ -93,21 +93,21 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CREATE)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_CREATE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_INDEX)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_INDEX + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Expected index name. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -116,7 +116,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Index type requested. Use " + getSyntax(), parserText, oldPos + 1);
       }
 
@@ -124,26 +124,26 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
         oldPos = pos;
         pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
         if (pos == -1) {
-          throw new YTCommandSQLParsingException(
+          throw new CommandSQLParsingException(
               "Expected class name. Use " + getSyntax(), parserText, oldPos);
         }
         oldPos = pos;
         oClass = findClass(decodeClassName(word.toString()));
 
         if (oClass == null) {
-          throw new YTCommandExecutionException("Class " + word + " not found");
+          throw new CommandExecutionException("Class " + word + " not found");
         }
 
         pos = parserTextUpperCase.indexOf(')');
         if (pos == -1) {
-          throw new YTCommandSQLParsingException(
+          throw new CommandSQLParsingException(
               "No right bracket found. Use " + getSyntax(), parserText, oldPos);
         }
 
         final String props = parserText.substring(oldPos, pos).trim().substring(1);
 
         List<String> propList = new ArrayList<String>();
-        Collections.addAll(propList, OPatternConst.PATTERN_COMMA_SEPARATED.split(props.trim()));
+        Collections.addAll(propList, PatternConst.PATTERN_COMMA_SEPARATED.split(props.trim()));
 
         fields = new String[propList.size()];
         propList.toArray(fields);
@@ -181,7 +181,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
         oldPos = pos + 1;
         pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
         if (pos == -1) {
-          throw new YTCommandSQLParsingException(
+          throw new CommandSQLParsingException(
               "Index type requested. Use " + getSyntax(), parserText, oldPos + 1);
         }
       } else {
@@ -190,17 +190,17 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
 
           oClass = findClass(parts[0]);
           if (oClass == null) {
-            throw new YTCommandExecutionException("Class " + parts[0] + " not found");
+            throw new CommandExecutionException("Class " + parts[0] + " not found");
           }
 
           fields = new String[]{parts[1]};
         }
       }
 
-      indexType = YTClass.INDEX_TYPE.valueOf(word.toString());
+      indexType = SchemaClass.INDEX_TYPE.valueOf(word.toString());
 
       if (indexType == null) {
-        throw new YTCommandSQLParsingException("Index type is null", parserText, oldPos);
+        throw new CommandSQLParsingException("Index type is null", parserText, oldPos);
       }
 
       oldPos = pos;
@@ -241,16 +241,16 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
 
           serializerKeyId = Byte.parseByte(word.toString());
         } else {
-          ArrayList<YTType> keyTypeList = new ArrayList<YTType>();
-          for (String typeName : OPatternConst.PATTERN_COMMA_SEPARATED.split(typesString)) {
-            keyTypeList.add(YTType.valueOf(typeName));
+          ArrayList<PropertyType> keyTypeList = new ArrayList<PropertyType>();
+          for (String typeName : PatternConst.PATTERN_COMMA_SEPARATED.split(typesString)) {
+            keyTypeList.add(PropertyType.valueOf(typeName));
           }
 
-          keyTypes = new YTType[keyTypeList.size()];
+          keyTypes = new PropertyType[keyTypeList.size()];
           keyTypeList.toArray(keyTypes);
 
           if (fields != null && fields.length != 0 && fields.length != keyTypes.length) {
-            throw new YTCommandSQLParsingException(
+            throw new CommandSQLParsingException(
                 "Count of fields does not match with count of property types. "
                     + "Fields: "
                     + Arrays.toString(fields)
@@ -273,22 +273,22 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
    * Execute the CREATE INDEX.
    */
   @SuppressWarnings("rawtypes")
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (indexName == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final YTDatabaseSessionInternal database = getDatabase();
-    final OIndex idx;
-    List<OCollate> collatesList = null;
+    final DatabaseSessionInternal database = getDatabase();
+    final Index idx;
+    List<Collate> collatesList = null;
 
     if (collates != null) {
-      collatesList = new ArrayList<OCollate>();
+      collatesList = new ArrayList<Collate>();
 
       for (String collate : collates) {
         if (collate != null) {
-          final OCollate col = OSQLEngine.getCollate(collate);
+          final Collate col = SQLEngine.getCollate(collate);
           collatesList.add(col);
         } else {
           collatesList.add(null);
@@ -297,7 +297,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
     }
 
     if (fields == null || fields.length == 0) {
-      OIndexFactory factory = OIndexes.getFactory(indexType.toString(), null);
+      IndexFactory factory = Indexes.getFactory(indexType.toString(), null);
 
       if (keyTypes != null) {
         idx =
@@ -308,7 +308,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
                     database,
                     indexName,
                     indexType.toString(),
-                    new OSimpleKeyIndexDefinition(keyTypes, collatesList),
+                    new SimpleKeyIndexDefinition(keyTypes, collatesList),
                     null,
                     null,
                     metadataDoc,
@@ -322,13 +322,13 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
                     database,
                     indexName,
                     indexType.toString(),
-                    new ORuntimeKeyIndexDefinition(serializerKeyId),
+                    new RuntimeKeyIndexDefinition(serializerKeyId),
                     null,
                     null,
                     metadataDoc,
                     engine);
       } else {
-        throw new YTDatabaseException(
+        throw new DatabaseException(
             "Impossible to create an index without specify the key type or the associated"
                 + " property");
       }
@@ -338,11 +338,11 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
             oClass.createIndex(database, indexName, indexType.toString(), null, metadataDoc, engine,
                 fields);
       } else {
-        final List<YTType> fieldTypeList;
+        final List<PropertyType> fieldTypeList;
         if (keyTypes == null) {
           for (final String fieldName : fields) {
             if (!fieldName.equals("@rid") && !oClass.existsProperty(fieldName)) {
-              throw new YTIndexException(
+              throw new IndexException(
                   "Index with name : '"
                       + indexName
                       + "' cannot be created on class : '"
@@ -352,13 +352,13 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
                       + "' is absent in class definition.");
             }
           }
-          fieldTypeList = ((YTClassImpl) oClass).extractFieldTypes(fields);
+          fieldTypeList = ((SchemaClassImpl) oClass).extractFieldTypes(fields);
         } else {
           fieldTypeList = Arrays.asList(keyTypes);
         }
 
-        final OIndexDefinition idxDef =
-            OIndexDefinitionFactory.createIndexDefinition(
+        final IndexDefinition idxDef =
+            IndexDefinitionFactory.createIndexDefinition(
                 oClass,
                 Arrays.asList(fields),
                 fieldTypeList,
@@ -400,12 +400,12 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
         + " [<key-type>] [ENGINE <engine>] [METADATA {JSON Index Metadata Document}]";
   }
 
-  private YTClass findClass(String part) {
+  private SchemaClass findClass(String part) {
     return getDatabase().getMetadata().getSchema().getClass(part);
   }
 
   private void checkMapIndexSpecifier(final String fieldName, final String text, final int pos) {
-    final String[] fieldNameParts = OPatternConst.PATTERN_SPACES.split(fieldName);
+    final String[] fieldNameParts = PatternConst.PATTERN_SPACES.split(fieldName);
     if (fieldNameParts.length == 1) {
       return;
     }
@@ -413,11 +413,11 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
     if (fieldNameParts.length == 3) {
       if ("by".equals(fieldNameParts[1].toLowerCase(Locale.ENGLISH))) {
         try {
-          OPropertyMapIndexDefinition.INDEX_BY.valueOf(
+          PropertyMapIndexDefinition.INDEX_BY.valueOf(
               fieldNameParts[2].toUpperCase(Locale.ENGLISH));
         } catch (IllegalArgumentException iae) {
-          throw YTException.wrapException(
-              new YTCommandSQLParsingException(
+          throw BaseException.wrapException(
+              new CommandSQLParsingException(
                   "Illegal field name format, should be '<property> [by key|value]' but was '"
                       + fieldName
                       + "'",
@@ -427,7 +427,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
         }
         return;
       }
-      throw new YTCommandSQLParsingException(
+      throw new CommandSQLParsingException(
           "Illegal field name format, should be '<property> [by key|value]' but was '"
               + fieldName
               + "'",
@@ -435,7 +435,7 @@ public class CommandExecutorSQLCreateIndex extends CommandExecutorSQLAbstract
           pos);
     }
 
-    throw new YTCommandSQLParsingException(
+    throw new CommandSQLParsingException(
         "Illegal field name format, should be '<property> [by key|value]' but was '"
             + fieldName
             + "'",

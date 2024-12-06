@@ -20,13 +20,13 @@ package com.orientechnologies.lucene.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -44,9 +44,9 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
   @Before
   public void init() {
 
-    final YTClass c1 = db.createVertexClass("Foo");
-    c1.createProperty(db, "name", YTType.STRING);
-    c1.createProperty(db, "bar", YTType.STRING);
+    final SchemaClass c1 = db.createVertexClass("Foo");
+    c1.createProperty(db, "name", PropertyType.STRING);
+    c1.createProperty(db, "bar", PropertyType.STRING);
     c1.createIndex(db, "Foo.bar", "FULLTEXT", null, null, "LUCENE", new String[]{"bar"});
     c1.createIndex(db, "Foo.name", "NOTUNIQUE", null, null, "SBTREE", new String[]{"name"});
   }
@@ -61,7 +61,7 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
     db.save(doc);
 
     String query = "select from Foo where name = 'Test' and bar lucene \"abc\" ";
-    YTResultSet vertices = db.query(query);
+    ResultSet vertices = db.query(query);
 
     assertThat(vertices).hasSize(1);
     db.rollback();
@@ -79,7 +79,7 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
     doc.field("name", "Test");
     doc.field("bar", "abc");
 
-    OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.bar");
+    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.bar");
 
     db.save(doc);
 
@@ -91,10 +91,10 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
     db.delete(doc);
 
     String query = "select from Foo where name = 'Test' and bar lucene \"abc\" ";
-    YTResultSet vertices = db.query(query);
+    ResultSet vertices = db.query(query);
 
     Collection coll;
-    try (Stream<YTRID> stream = index.getInternal().getRids(db, "abc")) {
+    try (Stream<RID> stream = index.getInternal().getRids(db, "abc")) {
       coll = stream.collect(Collectors.toList());
     }
 
@@ -118,8 +118,8 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
   @Test
   public void txUpdateTest() {
 
-    OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.bar");
-    YTClass c1 = db.getMetadata().getSchema().getClass("Foo");
+    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.bar");
+    SchemaClass c1 = db.getMetadata().getSchema().getClass("Foo");
     try {
       c1.truncate(db);
     } catch (IOException e) {
@@ -144,9 +144,9 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
     db.save(doc);
 
     String query = "select from Foo where name = 'Test' and bar lucene \"abc\" ";
-    YTResultSet vertices = db.query(query);
+    ResultSet vertices = db.query(query);
     Collection coll;
-    try (Stream<YTRID> stream = index.getInternal().getRids(db, "abc")) {
+    try (Stream<RID> stream = index.getInternal().getRids(db, "abc")) {
       coll = stream.collect(Collectors.toList());
     }
 
@@ -165,7 +165,7 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
 
     query = "select from Foo where name = 'Test' and bar lucene \"removed\" ";
     vertices = db.query(query);
-    try (Stream<YTRID> stream = index.getInternal().getRids(db, "removed")) {
+    try (Stream<RID> stream = index.getInternal().getRids(db, "removed")) {
       coll = stream.collect(Collectors.toList());
     }
 
@@ -185,8 +185,8 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
   @Test
   public void txUpdateTestComplex() {
 
-    OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.bar");
-    YTClass c1 = db.getMetadata().getSchema().getClass("Foo");
+    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.bar");
+    SchemaClass c1 = db.getMetadata().getSchema().getClass("Foo");
     try {
       c1.truncate(db);
     } catch (IOException e) {
@@ -216,9 +216,9 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
     db.save(doc);
 
     String query = "select from Foo where name = 'Test' and bar lucene \"abc\" ";
-    YTResultSet vertices = db.command(query);
+    ResultSet vertices = db.command(query);
     Collection coll;
-    try (Stream<YTRID> stream = index.getInternal().getRids(db, "abc")) {
+    try (Stream<RID> stream = index.getInternal().getRids(db, "abc")) {
       coll = stream.collect(Collectors.toList());
     }
 
@@ -227,9 +227,9 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
 
     Iterator iterator = coll.iterator();
     int i = 0;
-    YTRecordId rid = null;
+    RecordId rid = null;
     while (iterator.hasNext()) {
-      rid = (YTRecordId) iterator.next();
+      rid = (RecordId) iterator.next();
       i++;
     }
 
@@ -241,7 +241,7 @@ public class LuceneTransactionCompositeQueryTest extends BaseLuceneTest {
 
     query = "select from Foo where name = 'Test' and bar lucene \"removed\" ";
     vertices = db.query(query);
-    try (Stream<YTRID> stream = index.getInternal().getRids(db, "removed")) {
+    try (Stream<RID> stream = index.getInternal().getRids(db, "removed")) {
       coll = stream.collect(Collectors.toList());
     }
 

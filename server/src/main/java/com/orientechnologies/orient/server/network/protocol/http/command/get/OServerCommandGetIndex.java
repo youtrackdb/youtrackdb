@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -41,18 +41,18 @@ public class OServerCommandGetIndex extends OServerCommandDocumentAbstract {
 
     iRequest.getData().commandInfo = "Index get";
 
-    YTDatabaseSessionInternal db = null;
+    DatabaseSessionInternal db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);
 
-      final OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, urlParts[2]);
+      final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, urlParts[2]);
       if (index == null) {
         throw new IllegalArgumentException("Index name '" + urlParts[2] + "' not found");
       }
 
-      try (final Stream<YTRID> stream = index.getInternal().getRids(db, urlParts[3])) {
-        final Iterator<YTRID> iterator = stream.iterator();
+      try (final Stream<RID> stream = index.getInternal().getRids(db, urlParts[3])) {
+        final Iterator<RID> iterator = stream.iterator();
 
         if (!iterator.hasNext()) {
           iResponse.send(
@@ -67,7 +67,7 @@ public class OServerCommandGetIndex extends OServerCommandDocumentAbstract {
 
           int count = 0;
           while (iterator.hasNext()) {
-            final YTRID item = iterator.next();
+            final RID item = iterator.next();
             if (count > 0) {
               buffer.append(", ");
             }

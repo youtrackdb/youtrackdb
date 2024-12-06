@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 
@@ -16,25 +16,25 @@ public class CastToVertexStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
     ExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
-  private YTResult mapResult(YTResult result, CommandContext ctx) {
+  private Result mapResult(Result result, CommandContext ctx) {
     if (result.getEntity().orElse(null) instanceof Vertex) {
       return result;
     }
     var db = ctx.getDatabase();
     if (result.isVertex()) {
-      if (result instanceof YTResultInternal) {
-        ((YTResultInternal) result).setIdentifiable(result.toEntity().toVertex());
+      if (result instanceof ResultInternal) {
+        ((ResultInternal) result).setIdentifiable(result.toEntity().toVertex());
       } else {
-        result = new YTResultInternal(db, result.toEntity().toVertex());
+        result = new ResultInternal(db, result.toEntity().toVertex());
       }
     } else {
-      throw new YTCommandExecutionException("Current element is not a vertex: " + result);
+      throw new CommandExecutionException("Current element is not a vertex: " + result);
     }
     return result;
   }

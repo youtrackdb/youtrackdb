@@ -3,19 +3,19 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.AggregationContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OFuncitonAggregationContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.functions.OIndexableSQLFunction;
-import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunction;
-import com.jetbrains.youtrack.db.internal.core.sql.functions.graph.OSQLFunctionMove;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.FuncitonAggregationContext;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.IndexableSQLFunction;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunction;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.graph.SQLFunctionMove;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,8 +37,8 @@ public class SQLFunctionCall extends SimpleNode {
     super(p, id);
   }
 
-  public static YTDatabaseSessionInternal getDatabase() {
-    return ODatabaseRecordThreadLocal.instance().get();
+  public static DatabaseSessionInternal getDatabase() {
+    return DatabaseRecordThreadLocal.instance().get();
   }
 
   public boolean isStar() {
@@ -107,10 +107,10 @@ public class SQLFunctionCall extends SimpleNode {
     Object record = null;
 
     if (record == null) {
-      if (targetObjects instanceof YTIdentifiable) {
+      if (targetObjects instanceof Identifiable) {
         record = targetObjects;
-      } else if (targetObjects instanceof YTResult) {
-        record = ((YTResult) targetObjects).toEntity();
+      } else if (targetObjects instanceof Result) {
+        record = ((Result) targetObjects).toEntity();
       } else {
         record = targetObjects;
       }
@@ -118,55 +118,55 @@ public class SQLFunctionCall extends SimpleNode {
     if (record == null) {
       Object current = ctx == null ? null : ctx.getVariable("$current");
       if (current != null) {
-        if (current instanceof YTIdentifiable) {
+        if (current instanceof Identifiable) {
           record = current;
-        } else if (current instanceof YTResult) {
-          record = ((YTResult) current).toEntity();
+        } else if (current instanceof Result) {
+          record = ((Result) current).toEntity();
         } else {
           record = current;
         }
       }
     }
     for (SQLExpression expr : this.params) {
-      if (targetObjects instanceof YTResult) {
-        paramValues.add(expr.execute((YTResult) targetObjects, ctx));
-      } else if (record instanceof YTIdentifiable) {
-        paramValues.add(expr.execute((YTIdentifiable) record, ctx));
-      } else if (record instanceof YTResult) {
-        paramValues.add(expr.execute((YTResult) record, ctx));
+      if (targetObjects instanceof Result) {
+        paramValues.add(expr.execute((Result) targetObjects, ctx));
+      } else if (record instanceof Identifiable) {
+        paramValues.add(expr.execute((Identifiable) record, ctx));
+      } else if (record instanceof Result) {
+        paramValues.add(expr.execute((Result) record, ctx));
       } else if (record == null) {
-        paramValues.add(expr.execute((YTResult) record, ctx));
+        paramValues.add(expr.execute((Result) record, ctx));
       } else {
-        throw new YTCommandExecutionException("Invalid value for $current: " + record);
+        throw new CommandExecutionException("Invalid value for $current: " + record);
       }
     }
-    OSQLFunction function = OSQLEngine.getInstance().getFunction(ctx.getDatabase(), name);
+    SQLFunction function = SQLEngine.getInstance().getFunction(ctx.getDatabase(), name);
     if (function != null) {
       function.config(this.params.toArray());
 
       validateFunctionParams(ctx.getDatabase(), function, paramValues);
 
-      if (record instanceof YTIdentifiable) {
+      if (record instanceof Identifiable) {
         return function.execute(
-            targetObjects, (YTIdentifiable) record, null, paramValues.toArray(), ctx);
-      } else if (record instanceof YTResult) {
+            targetObjects, (Identifiable) record, null, paramValues.toArray(), ctx);
+      } else if (record instanceof Result) {
         return function.execute(
             targetObjects,
-            ((YTResult) record).getEntity().orElse(null),
+            ((Result) record).getEntity().orElse(null),
             null,
             paramValues.toArray(),
             ctx);
       } else if (record == null) {
         return function.execute(targetObjects, null, null, paramValues.toArray(), ctx);
       } else {
-        throw new YTCommandExecutionException("Invalid value for $current: " + record);
+        throw new CommandExecutionException("Invalid value for $current: " + record);
       }
     } else {
-      throw new YTCommandExecutionException("Funciton not found: " + name);
+      throw new CommandExecutionException("Funciton not found: " + name);
     }
   }
 
-  private static void validateFunctionParams(YTDatabaseSession session, OSQLFunction function,
+  private static void validateFunctionParams(DatabaseSession session, SQLFunction function,
       List<Object> paramValues) {
     if (function.getMaxParams(session) == -1 || function.getMaxParams(session) > 0) {
       if (paramValues.size() < function.getMinParams()
@@ -178,7 +178,7 @@ public class SQLFunctionCall extends SimpleNode {
         } else {
           params = function.getMinParams() + "-" + function.getMaxParams(session);
         }
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "Syntax error: function '"
                 + function.getName(session)
                 + "' needs "
@@ -189,13 +189,13 @@ public class SQLFunctionCall extends SimpleNode {
     }
   }
 
-  public boolean isIndexedFunctionCall(YTDatabaseSessionInternal session) {
-    OSQLFunction function = OSQLEngine.getInstance().getFunction(session, name.getStringValue());
-    return (function instanceof OIndexableSQLFunction);
+  public boolean isIndexedFunctionCall(DatabaseSessionInternal session) {
+    SQLFunction function = SQLEngine.getInstance().getFunction(session, name.getStringValue());
+    return (function instanceof IndexableSQLFunction);
   }
 
   /**
-   * see OIndexableSQLFunction.searchFromTarget()
+   * see IndexableSQLFunction.searchFromTarget()
    *
    * @param target
    * @param ctx
@@ -203,13 +203,13 @@ public class SQLFunctionCall extends SimpleNode {
    * @param rightValue
    * @return
    */
-  public Iterable<YTIdentifiable> executeIndexedFunction(
+  public Iterable<Identifiable> executeIndexedFunction(
       SQLFromClause target, CommandContext ctx, SQLBinaryCompareOperator operator,
       Object rightValue) {
-    OSQLFunction function = OSQLEngine.getInstance()
+    SQLFunction function = SQLEngine.getInstance()
         .getFunction(ctx.getDatabase(), name.getStringValue());
-    if (function instanceof OIndexableSQLFunction) {
-      return ((OIndexableSQLFunction) function)
+    if (function instanceof IndexableSQLFunction) {
+      return ((IndexableSQLFunction) function)
           .searchFromTarget(
               target, operator, rightValue, ctx, this.params.toArray(new SQLExpression[]{}));
     }
@@ -227,10 +227,10 @@ public class SQLFunctionCall extends SimpleNode {
   public long estimateIndexedFunction(
       SQLFromClause target, CommandContext ctx, SQLBinaryCompareOperator operator,
       Object rightValue) {
-    OSQLFunction function = OSQLEngine.getInstance()
+    SQLFunction function = SQLEngine.getInstance()
         .getFunction(ctx.getDatabase(), name.getStringValue());
-    if (function instanceof OIndexableSQLFunction) {
-      return ((OIndexableSQLFunction) function)
+    if (function instanceof IndexableSQLFunction) {
+      return ((IndexableSQLFunction) function)
           .estimate(target, operator, rightValue, ctx, this.params.toArray(new SQLExpression[]{}));
     }
     return -1;
@@ -250,10 +250,10 @@ public class SQLFunctionCall extends SimpleNode {
   public boolean canExecuteIndexedFunctionWithoutIndex(
       SQLFromClause target, CommandContext context, SQLBinaryCompareOperator operator,
       Object right) {
-    OSQLFunction function = OSQLEngine.getInstance()
+    SQLFunction function = SQLEngine.getInstance()
         .getFunction(context.getDatabase(), name.getStringValue());
-    if (function instanceof OIndexableSQLFunction) {
-      return ((OIndexableSQLFunction) function)
+    if (function instanceof IndexableSQLFunction) {
+      return ((IndexableSQLFunction) function)
           .canExecuteInline(
               target, operator, right, context, this.params.toArray(new SQLExpression[]{}));
     }
@@ -273,10 +273,10 @@ public class SQLFunctionCall extends SimpleNode {
   public boolean allowsIndexedFunctionExecutionOnTarget(
       SQLFromClause target, CommandContext context, SQLBinaryCompareOperator operator,
       Object right) {
-    OSQLFunction function = OSQLEngine.getInstance()
+    SQLFunction function = SQLEngine.getInstance()
         .getFunction(context.getDatabase(), name.getStringValue());
-    if (function instanceof OIndexableSQLFunction) {
-      return ((OIndexableSQLFunction) function)
+    if (function instanceof IndexableSQLFunction) {
+      return ((IndexableSQLFunction) function)
           .allowsIndexedExecution(
               target, operator, right, context, this.params.toArray(new SQLExpression[]{}));
     }
@@ -297,10 +297,10 @@ public class SQLFunctionCall extends SimpleNode {
   public boolean executeIndexedFunctionAfterIndexSearch(
       SQLFromClause target, CommandContext context, SQLBinaryCompareOperator operator,
       Object right) {
-    OSQLFunction function = OSQLEngine.getInstance()
+    SQLFunction function = SQLEngine.getInstance()
         .getFunction(context.getDatabase(), name.getStringValue());
-    if (function instanceof OIndexableSQLFunction) {
-      return ((OIndexableSQLFunction) function)
+    if (function instanceof IndexableSQLFunction) {
+      return ((IndexableSQLFunction) function)
           .shouldExecuteAfterSearch(
               target, operator, right, context, this.params.toArray(new SQLExpression[]{}));
     }
@@ -320,7 +320,7 @@ public class SQLFunctionCall extends SimpleNode {
     return false;
   }
 
-  public boolean isAggregate(YTDatabaseSessionInternal session) {
+  public boolean isAggregate(DatabaseSessionInternal session) {
     if (isAggregateFunction(session)) {
       return true;
     }
@@ -351,7 +351,7 @@ public class SQLFunctionCall extends SimpleNode {
         } else {
           for (SQLExpression param : params) {
             if (param.isAggregate(db)) {
-              throw new YTCommandExecutionException(
+              throw new CommandExecutionException(
                   "Cannot calculate an aggregate function of another aggregate function " + this);
             }
             SQLIdentifier nextAlias = aggregateProj.getNextAlias();
@@ -381,8 +381,8 @@ public class SQLFunctionCall extends SimpleNode {
     return this;
   }
 
-  private boolean isAggregateFunction(YTDatabaseSessionInternal session) {
-    OSQLFunction function = OSQLEngine.getInstance().getFunction(session, name.getStringValue());
+  private boolean isAggregateFunction(DatabaseSessionInternal session) {
+    SQLFunction function = SQLEngine.getInstance().getFunction(session, name.getStringValue());
     function.config(this.params.toArray());
     return function.aggregateResults();
   }
@@ -417,20 +417,20 @@ public class SQLFunctionCall extends SimpleNode {
     return true;
   }
 
-  private boolean isTraverseFunction(YTDatabaseSessionInternal session) {
+  private boolean isTraverseFunction(DatabaseSessionInternal session) {
     if (name == null) {
       return false;
     }
-    OSQLFunction function = OSQLEngine.getInstance().getFunction(session, name.value);
-    return function instanceof OSQLFunctionMove;
+    SQLFunction function = SQLEngine.getInstance().getFunction(session, name.value);
+    return function instanceof SQLFunctionMove;
   }
 
   public AggregationContext getAggregationContext(CommandContext ctx) {
-    OSQLFunction function = OSQLEngine.getInstance()
+    SQLFunction function = SQLEngine.getInstance()
         .getFunction(ctx.getDatabase(), name.getStringValue());
     function.config(this.params.toArray());
 
-    OFuncitonAggregationContext result = new OFuncitonAggregationContext(function, this.params);
+    FuncitonAggregationContext result = new FuncitonAggregationContext(function, this.params);
     return result;
   }
 
@@ -488,8 +488,8 @@ public class SQLFunctionCall extends SimpleNode {
     return result;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
 
     if (name != null) {
       result.setProperty("name", name.serialize(db));
@@ -504,14 +504,14 @@ public class SQLFunctionCall extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     if (fromResult.getProperty("name") != null) {
       name = SQLIdentifier.deserialize(fromResult.getProperty("name"));
     }
     if (fromResult.getProperty("params") != null) {
       params = new ArrayList<>();
-      List<YTResult> ser = fromResult.getProperty("params");
-      for (YTResult item : ser) {
+      List<Result> ser = fromResult.getProperty("params");
+      for (Result item : ser) {
         SQLExpression exp = new SQLExpression(-1);
         exp.deserialize(item);
         params.add(exp);

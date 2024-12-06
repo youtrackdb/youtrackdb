@@ -24,31 +24,31 @@ import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration
 import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.FILE_DELETE_RETRY;
 import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.WARNING_DEFAULT_USERS;
 
-import com.jetbrains.youtrack.db.internal.common.concur.lock.YTModificationOperationProhibitedException;
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.ModificationOperationProhibitedException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.thread.OSourceTraceExecutorService;
-import com.jetbrains.youtrack.db.internal.common.thread.OThreadPoolExecutors;
+import com.jetbrains.youtrack.db.internal.common.thread.SourceTraceExecutorService;
+import com.jetbrains.youtrack.db.internal.common.thread.ThreadPoolExecutors;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
-import com.jetbrains.youtrack.db.internal.core.command.script.OScriptManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.command.script.ScriptManager;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseSessionEmbedded;
-import com.jetbrains.youtrack.db.internal.core.engine.OEngine;
-import com.jetbrains.youtrack.db.internal.core.engine.OMemoryAndLocalPaginatedEnginesInitializer;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.OAuthenticationInfo;
-import com.jetbrains.youtrack.db.internal.core.security.ODefaultSecuritySystem;
-import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTInternalResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseSessionEmbedded;
+import com.jetbrains.youtrack.db.internal.core.engine.Engine;
+import com.jetbrains.youtrack.db.internal.core.engine.MemoryAndLocalPaginatedEnginesInitializer;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
+import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
+import com.jetbrains.youtrack.db.internal.core.security.DefaultSecuritySystem;
+import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLServerStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.YTLocalResultSetLifecycleDecorator;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.LocalResultSetLifecycleDecorator;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
-import com.jetbrains.youtrack.db.internal.core.storage.config.OClusterBasedStorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.storage.config.ClusterBasedStorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.io.File;
@@ -96,24 +96,24 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       Collections.newSetFromMap(new ConcurrentHashMap<>());
 
   protected final Map<String, AbstractPaginatedStorage> storages = new ConcurrentHashMap<>();
-  protected final Map<String, OSharedContext> sharedContexts = new ConcurrentHashMap<>();
-  protected final Set<ODatabasePoolInternal> pools =
+  protected final Map<String, SharedContext> sharedContexts = new ConcurrentHashMap<>();
+  protected final Set<DatabasePoolInternal> pools =
       Collections.newSetFromMap(new ConcurrentHashMap<>());
   protected final YouTrackDBConfig configurations;
   protected final String basePath;
-  protected final OEngine memory;
-  protected final OEngine disk;
+  protected final Engine memory;
+  protected final Engine disk;
   protected final YouTrackDBManager youTrack;
-  protected final OCachedDatabasePoolFactory cachedPoolFactory;
+  protected final CachedDatabasePoolFactory cachedPoolFactory;
   private volatile boolean open = true;
   private final ExecutorService executor;
   private final ExecutorService ioExecutor;
   private final Timer timer;
   private TimerTask autoCloseTimer = null;
-  private final OScriptManager scriptManager = new OScriptManager();
-  private final OSystemDatabase systemDatabase;
-  private final ODefaultSecuritySystem securitySystem;
-  private final OCommandTimeoutChecker timeoutChecker;
+  private final ScriptManager scriptManager = new ScriptManager();
+  private final SystemDatabase systemDatabase;
+  private final DefaultSecuritySystem securitySystem;
+  private final CommandTimeoutChecker timeoutChecker;
 
   protected final long maxWALSegmentSize;
   protected final long doubleWriteLogMaxSegSize;
@@ -153,7 +153,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
         maxWALSegmentSize = calculateInitialMaxWALSegSize();
 
         if (maxWALSegmentSize <= 0) {
-          throw new YTDatabaseException(
+          throw new DatabaseException(
               "Invalid configuration settings. Can not set maximum size of WAL segment");
         }
 
@@ -161,12 +161,12 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
             .info(
                 this, "WAL maximum segment size is set to %,d MB", maxWALSegmentSize / 1024 / 1024);
       } catch (IOException e) {
-        throw YTException.wrapException(
-            new YTDatabaseException("Cannot initialize YouTrackDB engine"), e);
+        throw BaseException.wrapException(
+            new DatabaseException("Cannot initialize YouTrackDB engine"), e);
       }
     }
 
-    OMemoryAndLocalPaginatedEnginesInitializer.INSTANCE.initialize();
+    MemoryAndLocalPaginatedEnginesInitializer.INSTANCE.initialize();
 
     youTrack.addYouTrackDB(this);
     executor = newExecutor();
@@ -184,9 +184,9 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     initAutoClose();
 
     long timeout = getLongConfig(GlobalConfiguration.COMMAND_TIMEOUT);
-    timeoutChecker = new OCommandTimeoutChecker(timeout, this);
-    systemDatabase = new OSystemDatabase(this);
-    securitySystem = new ODefaultSecuritySystem();
+    timeoutChecker = new CommandTimeoutChecker(timeout, this);
+    systemDatabase = new SystemDatabase(this);
+    securitySystem = new DefaultSecuritySystem();
 
     securitySystem.activate(this, this.configurations.getSecurityConfig());
   }
@@ -205,10 +205,10 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     if (getBoolConfig(GlobalConfiguration.EXECUTOR_POOL_IO_ENABLED)) {
       int ioSize = excutorMaxSize(GlobalConfiguration.EXECUTOR_POOL_IO_MAX_SIZE);
       ExecutorService exec =
-          OThreadPoolExecutors.newScalingThreadPool(
+          ThreadPoolExecutors.newScalingThreadPool(
               "YouTrackDB-IO", 1, excutorBaseSize(ioSize), ioSize, 30, TimeUnit.MINUTES);
       if (getBoolConfig(GlobalConfiguration.EXECUTOR_DEBUG_TRACE_SOURCE)) {
-        exec = new OSourceTraceExecutorService(exec);
+        exec = new SourceTraceExecutorService(exec);
       }
       return exec;
     } else {
@@ -219,10 +219,10 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   private ExecutorService newExecutor() {
     int size = excutorMaxSize(GlobalConfiguration.EXECUTOR_POOL_MAX_SIZE);
     ExecutorService exec =
-        OThreadPoolExecutors.newScalingThreadPool(
+        ThreadPoolExecutors.newScalingThreadPool(
             "YouTrackDBEmbedded", 1, excutorBaseSize(size), size, 30, TimeUnit.MINUTES);
     if (getBoolConfig(GlobalConfiguration.EXECUTOR_DEBUG_TRACE_SOURCE)) {
-      exec = new OSourceTraceExecutorService(exec);
+      exec = new SourceTraceExecutorService(exec);
     }
     return exec;
   }
@@ -268,10 +268,10 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     return baseSize;
   }
 
-  protected OCachedDatabasePoolFactory createCachedDatabasePoolFactory(YouTrackDBConfig config) {
+  protected CachedDatabasePoolFactory createCachedDatabasePoolFactory(YouTrackDBConfig config) {
     int capacity = getIntConfig(GlobalConfiguration.DB_CACHED_POOL_CAPACITY);
     long timeout = getIntConfig(GlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT);
-    return new OCachedDatabasePoolFactoryImpl(this, capacity, timeout);
+    return new CachedDatabasePoolFactoryImpl(this, capacity, timeout);
   }
 
   public void initAutoClose(long delay) {
@@ -289,7 +289,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   private synchronized void checkAndCloseStorages(long delay) {
     Set<String> toClose = new HashSet<>();
     for (AbstractPaginatedStorage storage : storages.values()) {
-      if (storage.getType().equalsIgnoreCase(ODatabaseType.PLOCAL.name())
+      if (storage.getType().equalsIgnoreCase(DatabaseType.PLOCAL.name())
           && storage.getSessionsCount() == 0) {
         long currentTime = System.currentTimeMillis();
         if (currentTime > storage.getLastCloseTime() + delay) {
@@ -343,7 +343,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     if (maxSegSize <= 0) {
       int sizePercent = getIntConfig(GlobalConfiguration.WAL_MAX_SEGMENT_SIZE_PERCENT);
       if (sizePercent <= 0) {
-        throw new YTDatabaseException(
+        throw new DatabaseException(
             "Invalid configuration settings. Can not set maximum size of WAL segment");
       }
 
@@ -402,7 +402,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
           getIntConfig(GlobalConfiguration.STORAGE_DOUBLE_WRITE_LOG_MAX_SEG_SIZE_PERCENT);
 
       if (sizePercent <= 0) {
-        throw new YTDatabaseException(
+        throw new DatabaseException(
             "Invalid configuration settings. Can not set maximum size of WAL segment");
       }
 
@@ -419,14 +419,14 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   }
 
   @Override
-  public YTDatabaseSessionInternal open(String name, String user, String password) {
+  public DatabaseSessionInternal open(String name, String user, String password) {
     return open(name, user, password, null);
   }
 
-  public YTDatabaseSessionEmbedded openNoAuthenticate(String name, String user) {
+  public DatabaseSessionEmbedded openNoAuthenticate(String name, String user) {
     checkDatabaseName(name);
     try {
-      final YTDatabaseSessionEmbedded embedded;
+      final DatabaseSessionEmbedded embedded;
       YouTrackDBConfig config = solveConfig(null);
       synchronized (this) {
         checkOpen();
@@ -438,29 +438,29 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       embedded.callOnOpenListeners();
       return embedded;
     } catch (Exception e) {
-      throw YTException.wrapException(
-          new YTDatabaseException("Cannot open database '" + name + "'"), e);
+      throw BaseException.wrapException(
+          new DatabaseException("Cannot open database '" + name + "'"), e);
     }
   }
 
-  protected YTDatabaseSessionEmbedded newSessionInstance(
-      AbstractPaginatedStorage storage, YouTrackDBConfig config, OSharedContext sharedContext) {
-    YTDatabaseSessionEmbedded embedded = new YTDatabaseSessionEmbedded(storage);
+  protected DatabaseSessionEmbedded newSessionInstance(
+      AbstractPaginatedStorage storage, YouTrackDBConfig config, SharedContext sharedContext) {
+    DatabaseSessionEmbedded embedded = new DatabaseSessionEmbedded(storage);
     embedded.init(config, getOrCreateSharedContext(storage));
     return embedded;
   }
 
-  protected YTDatabaseSessionEmbedded newCreateSessionInstance(
-      AbstractPaginatedStorage storage, YouTrackDBConfig config, OSharedContext sharedContext) {
-    YTDatabaseSessionEmbedded embedded = new YTDatabaseSessionEmbedded(storage);
+  protected DatabaseSessionEmbedded newCreateSessionInstance(
+      AbstractPaginatedStorage storage, YouTrackDBConfig config, SharedContext sharedContext) {
+    DatabaseSessionEmbedded embedded = new DatabaseSessionEmbedded(storage);
     embedded.internalCreate(config, sharedContext);
     return embedded;
   }
 
-  public YTDatabaseSessionEmbedded openNoAuthorization(String name) {
+  public DatabaseSessionEmbedded openNoAuthorization(String name) {
     checkDatabaseName(name);
     try {
-      final YTDatabaseSessionEmbedded embedded;
+      final DatabaseSessionEmbedded embedded;
       YouTrackDBConfig config = solveConfig(null);
       synchronized (this) {
         checkOpen();
@@ -471,18 +471,18 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       embedded.callOnOpenListeners();
       return embedded;
     } catch (Exception e) {
-      throw YTException.wrapException(
-          new YTDatabaseException("Cannot open database '" + name + "'"), e);
+      throw BaseException.wrapException(
+          new DatabaseException("Cannot open database '" + name + "'"), e);
     }
   }
 
   @Override
-  public YTDatabaseSessionInternal open(
+  public DatabaseSessionInternal open(
       String name, String user, String password, YouTrackDBConfig config) {
     checkDatabaseName(name);
     checkDefaultPassword(name, user, password);
     try {
-      final YTDatabaseSessionEmbedded embedded;
+      final DatabaseSessionEmbedded embedded;
       synchronized (this) {
         checkOpen();
         config = solveConfig(config);
@@ -495,21 +495,21 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       embedded.callOnOpenListeners();
       return embedded;
     } catch (Exception e) {
-      throw YTException.wrapException(
-          new YTDatabaseException("Cannot open database '" + name + "'"), e);
+      throw BaseException.wrapException(
+          new DatabaseException("Cannot open database '" + name + "'"), e);
     }
   }
 
   @Override
-  public YTDatabaseSessionInternal open(
-      OAuthenticationInfo authenticationInfo, YouTrackDBConfig config) {
+  public DatabaseSessionInternal open(
+      AuthenticationInfo authenticationInfo, YouTrackDBConfig config) {
     try {
-      final YTDatabaseSessionEmbedded embedded;
+      final DatabaseSessionEmbedded embedded;
       synchronized (this) {
         checkOpen();
         config = solveConfig(config);
         if (!authenticationInfo.getDatabase().isPresent()) {
-          throw new YTSecurityException("Authentication info do not contain the database");
+          throw new SecurityException("Authentication info do not contain the database");
         }
         String database = authenticationInfo.getDatabase().get();
         AbstractPaginatedStorage storage = getAndOpenStorage(database, config);
@@ -520,8 +520,8 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       embedded.callOnOpenListeners();
       return embedded;
     } catch (Exception e) {
-      throw YTException.wrapException(
-          new YTDatabaseException(
+      throw BaseException.wrapException(
+          new DatabaseException(
               "Cannot open database '" + authenticationInfo.getDatabase() + "'"),
           e);
     }
@@ -571,9 +571,9 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     }
   }
 
-  public YTDatabaseSessionInternal poolOpen(
-      String name, String user, String password, ODatabasePoolInternal pool) {
-    final YTDatabaseSessionEmbedded embedded;
+  public DatabaseSessionInternal poolOpen(
+      String name, String user, String password, DatabasePoolInternal pool) {
+    final DatabaseSessionEmbedded embedded;
     synchronized (this) {
       checkOpen();
       AbstractPaginatedStorage storage = getAndOpenStorage(name, pool.getConfig());
@@ -585,9 +585,9 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     return embedded;
   }
 
-  protected YTDatabaseSessionEmbedded newPooledSessionInstance(
-      ODatabasePoolInternal pool, AbstractPaginatedStorage storage, OSharedContext sharedContext) {
-    YTDatabaseSessionEmbeddedPooled embedded = new YTDatabaseSessionEmbeddedPooled(pool, storage);
+  protected DatabaseSessionEmbedded newPooledSessionInstance(
+      DatabasePoolInternal pool, AbstractPaginatedStorage storage, SharedContext sharedContext) {
+    DatabaseSessionEmbeddedPooled embedded = new DatabaseSessionEmbeddedPooled(pool, storage);
     embedded.init(pool.getConfig(), sharedContext);
     return embedded;
   }
@@ -596,7 +596,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     AbstractPaginatedStorage storage = storages.get(name);
     if (storage == null) {
       if (basePath == null) {
-        throw new YTDatabaseException(
+        throw new DatabaseException(
             "Cannot open database '" + name + "' because it does not exists");
       }
       Path storagePath = Paths.get(buildName(name));
@@ -637,19 +637,19 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   protected String buildName(String name) {
     if (basePath == null) {
-      throw new YTDatabaseException(
+      throw new DatabaseException(
           "YouTrackDB instanced created without physical path, only memory databases are allowed");
     }
     return basePath + "/" + name;
   }
 
-  public void create(String name, String user, String password, ODatabaseType type) {
+  public void create(String name, String user, String password, DatabaseType type) {
     create(name, user, password, type, null);
   }
 
   @Override
   public void create(
-      String name, String user, String password, ODatabaseType type, YouTrackDBConfig config) {
+      String name, String user, String password, DatabaseType type, YouTrackDBConfig config) {
     create(name, user, password, type, config, null);
   }
 
@@ -658,17 +658,17 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       String name,
       String user,
       String password,
-      ODatabaseType type,
+      DatabaseType type,
       YouTrackDBConfig config,
-      ODatabaseTask<Void> createOps) {
+      DatabaseTask<Void> createOps) {
     checkDatabaseName(name);
-    final YTDatabaseSessionEmbedded embedded;
+    final DatabaseSessionEmbedded embedded;
     synchronized (this) {
       if (!exists(name, user, password)) {
         try {
           config = solveConfig(config);
           AbstractPaginatedStorage storage;
-          if (type == ODatabaseType.MEMORY) {
+          if (type == DatabaseType.MEMORY) {
             storage =
                 (AbstractPaginatedStorage)
                     memory.createStorage(
@@ -690,23 +690,23 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
           storages.put(name, storage);
           embedded = internalCreate(config, storage);
           if (createOps != null) {
-            OScenarioThreadLocal.executeAsDistributed(
+            ScenarioThreadLocal.executeAsDistributed(
                 () -> {
                   createOps.call(embedded);
                   return null;
                 });
           }
         } catch (Exception e) {
-          throw YTException.wrapException(
-              new YTDatabaseException("Cannot create database '" + name + "'"), e);
+          throw BaseException.wrapException(
+              new DatabaseException("Cannot create database '" + name + "'"), e);
         }
       } else {
-        throw new YTDatabaseException(
+        throw new DatabaseException(
             "Cannot create new database '" + name + "' because it already exists");
       }
     }
     embedded.callOnCreateListeners();
-    ODatabaseRecordThreadLocal.instance().remove();
+    DatabaseRecordThreadLocal.instance().remove();
   }
 
   @Override
@@ -714,7 +714,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     checkDatabaseName(name);
     AbstractPaginatedStorage storage = null;
     try {
-      OSharedContext context;
+      SharedContext context;
       synchronized (this) {
         context = sharedContexts.get(name);
         if (context != null) {
@@ -725,7 +725,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       }
       storage.restore(in, null, callable, null);
       distributedSetOnline(name);
-    } catch (YTModificationOperationProhibitedException e) {
+    } catch (ModificationOperationProhibitedException e) {
       throw e;
     } catch (Exception e) {
       try {
@@ -741,14 +741,14 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
         storages.remove(name);
       }
 
-      YTContextConfiguration configs = configurations.getConfigurations();
+      ContextConfiguration configs = configurations.getConfigurations();
       LocalPaginatedStorage.deleteFilesFromDisc(
           name,
           configs.getValueAsInteger(FILE_DELETE_RETRY),
           configs.getValueAsInteger(FILE_DELETE_DELAY),
           buildName(name));
-      throw YTException.wrapException(
-          new YTDatabaseException("Cannot create database '" + name + "'"), e);
+      throw BaseException.wrapException(
+          new DatabaseException("Cannot create database '" + name + "'"), e);
     }
   }
 
@@ -756,12 +756,12 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       String name,
       String user,
       String password,
-      ODatabaseType type,
+      DatabaseType type,
       String path,
       YouTrackDBConfig config) {
     checkDatabaseName(name);
     config = solveConfig(config);
-    final YTDatabaseSessionEmbedded embedded;
+    final DatabaseSessionEmbedded embedded;
     AbstractPaginatedStorage storage;
     synchronized (this) {
       if (!exists(name, null, null)) {
@@ -777,18 +777,18 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
           embedded = internalCreate(config, storage);
           storages.put(name, storage);
         } catch (Exception e) {
-          throw YTException.wrapException(
-              new YTDatabaseException("Cannot restore database '" + name + "'"), e);
+          throw BaseException.wrapException(
+              new DatabaseException("Cannot restore database '" + name + "'"), e);
         }
       } else {
-        throw new YTDatabaseException(
+        throw new DatabaseException(
             "Cannot create new storage '" + name + "' because it already exists");
       }
     }
     storage.restoreFromIncrementalBackup(null, path);
     embedded.callOnCreateListeners();
     embedded.getSharedContext().reInit(storage, embedded);
-    ODatabaseRecordThreadLocal.instance().remove();
+    DatabaseRecordThreadLocal.instance().remove();
   }
 
   public void restore(
@@ -796,12 +796,12 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       InputStream in,
       Map<String, Object> options,
       Callable<Object> callable,
-      OCommandOutputListener iListener) {
+      CommandOutputListener iListener) {
     checkDatabaseName(name);
     try {
       AbstractPaginatedStorage storage;
       synchronized (this) {
-        OSharedContext context = sharedContexts.remove(name);
+        SharedContext context = sharedContexts.remove(name);
         if (context != null) {
           context.close();
         }
@@ -813,26 +813,26 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       synchronized (this) {
         storages.remove(name);
       }
-      YTContextConfiguration configs = configurations.getConfigurations();
+      ContextConfiguration configs = configurations.getConfigurations();
       LocalPaginatedStorage.deleteFilesFromDisc(
           name,
           configs.getValueAsInteger(FILE_DELETE_RETRY),
           configs.getValueAsInteger(FILE_DELETE_DELAY),
           buildName(name));
-      throw YTException.wrapException(
-          new YTDatabaseException("Cannot create database '" + name + "'"), e);
+      throw BaseException.wrapException(
+          new DatabaseException("Cannot create database '" + name + "'"), e);
     }
   }
 
-  protected YTDatabaseSessionEmbedded internalCreate(
+  protected DatabaseSessionEmbedded internalCreate(
       YouTrackDBConfig config, AbstractPaginatedStorage storage) {
     storage.create(config.getConfigurations());
     return newCreateSessionInstance(storage, config, getOrCreateSharedContext(storage));
   }
 
-  protected synchronized OSharedContext getOrCreateSharedContext(
+  protected synchronized SharedContext getOrCreateSharedContext(
       AbstractPaginatedStorage storage) {
-    OSharedContext result = sharedContexts.get(storage.getName());
+    SharedContext result = sharedContexts.get(storage.getName());
     if (result == null) {
       result = createSharedContext(storage);
       sharedContexts.put(storage.getName(), result);
@@ -840,8 +840,8 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     return result;
   }
 
-  protected OSharedContext createSharedContext(AbstractPaginatedStorage storage) {
-    return new OSharedContextEmbedded(storage, this);
+  protected SharedContext createSharedContext(AbstractPaginatedStorage storage) {
+    return new SharedContextEmbedded(storage, this);
   }
 
   @Override
@@ -869,21 +869,21 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       checkOpen();
     }
     checkDatabaseName(name);
-    YTDatabaseSessionInternal current = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    DatabaseSessionInternal current = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
-      YTDatabaseSessionInternal db = openNoAuthenticate(name, user);
-      for (Iterator<ODatabaseLifecycleListener> it = youTrack.getDbLifecycleListeners();
+      DatabaseSessionInternal db = openNoAuthenticate(name, user);
+      for (Iterator<DatabaseLifecycleListener> it = youTrack.getDbLifecycleListeners();
           it.hasNext(); ) {
         it.next().onDrop(db);
       }
       db.callOnDropListeners();
       db.close();
     } finally {
-      ODatabaseRecordThreadLocal.instance().set(current);
+      DatabaseRecordThreadLocal.instance().set(current);
       synchronized (this) {
         if (exists(name, user, password)) {
           AbstractPaginatedStorage storage = getOrInitStorage(name);
-          OSharedContext sharedContext = sharedContexts.get(name);
+          SharedContext sharedContext = sharedContexts.get(name);
           if (sharedContext != null) {
             sharedContext.close();
           }
@@ -914,7 +914,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     databases.addAll(this.storages.keySet());
     // TODO: Verify validity this generic permission on guest
     if (!securitySystem.isAuthorized(null, "guest", "server.listDatabases.system")) {
-      databases.remove(OSystemDatabase.SYSTEM_DB_NAME);
+      databases.remove(SystemDatabase.SYSTEM_DB_NAME);
     }
     return databases;
   }
@@ -933,31 +933,31 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     }
   }
 
-  public ODatabasePoolInternal openPool(String name, String user, String password) {
+  public DatabasePoolInternal openPool(String name, String user, String password) {
     return openPool(name, user, password, null);
   }
 
   @Override
-  public ODatabasePoolInternal openPool(
+  public DatabasePoolInternal openPool(
       String name, String user, String password, YouTrackDBConfig config) {
     checkDatabaseName(name);
     checkOpen();
-    ODatabasePoolImpl pool = new ODatabasePoolImpl(this, name, user, password, solveConfig(config));
+    DatabasePoolImpl pool = new DatabasePoolImpl(this, name, user, password, solveConfig(config));
     pools.add(pool);
     return pool;
   }
 
   @Override
-  public ODatabasePoolInternal cachedPool(String database, String user, String password) {
+  public DatabasePoolInternal cachedPool(String database, String user, String password) {
     return cachedPool(database, user, password, null);
   }
 
   @Override
-  public ODatabasePoolInternal cachedPool(
+  public DatabasePoolInternal cachedPool(
       String database, String user, String password, YouTrackDBConfig config) {
     checkDatabaseName(database);
     checkOpen();
-    ODatabasePoolInternal pool =
+    DatabasePoolInternal pool =
         cachedPoolFactory.get(database, user, password, solveConfig(config));
     pools.add(pool);
     return pool;
@@ -1012,7 +1012,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       return;
     }
     open = false;
-    this.sharedContexts.values().forEach(OSharedContext::close);
+    this.sharedContexts.values().forEach(SharedContext::close);
     final List<AbstractPaginatedStorage> storagesCopy = new ArrayList<>(storages.values());
 
     Exception storageException = null;
@@ -1037,8 +1037,8 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     }
 
     if (storageException != null) {
-      throw YTException.wrapException(
-          new YTStorageException("Error during closing the storages"), storageException);
+      throw BaseException.wrapException(
+          new StorageException("Error during closing the storages"), storageException);
     }
   }
 
@@ -1046,7 +1046,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     return configurations;
   }
 
-  public void removePool(ODatabasePoolInternal pool) {
+  public void removePool(DatabasePoolInternal pool) {
     pools.remove(pool);
   }
 
@@ -1059,9 +1059,9 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
             for (File cf : db.listFiles()) {
               String fileName = cf.getName();
               if (fileName.equals("database.ocf")
-                  || (fileName.startsWith(OClusterBasedStorageConfiguration.COMPONENT_NAME)
+                  || (fileName.startsWith(ClusterBasedStorageConfiguration.COMPONENT_NAME)
                   && fileName.endsWith(
-                  OClusterBasedStorageConfiguration.DATA_FILE_EXTENSION))) {
+                  ClusterBasedStorageConfiguration.DATA_FILE_EXTENSION))) {
                 found.found(db.getName());
                 break;
               }
@@ -1074,7 +1074,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   public synchronized void initCustomStorage(
       String name, String path, String userName, String userPassword) {
-    YTDatabaseSessionEmbedded embedded = null;
+    DatabaseSessionEmbedded embedded = null;
     synchronized (this) {
       boolean exists = LocalPaginatedStorage.exists(Paths.get(path));
       AbstractPaginatedStorage storage =
@@ -1089,7 +1089,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     }
     if (embedded != null) {
       embedded.callOnCreateListeners();
-      ODatabaseRecordThreadLocal.instance().remove();
+      DatabaseRecordThreadLocal.instance().remove();
     }
   }
 
@@ -1104,7 +1104,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   public synchronized void forceDatabaseClose(String iDatabaseName) {
     AbstractPaginatedStorage storage = storages.remove(iDatabaseName);
     if (storage != null) {
-      OSharedContext ctx = sharedContexts.remove(iDatabaseName);
+      SharedContext ctx = sharedContexts.remove(iDatabaseName);
       ctx.getViewManager().close();
       ctx.close();
       storage.shutdown();
@@ -1121,7 +1121,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   protected void checkOpen() {
     if (!open) {
-      throw new YTDatabaseException("YouTrackDB Instance is closed");
+      throw new DatabaseException("YouTrackDB Instance is closed");
     }
   }
 
@@ -1143,7 +1143,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   }
 
   @Override
-  public <X> Future<X> execute(String database, String user, ODatabaseTask<X> task) {
+  public <X> Future<X> execute(String database, String user, DatabaseTask<X> task) {
     return executor.submit(
         () -> {
           try (var session = openNoAuthenticate(database, user)) {
@@ -1163,7 +1163,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   }
 
   @Override
-  public <X> Future<X> executeNoAuthorizationAsync(String database, ODatabaseTask<X> task) {
+  public <X> Future<X> executeNoAuthorizationAsync(String database, DatabaseTask<X> task) {
     return executor.submit(
         () -> {
           if (open) {
@@ -1180,7 +1180,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   @Override
   public <X> X executeNoAuthorizationSync(
-      YTDatabaseSessionInternal database, ODatabaseTask<X> task) {
+      DatabaseSessionInternal database, DatabaseTask<X> task) {
     var dbName = database.getName();
     if (open) {
       try (var session = openNoAuthorization(dbName)) {
@@ -1189,7 +1189,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
         database.activateOnCurrentThread();
       }
     } else {
-      throw new YTDatabaseException("YouTrackDB instance is closed");
+      throw new DatabaseException("YouTrackDB instance is closed");
     }
   }
 
@@ -1197,46 +1197,46 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     return executor.submit(callable);
   }
 
-  public OScriptManager getScriptManager() {
+  public ScriptManager getScriptManager() {
     return scriptManager;
   }
 
-  public YTResultSet executeServerStatementNamedParams(String script, String username, String pw,
+  public ResultSet executeServerStatementNamedParams(String script, String username, String pw,
       Map<String, Object> args) {
-    SQLServerStatement statement = OSQLEngine.parseServerStatement(script, this);
-    YTResultSet original = statement.execute(this, args, true);
-    YTLocalResultSetLifecycleDecorator result;
+    SQLServerStatement statement = SQLEngine.parseServerStatement(script, this);
+    ResultSet original = statement.execute(this, args, true);
+    LocalResultSetLifecycleDecorator result;
     //    if (!statement.isIdempotent()) {
     // fetch all, close and detach
     // TODO pagination!
-    YTInternalResultSet prefetched = new YTInternalResultSet();
+    InternalResultSet prefetched = new InternalResultSet();
     original.forEachRemaining(x -> prefetched.add(x));
     original.close();
-    result = new YTLocalResultSetLifecycleDecorator(prefetched);
+    result = new LocalResultSetLifecycleDecorator(prefetched);
     //    } else {
     // stream, keep open and attach to the current DB
-    //      result = new YTLocalResultSetLifecycleDecorator(original);
+    //      result = new LocalResultSetLifecycleDecorator(original);
     //      this.queryStarted(result.getQueryId(), result);
     //      result.addLifecycleListener(this);
     //    }
     return result;
   }
 
-  public YTResultSet executeServerStatementPositionalParams(
+  public ResultSet executeServerStatementPositionalParams(
       String script, String username, String pw, Object... args) {
-    SQLServerStatement statement = OSQLEngine.parseServerStatement(script, this);
-    YTResultSet original = statement.execute(this, args, true);
-    YTLocalResultSetLifecycleDecorator result;
+    SQLServerStatement statement = SQLEngine.parseServerStatement(script, this);
+    ResultSet original = statement.execute(this, args, true);
+    LocalResultSetLifecycleDecorator result;
     //    if (!statement.isIdempotent()) {
     // fetch all, close and detach
     // TODO pagination!
-    YTInternalResultSet prefetched = new YTInternalResultSet();
+    InternalResultSet prefetched = new InternalResultSet();
     original.forEachRemaining(x -> prefetched.add(x));
     original.close();
-    result = new YTLocalResultSetLifecycleDecorator(prefetched);
+    result = new LocalResultSetLifecycleDecorator(prefetched);
     //    } else {
     // stream, keep open and attach to the current DB
-    //      result = new YTLocalResultSetLifecycleDecorator(original);
+    //      result = new LocalResultSetLifecycleDecorator(original);
     //      this.queryStarted(result.getQueryId(), result);
     //      result.addLifecycleListener(this);
     //    }
@@ -1244,11 +1244,11 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   }
 
   @Override
-  public OSystemDatabase getSystemDatabase() {
+  public SystemDatabase getSystemDatabase() {
     return systemDatabase;
   }
 
-  public ODefaultSecuritySystem getSecuritySystem() {
+  public DefaultSecuritySystem getSecuritySystem() {
     return securitySystem;
   }
 
@@ -1266,7 +1266,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
       throw new NullArgumentException("database");
     }
     if (name.contains("/") || name.contains(":")) {
-      throw new YTDatabaseException(String.format("Invalid database name:'%s'", name));
+      throw new DatabaseException(String.format("Invalid database name:'%s'", name));
     }
   }
 
@@ -1275,7 +1275,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
     synchronized (this) {
       dbs = new HashSet<String>(storages.keySet());
     }
-    dbs.remove(OSystemDatabase.SYSTEM_DB_NAME);
+    dbs.remove(SystemDatabase.SYSTEM_DB_NAME);
     return dbs;
   }
 

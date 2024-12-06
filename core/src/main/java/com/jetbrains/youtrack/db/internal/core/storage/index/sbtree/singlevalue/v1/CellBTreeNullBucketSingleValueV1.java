@@ -19,11 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.singlevalue.v1;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OShortSerializer;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurablePage;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
 
 /**
  * Bucket which is intended to save values stored in sbtree under <code>null</code> key. Bucket has
@@ -38,9 +38,9 @@ import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base
  *
  * @since 4/15/14
  */
-public final class CellBTreeNullBucketSingleValueV1 extends ODurablePage {
+public final class CellBTreeNullBucketSingleValueV1 extends DurablePage {
 
-  public CellBTreeNullBucketSingleValueV1(final OCacheEntry cacheEntry) {
+  public CellBTreeNullBucketSingleValueV1(final CacheEntry cacheEntry) {
     super(cacheEntry);
   }
 
@@ -48,21 +48,21 @@ public final class CellBTreeNullBucketSingleValueV1 extends ODurablePage {
     setByteValue(NEXT_FREE_POSITION, (byte) 0);
   }
 
-  public void setValue(final YTRID value) {
+  public void setValue(final RID value) {
     setByteValue(NEXT_FREE_POSITION, (byte) 1);
 
     setShortValue(NEXT_FREE_POSITION + 1, (short) value.getClusterId());
-    setLongValue(NEXT_FREE_POSITION + 1 + OShortSerializer.SHORT_SIZE, value.getClusterPosition());
+    setLongValue(NEXT_FREE_POSITION + 1 + ShortSerializer.SHORT_SIZE, value.getClusterPosition());
   }
 
-  public YTRID getValue() {
+  public RID getValue() {
     if (getByteValue(NEXT_FREE_POSITION) == 0) {
       return null;
     }
 
     final int clusterId = getShortValue(NEXT_FREE_POSITION + 1);
-    final long clusterPosition = getLongValue(NEXT_FREE_POSITION + 1 + OShortSerializer.SHORT_SIZE);
-    return new YTRecordId(clusterId, clusterPosition);
+    final long clusterPosition = getLongValue(NEXT_FREE_POSITION + 1 + ShortSerializer.SHORT_SIZE);
+    return new RecordId(clusterId, clusterPosition);
   }
 
   public void removeValue() {

@@ -19,10 +19,10 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import java.util.Map;
 
 /**
@@ -42,7 +42,7 @@ public class CommandExecutorSQLTransactional extends CommandExecutorSQLDelegate 
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     var database = getDatabase();
     boolean txbegun = database.getTransaction() == null || !database.getTransaction().isActive();
 
@@ -62,8 +62,8 @@ public class CommandExecutorSQLTransactional extends CommandExecutorSQLDelegate 
       if (txbegun) {
         database.rollback();
       }
-      throw YTException.wrapException(
-          new YTCommandExecutionException("Transactional command failed"), e);
+      throw BaseException.wrapException(
+          new CommandExecutionException("Transactional command failed"), e);
     }
   }
 }

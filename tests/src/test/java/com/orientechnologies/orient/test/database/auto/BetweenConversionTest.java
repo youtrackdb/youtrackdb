@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,12 +31,13 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass clazz = schema.createClass("BetweenConversionTest");
-    clazz.createProperty(database, "a", YTType.INTEGER);
-    clazz.createProperty(database, "ai", YTType.INTEGER);
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass clazz = schema.createClass("BetweenConversionTest");
+    clazz.createProperty(database, "a", PropertyType.INTEGER);
+    clazz.createProperty(database, "ai", PropertyType.INTEGER);
 
-    clazz.createIndex(database, "BetweenConversionTestIndex", YTClass.INDEX_TYPE.NOTUNIQUE, "ai");
+    clazz.createIndex(database, "BetweenConversionTestIndex", SchemaClass.INDEX_TYPE.NOTUNIQUE,
+        "ai");
 
     for (int i = 0; i < 10; i++) {
       EntityImpl document = new EntityImpl("BetweenConversionTest");
@@ -62,7 +63,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetweenRightLeftIncluded() {
     final String query = "select from BetweenConversionTest where a >= 1 and a <= 3";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     List<Integer> values = new ArrayList<Integer>(Arrays.asList(1, 2, 3));
@@ -80,7 +81,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetweenRightLeftIncludedReverseOrder() {
     final String query = "select from BetweenConversionTest where a <= 3 and a >= 1";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     List<Integer> values = new ArrayList<Integer>(Arrays.asList(1, 2, 3));
@@ -98,7 +99,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetweenRightIncluded() {
     final String query = "select from BetweenConversionTest where a > 1 and a <= 3";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 2);
     List<Integer> values = new ArrayList<Integer>(Arrays.asList(2, 3));
@@ -116,7 +117,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetweenRightIncludedReverse() {
     final String query = "select from BetweenConversionTest where a <= 3 and a > 1";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 2);
     List<Integer> values = new ArrayList<Integer>(Arrays.asList(2, 3));
@@ -134,7 +135,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetweenLeftIncluded() {
     final String query = "select from BetweenConversionTest where a >= 1 and a < 3";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 2);
     List<Integer> values = new ArrayList<Integer>(Arrays.asList(1, 2));
@@ -152,7 +153,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetweenLeftIncludedReverseOrder() {
     final String query = "select from BetweenConversionTest where  a < 3 and a >= 1";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 2);
     List<Integer> values = new ArrayList<Integer>(Arrays.asList(1, 2));
@@ -170,7 +171,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetween() {
     final String query = "select from BetweenConversionTest where a > 1 and a < 3";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 1);
     List<Integer> values = new ArrayList<Integer>(List.of(2));
@@ -188,7 +189,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetweenRightLeftIncludedIndex() {
     final String query = "select from BetweenConversionTest where ai >= 1 and ai <= 3";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     List<Integer> values = new ArrayList<Integer>(Arrays.asList(1, 2, 3));
@@ -208,7 +209,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetweenRightLeftIncludedReverseOrderIndex() {
     final String query = "select from BetweenConversionTest where ai <= 3 and ai >= 1";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     List<Integer> values = new ArrayList<Integer>(Arrays.asList(1, 2, 3));
@@ -228,7 +229,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetweenRightIncludedIndex() {
     final String query = "select from BetweenConversionTest where ai > 1 and ai <= 3";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 2);
     List<Integer> values = new ArrayList<Integer>(Arrays.asList(2, 3));
@@ -248,7 +249,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetweenRightIncludedReverseOrderIndex() {
     final String query = "select from BetweenConversionTest where ai <= 3 and ai > 1";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 2);
     List<Integer> values = new ArrayList<Integer>(Arrays.asList(2, 3));
@@ -268,7 +269,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetweenLeftIncludedIndex() {
     final String query = "select from BetweenConversionTest where ai >= 1 and ai < 3";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 2);
     List<Integer> values = new ArrayList<Integer>(Arrays.asList(1, 2));
@@ -288,7 +289,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetweenLeftIncludedReverseOrderIndex() {
     final String query = "select from BetweenConversionTest where  ai < 3 and ai >= 1";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 2);
     List<Integer> values = new ArrayList<Integer>(Arrays.asList(1, 2));
@@ -308,7 +309,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetweenIndex() {
     final String query = "select from BetweenConversionTest where ai > 1 and ai < 3";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 1);
     List<Integer> values = new ArrayList<Integer>(List.of(2));
@@ -330,7 +331,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
     final String query =
         "select from BetweenConversionTest where (vl = 'v1' and (vl <> 'v3' and (vl <> 'v2' and ((a"
             + " >= 1 and a <= 7) and vl = 'v1'))) and vl <> 'v4')";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 4);
     List<Integer> values = new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4));
@@ -350,7 +351,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
     final String query =
         "select from BetweenConversionTest where (vl = 'v1' and (vl <> 'v3' and (vl <> 'v2' and"
             + " ((ai >= 1 and ai <= 7) and vl = 'v1'))) and vl <> 'v4')";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 4);
     List<Integer> values = new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4));
@@ -370,7 +371,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetweenRightLeftIncludedDifferentFields() {
     final String query = "select from BetweenConversionTest where a >= 1 and ai <= 3";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     List<Integer> values = new ArrayList<Integer>(Arrays.asList(1, 2, 3));
@@ -388,7 +389,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetweenNotRangeQueryRight() {
     final String query = "select from BetweenConversionTest where a >= 1 and a = 3";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 1);
     List<Integer> values = new ArrayList<Integer>(List.of(3));
@@ -406,7 +407,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetweenNotRangeQueryLeft() {
     final String query = "select from BetweenConversionTest where a = 1 and a <= 3";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 1);
     List<Integer> values = new ArrayList<Integer>(List.of(1));
@@ -424,7 +425,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetweenRightLeftIncludedBothFieldsLeft() {
     final String query = "select from BetweenConversionTest where a >= ai and a <= 3";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 4);
     List<Integer> values = new ArrayList<Integer>(Arrays.asList(0, 1, 2, 3));
@@ -442,7 +443,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetweenRightLeftIncludedBothFieldsRight() {
     final String query = "select from BetweenConversionTest where a >= 1 and a <= ai";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 9);
     List<Integer> values = new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9));
@@ -460,7 +461,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetweenRightLeftIncludedFieldChainLeft() {
     final String query = "select from BetweenConversionTest where d.a >= 1 and a <= 3";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     List<Integer> values = new ArrayList<Integer>(Arrays.asList(1, 2, 3));
@@ -478,7 +479,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
 
   public void testBetweenRightLeftIncludedFieldChainRight() {
     final String query = "select from BetweenConversionTest where a >= 1 and d.a <= 3";
-    final List<EntityImpl> result = database.query(new OSQLSynchQuery<EntityImpl>(query));
+    final List<EntityImpl> result = database.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(result.size(), 3);
     List<Integer> values = new ArrayList<Integer>(Arrays.asList(1, 2, 3));

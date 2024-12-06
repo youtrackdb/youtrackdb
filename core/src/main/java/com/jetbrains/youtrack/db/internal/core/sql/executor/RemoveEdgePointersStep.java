@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
@@ -16,27 +16,27 @@ public class RemoveEdgePointersStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
     ExecutionStream upstream = prev.start(ctx);
 
     return upstream.map(this::mapResult);
   }
 
-  private YTResult mapResult(YTResult result, CommandContext ctx) {
+  private Result mapResult(Result result, CommandContext ctx) {
     var propNames = result.getPropertyNames();
     for (String propName :
         propNames.stream().filter(x -> x.startsWith("in_") || x.startsWith("out_")).toList()) {
       Object val = result.getProperty(propName);
       if (val instanceof Entity) {
         if (((Entity) val).getSchemaType().map(x -> x.isSubClassOf("E")).orElse(false)) {
-          ((YTResultInternal) result).removeProperty(propName);
+          ((ResultInternal) result).removeProperty(propName);
         }
       } else if (val instanceof Iterable<?> iterable) {
         for (Object o : iterable) {
           if (o instanceof Entity) {
             if (((Entity) o).getSchemaType().map(x -> x.isSubClassOf("E")).orElse(false)) {
-              ((YTResultInternal) result).removeProperty(propName);
+              ((ResultInternal) result).removeProperty(propName);
               break;
             }
           }

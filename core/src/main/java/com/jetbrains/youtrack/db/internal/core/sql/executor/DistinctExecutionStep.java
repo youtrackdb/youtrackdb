@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,7 +19,7 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
 
   public DistinctExecutionStep(CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
-    YTDatabaseSession db = ctx == null ? null : ctx.getDatabase();
+    DatabaseSession db = ctx == null ? null : ctx.getDatabase();
 
     maxElementsAllowed =
         db == null
@@ -29,16 +29,16 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
     ExecutionStream resultSet = prev.start(ctx);
-    Set<YTResult> pastItems = new HashSet<>();
-    ORidSet pastRids = new ORidSet();
+    Set<Result> pastItems = new HashSet<>();
+    RidSet pastRids = new RidSet();
 
     return resultSet.filter((result, context) -> filterMap(result, pastRids, pastItems));
   }
 
-  private YTResult filterMap(YTResult result, Set<YTRID> pastRids, Set<YTResult> pastItems) {
+  private Result filterMap(Result result, Set<RID> pastRids, Set<Result> pastItems) {
     if (alreadyVisited(result, pastRids, pastItems)) {
       return null;
     } else {
@@ -47,9 +47,9 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
     }
   }
 
-  private void markAsVisited(YTResult nextValue, Set<YTRID> pastRids, Set<YTResult> pastItems) {
+  private void markAsVisited(Result nextValue, Set<RID> pastRids, Set<Result> pastItems) {
     if (nextValue.isEntity()) {
-      YTRID identity = nextValue.toEntity().getIdentity();
+      RID identity = nextValue.toEntity().getIdentity();
       int cluster = identity.getClusterId();
       long pos = identity.getClusterPosition();
       if (cluster >= 0 && pos >= 0) {
@@ -60,7 +60,7 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
     pastItems.add(nextValue);
     if (maxElementsAllowed > 0 && maxElementsAllowed < pastItems.size()) {
       pastItems.clear();
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Limit of allowed elements for in-heap DISTINCT in a single query exceeded ("
               + maxElementsAllowed
               + ") . You can set "
@@ -69,9 +69,9 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
     }
   }
 
-  private boolean alreadyVisited(YTResult nextValue, Set<YTRID> pastRids, Set<YTResult> pastItems) {
+  private boolean alreadyVisited(Result nextValue, Set<RID> pastRids, Set<Result> pastItems) {
     if (nextValue.isEntity()) {
-      YTRID identity = nextValue.toEntity().getIdentity();
+      RID identity = nextValue.toEntity().getIdentity();
       int cluster = identity.getClusterId();
       long pos = identity.getClusterPosition();
       if (cluster >= 0 && pos >= 0) {

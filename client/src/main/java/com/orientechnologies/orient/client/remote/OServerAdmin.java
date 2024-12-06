@@ -20,10 +20,10 @@
 package com.orientechnologies.orient.client.remote;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.document.ODatabaseDocumentTxInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTxInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.IOException;
 import java.util.Map;
@@ -53,15 +53,15 @@ public class OServerAdmin {
   @Deprecated
   public OServerAdmin(String iURL) throws IOException {
     String url = iURL;
-    if (url.startsWith(OEngineRemote.NAME)) {
-      url = url.substring(OEngineRemote.NAME.length() + 1);
+    if (url.startsWith(EngineRemote.NAME)) {
+      url = url.substring(EngineRemote.NAME.length() + 1);
     }
 
     if (!url.contains("/")) {
       url += "/";
     }
 
-    remote = (YouTrackDBRemote) ODatabaseDocumentTxInternal.getOrCreateRemoteFactory(url);
+    remote = (YouTrackDBRemote) DatabaseDocumentTxInternal.getOrCreateRemoteFactory(url);
     urls = new ORemoteURLs(new String[]{}, remote.getContextConfiguration());
     String name = urls.parseServerUrls(url, remote.getContextConfiguration());
     if (name != null && name.length() != 0) {
@@ -115,7 +115,7 @@ public class OServerAdmin {
 
   private void checkConnected() {
     if (user == null || password == null) {
-      throw new YTStorageException("OServerAdmin not connect use connect before do an operation");
+      throw new StorageException("OServerAdmin not connect use connect before do an operation");
     }
   }
 
@@ -195,11 +195,11 @@ public class OServerAdmin {
       final String backupPath)
       throws IOException {
     checkConnected();
-    ODatabaseType storageMode;
+    DatabaseType storageMode;
     if (iStorageMode == null) {
-      storageMode = ODatabaseType.PLOCAL;
+      storageMode = DatabaseType.PLOCAL;
     } else {
-      storageMode = ODatabaseType.valueOf(iStorageMode.toUpperCase());
+      storageMode = DatabaseType.valueOf(iStorageMode.toUpperCase());
     }
     YouTrackDBConfig config =
         YouTrackDBConfig.builder().addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, true)

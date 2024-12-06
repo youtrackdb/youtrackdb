@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSchemaException;
+import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
@@ -15,13 +15,13 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
 
   @Test
   public void testClassCreation() {
-    YTSchema oSchema = db.getMetadata().getSchema();
+    Schema oSchema = db.getMetadata().getSchema();
 
-    YTClass aClass = oSchema.createAbstractClass("javaA");
-    YTClass bClass = oSchema.createAbstractClass("javaB");
-    aClass.createProperty(db, "propertyInt", YTType.INTEGER);
-    bClass.createProperty(db, "propertyDouble", YTType.DOUBLE);
-    YTClass cClass = oSchema.createClass("javaC", aClass, bClass);
+    SchemaClass aClass = oSchema.createAbstractClass("javaA");
+    SchemaClass bClass = oSchema.createAbstractClass("javaB");
+    aClass.createProperty(db, "propertyInt", PropertyType.INTEGER);
+    bClass.createProperty(db, "propertyDouble", PropertyType.DOUBLE);
+    SchemaClass cClass = oSchema.createClass("javaC", aClass, bClass);
     testClassCreationBranch(aClass, bClass, cClass);
     testClassCreationBranch(aClass, bClass, cClass);
     oSchema = db.getMetadata().getImmutableSchemaSnapshot();
@@ -31,7 +31,7 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
     testClassCreationBranch(aClass, bClass, cClass);
   }
 
-  private void testClassCreationBranch(YTClass aClass, YTClass bClass, YTClass cClass) {
+  private void testClassCreationBranch(SchemaClass aClass, SchemaClass bClass, SchemaClass cClass) {
     assertNotNull(aClass.getSuperClasses());
     assertEquals(aClass.getSuperClasses().size(), 0);
     assertNotNull(bClass.getSuperClassesNames());
@@ -39,7 +39,7 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
     assertNotNull(cClass.getSuperClassesNames());
     assertEquals(cClass.getSuperClassesNames().size(), 2);
 
-    List<? extends YTClass> superClasses = cClass.getSuperClasses();
+    List<? extends SchemaClass> superClasses = cClass.getSuperClasses();
     assertTrue(superClasses.contains(aClass));
     assertTrue(superClasses.contains(bClass));
     assertTrue(cClass.isSubClassOf(aClass));
@@ -47,24 +47,24 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
     assertTrue(aClass.isSuperClassOf(cClass));
     assertTrue(bClass.isSuperClassOf(cClass));
 
-    YTProperty property = cClass.getProperty("propertyInt");
-    assertEquals(YTType.INTEGER, property.getType());
+    Property property = cClass.getProperty("propertyInt");
+    assertEquals(PropertyType.INTEGER, property.getType());
     property = cClass.propertiesMap(db).get("propertyInt");
-    assertEquals(YTType.INTEGER, property.getType());
+    assertEquals(PropertyType.INTEGER, property.getType());
 
     property = cClass.getProperty("propertyDouble");
-    assertEquals(YTType.DOUBLE, property.getType());
+    assertEquals(PropertyType.DOUBLE, property.getType());
     property = cClass.propertiesMap(db).get("propertyDouble");
-    assertEquals(YTType.DOUBLE, property.getType());
+    assertEquals(PropertyType.DOUBLE, property.getType());
   }
 
   @Test
   public void testSql() {
-    final YTSchema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = db.getMetadata().getSchema();
 
-    YTClass aClass = oSchema.createAbstractClass("sqlA");
-    YTClass bClass = oSchema.createAbstractClass("sqlB");
-    YTClass cClass = oSchema.createClass("sqlC");
+    SchemaClass aClass = oSchema.createAbstractClass("sqlA");
+    SchemaClass bClass = oSchema.createAbstractClass("sqlB");
+    SchemaClass cClass = oSchema.createClass("sqlC");
     db.command("alter class sqlC superclasses sqlA, sqlB").close();
     assertTrue(cClass.isSubClassOf(aClass));
     assertTrue(cClass.isSubClassOf(bClass));
@@ -81,15 +81,15 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
 
   @Test
   public void testCreationBySql() {
-    final YTSchema oSchema = db.getMetadata().getSchema();
+    final Schema oSchema = db.getMetadata().getSchema();
 
     db.command("create class sql2A abstract").close();
     db.command("create class sql2B abstract").close();
     db.command("create class sql2C extends sql2A, sql2B abstract").close();
 
-    YTClass aClass = oSchema.getClass("sql2A");
-    YTClass bClass = oSchema.getClass("sql2B");
-    YTClass cClass = oSchema.getClass("sql2C");
+    SchemaClass aClass = oSchema.getClass("sql2A");
+    SchemaClass bClass = oSchema.getClass("sql2B");
+    SchemaClass cClass = oSchema.getClass("sql2C");
     assertNotNull(aClass);
     assertNotNull(bClass);
     assertNotNull(cClass);
@@ -98,49 +98,49 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
   }
 
   @Test(
-      expected = YTSchemaException.class) // , expectedExceptionsMessageRegExp = "(?s).*recursion.*"
+      expected = SchemaException.class) // , expectedExceptionsMessageRegExp = "(?s).*recursion.*"
   // )
   public void testPreventionOfCycles() {
-    final YTSchema oSchema = db.getMetadata().getSchema();
-    YTClass aClass = oSchema.createAbstractClass("cycleA");
-    YTClass bClass = oSchema.createAbstractClass("cycleB", aClass);
-    YTClass cClass = oSchema.createAbstractClass("cycleC", bClass);
+    final Schema oSchema = db.getMetadata().getSchema();
+    SchemaClass aClass = oSchema.createAbstractClass("cycleA");
+    SchemaClass bClass = oSchema.createAbstractClass("cycleB", aClass);
+    SchemaClass cClass = oSchema.createAbstractClass("cycleC", bClass);
 
     aClass.setSuperClasses(db, Collections.singletonList(cClass));
   }
 
   @Test
   public void testParametersImpactGoodScenario() {
-    final YTSchema oSchema = db.getMetadata().getSchema();
-    YTClass aClass = oSchema.createAbstractClass("impactGoodA");
-    aClass.createProperty(db, "property", YTType.STRING);
-    YTClass bClass = oSchema.createAbstractClass("impactGoodB");
-    bClass.createProperty(db, "property", YTType.STRING);
-    YTClass cClass = oSchema.createAbstractClass("impactGoodC", aClass, bClass);
+    final Schema oSchema = db.getMetadata().getSchema();
+    SchemaClass aClass = oSchema.createAbstractClass("impactGoodA");
+    aClass.createProperty(db, "property", PropertyType.STRING);
+    SchemaClass bClass = oSchema.createAbstractClass("impactGoodB");
+    bClass.createProperty(db, "property", PropertyType.STRING);
+    SchemaClass cClass = oSchema.createAbstractClass("impactGoodC", aClass, bClass);
     assertTrue(cClass.existsProperty("property"));
   }
 
   @Test(
-      expected = YTSchemaException.class)
+      expected = SchemaException.class)
   // }, expectedExceptionsMessageRegExp = "(?s).*conflict.*")
   public void testParametersImpactBadScenario() {
-    final YTSchema oSchema = db.getMetadata().getSchema();
-    YTClass aClass = oSchema.createAbstractClass("impactBadA");
-    aClass.createProperty(db, "property", YTType.STRING);
-    YTClass bClass = oSchema.createAbstractClass("impactBadB");
-    bClass.createProperty(db, "property", YTType.INTEGER);
+    final Schema oSchema = db.getMetadata().getSchema();
+    SchemaClass aClass = oSchema.createAbstractClass("impactBadA");
+    aClass.createProperty(db, "property", PropertyType.STRING);
+    SchemaClass bClass = oSchema.createAbstractClass("impactBadB");
+    bClass.createProperty(db, "property", PropertyType.INTEGER);
     oSchema.createAbstractClass("impactBadC", aClass, bClass);
   }
 
   @Test
   public void testCreationOfClassWithV() {
-    final YTSchema oSchema = db.getMetadata().getSchema();
-    YTClass oRestrictedClass = oSchema.getClass("ORestricted");
-    YTClass vClass = oSchema.getClass("V");
+    final Schema oSchema = db.getMetadata().getSchema();
+    SchemaClass oRestrictedClass = oSchema.getClass("ORestricted");
+    SchemaClass vClass = oSchema.getClass("V");
     vClass.setSuperClasses(db, Collections.singletonList(oRestrictedClass));
-    YTClass dummy1Class = oSchema.createClass("Dummy1", oRestrictedClass, vClass);
-    YTClass dummy2Class = oSchema.createClass("Dummy2");
-    YTClass dummy3Class = oSchema.createClass("Dummy3", dummy1Class, dummy2Class);
+    SchemaClass dummy1Class = oSchema.createClass("Dummy1", oRestrictedClass, vClass);
+    SchemaClass dummy2Class = oSchema.createClass("Dummy2");
+    SchemaClass dummy3Class = oSchema.createClass("Dummy3", dummy1Class, dummy2Class);
     assertNotNull(dummy3Class);
   }
 }

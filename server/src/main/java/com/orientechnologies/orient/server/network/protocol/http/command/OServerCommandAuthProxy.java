@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command;
 
-import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -39,7 +39,7 @@ public class OServerCommandAuthProxy extends OServerCommandPatternAbstract {
   public OServerCommandAuthProxy(OServerCommandConfiguration iConfig) {
     super(iConfig);
     if (iConfig.parameters.length != 3) {
-      throw new YTConfigurationException("AuthProxy Command requires database access data.");
+      throw new ConfigurationException("AuthProxy Command requires database access data.");
     }
 
     userName = "";

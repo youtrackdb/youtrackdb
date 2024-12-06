@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.testng.Assert;
@@ -33,8 +33,8 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.command("create vertex testFromToV set name = 'Luca'").close();
     database.commit();
 
-    List<YTIdentifiable> result =
-        database.query(new OSQLSynchQuery<EntityImpl>("select from testFromToV"));
+    List<Identifiable> result =
+        database.query(new SQLSynchQuery<EntityImpl>("select from testFromToV"));
 
     database.begin();
     database
@@ -53,7 +53,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    YTResultSet resultTwo =
+    ResultSet resultTwo =
         database.query("select expand(outE()) from " + result.get(1).getIdentity());
 
     Assert.assertEquals(resultTwo.stream().count(), 2);
@@ -87,8 +87,8 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.command("create vertex testFromV set name = 'Luca'").close();
     database.commit();
 
-    List<YTIdentifiable> result =
-        database.query(new OSQLSynchQuery<EntityImpl>("select from testFromV"));
+    List<Identifiable> result =
+        database.query(new SQLSynchQuery<EntityImpl>("select from testFromV"));
 
     database.begin();
     database
@@ -107,7 +107,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    YTResultSet resultTwo =
+    ResultSet resultTwo =
         database.query("select expand(outE()) from " + result.get(1).getIdentity());
 
     Assert.assertEquals(resultTwo.stream().count(), 2);
@@ -142,8 +142,8 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.command("create vertex testToV set name = 'Luca'").close();
     database.commit();
 
-    List<YTIdentifiable> result =
-        database.query(new OSQLSynchQuery<EntityImpl>("select from testToV"));
+    List<Identifiable> result =
+        database.query(new SQLSynchQuery<EntityImpl>("select from testToV"));
 
     database.begin();
     database
@@ -162,7 +162,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    YTResultSet resultTwo =
+    ResultSet resultTwo =
         database.query("select expand(outE()) from " + result.get(1).getIdentity());
 
     Assert.assertEquals(resultTwo.stream().count(), 2);
@@ -187,9 +187,9 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.command("CREATE CLASS SuperV extends V").close();
 
     database.begin();
-    YTIdentifiable v1 =
+    Identifiable v1 =
         database.command("create vertex SuperV set name = 'Luca'").next().getIdentity().get();
-    YTIdentifiable v2 =
+    Identifiable v2 =
         database.command("create vertex SuperV set name = 'Mark'").next().getIdentity().get();
     database
         .command("CREATE EDGE SuperE from " + v1.getIdentity() + " to " + v2.getIdentity())
@@ -199,28 +199,28 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     try {
       database.command("DROP CLASS SuperV").close();
       Assert.fail();
-    } catch (YTCommandExecutionException e) {
+    } catch (CommandExecutionException e) {
       Assert.assertTrue(true);
     }
 
     try {
       database.command("DROP CLASS SuperE").close();
       Assert.fail();
-    } catch (YTCommandExecutionException e) {
+    } catch (CommandExecutionException e) {
       Assert.assertTrue(true);
     }
 
     try {
       database.command("DROP CLASS SuperV unsafe").close();
       Assert.assertTrue(true);
-    } catch (YTCommandExecutionException e) {
+    } catch (CommandExecutionException e) {
       Assert.fail();
     }
 
     try {
       database.command("DROP CLASS SuperE UNSAFE").close();
       Assert.assertTrue(true);
-    } catch (YTCommandExecutionException e) {
+    } catch (CommandExecutionException e) {
       Assert.fail();
     }
   }
@@ -230,9 +230,9 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.command("CREATE CLASS SuperV extends V").close();
 
     database.begin();
-    YTIdentifiable v1 =
+    Identifiable v1 =
         database.command("create vertex SuperV set name = 'Luca'").next().getIdentity().get();
-    YTIdentifiable v2 =
+    Identifiable v2 =
         database.command("create vertex SuperV set name = 'Mark'").next().getIdentity().get();
     database
         .command("CREATE EDGE SuperE from " + v1.getIdentity() + " to " + v2.getIdentity())
@@ -242,14 +242,14 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     try {
       database.command("DROP CLASS SuperV").close();
       Assert.fail();
-    } catch (YTCommandExecutionException e) {
+    } catch (CommandExecutionException e) {
       Assert.assertTrue(true);
     }
 
     try {
       database.command("DROP CLASS SuperE").close();
       Assert.fail();
-    } catch (YTCommandExecutionException e) {
+    } catch (CommandExecutionException e) {
       Assert.assertTrue(true);
     }
 
@@ -260,14 +260,14 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     try {
       database.command("DROP CLASS SuperV").close();
       Assert.assertTrue(true);
-    } catch (YTCommandExecutionException e) {
+    } catch (CommandExecutionException e) {
       Assert.fail();
     }
 
     try {
       database.command("DROP CLASS SuperE").close();
       Assert.assertTrue(true);
-    } catch (YTCommandExecutionException e) {
+    } catch (CommandExecutionException e) {
       Assert.fail();
     }
   }
@@ -277,19 +277,19 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
     database.command("CREATE CLASS FromInStringV extends V").close();
 
     database.begin();
-    YTIdentifiable v1 =
+    Identifiable v1 =
         database
             .command("create vertex FromInStringV set name = ' from '")
             .next()
             .getIdentity()
             .get();
-    YTIdentifiable v2 =
+    Identifiable v2 =
         database
             .command("create vertex FromInStringV set name = ' FROM '")
             .next()
             .getIdentity()
             .get();
-    YTIdentifiable v3 =
+    Identifiable v3 =
         database
             .command("create vertex FromInStringV set name = ' TO '")
             .next()
@@ -304,7 +304,7 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    YTResultSet result = database.query("SELECT expand(out()[name = ' FROM ']) FROM FromInStringV");
+    ResultSet result = database.query("SELECT expand(out()[name = ' FROM ']) FROM FromInStringV");
     Assert.assertEquals(result.stream().count(), 1);
 
     result = database.query("SELECT expand(in()[name = ' from ']) FROM FromInStringV");
@@ -316,10 +316,10 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
 
   public void testDeleteVertexWithReturn() {
     database.begin();
-    YTIdentifiable v1 =
+    Identifiable v1 =
         database.command("create vertex V set returning = true").next().getIdentity().get();
 
-    List<YTIdentifiable> v2s =
+    List<Identifiable> v2s =
         database.command("delete vertex V return before where returning = true").stream()
             .map((r) -> r.getIdentity().get())
             .collect(Collectors.toList());

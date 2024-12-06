@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.global;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALChanges;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALPageChangesPortion;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALPageChangesPortion;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import org.junit.Assert;
@@ -272,7 +272,7 @@ public class IntSerializerTest {
 
   private void changeTrackingSerializationTest(int value) {
     final IntSerializer serializer = new IntSerializer();
-    final OWALChanges walChanges = new OWALPageChangesPortion();
+    final WALChanges walChanges = new WALPageChangesPortion();
 
     final int size = serializer.getObjectSize(value);
     final ByteBuffer byteBuffer =

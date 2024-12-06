@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.database.security;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import java.io.File;
@@ -29,7 +29,7 @@ public class SystemUsersTest {
           "create database " + "test" + " memory users ( admin identified by 'admin' role admin)");
 
       orient.execute("create system user systemxx identified by systemxx role admin").close();
-      YTDatabaseSession db = orient.open("test", "systemxx", "systemxx");
+      DatabaseSession db = orient.open("test", "systemxx", "systemxx");
 
       db.close();
     } finally {

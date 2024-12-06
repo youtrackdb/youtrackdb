@@ -21,7 +21,6 @@ package com.jetbrains.youtrack.db.internal.common.concur.lock;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.common.concur.lock.OOneEntryPerKeyLockManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -33,11 +32,11 @@ import org.junit.Test;
  */
 public class OneEntryPerKeyLockManagerNullKeysTest {
 
-  private OOneEntryPerKeyLockManager<String> manager;
+  private OneEntryPerKeyLockManager<String> manager;
 
   @Before
   public void before() {
-    manager = new OOneEntryPerKeyLockManager<String>(true, -1, 100);
+    manager = new OneEntryPerKeyLockManager<String>(true, -1, 100);
   }
 
   @Test
@@ -101,7 +100,7 @@ public class OneEntryPerKeyLockManagerNullKeysTest {
     assertEquals(0, wrapper(lock).getLockCount());
   }
 
-  private static OOneEntryPerKeyLockManager.CountableLockWrapper wrapper(Lock lock) {
-    return (OOneEntryPerKeyLockManager.CountableLockWrapper) lock;
+  private static OneEntryPerKeyLockManager.CountableLockWrapper wrapper(Lock lock) {
+    return (OneEntryPerKeyLockManager.CountableLockWrapper) lock;
   }
 }

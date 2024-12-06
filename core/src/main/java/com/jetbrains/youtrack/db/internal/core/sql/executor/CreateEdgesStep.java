@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
@@ -58,28 +58,28 @@ public class CreateEdgesStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
     Iterator<?> fromIter = fetchFroms();
     List<Object> toList = fetchTo();
-    OIndex uniqueIndex = findIndex(this.uniqueIndexName);
-    Stream<YTResult> stream =
+    Index uniqueIndex = findIndex(this.uniqueIndexName);
+    Stream<Result> stream =
         StreamSupport.stream(Spliterators.spliteratorUnknownSize(fromIter, 0), false)
             .map(CreateEdgesStep::asVertex)
             .flatMap((currentFrom) -> mapTo(ctx.getDatabase(), toList, currentFrom, uniqueIndex));
     return ExecutionStream.resultIterator(stream.iterator());
   }
 
-  private OIndex findIndex(String uniqueIndexName) {
+  private Index findIndex(String uniqueIndexName) {
     if (uniqueIndexName != null) {
-      final YTDatabaseSessionInternal database = ctx.getDatabase();
-      OIndex uniqueIndex =
+      final DatabaseSessionInternal database = ctx.getDatabase();
+      Index uniqueIndex =
           database.getMetadata().getIndexManagerInternal().getIndex(database, uniqueIndexName);
       if (uniqueIndex == null) {
-        throw new YTCommandExecutionException("Index not found for upsert: " + uniqueIndexName);
+        throw new CommandExecutionException("Index not found for upsert: " + uniqueIndexName);
       }
       return uniqueIndex;
     }
@@ -88,20 +88,20 @@ public class CreateEdgesStep extends AbstractExecutionStep {
 
   private List<Object> fetchTo() {
     Object toValues = ctx.getVariable(toAlias.getStringValue());
-    if (toValues instanceof Iterable && !(toValues instanceof YTIdentifiable)) {
+    if (toValues instanceof Iterable && !(toValues instanceof Identifiable)) {
       toValues = ((Iterable<?>) toValues).iterator();
     } else if (!(toValues instanceof Iterator)) {
       toValues = Collections.singleton(toValues).iterator();
     }
-    if (toValues instanceof YTInternalResultSet) {
-      toValues = ((YTInternalResultSet) toValues).copy();
+    if (toValues instanceof InternalResultSet) {
+      toValues = ((InternalResultSet) toValues).copy();
     }
 
     Iterator<?> toIter = (Iterator<?>) toValues;
 
-    if (toIter instanceof YTResultSet) {
+    if (toIter instanceof ResultSet) {
       try {
-        ((YTResultSet) toIter).reset();
+        ((ResultSet) toIter).reset();
       } catch (Exception ignore) {
       }
     }
@@ -114,32 +114,32 @@ public class CreateEdgesStep extends AbstractExecutionStep {
 
   private Iterator<?> fetchFroms() {
     Object fromValues = ctx.getVariable(fromAlias.getStringValue());
-    if (fromValues instanceof Iterable && !(fromValues instanceof YTIdentifiable)) {
+    if (fromValues instanceof Iterable && !(fromValues instanceof Identifiable)) {
       fromValues = ((Iterable<?>) fromValues).iterator();
     } else if (!(fromValues instanceof Iterator)) {
       fromValues = Collections.singleton(fromValues).iterator();
     }
-    if (fromValues instanceof YTInternalResultSet) {
-      fromValues = ((YTInternalResultSet) fromValues).copy();
+    if (fromValues instanceof InternalResultSet) {
+      fromValues = ((InternalResultSet) fromValues).copy();
     }
     Iterator<?> fromIter = (Iterator<?>) fromValues;
-    if (fromIter instanceof YTResultSet) {
+    if (fromIter instanceof ResultSet) {
       try {
-        ((YTResultSet) fromIter).reset();
+        ((ResultSet) fromIter).reset();
       } catch (Exception ignore) {
       }
     }
     return fromIter;
   }
 
-  public Stream<YTResult> mapTo(YTDatabaseSessionInternal db, List<Object> to, Vertex currentFrom,
-      OIndex uniqueIndex) {
+  public Stream<Result> mapTo(DatabaseSessionInternal db, List<Object> to, Vertex currentFrom,
+      Index uniqueIndex) {
     return to.stream()
         .map(
             (obj) -> {
               Vertex currentTo = asVertex(obj);
               if (currentTo == null) {
-                throw new YTCommandExecutionException("Invalid TO vertex for edge");
+                throw new CommandExecutionException("Invalid TO vertex for edge");
               }
               EdgeInternal edgeToUpdate = null;
               if (uniqueIndex != null) {
@@ -155,7 +155,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
                     (EdgeInternal) currentFrom.addEdge(currentTo, targetClass.getStringValue());
                 if (targetCluster != null) {
                   if (edgeToUpdate.isLightweight()) {
-                    throw new YTCommandExecutionException(
+                    throw new CommandExecutionException(
                         "Cannot set target cluster on lightweight edges");
                   }
 
@@ -167,22 +167,22 @@ public class CreateEdgesStep extends AbstractExecutionStep {
               currentTo.save();
               edgeToUpdate.save();
 
-              return new YTUpdatableResult(db, edgeToUpdate);
+              return new UpdatableResult(db, edgeToUpdate);
             });
   }
 
   private static EdgeInternal getExistingEdge(
-      YTDatabaseSessionInternal session,
+      DatabaseSessionInternal session,
       Vertex currentFrom,
       Vertex currentTo,
-      OIndex uniqueIndex) {
+      Index uniqueIndex) {
     Object key =
         uniqueIndex
             .getDefinition()
             .createValue(session, currentFrom.getIdentity(), currentTo.getIdentity());
 
-    final Iterator<YTRID> iterator;
-    try (Stream<YTRID> stream = uniqueIndex.getInternal().getRids(session, key)) {
+    final Iterator<RID> iterator;
+    try (Stream<RID> stream = uniqueIndex.getInternal().getRids(session, key)) {
       iterator = stream.iterator();
       if (iterator.hasNext()) {
         return iterator.next().getRecord();
@@ -193,17 +193,17 @@ public class CreateEdgesStep extends AbstractExecutionStep {
   }
 
   private static Vertex asVertex(Object currentFrom) {
-    if (currentFrom instanceof YTRID) {
-      currentFrom = ((YTRID) currentFrom).getRecord();
+    if (currentFrom instanceof RID) {
+      currentFrom = ((RID) currentFrom).getRecord();
     }
-    if (currentFrom instanceof YTResult) {
+    if (currentFrom instanceof Result) {
       Object from = currentFrom;
       currentFrom =
-          ((YTResult) currentFrom)
+          ((Result) currentFrom)
               .getVertex()
               .orElseThrow(
                   () ->
-                      new YTCommandExecutionException("Invalid vertex for edge creation: " + from));
+                      new CommandExecutionException("Invalid vertex for edge creation: " + from));
     }
     if (currentFrom instanceof Vertex) {
       return (Vertex) currentFrom;
@@ -213,9 +213,9 @@ public class CreateEdgesStep extends AbstractExecutionStep {
       return ((Entity) currentFrom)
           .asVertex()
           .orElseThrow(
-              () -> new YTCommandExecutionException("Invalid vertex for edge creation: " + from));
+              () -> new CommandExecutionException("Invalid vertex for edge creation: " + from));
     }
-    throw new YTCommandExecutionException(
+    throw new CommandExecutionException(
         "Invalid vertex for edge creation: "
             + (currentFrom == null ? "null" : currentFrom.toString()));
   }

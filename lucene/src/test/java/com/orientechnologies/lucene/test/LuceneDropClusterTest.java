@@ -19,7 +19,7 @@
 package com.orientechnologies.lucene.test;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.metadata.OMetadataInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
 import java.io.InputStream;
 import java.util.logging.Level;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -51,7 +51,7 @@ public class LuceneDropClusterTest extends BaseLuceneTest {
                 + "\"}")
         .close();
 
-    OMetadataInternal metadata = db.getMetadata();
+    MetadataInternal metadata = db.getMetadata();
 
     db.begin();
     long initialIndexSize =

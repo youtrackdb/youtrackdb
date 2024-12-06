@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.client.remote;
 
-import com.jetbrains.youtrack.db.internal.common.io.OIOException;
+import com.jetbrains.youtrack.db.internal.common.io.YTIOException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinary;
+import com.orientechnologies.orient.client.binary.SocketChannelBinaryAsynchClient;
 import com.orientechnologies.orient.client.remote.message.OCloseRequest;
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinary;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,8 +46,8 @@ public class OStorageRemoteSession {
   protected Map<String, OStorageRemoteNodeSession> sessions =
       new HashMap<String, OStorageRemoteNodeSession>();
 
-  private Set<OChannelBinary> connections =
-      Collections.newSetFromMap(new WeakHashMap<OChannelBinary, Boolean>());
+  private Set<SocketChannelBinary> connections =
+      Collections.newSetFromMap(new WeakHashMap<SocketChannelBinary, Boolean>());
   private final int uniqueClientSessionId;
   private boolean closed = true;
 
@@ -66,7 +66,7 @@ public class OStorageRemoteSession {
     this.uniqueClientSessionId = sessionId;
   }
 
-  public boolean hasConnection(final OChannelBinary connection) {
+  public boolean hasConnection(final SocketChannelBinary connection) {
     return connections.contains(connection);
   }
 
@@ -84,14 +84,14 @@ public class OStorageRemoteSession {
     return session;
   }
 
-  public void addConnection(final OChannelBinary connection) {
+  public void addConnection(final SocketChannelBinary connection) {
     connections.add(connection);
   }
 
   public void close() {
     commandExecuting = false;
     serverURLIndex = -1;
-    connections = new HashSet<OChannelBinary>();
+    connections = new HashSet<SocketChannelBinary>();
     sessions = new HashMap<String, OStorageRemoteNodeSession>();
     closed = true;
   }
@@ -137,9 +137,9 @@ public class OStorageRemoteSession {
   }
 
   public void closeAllSessions(
-      ORemoteConnectionManager connectionManager, YTContextConfiguration clientConfiguration) {
+      ORemoteConnectionManager connectionManager, ContextConfiguration clientConfiguration) {
     for (OStorageRemoteNodeSession nodeSession : getAllServerSessions()) {
-      OChannelBinaryAsynchClient network = null;
+      SocketChannelBinaryAsynchClient network = null;
       try {
         network =
             StorageRemote.getNetwork(
@@ -149,7 +149,7 @@ public class OStorageRemoteSession {
         request.write(null, network, this);
         network.endRequest();
         connectionManager.release(network);
-      } catch (OIOException ex) {
+      } catch (YTIOException ex) {
         // IGNORING IF THE SERVER IS DOWN OR NOT REACHABLE THE SESSION IS AUTOMATICALLY CLOSED.
         LogManager.instance()
             .debug(this, "Impossible to comunicate to the server for close: %s", ex);

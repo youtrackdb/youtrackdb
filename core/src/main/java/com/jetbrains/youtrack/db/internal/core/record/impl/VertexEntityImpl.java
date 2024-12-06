@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.record.ODirection;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.record.Direction;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -17,11 +17,11 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
     super();
   }
 
-  public VertexEntityImpl(YTDatabaseSessionInternal database, YTRID rid) {
+  public VertexEntityImpl(DatabaseSessionInternal database, RID rid) {
     super(database, rid);
   }
 
-  public VertexEntityImpl(YTDatabaseSessionInternal session, String klass) {
+  public VertexEntityImpl(DatabaseSessionInternal session, String klass) {
     super(session, klass);
     if (!getImmutableSchemaClass().isVertexType()) {
       throw new IllegalArgumentException(getClassName() + " is not a vertex class");
@@ -46,7 +46,7 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
 
   @Nullable
   @Override
-  public YTIdentifiable getLinkProperty(String fieldName) {
+  public Identifiable getLinkProperty(String fieldName) {
     checkForBinding();
 
     EdgeInternal.checkPropertyName(fieldName);
@@ -64,7 +64,7 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
   }
 
   @Override
-  public void setProperty(String name, Object value, YTType... types) {
+  public void setProperty(String name, Object value, PropertyType... types) {
     checkForBinding();
 
     EdgeInternal.checkPropertyName(name);
@@ -81,7 +81,7 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
   }
 
   @Override
-  public Iterable<Vertex> getVertices(ODirection direction) {
+  public Iterable<Vertex> getVertices(Direction direction) {
     checkForBinding();
     return VertexInternal.super.getVertices(direction);
   }
@@ -98,7 +98,7 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
     checkForBinding();
 
     var newDoc = new VertexEntityImpl();
-    ORecordInternal.unsetDirty(newDoc);
+    RecordInternal.unsetDirty(newDoc);
     copyTo(newDoc);
     newDoc.dirty = true;
 

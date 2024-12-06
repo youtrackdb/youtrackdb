@@ -20,28 +20,28 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.singlevalue.v1;
 
-import com.jetbrains.youtrack.db.internal.common.comparator.ODefaultComparator;
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OLongSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OShortSerializer;
-import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
+import com.jetbrains.youtrack.db.internal.common.comparator.DefaultComparator;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.encryption.OEncryption;
-import com.jetbrains.youtrack.db.internal.core.exception.YTTooBigIndexKeyException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
-import com.jetbrains.youtrack.db.internal.core.index.comparator.OAlwaysGreaterKey;
-import com.jetbrains.youtrack.db.internal.core.index.comparator.OAlwaysLessKey;
+import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
+import com.jetbrains.youtrack.db.internal.core.exception.TooBigIndexKeyException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
+import com.jetbrains.youtrack.db.internal.core.index.comparator.AlwaysGreaterKey;
+import com.jetbrains.youtrack.db.internal.core.index.comparator.AlwaysLessKey;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValidator;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurableComponent;
-import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.singlevalue.OCellBTreeSingleValue;
+import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.singlevalue.CellBTreeSingleValue;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -90,27 +90,27 @@ import java.util.stream.StreamSupport;
  * @since 8/7/13
  */
 public final class CellBTreeSingleValueV1<K> extends DurableComponent
-    implements OCellBTreeSingleValue<K> {
+    implements CellBTreeSingleValue<K> {
 
   private static final int MAX_KEY_SIZE =
       GlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
-  private static final OAlwaysLessKey ALWAYS_LESS_KEY = new OAlwaysLessKey();
-  private static final OAlwaysGreaterKey ALWAYS_GREATER_KEY = new OAlwaysGreaterKey();
+  private static final AlwaysLessKey ALWAYS_LESS_KEY = new AlwaysLessKey();
+  private static final AlwaysGreaterKey ALWAYS_GREATER_KEY = new AlwaysGreaterKey();
 
   private static final int MAX_PATH_LENGTH =
       GlobalConfiguration.SBTREE_MAX_DEPTH.getValueAsInteger();
 
   private static final int ENTRY_POINT_INDEX = 0;
   private static final long ROOT_INDEX = 1;
-  private final Comparator<? super K> comparator = ODefaultComparator.INSTANCE;
+  private final Comparator<? super K> comparator = DefaultComparator.INSTANCE;
 
   private final String nullFileExtension;
   private long fileId;
   private long nullBucketFileId = -1;
   private int keySize;
-  private OBinarySerializer<K> keySerializer;
-  private YTType[] keyTypes;
-  private OEncryption encryption;
+  private BinarySerializer<K> keySerializer;
+  private PropertyType[] keyTypes;
+  private Encryption encryption;
 
   public CellBTreeSingleValueV1(
       final String name,
@@ -128,11 +128,11 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
 
   @Override
   public void create(
-      OAtomicOperation atomicOperation,
-      final OBinarySerializer<K> keySerializer,
-      final YTType[] keyTypes,
+      AtomicOperation atomicOperation,
+      final BinarySerializer<K> keySerializer,
+      final PropertyType[] keyTypes,
       final int keySize,
-      final OEncryption encryption) {
+      final Encryption encryption) {
     assert keySerializer != null;
     executeInsideComponentOperation(
         atomicOperation,
@@ -153,19 +153,19 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
             fileId = addFile(atomicOperation, getFullName());
             nullBucketFileId = addFile(atomicOperation, getName() + nullFileExtension);
 
-            try (final OCacheEntry entryPointCacheEntry = addPage(atomicOperation, fileId)) {
+            try (final CacheEntry entryPointCacheEntry = addPage(atomicOperation, fileId)) {
               final CellBTreeSingleValueEntryPointV1 entryPoint =
                   new CellBTreeSingleValueEntryPointV1(entryPointCacheEntry);
               entryPoint.init();
             }
 
-            try (final OCacheEntry rootCacheEntry = addPage(atomicOperation, fileId)) {
+            try (final CacheEntry rootCacheEntry = addPage(atomicOperation, fileId)) {
               @SuppressWarnings("unused") final CellBTreeBucketSingleValueV1<K> rootBucket =
                   new CellBTreeBucketSingleValueV1<>(rootCacheEntry);
               rootBucket.init(true);
             }
 
-            try (final OCacheEntry nullCacheEntry = addPage(atomicOperation, nullBucketFileId)) {
+            try (final CacheEntry nullCacheEntry = addPage(atomicOperation, nullBucketFileId)) {
               @SuppressWarnings("unused") final CellBTreeNullBucketSingleValueV1 nullBucket =
                   new CellBTreeNullBucketSingleValueV1(nullCacheEntry);
               nullBucket.init();
@@ -178,12 +178,12 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
   }
 
   @Override
-  public YTRID get(K key) {
+  public RID get(K key) {
     atomicOperationsManager.acquireReadLock(this);
     try {
       acquireSharedLock();
       try {
-        final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
         if (key != null) {
           key = keySerializer.preprocess(key, (Object[]) keyTypes);
 
@@ -194,14 +194,14 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
 
           final long pageIndex = bucketSearchResult.pageIndex;
 
-          try (final OCacheEntry keyBucketCacheEntry =
+          try (final CacheEntry keyBucketCacheEntry =
               loadPageForRead(atomicOperation, fileId, pageIndex)) {
             final CellBTreeBucketSingleValueV1<K> keyBucket =
                 new CellBTreeBucketSingleValueV1<>(keyBucketCacheEntry);
             return keyBucket.getValue(bucketSearchResult.itemIndex, encryption, keySerializer);
           }
         } else {
-          try (final OCacheEntry nullBucketCacheEntry =
+          try (final CacheEntry nullBucketCacheEntry =
               loadPageForRead(atomicOperation, nullBucketFileId, 0)) {
             final CellBTreeNullBucketSingleValueV1 nullBucket =
                 new CellBTreeNullBucketSingleValueV1(nullBucketCacheEntry);
@@ -212,8 +212,8 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw YTException.wrapException(
-          new YTCellBTreeSingleValueV1Exception(
+      throw BaseException.wrapException(
+          new CellBTreeSingleValueV1Exception(
               "Error during retrieving  of sbtree with name " + getName(), this),
           e);
     } finally {
@@ -222,37 +222,37 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
   }
 
   @Override
-  public void put(OAtomicOperation atomicOperation, final K key, final YTRID value) {
+  public void put(AtomicOperation atomicOperation, final K key, final RID value) {
     update(atomicOperation, key, value, null);
   }
 
   @Override
   public boolean validatedPut(
-      OAtomicOperation atomicOperation,
+      AtomicOperation atomicOperation,
       final K key,
-      final YTRID value,
-      final IndexEngineValidator<K, YTRID> validator) {
+      final RID value,
+      final IndexEngineValidator<K, RID> validator) {
     return update(atomicOperation, key, value, validator);
   }
 
   private boolean update(
-      final OAtomicOperation atomicOperation,
+      final AtomicOperation atomicOperation,
       K k,
-      YTRID rid,
-      final IndexEngineValidator<K, YTRID> validator) {
+      RID rid,
+      final IndexEngineValidator<K, RID> validator) {
     return calculateInsideComponentOperation(
         atomicOperation,
         operation -> {
           acquireExclusiveLock();
           try {
             K key = k;
-            YTRID value = rid;
+            RID value = rid;
             if (key != null) {
 
               key = keySerializer.preprocess(key, (Object[]) keyTypes);
 
               if (keySize > MAX_KEY_SIZE) {
-                throw new YTTooBigIndexKeyException(
+                throw new TooBigIndexKeyException(
                     "Key size is more than allowed, operation was canceled. Current key size "
                         + keySize
                         + ", allowed  "
@@ -263,7 +263,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
               UpdateBucketSearchResult bucketSearchResult =
                   findBucketForUpdate(key, atomicOperation);
 
-              OCacheEntry keyBucketCacheEntry =
+              CacheEntry keyBucketCacheEntry =
                   loadPageForWrite(
                       atomicOperation, fileId, bucketSearchResult.getLastPathItem(), true);
               CellBTreeBucketSingleValueV1<K> keyBucket =
@@ -276,15 +276,15 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
               } else {
                 oldRawValue = null;
               }
-              final YTRID oldValue;
+              final RID oldValue;
               if (oldRawValue == null) {
                 oldValue = null;
               } else {
-                final int clusterId = OShortSerializer.INSTANCE.deserializeNative(oldRawValue, 0);
+                final int clusterId = ShortSerializer.INSTANCE.deserializeNative(oldRawValue, 0);
                 final long clusterPosition =
-                    OLongSerializer.INSTANCE.deserializeNative(
-                        oldRawValue, OShortSerializer.SHORT_SIZE);
-                oldValue = new YTRecordId(clusterId, clusterPosition);
+                    LongSerializer.INSTANCE.deserializeNative(
+                        oldRawValue, ShortSerializer.SHORT_SIZE);
+                oldValue = new RecordId(clusterId, clusterPosition);
               }
 
               if (validator != null) {
@@ -300,7 +300,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
                     return false;
                   }
 
-                  value = (YTRID) result;
+                  value = (RID) result;
                   failure = false;
                 } finally {
                   if (failure || ignored) {
@@ -310,11 +310,11 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
               }
 
               final byte[] serializedValue =
-                  new byte[OShortSerializer.SHORT_SIZE + OLongSerializer.LONG_SIZE];
-              OShortSerializer.INSTANCE.serializeNative(
+                  new byte[ShortSerializer.SHORT_SIZE + LongSerializer.LONG_SIZE];
+              ShortSerializer.INSTANCE.serializeNative(
                   (short) value.getClusterId(), serializedValue, 0);
-              OLongSerializer.INSTANCE.serializeNative(
-                  value.getClusterPosition(), serializedValue, OShortSerializer.SHORT_SIZE);
+              LongSerializer.INSTANCE.serializeNative(
+                  value.getClusterPosition(), serializedValue, ShortSerializer.SHORT_SIZE);
 
               final byte[] rawKey = serializeKey(key);
               int insertionIndex;
@@ -369,8 +369,8 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
             } else {
 
               int sizeDiff = 0;
-              final YTRID oldValue;
-              try (final OCacheEntry cacheEntry =
+              final RID oldValue;
+              try (final CacheEntry cacheEntry =
                   loadPageForWrite(atomicOperation, nullBucketFileId, 0, true)) {
                 final CellBTreeNullBucketSingleValueV1 nullBucket =
                     new CellBTreeNullBucketSingleValueV1(cacheEntry);
@@ -412,7 +412,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
   }
 
   @Override
-  public void delete(OAtomicOperation atomicOperation) {
+  public void delete(AtomicOperation atomicOperation) {
     executeInsideComponentOperation(
         atomicOperation,
         operation -> {
@@ -430,12 +430,12 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
   public void load(
       final String name,
       final int keySize,
-      final YTType[] keyTypes,
-      final OBinarySerializer<K> keySerializer,
-      final OEncryption encryption) {
+      final PropertyType[] keyTypes,
+      final BinarySerializer<K> keySerializer,
+      final Encryption encryption) {
     acquireExclusiveLock();
     try {
-      final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+      final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
 
       fileId = openFile(atomicOperation, getFullName());
       nullBucketFileId = openFile(atomicOperation, name + nullFileExtension);
@@ -445,8 +445,8 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       this.keySerializer = keySerializer;
       this.encryption = encryption;
     } catch (final IOException e) {
-      throw YTException.wrapException(
-          new YTCellBTreeSingleValueV1Exception("Exception during loading of sbtree " + name, this),
+      throw BaseException.wrapException(
+          new CellBTreeSingleValueV1Exception("Exception during loading of sbtree " + name, this),
           e);
     } finally {
       releaseExclusiveLock();
@@ -459,9 +459,9 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     try {
       acquireSharedLock();
       try {
-        final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
 
-        try (final OCacheEntry entryPointCacheEntry =
+        try (final CacheEntry entryPointCacheEntry =
             loadPageForRead(atomicOperation, fileId, ENTRY_POINT_INDEX)) {
           final CellBTreeSingleValueEntryPointV1 entryPoint =
               new CellBTreeSingleValueEntryPointV1(entryPointCacheEntry);
@@ -471,8 +471,8 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw YTException.wrapException(
-          new YTCellBTreeSingleValueV1Exception(
+      throw BaseException.wrapException(
+          new CellBTreeSingleValueV1Exception(
               "Error during retrieving of size of index " + getName(), this),
           e);
     } finally {
@@ -481,13 +481,13 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
   }
 
   @Override
-  public YTRID remove(OAtomicOperation atomicOperation, K k) {
+  public RID remove(AtomicOperation atomicOperation, K k) {
     return calculateInsideComponentOperation(
         atomicOperation,
         operation -> {
           acquireExclusiveLock();
           try {
-            final YTRID removedValue;
+            final RID removedValue;
 
             K key = k;
             if (key != null) {
@@ -500,7 +500,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
 
               final byte[] rawKey = serializeKey(key);
 
-              try (final OCacheEntry keyBucketCacheEntry =
+              try (final CacheEntry keyBucketCacheEntry =
                   loadPageForWrite(atomicOperation, fileId, bucketSearchResult.pageIndex, true)) {
                 final CellBTreeBucketSingleValueV1<K> keyBucket =
                     new CellBTreeBucketSingleValueV1<>(keyBucketCacheEntry);
@@ -508,12 +508,12 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
                     keyBucket.getRawValue(bucketSearchResult.itemIndex, encryption, keySerializer);
 
                 final int clusterId =
-                    OShortSerializer.INSTANCE.deserializeNative(rawRemovedValue, 0);
+                    ShortSerializer.INSTANCE.deserializeNative(rawRemovedValue, 0);
                 final long clusterPosition =
-                    OLongSerializer.INSTANCE.deserializeNative(
-                        rawRemovedValue, OShortSerializer.SHORT_SIZE);
+                    LongSerializer.INSTANCE.deserializeNative(
+                        rawRemovedValue, ShortSerializer.SHORT_SIZE);
 
-                removedValue = new YTRecordId(clusterId, clusterPosition);
+                removedValue = new RecordId(clusterId, clusterPosition);
 
                 keyBucket.removeLeafEntry(bucketSearchResult.itemIndex, rawKey, rawRemovedValue);
                 updateSize(-1, atomicOperation);
@@ -532,9 +532,9 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
         });
   }
 
-  private YTRID removeNullBucket(final OAtomicOperation atomicOperation) throws IOException {
-    YTRID removedValue;
-    try (final OCacheEntry nullCacheEntry =
+  private RID removeNullBucket(final AtomicOperation atomicOperation) throws IOException {
+    RID removedValue;
+    try (final CacheEntry nullCacheEntry =
         loadPageForWrite(atomicOperation, nullBucketFileId, 0, true)) {
       final CellBTreeNullBucketSingleValueV1 nullBucket =
           new CellBTreeNullBucketSingleValueV1(nullCacheEntry);
@@ -553,7 +553,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
   }
 
   @Override
-  public Stream<ORawPair<K, YTRID>> iterateEntriesMinor(
+  public Stream<RawPair<K, RID>> iterateEntriesMinor(
       final K key, final boolean inclusive, final boolean ascSortOrder) {
     atomicOperationsManager.acquireReadLock(this);
     try {
@@ -573,7 +573,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
   }
 
   @Override
-  public Stream<ORawPair<K, YTRID>> iterateEntriesMajor(
+  public Stream<RawPair<K, RID>> iterateEntriesMajor(
       final K key, final boolean inclusive, final boolean ascSortOrder) {
     atomicOperationsManager.acquireReadLock(this);
     try {
@@ -598,14 +598,14 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     try {
       acquireSharedLock();
       try {
-        final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
 
         final BucketSearchResult searchResult = firstItem(atomicOperation);
         if (searchResult == null) {
           return null;
         }
 
-        try (final OCacheEntry cacheEntry =
+        try (final CacheEntry cacheEntry =
             loadPageForRead(atomicOperation, fileId, searchResult.pageIndex)) {
           final CellBTreeBucketSingleValueV1<K> bucket =
               new CellBTreeBucketSingleValueV1<>(cacheEntry);
@@ -615,8 +615,8 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw YTException.wrapException(
-          new YTCellBTreeSingleValueV1Exception(
+      throw BaseException.wrapException(
+          new CellBTreeSingleValueV1Exception(
               "Error during finding first key in sbtree [" + getName() + "]", this),
           e);
     } finally {
@@ -630,14 +630,14 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     try {
       acquireSharedLock();
       try {
-        final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
 
         final BucketSearchResult searchResult = lastItem(atomicOperation);
         if (searchResult == null) {
           return null;
         }
 
-        try (final OCacheEntry cacheEntry =
+        try (final CacheEntry cacheEntry =
             loadPageForRead(atomicOperation, fileId, searchResult.pageIndex)) {
           final CellBTreeBucketSingleValueV1<K> bucket =
               new CellBTreeBucketSingleValueV1<>(cacheEntry);
@@ -647,8 +647,8 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw YTException.wrapException(
-          new YTCellBTreeSingleValueV1Exception(
+      throw BaseException.wrapException(
+          new CellBTreeSingleValueV1Exception(
               "Error during finding last key in sbtree [" + getName() + "]", this),
           e);
     } finally {
@@ -662,7 +662,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     try {
       acquireSharedLock();
       try {
-        final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
         final BucketSearchResult searchResult = firstItem(atomicOperation);
         if (searchResult == null) {
           return StreamSupport.stream(Spliterators.emptySpliterator(), false);
@@ -675,8 +675,8 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw YTException.wrapException(
-          new YTCellBTreeSingleValueV1Exception(
+      throw BaseException.wrapException(
+          new CellBTreeSingleValueV1Exception(
               "Error during finding first key in sbtree [" + getName() + "]", this),
           e);
     } finally {
@@ -684,7 +684,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     }
   }
 
-  public Stream<ORawPair<K, YTRID>> allEntries() {
+  public Stream<RawPair<K, RID>> allEntries() {
     atomicOperationsManager.acquireReadLock(this);
     try {
       acquireSharedLock();
@@ -700,7 +700,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
   }
 
   @Override
-  public Stream<ORawPair<K, YTRID>> iterateEntriesBetween(
+  public Stream<RawPair<K, RID>> iterateEntriesBetween(
       final K keyFrom,
       final boolean fromInclusive,
       final K keyTo,
@@ -734,9 +734,9 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     atomicOperationsManager.acquireExclusiveLockTillOperationComplete(this);
   }
 
-  private void updateSize(final long diffSize, final OAtomicOperation atomicOperation)
+  private void updateSize(final long diffSize, final AtomicOperation atomicOperation)
       throws IOException {
-    try (final OCacheEntry entryPointCacheEntry =
+    try (final CacheEntry entryPointCacheEntry =
         loadPageForWrite(atomicOperation, fileId, ENTRY_POINT_INDEX, true)) {
       final CellBTreeSingleValueEntryPointV1 entryPoint =
           new CellBTreeSingleValueEntryPointV1(entryPointCacheEntry);
@@ -744,14 +744,14 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     }
   }
 
-  private Spliterator<ORawPair<K, YTRID>> iterateEntriesMinorDesc(K key, final boolean inclusive) {
+  private Spliterator<RawPair<K, RID>> iterateEntriesMinorDesc(K key, final boolean inclusive) {
     key = keySerializer.preprocess(key, (Object[]) keyTypes);
     key = enhanceCompositeKeyMinorDesc(key, inclusive);
 
     return new CellBTreeSpliteratorBackward(null, key, false, inclusive);
   }
 
-  private Spliterator<ORawPair<K, YTRID>> iterateEntriesMinorAsc(K key, final boolean inclusive) {
+  private Spliterator<RawPair<K, RID>> iterateEntriesMinorAsc(K key, final boolean inclusive) {
     key = keySerializer.preprocess(key, (Object[]) keyTypes);
     key = enhanceCompositeKeyMinorAsc(key, inclusive);
 
@@ -782,14 +782,14 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     return key;
   }
 
-  private Spliterator<ORawPair<K, YTRID>> iterateEntriesMajorAsc(K key, final boolean inclusive) {
+  private Spliterator<RawPair<K, RID>> iterateEntriesMajorAsc(K key, final boolean inclusive) {
     key = keySerializer.preprocess(key, (Object[]) keyTypes);
     key = enhanceCompositeKeyMajorAsc(key, inclusive);
 
     return new CellBTreeSpliteratorForward(key, null, inclusive, false);
   }
 
-  private Spliterator<ORawPair<K, YTRID>> iterateEntriesMajorDesc(K key, final boolean inclusive) {
+  private Spliterator<RawPair<K, RID>> iterateEntriesMajorDesc(K key, final boolean inclusive) {
     acquireSharedLock();
     try {
       key = keySerializer.preprocess(key, (Object[]) keyTypes);
@@ -826,12 +826,12 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     return key;
   }
 
-  private BucketSearchResult firstItem(final OAtomicOperation atomicOperation) throws IOException {
+  private BucketSearchResult firstItem(final AtomicOperation atomicOperation) throws IOException {
     final LinkedList<PagePathItemUnit> path = new LinkedList<>();
 
     long bucketIndex = ROOT_INDEX;
 
-    OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, bucketIndex);
+    CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, bucketIndex);
     int itemIndex = 0;
     try {
       CellBTreeBucketSingleValueV1<K> bucket = new CellBTreeBucketSingleValueV1<>(cacheEntry);
@@ -886,12 +886,12 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     }
   }
 
-  private BucketSearchResult lastItem(final OAtomicOperation atomicOperation) throws IOException {
+  private BucketSearchResult lastItem(final AtomicOperation atomicOperation) throws IOException {
     final LinkedList<PagePathItemUnit> path = new LinkedList<>();
 
     long bucketIndex = ROOT_INDEX;
 
-    OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, bucketIndex);
+    CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, bucketIndex);
 
     CellBTreeBucketSingleValueV1<K> bucket = new CellBTreeBucketSingleValueV1<>(cacheEntry);
 
@@ -949,7 +949,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     }
   }
 
-  private Spliterator<ORawPair<K, YTRID>> iterateEntriesBetweenAscOrder(
+  private Spliterator<RawPair<K, RID>> iterateEntriesBetweenAscOrder(
       K keyFrom, final boolean fromInclusive, K keyTo, final boolean toInclusive) {
     keyFrom = keySerializer.preprocess(keyFrom, (Object[]) keyTypes);
     keyTo = keySerializer.preprocess(keyTo, (Object[]) keyTypes);
@@ -960,7 +960,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     return new CellBTreeSpliteratorForward(keyFrom, keyTo, fromInclusive, toInclusive);
   }
 
-  private Spliterator<ORawPair<K, YTRID>> iterateEntriesBetweenDescOrder(
+  private Spliterator<RawPair<K, RID>> iterateEntriesBetweenDescOrder(
       K keyFrom, final boolean fromInclusive, K keyTo, final boolean toInclusive) {
     keyFrom = keySerializer.preprocess(keyFrom, (Object[]) keyTypes);
     keyTo = keySerializer.preprocess(keyTo, (Object[]) keyTypes);
@@ -1021,11 +1021,11 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
 
   private UpdateBucketSearchResult splitBucket(
       final CellBTreeBucketSingleValueV1<K> bucketToSplit,
-      final OCacheEntry entryToSplit,
+      final CacheEntry entryToSplit,
       final LongList path,
       final IntList itemPointers,
       final int keyIndex,
-      final OAtomicOperation atomicOperation)
+      final AtomicOperation atomicOperation)
       throws IOException {
     final boolean splitLeaf = bucketToSplit.isLeaf();
     final int bucketSize = bucketToSplit.size();
@@ -1075,11 +1075,11 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       final int indexToSplit,
       final K separationKey,
       final List<byte[]> rightEntries,
-      final OAtomicOperation atomicOperation)
+      final AtomicOperation atomicOperation)
       throws IOException {
 
-    final OCacheEntry rightBucketEntry;
-    try (final OCacheEntry entryPointCacheEntry =
+    final CacheEntry rightBucketEntry;
+    try (final CacheEntry entryPointCacheEntry =
         loadPageForWrite(atomicOperation, fileId, ENTRY_POINT_INDEX, true)) {
       final CellBTreeSingleValueEntryPointV1 entryPoint =
           new CellBTreeSingleValueEntryPointV1(entryPointCacheEntry);
@@ -1116,7 +1116,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
 
         if (rightSiblingPageIndex >= 0) {
 
-          try (final OCacheEntry rightSiblingBucketEntry =
+          try (final CacheEntry rightSiblingBucketEntry =
               loadPageForWrite(atomicOperation, fileId, rightSiblingPageIndex, true)) {
             final CellBTreeBucketSingleValueV1<K> rightSiblingBucket =
                 new CellBTreeBucketSingleValueV1<>(rightSiblingBucketEntry);
@@ -1126,7 +1126,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       }
 
       long parentIndex = path.getLong(path.size() - 2);
-      OCacheEntry parentCacheEntry = loadPageForWrite(atomicOperation, fileId, parentIndex, true);
+      CacheEntry parentCacheEntry = loadPageForWrite(atomicOperation, fileId, parentIndex, true);
       try {
         CellBTreeBucketSingleValueV1<K> parentBucket =
             new CellBTreeBucketSingleValueV1<>(parentCacheEntry);
@@ -1200,22 +1200,22 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       rawKey = serializedKey;
     } else {
       final byte[] encryptedKey = encryption.encrypt(serializedKey);
-      rawKey = new byte[encryptedKey.length + OIntegerSerializer.INT_SIZE];
-      OIntegerSerializer.INSTANCE.serializeNative(encryptedKey.length, rawKey, 0);
-      System.arraycopy(encryptedKey, 0, rawKey, OIntegerSerializer.INT_SIZE, encryptedKey.length);
+      rawKey = new byte[encryptedKey.length + IntegerSerializer.INT_SIZE];
+      IntegerSerializer.INSTANCE.serializeNative(encryptedKey.length, rawKey, 0);
+      System.arraycopy(encryptedKey, 0, rawKey, IntegerSerializer.INT_SIZE, encryptedKey.length);
     }
     return rawKey;
   }
 
   private UpdateBucketSearchResult splitRootBucket(
       final int keyIndex,
-      final OCacheEntry bucketEntry,
+      final CacheEntry bucketEntry,
       CellBTreeBucketSingleValueV1<K> bucketToSplit,
       final boolean splitLeaf,
       final int indexToSplit,
       final K separationKey,
       final List<byte[]> rightEntries,
-      final OAtomicOperation atomicOperation)
+      final AtomicOperation atomicOperation)
       throws IOException {
     final List<byte[]> leftEntries = new ArrayList<>(indexToSplit);
 
@@ -1223,10 +1223,10 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       leftEntries.add(bucketToSplit.getRawEntry(i, encryption != null, keySerializer));
     }
 
-    final OCacheEntry leftBucketEntry;
-    final OCacheEntry rightBucketEntry;
+    final CacheEntry leftBucketEntry;
+    final CacheEntry rightBucketEntry;
 
-    try (final OCacheEntry entryPointCacheEntry =
+    try (final CacheEntry entryPointCacheEntry =
         loadPageForWrite(atomicOperation, fileId, ENTRY_POINT_INDEX, true)) {
       final CellBTreeSingleValueEntryPointV1 entryPoint =
           new CellBTreeSingleValueEntryPointV1(entryPointCacheEntry);
@@ -1322,7 +1322,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     return new UpdateBucketSearchResult(itemPointers, resultPath, keyIndex - indexToSplit - 1);
   }
 
-  private BucketSearchResult findBucket(final K key, final OAtomicOperation atomicOperation)
+  private BucketSearchResult findBucket(final K key, final AtomicOperation atomicOperation)
       throws IOException {
     long pageIndex = ROOT_INDEX;
 
@@ -1330,13 +1330,13 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     while (true) {
       depth++;
       if (depth > MAX_PATH_LENGTH) {
-        throw new YTCellBTreeSingleValueV1Exception(
+        throw new CellBTreeSingleValueV1Exception(
             "We reached max level of depth of SBTree but still found nothing, seems like tree is in"
                 + " corrupted state. You should rebuild index related to given query.",
             this);
       }
 
-      try (final OCacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
+      try (final CacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
         @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeBucketSingleValueV1<K> keyBucket =
             new CellBTreeBucketSingleValueV1<>(bucketEntry);
         final int index = keyBucket.find(key, keySerializer, encryption);
@@ -1360,7 +1360,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
   }
 
   private UpdateBucketSearchResult findBucketForUpdate(
-      final K key, final OAtomicOperation atomicOperation) throws IOException {
+      final K key, final AtomicOperation atomicOperation) throws IOException {
     long pageIndex = ROOT_INDEX;
 
     final LongArrayList path = new LongArrayList(8);
@@ -1368,14 +1368,14 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
 
     while (true) {
       if (path.size() > MAX_PATH_LENGTH) {
-        throw new YTCellBTreeSingleValueV1Exception(
+        throw new CellBTreeSingleValueV1Exception(
             "We reached max level of depth of SBTree but still found nothing, seems like tree is in"
                 + " corrupted state. You should rebuild index related to given query.",
             this);
       }
 
       path.add(pageIndex);
-      try (final OCacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
+      try (final CacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
         @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeBucketSingleValueV1<K> keyBucket =
             new CellBTreeBucketSingleValueV1<>(bucketEntry);
         final int index = keyBucket.find(key, keySerializer, encryption);
@@ -1404,14 +1404,14 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
   }
 
   private K enhanceCompositeKey(final K key, final PartialSearchMode partialSearchMode) {
-    if (!(key instanceof OCompositeKey compositeKey)) {
+    if (!(key instanceof CompositeKey compositeKey)) {
       return key;
     }
 
     if (!(keySize == 1
         || compositeKey.getKeys().size() == keySize
         || partialSearchMode.equals(PartialSearchMode.NONE))) {
-      final OCompositeKey fullKey = new OCompositeKey(compositeKey);
+      final CompositeKey fullKey = new CompositeKey(compositeKey);
       final int itemsToAdd = keySize - fullKey.getKeys().size();
 
       final Comparable<?> keyItem;
@@ -1432,16 +1432,16 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     return key;
   }
 
-  private ORawPair<K, YTRID> convertToMapEntry(
+  private RawPair<K, RID> convertToMapEntry(
       final CellBTreeBucketSingleValueV1.SBTreeEntry<K> treeEntry) {
     final K key = treeEntry.key;
-    final YTRID value = treeEntry.value;
+    final RID value = treeEntry.value;
 
-    return new ORawPair<>(key, value);
+    return new RawPair<>(key, value);
   }
 
   /**
-   * Indicates search behavior in case of {@link OCompositeKey} keys that have less amount of
+   * Indicates search behavior in case of {@link CompositeKey} keys that have less amount of
    * internal keys are used, whether lowest or highest partially matched key should be used.
    */
   private enum PartialSearchMode {
@@ -1500,15 +1500,15 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     }
   }
 
-  private final class CellBTreeSpliteratorForward implements Spliterator<ORawPair<K, YTRID>> {
+  private final class CellBTreeSpliteratorForward implements Spliterator<RawPair<K, RID>> {
 
     private K fromKey;
     private final K toKey;
     private boolean fromKeyInclusive;
     private final boolean toKeyInclusive;
 
-    private final List<ORawPair<K, YTRID>> dataCache = new ArrayList<>();
-    private Iterator<ORawPair<K, YTRID>> dataCacheIterator = Collections.emptyIterator();
+    private final List<RawPair<K, RID>> dataCache = new ArrayList<>();
+    private Iterator<RawPair<K, RID>> dataCacheIterator = Collections.emptyIterator();
 
     private CellBTreeSpliteratorForward(
         final K fromKey,
@@ -1526,13 +1526,13 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     }
 
     @Override
-    public boolean tryAdvance(Consumer<? super ORawPair<K, YTRID>> action) {
+    public boolean tryAdvance(Consumer<? super RawPair<K, RID>> action) {
       if (dataCacheIterator == null) {
         return false;
       }
 
       if (dataCacheIterator.hasNext()) {
-        final ORawPair<K, YTRID> entry = dataCacheIterator.next();
+        final RawPair<K, RID> entry = dataCacheIterator.next();
 
         fromKey = entry.first;
         fromKeyInclusive = false;
@@ -1549,7 +1549,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       try {
         acquireSharedLock();
         try {
-          final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+          final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
 
           final BucketSearchResult bucketSearchResult;
 
@@ -1580,7 +1580,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
               break;
             }
 
-            try (final OCacheEntry cacheEntry =
+            try (final CacheEntry cacheEntry =
                 loadPageForRead(atomicOperation, fileId, pageIndex)) {
               @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeBucketSingleValueV1<K> bucket =
                   new CellBTreeBucketSingleValueV1<>(cacheEntry);
@@ -1593,7 +1593,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
               }
 
               while (itemIndex < bucketSize && dataCache.size() < prefetchSize) {
-                @SuppressWarnings("ObjectAllocationInLoop") final ORawPair<K, YTRID> entry =
+                @SuppressWarnings("ObjectAllocationInLoop") final RawPair<K, RID> entry =
                     convertToMapEntry(bucket.getEntry(itemIndex, encryption, keySerializer));
                 itemIndex++;
 
@@ -1625,8 +1625,8 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
           releaseSharedLock();
         }
       } catch (final IOException e) {
-        throw YTException.wrapException(
-            new YTCellBTreeSingleValueV1Exception(
+        throw BaseException.wrapException(
+            new CellBTreeSingleValueV1Exception(
                 "Error during element iteration", CellBTreeSingleValueV1.this),
             e);
       } finally {
@@ -1640,7 +1640,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
 
       dataCacheIterator = dataCache.iterator();
 
-      final ORawPair<K, YTRID> entry = dataCacheIterator.next();
+      final RawPair<K, RID> entry = dataCacheIterator.next();
 
       fromKey = entry.first;
       fromKeyInclusive = false;
@@ -1650,7 +1650,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     }
 
     @Override
-    public Spliterator<ORawPair<K, YTRID>> trySplit() {
+    public Spliterator<RawPair<K, RID>> trySplit() {
       return null;
     }
 
@@ -1665,20 +1665,20 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     }
 
     @Override
-    public Comparator<? super ORawPair<K, YTRID>> getComparator() {
+    public Comparator<? super RawPair<K, RID>> getComparator() {
       return (pairOne, pairTwo) -> comparator.compare(pairOne.first, pairTwo.first);
     }
   }
 
-  private final class CellBTreeSpliteratorBackward implements Spliterator<ORawPair<K, YTRID>> {
+  private final class CellBTreeSpliteratorBackward implements Spliterator<RawPair<K, RID>> {
 
     private final K fromKey;
     private K toKey;
     private final boolean fromKeyInclusive;
     private boolean toKeyInclusive;
 
-    private final List<ORawPair<K, YTRID>> dataCache = new ArrayList<>();
-    private Iterator<ORawPair<K, YTRID>> dataCacheIterator = Collections.emptyIterator();
+    private final List<RawPair<K, RID>> dataCache = new ArrayList<>();
+    private Iterator<RawPair<K, RID>> dataCacheIterator = Collections.emptyIterator();
 
     private CellBTreeSpliteratorBackward(
         final K fromKey,
@@ -1696,13 +1696,13 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     }
 
     @Override
-    public boolean tryAdvance(Consumer<? super ORawPair<K, YTRID>> action) {
+    public boolean tryAdvance(Consumer<? super RawPair<K, RID>> action) {
       if (dataCacheIterator == null) {
         return false;
       }
 
       if (dataCacheIterator.hasNext()) {
-        final ORawPair<K, YTRID> entry = dataCacheIterator.next();
+        final RawPair<K, RID> entry = dataCacheIterator.next();
         toKey = entry.first;
 
         toKeyInclusive = false;
@@ -1718,7 +1718,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
       try {
         acquireSharedLock();
         try {
-          final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+          final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
 
           final BucketSearchResult bucketSearchResult;
 
@@ -1749,7 +1749,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
               break;
             }
 
-            try (final OCacheEntry cacheEntry =
+            try (final CacheEntry cacheEntry =
                 loadPageForRead(atomicOperation, fileId, pageIndex)) {
               @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeBucketSingleValueV1<K> bucket =
                   new CellBTreeBucketSingleValueV1<>(cacheEntry);
@@ -1765,7 +1765,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
               }
 
               while (itemIndex >= 0 && dataCache.size() < prefetchSize) {
-                @SuppressWarnings("ObjectAllocationInLoop") final ORawPair<K, YTRID> entry =
+                @SuppressWarnings("ObjectAllocationInLoop") final RawPair<K, RID> entry =
                     convertToMapEntry(bucket.getEntry(itemIndex, encryption, keySerializer));
                 itemIndex--;
 
@@ -1797,8 +1797,8 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
           releaseSharedLock();
         }
       } catch (final IOException e) {
-        throw YTException.wrapException(
-            new YTCellBTreeSingleValueV1Exception(
+        throw BaseException.wrapException(
+            new CellBTreeSingleValueV1Exception(
                 "Error during element iteration", CellBTreeSingleValueV1.this),
             e);
       } finally {
@@ -1812,7 +1812,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
 
       dataCacheIterator = dataCache.iterator();
 
-      final ORawPair<K, YTRID> entry = dataCacheIterator.next();
+      final RawPair<K, RID> entry = dataCacheIterator.next();
 
       toKey = entry.first;
       toKeyInclusive = false;
@@ -1822,7 +1822,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     }
 
     @Override
-    public Spliterator<ORawPair<K, YTRID>> trySplit() {
+    public Spliterator<RawPair<K, RID>> trySplit() {
       return null;
     }
 
@@ -1837,7 +1837,7 @@ public final class CellBTreeSingleValueV1<K> extends DurableComponent
     }
 
     @Override
-    public Comparator<? super ORawPair<K, YTRID>> getComparator() {
+    public Comparator<? super RawPair<K, RID>> getComparator() {
       return (pairOne, pairTwo) -> -comparator.compare(pairOne.first, pairTwo.first);
     }
   }

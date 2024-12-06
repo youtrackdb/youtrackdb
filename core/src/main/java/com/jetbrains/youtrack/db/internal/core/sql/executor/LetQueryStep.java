@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.YTLocalResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.LocalResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,11 +26,11 @@ public class LetQueryStep extends AbstractExecutionStep {
     this.query = query;
   }
 
-  private YTResultInternal calculate(YTResultInternal result, CommandContext ctx) {
+  private ResultInternal calculate(ResultInternal result, CommandContext ctx) {
     BasicCommandContext subCtx = new BasicCommandContext();
     subCtx.setDatabase(ctx.getDatabase());
     subCtx.setParentWithoutOverridingChild(ctx);
-    OInternalExecutionPlan subExecutionPlan;
+    InternalExecutionPlan subExecutionPlan;
     if (query.toString().contains("?")) {
       // with positional parameters, you cannot know if a parameter has the same ordinal as the
       // one cached
@@ -38,12 +38,12 @@ public class LetQueryStep extends AbstractExecutionStep {
     } else {
       subExecutionPlan = query.createExecutionPlan(subCtx, profilingEnabled);
     }
-    result.setMetadata(varName.getStringValue(), toList(new YTLocalResultSet(subExecutionPlan)));
+    result.setMetadata(varName.getStringValue(), toList(new LocalResultSet(subExecutionPlan)));
     return result;
   }
 
-  private List<YTResult> toList(YTLocalResultSet oLocalResultSet) {
-    List<YTResult> result = new ArrayList<>();
+  private List<Result> toList(LocalResultSet oLocalResultSet) {
+    List<Result> result = new ArrayList<>();
     while (oLocalResultSet.hasNext()) {
       result.add(oLocalResultSet.next());
     }
@@ -52,16 +52,16 @@ public class LetQueryStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute a local LET on a query without a target");
     }
     return prev.start(ctx).map(this::mapResult);
   }
 
-  private YTResult mapResult(YTResult result, CommandContext ctx) {
-    return calculate((YTResultInternal) result, ctx);
+  private Result mapResult(Result result, CommandContext ctx) {
+    return calculate((ResultInternal) result, ctx);
   }
 
   @Override

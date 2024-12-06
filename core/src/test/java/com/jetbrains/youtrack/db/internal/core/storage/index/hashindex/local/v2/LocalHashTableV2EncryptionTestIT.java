@@ -1,16 +1,16 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v2;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.encryption.OEncryption;
-import com.jetbrains.youtrack.db.internal.core.encryption.OEncryptionFactory;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.OBinarySerializerFactory;
+import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
+import com.jetbrains.youtrack.db.internal.core.encryption.EncryptionFactory;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.OSHA256HashFunction;
+import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.SHA256HashFunction;
 import java.io.File;
 import org.junit.After;
 import org.junit.Before;
@@ -34,13 +34,13 @@ public class LocalHashTableV2EncryptionTestIT extends LocalHashTableV2Base {
 
     var databaseDocumentTx = youTrackDB.open(DB_NAME, "admin", "admin");
     storage =
-        (AbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
+        (AbstractPaginatedStorage) ((DatabaseSessionInternal) databaseDocumentTx).getStorage();
 
-    final OEncryption encryption =
-        OEncryptionFactory.INSTANCE.getEncryption("aes/gcm", "T1JJRU5UREJfSVNfQ09PTA==");
+    final Encryption encryption =
+        EncryptionFactory.INSTANCE.getEncryption("aes/gcm", "T1JJRU5UREJfSVNfQ09PTA==");
 
-    OSHA256HashFunction<Integer> SHA256HashFunction =
-        new OSHA256HashFunction<>(OIntegerSerializer.INSTANCE);
+    SHA256HashFunction<Integer> SHA256HashFunction =
+        new SHA256HashFunction<>(IntegerSerializer.INSTANCE);
 
     localHashTable =
         new LocalHashTableV2<>(
@@ -53,8 +53,8 @@ public class LocalHashTableV2EncryptionTestIT extends LocalHashTableV2Base {
             atomicOperation ->
                 localHashTable.create(
                     atomicOperation,
-                    OIntegerSerializer.INSTANCE,
-                    OBinarySerializerFactory.getInstance().getObjectSerializer(YTType.STRING),
+                    IntegerSerializer.INSTANCE,
+                    BinarySerializerFactory.getInstance().getObjectSerializer(PropertyType.STRING),
                     null,
                     encryption,
                     SHA256HashFunction,

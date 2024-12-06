@@ -14,8 +14,8 @@
 package com.orientechnologies.spatial.functions;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
@@ -26,7 +26,7 @@ import org.locationtech.spatial4j.shape.Shape;
 /**
  *
  */
-public class OSTDWithinFunction extends OSpatialFunctionAbstractIndexable {
+public class OSTDWithinFunction extends SpatialFunctionAbstractIndexable {
 
   public static final String NAME = "st_dwithin";
 
@@ -37,7 +37,7 @@ public class OSTDWithinFunction extends OSpatialFunctionAbstractIndexable {
   @Override
   public Object execute(
       Object iThis,
-      YTIdentifiable iCurrentRecord,
+      Identifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] iParams,
       CommandContext iContext) {
@@ -55,12 +55,12 @@ public class OSTDWithinFunction extends OSpatialFunctionAbstractIndexable {
   }
 
   @Override
-  public String getSyntax(YTDatabaseSession session) {
+  public String getSyntax(DatabaseSession session) {
     return null;
   }
 
   @Override
-  public Iterable<YTIdentifiable> searchFromTarget(
+  public Iterable<Identifiable> searchFromTarget(
       SQLFromClause target,
       SQLBinaryCompareOperator operator,
       Object rightValue,
@@ -75,7 +75,7 @@ public class OSTDWithinFunction extends OSpatialFunctionAbstractIndexable {
 
     SQLExpression number = args[2];
 
-    Number parsedNumber = (Number) number.execute((YTIdentifiable) null, ctx);
+    Number parsedNumber = (Number) number.execute((Identifiable) null, ctx);
 
     params.put("distance", parsedNumber.doubleValue());
   }

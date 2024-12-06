@@ -15,16 +15,16 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -64,10 +64,10 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   @Test
   public void updateWithWhereOperator() {
 
-    List<YTRID> positions = getAddressValidPositions();
+    List<RID> positions = getAddressValidPositions();
 
     database.begin();
-    YTResultSet records =
+    ResultSet records =
         database.command(
             "update Profile set salary = 120.30, location = "
                 + positions.get(2)
@@ -80,14 +80,14 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   @Test
   public void updateWithWhereRid() {
 
-    List<YTResult> result =
+    List<Result> result =
         database.command("select @rid as rid from Profile where surname = 'Obama'").stream()
             .toList();
 
     Assert.assertEquals(result.size(), 3);
 
     database.begin();
-    YTResultSet records =
+    ResultSet records =
         database.command(
             "update Profile set salary = 133.00 where @rid = ?",
             result.get(0).<Object>getProperty("rid"));
@@ -100,7 +100,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   public void updateUpsertOperator() {
 
     database.begin();
-    YTResultSet result =
+    ResultSet result =
         database.command(
             "UPDATE Profile SET surname='Merkel' RETURN AFTER where surname = 'Merkel'");
     database.commit();
@@ -147,11 +147,11 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "updateCollectionsRemoveWithWhereOperator")
   public void updateCollectionsWithSetOperator() {
 
-    List<YTResult> docs = database.query("select from Account").stream().toList();
+    List<Result> docs = database.query("select from Account").stream().toList();
 
-    List<YTRID> positions = getAddressValidPositions();
+    List<RID> positions = getAddressValidPositions();
 
-    for (YTResult doc : docs) {
+    for (Result doc : docs) {
 
       database.begin();
       final long records =
@@ -175,7 +175,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
       EntityImpl loadedDoc = database.load(doc.getRecordId());
       Assert.assertEquals(((List<?>) loadedDoc.field("addresses")).size(), 3);
       Assert.assertEquals(
-          ((YTIdentifiable) ((List<?>) loadedDoc.field("addresses")).get(0)).getIdentity(),
+          ((Identifiable) ((List<?>) loadedDoc.field("addresses")).get(0)).getIdentity(),
           positions.get(0));
       loadedDoc.field("addresses", doc.<Object>getProperty("addresses"));
 
@@ -311,7 +311,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     // check AFTER
     String sqlString = "UPDATE " + doc.getIdentity().toString() + " SET gender='male' RETURN AFTER";
     database.begin();
-    List<YTResult> result1 = database.command(sqlString).stream().toList();
+    List<Result> result1 = database.command(sqlString).stream().toList();
     database.commit();
     Assert.assertEquals(result1.size(), 1);
     Assert.assertEquals(result1.get(0).getRecordId(), doc.getIdentity());
@@ -337,7 +337,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertEquals(result1.size(), 1);
-    var element = result1.get(0).<YTResult>getProperty("res");
+    var element = result1.get(0).<Result>getProperty("res");
     Assert.assertTrue(element.hasProperty("Age"));
     Assert.assertEquals(element.<Integer>getProperty("Age"), 201);
     Assert.assertFalse(element.hasProperty("really_big_field"));
@@ -364,8 +364,8 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     database.command(updatecommand, params);
     database.commit();
 
-    YTResultSet result = database.query("select * from Data");
-    YTResult oDoc = result.next();
+    ResultSet result = database.query("select * from Data");
+    Result oDoc = result.next();
     Assert.assertEquals("Raf", oDoc.getProperty("name"));
     Assert.assertEquals("TOR", oDoc.getProperty("city"));
     Assert.assertEquals("f", oDoc.getProperty("gender"));
@@ -374,7 +374,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
   public void updateIncrement() {
 
-    List<YTResult> result1 =
+    List<Result> result1 =
         database.query("select salary from Account where salary is defined").stream().toList();
     Assert.assertFalse(result1.isEmpty());
 
@@ -388,7 +388,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(updatedRecords > 0);
 
-    List<YTResult> result2 =
+    List<Result> result2 =
         database.query("select salary from Account where salary is defined").stream().toList();
     Assert.assertFalse(result2.isEmpty());
     Assert.assertEquals(result2.size(), result1.size());
@@ -409,7 +409,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(updatedRecords > 0);
 
-    List<YTResult> result3 =
+    List<Result> result3 =
         database.command("select salary from Account where salary is defined").stream().toList();
     Assert.assertFalse(result3.isEmpty());
     Assert.assertEquals(result3.size(), result1.size());
@@ -423,7 +423,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
   public void updateSetMultipleFields() {
 
-    List<YTResult> result1 =
+    List<Result> result1 =
         database.query("select salary from Account where salary is defined").stream().toList();
     Assert.assertFalse(result1.isEmpty());
 
@@ -438,7 +438,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(updatedRecords > 0);
 
-    List<YTResult> result2 =
+    List<Result> result2 =
         database.query("select from Account where salary is defined").stream().toList();
     Assert.assertFalse(result2.isEmpty());
     Assert.assertEquals(result2.size(), result1.size());
@@ -463,7 +463,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(updatedRecords > 0);
 
-    List<YTResult> result2 =
+    List<Result> result2 =
         database.command("select from Account where myCollection is defined").stream().toList();
     Assert.assertEquals(result2.size(), 1);
 
@@ -474,7 +474,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
   @Test(enabled = false)
   public void testEscaping() {
-    final YTSchema schema = database.getMetadata().getSchema();
+    final Schema schema = database.getMetadata().getSchema();
     schema.createClass("FormatEscapingTest");
 
     database.begin();
@@ -563,20 +563,20 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   }
 
   public void testUpdateVertexContent() {
-    final YTSchema schema = database.getMetadata().getSchema();
-    YTClass vertex = schema.getClass("V");
+    final Schema schema = database.getMetadata().getSchema();
+    SchemaClass vertex = schema.getClass("V");
     schema.createClass("UpdateVertexContent", vertex);
 
     database.begin();
-    final YTRID vOneId = database.command("create vertex UpdateVertexContent").next().getRecordId();
-    final YTRID vTwoId = database.command("create vertex UpdateVertexContent").next().getRecordId();
+    final RID vOneId = database.command("create vertex UpdateVertexContent").next().getRecordId();
+    final RID vTwoId = database.command("create vertex UpdateVertexContent").next().getRecordId();
 
     database.command("create edge from " + vOneId + " to " + vTwoId).close();
     database.command("create edge from " + vOneId + " to " + vTwoId).close();
     database.command("create edge from " + vOneId + " to " + vTwoId).close();
     database.commit();
 
-    List<YTResult> result =
+    List<Result> result =
         database
             .query("select sum(outE().size(), inE().size()) as sum from UpdateVertexContent")
             .stream()
@@ -584,7 +584,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(result.size(), 2);
 
-    for (YTResult doc : result) {
+    for (Result doc : result) {
       Assert.assertEquals(doc.<Object>getProperty("sum"), 3);
     }
 
@@ -605,42 +605,42 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(result.size(), 2);
 
-    for (YTResult doc : result) {
+    for (Result doc : result) {
       Assert.assertEquals(doc.<Object>getProperty("sum"), 3);
     }
 
     result =
         database.query("select from UpdateVertexContent").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
-    for (YTResult doc : result) {
+    for (Result doc : result) {
       Assert.assertEquals(doc.getProperty("value"), "val");
     }
   }
 
   public void testUpdateEdgeContent() {
-    final YTSchema schema = database.getMetadata().getSchema();
-    YTClass vertex = schema.getClass("V");
-    YTClass edge = schema.getClass("E");
+    final Schema schema = database.getMetadata().getSchema();
+    SchemaClass vertex = schema.getClass("V");
+    SchemaClass edge = schema.getClass("E");
 
     schema.createClass("UpdateEdgeContentV", vertex);
     schema.createClass("UpdateEdgeContentE", edge);
 
     database.begin();
-    final YTRID vOneId = database.command("create vertex UpdateEdgeContentV").next().getRecordId();
-    final YTRID vTwoId = database.command("create vertex UpdateEdgeContentV").next().getRecordId();
+    final RID vOneId = database.command("create vertex UpdateEdgeContentV").next().getRecordId();
+    final RID vTwoId = database.command("create vertex UpdateEdgeContentV").next().getRecordId();
 
     database.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
     database.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
     database.command("create edge UpdateEdgeContentE from " + vOneId + " to " + vTwoId).close();
     database.commit();
 
-    List<YTResult> result =
+    List<Result> result =
         database.query("select outV() as outV, inV() as inV from UpdateEdgeContentE").stream()
             .collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 3);
 
-    for (YTResult doc : result) {
+    for (Result doc : result) {
       Assert.assertEquals(doc.getProperty("outV"), vOneId);
       Assert.assertEquals(doc.getProperty("inV"), vTwoId);
     }
@@ -655,29 +655,29 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(result.size(), 3);
 
-    for (YTResult doc : result) {
+    for (Result doc : result) {
       Assert.assertEquals(doc.getProperty("outV"), vOneId);
       Assert.assertEquals(doc.getProperty("inV"), vTwoId);
     }
 
     result = database.query("select from UpdateEdgeContentE").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 3);
-    for (YTResult doc : result) {
+    for (Result doc : result) {
       Assert.assertEquals(doc.getProperty("value"), "val");
     }
   }
 
   private void checkUpdatedDoc(
-      YTDatabaseSession database, String expectedCity, String expectedGender) {
-    YTResultSet result = database.query("select * from person");
-    YTResult oDoc = result.next();
+      DatabaseSession database, String expectedCity, String expectedGender) {
+    ResultSet result = database.query("select * from person");
+    Result oDoc = result.next();
     Assert.assertEquals("Raf", oDoc.getProperty("name"));
     Assert.assertEquals(expectedCity, oDoc.getProperty("city"));
     Assert.assertEquals(expectedGender, oDoc.getProperty("gender"));
   }
 
-  private List<YTRID> getAddressValidPositions() {
-    final List<YTRID> positions = new ArrayList<>();
+  private List<RID> getAddressValidPositions() {
+    final List<RID> positions = new ArrayList<>();
 
     final var iteratorClass = database.browseClass("Address");
 
@@ -718,16 +718,16 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   }
 
   public void testAutoConversionOfEmbeddededListWithLinkedClass() {
-    YTClass c = database.getMetadata().getSchema().getOrCreateClass("TestConvert");
+    SchemaClass c = database.getMetadata().getSchema().getOrCreateClass("TestConvert");
     if (!c.existsProperty("embeddedListWithLinkedClass")) {
       c.createProperty(database,
           "embeddedListWithLinkedClass",
-          YTType.EMBEDDEDLIST,
+          PropertyType.EMBEDDEDLIST,
           database.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));
     }
 
     database.begin();
-    YTRID id =
+    RID id =
         database
             .command(
                 "INSERT INTO TestConvert SET name = 'embeddedListWithLinkedClass',"
@@ -781,10 +781,10 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     database.command("UPDATE " + className + " set list = list || [{\"kkk\":4}]").close();
     database.commit();
 
-    List<YTResult> result =
+    List<Result> result =
         database.query("select from " + className).stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 1);
-    YTResult doc = result.get(0);
+    Result doc = result.get(0);
     List list = doc.getProperty("list");
     Assert.assertEquals(list.size(), 4);
     Object fourth = list.get(3);

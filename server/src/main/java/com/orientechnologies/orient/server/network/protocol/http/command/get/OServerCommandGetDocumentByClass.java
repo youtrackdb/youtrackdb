@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -45,14 +45,14 @@ public class OServerCommandGetDocumentByClass extends OServerCommandAuthenticate
     iRequest.getData().commandInfo = "Load document";
 
     final Record rec;
-    try (YTDatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
+    try (DatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
       if (db.getMetadata().getImmutableSchemaSnapshot().getClass(urlParts[2]) == null) {
         throw new IllegalArgumentException("Invalid class '" + urlParts[2] + "'");
       }
       final String rid = db.getClusterIdByName(urlParts[2]) + ":" + urlParts[3];
       try {
-        rec = db.load(new YTRecordId(rid));
-      } catch (YTRecordNotFoundException e) {
+        rec = db.load(new RecordId(rid));
+      } catch (RecordNotFoundException e) {
         iResponse.send(
             OHttpUtils.STATUS_NOTFOUND_CODE,
             OHttpUtils.STATUS_NOTFOUND_DESCRIPTION,

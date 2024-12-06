@@ -2,18 +2,18 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
+import com.jetbrains.youtrack.db.internal.core.collate.Collate;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.AggregationContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -57,7 +57,7 @@ public class SQLBaseIdentifier extends SimpleNode {
     }
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
+  public Object execute(Identifiable iCurrentRecord, CommandContext ctx) {
     if (levelZero != null) {
       return levelZero.execute(iCurrentRecord, ctx);
     }
@@ -67,7 +67,7 @@ public class SQLBaseIdentifier extends SimpleNode {
     return null;
   }
 
-  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
+  public Object execute(Result iCurrentRecord, CommandContext ctx) {
     if (levelZero != null) {
       return levelZero.execute(iCurrentRecord, ctx);
     }
@@ -91,7 +91,7 @@ public class SQLBaseIdentifier extends SimpleNode {
     return false;
   }
 
-  public boolean isIndexedFunctionCall(YTDatabaseSessionInternal session) {
+  public boolean isIndexedFunctionCall(DatabaseSessionInternal session) {
     if (levelZero != null) {
       return levelZero.isIndexedFunctionCall(session);
     }
@@ -108,7 +108,7 @@ public class SQLBaseIdentifier extends SimpleNode {
     return -1;
   }
 
-  public Iterable<YTIdentifiable> executeIndexedFunction(
+  public Iterable<Identifiable> executeIndexedFunction(
       SQLFromClause target, CommandContext context, SQLBinaryCompareOperator operator,
       Object right) {
     if (levelZero != null) {
@@ -200,7 +200,7 @@ public class SQLBaseIdentifier extends SimpleNode {
     return suffix != null && suffix.needsAliases(aliases);
   }
 
-  public boolean isAggregate(YTDatabaseSessionInternal session) {
+  public boolean isAggregate(DatabaseSessionInternal session) {
     if (levelZero != null && levelZero.isAggregate(session)) {
       return true;
     }
@@ -250,10 +250,10 @@ public class SQLBaseIdentifier extends SimpleNode {
       } else if (suffix != null) {
         return suffix.getAggregationContext(ctx);
       } else {
-        throw new YTCommandExecutionException("cannot aggregate on " + this);
+        throw new CommandExecutionException("cannot aggregate on " + this);
       }
     } else {
-      throw new YTCommandExecutionException("cannot aggregate on " + this);
+      throw new CommandExecutionException("cannot aggregate on " + this);
     }
   }
 
@@ -308,16 +308,16 @@ public class SQLBaseIdentifier extends SimpleNode {
     return levelZero;
   }
 
-  public void applyRemove(YTResultInternal result, CommandContext ctx) {
+  public void applyRemove(ResultInternal result, CommandContext ctx) {
     if (suffix != null) {
       suffix.applyRemove(result, ctx);
     } else {
-      throw new YTCommandExecutionException("cannot apply REMOVE " + this);
+      throw new CommandExecutionException("cannot apply REMOVE " + this);
     }
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     if (levelZero != null) {
       result.setProperty("levelZero", levelZero.serialize(db));
     }
@@ -327,7 +327,7 @@ public class SQLBaseIdentifier extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     if (fromResult.getProperty("levelZero") != null) {
       levelZero = new SQLLevelZeroIdentifier(-1);
       levelZero.deserialize(fromResult.getProperty("levelZero"));
@@ -338,7 +338,7 @@ public class SQLBaseIdentifier extends SimpleNode {
     }
   }
 
-  public boolean isDefinedFor(YTResult currentRecord) {
+  public boolean isDefinedFor(Result currentRecord) {
     if (suffix != null) {
       return suffix.isDefinedFor(currentRecord);
     }
@@ -364,11 +364,11 @@ public class SQLBaseIdentifier extends SimpleNode {
     }
   }
 
-  public OCollate getCollate(YTResult currentRecord, CommandContext ctx) {
+  public Collate getCollate(Result currentRecord, CommandContext ctx) {
     return suffix == null ? null : suffix.getCollate(currentRecord, ctx);
   }
 
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     if (levelZero != null) {
       return levelZero.isCacheable(session);
     }
@@ -380,13 +380,13 @@ public class SQLBaseIdentifier extends SimpleNode {
     return true;
   }
 
-  public boolean isIndexChain(CommandContext ctx, YTClass clazz) {
+  public boolean isIndexChain(CommandContext ctx, SchemaClass clazz) {
     if (suffix != null && suffix.isBaseIdentifier()) {
-      YTProperty prop = clazz.getProperty(suffix.getIdentifier().getStringValue());
+      Property prop = clazz.getProperty(suffix.getIdentifier().getStringValue());
       if (prop == null) {
         return false;
       }
-      Collection<OIndex> allIndexes = prop.getAllIndexes(ctx.getDatabase());
+      Collection<Index> allIndexes = prop.getAllIndexes(ctx.getDatabase());
 
       return allIndexes != null
           && allIndexes.stream().anyMatch(idx -> idx.getDefinition().getFields().size() == 1);

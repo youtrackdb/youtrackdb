@@ -3,11 +3,11 @@ package com.orientechnologies.orient.console;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -29,8 +29,8 @@ public class OConsoleDatabaseAppTest {
   public void testSelectBinaryDoc() throws IOException {
     final StringBuilder builder = new StringBuilder();
 
-    OConsoleDatabaseApp app =
-        new OConsoleDatabaseApp(new String[]{}) {
+    ConsoleDatabaseApp app =
+        new ConsoleDatabaseApp(new String[]{}) {
           @Override
           public void message(String iMessage) {
             builder.append(iMessage).append("\n");
@@ -43,7 +43,7 @@ public class OConsoleDatabaseAppTest {
           "create database test memory users (admin identified by 'admin' role admin)");
       app.open("test", "admin", "admin");
 
-      YTDatabaseSessionInternal db = (YTDatabaseSessionInternal) app.getCurrentDatabase();
+      DatabaseSessionInternal db = (DatabaseSessionInternal) app.getCurrentDatabase();
       db.addBlobCluster("blobTest");
 
       db.begin();
@@ -75,15 +75,15 @@ public class OConsoleDatabaseAppTest {
             + "update foo set surname = 'bar' where name = 'foo';\n"
             + "commit;\n";
     ConsoleTest c = new ConsoleTest(new String[]{builder});
-    OConsoleDatabaseApp console = c.console();
+    ConsoleDatabaseApp console = c.console();
 
     try {
       console.run();
 
       var db = console.getCurrentDatabase();
       try {
-        YTResultSet result = db.query("select from foo where name = 'foo'");
-        YTResult doc = result.next();
+        ResultSet result = db.query("select from foo where name = 'foo'");
+        Result doc = result.next();
         Assert.assertNull(doc.getProperty("surname"));
         Assert.assertFalse(result.hasNext());
       } finally {
@@ -105,7 +105,7 @@ public class OConsoleDatabaseAppTest {
             + "insert into foo set name = 'bla';\n"
             + "commit;";
     ConsoleTest c = new ConsoleTest(new String[]{builder});
-    OConsoleDatabaseApp console = c.console();
+    ConsoleDatabaseApp console = c.console();
 
     try {
       console.run();
@@ -242,14 +242,14 @@ public class OConsoleDatabaseAppTest {
             + "profile storage off;\n"
             + "repair database -v;\n";
     ConsoleTest c = new ConsoleTest(new String[]{builder});
-    OConsoleDatabaseApp console = c.console();
+    ConsoleDatabaseApp console = c.console();
 
     try {
       console.run();
 
       var db = console.getCurrentDatabase();
-      YTResultSet result = db.query("select from foo where name = 'foo'");
-      YTResult doc = result.next();
+      ResultSet result = db.query("select from foo where name = 'foo'");
+      Result doc = result.next();
       Assert.assertEquals("bar", doc.getProperty("surname"));
       Assert.assertFalse(result.hasNext());
       result.close();
@@ -307,14 +307,14 @@ public class OConsoleDatabaseAppTest {
             + "to (select from V where name = 'bar');\n";
 
     ConsoleTest c = new ConsoleTest(new String[]{builder});
-    OConsoleDatabaseApp console = c.console();
+    ConsoleDatabaseApp console = c.console();
 
     try {
       console.run();
 
       var db = console.getCurrentDatabase();
-      YTResultSet result = db.query("select from foo where name = 'foo'");
-      YTResult doc = result.next();
+      ResultSet result = db.query("select from foo where name = 'foo'");
+      Result doc = result.next();
       Assert.assertEquals("bar", doc.getProperty("surname"));
       Assert.assertFalse(result.hasNext());
       result.close();
@@ -329,13 +329,13 @@ public class OConsoleDatabaseAppTest {
 
   class ConsoleTest {
 
-    OConsoleDatabaseApp console;
+    ConsoleDatabaseApp console;
     ByteArrayOutputStream out;
     PrintStream stream;
 
     ConsoleTest() {
       console =
-          new OConsoleDatabaseApp(null) {
+          new ConsoleDatabaseApp(null) {
             @Override
             protected void onException(Throwable e) {
               super.onException(e);
@@ -347,7 +347,7 @@ public class OConsoleDatabaseAppTest {
 
     ConsoleTest(String[] args) {
       console =
-          new OConsoleDatabaseApp(args) {
+          new ConsoleDatabaseApp(args) {
             @Override
             protected void onException(Throwable e) {
               super.onException(e);
@@ -357,7 +357,7 @@ public class OConsoleDatabaseAppTest {
       resetOutput();
     }
 
-    public OConsoleDatabaseApp console() {
+    public ConsoleDatabaseApp console() {
       return console;
     }
 

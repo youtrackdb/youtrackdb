@@ -17,8 +17,8 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -43,7 +43,7 @@ public class OServerCommandPostInstallDatabase extends OServerCommandAuthenticat
       final String name = getDbName(url);
       if (name != null) {
         if (server.getContext().exists(name)) {
-          throw new YTDatabaseException("Database named '" + name + "' already exists: ");
+          throw new DatabaseException("Database named '" + name + "' already exists: ");
         } else {
           final URL uri = new URL(url);
           final URLConnection conn = uri.openConnection();
@@ -57,7 +57,7 @@ public class OServerCommandPostInstallDatabase extends OServerCommandAuthenticat
                   () -> {
                     return null;
                   });
-          try (YTDatabaseSession session = server.getDatabases().openNoAuthorization(name)) {
+          try (DatabaseSession session = server.getDatabases().openNoAuthorization(name)) {
           }
 
           iResponse.send(

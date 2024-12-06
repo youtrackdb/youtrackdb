@@ -19,26 +19,26 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.filter;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandPredicate;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTQueryParsingException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
+import com.jetbrains.youtrack.db.internal.core.command.CommandPredicate;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLSelect;
-import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
-import com.jetbrains.youtrack.db.internal.core.sql.OSQLHelper;
-import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperator;
-import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperatorAnd;
-import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperatorNot;
-import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperatorOr;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
+import com.jetbrains.youtrack.db.internal.core.sql.SQLHelper;
+import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperatorAnd;
+import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperatorNot;
+import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperatorOr;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -50,12 +50,12 @@ import javax.annotation.Nonnull;
 /**
  * Parses text in SQL format and build a tree of conditions.
  */
-public class SQLPredicate extends BaseParser implements OCommandPredicate {
+public class SQLPredicate extends BaseParser implements CommandPredicate {
 
-  protected Set<YTProperty> properties = new HashSet<YTProperty>();
-  protected OSQLFilterCondition rootCondition;
+  protected Set<Property> properties = new HashSet<Property>();
+  protected SQLFilterCondition rootCondition;
   protected List<String> recordTransformed;
-  protected List<OSQLFilterItemParameter> parameterItems;
+  protected List<SQLFilterItemParameter> parameterItems;
   protected int braces;
 
   @Nonnull
@@ -74,10 +74,10 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
   protected void throwSyntaxErrorException(final String iText) {
     final String syntax = getSyntax();
     if (syntax.equals("?")) {
-      throw new YTCommandSQLParsingException(iText, parserText, parserGetPreviousPosition());
+      throw new CommandSQLParsingException(iText, parserText, parserGetPreviousPosition());
     }
 
-    throw new YTCommandSQLParsingException(
+    throw new CommandSQLParsingException(
         iText + ". Use " + syntax, parserText, parserGetPreviousPosition());
   }
 
@@ -94,9 +94,9 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
     return result.toString();
   }
 
-  public SQLPredicate text(YTDatabaseSessionInternal session, final String iText) {
+  public SQLPredicate text(DatabaseSessionInternal session, final String iText) {
     if (iText == null) {
-      throw new YTCommandSQLParsingException("Query text is null");
+      throw new CommandSQLParsingException("Query text is null");
     }
 
     try {
@@ -105,23 +105,23 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
       parserSetCurrentPosition(0);
       parserSkipWhiteSpaces();
 
-      rootCondition = (OSQLFilterCondition) extractConditions(session, null);
+      rootCondition = (SQLFilterCondition) extractConditions(session, null);
 
       optimize(session);
-    } catch (YTQueryParsingException e) {
+    } catch (QueryParsingException e) {
       if (e.getText() == null)
       // QUERY EXCEPTION BUT WITHOUT TEXT: NEST IT
       {
-        throw YTException.wrapException(
-            new YTQueryParsingException(
+        throw BaseException.wrapException(
+            new QueryParsingException(
                 "Error on parsing query", parserText, parserGetCurrentPosition()),
             e);
       }
 
       throw e;
     } catch (Exception t) {
-      throw YTException.wrapException(
-          new YTQueryParsingException(
+      throw BaseException.wrapException(
+          new QueryParsingException(
               "Error on parsing query", parserText, parserGetCurrentPosition()),
           t);
     }
@@ -137,7 +137,7 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
   }
 
   public Object evaluate(
-      final YTIdentifiable iRecord, EntityImpl iCurrentResult, final CommandContext iContext) {
+      final Identifiable iRecord, EntityImpl iCurrentResult, final CommandContext iContext) {
     if (rootCondition == null) {
       return true;
     }
@@ -145,26 +145,26 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
     return rootCondition.evaluate(iRecord, iCurrentResult, iContext);
   }
 
-  protected Object extractConditions(YTDatabaseSessionInternal session,
-      final OSQLFilterCondition iParentCondition) {
+  protected Object extractConditions(DatabaseSessionInternal session,
+      final SQLFilterCondition iParentCondition) {
     final int oldPosition = parserGetCurrentPosition();
     parserNextWord(true, " )=><,\r\n");
     final String word = parserGetLastWord();
 
     boolean inBraces =
-        word.length() > 0 && word.charAt(0) == OStringSerializerHelper.EMBEDDED_BEGIN;
+        word.length() > 0 && word.charAt(0) == StringSerializerHelper.EMBEDDED_BEGIN;
 
     if (word.length() > 0
         && (word.equalsIgnoreCase("SELECT") || word.equalsIgnoreCase("TRAVERSE"))) {
       // SUB QUERY
       final StringBuilder embedded = new StringBuilder(256);
-      OStringSerializerHelper.getEmbedded(parserText, oldPosition - 1, -1, embedded);
+      StringSerializerHelper.getEmbedded(parserText, oldPosition - 1, -1, embedded);
       parserSetCurrentPosition(oldPosition + embedded.length() + 1);
-      return new OSQLSynchQuery<Object>(embedded.toString());
+      return new SQLSynchQuery<Object>(embedded.toString());
     }
 
     parserSetCurrentPosition(oldPosition);
-    OSQLFilterCondition currentCondition = extractCondition(session);
+    SQLFilterCondition currentCondition = extractCondition(session);
 
     // CHECK IF THERE IS ANOTHER CONDITION ON RIGHT
     while (parserSkipWhiteSpaces()) {
@@ -173,20 +173,20 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
         return currentCondition;
       }
 
-      final OQueryOperator nextOperator = extractConditionOperator();
+      final QueryOperator nextOperator = extractConditionOperator();
       if (nextOperator == null) {
         return currentCondition;
       }
 
       if (nextOperator.precedence > currentCondition.getOperator().precedence) {
         // SWAP ITEMS
-        final OSQLFilterCondition subCondition =
-            new OSQLFilterCondition(currentCondition.right, nextOperator);
+        final SQLFilterCondition subCondition =
+            new SQLFilterCondition(currentCondition.right, nextOperator);
         currentCondition.right = subCondition;
         subCondition.right = extractConditionItem(session, false, 1);
       } else {
-        final OSQLFilterCondition parentCondition =
-            new OSQLFilterCondition(currentCondition, nextOperator);
+        final SQLFilterCondition parentCondition =
+            new SQLFilterCondition(currentCondition, nextOperator);
         parentCondition.right = extractConditions(session, parentCondition);
         currentCondition = parentCondition;
       }
@@ -198,7 +198,7 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
     return currentCondition;
   }
 
-  protected OSQLFilterCondition extractCondition(YTDatabaseSessionInternal session) {
+  protected SQLFilterCondition extractCondition(DatabaseSessionInternal session) {
 
     if (!parserSkipWhiteSpaces())
     // END OF TEXT
@@ -213,23 +213,23 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
       return null;
     }
 
-    OQueryOperator oper;
+    QueryOperator oper;
     final Object right;
 
-    if (left instanceof OQueryOperator && ((OQueryOperator) left).isUnary()) {
-      oper = (OQueryOperator) left;
+    if (left instanceof QueryOperator && ((QueryOperator) left).isUnary()) {
+      oper = (QueryOperator) left;
       left = extractConditionItem(session, false, 1);
       right = null;
     } else {
       oper = extractConditionOperator();
 
-      if (oper instanceof OQueryOperatorNot)
+      if (oper instanceof QueryOperatorNot)
       // SPECIAL CASE: READ NEXT OPERATOR
       {
-        oper = new OQueryOperatorNot(extractConditionOperator());
+        oper = new QueryOperatorNot(extractConditionOperator());
       }
 
-      if (oper instanceof OQueryOperatorAnd || oper instanceof OQueryOperatorOr) {
+      if (oper instanceof QueryOperatorAnd || oper instanceof QueryOperatorOr) {
         right = extractCondition(session);
       } else {
         right = oper != null ? extractConditionItem(session, false, oper.expectedRightWords) : null;
@@ -237,7 +237,7 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
     }
 
     // CREATE THE CONDITION OBJECT
-    return new OSQLFilterCondition(left, oper, right);
+    return new SQLFilterCondition(left, oper, right);
   }
 
   protected boolean checkForEnd(final String iWord) {
@@ -252,7 +252,7 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
     return false;
   }
 
-  private OQueryOperator extractConditionOperator() {
+  private QueryOperator extractConditionOperator() {
     if (!parserSkipWhiteSpaces())
     // END OF PARSING: JUST RETURN
     {
@@ -265,7 +265,7 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
       return null;
     }
 
-    final OQueryOperator[] operators = OSQLEngine.getInstance().getRecordOperators();
+    final QueryOperator[] operators = SQLEngine.getInstance().getRecordOperators();
     final String[] candidateOperators = new String[operators.length];
     for (int i = 0; i < candidateOperators.length; ++i) {
       candidateOperators[i] = operators[i].keyword;
@@ -278,7 +278,7 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
       return null;
     }
 
-    final OQueryOperator op = operators[operatorPos];
+    final QueryOperator op = operators[operatorPos];
     if (op.expectsParameters) {
       // PARSE PARAMETERS IF ANY
       parserGoBack();
@@ -289,12 +289,12 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
       final List<String> params = new ArrayList<String>();
       // CHECK FOR PARAMETERS
       if (word.length() > op.keyword.length()
-          && word.charAt(op.keyword.length()) == OStringSerializerHelper.EMBEDDED_BEGIN) {
+          && word.charAt(op.keyword.length()) == StringSerializerHelper.EMBEDDED_BEGIN) {
         int paramBeginPos = parserGetCurrentPosition() - (word.length() - op.keyword.length());
         parserSetCurrentPosition(
-            OStringSerializerHelper.getParameters(parserText, paramBeginPos, -1, params));
+            StringSerializerHelper.getParameters(parserText, paramBeginPos, -1, params));
       } else if (!word.equals(op.keyword)) {
-        throw new YTQueryParsingException(
+        throw new QueryParsingException(
             "Malformed usage of operator '" + op + "'. Parsed operator is: " + word);
       }
 
@@ -302,8 +302,8 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
         // CONFIGURE COULD INSTANTIATE A NEW OBJECT: ACT AS A FACTORY
         return op.configure(params);
       } catch (Exception e) {
-        throw YTException.wrapException(
-            new YTQueryParsingException(
+        throw BaseException.wrapException(
+            new QueryParsingException(
                 "Syntax error using the operator '" + op + "'. Syntax is: " + op.getSyntax()),
             e);
       }
@@ -313,7 +313,7 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
     return op;
   }
 
-  private Object extractConditionItem(YTDatabaseSessionInternal session,
+  private Object extractConditionItem(DatabaseSessionInternal session,
       final boolean iAllowOperator,
       final int iExpectedWords) {
     final Object[] result = new Object[iExpectedWords];
@@ -332,7 +332,7 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
 
       final int lastPosition = parserIsEnded() ? parserText.length() : parserGetCurrentPosition();
 
-      if (word.length() > 0 && word.charAt(0) == OStringSerializerHelper.EMBEDDED_BEGIN) {
+      if (word.length() > 0 && word.charAt(0) == StringSerializerHelper.EMBEDDED_BEGIN) {
         braces++;
 
         // SUB-CONDITION
@@ -344,37 +344,37 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
           braces--;
           parserMoveCurrentPosition(+1);
         }
-        if (subCondition instanceof OSQLFilterCondition) {
-          ((OSQLFilterCondition) subCondition).inBraces = true;
+        if (subCondition instanceof SQLFilterCondition) {
+          ((SQLFilterCondition) subCondition).inBraces = true;
         }
         result[i] = subCondition;
-      } else if (word.charAt(0) == OStringSerializerHelper.LIST_BEGIN) {
+      } else if (word.charAt(0) == StringSerializerHelper.LIST_BEGIN) {
         // COLLECTION OF ELEMENTS
         parserSetCurrentPosition(lastPosition - getLastWordLength());
 
         final List<String> stringItems = new ArrayList<String>();
         parserSetCurrentPosition(
-            OStringSerializerHelper.getCollection(
+            StringSerializerHelper.getCollection(
                 parserText, parserGetCurrentPosition(), stringItems));
         result[i] = convertCollectionItems(stringItems);
 
         parserMoveCurrentPosition(+1);
 
       } else if (uWord.startsWith(
-          OSQLFilterItemFieldAll.NAME + OStringSerializerHelper.EMBEDDED_BEGIN)) {
+          SQLFilterItemFieldAll.NAME + StringSerializerHelper.EMBEDDED_BEGIN)) {
 
-        result[i] = new OSQLFilterItemFieldAll(session, this, word, null);
+        result[i] = new SQLFilterItemFieldAll(session, this, word, null);
 
       } else if (uWord.startsWith(
-          OSQLFilterItemFieldAny.NAME + OStringSerializerHelper.EMBEDDED_BEGIN)) {
+          SQLFilterItemFieldAny.NAME + StringSerializerHelper.EMBEDDED_BEGIN)) {
 
-        result[i] = new OSQLFilterItemFieldAny(session, this, word, null);
+        result[i] = new SQLFilterItemFieldAny(session, this, word, null);
 
       } else {
 
         if (uWord.equals("NOT")) {
           if (iAllowOperator) {
-            return new OQueryOperatorNot();
+            return new QueryOperatorNot();
           } else {
             // GET THE NEXT VALUE
             parserNextWord(false, " )=><,\r\n");
@@ -406,7 +406,7 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
         }
 
         word = word.replaceAll("\\\\\\\\", "\\\\"); // see issue #5229
-        result[i] = OSQLHelper.parseValue(this, this, word, context);
+        result[i] = SQLHelper.parseValue(this, this, word, context);
       }
     }
 
@@ -416,12 +416,12 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
   private List<Object> convertCollectionItems(List<String> stringItems) {
     List<Object> coll = new ArrayList<Object>();
     for (String s : stringItems) {
-      coll.add(OSQLHelper.parseValue(this, this, s, context));
+      coll.add(SQLHelper.parseValue(this, this, s, context));
     }
     return coll;
   }
 
-  public OSQLFilterCondition getRootCondition() {
+  public SQLFilterCondition getRootCondition() {
     return rootCondition;
   }
 
@@ -442,7 +442,7 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
     }
 
     for (int i = 0; i < parameterItems.size(); i++) {
-      OSQLFilterItemParameter value = parameterItems.get(i);
+      SQLFilterItemParameter value = parameterItems.get(i);
       if ("?".equals(value.getName())) {
         value.setValue(iArgs.get(i));
       } else {
@@ -451,56 +451,56 @@ public class SQLPredicate extends BaseParser implements OCommandPredicate {
     }
   }
 
-  public OSQLFilterItemParameter addParameter(final String iName) {
+  public SQLFilterItemParameter addParameter(final String iName) {
     final String name;
-    if (iName.charAt(0) == OStringSerializerHelper.PARAMETER_NAMED) {
+    if (iName.charAt(0) == StringSerializerHelper.PARAMETER_NAMED) {
       name = iName.substring(1);
 
       // CHECK THE PARAMETER NAME IS CORRECT
-      if (!OStringSerializerHelper.isAlphanumeric(name)) {
-        throw new YTQueryParsingException(
+      if (!StringSerializerHelper.isAlphanumeric(name)) {
+        throw new QueryParsingException(
             "Parameter name '" + name + "' is invalid, only alphanumeric characters are allowed");
       }
     } else {
       name = iName;
     }
 
-    final OSQLFilterItemParameter param = new OSQLFilterItemParameter(name);
+    final SQLFilterItemParameter param = new SQLFilterItemParameter(name);
 
     if (parameterItems == null) {
-      parameterItems = new ArrayList<OSQLFilterItemParameter>();
+      parameterItems = new ArrayList<SQLFilterItemParameter>();
     }
 
     parameterItems.add(param);
     return param;
   }
 
-  public void setRootCondition(final OSQLFilterCondition iCondition) {
+  public void setRootCondition(final SQLFilterCondition iCondition) {
     rootCondition = iCondition;
   }
 
-  protected void optimize(YTDatabaseSession session) {
+  protected void optimize(DatabaseSession session) {
     if (rootCondition != null) {
       computePrefetchFieldList(session, rootCondition, new HashSet<String>());
     }
   }
 
   protected Set<String> computePrefetchFieldList(
-      YTDatabaseSession session, final OSQLFilterCondition iCondition, final Set<String> iFields) {
+      DatabaseSession session, final SQLFilterCondition iCondition, final Set<String> iFields) {
     Object left = iCondition.getLeft();
     Object right = iCondition.getRight();
-    if (left instanceof OSQLFilterItemField) {
-      ((OSQLFilterItemField) left).setPreLoadedFields(iFields);
-      iFields.add(((OSQLFilterItemField) left).getRoot(session));
-    } else if (left instanceof OSQLFilterCondition) {
-      computePrefetchFieldList(session, (OSQLFilterCondition) left, iFields);
+    if (left instanceof SQLFilterItemField) {
+      ((SQLFilterItemField) left).setPreLoadedFields(iFields);
+      iFields.add(((SQLFilterItemField) left).getRoot(session));
+    } else if (left instanceof SQLFilterCondition) {
+      computePrefetchFieldList(session, (SQLFilterCondition) left, iFields);
     }
 
-    if (right instanceof OSQLFilterItemField) {
-      ((OSQLFilterItemField) right).setPreLoadedFields(iFields);
-      iFields.add(((OSQLFilterItemField) right).getRoot(session));
-    } else if (right instanceof OSQLFilterCondition) {
-      computePrefetchFieldList(session, (OSQLFilterCondition) right, iFields);
+    if (right instanceof SQLFilterItemField) {
+      ((SQLFilterItemField) right).setPreLoadedFields(iFields);
+      iFields.add(((SQLFilterItemField) right).getRoot(session));
+    } else if (right instanceof SQLFilterCondition) {
+      computePrefetchFieldList(session, (SQLFilterCondition) right, iFields);
     }
 
     return iFields;

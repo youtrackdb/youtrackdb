@@ -2,8 +2,8 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import org.junit.After;
@@ -16,7 +16,7 @@ public class InsertUnionValueTest {
 
   @Before
   public void before() {
-    youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+    youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
     youTrackDB
         .execute(
@@ -32,7 +32,7 @@ public class InsertUnionValueTest {
 
   @Test
   public void testUnionInsert() {
-    try (YTDatabaseSession session =
+    try (DatabaseSession session =
         youTrackDB.open(InsertUnionValueTest.class.getSimpleName(), "admin", "admpwd")) {
       session.command("create class example extends V").close();
       session.command("create property example.metadata EMBEDDEDMAP").close();

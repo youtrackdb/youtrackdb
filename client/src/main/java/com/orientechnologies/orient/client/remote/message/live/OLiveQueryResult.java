@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.message.live;
 
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 
 /**
  *
@@ -12,10 +12,10 @@ public class OLiveQueryResult {
   public static final byte DELETE_EVENT = 3;
 
   private byte eventType;
-  private YTResult currentValue;
-  private YTResult oldValue;
+  private Result currentValue;
+  private Result oldValue;
 
-  public OLiveQueryResult(byte eventType, YTResult currentValue, YTResult oldValue) {
+  public OLiveQueryResult(byte eventType, Result currentValue, Result oldValue) {
     this.eventType = eventType;
     this.currentValue = currentValue;
     this.oldValue = oldValue;
@@ -25,15 +25,15 @@ public class OLiveQueryResult {
     return eventType;
   }
 
-  public void setOldValue(YTResult oldValue) {
+  public void setOldValue(Result oldValue) {
     this.oldValue = oldValue;
   }
 
-  public YTResult getCurrentValue() {
+  public Result getCurrentValue() {
     return currentValue;
   }
 
-  public void setCurrentValue(YTResult currentValue) {
+  public void setCurrentValue(Result currentValue) {
     this.currentValue = currentValue;
   }
 
@@ -41,7 +41,7 @@ public class OLiveQueryResult {
     this.eventType = eventType;
   }
 
-  public YTResult getOldValue() {
+  public Result getOldValue() {
     return oldValue;
   }
 }

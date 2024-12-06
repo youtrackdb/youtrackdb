@@ -2,7 +2,7 @@ package com.orientechnologies.orient.server.script;
 
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.orient.server.OServer;
 import org.junit.After;
 import org.junit.Assert;
@@ -35,11 +35,11 @@ public class JSScriptServerTest {
         "create database ? memory users (admin identified by 'admin' role admin)",
         name.getMethodName());
     try (var db = youTrackDB.open(name.getMethodName(), "admin", "admin")) {
-      try (YTResultSet resultSet = db.execute("javascript", "new java.math.BigDecimal(1.0);")) {
+      try (ResultSet resultSet = db.execute("javascript", "new java.math.BigDecimal(1.0);")) {
         Assert.assertEquals(1, resultSet.stream().count());
       }
 
-      try (YTResultSet resultSet = db.execute("javascript", "new java.util.ArrayList();")) {
+      try (ResultSet resultSet = db.execute("javascript", "new java.util.ArrayList();")) {
         Assert.assertEquals(1, resultSet.stream().count());
       }
 

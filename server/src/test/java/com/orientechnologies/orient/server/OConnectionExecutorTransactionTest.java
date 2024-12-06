@@ -4,18 +4,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkFactory;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.message.OBeginTransactionRequest;
 import com.orientechnologies.orient.client.remote.message.OBeginTransactionResponse;
@@ -55,23 +55,23 @@ public class OConnectionExecutorTransactionTest {
   private OClientConnection connection;
 
   private YouTrackDB youTrackDb;
-  private YTDatabaseSessionInternal database;
+  private DatabaseSessionInternal database;
 
   @Before
   public void before() throws IOException {
     MockitoAnnotations.initMocks(this);
-    youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+    youTrackDb = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
     youTrackDb.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         OConnectionExecutorTransactionTest.class.getSimpleName());
     database =
-        (YTDatabaseSessionInternal)
+        (DatabaseSessionInternal)
             youTrackDb.open(
                 OConnectionExecutorTransactionTest.class.getSimpleName(), "admin", "admin");
     database.createClass("test");
     ONetworkProtocolData protocolData = new ONetworkProtocolData();
-    protocolData.setSerializer(ORecordSerializerNetworkFactory.INSTANCE.current());
+    protocolData.setSerializer(RecordSerializerNetworkFactory.INSTANCE.current());
     Mockito.when(connection.getDatabase()).thenReturn(database);
     Mockito.when(connection.getData()).thenReturn(protocolData);
   }
@@ -88,10 +88,10 @@ public class OConnectionExecutorTransactionTest {
 
     OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
 
-    List<ORecordOperation> operations = new ArrayList<>();
+    List<RecordOperation> operations = new ArrayList<>();
     EntityImpl rec = new EntityImpl();
-    ORecordInternal.setIdentity(rec, new YTRecordId(3, -2));
-    operations.add(new ORecordOperation(rec, ORecordOperation.CREATED));
+    RecordInternal.setIdentity(rec, new RecordId(3, -2));
+    operations.add(new RecordOperation(rec, RecordOperation.CREATED));
     assertFalse(database.getTransaction().isActive());
 
     OBeginTransactionRequest request =
@@ -108,10 +108,10 @@ public class OConnectionExecutorTransactionTest {
 
     OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
 
-    List<ORecordOperation> operations = new ArrayList<>();
+    List<RecordOperation> operations = new ArrayList<>();
     EntityImpl rec = new EntityImpl();
-    ORecordInternal.setIdentity(rec, new YTRecordId(3, -2));
-    operations.add(new ORecordOperation(rec, ORecordOperation.CREATED));
+    RecordInternal.setIdentity(rec, new RecordId(3, -2));
+    operations.add(new RecordOperation(rec, RecordOperation.CREATED));
 
     assertFalse(database.getTransaction().isActive());
 
@@ -134,11 +134,11 @@ public class OConnectionExecutorTransactionTest {
 
     OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
 
-    List<ORecordOperation> operations = new ArrayList<>();
+    List<RecordOperation> operations = new ArrayList<>();
     EntityImpl rec = new EntityImpl();
-    ORecordInternal.setIdentity(rec, new YTRecordId(3, -2));
+    RecordInternal.setIdentity(rec, new RecordId(3, -2));
     rec.setInternalStatus(RecordElement.STATUS.LOADED);
-    operations.add(new ORecordOperation(rec, ORecordOperation.CREATED));
+    operations.add(new RecordOperation(rec, RecordOperation.CREATED));
     assertFalse(database.getTransaction().isActive());
 
     OBeginTransactionRequest request =
@@ -147,9 +147,9 @@ public class OConnectionExecutorTransactionTest {
     assertTrue(database.getTransaction().isActive());
     assertTrue(response instanceof OBeginTransactionResponse);
 
-    EntityImpl record1 = new EntityImpl(new YTRecordId(3, -3));
+    EntityImpl record1 = new EntityImpl(new RecordId(3, -3));
     record1.setInternalStatus(RecordElement.STATUS.LOADED);
-    operations.add(new ORecordOperation(record1, ORecordOperation.CREATED));
+    operations.add(new RecordOperation(record1, RecordOperation.CREATED));
 
     OCommit37Request commit = new OCommit37Request(database, 10, true, true, operations,
         new HashMap<>());
@@ -164,11 +164,11 @@ public class OConnectionExecutorTransactionTest {
 
     OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
 
-    List<ORecordOperation> operations = new ArrayList<>();
+    List<RecordOperation> operations = new ArrayList<>();
     EntityImpl rec = new EntityImpl();
-    ORecordInternal.setIdentity(rec, new YTRecordId(3, -2));
+    RecordInternal.setIdentity(rec, new RecordId(3, -2));
     rec.setInternalStatus(RecordElement.STATUS.LOADED);
-    operations.add(new ORecordOperation(rec, ORecordOperation.CREATED));
+    operations.add(new RecordOperation(rec, RecordOperation.CREATED));
 
     assertFalse(database.getTransaction().isActive());
 
@@ -178,9 +178,9 @@ public class OConnectionExecutorTransactionTest {
     assertTrue(database.getTransaction().isActive());
     assertTrue(response instanceof OBeginTransactionResponse);
 
-    EntityImpl record1 = new EntityImpl(new YTRecordId(3, -3));
+    EntityImpl record1 = new EntityImpl(new RecordId(3, -3));
     record1.setInternalStatus(RecordElement.STATUS.LOADED);
-    operations.add(new ORecordOperation(record1, ORecordOperation.CREATED));
+    operations.add(new RecordOperation(record1, RecordOperation.CREATED));
 
     ORebeginTransactionRequest rebegin =
         new ORebeginTransactionRequest(database, 10, true, operations, new HashMap<>());
@@ -195,11 +195,11 @@ public class OConnectionExecutorTransactionTest {
 
     OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
 
-    List<ORecordOperation> operations = new ArrayList<>();
+    List<RecordOperation> operations = new ArrayList<>();
     EntityImpl rec = new EntityImpl();
-    ORecordInternal.setIdentity(rec, new YTRecordId(3, -2));
+    RecordInternal.setIdentity(rec, new RecordId(3, -2));
     rec.setInternalStatus(RecordElement.STATUS.LOADED);
-    operations.add(new ORecordOperation(rec, ORecordOperation.CREATED));
+    operations.add(new RecordOperation(rec, RecordOperation.CREATED));
 
     assertFalse(database.getTransaction().isActive());
 
@@ -209,9 +209,9 @@ public class OConnectionExecutorTransactionTest {
     assertTrue(database.getTransaction().isActive());
     assertTrue(response instanceof OBeginTransactionResponse);
 
-    EntityImpl record1 = new EntityImpl(new YTRecordId(3, -3));
+    EntityImpl record1 = new EntityImpl(new RecordId(3, -3));
     record1.setInternalStatus(RecordElement.STATUS.LOADED);
-    operations.add(new ORecordOperation(record1, ORecordOperation.CREATED));
+    operations.add(new RecordOperation(record1, RecordOperation.CREATED));
 
     ORebeginTransactionRequest rebegin =
         new ORebeginTransactionRequest(database, 10, true, operations, new HashMap<>());
@@ -220,9 +220,9 @@ public class OConnectionExecutorTransactionTest {
     assertTrue(database.getTransaction().isActive());
     assertEquals(2, database.getTransaction().getEntryCount());
 
-    EntityImpl record2 = new EntityImpl(new YTRecordId(3, -4));
+    EntityImpl record2 = new EntityImpl(new RecordId(3, -4));
     record2.setInternalStatus(RecordElement.STATUS.LOADED);
-    operations.add(new ORecordOperation(record2, ORecordOperation.CREATED));
+    operations.add(new RecordOperation(record2, RecordOperation.CREATED));
 
     OCommit37Request commit = new OCommit37Request(database, 10, true, true, operations,
         new HashMap<>());
@@ -237,9 +237,9 @@ public class OConnectionExecutorTransactionTest {
 
     OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
 
-    List<ORecordOperation> operations = new ArrayList<>();
+    List<RecordOperation> operations = new ArrayList<>();
     EntityImpl rec = new EntityImpl("test");
-    operations.add(new ORecordOperation(rec, ORecordOperation.CREATED));
+    operations.add(new RecordOperation(rec, RecordOperation.CREATED));
     assertFalse(database.getTransaction().isActive());
 
     OBeginTransactionRequest request =
@@ -254,7 +254,7 @@ public class OConnectionExecutorTransactionTest {
             "update test set name='bla'",
             new HashMap<>(),
             OQueryRequest.COMMAND,
-            ORecordSerializerNetworkFactory.INSTANCE.current(), 20);
+            RecordSerializerNetworkFactory.INSTANCE.current(), 20);
     OQueryResponse queryResponse = (OQueryResponse) query.execute(executor);
 
     assertTrue(queryResponse.isTxChanges());
@@ -269,9 +269,9 @@ public class OConnectionExecutorTransactionTest {
 
     OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
 
-    List<ORecordOperation> operations = new ArrayList<>();
+    List<RecordOperation> operations = new ArrayList<>();
     EntityImpl rec = new EntityImpl("test");
-    operations.add(new ORecordOperation(rec, ORecordOperation.CREATED));
+    operations.add(new RecordOperation(rec, RecordOperation.CREATED));
     assertFalse(database.getTransaction().isActive());
 
     OBeginTransactionRequest request =
@@ -286,7 +286,7 @@ public class OConnectionExecutorTransactionTest {
             "update test set name='bla'",
             new HashMap<>(),
             OQueryRequest.COMMAND,
-            ORecordSerializerNetworkFactory.INSTANCE.current(), 20);
+            RecordSerializerNetworkFactory.INSTANCE.current(), 20);
     OQueryResponse queryResponse = (OQueryResponse) query.execute(executor);
 
     assertTrue(queryResponse.isTxChanges());
@@ -303,9 +303,9 @@ public class OConnectionExecutorTransactionTest {
   public void testBeginRollbackTransaction() {
     OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
 
-    List<ORecordOperation> operations = new ArrayList<>();
+    List<RecordOperation> operations = new ArrayList<>();
     EntityImpl rec = new EntityImpl("test");
-    operations.add(new ORecordOperation(rec, ORecordOperation.CREATED));
+    operations.add(new RecordOperation(rec, RecordOperation.CREATED));
     assertFalse(database.getTransaction().isActive());
 
     OBeginTransactionRequest request =
@@ -335,7 +335,7 @@ public class OConnectionExecutorTransactionTest {
 
     OCreateRecordRequest createRecordRequest =
         new OCreateRecordRequest(
-            new EntityImpl("test"), new YTRecordId(-1, -1), EntityImpl.RECORD_TYPE);
+            new EntityImpl("test"), new RecordId(-1, -1), EntityImpl.RECORD_TYPE);
     OBinaryResponse createResponse = createRecordRequest.execute(executor);
     assertTrue(createResponse instanceof OCreateRecordResponse);
 
@@ -343,7 +343,7 @@ public class OConnectionExecutorTransactionTest {
     rec.setProperty("name", "bar");
     OUpdateRecordRequest updateRecordRequest =
         new OUpdateRecordRequest(
-            (YTRecordId) rec.getIdentity(), rec, rec.getVersion(), true, EntityImpl.RECORD_TYPE);
+            (RecordId) rec.getIdentity(), rec, rec.getVersion(), true, EntityImpl.RECORD_TYPE);
     OBinaryResponse updateResponse = updateRecordRequest.execute(executor);
     assertTrue(updateResponse instanceof OUpdateRecordResponse);
 
@@ -361,7 +361,7 @@ public class OConnectionExecutorTransactionTest {
 
     OConnectionBinaryExecutor executor = new OConnectionBinaryExecutor(connection, server);
 
-    List<ORecordOperation> operations = new ArrayList<>();
+    List<RecordOperation> operations = new ArrayList<>();
 
     OBeginTransactionRequest request =
         new OBeginTransactionRequest(database, 10, false, true, operations, new HashMap<>());
@@ -370,7 +370,7 @@ public class OConnectionExecutorTransactionTest {
     assertTrue(database.getTransaction().isActive());
     assertTrue(response instanceof OBeginTransactionResponse);
 
-    List<YTResult> results =
+    List<Result> results =
         database.command("insert into test set name = 'update'").stream()
             .collect(Collectors.toList());
 
@@ -392,7 +392,7 @@ public class OConnectionExecutorTransactionTest {
 
     assertEquals(1, database.countClass("test"));
 
-    YTResultSet query = database.query("select from test where name = 'update'");
+    ResultSet query = database.query("select from test where name = 'update'");
 
     results = query.stream().collect(Collectors.toList());
 

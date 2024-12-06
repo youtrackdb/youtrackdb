@@ -2,13 +2,13 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexFinder.Operation;
-import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperator;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder.Operation;
+import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperator;
 import java.util.Map;
 
 public class SQLScAndOperator extends SimpleNode implements SQLBinaryCompareOperator {
 
-  protected OQueryOperator lowLevelOperator = null;
+  protected QueryOperator lowLevelOperator = null;
 
   public SQLScAndOperator(int id) {
     super(id);

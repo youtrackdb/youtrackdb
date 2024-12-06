@@ -14,18 +14,18 @@
 package com.orientechnologies.security.ldap;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.security.OSecurityAuthenticator;
-import com.jetbrains.youtrack.db.internal.core.security.OSecurityComponent;
-import com.jetbrains.youtrack.db.internal.core.security.OSecuritySystem;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.security.SecurityAuthenticator;
+import com.jetbrains.youtrack.db.internal.core.security.SecurityComponent;
+import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -42,7 +42,7 @@ import javax.security.auth.Subject;
 /**
  * Provides an LDAP importer.
  */
-public class OLDAPImporter implements OSecurityComponent {
+public class OLDAPImporter implements SecurityComponent {
 
   private final String oldapUserClass = "_OLDAPUser";
 
@@ -60,15 +60,15 @@ public class OLDAPImporter implements OSecurityComponent {
   private final ConcurrentHashMap<String, Database> databaseMap =
       new ConcurrentHashMap<String, Database>();
 
-  private OSecuritySystem security;
+  private SecuritySystem security;
 
-  // OSecurityComponent
+  // SecurityComponent
   public void active() {
     // Go through each database entry and check the _OLDAPUsers schema.
     for (Map.Entry<String, Database> dbEntry : databaseMap.entrySet()) {
       Database db = dbEntry.getValue();
 
-      try (YTDatabaseSessionInternal odb = context.openNoAuthenticate(db.getName(), "internal")) {
+      try (DatabaseSessionInternal odb = context.openNoAuthenticate(db.getName(), "internal")) {
         verifySchema(odb);
       } catch (Exception ex) {
         LogManager.instance().error(this, "OLDAPImporter.active() Database: %s", ex, db.getName());
@@ -85,9 +85,9 @@ public class OLDAPImporter implements OSecurityComponent {
     LogManager.instance().info(this, "**************************************");
   }
 
-  // OSecurityComponent
-  public void config(YTDatabaseSessionInternal session, final EntityImpl importDoc,
-      OSecuritySystem security) {
+  // SecurityComponent
+  public void config(DatabaseSessionInternal session, final EntityImpl importDoc,
+      SecuritySystem security) {
     try {
       context = security.getContext();
       this.security = security;
@@ -140,7 +140,7 @@ public class OLDAPImporter implements OSecurityComponent {
                   domain = dbDomainDoc.field("domain");
 
                   // If authenticator is null, it defaults to OLDAPImporter's primary
-                  // OSecurityAuthenticator.
+                  // SecurityAuthenticator.
                   String authenticator = null;
 
                   if (dbDomainDoc.containsField("authenticator")) {
@@ -269,7 +269,7 @@ public class OLDAPImporter implements OSecurityComponent {
     }
   }
 
-  // OSecurityComponent
+  // SecurityComponent
   public void dispose() {
     if (importTimer != null) {
       importTimer.cancel();
@@ -277,38 +277,38 @@ public class OLDAPImporter implements OSecurityComponent {
     }
   }
 
-  // OSecurityComponent
+  // SecurityComponent
   public boolean isEnabled() {
     return enabled;
   }
 
-  private void verifySchema(YTDatabaseSessionInternal odb) {
+  private void verifySchema(DatabaseSessionInternal odb) {
     try {
       System.out.println("calling existsClass odb = " + odb);
 
       if (!odb.getMetadata().getSchema().existsClass(oldapUserClass)) {
         System.out.println("calling createClass");
 
-        YTClass ldapUser = odb.getMetadata().getSchema().createClass(oldapUserClass);
+        SchemaClass ldapUser = odb.getMetadata().getSchema().createClass(oldapUserClass);
 
         System.out.println("calling createProperty");
 
-        YTProperty prop = ldapUser.createProperty(odb, "Domain", YTType.STRING);
+        Property prop = ldapUser.createProperty(odb, "Domain", PropertyType.STRING);
 
         System.out.println("calling setMandatory");
 
         prop.setMandatory(odb, true);
         prop.setNotNull(odb, true);
 
-        prop = ldapUser.createProperty(odb, "BaseDN", YTType.STRING);
+        prop = ldapUser.createProperty(odb, "BaseDN", PropertyType.STRING);
         prop.setMandatory(odb, true);
         prop.setNotNull(odb, true);
 
-        prop = ldapUser.createProperty(odb, "Filter", YTType.STRING);
+        prop = ldapUser.createProperty(odb, "Filter", PropertyType.STRING);
         prop.setMandatory(odb, true);
         prop.setNotNull(odb, true);
 
-        prop = ldapUser.createProperty(odb, "Roles", YTType.STRING);
+        prop = ldapUser.createProperty(odb, "Roles", PropertyType.STRING);
         prop.setMandatory(odb, true);
         prop.setNotNull(odb, true);
       }
@@ -440,7 +440,7 @@ public class OLDAPImporter implements OSecurityComponent {
   public Subject getLDAPSubject(final String authName) {
     Subject subject = null;
 
-    OSecurityAuthenticator authMethod = null;
+    SecurityAuthenticator authMethod = null;
 
     // If authName is null, use the primary authentication method.
     if (authName == null) {
@@ -615,14 +615,14 @@ public class OLDAPImporter implements OSecurityComponent {
   // Loads the User object from the oldapUserClass class for each domain.
   // This is equivalent to the "users" objects in "ldapImporter" of security.json.
   private void retrieveLDAPUsers(
-      final YTDatabaseSession odb, final String domain, final List<User> userList) {
+      final DatabaseSession odb, final String domain, final List<User> userList) {
     try {
       String sql = String.format("SELECT FROM `%s` WHERE Domain = ?", oldapUserClass);
 
-      YTResultSet users = odb.query(sql, domain);
+      ResultSet users = odb.query(sql, domain);
 
       while (users.hasNext()) {
-        YTResult userDoc = users.next();
+        Result userDoc = users.next();
         String roles = userDoc.getProperty("Roles");
 
         if (roles != null) {
@@ -660,17 +660,17 @@ public class OLDAPImporter implements OSecurityComponent {
   }
 
   private void retrieveAllUsers(
-      final YTDatabaseSession odb, final boolean ignoreLocal, final Set<String> usersToBeDeleted) {
+      final DatabaseSession odb, final boolean ignoreLocal, final Set<String> usersToBeDeleted) {
     try {
       String sql = "SELECT FROM OUser";
 
       if (ignoreLocal) {
         sql = "SELECT FROM OUser WHERE _externalUser = true";
       }
-      YTResultSet users = odb.query(sql);
+      ResultSet users = odb.query(sql);
 
       while (users.hasNext()) {
-        YTResult user = users.next();
+        Result user = users.next();
         String name = user.getProperty("name");
 
         if (name != null) {
@@ -692,7 +692,7 @@ public class OLDAPImporter implements OSecurityComponent {
     }
   }
 
-  private void deleteUsers(final YTDatabaseSession odb, final Set<String> usersToBeDeleted) {
+  private void deleteUsers(final DatabaseSession odb, final Set<String> usersToBeDeleted) {
     try {
       for (String user : usersToBeDeleted) {
         odb.command("DELETE FROM OUser WHERE name = ?", user);
@@ -710,7 +710,7 @@ public class OLDAPImporter implements OSecurityComponent {
     }
   }
 
-  private void importUsers(final YTDatabaseSession odb, final Map<String, DatabaseUser> usersMap) {
+  private void importUsers(final DatabaseSession odb, final Map<String, DatabaseUser> usersMap) {
     try {
       for (Map.Entry<String, DatabaseUser> entry : usersMap.entrySet()) {
         String upn = entry.getKey();
@@ -735,18 +735,18 @@ public class OLDAPImporter implements OSecurityComponent {
   }
 
   /*
-   * private boolean dbUserExists(ODatabase<?> db, String upn) { try { List<EntityImpl> list = new OSQLSynchQuery<EntityImpl>(
+   * private boolean dbUserExists(ODatabase<?> db, String upn) { try { List<EntityImpl> list = new SQLSynchQuery<EntityImpl>(
    * "SELECT FROM OUser WHERE name = ?").run(upn);
    *
    * return !list.isEmpty(); } catch(Exception ex) { LogManager.instance().debug(this, "dbUserExists() Exception: ", ex); }
    *
    * return true; // Better to not add a user than to overwrite one. }
    */
-  private boolean upsertDbUser(YTDatabaseSession db, String upn, Set<String> roles) {
+  private boolean upsertDbUser(DatabaseSession db, String upn, Set<String> roles) {
     try {
       // Create a random password to set for each imported user in case allowDefault is set to true.
       // We don't want blank or simple passwords set on the imported users, just in case.
-      // final String password = OSecurityManager.instance().createSHA256(String.valueOf(new
+      // final String password = SecurityManager.instance().createSHA256(String.valueOf(new
       // java.util.Random().nextLong()));
 
       final String password = UUID.randomUUID().toString();

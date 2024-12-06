@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.server.distributed.task;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.distributed.ODistributedDatabase;
 import com.orientechnologies.orient.server.distributed.ODistributedRequest;
-import com.orientechnologies.orient.server.distributed.ODistributedRequestId;
+import com.orientechnologies.orient.server.distributed.DistributedRequestId;
 import com.orientechnologies.orient.server.distributed.ODistributedServerManager;
 import com.orientechnologies.orient.server.distributed.ORemoteTaskFactory;
 import java.io.DataInput;
@@ -48,13 +48,13 @@ public interface ORemoteTask {
 
   String getName();
 
-  OCommandDistributedReplicateRequest.QUORUM_TYPE getQuorumType();
+  CommandDistributedReplicateRequest.QUORUM_TYPE getQuorumType();
 
   Object execute(
-      ODistributedRequestId requestId,
+      DistributedRequestId requestId,
       OServer iServer,
       ODistributedServerManager iManager,
-      YTDatabaseSessionInternal database)
+      DatabaseSessionInternal database)
       throws Exception;
 
   long getDistributedTimeout();

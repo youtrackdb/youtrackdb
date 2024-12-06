@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExpireResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
@@ -26,7 +26,7 @@ public class FilterStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
@@ -39,7 +39,7 @@ public class FilterStep extends AbstractExecutionStep {
     return resultSet;
   }
 
-  private YTResult filterMap(YTResult result, CommandContext ctx) {
+  private Result filterMap(Result result, CommandContext ctx) {
     if (whereClause.matchesFilters(result, ctx)) {
       return result;
     }
@@ -61,8 +61,8 @@ public class FilterStep extends AbstractExecutionStep {
   }
 
   @Override
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
     if (whereClause != null) {
       result.setProperty("whereClause", whereClause.serialize(db));
     }
@@ -71,13 +71,13 @@ public class FilterStep extends AbstractExecutionStep {
   }
 
   @Override
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     try {
       ExecutionStepInternal.basicDeserialize(fromResult, this);
       whereClause = new SQLWhereClause(-1);
       whereClause.deserialize(fromResult.getProperty("whereClause"));
     } catch (Exception e) {
-      throw YTException.wrapException(new YTCommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(""), e);
     }
   }
 

@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.resultset;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.Iterator;
 
 public class IteratorExecutionStream implements ExecutionStream {
@@ -20,18 +20,18 @@ public class IteratorExecutionStream implements ExecutionStream {
   }
 
   @Override
-  public YTResult next(CommandContext ctx) {
+  public Result next(CommandContext ctx) {
     Object val = iterator.next();
-    if (val instanceof YTResult) {
-      return (YTResult) val;
+    if (val instanceof Result) {
+      return (Result) val;
     }
 
-    YTResultInternal result;
+    ResultInternal result;
     var db = ctx.getDatabase();
-    if (val instanceof YTIdentifiable) {
-      result = new YTResultInternal(db, (YTIdentifiable) val);
+    if (val instanceof Identifiable) {
+      result = new ResultInternal(db, (Identifiable) val);
     } else {
-      result = new YTResultInternal(db);
+      result = new ResultInternal(db);
       result.setProperty("value", val);
     }
     return result;

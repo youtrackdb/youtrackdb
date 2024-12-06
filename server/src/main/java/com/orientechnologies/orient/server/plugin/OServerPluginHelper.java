@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.plugin;
 
 import com.orientechnologies.orient.server.OClientConnection;
 import com.orientechnologies.orient.server.OServer;
-import com.orientechnologies.orient.server.network.protocol.ONetworkProtocol;
+import com.orientechnologies.orient.server.network.protocol.NetworkProtocol;
 import java.util.Collection;
 
 public class OServerPluginHelper {
@@ -31,7 +31,7 @@ public class OServerPluginHelper {
     final Collection<OServerPluginInfo> plugins = iServer.getPlugins();
     if (plugins != null) {
       for (OServerPluginInfo plugin : plugins) {
-        final OServerPlugin pluginInstance = plugin.getInstance();
+        final ServerPlugin pluginInstance = plugin.getInstance();
         if (pluginInstance != null) {
           plugin.getInstance().onClientConnection(connection);
         }
@@ -44,7 +44,7 @@ public class OServerPluginHelper {
     final Collection<OServerPluginInfo> plugins = iServer.getPlugins();
     if (plugins != null) {
       for (OServerPluginInfo plugin : plugins) {
-        final OServerPlugin pluginInstance = plugin.getInstance();
+        final ServerPlugin pluginInstance = plugin.getInstance();
         if (pluginInstance != null) {
           pluginInstance.onClientDisconnection(connection);
         }
@@ -57,7 +57,7 @@ public class OServerPluginHelper {
     final Collection<OServerPluginInfo> plugins = iServer.getPlugins();
     if (plugins != null) {
       for (OServerPluginInfo plugin : plugins) {
-        final OServerPlugin pluginInstance = plugin.getInstance();
+        final ServerPlugin pluginInstance = plugin.getInstance();
         if (pluginInstance != null) {
           pluginInstance.onBeforeClientRequest(connection, iRequestType);
         }
@@ -70,7 +70,7 @@ public class OServerPluginHelper {
     final Collection<OServerPluginInfo> plugins = iServer.getPlugins();
     if (plugins != null) {
       for (OServerPluginInfo plugin : plugins) {
-        final OServerPlugin pluginInstance = plugin.getInstance();
+        final ServerPlugin pluginInstance = plugin.getInstance();
         if (pluginInstance != null) {
           pluginInstance.onAfterClientRequest(connection, iRequestType);
         }
@@ -83,7 +83,7 @@ public class OServerPluginHelper {
     final Collection<OServerPluginInfo> plugins = iServer.getPlugins();
     if (plugins != null) {
       for (OServerPluginInfo plugin : plugins) {
-        final OServerPlugin pluginInstance = plugin.getInstance();
+        final ServerPlugin pluginInstance = plugin.getInstance();
         if (pluginInstance != null) {
           pluginInstance.onClientError(connection, iThrowable);
         }
@@ -92,11 +92,11 @@ public class OServerPluginHelper {
   }
 
   public static void invokeHandlerCallbackOnSocketAccepted(
-      final OServer iServer, final ONetworkProtocol networkProtocol) {
+      final OServer iServer, final NetworkProtocol networkProtocol) {
     final Collection<OServerPluginInfo> plugins = iServer.getPlugins();
     if (plugins != null) {
       for (OServerPluginInfo plugin : plugins) {
-        final OServerPlugin pluginInstance = plugin.getInstance();
+        final ServerPlugin pluginInstance = plugin.getInstance();
         if (pluginInstance != null) {
           pluginInstance.onSocketAccepted(networkProtocol);
         }
@@ -105,11 +105,11 @@ public class OServerPluginHelper {
   }
 
   public static void invokeHandlerCallbackOnSocketDestroyed(
-      final OServer iServer, final ONetworkProtocol networkProtocol) {
+      final OServer iServer, final NetworkProtocol networkProtocol) {
     final Collection<OServerPluginInfo> plugins = iServer.getPlugins();
     if (plugins != null) {
       for (OServerPluginInfo plugin : plugins) {
-        final OServerPlugin pluginInstance = plugin.getInstance();
+        final ServerPlugin pluginInstance = plugin.getInstance();
         if (pluginInstance != null) {
           pluginInstance.onSocketDestroyed(networkProtocol);
         }

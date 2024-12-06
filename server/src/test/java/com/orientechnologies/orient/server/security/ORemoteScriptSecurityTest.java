@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.server.security;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.orient.server.OServer;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -45,28 +45,28 @@ public class ORemoteScriptSecurityTest {
     youTrackDB.close();
   }
 
-  @Test(expected = YTSecurityException.class)
+  @Test(expected = SecurityException.class)
   public void testRunJavascript() {
     // CREATE A SEPARATE CONTEXT TO MAKE SURE IT LOAD STAFF FROM SCRATCH
     try (YouTrackDB writerOrient = new YouTrackDB("remote:localhost",
         YouTrackDBConfig.defaultConfig())) {
-      try (YTDatabaseSession writer =
+      try (DatabaseSession writer =
           writerOrient.open("ORemoteScriptSecurityTest", "reader", "reader")) {
-        try (YTResultSet rs = writer.execute("javascript", "1+1;")) {
+        try (ResultSet rs = writer.execute("javascript", "1+1;")) {
         }
       }
     }
   }
 
-  @Test(expected = YTSecurityException.class)
+  @Test(expected = SecurityException.class)
   public void testRunEcmascript() {
     // CREATE A SEPARATE CONTEXT TO MAKE SURE IT LOAD STAFF FROM SCRATCH
     try (YouTrackDB writerOrient = new YouTrackDB("remote:localhost",
         YouTrackDBConfig.defaultConfig())) {
-      try (YTDatabaseSession writer =
+      try (DatabaseSession writer =
           writerOrient.open("ORemoteScriptSecurityTest", "reader", "reader")) {
 
-        try (YTResultSet rs = writer.execute("ecmascript", "1+1;")) {
+        try (ResultSet rs = writer.execute("ecmascript", "1+1;")) {
         }
       }
     }

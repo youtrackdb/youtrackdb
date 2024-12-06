@@ -1,14 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.resultset;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import java.util.Iterator;
 
 public class ResultIteratorExecutionStream implements ExecutionStream {
 
-  private final Iterator<YTResult> iterator;
+  private final Iterator<Result> iterator;
 
-  public ResultIteratorExecutionStream(Iterator<YTResult> iterator) {
+  public ResultIteratorExecutionStream(Iterator<Result> iterator) {
     this.iterator = iterator;
   }
 
@@ -18,7 +18,7 @@ public class ResultIteratorExecutionStream implements ExecutionStream {
   }
 
   @Override
-  public YTResult next(CommandContext ctx) {
+  public Result next(CommandContext ctx) {
     return iterator.next();
   }
 

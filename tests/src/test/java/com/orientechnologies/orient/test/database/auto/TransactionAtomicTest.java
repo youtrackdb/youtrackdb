@@ -17,17 +17,17 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseListener;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConcurrentModificationException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTTransactionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentModificationException;
+import com.jetbrains.youtrack.db.internal.core.exception.TransactionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
-import com.jetbrains.youtrack.db.internal.core.storage.YTRecordDuplicatedException;
+import com.jetbrains.youtrack.db.internal.core.storage.RecordDuplicatedException;
 import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
@@ -44,8 +44,8 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
 
   @Test
   public void testTransactionAtomic() {
-    YTDatabaseSessionInternal db1 = acquireSession();
-    YTDatabaseSessionInternal db2 = acquireSession();
+    DatabaseSessionInternal db1 = acquireSession();
+    DatabaseSessionInternal db2 = acquireSession();
 
     EntityImpl record1 = new EntityImpl();
 
@@ -92,12 +92,12 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     doc = database.bindToSession(doc);
     doc.setDirty();
     doc.field("testmvcc", true);
-    ORecordInternal.setVersion(doc, doc.getVersion() + 1);
+    RecordInternal.setVersion(doc, doc.getVersion() + 1);
     try {
       doc.save();
       database.commit();
       Assert.fail();
-    } catch (YTConcurrentModificationException e) {
+    } catch (ConcurrentModificationException e) {
       Assert.assertTrue(true);
     }
   }
@@ -112,32 +112,32 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
         .save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final YTDatabaseListener listener =
-        new YTDatabaseListener() {
+    final DatabaseListener listener =
+        new DatabaseListener() {
 
           @Override
-          public void onAfterTxCommit(YTDatabaseSession iDatabase) {
+          public void onAfterTxCommit(DatabaseSession iDatabase) {
           }
 
           @Override
-          public void onAfterTxRollback(YTDatabaseSession iDatabase) {
+          public void onAfterTxRollback(DatabaseSession iDatabase) {
           }
 
           @Override
-          public void onBeforeTxBegin(YTDatabaseSession iDatabase) {
+          public void onBeforeTxBegin(DatabaseSession iDatabase) {
           }
 
           @Override
-          public void onBeforeTxCommit(YTDatabaseSession iDatabase) {
+          public void onBeforeTxCommit(DatabaseSession iDatabase) {
             throw new RuntimeException("Rollback test");
           }
 
           @Override
-          public void onBeforeTxRollback(YTDatabaseSession iDatabase) {
+          public void onBeforeTxRollback(DatabaseSession iDatabase) {
           }
 
           @Override
-          public void onClose(YTDatabaseSession iDatabase) {
+          public void onClose(DatabaseSession iDatabase) {
           }
 
           @Override
@@ -150,20 +150,20 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
           }
 
           @Override
-          public void onCreate(YTDatabaseSession iDatabase) {
+          public void onCreate(DatabaseSession iDatabase) {
           }
 
           @Override
-          public void onDelete(YTDatabaseSession iDatabase) {
+          public void onDelete(DatabaseSession iDatabase) {
           }
 
           @Override
-          public void onOpen(YTDatabaseSession iDatabase) {
+          public void onOpen(DatabaseSession iDatabase) {
           }
 
           @Override
           public boolean onCorruptionRepairDatabase(
-              YTDatabaseSession iDatabase, final String iReason, String iWhatWillbeFixed) {
+              DatabaseSession iDatabase, final String iReason, String iWhatWillbeFixed) {
             return true;
           }
         };
@@ -174,7 +174,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     try {
       database.commit();
       Assert.fail();
-    } catch (YTTransactionException e) {
+    } catch (TransactionException e) {
       Assert.assertTrue(true);
     } finally {
       database.unregisterListener(listener);
@@ -183,20 +183,20 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
 
   @Test
   public void testTransactionWithDuplicateUniqueIndexValues() {
-    YTClass fruitClass = database.getMetadata().getSchema().getClass("Fruit");
+    SchemaClass fruitClass = database.getMetadata().getSchema().getClass("Fruit");
 
     if (fruitClass == null) {
       fruitClass = database.getMetadata().getSchema().createClass("Fruit");
 
-      fruitClass.createProperty(database, "name", YTType.STRING);
-      fruitClass.createProperty(database, "color", YTType.STRING);
+      fruitClass.createProperty(database, "name", PropertyType.STRING);
+      fruitClass.createProperty(database, "color", PropertyType.STRING);
 
       database
           .getMetadata()
           .getSchema()
           .getClass("Fruit")
           .getProperty("color")
-          .createIndex(database, YTClass.INDEX_TYPE.UNIQUE);
+          .createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE);
     }
 
     Assert.assertEquals(database.countClusterElements("Fruit"), 0);
@@ -226,7 +226,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
 
       Assert.fail();
 
-    } catch (YTRecordDuplicatedException e) {
+    } catch (RecordDuplicatedException e) {
       Assert.assertTrue(true);
       database.rollback();
     }

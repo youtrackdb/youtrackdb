@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.tx.OTransactionId;
-import com.jetbrains.youtrack.db.internal.core.tx.OTransactionSequenceStatus;
-import com.jetbrains.youtrack.db.internal.core.tx.OTxMetadataHolder;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionId;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionSequenceStatus;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransacationMetadataHolder;
 import com.jetbrains.youtrack.db.internal.core.tx.ValidationResult;
 import com.orientechnologies.orient.server.distributed.task.ORemoteTask;
 import java.util.List;
@@ -39,7 +39,7 @@ public interface ODistributedDatabase {
 
   String dump();
 
-  void unlockResourcesOfServer(YTDatabaseSessionInternal database, String serverName);
+  void unlockResourcesOfServer(DatabaseSessionInternal database, String serverName);
 
   /**
    * Unlocks all the record locked by node iNodeName
@@ -60,36 +60,36 @@ public interface ODistributedDatabase {
 
   void processRequest(ODistributedRequest request, boolean waitForAcceptingRequests);
 
-  ValidationResult validate(OTransactionId id);
+  ValidationResult validate(FrontendTransactionId id);
 
-  Optional<OTransactionSequenceStatus> status();
+  Optional<FrontendTransactionSequenceStatus> status();
 
-  void rollback(OTransactionId id);
+  void rollback(FrontendTransactionId id);
 
-  OTxMetadataHolder commit(OTransactionId id);
+  FrontendTransacationMetadataHolder commit(FrontendTransactionId id);
 
   ODistributedTxContext registerTxContext(
-      final ODistributedRequestId reqId, ODistributedTxContext ctx);
+      final DistributedRequestId reqId, ODistributedTxContext ctx);
 
-  ODistributedTxContext popTxContext(ODistributedRequestId requestId);
+  ODistributedTxContext popTxContext(DistributedRequestId requestId);
 
-  ODistributedTxContext getTxContext(ODistributedRequestId requestId);
+  ODistributedTxContext getTxContext(DistributedRequestId requestId);
 
   ODistributedServerManager getManager();
 
-  YTDatabaseSessionInternal getDatabaseInstance();
+  DatabaseSessionInternal getDatabaseInstance();
 
   long getReceivedRequests();
 
   long getProcessedRequests();
 
-  Optional<OTransactionId> nextId();
+  Optional<FrontendTransactionId> nextId();
 
-  List<OTransactionId> missingTransactions(OTransactionSequenceStatus lastState);
+  List<FrontendTransactionId> missingTransactions(FrontendTransactionSequenceStatus lastState);
 
-  void validateStatus(OTransactionSequenceStatus status);
+  void validateStatus(FrontendTransactionSequenceStatus status);
 
-  void checkReverseSync(OTransactionSequenceStatus lastState);
+  void checkReverseSync(FrontendTransactionSequenceStatus lastState);
 
   void fillStatus();
 }

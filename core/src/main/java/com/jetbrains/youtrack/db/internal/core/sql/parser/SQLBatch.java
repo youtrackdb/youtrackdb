@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import java.util.Map;
 import java.util.Objects;
 
@@ -27,7 +27,7 @@ public class SQLBatch extends SimpleNode {
     } else if (inputParam != null) {
       Object obj = inputParam.getValue(ctx.getInputParameters());
       if (obj == null || !(obj instanceof Number)) {
-        throw new YTCommandExecutionException(obj + " is not a number (BATCH)");
+        throw new CommandExecutionException(obj + " is not a number (BATCH)");
       }
       return ((Number) obj).intValue();
     }

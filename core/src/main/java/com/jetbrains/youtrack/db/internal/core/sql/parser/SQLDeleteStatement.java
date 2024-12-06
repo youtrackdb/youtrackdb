@@ -4,10 +4,10 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ODeleteExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ODeleteExecutionPlanner;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.DeleteExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.DeleteExecutionPlanner;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -112,27 +112,27 @@ public class SQLDeleteStatement extends SQLStatement {
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
+  public ResultSet execute(
+      DatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
     BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     ctx.setInputParameters(params);
-    ODeleteExecutionPlan executionPlan;
+    DeleteExecutionPlan executionPlan;
     if (usePlanCache) {
       executionPlan = createExecutionPlan(ctx, false);
     } else {
-      executionPlan = (ODeleteExecutionPlan) createExecutionPlanNoCache(ctx, false);
+      executionPlan = (DeleteExecutionPlan) createExecutionPlanNoCache(ctx, false);
     }
     executionPlan.executeInternal();
-    return new YTLocalResultSet(executionPlan);
+    return new LocalResultSet(executionPlan);
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
+  public ResultSet execute(
+      DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
     BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
@@ -146,19 +146,19 @@ public class SQLDeleteStatement extends SQLStatement {
       }
     }
     ctx.setInputParameters(params);
-    ODeleteExecutionPlan executionPlan;
+    DeleteExecutionPlan executionPlan;
     if (usePlanCache) {
       executionPlan = createExecutionPlan(ctx, false);
     } else {
-      executionPlan = (ODeleteExecutionPlan) createExecutionPlanNoCache(ctx, false);
+      executionPlan = (DeleteExecutionPlan) createExecutionPlanNoCache(ctx, false);
     }
     executionPlan.executeInternal();
-    return new YTLocalResultSet(executionPlan);
+    return new LocalResultSet(executionPlan);
   }
 
-  public ODeleteExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    ODeleteExecutionPlanner planner = new ODeleteExecutionPlanner(this);
-    ODeleteExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling);
+  public DeleteExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
+    DeleteExecutionPlanner planner = new DeleteExecutionPlanner(this);
+    DeleteExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling);
     result.setStatement(this.originalStatement);
     result.setGenericStatement(this.toGenericStatement());
     return result;

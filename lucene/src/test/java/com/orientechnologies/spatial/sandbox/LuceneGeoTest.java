@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.spatial.sandbox;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.lucene.test.BaseLuceneTest;
 import com.orientechnologies.spatial.shape.OMultiPolygonShapeBuilder;
@@ -192,7 +192,7 @@ public class LuceneGeoTest extends BaseLuceneTest {
     writer.close();
   }
 
-  protected static EntityImpl loadMultiPolygon(YTDatabaseSessionInternal session) {
+  protected static EntityImpl loadMultiPolygon(DatabaseSessionInternal session) {
     try {
       InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("italy.json");
 

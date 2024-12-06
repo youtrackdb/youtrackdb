@@ -18,10 +18,10 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,8 +36,8 @@ public class DocumentEmbeddedTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    YTClass type = db.getMetadata().getSchema().createClass("City");
-    type.createProperty(db, "name", YTType.STRING);
+    SchemaClass type = db.getMetadata().getSchema().createClass("City");
+    type.createProperty(db, "name", PropertyType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
@@ -59,7 +59,7 @@ public class DocumentEmbeddedTest extends BaseLuceneTest {
     db.save(doc);
     db.commit();
 
-    YTResultSet results = db.query("select from City where name lucene 'London'");
+    ResultSet results = db.query("select from City where name lucene 'London'");
 
     Assert.assertEquals(results.stream().count(), 1);
   }
@@ -76,7 +76,7 @@ public class DocumentEmbeddedTest extends BaseLuceneTest {
 
     db.commit();
 
-    YTResultSet results = db.query("select from City where name lucene 'Berlin'");
+    ResultSet results = db.query("select from City where name lucene 'Berlin'");
 
     Assert.assertEquals(results.stream().count(), 1);
   }

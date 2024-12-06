@@ -13,10 +13,10 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,11 +41,11 @@ public class OMultiPolygonShapeBuilder extends OPolygonShapeBuilder {
   }
 
   @Override
-  public void initClazz(YTDatabaseSessionInternal db) {
+  public void initClazz(DatabaseSessionInternal db) {
 
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass polygon = schema.createAbstractClass(getName(), superClass(db));
-    polygon.createProperty(db, "coordinates", YTType.EMBEDDEDLIST, YTType.EMBEDDEDLIST);
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass polygon = schema.createAbstractClass(getName(), superClass(db));
+    polygon.createProperty(db, "coordinates", PropertyType.EMBEDDEDLIST, PropertyType.EMBEDDEDLIST);
   }
 
   @Override

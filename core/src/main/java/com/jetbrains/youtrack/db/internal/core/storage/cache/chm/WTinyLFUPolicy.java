@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.cache.chm;
 
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCachePointer;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CachePointer;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -15,7 +15,7 @@ public final class WTinyLFUPolicy {
   private static final int PROBATIONARY_PERCENT = 20;
 
   private volatile int maxSize;
-  private final ConcurrentHashMap<PageKey, OCacheEntry> data;
+  private final ConcurrentHashMap<PageKey, CacheEntry> data;
   private final Admittor admittor;
 
   private final AtomicInteger cacheSize;
@@ -29,7 +29,7 @@ public final class WTinyLFUPolicy {
   private int maxSecondLevelSize;
 
   WTinyLFUPolicy(
-      final ConcurrentHashMap<PageKey, OCacheEntry> data,
+      final ConcurrentHashMap<PageKey, CacheEntry> data,
       final Admittor admittor,
       final AtomicInteger cacheSize) {
     this.data = data;
@@ -55,7 +55,7 @@ public final class WTinyLFUPolicy {
     return maxSize;
   }
 
-  public void onAccess(OCacheEntry cacheEntry) {
+  public void onAccess(CacheEntry cacheEntry) {
     admittor.increment(cacheEntry.getPageKey().hashCode());
 
     if (!cacheEntry.isDead()) {
@@ -80,7 +80,7 @@ public final class WTinyLFUPolicy {
     assert probation.size() + protection.size() <= maxSecondLevelSize;
   }
 
-  void onAdd(final OCacheEntry cacheEntry) {
+  void onAdd(final CacheEntry cacheEntry) {
     admittor.increment(cacheEntry.getPageKey().hashCode());
 
     if (cacheEntry.isAlive()) {
@@ -100,13 +100,13 @@ public final class WTinyLFUPolicy {
 
   private void purgeEden() {
     while (eden.size() > maxEdenSize) {
-      final OCacheEntry candidate = eden.poll();
+      final CacheEntry candidate = eden.poll();
       assert candidate != null;
 
       if (probation.size() + protection.size() < maxSecondLevelSize) {
         probation.moveToTheTail(candidate);
       } else {
-        final OCacheEntry victim = probation.peek();
+        final CacheEntry victim = probation.peek();
 
         final int candidateKeyHashCode = candidate.getPageKey().hashCode();
         final int victimKeyHashCode = victim.getPageKey().hashCode();
@@ -126,7 +126,7 @@ public final class WTinyLFUPolicy {
               cacheSize.decrementAndGet();
             }
 
-            final OCachePointer pointer = victim.getCachePointer();
+            final CachePointer pointer = victim.getCachePointer();
 
             pointer.decrementReadersReferrer();
             victim.clearCachePointer();
@@ -142,7 +142,7 @@ public final class WTinyLFUPolicy {
               cacheSize.decrementAndGet();
             }
 
-            final OCachePointer pointer = candidate.getCachePointer();
+            final CachePointer pointer = candidate.getCachePointer();
 
             pointer.decrementReadersReferrer();
             candidate.clearCachePointer();
@@ -156,7 +156,7 @@ public final class WTinyLFUPolicy {
     assert protection.size() <= maxProtectedSize;
   }
 
-  void onRemove(final OCacheEntry cacheEntry) {
+  void onRemove(final CacheEntry cacheEntry) {
     assert cacheEntry.isFrozen();
 
     if (probation.contains(cacheEntry)) {
@@ -169,7 +169,7 @@ public final class WTinyLFUPolicy {
 
     cacheEntry.makeDead();
 
-    final OCachePointer cachePointer = cacheEntry.getCachePointer();
+    final CachePointer cachePointer = cacheEntry.getCachePointer();
     cachePointer.decrementReadersReferrer();
     cacheEntry.clearCachePointer();
   }
@@ -180,15 +180,15 @@ public final class WTinyLFUPolicy {
     maxSecondLevelSize = maxSize - maxEdenSize;
   }
 
-  Iterator<OCacheEntry> eden() {
+  Iterator<CacheEntry> eden() {
     return eden.iterator();
   }
 
-  Iterator<OCacheEntry> protection() {
+  Iterator<CacheEntry> protection() {
     return protection.iterator();
   }
 
-  Iterator<OCacheEntry> probation() {
+  Iterator<CacheEntry> probation() {
     return probation.iterator();
   }
 
@@ -199,24 +199,24 @@ public final class WTinyLFUPolicy {
   }
 
   void assertConsistency() {
-    for (final OCacheEntry cacheEntry : data.values()) {
+    for (final CacheEntry cacheEntry : data.values()) {
       assert eden.contains(cacheEntry)
           || protection.contains(cacheEntry)
           || probation.contains(cacheEntry);
     }
 
     int counter = 0;
-    for (final OCacheEntry cacheEntry : eden) {
+    for (final CacheEntry cacheEntry : eden) {
       assert data.get(cacheEntry.getPageKey()) == cacheEntry;
       counter++;
     }
 
-    for (final OCacheEntry cacheEntry : probation) {
+    for (final CacheEntry cacheEntry : probation) {
       assert data.get(cacheEntry.getPageKey()) == cacheEntry;
       counter++;
     }
 
-    for (final OCacheEntry cacheEntry : protection) {
+    for (final CacheEntry cacheEntry : protection) {
       assert data.get(cacheEntry.getPageKey()) == cacheEntry;
       counter++;
     }

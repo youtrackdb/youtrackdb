@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.resultset;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 
 public final class ExpireResultSet implements ExecutionStream {
 
@@ -34,11 +34,11 @@ public final class ExpireResultSet implements ExecutionStream {
   }
 
   @Override
-  public YTResult next(CommandContext ctx) {
+  public Result next(CommandContext ctx) {
     if (System.currentTimeMillis() > expiryTime) {
       fail();
       if (timedOut) {
-        return new YTResultInternal(ctx.getDatabase());
+        return new ResultInternal(ctx.getDatabase());
       }
     }
     return internal.next(ctx);

@@ -19,39 +19,39 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.OPhysicalPosition;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 
 public class OFloorPhysicalPositionsResponse implements OBinaryResponse {
 
-  private OPhysicalPosition[] positions;
+  private PhysicalPosition[] positions;
 
   public OFloorPhysicalPositionsResponse() {
   }
 
-  public OFloorPhysicalPositionsResponse(OPhysicalPosition[] previousPositions) {
+  public OFloorPhysicalPositionsResponse(PhysicalPosition[] previousPositions) {
     this.positions = previousPositions;
   }
 
   @Override
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
+  public void read(DatabaseSessionInternal db, ChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
     this.positions = OMessageHelper.readPhysicalPositions(network);
   }
 
-  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel,
-      int protocolVersion, ORecordSerializer serializer)
+  public void write(DatabaseSessionInternal session, ChannelDataOutput channel,
+      int protocolVersion, RecordSerializer serializer)
       throws IOException {
     OMessageHelper.writePhysicalPositions(channel, positions);
   }
 
-  public OPhysicalPosition[] getPositions() {
+  public PhysicalPosition[] getPositions() {
     return positions;
   }
 }

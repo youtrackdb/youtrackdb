@@ -19,11 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.OMultiValueChangeTimeLine;
-import com.jetbrains.youtrack.db.internal.core.db.record.OTrackedMultiValue;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMultiValue;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 
 /**
  * Document entry. Used by EntityImpl.
@@ -32,8 +32,8 @@ public class EntityEntry {
 
   public Object value;
   public Object original;
-  public YTType type;
-  public YTProperty property;
+  public PropertyType type;
+  public Property property;
   private boolean changed = false;
   private boolean exists = true;
   private boolean created = false;
@@ -83,9 +83,9 @@ public class EntityEntry {
     return entry;
   }
 
-  public OMultiValueChangeTimeLine<Object, Object> getTimeLine() {
+  public MultiValueChangeTimeLine<Object, Object> getTimeLine() {
     //noinspection rawtypes
-    if (!changed && value instanceof OTrackedMultiValue trackedMultiValue) {
+    if (!changed && value instanceof TrackedMultiValue trackedMultiValue) {
       //noinspection unchecked
       return trackedMultiValue.getTimeLine();
     } else {
@@ -107,7 +107,7 @@ public class EntityEntry {
 
   public void removeTimeline() {
     //noinspection rawtypes
-    if (value instanceof OTrackedMultiValue trackedMultiValue) {
+    if (value instanceof TrackedMultiValue trackedMultiValue) {
       trackedMultiValue.disableTracking(null);
     }
   }
@@ -118,7 +118,7 @@ public class EntityEntry {
 
   public boolean enableTracking(EntityImpl document) {
     //noinspection rawtypes
-    if (value instanceof OTrackedMultiValue trackedMultiValue) {
+    if (value instanceof TrackedMultiValue trackedMultiValue) {
       trackedMultiValue.enableTracking(document);
       return true;
     } else {
@@ -128,14 +128,14 @@ public class EntityEntry {
 
   public void disableTracking(EntityImpl document, Object fieldValue) {
     //noinspection rawtypes
-    if (fieldValue instanceof OTrackedMultiValue trackedMultiValue) {
+    if (fieldValue instanceof TrackedMultiValue trackedMultiValue) {
       trackedMultiValue.disableTracking(document);
     }
   }
 
   public boolean isTrackedModified() {
     //noinspection rawtypes
-    if (value instanceof OTrackedMultiValue trackedMultiValue) {
+    if (value instanceof TrackedMultiValue trackedMultiValue) {
       return trackedMultiValue.isModified();
     }
     if (value instanceof EntityImpl document && document.isEmbedded()) {
@@ -146,7 +146,7 @@ public class EntityEntry {
 
   public boolean isTxTrackedModified() {
     //noinspection rawtypes
-    if (value instanceof OTrackedMultiValue trackedMultiValue) {
+    if (value instanceof TrackedMultiValue trackedMultiValue) {
       return trackedMultiValue.isTransactionModified();
     }
     if (value instanceof EntityImpl document && document.isEmbedded()) {
@@ -185,7 +185,7 @@ public class EntityEntry {
 
   public void transactionClear() {
     //noinspection rawtypes
-    if (value instanceof OTrackedMultiValue trackedMultiValue) {
+    if (value instanceof TrackedMultiValue trackedMultiValue) {
       trackedMultiValue.transactionClear();
     }
     this.txCreated = false;
@@ -194,16 +194,16 @@ public class EntityEntry {
     this.onLoadValue = null;
   }
 
-  public Object getOnLoadValue(YTDatabaseSessionInternal session) {
-    if (!hasOnLoadValue && !(value instanceof OTrackedMultiValue<?, ?>)) {
+  public Object getOnLoadValue(DatabaseSessionInternal session) {
+    if (!hasOnLoadValue && !(value instanceof TrackedMultiValue<?, ?>)) {
       return value;
     }
 
     if (hasOnLoadValue) {
       //noinspection rawtypes
-      if (onLoadValue instanceof OTrackedMultiValue trackedOnLoadValue) {
+      if (onLoadValue instanceof TrackedMultiValue trackedOnLoadValue) {
         //noinspection rawtypes
-        OMultiValueChangeTimeLine transactionTimeLine = trackedOnLoadValue.getTransactionTimeLine();
+        MultiValueChangeTimeLine transactionTimeLine = trackedOnLoadValue.getTransactionTimeLine();
         //noinspection unchecked
         return transactionTimeLine != null
             ? trackedOnLoadValue.returnOriginalState(session,
@@ -214,9 +214,9 @@ public class EntityEntry {
       }
     } else {
       //noinspection rawtypes
-      OTrackedMultiValue trackedOnLoadValue = (OTrackedMultiValue) value;
+      TrackedMultiValue trackedOnLoadValue = (TrackedMultiValue) value;
       //noinspection rawtypes
-      OMultiValueChangeTimeLine transactionTimeLine = trackedOnLoadValue.getTransactionTimeLine();
+      MultiValueChangeTimeLine transactionTimeLine = trackedOnLoadValue.getTransactionTimeLine();
       //noinspection unchecked
       return transactionTimeLine != null
           ? trackedOnLoadValue.returnOriginalState(session,

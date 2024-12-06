@@ -19,18 +19,18 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OCollectionNetworkSerializer;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 
 public class OSBTFetchEntriesMajorRequest<K, V>
@@ -38,17 +38,17 @@ public class OSBTFetchEntriesMajorRequest<K, V>
 
   private boolean inclusive;
   private byte[] keyStream;
-  private OBonsaiCollectionPointer pointer;
+  private BonsaiCollectionPointer pointer;
   private int pageSize;
-  private OBinarySerializer<K> keySerializer;
-  private OBinarySerializer<V> valueSerializer;
+  private BinarySerializer<K> keySerializer;
+  private BinarySerializer<V> valueSerializer;
 
   public OSBTFetchEntriesMajorRequest(
       boolean inclusive,
       byte[] keyStream,
-      OBonsaiCollectionPointer pointer,
-      OBinarySerializer<K> keySerializer,
-      OBinarySerializer<V> valueSerializer) {
+      BonsaiCollectionPointer pointer,
+      BinarySerializer<K> keySerializer,
+      BinarySerializer<V> valueSerializer) {
     this.inclusive = inclusive;
     this.keyStream = keyStream;
     this.pointer = pointer;
@@ -60,7 +60,7 @@ public class OSBTFetchEntriesMajorRequest<K, V>
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     OCollectionNetworkSerializer.INSTANCE.writeCollectionPointer(network, pointer);
     network.writeBytes(keyStream);
@@ -68,8 +68,8 @@ public class OSBTFetchEntriesMajorRequest<K, V>
     network.writeInt(128);
   }
 
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
-      ORecordSerializer serializer)
+  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+      RecordSerializer serializer)
       throws IOException {
     this.pointer = OCollectionNetworkSerializer.INSTANCE.readCollectionPointer(channel);
     this.keyStream = channel.readBytes();
@@ -83,7 +83,7 @@ public class OSBTFetchEntriesMajorRequest<K, V>
 
   @Override
   public byte getCommand() {
-    return OChannelBinaryProtocol.REQUEST_SBTREE_BONSAI_GET_ENTRIES_MAJOR;
+    return ChannelBinaryProtocol.REQUEST_SBTREE_BONSAI_GET_ENTRIES_MAJOR;
   }
 
   @Override
@@ -95,7 +95,7 @@ public class OSBTFetchEntriesMajorRequest<K, V>
     return keyStream;
   }
 
-  public OBonsaiCollectionPointer getPointer() {
+  public BonsaiCollectionPointer getPointer() {
     return pointer;
   }
 

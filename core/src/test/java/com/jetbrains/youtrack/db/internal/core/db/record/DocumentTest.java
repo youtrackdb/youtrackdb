@@ -20,15 +20,15 @@
 
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class DocumentTest extends DBTestBase {
+public class DocumentTest extends DbTestBase {
 
   @Test
   public void testFromMapNotSaved() {
@@ -78,8 +78,8 @@ public class DocumentTest extends DBTestBase {
     EntityImpl doc = new EntityImpl();
 
     doc.field("some", 3);
-    doc.setFieldType("some", YTType.STRING);
-    Assert.assertEquals(doc.fieldType("some"), YTType.STRING);
+    doc.setFieldType("some", PropertyType.STRING);
+    Assert.assertEquals(doc.fieldType("some"), PropertyType.STRING);
     Assert.assertEquals(doc.field("some"), "3");
   }
 

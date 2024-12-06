@@ -1,25 +1,25 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.cache;
 
-import com.jetbrains.youtrack.db.internal.common.collection.closabledictionary.OClosableLinkedContainer;
-import com.jetbrains.youtrack.db.internal.common.directmemory.OByteBufferPool;
-import com.jetbrains.youtrack.db.internal.common.directmemory.ODirectMemoryAllocator.Intention;
-import com.jetbrains.youtrack.db.internal.common.directmemory.OPointer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OLongSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OStringSerializer;
-import com.jetbrains.youtrack.db.internal.common.types.OModifiableBoolean;
+import com.jetbrains.youtrack.db.internal.common.collection.closabledictionary.ClosableLinkedContainer;
+import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
+import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator.Intention;
+import com.jetbrains.youtrack.db.internal.common.directmemory.Pointer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.StringSerializer;
+import com.jetbrains.youtrack.db.internal.common.types.ModifiableBoolean;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
-import com.jetbrains.youtrack.db.internal.core.storage.OChecksumMode;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCachePointer;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.local.OWOWCache;
+import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
+import com.jetbrains.youtrack.db.internal.core.storage.ChecksumMode;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CachePointer;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.local.WOWCache;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.local.doublewritelog.DoubleWriteLogNoOP;
 import com.jetbrains.youtrack.db.internal.core.storage.fs.AsyncFile;
-import com.jetbrains.youtrack.db.internal.core.storage.fs.OFile;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurablePage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OAbstractWALRecord;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALRecordsFactory;
+import com.jetbrains.youtrack.db.internal.core.storage.fs.File;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.AbstractWALRecord;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.LogSequenceNumber;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALRecordsFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.cas.CASDiskWriteAheadLog;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -50,17 +50,17 @@ import org.junit.Test;
  */
 public class WOWCacheTestIT {
 
-  private static final int pageSize = ODurablePage.NEXT_FREE_POSITION + 8;
+  private static final int pageSize = DurablePage.NEXT_FREE_POSITION + 8;
 
   private static String fileName;
 
   private static CASDiskWriteAheadLog writeAheadLog;
-  private static final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
+  private static final ByteBufferPool bufferPool = new ByteBufferPool(pageSize);
   private static Path storagePath;
-  private static OWOWCache wowCache;
+  private static WOWCache wowCache;
   private static String storageName;
 
-  private final OClosableLinkedContainer<Long, OFile> files = new OClosableLinkedContainer<>(1024);
+  private final ClosableLinkedContainer<Long, File> files = new ClosableLinkedContainer<>(1024);
 
   @BeforeClass
   public static void beforeClass() {
@@ -72,7 +72,7 @@ public class WOWCacheTestIT {
     storageName = "WOWCacheTest";
     storagePath = Paths.get(buildDirectory).resolve(storageName);
 
-    OWALRecordsFactory.INSTANCE.registerNewRecord((byte) 128, TestRecord.class);
+    WALRecordsFactory.INSTANCE.registerNewRecord((byte) 128, TestRecord.class);
   }
 
   @Before
@@ -152,7 +152,7 @@ public class WOWCacheTestIT {
             true,
             10);
     wowCache =
-        new OWOWCache(
+        new WOWCache(
             pageSize,
             false,
             bufferPool,
@@ -163,10 +163,10 @@ public class WOWCacheTestIT {
             100,
             storagePath,
             storageName,
-            OStringSerializer.INSTANCE,
+            StringSerializer.INSTANCE,
             files,
             1,
-            OChecksumMode.StoreAndVerify,
+            ChecksumMode.StoreAndVerify,
             null,
             null,
             false,
@@ -191,13 +191,13 @@ public class WOWCacheTestIT {
 
       final int pageIndex = wowCache.allocateNewPage(fileId);
       Assert.assertEquals(i, pageIndex);
-      final OCachePointer cachePointer = wowCache.load(fileId, i, new OModifiableBoolean(), false);
+      final CachePointer cachePointer = wowCache.load(fileId, i, new ModifiableBoolean(), false);
       cachePointer.acquireExclusiveLock();
 
       ByteBuffer buffer = cachePointer.getBuffer();
       assert buffer != null;
 
-      buffer.put(ODurablePage.NEXT_FREE_POSITION, data);
+      buffer.put(DurablePage.NEXT_FREE_POSITION, data);
       cachePointer.releaseExclusiveLock();
 
       wowCache.store(fileId, i, cachePointer);
@@ -207,11 +207,11 @@ public class WOWCacheTestIT {
     for (int i = 0; i < pageData.length; i++) {
       byte[] dataOne = pageData[i];
 
-      OCachePointer cachePointer = wowCache.load(fileId, i, new OModifiableBoolean(), true);
+      CachePointer cachePointer = wowCache.load(fileId, i, new ModifiableBoolean(), true);
       byte[] dataTwo = new byte[8];
       ByteBuffer buffer = cachePointer.getBuffer();
       assert buffer != null;
-      buffer.get(ODurablePage.NEXT_FREE_POSITION, dataTwo);
+      buffer.get(DurablePage.NEXT_FREE_POSITION, dataTwo);
       cachePointer.decrementReadersReferrer();
 
       Assert.assertArrayEquals(dataTwo, dataOne);
@@ -221,7 +221,7 @@ public class WOWCacheTestIT {
 
     for (int i = 0; i < pageData.length; i++) {
       byte[] dataContent = pageData[i];
-      assertFile(i, dataContent, new OLogSequenceNumber(0, 0), nativeFileName);
+      assertFile(i, dataContent, new LogSequenceNumber(0, 0), nativeFileName);
     }
   }
 
@@ -256,7 +256,7 @@ public class WOWCacheTestIT {
             true,
             10);
     wowCache =
-        new OWOWCache(
+        new WOWCache(
             pageSize,
             false,
             bufferPool,
@@ -267,10 +267,10 @@ public class WOWCacheTestIT {
             100,
             storagePath,
             storageName,
-            OStringSerializer.INSTANCE,
+            StringSerializer.INSTANCE,
             files,
             1,
-            OChecksumMode.StoreAndVerify,
+            ChecksumMode.StoreAndVerify,
             iv,
             aesKey,
             false,
@@ -292,13 +292,13 @@ public class WOWCacheTestIT {
 
       final int pageIndex = wowCache.allocateNewPage(fileId);
       Assert.assertEquals(i, pageIndex);
-      final OCachePointer cachePointer = wowCache.load(fileId, i, new OModifiableBoolean(), false);
+      final CachePointer cachePointer = wowCache.load(fileId, i, new ModifiableBoolean(), false);
       cachePointer.acquireExclusiveLock();
 
       ByteBuffer buffer = cachePointer.getBuffer();
       assert buffer != null;
 
-      buffer.put(ODurablePage.NEXT_FREE_POSITION, data);
+      buffer.put(DurablePage.NEXT_FREE_POSITION, data);
       cachePointer.releaseExclusiveLock();
 
       wowCache.store(fileId, i, cachePointer);
@@ -308,12 +308,12 @@ public class WOWCacheTestIT {
     for (int i = 0; i < pageData.length; i++) {
       byte[] dataOne = pageData[i];
 
-      OCachePointer cachePointer = wowCache.load(fileId, i, new OModifiableBoolean(), true);
+      CachePointer cachePointer = wowCache.load(fileId, i, new ModifiableBoolean(), true);
       byte[] dataTwo = new byte[8];
       ByteBuffer buffer = cachePointer.getBuffer();
       assert buffer != null;
 
-      buffer.get(ODurablePage.NEXT_FREE_POSITION, dataTwo);
+      buffer.get(DurablePage.NEXT_FREE_POSITION, dataTwo);
       cachePointer.decrementReadersReferrer();
 
       Assert.assertArrayEquals(dataTwo, dataOne);
@@ -324,12 +324,12 @@ public class WOWCacheTestIT {
     for (int i = 0; i < pageData.length; i++) {
       byte[] dataOne = pageData[i];
 
-      OCachePointer cachePointer = wowCache.load(fileId, i, new OModifiableBoolean(), true);
+      CachePointer cachePointer = wowCache.load(fileId, i, new ModifiableBoolean(), true);
       byte[] dataTwo = new byte[8];
       ByteBuffer buffer = cachePointer.getBuffer();
       assert buffer != null;
 
-      buffer.get(ODurablePage.NEXT_FREE_POSITION, dataTwo);
+      buffer.get(DurablePage.NEXT_FREE_POSITION, dataTwo);
       cachePointer.decrementReadersReferrer();
 
       Assert.assertArrayEquals(dataTwo, dataOne);
@@ -341,7 +341,7 @@ public class WOWCacheTestIT {
           wowCache.internalFileId(fileId),
           i,
           dataContent,
-          new OLogSequenceNumber(0, 0),
+          new LogSequenceNumber(0, 0),
           nativeFileName,
           aesKey,
           iv);
@@ -359,8 +359,8 @@ public class WOWCacheTestIT {
     for (int i = 0; i < 2048; i++) {
       wowCache.allocateNewPage(fileId);
 
-      final OPointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
-      final OCachePointer cachePointer = new OCachePointer(pointer, bufferPool, fileId, i);
+      final Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+      final CachePointer cachePointer = new CachePointer(pointer, bufferPool, fileId, i);
 
       cachePointer.incrementReadersReferrer();
       wowCache.store(fileId, i, cachePointer);
@@ -375,16 +375,16 @@ public class WOWCacheTestIT {
 
       pageIndexDataMap.put(pageIndex, data);
 
-      final OCachePointer cachePointer =
-          wowCache.load(fileId, pageIndex, new OModifiableBoolean(), false);
+      final CachePointer cachePointer =
+          wowCache.load(fileId, pageIndex, new ModifiableBoolean(), false);
       cachePointer.acquireExclusiveLock();
       ByteBuffer buffer = cachePointer.getBuffer();
       assert buffer != null;
 
       Assert.assertEquals(
-          new OLogSequenceNumber(0, 0), ODurablePage.getLogSequenceNumberFromPage(buffer));
+          new LogSequenceNumber(0, 0), DurablePage.getLogSequenceNumberFromPage(buffer));
 
-      buffer.put(ODurablePage.NEXT_FREE_POSITION, data);
+      buffer.put(DurablePage.NEXT_FREE_POSITION, data);
       cachePointer.releaseExclusiveLock();
 
       wowCache.store(fileId, pageIndex, cachePointer);
@@ -395,11 +395,11 @@ public class WOWCacheTestIT {
       long pageIndex = entry.getKey();
       byte[] dataOne = entry.getValue();
 
-      OCachePointer cachePointer = wowCache.load(fileId, pageIndex, new OModifiableBoolean(), true);
+      CachePointer cachePointer = wowCache.load(fileId, pageIndex, new ModifiableBoolean(), true);
       byte[] dataTwo = new byte[8];
       ByteBuffer buffer = cachePointer.getBuffer();
       assert buffer != null;
-      buffer.get(ODurablePage.NEXT_FREE_POSITION, dataTwo);
+      buffer.get(DurablePage.NEXT_FREE_POSITION, dataTwo);
 
       cachePointer.decrementReadersReferrer();
       Assert.assertArrayEquals(dataTwo, dataOne);
@@ -417,14 +417,14 @@ public class WOWCacheTestIT {
       random.nextBytes(data);
       pageIndexDataMap.put(pageIndex, data);
 
-      final OCachePointer cachePointer =
-          wowCache.load(fileId, pageIndex, new OModifiableBoolean(), true);
+      final CachePointer cachePointer =
+          wowCache.load(fileId, pageIndex, new ModifiableBoolean(), true);
 
       cachePointer.acquireExclusiveLock();
       ByteBuffer buffer = cachePointer.getBuffer();
       assert buffer != null;
 
-      buffer.put(ODurablePage.NEXT_FREE_POSITION, data);
+      buffer.put(DurablePage.NEXT_FREE_POSITION, data);
       cachePointer.releaseExclusiveLock();
 
       wowCache.store(fileId, pageIndex, cachePointer);
@@ -434,12 +434,12 @@ public class WOWCacheTestIT {
     for (Map.Entry<Long, byte[]> entry : pageIndexDataMap.entrySet()) {
       long pageIndex = entry.getKey();
       byte[] dataOne = entry.getValue();
-      OCachePointer cachePointer = wowCache.load(fileId, pageIndex, new OModifiableBoolean(), true);
+      CachePointer cachePointer = wowCache.load(fileId, pageIndex, new ModifiableBoolean(), true);
       byte[] dataTwo = new byte[8];
       ByteBuffer buffer = cachePointer.getBuffer();
       assert buffer != null;
 
-      buffer.get(ODurablePage.NEXT_FREE_POSITION, dataTwo);
+      buffer.get(DurablePage.NEXT_FREE_POSITION, dataTwo);
       cachePointer.decrementReadersReferrer();
 
       Assert.assertArrayEquals(dataTwo, dataOne);
@@ -448,7 +448,7 @@ public class WOWCacheTestIT {
     wowCache.flush();
 
     for (Map.Entry<Long, byte[]> entry : pageIndexDataMap.entrySet()) {
-      assertFile(entry.getKey(), entry.getValue(), new OLogSequenceNumber(0, 0), nativeFileName);
+      assertFile(entry.getKey(), entry.getValue(), new LogSequenceNumber(0, 0), nativeFileName);
     }
   }
 
@@ -483,7 +483,7 @@ public class WOWCacheTestIT {
             true,
             10);
     wowCache =
-        new OWOWCache(
+        new WOWCache(
             pageSize,
             false,
             bufferPool,
@@ -494,10 +494,10 @@ public class WOWCacheTestIT {
             100,
             storagePath,
             storageName,
-            OStringSerializer.INSTANCE,
+            StringSerializer.INSTANCE,
             files,
             1,
-            OChecksumMode.StoreAndVerify,
+            ChecksumMode.StoreAndVerify,
             iv,
             aesKey,
             false,
@@ -527,18 +527,18 @@ public class WOWCacheTestIT {
       boolean verifyChecksums = pageIndexDataMap.containsKey(pageIndex);
       pageIndexDataMap.put(pageIndex, data);
 
-      final OCachePointer cachePointer =
-          wowCache.load(fileId, pageIndex, new OModifiableBoolean(), verifyChecksums);
+      final CachePointer cachePointer =
+          wowCache.load(fileId, pageIndex, new ModifiableBoolean(), verifyChecksums);
       ByteBuffer bufferDuplicate = cachePointer.getBuffer();
       assert bufferDuplicate != null;
 
       Assert.assertEquals(
-          new OLogSequenceNumber(0, 0), ODurablePage.getLogSequenceNumberFromPage(bufferDuplicate));
+          new LogSequenceNumber(0, 0), DurablePage.getLogSequenceNumberFromPage(bufferDuplicate));
 
       cachePointer.acquireExclusiveLock();
       ByteBuffer buffer = cachePointer.getBuffer();
 
-      buffer.put(ODurablePage.NEXT_FREE_POSITION, data);
+      buffer.put(DurablePage.NEXT_FREE_POSITION, data);
 
       cachePointer.releaseExclusiveLock();
 
@@ -550,12 +550,12 @@ public class WOWCacheTestIT {
       long pageIndex = entry.getKey();
       byte[] dataOne = entry.getValue();
 
-      OCachePointer cachePointer = wowCache.load(fileId, pageIndex, new OModifiableBoolean(), true);
+      CachePointer cachePointer = wowCache.load(fileId, pageIndex, new ModifiableBoolean(), true);
       byte[] dataTwo = new byte[8];
       ByteBuffer buffer = cachePointer.getBuffer();
       assert buffer != null;
 
-      buffer.get(ODurablePage.NEXT_FREE_POSITION, dataTwo);
+      buffer.get(DurablePage.NEXT_FREE_POSITION, dataTwo);
 
       cachePointer.decrementReadersReferrer();
       Assert.assertArrayEquals(dataTwo, dataOne);
@@ -573,14 +573,14 @@ public class WOWCacheTestIT {
       random.nextBytes(data);
       pageIndexDataMap.put(pageIndex, data);
 
-      final OCachePointer cachePointer =
-          wowCache.load(fileId, pageIndex, new OModifiableBoolean(), true);
+      final CachePointer cachePointer =
+          wowCache.load(fileId, pageIndex, new ModifiableBoolean(), true);
 
       cachePointer.acquireExclusiveLock();
       ByteBuffer buffer = cachePointer.getBuffer();
       assert buffer != null;
 
-      buffer.put(ODurablePage.NEXT_FREE_POSITION, data);
+      buffer.put(DurablePage.NEXT_FREE_POSITION, data);
 
       cachePointer.releaseExclusiveLock();
 
@@ -591,12 +591,12 @@ public class WOWCacheTestIT {
     for (Map.Entry<Long, byte[]> entry : pageIndexDataMap.entrySet()) {
       long pageIndex = entry.getKey();
       byte[] dataOne = entry.getValue();
-      OCachePointer cachePointer = wowCache.load(fileId, pageIndex, new OModifiableBoolean(), true);
+      CachePointer cachePointer = wowCache.load(fileId, pageIndex, new ModifiableBoolean(), true);
       byte[] dataTwo = new byte[8];
       ByteBuffer buffer = cachePointer.getBuffer();
       assert buffer != null;
 
-      buffer.get(ODurablePage.NEXT_FREE_POSITION, dataTwo);
+      buffer.get(DurablePage.NEXT_FREE_POSITION, dataTwo);
       cachePointer.decrementReadersReferrer();
 
       Assert.assertArrayEquals(dataTwo, dataOne);
@@ -609,7 +609,7 @@ public class WOWCacheTestIT {
           wowCache.internalFileId(fileId),
           (int) entry.getKey().longValue(),
           entry.getValue(),
-          new OLogSequenceNumber(0, 0),
+          new LogSequenceNumber(0, 0),
           nativeFileName,
           aesKey,
           iv);
@@ -676,17 +676,17 @@ public class WOWCacheTestIT {
 
   @Test
   public void testChecksumFailure() throws IOException {
-    wowCache.setChecksumMode(OChecksumMode.StoreAndThrow);
+    wowCache.setChecksumMode(ChecksumMode.StoreAndThrow);
 
     final long fileId = wowCache.addFile(fileName);
     Assert.assertEquals(0, wowCache.allocateNewPage(fileId));
-    final OCachePointer cachePointer = wowCache.load(fileId, 0, new OModifiableBoolean(), false);
+    final CachePointer cachePointer = wowCache.load(fileId, 0, new ModifiableBoolean(), false);
 
     cachePointer.acquireExclusiveLock();
     final ByteBuffer buffer = cachePointer.getBuffer();
     assert buffer != null;
 
-    buffer.put(ODurablePage.NEXT_FREE_POSITION, new byte[buffer.remaining()]);
+    buffer.put(DurablePage.NEXT_FREE_POSITION, new byte[buffer.remaining()]);
     cachePointer.releaseExclusiveLock();
 
     wowCache.store(fileId, 0, cachePointer);
@@ -698,34 +698,34 @@ public class WOWCacheTestIT {
     assert fileName != null;
 
     final Path path = storagePath.resolve(fileName);
-    final OFile file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
+    final File file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
     file.open();
     file.write(
-        ODurablePage.NEXT_FREE_POSITION,
+        DurablePage.NEXT_FREE_POSITION,
         ByteBuffer.wrap(new byte[]{1}).order(ByteOrder.nativeOrder()));
     file.close();
 
     try {
-      wowCache.load(fileId, 0, new OModifiableBoolean(), true);
+      wowCache.load(fileId, 0, new ModifiableBoolean(), true);
       Assert.fail();
-    } catch (YTStorageException e) {
+    } catch (StorageException e) {
       // ok
     }
   }
 
   @Test
   public void testMagicFailure() throws IOException {
-    wowCache.setChecksumMode(OChecksumMode.StoreAndThrow);
+    wowCache.setChecksumMode(ChecksumMode.StoreAndThrow);
 
     final long fileId = wowCache.addFile(fileName);
     Assert.assertEquals(0, wowCache.allocateNewPage(fileId));
-    final OCachePointer cachePointer = wowCache.load(fileId, 0, new OModifiableBoolean(), false);
+    final CachePointer cachePointer = wowCache.load(fileId, 0, new ModifiableBoolean(), false);
 
     cachePointer.acquireExclusiveLock();
     final ByteBuffer buffer = cachePointer.getBuffer();
     assert buffer != null;
 
-    buffer.put(ODurablePage.NEXT_FREE_POSITION, new byte[buffer.remaining()]);
+    buffer.put(DurablePage.NEXT_FREE_POSITION, new byte[buffer.remaining()]);
     cachePointer.releaseExclusiveLock();
 
     wowCache.store(fileId, 0, cachePointer);
@@ -737,32 +737,32 @@ public class WOWCacheTestIT {
     assert fileName != null;
 
     final Path path = storagePath.resolve(fileName);
-    final OFile file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
+    final File file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
     file.open();
     file.write(0, ByteBuffer.wrap(new byte[]{1}).order(ByteOrder.nativeOrder()));
     file.close();
 
     try {
-      wowCache.load(fileId, 0, new OModifiableBoolean(), true);
+      wowCache.load(fileId, 0, new ModifiableBoolean(), true);
       Assert.fail();
-    } catch (YTStorageException e) {
+    } catch (StorageException e) {
       // ok
     }
   }
 
   @Test
   public void testNoChecksumVerificationIfNotRequested() throws IOException {
-    wowCache.setChecksumMode(OChecksumMode.StoreAndThrow);
+    wowCache.setChecksumMode(ChecksumMode.StoreAndThrow);
 
     final long fileId = wowCache.addFile(fileName);
     Assert.assertEquals(0, wowCache.allocateNewPage(fileId));
-    final OCachePointer cachePointer = wowCache.load(fileId, 0, new OModifiableBoolean(), false);
+    final CachePointer cachePointer = wowCache.load(fileId, 0, new ModifiableBoolean(), false);
 
     cachePointer.acquireExclusiveLock();
     final ByteBuffer buffer = cachePointer.getBuffer();
     assert buffer != null;
 
-    buffer.put(ODurablePage.NEXT_FREE_POSITION, new byte[buffer.remaining()]);
+    buffer.put(DurablePage.NEXT_FREE_POSITION, new byte[buffer.remaining()]);
     cachePointer.releaseExclusiveLock();
 
     wowCache.store(fileId, 0, cachePointer);
@@ -774,29 +774,29 @@ public class WOWCacheTestIT {
     assert fileName != null;
 
     final Path path = storagePath.resolve(fileName);
-    final OFile file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
+    final File file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
     file.open();
     file.write(
-        ODurablePage.NEXT_FREE_POSITION,
+        DurablePage.NEXT_FREE_POSITION,
         ByteBuffer.wrap(new byte[]{1}).order(ByteOrder.nativeOrder()));
     file.close();
 
-    wowCache.load(fileId, 0, new OModifiableBoolean(), false).decrementReadersReferrer();
+    wowCache.load(fileId, 0, new ModifiableBoolean(), false).decrementReadersReferrer();
   }
 
   @Test
   public void testNoChecksumFailureIfVerificationTurnedOff() throws IOException {
-    wowCache.setChecksumMode(OChecksumMode.Off);
+    wowCache.setChecksumMode(ChecksumMode.Off);
 
     final long fileId = wowCache.addFile(fileName);
     Assert.assertEquals(0, wowCache.allocateNewPage(fileId));
-    final OCachePointer cachePointer = wowCache.load(fileId, 0, new OModifiableBoolean(), true);
+    final CachePointer cachePointer = wowCache.load(fileId, 0, new ModifiableBoolean(), true);
 
     cachePointer.acquireExclusiveLock();
     final ByteBuffer buffer = cachePointer.getBuffer();
     assert buffer != null;
 
-    buffer.put(ODurablePage.NEXT_FREE_POSITION, new byte[buffer.remaining()]);
+    buffer.put(DurablePage.NEXT_FREE_POSITION, new byte[buffer.remaining()]);
     cachePointer.releaseExclusiveLock();
 
     wowCache.store(fileId, 0, cachePointer);
@@ -808,29 +808,29 @@ public class WOWCacheTestIT {
     assert fileName != null;
 
     final Path path = storagePath.resolve(fileName);
-    final OFile file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
+    final File file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
     file.open();
     file.write(
-        ODurablePage.NEXT_FREE_POSITION,
+        DurablePage.NEXT_FREE_POSITION,
         ByteBuffer.wrap(new byte[]{1}).order(ByteOrder.nativeOrder()));
     file.close();
 
-    wowCache.load(fileId, 0, new OModifiableBoolean(), true).decrementReadersReferrer();
+    wowCache.load(fileId, 0, new ModifiableBoolean(), true).decrementReadersReferrer();
   }
 
   @Test
   public void testNoChecksumFailureIfVerificationTurnedOffOnLoad() throws IOException {
-    wowCache.setChecksumMode(OChecksumMode.Store);
+    wowCache.setChecksumMode(ChecksumMode.Store);
 
     final long fileId = wowCache.addFile(fileName);
     Assert.assertEquals(0, wowCache.allocateNewPage(fileId));
-    final OCachePointer cachePointer = wowCache.load(fileId, 0, new OModifiableBoolean(), true);
+    final CachePointer cachePointer = wowCache.load(fileId, 0, new ModifiableBoolean(), true);
 
     cachePointer.acquireExclusiveLock();
     final ByteBuffer buffer = cachePointer.getBuffer();
     assert buffer != null;
 
-    buffer.put(ODurablePage.NEXT_FREE_POSITION, new byte[buffer.remaining()]);
+    buffer.put(DurablePage.NEXT_FREE_POSITION, new byte[buffer.remaining()]);
     cachePointer.releaseExclusiveLock();
 
     wowCache.store(fileId, 0, cachePointer);
@@ -842,29 +842,29 @@ public class WOWCacheTestIT {
     assert fileName != null;
 
     final Path path = storagePath.resolve(fileName);
-    final OFile file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
+    final File file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
     file.open();
     file.write(
-        ODurablePage.NEXT_FREE_POSITION,
+        DurablePage.NEXT_FREE_POSITION,
         ByteBuffer.wrap(new byte[]{1}).order(ByteOrder.nativeOrder()));
     file.close();
 
-    wowCache.load(fileId, 0, new OModifiableBoolean(), true).decrementReadersReferrer();
+    wowCache.load(fileId, 0, new ModifiableBoolean(), true).decrementReadersReferrer();
   }
 
   @Test
   public void testNoChecksumFailureIfNoChecksumProvided() throws IOException {
-    wowCache.setChecksumMode(OChecksumMode.Off);
+    wowCache.setChecksumMode(ChecksumMode.Off);
 
     final long fileId = wowCache.addFile(fileName);
     Assert.assertEquals(0, wowCache.allocateNewPage(fileId));
-    final OCachePointer cachePointer = wowCache.load(fileId, 0, new OModifiableBoolean(), true);
+    final CachePointer cachePointer = wowCache.load(fileId, 0, new ModifiableBoolean(), true);
 
     cachePointer.acquireExclusiveLock();
     final ByteBuffer buffer = cachePointer.getBuffer();
     assert buffer != null;
 
-    buffer.put(ODurablePage.NEXT_FREE_POSITION, new byte[buffer.remaining()]);
+    buffer.put(DurablePage.NEXT_FREE_POSITION, new byte[buffer.remaining()]);
     cachePointer.releaseExclusiveLock();
 
     wowCache.store(fileId, 0, cachePointer);
@@ -876,43 +876,43 @@ public class WOWCacheTestIT {
     assert fileName != null;
 
     final Path path = storagePath.resolve(fileName);
-    final OFile file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
+    final File file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
     file.open();
     file.write(
-        ODurablePage.NEXT_FREE_POSITION,
+        DurablePage.NEXT_FREE_POSITION,
         ByteBuffer.wrap(new byte[]{1}).order(ByteOrder.nativeOrder()));
     file.close();
 
-    wowCache.setChecksumMode(OChecksumMode.StoreAndThrow);
-    wowCache.load(fileId, 0, new OModifiableBoolean(), true).decrementReadersReferrer();
+    wowCache.setChecksumMode(ChecksumMode.StoreAndThrow);
+    wowCache.load(fileId, 0, new ModifiableBoolean(), true).decrementReadersReferrer();
   }
 
   private static void assertFile(
-      long pageIndex, byte[] value, OLogSequenceNumber lsn, String fileName) throws IOException {
-    OFile fileClassic =
+      long pageIndex, byte[] value, LogSequenceNumber lsn, String fileName) throws IOException {
+    File fileClassic =
         new AsyncFile(
             storagePath.resolve(fileName), pageSize, false, Executors.newCachedThreadPool());
     fileClassic.open();
-    byte[] content = new byte[8 + ODurablePage.NEXT_FREE_POSITION];
+    byte[] content = new byte[8 + DurablePage.NEXT_FREE_POSITION];
     fileClassic.read(
-        pageIndex * (8 + ODurablePage.NEXT_FREE_POSITION),
+        pageIndex * (8 + DurablePage.NEXT_FREE_POSITION),
         ByteBuffer.wrap(content).order(ByteOrder.nativeOrder()),
         true);
 
     Assert.assertArrayEquals(
         Arrays.copyOfRange(
-            content, ODurablePage.NEXT_FREE_POSITION, 8 + ODurablePage.NEXT_FREE_POSITION),
+            content, DurablePage.NEXT_FREE_POSITION, 8 + DurablePage.NEXT_FREE_POSITION),
         value);
 
-    long magicNumber = OLongSerializer.INSTANCE.deserializeNative(content, 0);
-    Assert.assertEquals(magicNumber, OWOWCache.MAGIC_NUMBER_WITH_CHECKSUM);
+    long magicNumber = LongSerializer.INSTANCE.deserializeNative(content, 0);
+    Assert.assertEquals(magicNumber, WOWCache.MAGIC_NUMBER_WITH_CHECKSUM);
 
     long segment =
-        OLongSerializer.INSTANCE.deserializeNative(content, ODurablePage.WAL_SEGMENT_OFFSET);
+        LongSerializer.INSTANCE.deserializeNative(content, DurablePage.WAL_SEGMENT_OFFSET);
     int position =
-        OIntegerSerializer.INSTANCE.deserializeNative(content, ODurablePage.WAL_POSITION_OFFSET);
+        IntegerSerializer.INSTANCE.deserializeNative(content, DurablePage.WAL_POSITION_OFFSET);
 
-    OLogSequenceNumber readLsn = new OLogSequenceNumber(segment, position);
+    LogSequenceNumber readLsn = new LogSequenceNumber(segment, position);
 
     Assert.assertEquals(readLsn, lsn);
 
@@ -923,18 +923,18 @@ public class WOWCacheTestIT {
       int fileId,
       int pageIndex,
       byte[] value,
-      OLogSequenceNumber lsn,
+      LogSequenceNumber lsn,
       String fileName,
       final byte[] aesKey,
       final byte[] iv)
       throws Exception {
-    OFile fileClassic =
+    File fileClassic =
         new AsyncFile(
             storagePath.resolve(fileName), pageSize, false, Executors.newCachedThreadPool());
     fileClassic.open();
-    byte[] content = new byte[8 + ODurablePage.NEXT_FREE_POSITION];
+    byte[] content = new byte[8 + DurablePage.NEXT_FREE_POSITION];
     fileClassic.read(
-        (long) pageIndex * (8 + ODurablePage.NEXT_FREE_POSITION),
+        (long) pageIndex * (8 + DurablePage.NEXT_FREE_POSITION),
         ByteBuffer.wrap(content).order(ByteOrder.nativeOrder()),
         true);
 
@@ -942,23 +942,23 @@ public class WOWCacheTestIT {
 
     final SecretKey secretKey = new SecretKeySpec(aesKey, "AES");
 
-    final long magicNumber = OLongSerializer.INSTANCE.deserializeNative(content, 0);
+    final long magicNumber = LongSerializer.INSTANCE.deserializeNative(content, 0);
     final long updateCounter = magicNumber >>> 8;
 
     final byte[] updatedIv = new byte[iv.length];
 
-    for (int i = 0; i < OIntegerSerializer.INT_SIZE; i++) {
+    for (int i = 0; i < IntegerSerializer.INT_SIZE; i++) {
       updatedIv[i] = (byte) (iv[i] ^ ((pageIndex >>> i) & 0xFF));
     }
 
-    for (int i = 0; i < OIntegerSerializer.INT_SIZE; i++) {
-      updatedIv[i + OIntegerSerializer.INT_SIZE] =
-          (byte) (iv[i + OIntegerSerializer.INT_SIZE] ^ ((fileId >>> i) & 0xFF));
+    for (int i = 0; i < IntegerSerializer.INT_SIZE; i++) {
+      updatedIv[i + IntegerSerializer.INT_SIZE] =
+          (byte) (iv[i + IntegerSerializer.INT_SIZE] ^ ((fileId >>> i) & 0xFF));
     }
 
-    for (int i = 0; i < OLongSerializer.LONG_SIZE - 1; i++) {
-      updatedIv[i + 2 * OIntegerSerializer.INT_SIZE] =
-          (byte) (iv[i + 2 * OIntegerSerializer.INT_SIZE] ^ ((updateCounter >>> i) & 0xFF));
+    for (int i = 0; i < LongSerializer.LONG_SIZE - 1; i++) {
+      updatedIv[i + 2 * IntegerSerializer.INT_SIZE] =
+          (byte) (iv[i + 2 * IntegerSerializer.INT_SIZE] ^ ((updateCounter >>> i) & 0xFF));
     }
 
     updatedIv[updatedIv.length - 1] = iv[iv.length - 1];
@@ -966,27 +966,27 @@ public class WOWCacheTestIT {
     cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(updatedIv));
     System.arraycopy(
         cipher.doFinal(
-            content, OWOWCache.CHECKSUM_OFFSET, content.length - OWOWCache.CHECKSUM_OFFSET),
+            content, WOWCache.CHECKSUM_OFFSET, content.length - WOWCache.CHECKSUM_OFFSET),
         0,
         content,
-        OWOWCache.CHECKSUM_OFFSET,
-        content.length - OWOWCache.CHECKSUM_OFFSET);
+        WOWCache.CHECKSUM_OFFSET,
+        content.length - WOWCache.CHECKSUM_OFFSET);
 
     Assert.assertArrayEquals(
         Arrays.copyOfRange(
-            content, ODurablePage.NEXT_FREE_POSITION, 8 + ODurablePage.NEXT_FREE_POSITION),
+            content, DurablePage.NEXT_FREE_POSITION, 8 + DurablePage.NEXT_FREE_POSITION),
         value);
 
-    Assert.assertEquals(magicNumber & 0xFF, OWOWCache.MAGIC_NUMBER_WITH_CHECKSUM_ENCRYPTED);
+    Assert.assertEquals(magicNumber & 0xFF, WOWCache.MAGIC_NUMBER_WITH_CHECKSUM_ENCRYPTED);
 
-    OLogSequenceNumber readLsn = ODurablePage.getLogSequenceNumber(0, content);
+    LogSequenceNumber readLsn = DurablePage.getLogSequenceNumber(0, content);
 
     Assert.assertEquals(readLsn, lsn);
 
     fileClassic.close();
   }
 
-  public static final class TestRecord extends OAbstractWALRecord {
+  public static final class TestRecord extends AbstractWALRecord {
 
     private byte[] data;
 
@@ -1001,8 +1001,8 @@ public class WOWCacheTestIT {
 
     @Override
     public int toStream(byte[] content, int offset) {
-      OIntegerSerializer.INSTANCE.serializeNative(data.length, content, offset);
-      offset += OIntegerSerializer.INT_SIZE;
+      IntegerSerializer.INSTANCE.serializeNative(data.length, content, offset);
+      offset += IntegerSerializer.INT_SIZE;
 
       System.arraycopy(data, 0, content, offset, data.length);
       offset += data.length;
@@ -1018,8 +1018,8 @@ public class WOWCacheTestIT {
 
     @Override
     public int fromStream(byte[] content, int offset) {
-      int len = OIntegerSerializer.INSTANCE.deserializeNative(content, offset);
-      offset += OIntegerSerializer.INT_SIZE;
+      int len = IntegerSerializer.INSTANCE.deserializeNative(content, offset);
+      offset += IntegerSerializer.INT_SIZE;
 
       data = new byte[len];
       System.arraycopy(content, offset, data, 0, len);
@@ -1030,7 +1030,7 @@ public class WOWCacheTestIT {
 
     @Override
     public int serializedSize() {
-      return data.length + OIntegerSerializer.INT_SIZE;
+      return data.length + IntegerSerializer.INT_SIZE;
     }
 
     @Override

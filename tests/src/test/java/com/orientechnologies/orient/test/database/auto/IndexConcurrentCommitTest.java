@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.index.YTIndexException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.index.IndexException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -17,11 +17,11 @@ public class IndexConcurrentCommitTest extends DocumentDBBaseTest {
   }
 
   public void testConcurrentUpdate() {
-    YTClass personClass = database.getMetadata().getSchema().createClass("Person");
-    personClass.createProperty(database, "ssn", YTType.STRING)
-        .createIndex(database, YTClass.INDEX_TYPE.UNIQUE);
-    personClass.createProperty(database, "name", YTType.STRING)
-        .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
+    SchemaClass personClass = database.getMetadata().getSchema().createClass("Person");
+    personClass.createProperty(database, "ssn", PropertyType.STRING)
+        .createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE);
+    personClass.createProperty(database, "name", PropertyType.STRING)
+        .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     try {
       // Transaction 1
@@ -42,7 +42,7 @@ public class IndexConcurrentCommitTest extends DocumentDBBaseTest {
       database.commit();
 
       // Ensure that the people made it in correctly
-      final YTResultSet result1 = database.query("select from Person");
+      final ResultSet result1 = database.query("select from Person");
       while (result1.hasNext()) {
         System.out.println(result1.next());
       }
@@ -65,12 +65,12 @@ public class IndexConcurrentCommitTest extends DocumentDBBaseTest {
       database.commit();
 
       System.out.println("Success!");
-    } catch (YTIndexException e) {
+    } catch (IndexException e) {
       System.out.println("Exception: " + e);
       database.rollback();
     }
 
-    final YTResultSet result2 = database.command("select from Person");
+    final ResultSet result2 = database.command("select from Person");
     System.out.println("After transaction 2");
     while (result2.hasNext()) {
       System.out.println(result2.next());

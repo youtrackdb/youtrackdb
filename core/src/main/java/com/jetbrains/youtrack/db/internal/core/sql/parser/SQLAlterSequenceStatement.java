@@ -4,17 +4,17 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceOrderType;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.YTSequence;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
 
-public class SQLAlterSequenceStatement extends ODDLStatement {
+public class SQLAlterSequenceStatement extends DDLStatement {
 
   SQLIdentifier name;
   SQLExpression start;
@@ -39,36 +39,36 @@ public class SQLAlterSequenceStatement extends ODDLStatement {
     String sequenceName = name.getStringValue();
 
     if (sequenceName == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
     final var database = ctx.getDatabase();
-    YTSequence sequence = database.getMetadata().getSequenceLibrary().getSequence(sequenceName);
+    Sequence sequence = database.getMetadata().getSequenceLibrary().getSequence(sequenceName);
     if (sequence == null) {
-      throw new YTCommandExecutionException("Sequence not found: " + sequenceName);
+      throw new CommandExecutionException("Sequence not found: " + sequenceName);
     }
 
-    YTSequence.CreateParams params = new YTSequence.CreateParams();
+    Sequence.CreateParams params = new Sequence.CreateParams();
     params.resetNull();
 
     if (start != null) {
-      Object val = start.execute((YTIdentifiable) null, ctx);
+      Object val = start.execute((Identifiable) null, ctx);
       if (!(val instanceof Number)) {
-        throw new YTCommandExecutionException("invalid start value for a sequence: " + val);
+        throw new CommandExecutionException("invalid start value for a sequence: " + val);
       }
       params.setStart(((Number) val).longValue());
     }
     if (increment != null) {
-      Object val = increment.execute((YTIdentifiable) null, ctx);
+      Object val = increment.execute((Identifiable) null, ctx);
       if (!(val instanceof Number)) {
-        throw new YTCommandExecutionException("invalid increment value for a sequence: " + val);
+        throw new CommandExecutionException("invalid increment value for a sequence: " + val);
       }
       params.setIncrement(((Number) val).intValue());
     }
     if (cache != null) {
-      Object val = cache.execute((YTIdentifiable) null, ctx);
+      Object val = cache.execute((Identifiable) null, ctx);
       if (!(val instanceof Number)) {
-        throw new YTCommandExecutionException("invalid cache value for a sequence: " + val);
+        throw new CommandExecutionException("invalid cache value for a sequence: " + val);
       }
       params.setCacheSize(((Number) val).intValue());
     }
@@ -80,9 +80,9 @@ public class SQLAlterSequenceStatement extends ODDLStatement {
       params.setRecyclable(cyclic);
     }
     if (limitValue != null) {
-      Object val = limitValue.execute((YTIdentifiable) null, ctx);
+      Object val = limitValue.execute((Identifiable) null, ctx);
       if (!(val instanceof Number)) {
-        throw new YTCommandExecutionException("invalid cache value for a sequence: " + val);
+        throw new CommandExecutionException("invalid cache value for a sequence: " + val);
       }
       params.setLimitValue(((Number) val).longValue());
     }
@@ -92,13 +92,13 @@ public class SQLAlterSequenceStatement extends ODDLStatement {
 
     try {
       sequence.updateParams(params);
-    } catch (YTDatabaseException exc) {
+    } catch (DatabaseException exc) {
       String message = "Unable to execute command: " + exc.getMessage();
       LogManager.instance().error(this, message, exc, (Object) null);
-      throw new YTCommandExecutionException(message);
+      throw new CommandExecutionException(message);
     }
 
-    YTResultInternal item = new YTResultInternal(ctx.getDatabase());
+    ResultInternal item = new ResultInternal(ctx.getDatabase());
     item.setProperty("operation", "alter sequence");
     item.setProperty("sequenceName", sequenceName);
     if (params.getStart() != null) {

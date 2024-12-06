@@ -4,7 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.server.OServer;
@@ -42,7 +42,7 @@ public class BinaryProtocolAnyResultTest {
     }
 
     orient.execute("create database test memory users (admin identified by 'admin' role admin)");
-    YTDatabaseSession db = orient.open("test", "admin", "admin");
+    DatabaseSession db = orient.open("test", "admin", "admin");
 
     Object res = db.execute("SQL", " let $one = select from OUser limit 1; return [$one,1]");
 

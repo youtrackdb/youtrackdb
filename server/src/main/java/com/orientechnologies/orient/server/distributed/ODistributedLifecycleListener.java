@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.util.Set;
 
 /**
@@ -41,7 +41,7 @@ public interface ODistributedLifecycleListener {
    * @param session
    * @param iNode   Node name that is joining
    */
-  void onNodeJoined(YTDatabaseSessionInternal session, String iNode);
+  void onNodeJoined(DatabaseSessionInternal session, String iNode);
 
   /**
    * Called right after a node left the cluster.
@@ -49,7 +49,7 @@ public interface ODistributedLifecycleListener {
    * @param session
    * @param iNode   Node name that left
    */
-  void onNodeLeft(YTDatabaseSessionInternal session, String iNode);
+  void onNodeLeft(DatabaseSessionInternal session, String iNode);
 
   /**
    * Called upon change of database status on a node. Available statuses are defined in
@@ -70,16 +70,16 @@ public interface ODistributedLifecycleListener {
       ODistributedRequest request, Set<Integer> involvedWorkerQueues) {
   }
 
-  default void onMessageBeforeOp(String op, ODistributedRequestId requestId) {
+  default void onMessageBeforeOp(String op, DistributedRequestId requestId) {
   }
 
-  default void onMessageAfterOp(String op, ODistributedRequestId requestId) {
+  default void onMessageAfterOp(String op, DistributedRequestId requestId) {
   }
 
   default void onMessageProcessStart(ODistributedRequest message) {
   }
 
-  default void onMessageCurrentPayload(ODistributedRequestId requestId, Object responsePayload) {
+  default void onMessageCurrentPayload(DistributedRequestId requestId, Object responsePayload) {
   }
 
   default void onMessageProcessEnd(ODistributedRequest iRequest, Object responsePayload) {

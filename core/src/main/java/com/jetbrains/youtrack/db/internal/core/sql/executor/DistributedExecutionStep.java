@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 
 /**
@@ -10,11 +10,11 @@ import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionS
  */
 public class DistributedExecutionStep extends AbstractExecutionStep {
 
-  private final OSelectExecutionPlan subExecuitonPlan;
+  private final SelectExecutionPlan subExecuitonPlan;
   private final String nodeName;
 
   public DistributedExecutionStep(
-      OSelectExecutionPlan subExecutionPlan,
+      SelectExecutionPlan subExecutionPlan,
       String nodeName,
       CommandContext ctx,
       boolean profilingEnabled) {
@@ -24,7 +24,7 @@ public class DistributedExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     ExecutionStream remote = sendSerializedExecutionPlan(nodeName, subExecuitonPlan, ctx);
     if (prev != null) {
       prev.start(ctx).close(ctx);
@@ -34,8 +34,8 @@ public class DistributedExecutionStep extends AbstractExecutionStep {
   }
 
   private ExecutionStream sendSerializedExecutionPlan(
-      String nodeName, OExecutionPlan serializedExecutionPlan, CommandContext ctx) {
-    YTDatabaseSessionInternal db = ctx.getDatabase();
+      String nodeName, ExecutionPlan serializedExecutionPlan, CommandContext ctx) {
+    DatabaseSessionInternal db = ctx.getDatabase();
     return ExecutionStream.resultIterator(
         db.queryOnNode(nodeName, serializedExecutionPlan, ctx.getInputParameters()).stream()
             .iterator());

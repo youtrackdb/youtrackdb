@@ -20,22 +20,22 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.ridbag;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OLongSerializer;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.OMultiValueChangeEvent;
-import com.jetbrains.youtrack.db.internal.core.db.record.OMultiValueChangeTimeLine;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
+import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBagDelegate;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.OSimpleMultiValueTracker;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.ORecordSerializationContext;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.RecordSerializationContext;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.Change;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -53,23 +53,23 @@ public class RemoteTreeRidBag implements RidBagDelegate {
    */
   private int size;
 
-  private final OSimpleMultiValueTracker<YTIdentifiable, YTIdentifiable> tracker =
-      new OSimpleMultiValueTracker<>(this);
+  private final SimpleMultiValueTracker<Identifiable, Identifiable> tracker =
+      new SimpleMultiValueTracker<>(this);
 
   private transient RecordElement owner;
   private boolean dirty;
   private boolean transactionDirty = false;
-  private YTRecordId ownerRecord;
+  private RecordId ownerRecord;
   private String fieldName;
-  private final OBonsaiCollectionPointer collectionPointer;
+  private final BonsaiCollectionPointer collectionPointer;
 
-  private class RemovableIterator implements Iterator<YTIdentifiable> {
+  private class RemovableIterator implements Iterator<Identifiable> {
 
-    private final Iterator<YTIdentifiable> iter;
-    private YTIdentifiable next;
-    private YTIdentifiable removeNext;
+    private final Iterator<Identifiable> iter;
+    private Identifiable next;
+    private Identifiable removeNext;
 
-    public RemovableIterator(Iterator<YTIdentifiable> iterator) {
+    public RemovableIterator(Iterator<Identifiable> iterator) {
       this.iter = iterator;
     }
 
@@ -88,11 +88,11 @@ public class RemoteTreeRidBag implements RidBagDelegate {
     }
 
     @Override
-    public YTIdentifiable next() {
+    public Identifiable next() {
       if (!hasNext()) {
         throw new NoSuchElementException();
       }
-      YTIdentifiable val = next;
+      Identifiable val = next;
       removeNext = next;
       next = null;
       return val;
@@ -114,7 +114,7 @@ public class RemoteTreeRidBag implements RidBagDelegate {
     this.size = size;
   }
 
-  public RemoteTreeRidBag(OBonsaiCollectionPointer pointer) {
+  public RemoteTreeRidBag(BonsaiCollectionPointer pointer) {
     this.size = -1;
     this.collectionPointer = pointer;
   }
@@ -135,10 +135,10 @@ public class RemoteTreeRidBag implements RidBagDelegate {
     }
     this.owner = owner;
     if (this.owner != null && tracker.getTimeLine() != null) {
-      for (OMultiValueChangeEvent event : tracker.getTimeLine().getMultiValueChangeEvents()) {
+      for (MultiValueChangeEvent event : tracker.getTimeLine().getMultiValueChangeEvents()) {
         switch (event.getChangeType()) {
           case ADD:
-            ORecordInternal.track(this.owner, (YTIdentifiable) event.getKey());
+            RecordInternal.track(this.owner, (Identifiable) event.getKey());
             break;
         }
       }
@@ -146,27 +146,27 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   }
 
   @Override
-  public Iterator<YTIdentifiable> iterator() {
-    List<YTIdentifiable> set = loadElements();
+  public Iterator<Identifiable> iterator() {
+    List<Identifiable> set = loadElements();
     return new RemovableIterator(set.iterator());
   }
 
-  private List<YTIdentifiable> loadElements() {
-    YTDatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
-    List<YTIdentifiable> set;
-    try (YTResultSet result =
+  private List<Identifiable> loadElements() {
+    DatabaseSessionInternal database = DatabaseRecordThreadLocal.instance().get();
+    List<Identifiable> set;
+    try (ResultSet result =
         database.query("select list(@this.field(?)) as elements from ?", fieldName, ownerRecord)) {
       if (result.hasNext()) {
         set = (result.next().getProperty("elements"));
       } else {
-        set = ((List<YTIdentifiable>) (List) Collections.emptyList());
+        set = ((List<Identifiable>) (List) Collections.emptyList());
       }
     }
     if (tracker.getTimeLine() != null) {
-      for (OMultiValueChangeEvent event : tracker.getTimeLine().getMultiValueChangeEvents()) {
+      for (MultiValueChangeEvent event : tracker.getTimeLine().getMultiValueChangeEvents()) {
         switch (event.getChangeType()) {
           case ADD:
-            set.add((YTIdentifiable) event.getKey());
+            set.add((Identifiable) event.getKey());
             break;
           case REMOVE:
             set.remove(event.getKey());
@@ -178,19 +178,19 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   }
 
   @Override
-  public void addAll(Collection<YTIdentifiable> values) {
-    for (YTIdentifiable identifiable : values) {
+  public void addAll(Collection<Identifiable> values) {
+    for (Identifiable identifiable : values) {
       add(identifiable);
     }
   }
 
   @Override
-  public boolean addInternal(YTIdentifiable e) {
+  public boolean addInternal(Identifiable e) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void add(final YTIdentifiable identifiable) {
+  public void add(final Identifiable identifiable) {
     if (identifiable == null) {
       throw new IllegalArgumentException("Impossible to add a null identifiable in a ridbag");
     }
@@ -203,14 +203,14 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   }
 
   @Override
-  public void remove(YTIdentifiable identifiable) {
+  public void remove(Identifiable identifiable) {
     size--;
     boolean exists;
     removeEvent(identifiable);
   }
 
   @Override
-  public boolean contains(YTIdentifiable identifiable) {
+  public boolean contains(Identifiable identifiable) {
     return loadElements().contains(identifiable);
   }
 
@@ -229,7 +229,7 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   }
 
   @Override
-  public NavigableMap<YTIdentifiable, Change> getChanges() {
+  public NavigableMap<Identifiable, Change> getChanges() {
     return new ConcurrentSkipListMap<>();
   }
 
@@ -240,23 +240,23 @@ public class RemoteTreeRidBag implements RidBagDelegate {
 
   @Override
   public Class<?> getGenericClass() {
-    return YTIdentifiable.class;
+    return Identifiable.class;
   }
 
   @Override
   public Object returnOriginalState(
-      YTDatabaseSessionInternal session,
-      List<OMultiValueChangeEvent<YTIdentifiable, YTIdentifiable>> multiValueChangeEvents) {
+      DatabaseSessionInternal session,
+      List<MultiValueChangeEvent<Identifiable, Identifiable>> multiValueChangeEvents) {
     final RemoteTreeRidBag reverted = new RemoteTreeRidBag(this.collectionPointer);
-    for (YTIdentifiable identifiable : this) {
+    for (Identifiable identifiable : this) {
       reverted.add(identifiable);
     }
 
-    final ListIterator<OMultiValueChangeEvent<YTIdentifiable, YTIdentifiable>> listIterator =
+    final ListIterator<MultiValueChangeEvent<Identifiable, Identifiable>> listIterator =
         multiValueChangeEvents.listIterator(multiValueChangeEvents.size());
 
     while (listIterator.hasPrevious()) {
-      final OMultiValueChangeEvent<YTIdentifiable, YTIdentifiable> event = listIterator.previous();
+      final MultiValueChangeEvent<Identifiable, Identifiable> event = listIterator.previous();
       switch (event.getChangeType()) {
         case ADD:
           reverted.remove(event.getKey());
@@ -274,9 +274,9 @@ public class RemoteTreeRidBag implements RidBagDelegate {
 
   @Override
   public int getSerializedSize() {
-    int result = 2 * OLongSerializer.LONG_SIZE + 3 * OIntegerSerializer.INT_SIZE;
-    if (ODatabaseRecordThreadLocal.instance().get().isRemote()
-        || ORecordSerializationContext.getContext() == null) {
+    int result = 2 * LongSerializer.LONG_SIZE + 3 * IntegerSerializer.INT_SIZE;
+    if (DatabaseRecordThreadLocal.instance().get().isRemote()
+        || RecordSerializationContext.getContext() == null) {
       result += getChangesSerializedSize();
     }
     return result;
@@ -312,13 +312,13 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   }
 
   @Override
-  public void replace(OMultiValueChangeEvent<Object, Object> event, Object newValue) {
+  public void replace(MultiValueChangeEvent<Object, Object> event, Object newValue) {
     // do nothing not needed
   }
 
-  private void addEvent(YTIdentifiable key, YTIdentifiable identifiable) {
+  private void addEvent(Identifiable key, Identifiable identifiable) {
     if (this.owner != null) {
-      ORecordInternal.track(this.owner, identifiable);
+      RecordInternal.track(this.owner, identifiable);
     }
 
     if (tracker.isEnabled()) {
@@ -328,10 +328,10 @@ public class RemoteTreeRidBag implements RidBagDelegate {
     }
   }
 
-  private void removeEvent(YTIdentifiable removed) {
+  private void removeEvent(Identifiable removed) {
 
     if (this.owner != null) {
-      ORecordInternal.unTrack(this.owner, removed);
+      RecordInternal.unTrack(this.owner, removed);
     }
 
     if (tracker.isEnabled()) {
@@ -371,7 +371,7 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   }
 
   @Override
-  public OMultiValueChangeTimeLine<Object, Object> getTimeLine() {
+  public MultiValueChangeTimeLine<Object, Object> getTimeLine() {
     return tracker.getTimeLine();
   }
 
@@ -399,26 +399,26 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   }
 
   @Override
-  public OSimpleMultiValueTracker<YTIdentifiable, YTIdentifiable> getTracker() {
+  public SimpleMultiValueTracker<Identifiable, Identifiable> getTracker() {
     return tracker;
   }
 
   @Override
-  public void setTracker(OSimpleMultiValueTracker<YTIdentifiable, YTIdentifiable> tracker) {
+  public void setTracker(SimpleMultiValueTracker<Identifiable, Identifiable> tracker) {
     this.tracker.sourceFrom(tracker);
   }
 
   @Override
-  public OMultiValueChangeTimeLine<YTIdentifiable, YTIdentifiable> getTransactionTimeLine() {
+  public MultiValueChangeTimeLine<Identifiable, Identifiable> getTransactionTimeLine() {
     return this.tracker.getTransactionTimeLine();
   }
 
-  public void setRecordAndField(YTRecordId id, String fieldName) {
+  public void setRecordAndField(RecordId id, String fieldName) {
     this.ownerRecord = id;
     this.fieldName = fieldName;
   }
 
-  public OBonsaiCollectionPointer getCollectionPointer() {
+  public BonsaiCollectionPointer getCollectionPointer() {
     return collectionPointer;
   }
 }

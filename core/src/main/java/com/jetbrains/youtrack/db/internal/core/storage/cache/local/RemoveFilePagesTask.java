@@ -7,12 +7,12 @@ final class RemoveFilePagesTask implements Callable<Void> {
   /**
    *
    */
-  private final OWOWCache cache;
+  private final WOWCache cache;
 
   private final int fileId;
 
-  RemoveFilePagesTask(OWOWCache owowCache, final int fileId) {
-    cache = owowCache;
+  RemoveFilePagesTask(WOWCache WOWCache, final int fileId) {
+    cache = WOWCache;
     this.fileId = fileId;
   }
 

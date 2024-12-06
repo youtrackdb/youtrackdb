@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
@@ -41,12 +41,12 @@ public class SQLMatchPathItemFirst extends SQLMatchPathItem {
     }
   }
 
-  protected Iterable<YTIdentifiable> traversePatternEdge(
+  protected Iterable<Identifiable> traversePatternEdge(
       SQLMatchStatement.MatchContext matchContext,
-      YTIdentifiable startingPoint,
+      Identifiable startingPoint,
       CommandContext iCommandContext) {
     Object qR = this.function.execute(startingPoint, iCommandContext);
-    return (qR instanceof Iterable) ? (Iterable) qR : Collections.singleton((YTIdentifiable) qR);
+    return (qR instanceof Iterable) ? (Iterable) qR : Collections.singleton((Identifiable) qR);
   }
 
   @Override

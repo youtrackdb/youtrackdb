@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIndexIdentifier;
@@ -43,11 +43,11 @@ public class CountFromIndexStepTest extends TestUtilsFixture {
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    YTClass clazz = createClassInstance();
-    clazz.createProperty(db, PROPERTY_NAME, YTType.STRING);
+    SchemaClass clazz = createClassInstance();
+    clazz.createProperty(db, PROPERTY_NAME, PropertyType.STRING);
     String className = clazz.getName();
     indexName = className + "." + PROPERTY_NAME;
-    clazz.createIndex(db, indexName, YTClass.INDEX_TYPE.NOTUNIQUE, PROPERTY_NAME);
+    clazz.createIndex(db, indexName, SchemaClass.INDEX_TYPE.NOTUNIQUE, PROPERTY_NAME);
 
     for (int i = 0; i < 20; i++) {
       db.begin();

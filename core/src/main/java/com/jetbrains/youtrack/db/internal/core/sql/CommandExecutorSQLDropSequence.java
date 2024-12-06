@@ -3,17 +3,17 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import java.util.Map;
 
 /**
  * @since 2/28/2015
  */
 public class CommandExecutorSQLDropSequence extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String KEYWORD_DROP = "DROP";
   public static final String KEYWORD_SEQUENCE = "SEQUENCE";
@@ -32,7 +32,7 @@ public class CommandExecutorSQLDropSequence extends CommandExecutorSQLAbstract
 
       init((CommandRequestText) iRequest);
 
-      final YTDatabaseSessionInternal database = getDatabase();
+      final DatabaseSessionInternal database = getDatabase();
       final StringBuilder word = new StringBuilder();
 
       parserRequiredKeyword("DROP");
@@ -46,19 +46,19 @@ public class CommandExecutorSQLDropSequence extends CommandExecutorSQLAbstract
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (this.sequenceName == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
     final var database = getDatabase();
     try {
       database.getMetadata().getSequenceLibrary().dropSequence(this.sequenceName);
-    } catch (YTDatabaseException exc) {
+    } catch (DatabaseException exc) {
       String message = "Unable to execute command: " + exc.getMessage();
       LogManager.instance().error(this, message, exc, (Object) null);
-      throw new YTCommandExecutionException(message);
+      throw new CommandExecutionException(message);
     }
     return true;
   }

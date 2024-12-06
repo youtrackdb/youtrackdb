@@ -16,9 +16,9 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -50,7 +50,7 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
   public void testUnnamedParamTarget() {
     Iterable<EntityImpl> result =
         database
-            .command(new OSQLSynchQuery<EntityImpl>("select from ?"))
+            .command(new SQLSynchQuery<EntityImpl>("select from ?"))
             .execute(database, "PreparedStatementTest1");
 
     Set<String> expected = new HashSet<String>();
@@ -69,7 +69,7 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("className", "PreparedStatementTest1");
     Iterable<EntityImpl> result =
-        database.command(new OSQLSynchQuery<EntityImpl>("select from :className"))
+        database.command(new SQLSynchQuery<EntityImpl>("select from :className"))
             .execute(database, params);
 
     Set<String> expected = new HashSet<String>();
@@ -88,7 +88,7 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
 
     Iterable<EntityImpl> result =
         database
-            .command(new OSQLSynchQuery<EntityImpl>("select from PreparedStatementTest1 limit 1"))
+            .command(new SQLSynchQuery<EntityImpl>("select from PreparedStatementTest1 limit 1"))
             .execute(database);
 
     EntityImpl record = result.iterator().next();
@@ -96,7 +96,7 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("inputRid", record.getIdentity());
     result =
-        database.command(new OSQLSynchQuery<EntityImpl>("select from :inputRid"))
+        database.command(new SQLSynchQuery<EntityImpl>("select from :inputRid"))
             .execute(database, params);
 
     boolean found = false;
@@ -113,13 +113,13 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
 
     Iterable<EntityImpl> result =
         database
-            .command(new OSQLSynchQuery<EntityImpl>("select from PreparedStatementTest1 limit 1"))
+            .command(new SQLSynchQuery<EntityImpl>("select from PreparedStatementTest1 limit 1"))
             .execute(database);
 
     EntityImpl record = result.iterator().next();
     result =
         database
-            .command(new OSQLSynchQuery<EntityImpl>("select from ?"))
+            .command(new SQLSynchQuery<EntityImpl>("select from ?"))
             .execute(database, record.getIdentity());
 
     boolean found = false;
@@ -136,7 +136,7 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
 
     Iterable<EntityImpl> result =
         database
-            .command(new OSQLSynchQuery<EntityImpl>("select from PreparedStatementTest1 limit 1"))
+            .command(new SQLSynchQuery<EntityImpl>("select from PreparedStatementTest1 limit 1"))
             .execute(database);
 
     EntityImpl record = result.iterator().next();
@@ -144,7 +144,7 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("inputRid", record);
     result =
-        database.command(new OSQLSynchQuery<EntityImpl>("select from :inputRid"))
+        database.command(new SQLSynchQuery<EntityImpl>("select from :inputRid"))
             .execute(database, params);
 
     boolean found = false;
@@ -161,11 +161,11 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
 
     Iterable<EntityImpl> result =
         database
-            .command(new OSQLSynchQuery<EntityImpl>("select from PreparedStatementTest1 limit 1"))
+            .command(new SQLSynchQuery<EntityImpl>("select from PreparedStatementTest1 limit 1"))
             .execute(database);
 
     EntityImpl record = result.iterator().next();
-    result = database.command(new OSQLSynchQuery<EntityImpl>("select from ?"))
+    result = database.command(new SQLSynchQuery<EntityImpl>("select from ?"))
         .execute(database, record);
 
     boolean found = false;
@@ -179,12 +179,12 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
 
   @Test
   public void testUnnamedParamFlat() {
-    YTResultSet result = database.query("select from PreparedStatementTest1 where name = ?",
+    ResultSet result = database.query("select from PreparedStatementTest1 where name = ?",
         "foo1");
 
     boolean found = false;
     while (result.hasNext()) {
-      YTResult doc = result.next();
+      Result doc = result.next();
       found = true;
       Assert.assertEquals(doc.getProperty("name"), "foo1");
     }
@@ -195,12 +195,12 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
   public void testNamedParamFlat() {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "foo1");
-    YTResultSet result =
+    ResultSet result =
         database.query("select from PreparedStatementTest1 where name = :name", params);
 
     boolean found = false;
     while (result.hasNext()) {
-      YTResult doc = result.next();
+      Result doc = result.next();
       found = true;
       Assert.assertEquals(doc.getProperty("name"), "foo1");
     }
@@ -212,7 +212,7 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
     Iterable<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select from PreparedStatementTest1 where name in [?]"))
             .execute(database, "foo1");
 
@@ -231,7 +231,7 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
     Iterable<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select from PreparedStatementTest1 where name in [:name]"))
             .execute(database, params);
 
@@ -248,7 +248,7 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
     Iterable<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select from PreparedStatementTest1 where name in [?, 'antani']"))
             .execute(database, "foo1");
 
@@ -267,7 +267,7 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
     Iterable<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select from PreparedStatementTest1 where name in [:name, 'antani']"))
             .execute(database, params);
 
@@ -281,7 +281,7 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
 
   @Test
   public void testSubqueryUnnamedParamFlat() {
-    YTResultSet result =
+    ResultSet result =
         database.query(
             "select from (select from PreparedStatementTest1 where name = ?) where name = ?",
             "foo1",
@@ -289,7 +289,7 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
 
     boolean found = false;
     while (result.hasNext()) {
-      YTResult doc = result.next();
+      Result doc = result.next();
       found = true;
       Assert.assertEquals(doc.getProperty("name"), "foo1");
     }
@@ -300,7 +300,7 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
   public void testSubqueryNamedParamFlat() {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("name", "foo1");
-    YTResultSet result =
+    ResultSet result =
         database.query(
             "select from (select from PreparedStatementTest1 where name = :name) where name ="
                 + " :name",
@@ -308,7 +308,7 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
 
     boolean found = false;
     while (result.hasNext()) {
-      YTResult doc = result.next();
+      Result doc = result.next();
       found = true;
       Assert.assertEquals(doc.getProperty("name"), "foo1");
     }
@@ -320,11 +320,11 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("one", 1);
     params.put("three", 3);
-    YTResultSet result = database.query("select max(:one, :three) as maximo", params);
+    ResultSet result = database.query("select max(:one, :three) as maximo", params);
 
     boolean found = false;
     while (result.hasNext()) {
-      YTResult doc = result.next();
+      Result doc = result.next();
       found = true;
       Assert.assertEquals(doc.<Object>getProperty("maximo"), 3);
     }
@@ -337,7 +337,7 @@ public class PreparedStatementTest extends DocumentDBBaseTest {
     try {
       Iterable<EntityImpl> result =
           database
-              .command(new OSQLSynchQuery<EntityImpl>("select from ?"))
+              .command(new SQLSynchQuery<EntityImpl>("select from ?"))
               .execute(database, "PreparedStatementTest1 where name = 'foo'");
       Assert.fail();
     } catch (Exception e) {

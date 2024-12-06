@@ -2,8 +2,8 @@ package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSchemaException;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -12,50 +12,50 @@ import org.junit.Test;
 /**
  *
  */
-public class AlterSuperclassTest extends DBTestBase {
+public class AlterSuperclassTest extends DbTestBase {
 
   @Test
   public void testSamePropertyCheck() {
 
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass classA = schema.createClass("ParentClass");
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass classA = schema.createClass("ParentClass");
     classA.setAbstract(db, true);
-    YTProperty property = classA.createProperty(db, "RevNumberNine", YTType.INTEGER);
-    YTClass classChild = schema.createClass("ChildClass1", classA);
+    Property property = classA.createProperty(db, "RevNumberNine", PropertyType.INTEGER);
+    SchemaClass classChild = schema.createClass("ChildClass1", classA);
     assertEquals(classChild.getSuperClasses(), List.of(classA));
-    YTClass classChild2 = schema.createClass("ChildClass2", classChild);
+    SchemaClass classChild2 = schema.createClass("ChildClass2", classChild);
     assertEquals(classChild2.getSuperClasses(), List.of(classChild));
     classChild2.setSuperClasses(db, List.of(classA));
     assertEquals(classChild2.getSuperClasses(), List.of(classA));
   }
 
-  @Test(expected = YTSchemaException.class)
+  @Test(expected = SchemaException.class)
   public void testPropertyNameConflict() {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass classA = schema.createClass("ParentClass");
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass classA = schema.createClass("ParentClass");
     classA.setAbstract(db, true);
-    YTProperty property = classA.createProperty(db, "RevNumberNine", YTType.INTEGER);
-    YTClass classChild = schema.createClass("ChildClass1", classA);
+    Property property = classA.createProperty(db, "RevNumberNine", PropertyType.INTEGER);
+    SchemaClass classChild = schema.createClass("ChildClass1", classA);
     assertEquals(classChild.getSuperClasses(), List.of(classA));
-    YTClass classChild2 = schema.createClass("ChildClass2");
-    classChild2.createProperty(db, "RevNumberNine", YTType.STRING);
+    SchemaClass classChild2 = schema.createClass("ChildClass2");
+    classChild2.createProperty(db, "RevNumberNine", PropertyType.STRING);
     classChild2.setSuperClasses(db, List.of(classChild));
   }
 
-  @Test(expected = YTSchemaException.class)
+  @Test(expected = SchemaException.class)
   public void testHasAlreadySuperclass() {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass classA = schema.createClass("ParentClass");
-    YTClass classChild = schema.createClass("ChildClass1", classA);
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass classA = schema.createClass("ParentClass");
+    SchemaClass classChild = schema.createClass("ChildClass1", classA);
     assertEquals(classChild.getSuperClasses(), Collections.singletonList(classA));
     classChild.addSuperClass(db, classA);
   }
 
-  @Test(expected = YTSchemaException.class)
+  @Test(expected = SchemaException.class)
   public void testSetDuplicateSuperclasses() {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass classA = schema.createClass("ParentClass");
-    YTClass classChild = schema.createClass("ChildClass1", classA);
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass classA = schema.createClass("ParentClass");
+    SchemaClass classChild = schema.createClass("ChildClass1", classA);
     assertEquals(classChild.getSuperClasses(), Collections.singletonList(classA));
     classChild.setSuperClasses(db, Arrays.asList(classA, classA));
   }
@@ -66,10 +66,10 @@ public class AlterSuperclassTest extends DBTestBase {
    */
   @Test
   public void testBrokenDbAlteringSuperClass() {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass classA = schema.createClass("BaseClass");
-    YTClass classChild = schema.createClass("ChildClass1", classA);
-    YTClass classChild2 = schema.createClass("ChildClass2", classA);
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass classA = schema.createClass("BaseClass");
+    SchemaClass classChild = schema.createClass("ChildClass1", classA);
+    SchemaClass classChild2 = schema.createClass("ChildClass2", classA);
 
     classChild2.setSuperClass(db, classChild);
 

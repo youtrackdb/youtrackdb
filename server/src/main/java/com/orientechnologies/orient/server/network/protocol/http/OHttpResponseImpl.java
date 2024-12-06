@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.server.network.protocol.http;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.util.OCallable;
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
 import com.orientechnologies.orient.server.OClientConnection;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -24,7 +24,7 @@ public class OHttpResponseImpl extends OHttpResponseAbstract {
       String iCallbackFunction,
       boolean iKeepAlive,
       OClientConnection connection,
-      YTContextConfiguration contextConfiguration) {
+      ContextConfiguration contextConfiguration) {
     super(
         iOutStream,
         iHttpVersion,
@@ -195,7 +195,7 @@ public class OHttpResponseImpl extends OHttpResponseAbstract {
       final String iReason,
       final String iContentType,
       final String iFileName,
-      final OCallable<Void, OChunkedResponse> iWriter)
+      final CallableFunction<Void, OChunkedResponse> iWriter)
       throws IOException {
     writeStatus(iCode, iReason);
     writeHeaders(iContentType);

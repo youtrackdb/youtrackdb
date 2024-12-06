@@ -1,15 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OLongSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OStringSerializer;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.StringSerializer;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OWriteCache;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.io.File;
 import java.io.IOException;
@@ -39,10 +39,10 @@ public class InvalidRemovedFileIdsIT {
     YouTrackDB youTrackDB = new YouTrackDB("plocal:" + buildDirectory, config);
     youTrackDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
-    var db = (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
+    var db = (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
     Storage storage = db.getStorage();
-    OWriteCache writeCache = ((AbstractPaginatedStorage) storage).getWriteCache();
+    WriteCache writeCache = ((AbstractPaginatedStorage) storage).getWriteCache();
     Map<String, Long> files = writeCache.files();
 
     Map<String, Integer> filesWithIntIds = new HashMap<>();
@@ -78,9 +78,9 @@ public class InvalidRemovedFileIdsIT {
     fileMap.close();
 
     youTrackDB = new YouTrackDB("plocal:" + buildDirectory, config);
-    db = (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
+    db = (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
-    final YTSchema schema = db.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     schema.createClass("c1");
     schema.createClass("c2");
     schema.createClass("c3");
@@ -140,14 +140,14 @@ public class InvalidRemovedFileIdsIT {
 
   private static void writeNameIdEntry(RandomAccessFile file, String name, int fileId)
       throws IOException {
-    final int nameSize = OStringSerializer.INSTANCE.getObjectSize(name);
+    final int nameSize = StringSerializer.INSTANCE.getObjectSize(name);
 
     byte[] serializedRecord =
-        new byte[OIntegerSerializer.INT_SIZE + nameSize + OLongSerializer.LONG_SIZE];
-    OIntegerSerializer.INSTANCE.serializeLiteral(nameSize, serializedRecord, 0);
-    OStringSerializer.INSTANCE.serialize(name, serializedRecord, OIntegerSerializer.INT_SIZE);
-    OLongSerializer.INSTANCE.serializeLiteral(
-        fileId, serializedRecord, OIntegerSerializer.INT_SIZE + nameSize);
+        new byte[IntegerSerializer.INT_SIZE + nameSize + LongSerializer.LONG_SIZE];
+    IntegerSerializer.INSTANCE.serializeLiteral(nameSize, serializedRecord, 0);
+    StringSerializer.INSTANCE.serialize(name, serializedRecord, IntegerSerializer.INT_SIZE);
+    LongSerializer.INSTANCE.serializeLiteral(
+        fileId, serializedRecord, IntegerSerializer.INT_SIZE + nameSize);
 
     file.write(serializedRecord);
   }

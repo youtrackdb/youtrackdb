@@ -20,16 +20,16 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v2;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurablePage;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
 
 /**
  * @since 4/25/14
  */
-public final class HashIndexNullBucketV2<V> extends ODurablePage {
+public final class HashIndexNullBucketV2<V> extends DurablePage {
 
-  public HashIndexNullBucketV2(OCacheEntry cacheEntry) {
+  public HashIndexNullBucketV2(CacheEntry cacheEntry) {
     super(cacheEntry);
   }
 
@@ -44,7 +44,7 @@ public final class HashIndexNullBucketV2<V> extends ODurablePage {
     setBinaryValue(NEXT_FREE_POSITION + 1, value);
   }
 
-  public byte[] getRawValue(final OBinarySerializer<V> valueSerializer) {
+  public byte[] getRawValue(final BinarySerializer<V> valueSerializer) {
     if (getByteValue(NEXT_FREE_POSITION) == 0) {
       return null;
     }
@@ -53,7 +53,7 @@ public final class HashIndexNullBucketV2<V> extends ODurablePage {
     return getBinaryValue(NEXT_FREE_POSITION + 1, valueSize);
   }
 
-  public V getValue(final OBinarySerializer<V> valueSerializer) {
+  public V getValue(final BinarySerializer<V> valueSerializer) {
     if (getByteValue(NEXT_FREE_POSITION) == 0) {
       return null;
     }

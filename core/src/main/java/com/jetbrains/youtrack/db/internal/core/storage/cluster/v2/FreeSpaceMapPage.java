@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.storage.cluster.v2;
 
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurablePage;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
 
-public final class FreeSpaceMapPage extends ODurablePage {
+public final class FreeSpaceMapPage extends DurablePage {
 
   private static final int CELL_SIZE = 1;
   static final int CELLS_PER_PAGE;
@@ -22,7 +22,7 @@ public final class FreeSpaceMapPage extends ODurablePage {
     LEAVES_START_OFFSET = nodeOffset(LEVELS, 0);
   }
 
-  public FreeSpaceMapPage(OCacheEntry cacheEntry) {
+  public FreeSpaceMapPage(CacheEntry cacheEntry) {
     super(cacheEntry);
   }
 

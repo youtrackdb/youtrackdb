@@ -1,23 +1,23 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.INDEX_TYPE;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestOrderByIndexPropDesc extends DBTestBase {
+public class TestOrderByIndexPropDesc extends DbTestBase {
 
   private static final String DOCUMENT_CLASS_NAME = "MyDocument";
   private static final String PROP_INDEXED_STRING = "dateProperty";
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    YTClass oclass = db.getMetadata().getSchema().createClass(DOCUMENT_CLASS_NAME);
-    oclass.createProperty(db, PROP_INDEXED_STRING, YTType.INTEGER);
+    SchemaClass oclass = db.getMetadata().getSchema().createClass(DOCUMENT_CLASS_NAME);
+    oclass.createProperty(db, PROP_INDEXED_STRING, PropertyType.INTEGER);
     oclass.createIndex(db, "index", INDEX_TYPE.NOTUNIQUE, PROP_INDEXED_STRING);
   }
 
@@ -42,7 +42,7 @@ public class TestOrderByIndexPropDesc extends DBTestBase {
       db.commit();
     }
 
-    YTResultSet result =
+    ResultSet result =
         db.query(
             "select from " + DOCUMENT_CLASS_NAME + " order by " + PROP_INDEXED_STRING + " desc");
 

@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.index.multivalue;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValuesTransformer;
 import java.util.Collection;
 
@@ -9,8 +9,8 @@ public final class MultiValuesTransformer implements IndexEngineValuesTransforme
   public static final MultiValuesTransformer INSTANCE = new MultiValuesTransformer();
 
   @Override
-  public Collection<YTRID> transformFromValue(Object value) {
+  public Collection<RID> transformFromValue(Object value) {
     //noinspection unchecked
-    return (Collection<YTRID>) value;
+    return (Collection<RID>) value;
   }
 }

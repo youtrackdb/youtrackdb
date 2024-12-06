@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLGroupBy;
@@ -36,21 +36,21 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
-    List<YTResult> finalResults = executeAggregation(ctx);
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
+    List<Result> finalResults = executeAggregation(ctx);
     return ExecutionStream.resultIterator(finalResults.iterator());
   }
 
-  private List<YTResult> executeAggregation(CommandContext ctx) {
+  private List<Result> executeAggregation(CommandContext ctx) {
     long timeoutBegin = System.currentTimeMillis();
     if (prev == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute an aggregation or a GROUP BY without a previous result");
     }
 
     ExecutionStepInternal prevStep = prev;
     ExecutionStream lastRs = prevStep.start(ctx);
-    Map<List<?>, YTResultInternal> aggregateResults = new LinkedHashMap<>();
+    Map<List<?>, ResultInternal> aggregateResults = new LinkedHashMap<>();
     while (lastRs.hasNext(ctx)) {
       if (timeoutMillis > 0 && timeoutBegin + timeoutMillis < System.currentTimeMillis()) {
         sendTimeout();
@@ -58,10 +58,10 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
       aggregate(lastRs.next(ctx), ctx, aggregateResults);
     }
     lastRs.close(ctx);
-    List<YTResult> finalResults = new ArrayList<>(aggregateResults.values());
+    List<Result> finalResults = new ArrayList<>(aggregateResults.values());
     aggregateResults.clear();
-    for (YTResult ele : finalResults) {
-      YTResultInternal item = (YTResultInternal) ele;
+    for (Result ele : finalResults) {
+      ResultInternal item = (ResultInternal) ele;
       if (timeoutMillis > 0 && timeoutBegin + timeoutMillis < System.currentTimeMillis()) {
         sendTimeout();
       }
@@ -76,7 +76,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
   }
 
   private void aggregate(
-      YTResult next, CommandContext ctx, Map<List<?>, YTResultInternal> aggregateResults) {
+      Result next, CommandContext ctx, Map<List<?>, ResultInternal> aggregateResults) {
     var db = ctx.getDatabase();
     List<Object> key = new ArrayList<>();
     if (groupBy != null) {
@@ -85,12 +85,12 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
         key.add(val);
       }
     }
-    YTResultInternal preAggr = aggregateResults.get(key);
+    ResultInternal preAggr = aggregateResults.get(key);
     if (preAggr == null) {
       if (limit > 0 && aggregateResults.size() > limit) {
         return;
       }
-      preAggr = new YTResultInternal(ctx.getDatabase());
+      preAggr = new ResultInternal(ctx.getDatabase());
 
       for (SQLProjectionItem proj : this.projection.getItems()) {
         String alias = proj.getProjectionAlias().getStringValue();

@@ -2,11 +2,11 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -16,7 +16,7 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class CommandExecutorSQLScriptTest extends DBTestBase {
+public class CommandExecutorSQLScriptTest extends DbTestBase {
 
   public void beforeTest() throws Exception {
     super.beforeTest();
@@ -152,7 +152,7 @@ public class CommandExecutorSQLScriptTest extends DBTestBase {
             UPDATE TestCounter INCREMENT weight = $counter[0].count RETURN AfTER @this;
             commit;
             """;
-    YTResultSet qResult = db.execute("sql", script);
+    ResultSet qResult = db.execute("sql", script);
 
     assertThat(qResult.next().getEntity().orElseThrow().<Long>getProperty("weight")).isEqualTo(4L);
   }
@@ -317,7 +317,7 @@ public class CommandExecutorSQLScriptTest extends DBTestBase {
     db.command(new CommandScript(batch)).execute(db);
 
     List<EntityImpl> result = db.query(
-        new OSQLSynchQuery<EntityImpl>("SELECT FROM QuotedRegex2"));
+        new SQLSynchQuery<EntityImpl>("SELECT FROM QuotedRegex2"));
     Assert.assertEquals(1, result.size());
     EntityImpl doc = result.get(0);
     Assert.assertEquals("'';", doc.field("regexp"));
@@ -343,7 +343,7 @@ public class CommandExecutorSQLScriptTest extends DBTestBase {
     map.put("name", "bozo");
     map.put("_name2", "bozi");
 
-    YTResultSet rs = db.execute("sql", script, map);
+    ResultSet rs = db.execute("sql", script, map);
     rs.close();
 
     rs = db.query("SELECT FROM " + className + " WHERE name = ?", "bozo");
@@ -369,7 +369,7 @@ public class CommandExecutorSQLScriptTest extends DBTestBase {
             + "COMMIT;"
             + "RETURN $edge;";
 
-    YTResultSet rs = db.execute("sql", script, "bozo", "bozi");
+    ResultSet rs = db.execute("sql", script, "bozo", "bozi");
     rs.close();
 
     rs = db.query("SELECT FROM " + className + " WHERE name = ?", "bozo");

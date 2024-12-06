@@ -16,12 +16,12 @@ package com.orientechnologies.spatial;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.text.ParseException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,12 +38,12 @@ public class LuceneSpatialFunctionAsTextTest extends BaseSpatialLuceneTest {
   @Before
   public void init() {
 
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass v = schema.getClass("V");
-    YTClass oClass = schema.createClass("Location");
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass v = schema.getClass("V");
+    SchemaClass oClass = schema.createClass("Location");
     oClass.setSuperClass(db, v);
-    oClass.createProperty(db, "geometry", YTType.EMBEDDED, schema.getClass("OShape"));
-    oClass.createProperty(db, "name", YTType.STRING);
+    oClass.createProperty(db, "geometry", PropertyType.EMBEDDED, schema.getClass("OShape"));
+    oClass.createProperty(db, "name", PropertyType.STRING);
 
     initData();
   }
@@ -77,11 +77,11 @@ public class LuceneSpatialFunctionAsTextTest extends BaseSpatialLuceneTest {
   }
 
   protected void queryAndAssertGeom(String name, String wkt) {
-    YTResultSet results =
+    ResultSet results =
         db.command("select *, ST_AsText(geometry) as text from Location where name = ? ", name);
 
     assertTrue(results.hasNext());
-    YTResult doc = results.next();
+    Result doc = results.next();
 
     String asText = doc.getProperty("text");
 

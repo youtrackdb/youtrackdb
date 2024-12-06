@@ -17,9 +17,9 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
@@ -28,7 +28,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class SQLCreateVertexAndEdgeTest extends DBTestBase {
+public class SQLCreateVertexAndEdgeTest extends DbTestBase {
 
   @Test
   public void testCreateEdgeDefaultClass() {
@@ -84,7 +84,7 @@ public class SQLCreateVertexAndEdgeTest extends DBTestBase {
 
     // EDGES
     db.begin();
-    YTResultSet edges =
+    ResultSet edges =
         db.command("create edge from " + v1.getIdentity() + " to " + v2.getIdentity());
     db.commit();
     assertEquals(edges.stream().count(), 1);
@@ -150,7 +150,7 @@ public class SQLCreateVertexAndEdgeTest extends DBTestBase {
       cmd += "commit retry 100\n";
       cmd += "return $e";
 
-      YTResultSet result = db.query("select from V");
+      ResultSet result = db.query("select from V");
 
       long before = result.stream().count();
 
@@ -176,7 +176,7 @@ public class SQLCreateVertexAndEdgeTest extends DBTestBase {
     v1 = db.bindToSession(v1);
     Assert.assertEquals(v1.getSchemaType().get().getName(), "V");
 
-    YTRID vid = v1.getIdentity();
+    RID vid = v1.getIdentity();
 
     db.begin();
     db.command("create edge from " + vid + " to " + vid).close();
@@ -196,14 +196,14 @@ public class SQLCreateVertexAndEdgeTest extends DBTestBase {
     try {
       db.command("alter class ETest name ETest2").close();
       Assert.fail();
-    } catch (YTCommandExecutionException e) {
+    } catch (CommandExecutionException e) {
       Assert.assertTrue(true);
     }
 
     try {
       db.command("alter class ETest name ETest2 unsafe").close();
       Assert.assertTrue(true);
-    } catch (YTCommandExecutionException e) {
+    } catch (CommandExecutionException e) {
       Assert.fail();
     }
   }
@@ -228,7 +228,7 @@ public class SQLCreateVertexAndEdgeTest extends DBTestBase {
 
       db.execute("sql", cmd);
 
-      YTResultSet edges = db.query("select from E where name = 'testSqlScriptThatDeletesEdge'");
+      ResultSet edges = db.query("select from E where name = 'testSqlScriptThatDeletesEdge'");
 
       Assert.assertEquals(edges.stream().count(), 0);
     } catch (Exception ex) {

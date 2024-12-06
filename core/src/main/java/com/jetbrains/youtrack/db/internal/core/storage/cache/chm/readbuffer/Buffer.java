@@ -15,7 +15,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.storage.cache.chm.readbuffer;
 
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.chm.WTinyLFUPolicy;
 
 /**
@@ -41,7 +41,7 @@ public interface Buffer {
    * @param e the element to add
    * @return {@code 1} if the buffer is full, {@code -1} if the CAS failed, or {@code 0} if added
    */
-  int offer(OCacheEntry e);
+  int offer(CacheEntry e);
 
   /**
    * Drains the buffer, sending each element to the consumer for processing. The caller must ensure

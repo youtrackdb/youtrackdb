@@ -3,12 +3,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class SQLTruncateClassStatement extends ODDLStatement {
+public class SQLTruncateClassStatement extends DDLStatement {
 
   protected SQLIdentifier className;
   protected boolean polymorphic = false;
@@ -32,39 +32,39 @@ public class SQLTruncateClassStatement extends ODDLStatement {
 
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
-    YTDatabaseSessionInternal db = ctx.getDatabase();
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass clazz = schema.getClass(className.getStringValue());
+    DatabaseSessionInternal db = ctx.getDatabase();
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass clazz = schema.getClass(className.getStringValue());
     if (clazz == null) {
-      throw new YTCommandExecutionException("Schema Class not found: " + className);
+      throw new CommandExecutionException("Schema Class not found: " + className);
     }
 
     final long recs = clazz.count(ctx.getDatabase(), polymorphic);
     if (recs > 0 && !unsafe) {
       if (clazz.isSubClassOf("V")) {
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "'TRUNCATE CLASS' command cannot be used on not empty vertex classes. Apply the"
                 + " 'UNSAFE' keyword to force it (at your own risk)");
       } else if (clazz.isSubClassOf("E")) {
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "'TRUNCATE CLASS' command cannot be used on not empty edge classes. Apply the 'UNSAFE'"
                 + " keyword to force it (at your own risk)");
       }
     }
 
-    List<YTResult> rs = new ArrayList<>();
-    Collection<YTClass> subclasses = clazz.getAllSubclasses();
+    List<Result> rs = new ArrayList<>();
+    Collection<SchemaClass> subclasses = clazz.getAllSubclasses();
     if (polymorphic && !unsafe) { // for multiple inheritance
-      for (YTClass subclass : subclasses) {
+      for (SchemaClass subclass : subclasses) {
         long subclassRecs = clazz.count(db);
         if (subclassRecs > 0) {
           if (subclass.isSubClassOf("V")) {
-            throw new YTCommandExecutionException(
+            throw new CommandExecutionException(
                 "'TRUNCATE CLASS' command cannot be used on not empty vertex classes ("
                     + subclass.getName()
                     + "). Apply the 'UNSAFE' keyword to force it (at your own risk)");
           } else if (subclass.isSubClassOf("E")) {
-            throw new YTCommandExecutionException(
+            throw new CommandExecutionException(
                 "'TRUNCATE CLASS' command cannot be used on not empty edge classes ("
                     + subclass.getName()
                     + "). Apply the 'UNSAFE' keyword to force it (at your own risk)");
@@ -74,15 +74,15 @@ public class SQLTruncateClassStatement extends ODDLStatement {
     }
 
     long count = db.truncateClass(clazz.getName(), false);
-    YTResultInternal result = new YTResultInternal(db);
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("operation", "truncate class");
     result.setProperty("className", className.getStringValue());
     result.setProperty("count", count);
     rs.add(result);
     if (polymorphic) {
-      for (YTClass subclass : subclasses) {
+      for (SchemaClass subclass : subclasses) {
         count = db.truncateClass(subclass.getName(), false);
-        result = new YTResultInternal(db);
+        result = new ResultInternal(db);
         result.setProperty("operation", "truncate class");
         result.setProperty("className", className.getStringValue());
         result.setProperty("count", count);

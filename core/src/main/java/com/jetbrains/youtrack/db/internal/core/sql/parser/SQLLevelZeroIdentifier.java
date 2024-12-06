@@ -3,12 +3,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.AggregationContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -47,7 +47,7 @@ public class SQLLevelZeroIdentifier extends SimpleNode {
     }
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
+  public Object execute(Identifiable iCurrentRecord, CommandContext ctx) {
     if (functionCall != null) {
       return functionCall.execute(iCurrentRecord, ctx);
     }
@@ -60,7 +60,7 @@ public class SQLLevelZeroIdentifier extends SimpleNode {
     throw new UnsupportedOperationException();
   }
 
-  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
+  public Object execute(Result iCurrentRecord, CommandContext ctx) {
     if (functionCall != null) {
       return functionCall.execute(iCurrentRecord, ctx);
     }
@@ -73,7 +73,7 @@ public class SQLLevelZeroIdentifier extends SimpleNode {
     throw new UnsupportedOperationException();
   }
 
-  public boolean isIndexedFunctionCall(YTDatabaseSessionInternal session) {
+  public boolean isIndexedFunctionCall(DatabaseSessionInternal session) {
     if (functionCall != null) {
       return functionCall.isIndexedFunctionCall(session);
     }
@@ -106,7 +106,7 @@ public class SQLLevelZeroIdentifier extends SimpleNode {
     return -1;
   }
 
-  public Iterable<YTIdentifiable> executeIndexedFunction(
+  public Iterable<Identifiable> executeIndexedFunction(
       SQLFromClause target, CommandContext context, SQLBinaryCompareOperator operator,
       Object right) {
     if (functionCall != null) {
@@ -184,7 +184,7 @@ public class SQLLevelZeroIdentifier extends SimpleNode {
 
   public SQLExpression getExpandContent() {
     if (functionCall.getParams().size() != 1) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Invalid expand expression: " + functionCall.toString());
     }
     return functionCall.getParams().get(0);
@@ -197,7 +197,7 @@ public class SQLLevelZeroIdentifier extends SimpleNode {
     return collection != null && collection.needsAliases(aliases);
   }
 
-  public boolean isAggregate(YTDatabaseSessionInternal session) {
+  public boolean isAggregate(DatabaseSessionInternal session) {
     if (functionCall != null && functionCall.isAggregate(session)) {
       return true;
     }
@@ -247,7 +247,7 @@ public class SQLLevelZeroIdentifier extends SimpleNode {
         return functionCall.getAggregationContext(ctx);
       }
     }
-    throw new YTCommandExecutionException("cannot aggregate on " + this);
+    throw new CommandExecutionException("cannot aggregate on " + this);
   }
 
   public SQLLevelZeroIdentifier copy() {
@@ -309,8 +309,8 @@ public class SQLLevelZeroIdentifier extends SimpleNode {
     return collection;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     if (functionCall != null) {
       result.setProperty("functionCall", functionCall.serialize(db));
     }
@@ -321,7 +321,7 @@ public class SQLLevelZeroIdentifier extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     if (fromResult.getProperty("functionCall") != null) {
       functionCall = new SQLFunctionCall(-1);
       functionCall.deserialize(fromResult.getProperty("functionCall"));
@@ -345,7 +345,7 @@ public class SQLLevelZeroIdentifier extends SimpleNode {
     }
   }
 
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     if (functionCall != null) {
       return functionCall.isCacheable();
     }

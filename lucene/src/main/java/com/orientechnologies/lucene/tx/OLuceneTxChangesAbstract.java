@@ -18,10 +18,10 @@
 
 package com.orientechnologies.lucene.tx;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
-import com.orientechnologies.lucene.exception.YTLuceneIndexException;
+import com.orientechnologies.lucene.engine.LuceneIndexEngine;
+import com.orientechnologies.lucene.exception.LuceneIndexException;
 import java.io.IOException;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
@@ -36,12 +36,12 @@ public abstract class OLuceneTxChangesAbstract implements OLuceneTxChanges {
 
   public static final String TMP = "_tmp_rid";
 
-  protected final OLuceneIndexEngine engine;
+  protected final LuceneIndexEngine engine;
   protected final IndexWriter writer;
   protected final IndexWriter deletedIdx;
 
   public OLuceneTxChangesAbstract(
-      final OLuceneIndexEngine engine, final IndexWriter writer, final IndexWriter deletedIdx) {
+      final LuceneIndexEngine engine, final IndexWriter writer, final IndexWriter deletedIdx) {
     this.engine = engine;
     this.writer = writer;
     this.deletedIdx = deletedIdx;
@@ -54,8 +54,8 @@ public abstract class OLuceneTxChangesAbstract implements OLuceneTxChanges {
     } catch (IOException e) {
       //      LogManager.instance().error(this, "Error during searcher index instantiation on new
       // documents", e);
-      throw YTException.wrapException(
-          new YTLuceneIndexException("Error during searcher index instantiation on new documents"),
+      throw BaseException.wrapException(
+          new LuceneIndexException("Error during searcher index instantiation on new documents"),
           e);
     }
   }

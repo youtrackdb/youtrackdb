@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
         });
   }
 
-  @Test(expected = YTCommandExecutionException.class)
+  @Test(expected = CommandExecutionException.class)
   public void shouldNotDeleteVertexAndEdge() {
     CommandContext context = new BasicCommandContext();
     switch (className) {
@@ -52,13 +52,13 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
           boolean done = false;
 
           @Override
-          public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
-            List<YTResult> result = new ArrayList<>();
+          public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
+            List<Result> result = new ArrayList<>();
             String simpleClassName = createClassInstance().getName();
             if (!done) {
               for (int i = 0; i < 10; i++) {
                 result.add(
-                    new YTResultInternal(db,
+                    new ResultInternal(db,
                         new EntityImpl(i % 2 == 0 ? simpleClassName : className)));
               }
               done = true;
@@ -83,12 +83,12 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
           boolean done = false;
 
           @Override
-          public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
-            List<YTResult> result = new ArrayList<>();
+          public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
+            List<Result> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
                 result.add(
-                    new YTResultInternal(db, new EntityImpl(createClassInstance().getName())));
+                    new ResultInternal(db, new EntityImpl(createClassInstance().getName())));
               }
               done = true;
             }

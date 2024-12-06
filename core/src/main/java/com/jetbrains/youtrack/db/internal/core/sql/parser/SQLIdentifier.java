@@ -3,9 +3,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.Map;
 import java.util.Objects;
 
@@ -42,7 +42,7 @@ public class SQLIdentifier extends SimpleNode {
     super(id);
   }
 
-  public static SQLIdentifier deserialize(YTResult fromResult) {
+  public static SQLIdentifier deserialize(Result fromResult) {
     SQLIdentifier identifier = new SQLIdentifier(-1);
     identifier.value = fromResult.getProperty("value");
     identifier.quoted = fromResult.getProperty("quoted");
@@ -167,8 +167,8 @@ public class SQLIdentifier extends SimpleNode {
     return result;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("value", value);
     result.setProperty("quoted", quoted);
     return result;

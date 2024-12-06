@@ -1,7 +1,7 @@
 package com.orientechnologies.lucene.engine;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -32,7 +32,7 @@ public class OLuceneDirectoryFactory {
     final String luceneType =
         metadata.containsKey(DIRECTORY_TYPE) ? metadata.get(DIRECTORY_TYPE).toString()
             : DIRECTORY_MMAP;
-    if (storage.getType().equals(ODatabaseType.MEMORY.name().toLowerCase())
+    if (storage.getType().equals(DatabaseType.MEMORY.name().toLowerCase())
         || DIRECTORY_RAM.equals(luceneType)) {
       final Directory dir = new RAMDirectory();
       return new OLuceneDirectory(dir, null);

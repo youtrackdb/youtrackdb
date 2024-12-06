@@ -13,10 +13,10 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,12 +69,12 @@ public class OGeometryCollectionShapeBuilder extends OComplexShapeBuilder<ShapeC
   }
 
   @Override
-  public void initClazz(YTDatabaseSessionInternal db) {
+  public void initClazz(DatabaseSessionInternal db) {
 
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass shape = superClass(db);
-    YTClass polygon = schema.createAbstractClass(getName(), shape);
-    polygon.createProperty(db, "geometries", YTType.EMBEDDEDLIST, shape);
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass shape = superClass(db);
+    SchemaClass polygon = schema.createAbstractClass(getName(), shape);
+    polygon.createProperty(db, "geometries", PropertyType.EMBEDDEDLIST, shape);
   }
 
   @Override

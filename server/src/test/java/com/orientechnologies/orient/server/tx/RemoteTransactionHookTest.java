@@ -2,16 +2,16 @@ package com.orientechnologies.orient.server.tx;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.hook.YTDocumentHookAbstract;
+import com.jetbrains.youtrack.db.internal.core.hook.DocumentHookAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerHookConfiguration;
 import java.io.File;
@@ -23,7 +23,7 @@ import org.junit.Test;
 /**
  *
  */
-public class RemoteTransactionHookTest extends DBTestBase {
+public class RemoteTransactionHookTest extends DbTestBase {
 
   private static final String SERVER_DIRECTORY = "./target/hook-transaction";
   private OServer server;
@@ -49,12 +49,12 @@ public class RemoteTransactionHookTest extends DBTestBase {
     var config = createConfig(builder);
 
     final String testConfig =
-        System.getProperty("youtrackdb.test.env", ODatabaseType.MEMORY.name().toLowerCase());
+        System.getProperty("youtrackdb.test.env", DatabaseType.MEMORY.name().toLowerCase());
 
     if ("ci".equals(testConfig) || "release".equals(testConfig)) {
-      dbType = ODatabaseType.PLOCAL;
+      dbType = DatabaseType.PLOCAL;
     } else {
-      dbType = ODatabaseType.MEMORY;
+      dbType = DatabaseType.MEMORY;
     }
 
     return YouTrackDB.remote("localhost", "root", "root", config);
@@ -82,7 +82,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
     doc.setProperty("name", "some");
     db.save(doc);
     db.command("insert into SomeTx set name='aa' ").close();
-    YTResultSet res = db.command("update SomeTx set name='bb' where name=\"some\"");
+    ResultSet res = db.command("update SomeTx set name='bb' where name=\"some\"");
     assertEquals((Long) 1L, res.next().getProperty("count"));
     res.close();
     db.command("delete from SomeTx where name='aa'").close();
@@ -110,7 +110,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
     doc.setProperty("name", "some");
     database.save(doc);
     database.command("insert into SomeTx set name='aa' ").close();
-    YTResultSet res = database.command("update SomeTx set name='bb' where name=\"some\"");
+    ResultSet res = database.command("update SomeTx set name='bb' where name=\"some\"");
     assertEquals((Long) 1L, res.next().getProperty("count"));
     res.close();
     database.command("delete from SomeTx where name='aa'").close();
@@ -136,7 +136,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
     doc.setProperty("name", "some");
     db.save(doc);
     db.command("insert into SomeTx set name='aa' ").close();
-    YTResultSet res = db.command("update SomeTx set name='bb' where name=\"some\"");
+    ResultSet res = db.command("update SomeTx set name='bb' where name=\"some\"");
     assertEquals((Long) 1L, res.next().getProperty("count"));
     res.close();
     db.command("delete from SomeTx where name='aa'").close();
@@ -151,7 +151,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
 
   public static class CountCallHookServer extends CountCallHook {
 
-    public CountCallHookServer(YTDatabaseSession database) {
+    public CountCallHookServer(DatabaseSession database) {
       super(database);
       instance = this;
     }
@@ -159,7 +159,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
     public static CountCallHookServer instance;
   }
 
-  public static class CountCallHook extends YTDocumentHookAbstract {
+  public static class CountCallHook extends DocumentHookAbstract {
 
     private int beforeCreate = 0;
     private int beforeUpdate = 0;
@@ -168,7 +168,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
     private int afterCreate = 0;
     private int afterDelete = 0;
 
-    public CountCallHook(YTDatabaseSession database) {
+    public CountCallHook(DatabaseSession database) {
       super(database);
     }
 

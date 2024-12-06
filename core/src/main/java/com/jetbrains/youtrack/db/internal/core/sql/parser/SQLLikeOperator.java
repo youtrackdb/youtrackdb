@@ -2,9 +2,9 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.core.query.OQueryHelper;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexFinder.Operation;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.core.query.QueryHelper;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder.Operation;
 import java.util.Map;
 
 public class SQLLikeOperator extends SimpleNode implements SQLBinaryCompareOperator {
@@ -19,14 +19,14 @@ public class SQLLikeOperator extends SimpleNode implements SQLBinaryCompareOpera
 
   @Override
   public boolean execute(Object iLeft, Object iRight) {
-    if (OMultiValue.isMultiValue(iLeft) || OMultiValue.isMultiValue(iRight)) {
+    if (MultiValue.isMultiValue(iLeft) || MultiValue.isMultiValue(iRight)) {
       return false;
     }
 
     if (iLeft == null || iRight == null) {
       return false;
     }
-    return OQueryHelper.like(iLeft.toString(), iRight.toString());
+    return QueryHelper.like(iLeft.toString(), iRight.toString());
   }
 
   @Override

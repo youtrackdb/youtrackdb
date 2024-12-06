@@ -19,23 +19,23 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command;
 
-import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
+import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import java.util.Map;
 
 /**
- * Internal specialization of generic OCommand interface.
+ * Internal specialization of generic Command interface.
  */
 public interface CommandRequestInternal extends CommandRequest {
 
   Map<Object, Object> getParameters();
 
-  OCommandResultListener getResultListener();
+  CommandResultListener getResultListener();
 
-  void setResultListener(OCommandResultListener iListener);
+  void setResultListener(CommandResultListener iListener);
 
-  OProgressListener getProgressListener();
+  ProgressListener getProgressListener();
 
-  CommandRequestInternal setProgressListener(OProgressListener iProgressListener);
+  CommandRequestInternal setProgressListener(ProgressListener iProgressListener);
 
   void reset();
 

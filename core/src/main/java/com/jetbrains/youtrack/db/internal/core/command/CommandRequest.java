@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.command;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext.TIMEOUT_STRATEGY;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import javax.annotation.Nonnull;
 
 /**
@@ -29,7 +29,7 @@ import javax.annotation.Nonnull;
  */
 public interface CommandRequest {
 
-  <RET> RET execute(@Nonnull YTDatabaseSessionInternal querySession, Object... iArgs);
+  <RET> RET execute(@Nonnull DatabaseSessionInternal querySession, Object... iArgs);
 
   /**
    * This api is deprecated use sql keyword "LIMIT" instead

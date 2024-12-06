@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCluster;
 
@@ -13,7 +13,7 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCluster;
  *
  * <p>It accepts two values: a target cluster (name or SQLCluster) and a class. If the cluster
  * belongs to the class, then the syncPool() returns an empty result set, otherwise it throws an
- * YTCommandExecutionException
+ * CommandExecutionException
  */
 public class CheckClusterTypeStep extends AbstractExecutionStep {
 
@@ -36,13 +36,13 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext context) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext context) throws TimeoutException {
     var prev = this.prev;
     if (prev != null) {
       prev.start(context).close(ctx);
     }
 
-    YTDatabaseSessionInternal db = context.getDatabase();
+    DatabaseSessionInternal db = context.getDatabase();
 
     int clusterId;
     if (clusterName != null) {
@@ -52,16 +52,16 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
     } else {
       clusterId = cluster.getClusterNumber();
       if (db.getClusterNameById(clusterId) == null) {
-        throw new YTCommandExecutionException("Cluster not found: " + clusterId);
+        throw new CommandExecutionException("Cluster not found: " + clusterId);
       }
     }
     if (clusterId < 0) {
-      throw new YTCommandExecutionException("Cluster not found: " + clusterName);
+      throw new CommandExecutionException("Cluster not found: " + clusterName);
     }
 
-    YTClass clazz = db.getMetadata().getImmutableSchemaSnapshot().getClass(targetClass);
+    SchemaClass clazz = db.getMetadata().getImmutableSchemaSnapshot().getClass(targetClass);
     if (clazz == null) {
-      throw new YTCommandExecutionException("Class not found: " + targetClass);
+      throw new CommandExecutionException("Class not found: " + targetClass);
     }
 
     boolean found = false;
@@ -72,7 +72,7 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
       }
     }
     if (!found) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cluster " + clusterId + " does not belong to class " + targetClass);
     }
     return ExecutionStream.empty();

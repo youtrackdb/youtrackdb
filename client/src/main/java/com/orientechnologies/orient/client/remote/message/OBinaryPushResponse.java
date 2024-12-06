@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 
 /**
@@ -9,7 +9,7 @@ import java.io.IOException;
  */
 public interface OBinaryPushResponse {
 
-  void write(final OChannelDataOutput network) throws IOException;
+  void write(final ChannelDataOutput network) throws IOException;
 
-  void read(OChannelDataInput channel) throws IOException;
+  void read(ChannelDataInput channel) throws IOException;
 }

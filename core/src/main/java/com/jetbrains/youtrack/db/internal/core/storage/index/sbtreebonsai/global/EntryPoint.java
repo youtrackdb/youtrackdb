@@ -1,15 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.global;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OLongSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurablePage;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
 
-public final class EntryPoint extends ODurablePage {
+public final class EntryPoint extends DurablePage {
 
   private static final int TREE_SIZE_OFFSET = NEXT_FREE_POSITION;
-  private static final int PAGES_SIZE_OFFSET = TREE_SIZE_OFFSET + OLongSerializer.LONG_SIZE;
+  private static final int PAGES_SIZE_OFFSET = TREE_SIZE_OFFSET + LongSerializer.LONG_SIZE;
 
-  public EntryPoint(OCacheEntry cacheEntry) {
+  public EntryPoint(CacheEntry cacheEntry) {
     super(cacheEntry);
   }
 

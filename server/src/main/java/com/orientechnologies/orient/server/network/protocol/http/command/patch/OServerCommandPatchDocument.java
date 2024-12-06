@@ -19,13 +19,13 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.patch;
 
-import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -42,18 +42,18 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
         checkSyntax(iRequest.getUrl(), 2, "Syntax error: document/<database>[/<record-id>]");
 
     iRequest.getData().commandInfo = "Edit Document";
-    try (YTDatabaseSession db = getProfiledDatabaseInstance(iRequest)) {
-      ORawPair<Boolean, YTRID> result =
+    try (DatabaseSession db = getProfiledDatabaseInstance(iRequest)) {
+      RawPair<Boolean, RID> result =
           db.computeInTx(
               () -> {
-                YTRecordId recordId;
+                RecordId recordId;
 
                 if (urlParts.length > 2) {
                   // EXTRACT RID
                   final int parametersPos = urlParts[2].indexOf('?');
                   final String rid =
                       parametersPos > -1 ? urlParts[2].substring(0, parametersPos) : urlParts[2];
-                  recordId = new YTRecordId(rid);
+                  recordId = new RecordId(rid);
 
                   if (!recordId.isValid()) {
                     throw new IllegalArgumentException("Invalid Record ID in request: " + recordId);
@@ -69,13 +69,13 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
                 if (iRequest.getIfMatch() != null)
                 // USE THE IF-MATCH HTTP HEADER AS VERSION
                 {
-                  ORecordInternal.setVersion(doc, Integer.parseInt(iRequest.getIfMatch()));
+                  RecordInternal.setVersion(doc, Integer.parseInt(iRequest.getIfMatch()));
                 }
 
                 if (!recordId.isValid()) {
-                  recordId = (YTRecordId) doc.getIdentity();
+                  recordId = (RecordId) doc.getIdentity();
                 } else {
-                  ORecordInternal.setIdentity(doc, recordId);
+                  RecordInternal.setIdentity(doc, recordId);
                 }
 
                 if (!recordId.isValid()) {
@@ -86,16 +86,16 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
 
                 try {
                   currentDocument = db.load(recordId);
-                } catch (YTRecordNotFoundException rnf) {
-                  return new ORawPair<>(false, recordId);
+                } catch (RecordNotFoundException rnf) {
+                  return new RawPair<>(false, recordId);
                 }
 
                 boolean partialUpdateMode = true;
                 currentDocument.merge(doc, partialUpdateMode, false);
-                ORecordInternal.setVersion(currentDocument, doc.getVersion());
+                RecordInternal.setVersion(currentDocument, doc.getVersion());
 
                 currentDocument.save();
-                return new ORawPair<>(true, recordId);
+                return new RawPair<>(true, recordId);
               });
 
       if (!result.first) {

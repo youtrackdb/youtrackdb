@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityAccessException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.exception.SecurityAccessException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -10,8 +10,8 @@ public class TestReaderDropClass {
 
   @Test
   public void testReaderDropClass() {
-    YTDatabaseSessionInternal db =
-        new YTDatabaseDocumentTx("memory:" + TestReaderDropClass.class.getSimpleName());
+    DatabaseSessionInternal db =
+        new DatabaseDocumentTx("memory:" + TestReaderDropClass.class.getSimpleName());
     db.create();
     try {
       db.getMetadata().getSchema().createClass("Test");
@@ -20,7 +20,7 @@ public class TestReaderDropClass {
       try {
         db.getMetadata().getSchema().dropClass("Test");
         Assert.fail("reader should not be able to drop a class");
-      } catch (YTSecurityAccessException ex) {
+      } catch (SecurityAccessException ex) {
       }
       Assert.assertTrue(db.getMetadata().getSchema().existsClass("Test"));
 

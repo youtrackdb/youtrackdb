@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.common;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OLongSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OShortSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
 
 public final class CASWALPage {
 
@@ -18,18 +18,18 @@ public final class CASWALPage {
   /**
    * Offset of position which stores XX_HASH value of content stored on this page.
    */
-  public static final int XX_OFFSET = MAGIC_NUMBER_OFFSET + OLongSerializer.LONG_SIZE;
+  public static final int XX_OFFSET = MAGIC_NUMBER_OFFSET + LongSerializer.LONG_SIZE;
 
   /**
    * Offset of position which stores operation id of the last record in the page
    */
-  public static final int LAST_OPERATION_ID_OFFSET = XX_OFFSET + OLongSerializer.LONG_SIZE;
+  public static final int LAST_OPERATION_ID_OFFSET = XX_OFFSET + LongSerializer.LONG_SIZE;
 
-  public static final int PAGE_SIZE_OFFSET = LAST_OPERATION_ID_OFFSET + OIntegerSerializer.INT_SIZE;
+  public static final int PAGE_SIZE_OFFSET = LAST_OPERATION_ID_OFFSET + IntegerSerializer.INT_SIZE;
 
   public static final int DEFAULT_PAGE_SIZE = 4 * 1024;
 
-  public static final int RECORDS_OFFSET = PAGE_SIZE_OFFSET + OShortSerializer.SHORT_SIZE;
+  public static final int RECORDS_OFFSET = PAGE_SIZE_OFFSET + ShortSerializer.SHORT_SIZE;
 
   public static final int DEFAULT_MAX_RECORD_SIZE = DEFAULT_PAGE_SIZE - RECORDS_OFFSET;
 
@@ -39,6 +39,6 @@ public final class CASWALPage {
    * information.
    */
   public static int calculateSerializedSize(int recordSize) {
-    return recordSize + OIntegerSerializer.INT_SIZE;
+    return recordSize + IntegerSerializer.INT_SIZE;
   }
 }

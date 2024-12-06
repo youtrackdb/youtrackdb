@@ -1,23 +1,23 @@
 package com.orientechnologies.orient.server.network;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryMonitor;
-import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryResultListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.LiveQueryMonitor;
+import com.jetbrains.youtrack.db.internal.core.db.LiveQueryResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class OLiveQueryRemoteTest {
 
   private OServer server;
   private YouTrackDB youTrackDB;
-  private YTDatabaseSessionInternal db;
+  private DatabaseSessionInternal db;
 
   @Before
   public void before() throws Exception {
@@ -60,7 +60,7 @@ public class OLiveQueryRemoteTest {
     youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         OLiveQueryRemoteTest.class.getSimpleName());
-    db = (YTDatabaseSessionInternal) youTrackDB.open(OLiveQueryRemoteTest.class.getSimpleName(),
+    db = (DatabaseSessionInternal) youTrackDB.open(OLiveQueryRemoteTest.class.getSimpleName(),
         "admin", "admin");
   }
 
@@ -75,7 +75,7 @@ public class OLiveQueryRemoteTest {
     YouTrackDBManager.instance().startup();
   }
 
-  static class MyLiveQueryListener implements YTLiveQueryResultListener {
+  static class MyLiveQueryListener implements LiveQueryResultListener {
 
     public CountDownLatch latch;
     public CountDownLatch ended = new CountDownLatch(1);
@@ -84,32 +84,32 @@ public class OLiveQueryRemoteTest {
       this.latch = latch;
     }
 
-    public List<YTResult> ops = new ArrayList<YTResult>();
+    public List<Result> ops = new ArrayList<Result>();
 
     @Override
-    public void onCreate(YTDatabaseSession database, YTResult data) {
+    public void onCreate(DatabaseSession database, Result data) {
       ops.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(YTDatabaseSession database, YTResult before, YTResult after) {
+    public void onUpdate(DatabaseSession database, Result before, Result after) {
       ops.add(after);
       latch.countDown();
     }
 
     @Override
-    public void onDelete(YTDatabaseSession database, YTResult data) {
+    public void onDelete(DatabaseSession database, Result data) {
       ops.add(data);
       latch.countDown();
     }
 
     @Override
-    public void onError(YTDatabaseSession database, YTException exception) {
+    public void onError(DatabaseSession database, BaseException exception) {
     }
 
     @Override
-    public void onEnd(YTDatabaseSession database) {
+    public void onEnd(DatabaseSession database) {
       ended.countDown();
     }
   }
@@ -140,7 +140,7 @@ public class OLiveQueryRemoteTest {
 
     MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(2));
 
-    YTLiveQueryMonitor monitor = db.live("select from test", listener);
+    LiveQueryMonitor monitor = db.live("select from test", listener);
     Assert.assertNotNull(monitor);
 
     db.begin();
@@ -161,10 +161,10 @@ public class OLiveQueryRemoteTest {
     db.commit();
 
     Assert.assertEquals(2, listener.ops.size());
-    for (YTResult doc : listener.ops) {
+    for (Result doc : listener.ops) {
       Assert.assertEquals("test", doc.getProperty("@class"));
       Assert.assertEquals("foo", doc.getProperty("name"));
-      YTRID rid = doc.getProperty("@rid");
+      RID rid = doc.getProperty("@rid");
       Assert.assertTrue(rid.isPersistent());
     }
   }
@@ -172,15 +172,15 @@ public class OLiveQueryRemoteTest {
   @Test
   @Ignore
   public void testRestrictedLiveInsert() throws ExecutionException, InterruptedException {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass oRestricted = schema.getClass("ORestricted");
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass oRestricted = schema.getClass("ORestricted");
     schema.createClass("test", oRestricted);
 
     int liveMatch = 1;
-    YTResultSet query = db.query("select from OUSer where name = 'reader'");
+    ResultSet query = db.query("select from OUSer where name = 'reader'");
 
-    final YTIdentifiable reader = query.next().getIdentity().orElse(null);
-    final YTIdentifiable current = db.getUser().getIdentity(db);
+    final Identifiable reader = query.next().getIdentity().orElse(null);
+    final Identifiable current = db.getUser().getIdentity(db);
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -191,39 +191,39 @@ public class OLiveQueryRemoteTest {
             new Callable<Integer>() {
               @Override
               public Integer call() throws Exception {
-                YTDatabaseSession db =
+                DatabaseSession db =
                     youTrackDB.open(OLiveQueryRemoteTest.class.getSimpleName(), "reader", "reader");
 
                 final AtomicInteger integer = new AtomicInteger(0);
                 db.live(
                     "live select from test",
-                    new YTLiveQueryResultListener() {
+                    new LiveQueryResultListener() {
 
                       @Override
-                      public void onCreate(YTDatabaseSession database, YTResult data) {
+                      public void onCreate(DatabaseSession database, Result data) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
                       public void onUpdate(
-                          YTDatabaseSession database, YTResult before, YTResult after) {
+                          DatabaseSession database, Result before, Result after) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
-                      public void onDelete(YTDatabaseSession database, YTResult data) {
+                      public void onDelete(DatabaseSession database, Result data) {
                         integer.incrementAndGet();
                         dataArrived.countDown();
                       }
 
                       @Override
-                      public void onError(YTDatabaseSession database, YTException exception) {
+                      public void onError(DatabaseSession database, BaseException exception) {
                       }
 
                       @Override
-                      public void onEnd(YTDatabaseSession database) {
+                      public void onEnd(DatabaseSession database) {
                       }
                     });
 
@@ -240,7 +240,7 @@ public class OLiveQueryRemoteTest {
 
     db.command(
         "insert into test set name = 'foo', surname = 'bar', _allow=?",
-        new ArrayList<YTIdentifiable>() {
+        new ArrayList<Identifiable>() {
           {
             add(current);
             add(reader);
@@ -261,7 +261,7 @@ public class OLiveQueryRemoteTest {
 
     MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(txSize));
 
-    YTLiveQueryMonitor monitor = db.live("select from test", listener);
+    LiveQueryMonitor monitor = db.live("select from test", listener);
     Assert.assertNotNull(monitor);
 
     db.begin();
@@ -276,10 +276,10 @@ public class OLiveQueryRemoteTest {
     Assert.assertTrue(listener.latch.await(1, TimeUnit.MINUTES));
 
     Assert.assertEquals(txSize, listener.ops.size());
-    for (YTResult doc : listener.ops) {
+    for (Result doc : listener.ops) {
       Assert.assertEquals("test", doc.getProperty("@class"));
       Assert.assertEquals("foo", doc.getProperty("name"));
-      YTRID rid = doc.getProperty("@rid");
+      RID rid = doc.getProperty("@rid");
       Assert.assertTrue(rid.isPersistent());
     }
   }

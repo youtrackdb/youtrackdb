@@ -4,12 +4,12 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -38,7 +38,7 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
     var db = ctx.getDatabase();
-    YTResultInternal result = new YTResultInternal(db);
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("operation", "optimize databae");
 
     if (isOptimizeEdges()) {
@@ -77,7 +77,7 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
     return result;
   }
 
-  private String optimizeEdges(YTDatabaseSessionInternal db) {
+  private String optimizeEdges(DatabaseSessionInternal db) {
     long transformed = 0;
     final long totalEdges = db.countClass("E");
     long browsedEdges = 0;
@@ -93,7 +93,7 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
 
       if (doc != null) {
         if (doc.fields() == 2) {
-          final YTRID edgeIdentity = doc.getIdentity();
+          final RID edgeIdentity = doc.getIdentity();
 
           final EntityImpl outV = doc.getPropertyInternal("out");
           final EntityImpl inV = doc.getPropertyInternal("in");
@@ -101,9 +101,9 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
           // OUTGOING
           final Object outField = outV.getPropertyInternal("out_" + doc.getClassName());
           if (outField instanceof RidBag) {
-            final Iterator<YTIdentifiable> it = ((RidBag) outField).iterator();
+            final Iterator<Identifiable> it = ((RidBag) outField).iterator();
             while (it.hasNext()) {
-              YTIdentifiable v = it.next();
+              Identifiable v = it.next();
               if (edgeIdentity.equals(v)) {
                 // REPLACE EDGE RID WITH IN-VERTEX RID
                 it.remove();
@@ -118,9 +118,9 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
           // INCOMING
           final Object inField = inV.getPropertyInternal("in_" + doc.getClassName());
           if (outField instanceof RidBag) {
-            final Iterator<YTIdentifiable> it = ((RidBag) inField).iterator();
+            final Iterator<Identifiable> it = ((RidBag) inField).iterator();
             while (it.hasNext()) {
-              YTIdentifiable v = it.next();
+              Identifiable v = it.next();
               if (edgeIdentity.equals(v)) {
                 // REPLACE EDGE RID WITH IN-VERTEX RID
                 it.remove();

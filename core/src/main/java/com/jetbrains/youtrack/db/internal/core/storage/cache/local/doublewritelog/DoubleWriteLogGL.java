@@ -1,14 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.storage.cache.local.doublewritelog;
 
-import com.jetbrains.youtrack.db.internal.common.directmemory.OByteBufferPool;
-import com.jetbrains.youtrack.db.internal.common.directmemory.ODirectMemoryAllocator;
-import com.jetbrains.youtrack.db.internal.common.directmemory.ODirectMemoryAllocator.Intention;
-import com.jetbrains.youtrack.db.internal.common.directmemory.OPointer;
-import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
+import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator;
+import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator.Intention;
+import com.jetbrains.youtrack.db.internal.common.directmemory.Pointer;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.util.ORawPairIntegerInteger;
-import com.jetbrains.youtrack.db.internal.common.util.ORawPairLongLong;
-import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
+import com.jetbrains.youtrack.db.internal.common.util.RawPairIntegerInteger;
+import com.jetbrains.youtrack.db.internal.common.util.RawPairLongLong;
+import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import java.io.IOException;
@@ -36,7 +36,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
    */
   public static final String EXTENSION = ".dwl";
 
-  private static final ODirectMemoryAllocator ALLOCATOR = ODirectMemoryAllocator.instance();
+  private static final DirectMemoryAllocator ALLOCATOR = DirectMemoryAllocator.instance();
   static final int DEFAULT_BLOCK_SIZE = 4 * 1024;
 
   private static final byte DATA_RECORD = 0;
@@ -95,7 +95,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
 
   private long segmentPosition;
 
-  private Map<ORawPairIntegerInteger, ORawPairLongLong> pageMap;
+  private Map<RawPairIntegerInteger, RawPairLongLong> pageMap;
 
   static {
     final LZ4Factory factory = LZ4Factory.fastestInstance();
@@ -146,7 +146,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
       this.currentFile = createLogFile(path);
 
       if (blockSize <= 0) {
-        var supposedBlockSize = OIOUtils.calculateBlockSize(path);
+        var supposedBlockSize = IOUtils.calculateBlockSize(path);
         if (supposedBlockSize > 0) {
           blockSize = supposedBlockSize;
         } else {
@@ -216,7 +216,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
 
       sizeToAllocate += buffers.size() * RECORD_METADATA_SIZE;
       sizeToAllocate = (sizeToAllocate + blockMask) & ~blockMask;
-      final OPointer pageContainer =
+      final Pointer pageContainer =
           ALLOCATOR.allocate(sizeToAllocate, false, Intention.DWL_ALLOCATE_CHUNK);
 
       try {
@@ -230,7 +230,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
           buffer.rewind();
 
           final int maxCompressedLength = LZ_4_COMPRESSOR.maxCompressedLength(buffer.limit());
-          final OPointer compressedPointer =
+          final Pointer compressedPointer =
               ALLOCATOR.allocate(
                   maxCompressedLength, false, Intention.DWL_ALLOCATE_COMPRESSED_CHUNK);
           try {
@@ -285,7 +285,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
 
         containerBuffer.rewind();
         assert currentFile.size() == segmentPosition;
-        var written = OIOUtils.writeByteBuffer(containerBuffer, currentFile, segmentPosition);
+        var written = IOUtils.writeByteBuffer(containerBuffer, currentFile, segmentPosition);
         currentFile.force(true);
         segmentPosition += written;
         assert currentFile.size() == segmentPosition;
@@ -342,7 +342,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
   }
 
   @Override
-  public OPointer loadPage(int fileId, int pageIndex, OByteBufferPool bufferPool)
+  public Pointer loadPage(int fileId, int pageIndex, ByteBufferPool bufferPool)
       throws IOException {
     if (!restoreMode) {
       return null;
@@ -353,8 +353,8 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
         return null;
       }
 
-      final ORawPairLongLong segmentPosition =
-          pageMap.get(new ORawPairIntegerInteger(fileId, pageIndex));
+      final RawPairLongLong segmentPosition =
+          pageMap.get(new RawPairIntegerInteger(fileId, pageIndex));
       if (segmentPosition == null) {
         return null;
       }
@@ -370,7 +370,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
             final ByteBuffer metadataBuffer =
                 ByteBuffer.allocate(RECORD_METADATA_SIZE).order(ByteOrder.nativeOrder());
 
-            OIOUtils.readByteBuffer(metadataBuffer, channel, segmentPosition.second, true);
+            IOUtils.readByteBuffer(metadataBuffer, channel, segmentPosition.second, true);
             metadataBuffer.rewind();
 
             final byte recordType = metadataBuffer.get();
@@ -394,7 +394,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
                 final ByteBuffer buffer =
                     ByteBuffer.allocate(compressedLen + RECORD_METADATA_SIZE)
                         .order(ByteOrder.nativeOrder());
-                OIOUtils.readByteBuffer(buffer, channel, segmentPosition.second, true);
+                IOUtils.readByteBuffer(buffer, channel, segmentPosition.second, true);
 
                 buffer.rewind();
 
@@ -417,7 +417,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
                 pagesBuffer.position(pagePosition);
                 pagesBuffer.limit(pagePosition + pageSize);
 
-                final OPointer pointer = bufferPool.acquireDirect(false, Intention.LOAD_WAL_PAGE);
+                final Pointer pointer = bufferPool.acquireDirect(false, Intention.LOAD_WAL_PAGE);
                 final ByteBuffer pageBuffer = pointer.getNativeByteBuffer();
                 assert pageBuffer.position() == 0;
                 pageBuffer.put(pagesBuffer);
@@ -473,7 +473,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
           while (fileSize - position > RECORD_METADATA_SIZE) {
             final ByteBuffer metadataBuffer =
                 ByteBuffer.allocate(RECORD_METADATA_SIZE).order(ByteOrder.nativeOrder());
-            OIOUtils.readByteBuffer(metadataBuffer, channel, position, true);
+            IOUtils.readByteBuffer(metadataBuffer, channel, position, true);
             metadataBuffer.rewind();
 
             final byte recordType = metadataBuffer.get();
@@ -512,7 +512,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
               final ByteBuffer buffer =
                   ByteBuffer.allocate(RECORD_METADATA_SIZE + compressedLen)
                       .order(ByteOrder.nativeOrder());
-              OIOUtils.readByteBuffer(buffer, channel, position, true);
+              IOUtils.readByteBuffer(buffer, channel, position, true);
               buffer.rewind();
 
               if (XX_HASH.hash(
@@ -539,8 +539,8 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
 
             for (int i = 0; i < pages; i++) {
               pageMap.put(
-                  new ORawPairIntegerInteger(fileId, pageIndex + i),
-                  new ORawPairLongLong(segmentId, position));
+                  new RawPairIntegerInteger(fileId, pageIndex + i),
+                  new RawPairLongLong(segmentId, position));
             }
 
             position += RECORD_METADATA_SIZE + compressedLen;
@@ -582,7 +582,7 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
                   try {
                     Files.delete(path);
                   } catch (IOException e) {
-                    throw new YTStorageException(
+                    throw new StorageException(
                         "Can not delete file " + path + " in storage " + storageName);
                   }
                 });

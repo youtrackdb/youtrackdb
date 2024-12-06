@@ -153,7 +153,7 @@
       <class name="com.orientechnologies.orient.test.database.auto.ConcurrentQueriesTest"/>
       <class name="com.orientechnologies.orient.test.database.auto.CollateTest"/>
       <class name="com.orientechnologies.orient.test.database.auto.OEmbeddedRidBagTest"/>
-      <class name="com.orientechnologies.orient.test.database.auto.OSBTreeRidBagTest"/>
+      <class name="com.orientechnologies.orient.test.database.auto.SBTreeRidBagTest"/>
       <class name="com.orientechnologies.orient.test.database.auto.StringsTest"/>
       <class name="com.orientechnologies.orient.test.database.auto.SequenceTest"/>
       <class name="com.orientechnologies.orient.test.database.auto.SQLSequenceTest"/>

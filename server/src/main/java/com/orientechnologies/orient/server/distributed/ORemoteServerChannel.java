@@ -19,15 +19,15 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.jetbrains.youtrack.db.internal.common.thread.OThreadPoolExecutors;
+import com.jetbrains.youtrack.db.internal.common.thread.ThreadPoolExecutors;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.orientechnologies.orient.client.binary.OChannelBinarySynchClient;
+import com.orientechnologies.orient.client.binary.SocketChannelBinarySynchClient;
 import com.orientechnologies.orient.client.remote.message.ODistributedConnectRequest;
 import com.orientechnologies.orient.client.remote.message.ODistributedConnectResponse;
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OToken;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.binary.OBinaryTokenSerializer;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.binary.BinaryTokenSerializer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Date;
@@ -48,7 +48,7 @@ public class ORemoteServerChannel {
   private final String userName;
   private final String userPassword;
   private final String server;
-  private OChannelBinarySynchClient channel;
+  private SocketChannelBinarySynchClient channel;
   private int protocolVersion;
   private ODistributedRequest prevRequest;
   private ODistributedResponse prevResponse;
@@ -59,9 +59,9 @@ public class ORemoteServerChannel {
   private static final boolean COLLECT_STATS = false;
   private int sessionId = -1;
   private byte[] sessionToken;
-  private OToken tokenInstance = null;
-  private final OBinaryTokenSerializer tokenDeserializer = new OBinaryTokenSerializer();
-  private final YTContextConfiguration contextConfig = new YTContextConfiguration();
+  private Token tokenInstance = null;
+  private final BinaryTokenSerializer tokenDeserializer = new BinaryTokenSerializer();
+  private final ContextConfiguration contextConfig = new ContextConfiguration();
   private final Date createdOn = new Date();
 
   private volatile int totalConsecutiveErrors = 0;
@@ -103,7 +103,7 @@ public class ORemoteServerChannel {
           }
         };
 
-    executor = OThreadPoolExecutors.newSingleThreadPool("ORemoteServerChannel", 10, reject);
+    executor = ThreadPoolExecutors.newSingleThreadPool("ORemoteServerChannel", 10, reject);
 
     connect();
   }
@@ -157,7 +157,7 @@ public class ORemoteServerChannel {
 
   public void sendRequest(final ODistributedRequest request) {
     executeNetworkOperation(
-        OChannelBinaryProtocol.DISTRIBUTED_REQUEST,
+        ChannelBinaryProtocol.DISTRIBUTED_REQUEST,
         () -> {
           request.toStream(channel.getDataOutput());
           channel.flush();
@@ -177,7 +177,7 @@ public class ORemoteServerChannel {
           return null;
         };
     executeNetworkOperation(
-        OChannelBinaryProtocol.DISTRIBUTED_RESPONSE,
+        ChannelBinaryProtocol.DISTRIBUTED_RESPONSE,
         remoteOperation,
         "Cannot send response back to the sender node '"
             + response.getSenderNodeName()
@@ -191,15 +191,15 @@ public class ORemoteServerChannel {
   public void connect() throws IOException {
     networkClose();
     channel =
-        new OChannelBinarySynchClient(
+        new SocketChannelBinarySynchClient(
             remoteHost,
             remotePort,
             null,
             contextConfig,
-            OChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION);
+            ChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION);
 
     networkOperation(
-        OChannelBinaryProtocol.DISTRIBUTED_CONNECT,
+        ChannelBinaryProtocol.DISTRIBUTED_CONNECT,
         () -> {
           ODistributedConnectRequest request =
               new ODistributedConnectRequest(protocolVersion, userName, userPassword);

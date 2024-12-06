@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command;
 
-import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
+import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,7 +36,7 @@ public interface CommandExecutor {
    *
    * @param iRequest Command request implementation.
    * @return
-   * @see #execute(Map, YTDatabaseSessionInternal) <Object, Object>...)
+   * @see #execute(Map, DatabaseSessionInternal) <Object, Object>...)
    */
   <RET extends CommandExecutor> RET parse(CommandRequest iRequest);
 
@@ -48,15 +48,15 @@ public interface CommandExecutor {
    * @return
    * @see #parse(CommandRequest)
    */
-  Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession);
+  Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession);
 
   /**
    * Set the listener invoked while the command is executing.
    *
-   * @param progressListener OProgressListener implementation
+   * @param progressListener ProgressListener implementation
    * @return
    */
-  <RET extends CommandExecutor> RET setProgressListener(OProgressListener progressListener);
+  <RET extends CommandExecutor> RET setProgressListener(ProgressListener progressListener);
 
   <RET extends CommandExecutor> RET setLimit(int iLimit);
 
@@ -82,7 +82,7 @@ public interface CommandExecutor {
    * Returns the security operation type use to check about security.
    *
    * @return
-   * @see ORole PERMISSION_*
+   * @see Role PERMISSION_*
    */
   int getSecurityOperationType();
 

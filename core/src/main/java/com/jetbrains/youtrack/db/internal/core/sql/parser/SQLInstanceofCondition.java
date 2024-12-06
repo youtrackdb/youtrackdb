@@ -3,15 +3,15 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -33,21 +33,21 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
+  public boolean evaluate(Identifiable currentRecord, CommandContext ctx) {
     if (currentRecord == null) {
       return false;
     }
     Record record;
     try {
       record = currentRecord.getRecord();
-    } catch (YTRecordNotFoundException rnf) {
+    } catch (RecordNotFoundException rnf) {
       return false;
     }
 
     if (!(record instanceof EntityImpl doc)) {
       return false;
     }
-    YTClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
+    SchemaClass clazz = DocumentInternal.getImmutableSchemaClass(doc);
     if (clazz == null) {
       return false;
     }
@@ -60,7 +60,7 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
+  public boolean evaluate(Result currentRecord, CommandContext ctx) {
     if (currentRecord == null) {
       return false;
     }
@@ -72,7 +72,7 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
     if (!(record instanceof EntityImpl doc)) {
       return false;
     }
-    YTClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
+    SchemaClass clazz = DocumentInternal.getImmutableSchemaClass(doc);
     if (clazz == null) {
       return false;
     }
@@ -88,7 +88,7 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
     if (rightString == null) {
       return null;
     }
-    return OStringSerializerHelper.decode(rightString.substring(1, rightString.length() - 1));
+    return StringSerializerHelper.decode(rightString.substring(1, rightString.length() - 1));
   }
 
   public void toString(Map<Object, Object> params, StringBuilder builder) {
@@ -190,7 +190,7 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     return left.isCacheable(session);
   }
 }

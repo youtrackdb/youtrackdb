@@ -19,58 +19,58 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OCollectionNetworkSerializer;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.Change;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.ChangeSerializationHelper;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 import java.util.Map;
 
 public class OSBTGetRealBagSizeRequest implements OBinaryRequest<OSBTGetRealBagSizeResponse> {
 
-  private OBonsaiCollectionPointer collectionPointer;
-  private Map<YTIdentifiable, Change> changes;
-  private OBinarySerializer<YTIdentifiable> keySerializer;
+  private BonsaiCollectionPointer collectionPointer;
+  private Map<Identifiable, Change> changes;
+  private BinarySerializer<Identifiable> keySerializer;
 
   public OSBTGetRealBagSizeRequest() {
   }
 
   public OSBTGetRealBagSizeRequest(
-      OBinarySerializer<YTIdentifiable> keySerializer,
-      OBonsaiCollectionPointer collectionPointer,
-      Map<YTIdentifiable, Change> changes) {
+      BinarySerializer<Identifiable> keySerializer,
+      BonsaiCollectionPointer collectionPointer,
+      Map<Identifiable, Change> changes) {
     this.collectionPointer = collectionPointer;
     this.changes = changes;
     this.keySerializer = keySerializer;
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     OCollectionNetworkSerializer.INSTANCE.writeCollectionPointer(network, collectionPointer);
     final ChangeSerializationHelper changeSerializer = ChangeSerializationHelper.INSTANCE;
     final byte[] stream =
         new byte
-            [OIntegerSerializer.INT_SIZE
+            [IntegerSerializer.INT_SIZE
             + changeSerializer.getChangesSerializedSize(changes.size())];
     changeSerializer.serializeChanges(changes, keySerializer, stream, 0);
     network.writeBytes(stream);
   }
 
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
-      ORecordSerializer serializer)
+  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+      RecordSerializer serializer)
       throws IOException {
     collectionPointer = OCollectionNetworkSerializer.INSTANCE.readCollectionPointer(channel);
     byte[] stream = channel.readBytes();
@@ -80,7 +80,7 @@ public class OSBTGetRealBagSizeRequest implements OBinaryRequest<OSBTGetRealBagS
 
   @Override
   public byte getCommand() {
-    return OChannelBinaryProtocol.REQUEST_RIDBAG_GET_SIZE;
+    return ChannelBinaryProtocol.REQUEST_RIDBAG_GET_SIZE;
   }
 
   @Override
@@ -88,11 +88,11 @@ public class OSBTGetRealBagSizeRequest implements OBinaryRequest<OSBTGetRealBagS
     return "RidBag get size";
   }
 
-  public Map<YTIdentifiable, Change> getChanges() {
+  public Map<Identifiable, Change> getChanges() {
     return changes;
   }
 
-  public OBonsaiCollectionPointer getCollectionPointer() {
+  public BonsaiCollectionPointer getCollectionPointer() {
     return collectionPointer;
   }
 

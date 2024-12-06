@@ -20,11 +20,11 @@
 
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.OSimpleMultiValueTracker;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.Serializable;
 import java.util.Collection;
@@ -41,7 +41,7 @@ import javax.annotation.Nullable;
  * call the makeDirty() by hand when the set is changed.
  */
 public class TrackedSet<T> extends LinkedHashSet<T>
-    implements RecordElement, OTrackedMultiValue<T, T>, Serializable {
+    implements RecordElement, TrackedMultiValue<T, T>, Serializable {
 
   protected final RecordElement sourceRecord;
   private final boolean embeddedCollection;
@@ -49,7 +49,7 @@ public class TrackedSet<T> extends LinkedHashSet<T>
   private boolean dirty = false;
   private boolean transactionDirty = false;
 
-  private final OSimpleMultiValueTracker<T, T> tracker = new OSimpleMultiValueTracker<>(this);
+  private final SimpleMultiValueTracker<T, T> tracker = new SimpleMultiValueTracker<>(this);
 
   public TrackedSet(
       final RecordElement iRecord, final Collection<? extends T> iOrigin, final Class<?> cls) {
@@ -154,7 +154,7 @@ public class TrackedSet<T> extends LinkedHashSet<T>
 
   private void removeEvent(T removed) {
     if (removed instanceof EntityImpl) {
-      ODocumentInternal.removeOwner((EntityImpl) removed, this);
+      DocumentInternal.removeOwner((EntityImpl) removed, this);
     }
 
     if (tracker.isEnabled()) {
@@ -185,15 +185,15 @@ public class TrackedSet<T> extends LinkedHashSet<T>
   }
 
   public Set<T> returnOriginalState(
-      YTDatabaseSessionInternal session,
-      final List<OMultiValueChangeEvent<T, T>> multiValueChangeEvents) {
+      DatabaseSessionInternal session,
+      final List<MultiValueChangeEvent<T, T>> multiValueChangeEvents) {
     final Set<T> reverted = new HashSet<T>(this);
 
-    final ListIterator<OMultiValueChangeEvent<T, T>> listIterator =
+    final ListIterator<MultiValueChangeEvent<T, T>> listIterator =
         multiValueChangeEvents.listIterator(multiValueChangeEvents.size());
 
     while (listIterator.hasPrevious()) {
-      final OMultiValueChangeEvent<T, T> event = listIterator.previous();
+      final MultiValueChangeEvent<T, T> event = listIterator.previous();
       switch (event.getChangeType()) {
         case ADD:
           reverted.remove(event.getKey());
@@ -216,11 +216,11 @@ public class TrackedSet<T> extends LinkedHashSet<T>
   private void addOwnerToEmbeddedDoc(T e) {
     if (embeddedCollection && e instanceof EntityImpl && !((EntityImpl) e).getIdentity()
         .isValid()) {
-      ODocumentInternal.addOwner((EntityImpl) e, this);
+      DocumentInternal.addOwner((EntityImpl) e, this);
     }
 
     if (e instanceof EntityImpl) {
-      ORecordInternal.track(sourceRecord, (EntityImpl) e);
+      RecordInternal.track(sourceRecord, (EntityImpl) e);
     }
   }
 
@@ -229,7 +229,7 @@ public class TrackedSet<T> extends LinkedHashSet<T>
   }
 
   @Override
-  public void replace(OMultiValueChangeEvent<Object, Object> event, Object newValue) {
+  public void replace(MultiValueChangeEvent<Object, Object> event, Object newValue) {
     super.remove(event.getKey());
     super.add((T) newValue);
   }
@@ -237,14 +237,14 @@ public class TrackedSet<T> extends LinkedHashSet<T>
   public void enableTracking(RecordElement parent) {
     if (!tracker.isEnabled()) {
       this.tracker.enable();
-      OTrackedMultiValue.nestedEnabled(this.iterator(), this);
+      TrackedMultiValue.nestedEnabled(this.iterator(), this);
     }
   }
 
   public void disableTracking(RecordElement document) {
     if (tracker.isEnabled()) {
       this.tracker.disable();
-      OTrackedMultiValue.nestedDisable(this.iterator(), this);
+      TrackedMultiValue.nestedDisable(this.iterator(), this);
     }
     this.dirty = false;
   }
@@ -252,7 +252,7 @@ public class TrackedSet<T> extends LinkedHashSet<T>
   @Override
   public void transactionClear() {
     tracker.transactionClear();
-    OTrackedMultiValue.nestedTransactionClear(this.iterator());
+    TrackedMultiValue.nestedTransactionClear(this.iterator());
     this.transactionDirty = false;
   }
 
@@ -267,11 +267,11 @@ public class TrackedSet<T> extends LinkedHashSet<T>
   }
 
   @Override
-  public OMultiValueChangeTimeLine<Object, Object> getTimeLine() {
+  public MultiValueChangeTimeLine<Object, Object> getTimeLine() {
     return tracker.getTimeLine();
   }
 
-  public OMultiValueChangeTimeLine<T, T> getTransactionTimeLine() {
+  public MultiValueChangeTimeLine<T, T> getTransactionTimeLine() {
     return tracker.getTransactionTimeLine();
   }
 }

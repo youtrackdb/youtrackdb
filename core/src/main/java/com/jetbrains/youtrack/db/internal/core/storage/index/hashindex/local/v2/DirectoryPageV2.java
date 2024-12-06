@@ -20,15 +20,15 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v2;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OByteSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurablePage;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
 
 /**
  * @since 5/14/14
  */
-public class DirectoryPageV2 extends ODurablePage {
+public class DirectoryPageV2 extends DurablePage {
 
   private static final int ITEMS_OFFSET = NEXT_FREE_POSITION;
 
@@ -36,7 +36,7 @@ public class DirectoryPageV2 extends ODurablePage {
       (GlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024 - ITEMS_OFFSET)
           / HashTableDirectory.BINARY_LEVEL_SIZE;
 
-  public DirectoryPageV2(OCacheEntry cacheEntry) {
+  public DirectoryPageV2(CacheEntry cacheEntry) {
     super(cacheEntry);
   }
 
@@ -54,7 +54,7 @@ public class DirectoryPageV2 extends ODurablePage {
     final int offset =
         getItemsOffset()
             + localNodeIndex * HashTableDirectory.BINARY_LEVEL_SIZE
-            + OByteSerializer.BYTE_SIZE;
+            + ByteSerializer.BYTE_SIZE;
     setByteValue(offset, maxRightChildDepth);
   }
 
@@ -62,7 +62,7 @@ public class DirectoryPageV2 extends ODurablePage {
     int offset =
         getItemsOffset()
             + localNodeIndex * HashTableDirectory.BINARY_LEVEL_SIZE
-            + OByteSerializer.BYTE_SIZE;
+            + ByteSerializer.BYTE_SIZE;
     return getByteValue(offset);
   }
 
@@ -70,7 +70,7 @@ public class DirectoryPageV2 extends ODurablePage {
     final int offset =
         getItemsOffset()
             + localNodeIndex * HashTableDirectory.BINARY_LEVEL_SIZE
-            + 2 * OByteSerializer.BYTE_SIZE;
+            + 2 * ByteSerializer.BYTE_SIZE;
 
     setByteValue(offset, nodeLocalDepth);
   }
@@ -79,7 +79,7 @@ public class DirectoryPageV2 extends ODurablePage {
     int offset =
         getItemsOffset()
             + localNodeIndex * HashTableDirectory.BINARY_LEVEL_SIZE
-            + 2 * OByteSerializer.BYTE_SIZE;
+            + 2 * ByteSerializer.BYTE_SIZE;
     return getByteValue(offset);
   }
 
@@ -87,7 +87,7 @@ public class DirectoryPageV2 extends ODurablePage {
     final int offset =
         getItemsOffset()
             + (localNodeIndex * HashTableDirectory.BINARY_LEVEL_SIZE
-            + 3 * OByteSerializer.BYTE_SIZE)
+            + 3 * ByteSerializer.BYTE_SIZE)
             + index * HashTableDirectory.ITEM_SIZE;
 
     setLongValue(offset, pointer);
@@ -97,7 +97,7 @@ public class DirectoryPageV2 extends ODurablePage {
     int offset =
         getItemsOffset()
             + (localNodeIndex * HashTableDirectory.BINARY_LEVEL_SIZE
-            + 3 * OByteSerializer.BYTE_SIZE)
+            + 3 * ByteSerializer.BYTE_SIZE)
             + index * HashTableDirectory.ITEM_SIZE;
 
     return getLongValue(offset);

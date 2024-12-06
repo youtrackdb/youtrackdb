@@ -1,14 +1,15 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.OMultiValueChangeEvent;
-import com.jetbrains.youtrack.db.internal.core.db.record.OMultiValueChangeTimeLine;
+import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
+import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
+import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,14 +37,14 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     super.beforeClass();
 
     if (!database.getMetadata().getSchema().existsClass("DocumentTrackingTestClass")) {
-      final YTClass trackedClass =
+      final SchemaClass trackedClass =
           database.getMetadata().getSchema().createClass("DocumentTrackingTestClass");
-      trackedClass.createProperty(database, "embeddedlist", YTType.EMBEDDEDLIST);
-      trackedClass.createProperty(database, "embeddedmap", YTType.EMBEDDEDMAP);
-      trackedClass.createProperty(database, "embeddedset", YTType.EMBEDDEDSET);
-      trackedClass.createProperty(database, "linkset", YTType.LINKSET);
-      trackedClass.createProperty(database, "linklist", YTType.LINKLIST);
-      trackedClass.createProperty(database, "linkmap", YTType.LINKMAP);
+      trackedClass.createProperty(database, "embeddedlist", PropertyType.EMBEDDEDLIST);
+      trackedClass.createProperty(database, "embeddedmap", PropertyType.EMBEDDEDMAP);
+      trackedClass.createProperty(database, "embeddedset", PropertyType.EMBEDDEDSET);
+      trackedClass.createProperty(database, "linkset", PropertyType.LINKSET);
+      trackedClass.createProperty(database, "linklist", PropertyType.LINKLIST);
+      trackedClass.createProperty(database, "linkmap", PropertyType.LINKMAP);
     }
   }
 
@@ -53,7 +54,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final List<String> list = new ArrayList<String>();
     list.add("value1");
 
-    document.field("embeddedlist", list, YTType.EMBEDDEDLIST);
+    document.field("embeddedlist", list, PropertyType.EMBEDDEDLIST);
     document.field("val", 1);
 
     database.begin();
@@ -70,14 +71,14 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(document.isDirty());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedlist");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedlist");
     Assert.assertNotNull(timeLine);
 
     Assert.assertNotNull(timeLine.getMultiValueChangeEvents());
 
-    final List<OMultiValueChangeEvent> firedEvents = new ArrayList<OMultiValueChangeEvent>();
+    final List<MultiValueChangeEvent> firedEvents = new ArrayList<MultiValueChangeEvent>();
     firedEvents.add(
-        new OMultiValueChangeEvent(OMultiValueChangeEvent.OChangeType.ADD, 1, "value2"));
+        new MultiValueChangeEvent(ChangeType.ADD, 1, "value2"));
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
@@ -91,7 +92,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final Map<String, String> map = new HashMap<String, String>();
     map.put("key1", "value1");
 
-    document.field("embeddedmap", map, YTType.EMBEDDEDMAP);
+    document.field("embeddedmap", map, PropertyType.EMBEDDEDMAP);
     document.field("val", 1);
 
     database.begin();
@@ -108,14 +109,14 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(document.isDirty());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedmap");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedmap");
     Assert.assertNotNull(timeLine);
 
     Assert.assertNotNull(timeLine.getMultiValueChangeEvents());
 
-    final List<OMultiValueChangeEvent> firedEvents = new ArrayList<OMultiValueChangeEvent>();
+    final List<MultiValueChangeEvent> firedEvents = new ArrayList<MultiValueChangeEvent>();
     firedEvents.add(
-        new OMultiValueChangeEvent(OMultiValueChangeEvent.OChangeType.ADD, "key2", "value2"));
+        new MultiValueChangeEvent(ChangeType.ADD, "key2", "value2"));
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
@@ -129,7 +130,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final Set<String> set = new HashSet<String>();
     set.add("value1");
 
-    document.field("embeddedset", set, YTType.EMBEDDEDSET);
+    document.field("embeddedset", set, PropertyType.EMBEDDEDSET);
     document.field("val", 1);
 
     database.begin();
@@ -146,14 +147,14 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(document.isDirty());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedset");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedset");
     Assert.assertNotNull(timeLine);
 
     Assert.assertNotNull(timeLine.getMultiValueChangeEvents());
 
-    final List<OMultiValueChangeEvent> firedEvents = new ArrayList<OMultiValueChangeEvent>();
+    final List<MultiValueChangeEvent> firedEvents = new ArrayList<MultiValueChangeEvent>();
     firedEvents.add(
-        new OMultiValueChangeEvent(OMultiValueChangeEvent.OChangeType.ADD, "value2", "value2"));
+        new MultiValueChangeEvent(ChangeType.ADD, "value2", "value2"));
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
@@ -171,10 +172,10 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     EntityImpl document = new EntityImpl();
 
-    final Set<YTRID> set = new HashSet<YTRID>();
+    final Set<RID> set = new HashSet<RID>();
     set.add(docOne.getIdentity());
 
-    document.field("linkset", set, YTType.LINKSET);
+    document.field("linkset", set, PropertyType.LINKSET);
     document.field("val", 1);
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
@@ -184,12 +185,12 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
-    final Set<YTRID> trackedSet = document.field("linkset");
+    final Set<RID> trackedSet = document.field("linkset");
     trackedSet.add(docTwo.getIdentity());
 
     Assert.assertTrue(document.isDirty());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkset");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkset");
     Assert.assertNotNull(timeLine);
 
     Assert.assertEquals(document.getDirtyFields(), new String[]{"linkset"});
@@ -206,10 +207,10 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     EntityImpl document = new EntityImpl();
 
-    final List<YTRID> list = new ArrayList<YTRID>();
+    final List<RID> list = new ArrayList<RID>();
     list.add(docOne.getIdentity());
 
-    document.field("linklist", list, YTType.LINKLIST);
+    document.field("linklist", list, PropertyType.LINKLIST);
     document.field("val", 1);
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
@@ -220,12 +221,12 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
-    final List<YTRID> trackedList = document.field("linklist");
+    final List<RID> trackedList = document.field("linklist");
     trackedList.add(docTwo.getIdentity());
 
     Assert.assertTrue(document.isDirty());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linklist");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linklist");
     Assert.assertNotNull(timeLine);
 
     Assert.assertEquals(document.getDirtyFields(), new String[]{"linklist"});
@@ -242,10 +243,10 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     EntityImpl document = new EntityImpl();
 
-    final Map<String, YTRID> map = new HashMap<String, YTRID>();
+    final Map<String, RID> map = new HashMap<String, RID>();
     map.put("key1", docOne.getIdentity());
 
-    document.field("linkmap", map, YTType.LINKMAP);
+    document.field("linkmap", map, PropertyType.LINKMAP);
     document.field("val", 1);
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
@@ -256,10 +257,10 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
-    final Map<String, YTRID> trackedMap = document.field("linkmap");
+    final Map<String, RID> trackedMap = document.field("linkmap");
     trackedMap.put("key2", docTwo.getIdentity());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkmap");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkmap");
     Assert.assertNotNull(timeLine);
 
     Assert.assertEquals(document.getDirtyFields(), new String[]{"linkmap"});
@@ -273,7 +274,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final List<String> list = new ArrayList<String>();
     list.add("value1");
 
-    document.field("embeddedlist", list, YTType.EMBEDDEDLIST);
+    document.field("embeddedlist", list, PropertyType.EMBEDDEDLIST);
     document.field("val", 1);
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
@@ -288,14 +289,14 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(document.isDirty());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedlist");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedlist");
     Assert.assertNotNull(timeLine);
 
     Assert.assertNotNull(timeLine.getMultiValueChangeEvents());
 
-    final List<OMultiValueChangeEvent> firedEvents = new ArrayList<OMultiValueChangeEvent>();
+    final List<MultiValueChangeEvent> firedEvents = new ArrayList<MultiValueChangeEvent>();
     firedEvents.add(
-        new OMultiValueChangeEvent(OMultiValueChangeEvent.OChangeType.ADD, 1, "value2"));
+        new MultiValueChangeEvent(ChangeType.ADD, 1, "value2"));
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
@@ -310,7 +311,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final Map<String, String> map = new HashMap<String, String>();
     map.put("key1", "value1");
 
-    document.field("embeddedmap", map, YTType.EMBEDDEDMAP);
+    document.field("embeddedmap", map, PropertyType.EMBEDDEDMAP);
     document.field("val", 1);
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
@@ -325,14 +326,14 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(document.isDirty());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedmap");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedmap");
     Assert.assertNotNull(timeLine);
 
     Assert.assertNotNull(timeLine.getMultiValueChangeEvents());
 
-    final List<OMultiValueChangeEvent> firedEvents = new ArrayList<OMultiValueChangeEvent>();
+    final List<MultiValueChangeEvent> firedEvents = new ArrayList<MultiValueChangeEvent>();
     firedEvents.add(
-        new OMultiValueChangeEvent(OMultiValueChangeEvent.OChangeType.ADD, "key2", "value2"));
+        new MultiValueChangeEvent(ChangeType.ADD, "key2", "value2"));
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
@@ -347,7 +348,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final Set<String> set = new HashSet<String>();
     set.add("value1");
 
-    document.field("embeddedset", set, YTType.EMBEDDEDSET);
+    document.field("embeddedset", set, PropertyType.EMBEDDEDSET);
     document.field("val", 1);
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
@@ -362,14 +363,14 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(document.isDirty());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedset");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedset");
     Assert.assertNotNull(timeLine);
 
     Assert.assertNotNull(timeLine.getMultiValueChangeEvents());
 
-    final List<OMultiValueChangeEvent> firedEvents = new ArrayList<OMultiValueChangeEvent>();
+    final List<MultiValueChangeEvent> firedEvents = new ArrayList<MultiValueChangeEvent>();
     firedEvents.add(
-        new OMultiValueChangeEvent(OMultiValueChangeEvent.OChangeType.ADD, "value2", "value2"));
+        new MultiValueChangeEvent(ChangeType.ADD, "value2", "value2"));
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
@@ -387,10 +388,10 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     EntityImpl document = new EntityImpl();
 
-    final Set<YTRID> set = new HashSet<YTRID>();
+    final Set<RID> set = new HashSet<RID>();
     set.add(docOne.getIdentity());
 
-    document.field("linkset", set, YTType.LINKSET);
+    document.field("linkset", set, PropertyType.LINKSET);
     document.field("val", 1);
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
@@ -400,12 +401,12 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
-    final Set<YTRID> trackedSet = document.field("linkset");
+    final Set<RID> trackedSet = document.field("linkset");
     trackedSet.add(docTwo.getIdentity());
 
     Assert.assertTrue(document.isDirty());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkset");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkset");
     Assert.assertNotNull(timeLine);
 
     Assert.assertEquals(document.getDirtyFields(), new String[]{"linkset"});
@@ -422,10 +423,10 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     EntityImpl document = new EntityImpl();
 
-    final List<YTRID> list = new ArrayList<YTRID>();
+    final List<RID> list = new ArrayList<RID>();
     list.add(docOne.getIdentity());
 
-    document.field("linklist", list, YTType.LINKLIST);
+    document.field("linklist", list, PropertyType.LINKLIST);
     document.field("val", 1);
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
@@ -435,12 +436,12 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
-    final List<YTRID> trackedList = document.field("linklist");
+    final List<RID> trackedList = document.field("linklist");
     trackedList.add(docTwo.getIdentity());
 
     Assert.assertTrue(document.isDirty());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linklist");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linklist");
     Assert.assertNotNull(timeLine);
 
     Assert.assertEquals(document.getDirtyFields(), new String[]{"linklist"});
@@ -457,10 +458,10 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     EntityImpl document = new EntityImpl();
 
-    final Map<String, YTRID> map = new HashMap<String, YTRID>();
+    final Map<String, RID> map = new HashMap<String, RID>();
     map.put("key1", docOne.getIdentity());
 
-    document.field("linkmap", map, YTType.LINKMAP);
+    document.field("linkmap", map, PropertyType.LINKMAP);
     document.field("val", 1);
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
@@ -470,10 +471,10 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
-    final Map<String, YTRID> trackedMap = document.field("linkmap");
+    final Map<String, RID> trackedMap = document.field("linkmap");
     trackedMap.put("key2", docTwo.getIdentity());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkmap");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkmap");
     Assert.assertNotNull(timeLine);
 
     Assert.assertEquals(document.getDirtyFields(), new String[]{"linkmap"});
@@ -502,14 +503,14 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(document.isDirty());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedlist");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedlist");
     Assert.assertNotNull(timeLine);
 
     Assert.assertNotNull(timeLine.getMultiValueChangeEvents());
 
-    final List<OMultiValueChangeEvent> firedEvents = new ArrayList<>();
+    final List<MultiValueChangeEvent> firedEvents = new ArrayList<>();
     firedEvents.add(
-        new OMultiValueChangeEvent(OMultiValueChangeEvent.OChangeType.ADD, 1, "value2"));
+        new MultiValueChangeEvent(ChangeType.ADD, 1, "value2"));
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
     Assert.assertTrue(document.isDirty());
@@ -540,14 +541,14 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(document.isDirty());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedmap");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedmap");
     Assert.assertNotNull(timeLine);
 
     Assert.assertNotNull(timeLine.getMultiValueChangeEvents());
 
-    final List<OMultiValueChangeEvent> firedEvents = new ArrayList<OMultiValueChangeEvent>();
+    final List<MultiValueChangeEvent> firedEvents = new ArrayList<MultiValueChangeEvent>();
     firedEvents.add(
-        new OMultiValueChangeEvent(OMultiValueChangeEvent.OChangeType.ADD, "key2", "value2"));
+        new MultiValueChangeEvent(ChangeType.ADD, "key2", "value2"));
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
@@ -577,14 +578,14 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(document.isDirty());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedset");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedset");
     Assert.assertNotNull(timeLine);
 
     Assert.assertNotNull(timeLine.getMultiValueChangeEvents());
 
-    final List<OMultiValueChangeEvent> firedEvents = new ArrayList<OMultiValueChangeEvent>();
+    final List<MultiValueChangeEvent> firedEvents = new ArrayList<MultiValueChangeEvent>();
     firedEvents.add(
-        new OMultiValueChangeEvent(OMultiValueChangeEvent.OChangeType.ADD, "value2", "value2"));
+        new MultiValueChangeEvent(ChangeType.ADD, "value2", "value2"));
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
@@ -602,7 +603,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     EntityImpl document = new EntityImpl("DocumentTrackingTestClass");
 
-    final Set<YTRID> set = new HashSet<YTRID>();
+    final Set<RID> set = new HashSet<RID>();
     set.add(docOne.getIdentity());
 
     document.field("linkset", set);
@@ -615,10 +616,10 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
-    final Set<YTRID> trackedSet = document.field("linkset");
+    final Set<RID> trackedSet = document.field("linkset");
     trackedSet.add(docTwo.getIdentity());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkset");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkset");
     Assert.assertNotNull(timeLine);
 
     Assert.assertEquals(document.getDirtyFields(), new String[]{"linkset"});
@@ -635,7 +636,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     EntityImpl document = new EntityImpl("DocumentTrackingTestClass");
 
-    final List<YTRID> list = new ArrayList<YTRID>();
+    final List<RID> list = new ArrayList<RID>();
     list.add(docOne.getIdentity());
 
     document.field("linklist", list);
@@ -648,12 +649,12 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
-    final List<YTRID> trackedList = document.field("linklist");
+    final List<RID> trackedList = document.field("linklist");
     trackedList.add(docTwo.getIdentity());
 
     Assert.assertTrue(document.isDirty());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linklist");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linklist");
     Assert.assertNotNull(timeLine);
 
     Assert.assertEquals(document.getDirtyFields(), new String[]{"linklist"});
@@ -670,7 +671,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     EntityImpl document = new EntityImpl("DocumentTrackingTestClass");
 
-    final Map<String, YTRID> map = new HashMap<String, YTRID>();
+    final Map<String, RID> map = new HashMap<String, RID>();
     map.put("key1", docOne.getIdentity());
 
     document.field("linkmap", map);
@@ -683,10 +684,10 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
-    final Map<String, YTRID> trackedMap = document.field("linkmap");
+    final Map<String, RID> trackedMap = document.field("linkmap");
     trackedMap.put("key2", docTwo.getIdentity());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkmap");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkmap");
     Assert.assertNotNull(timeLine);
 
     Assert.assertEquals(document.getDirtyFields(), new String[]{"linkmap"});
@@ -711,7 +712,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
-    final List<String> trackedList = document.field("embeddedlist", YTType.EMBEDDEDLIST);
+    final List<String> trackedList = document.field("embeddedlist", PropertyType.EMBEDDEDLIST);
     trackedList.add("value2");
     database.rollback();
   }
@@ -734,7 +735,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     Assert.assertFalse(document.isDirty());
     Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
-    final Set<String> trackedSet = document.field("embeddedset", YTType.EMBEDDEDSET);
+    final Set<String> trackedSet = document.field("embeddedset", PropertyType.EMBEDDEDSET);
     trackedSet.add("value2");
     database.rollback();
   }
@@ -765,7 +766,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(document.isDirty());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedlist");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedlist");
     Assert.assertNull(timeLine);
 
     Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedlist"});
@@ -798,7 +799,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(document.isDirty());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedmap");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedmap");
     Assert.assertNull(timeLine);
 
     Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedmap"});
@@ -831,7 +832,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(document.isDirty());
 
-    final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedset");
+    final MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedset");
     Assert.assertNull(timeLine);
 
     Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedset"});
@@ -923,11 +924,11 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     Assert.assertTrue(document.isDirty());
     Assert.assertNotNull(document.getCollectionTimeLine("embeddedlist"));
 
-    final List<OMultiValueChangeEvent> firedEvents = new ArrayList<OMultiValueChangeEvent>();
+    final List<MultiValueChangeEvent> firedEvents = new ArrayList<MultiValueChangeEvent>();
     firedEvents.add(
-        new OMultiValueChangeEvent(OMultiValueChangeEvent.OChangeType.ADD, 2, "value3"));
+        new MultiValueChangeEvent(ChangeType.ADD, 2, "value3"));
 
-    OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedlist");
+    MultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedlist");
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
     database.rollback();
@@ -1009,7 +1010,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final List<String> trackedList = document.field("embeddedlist");
     trackedList.add("value2");
 
-    ORecordInternal.unsetDirty(document);
+    RecordInternal.unsetDirty(document);
     document.unload();
 
     Assert.assertFalse(document.isDirty());
@@ -1036,7 +1037,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final List<String> trackedList = document.field("embeddedlist");
     trackedList.add("value2");
 
-    ORecordInternal.unsetDirty(document);
+    RecordInternal.unsetDirty(document);
 
     Assert.assertFalse(document.isDirty());
     database.rollback();

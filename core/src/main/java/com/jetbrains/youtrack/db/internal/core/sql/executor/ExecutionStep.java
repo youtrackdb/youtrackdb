@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,12 +28,12 @@ public interface ExecutionStep {
     return -1L;
   }
 
-  default YTResult toResult(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  default Result toResult(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("name", getName());
     result.setProperty("type", getType());
     result.setProperty("targetNode", getType());
-    result.setProperty(OInternalExecutionPlan.JAVA_TYPE, getClass().getName());
+    result.setProperty(InternalExecutionPlan.JAVA_TYPE, getClass().getName());
     result.setProperty("cost", getCost());
     result.setProperty(
         "subSteps",

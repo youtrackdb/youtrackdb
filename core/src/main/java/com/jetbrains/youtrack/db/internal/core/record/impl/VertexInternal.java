@@ -1,25 +1,25 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.util.OPair;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.common.util.Pair;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
-import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.record.Direction;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
-import com.jetbrains.youtrack.db.internal.core.record.ODirection;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import java.util.ArrayList;
@@ -93,13 +93,13 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
   @Nullable
   @Override
-  default YTIdentifiable getLinkPropertyInternal(String name) {
+  default Identifiable getLinkPropertyInternal(String name) {
     return getBaseDocument().getLinkPropertyInternal(name);
   }
 
   @Nullable
   @Override
-  default YTIdentifiable getLinkProperty(String name) {
+  default Identifiable getLinkProperty(String name) {
     checkPropertyName(name);
 
     return getBaseDocument().getLinkProperty(name);
@@ -132,14 +132,14 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   @Override
-  default void setProperty(String name, Object value, YTType... fieldType) {
+  default void setProperty(String name, Object value, PropertyType... fieldType) {
     checkPropertyName(name);
 
     getBaseDocument().setPropertyInternal(name, value, fieldType);
   }
 
   @Override
-  default void setPropertyInternal(String name, Object value, YTType... type) {
+  default void setPropertyInternal(String name, Object value, PropertyType... type) {
     getBaseDocument().setPropertyInternal(name, value, type);
   }
 
@@ -156,17 +156,17 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   @Override
-  default Iterable<Vertex> getVertices(ODirection direction) {
+  default Iterable<Vertex> getVertices(Direction direction) {
     return getVertices(direction, (String[]) null);
   }
 
   @Override
   default Set<String> getEdgeNames() {
-    return getEdgeNames(ODirection.BOTH);
+    return getEdgeNames(Direction.BOTH);
   }
 
   @Override
-  default Set<String> getEdgeNames(ODirection direction) {
+  default Set<String> getEdgeNames(Direction direction) {
     var propertyNames = getBaseDocument().getPropertyNamesInternal();
     var edgeNames = new HashSet<String>();
 
@@ -179,7 +179,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
     return edgeNames;
   }
 
-  static boolean isConnectionToEdge(ODirection direction, String propertyName) {
+  static boolean isConnectionToEdge(Direction direction, String propertyName) {
     return switch (direction) {
       case OUT -> propertyName.startsWith(DIRECTION_OUT_PREFIX);
       case IN -> propertyName.startsWith(DIRECTION_IN_PREFIX);
@@ -189,21 +189,21 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   @Override
-  default Iterable<Vertex> getVertices(ODirection direction, String... type) {
-    if (direction == ODirection.BOTH) {
+  default Iterable<Vertex> getVertices(Direction direction, String... type) {
+    if (direction == Direction.BOTH) {
       return IterableUtils.chainedIterable(
-          getVertices(ODirection.OUT, type), getVertices(ODirection.IN, type));
+          getVertices(Direction.OUT, type), getVertices(Direction.IN, type));
     } else {
       Iterable<Edge> edges = getEdgesInternal(direction, type);
-      return new OEdgeToVertexIterable(edges, direction);
+      return new EdgeToVertexIterable(edges, direction);
     }
   }
 
   @Override
-  default Iterable<Vertex> getVertices(ODirection direction, YTClass... type) {
+  default Iterable<Vertex> getVertices(Direction direction, SchemaClass... type) {
     List<String> types = new ArrayList<>();
     if (type != null) {
-      for (YTClass t : type) {
+      for (SchemaClass t : type) {
         types.add(t.getName());
       }
     }
@@ -234,7 +234,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   @Override
-  default Edge addEdge(Vertex to, YTClass type) {
+  default Edge addEdge(Vertex to, SchemaClass type) {
     final String className;
     if (type != null) {
       className = type.getName();
@@ -246,7 +246,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   @Override
-  default Edge addLightWeightEdge(Vertex to, YTClass label) {
+  default Edge addLightWeightEdge(Vertex to, SchemaClass label) {
     final String className;
 
     if (label != null) {
@@ -259,10 +259,10 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   @Override
-  default Iterable<Edge> getEdges(ODirection direction, YTClass... type) {
+  default Iterable<Edge> getEdges(Direction direction, SchemaClass... type) {
     List<String> types = new ArrayList<>();
     if (type != null) {
-      for (YTClass t : type) {
+      for (SchemaClass t : type) {
         types.add(t.getName());
       }
     }
@@ -274,12 +274,12 @@ public interface VertexInternal extends Vertex, EntityInternal {
     return getBaseDocument().isUnloaded();
   }
 
-  default boolean isNotBound(YTDatabaseSession session) {
+  default boolean isNotBound(DatabaseSession session) {
     return getBaseDocument().isNotBound(session);
   }
 
   @Override
-  default Iterable<Edge> getEdges(ODirection direction) {
+  default Iterable<Edge> getEdges(Direction direction) {
     var prefixes =
         switch (direction) {
           case IN -> new String[]{DIRECTION_IN_PREFIX};
@@ -311,11 +311,11 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   @Override
-  default Iterable<Edge> getEdges(ODirection direction, String... labels) {
+  default Iterable<Edge> getEdges(Direction direction, String... labels) {
     return getEdgesInternal(direction, labels);
   }
 
-  private Iterable<Edge> getEdgesInternal(ODirection direction, String[] labels) {
+  private Iterable<Edge> getEdgesInternal(Direction direction, String[] labels) {
     var db = getBaseDocument().getSession();
     var schema = db.getMetadata().getImmutableSchemaSnapshot();
 
@@ -339,7 +339,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
     var iterables = new ArrayList<Iterable<Edge>>(fieldNames.size());
     for (var fieldName : fieldNames) {
-      final OPair<ODirection, String> connection =
+      final Pair<Direction, String> connection =
           getConnection(schema, direction, fieldName, labels);
       if (connection == null)
       // SKIP THIS FIELD
@@ -352,15 +352,15 @@ public interface VertexInternal extends Vertex, EntityInternal {
       fieldValue = doc.getPropertyInternal(fieldName);
 
       if (fieldValue != null) {
-        if (fieldValue instanceof YTIdentifiable) {
+        if (fieldValue instanceof Identifiable) {
           var coll = Collections.singleton(fieldValue);
-          iterables.add(new OEdgeIterator(this, coll, coll.iterator(), connection, labels, 1));
+          iterables.add(new EdgeIterator(this, coll, coll.iterator(), connection, labels, 1));
         } else if (fieldValue instanceof Collection<?> coll) {
           // CREATE LAZY Iterable AGAINST COLLECTION FIELD
-          iterables.add(new OEdgeIterator(this, coll, coll.iterator(), connection, labels, -1));
+          iterables.add(new EdgeIterator(this, coll, coll.iterator(), connection, labels, -1));
         } else if (fieldValue instanceof RidBag) {
           iterables.add(
-              new OEdgeIterator(
+              new EdgeIterator(
                   this,
                   fieldValue,
                   ((RidBag) fieldValue).iterator(),
@@ -382,7 +382,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   private static ArrayList<String> getEdgeFieldNames(
-      YTSchema schema, final ODirection iDirection, String... classNames) {
+      Schema schema, final Direction iDirection, String... classNames) {
     if (classNames == null)
     // FALL BACK TO LOAD ALL FIELD NAMES
     {
@@ -398,11 +398,11 @@ public interface VertexInternal extends Vertex, EntityInternal {
     Set<String> allClassNames = new HashSet<>();
     for (String className : classNames) {
       allClassNames.add(className);
-      YTClass clazz = schema.getClass(className);
+      SchemaClass clazz = schema.getClass(className);
       if (clazz != null) {
         allClassNames.add(clazz.getName()); // needed for aliases
-        Collection<YTClass> subClasses = clazz.getAllSubclasses();
-        for (YTClass subClass : subClasses) {
+        Collection<SchemaClass> subClasses = clazz.getAllSubclasses();
+        for (SchemaClass subClass : subClasses) {
           allClassNames.add(subClass.getName());
         }
       }
@@ -427,9 +427,9 @@ public interface VertexInternal extends Vertex, EntityInternal {
     return result;
   }
 
-  static OPair<ODirection, String> getConnection(
-      final YTSchema schema,
-      final ODirection direction,
+  static Pair<Direction, String> getConnection(
+      final Schema schema,
+      final Direction direction,
       final String fieldName,
       String... classNames) {
     if (classNames != null
@@ -440,27 +440,27 @@ public interface VertexInternal extends Vertex, EntityInternal {
       classNames = null;
     }
 
-    if (direction == ODirection.OUT || direction == ODirection.BOTH) {
+    if (direction == Direction.OUT || direction == Direction.BOTH) {
       // FIELDS THAT STARTS WITH "out_"
       if (fieldName.startsWith(DIRECTION_OUT_PREFIX)) {
         if (classNames == null || classNames.length == 0) {
-          return new OPair<>(ODirection.OUT, getConnectionClass(ODirection.OUT, fieldName));
+          return new Pair<>(Direction.OUT, getConnectionClass(Direction.OUT, fieldName));
         }
 
         // CHECK AGAINST ALL THE CLASS NAMES
         for (String clsName : classNames) {
           if (fieldName.equals(DIRECTION_OUT_PREFIX + clsName)) {
-            return new OPair<>(ODirection.OUT, clsName);
+            return new Pair<>(Direction.OUT, clsName);
           }
 
           // GO DOWN THROUGH THE INHERITANCE TREE
-          YTClass type = schema.getClass(clsName);
+          SchemaClass type = schema.getClass(clsName);
           if (type != null) {
-            for (YTClass subType : type.getAllSubclasses()) {
+            for (SchemaClass subType : type.getAllSubclasses()) {
               clsName = subType.getName();
 
               if (fieldName.equals(DIRECTION_OUT_PREFIX + clsName)) {
-                return new OPair<>(ODirection.OUT, clsName);
+                return new Pair<>(Direction.OUT, clsName);
               }
             }
           }
@@ -468,27 +468,27 @@ public interface VertexInternal extends Vertex, EntityInternal {
       }
     }
 
-    if (direction == ODirection.IN || direction == ODirection.BOTH) {
+    if (direction == Direction.IN || direction == Direction.BOTH) {
       // FIELDS THAT STARTS WITH "in_"
       if (fieldName.startsWith(DIRECTION_IN_PREFIX)) {
         if (classNames == null || classNames.length == 0) {
-          return new OPair<>(ODirection.IN, getConnectionClass(ODirection.IN, fieldName));
+          return new Pair<>(Direction.IN, getConnectionClass(Direction.IN, fieldName));
         }
 
         // CHECK AGAINST ALL THE CLASS NAMES
         for (String clsName : classNames) {
 
           if (fieldName.equals(DIRECTION_IN_PREFIX + clsName)) {
-            return new OPair<>(ODirection.IN, clsName);
+            return new Pair<>(Direction.IN, clsName);
           }
 
           // GO DOWN THROUGH THE INHERITANCE TREE
-          YTClass type = schema.getClass(clsName);
+          SchemaClass type = schema.getClass(clsName);
           if (type != null) {
-            for (YTClass subType : type.getAllSubclasses()) {
+            for (SchemaClass subType : type.getAllSubclasses()) {
               clsName = subType.getName();
               if (fieldName.equals(DIRECTION_IN_PREFIX + clsName)) {
-                return new OPair<>(ODirection.IN, clsName);
+                return new Pair<>(Direction.IN, clsName);
               }
             }
           }
@@ -503,8 +503,8 @@ public interface VertexInternal extends Vertex, EntityInternal {
   private static void replaceLinks(
       final EntityImpl vertex,
       final String fieldName,
-      final YTIdentifiable iVertexToRemove,
-      final YTIdentifiable newVertex) {
+      final Identifiable iVertexToRemove,
+      final Identifiable newVertex) {
     if (vertex == null) {
       return;
     }
@@ -517,7 +517,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       return;
     }
 
-    if (fieldValue instanceof YTIdentifiable) {
+    if (fieldValue instanceof Identifiable) {
       // SINGLE RECORD
 
       if (iVertexToRemove != null) {
@@ -530,7 +530,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
     } else if (fieldValue instanceof RidBag bag) {
       // COLLECTION OF RECORDS: REMOVE THE ENTRY
       boolean found = false;
-      final Iterator<YTIdentifiable> it = bag.iterator();
+      final Iterator<Identifiable> it = bag.iterator();
       while (it.hasNext()) {
         if (it.next().equals(iVertexToRemove)) {
           // REMOVE THE OLD ENTRY
@@ -545,7 +545,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       }
 
     } else if (fieldValue instanceof Collection) {
-      @SuppressWarnings("unchecked") final Collection<YTIdentifiable> col = (Collection<YTIdentifiable>) fieldValue;
+      @SuppressWarnings("unchecked") final Collection<Identifiable> col = (Collection<Identifiable>) fieldValue;
 
       if (col.remove(iVertexToRemove)) {
         col.add(newVertex);
@@ -556,7 +556,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   static void deleteLinks(Vertex delegate) {
-    Iterable<Edge> allEdges = delegate.getEdges(ODirection.BOTH);
+    Iterable<Edge> allEdges = delegate.getEdges(Direction.BOTH);
     List<Edge> items = new ArrayList<>();
     for (Edge edge : allEdges) {
       items.add(edge);
@@ -567,23 +567,23 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   @Override
-  default YTRID moveTo(final String className, final String clusterName) {
+  default RID moveTo(final String className, final String clusterName) {
 
     final EntityImpl baseDoc = getBaseDocument();
     var db = baseDoc.getSession();
     if (!db.getTransaction().isActive()) {
-      throw new YTDatabaseException("This operation is allowed only inside a transaction");
+      throw new DatabaseException("This operation is allowed only inside a transaction");
     }
     if (checkDeletedInTx(getIdentity())) {
-      throw new YTRecordNotFoundException(
+      throw new RecordNotFoundException(
           getIdentity(), "The vertex " + getIdentity() + " has been deleted");
     }
 
-    final YTRID oldIdentity = getIdentity().copy();
+    final RID oldIdentity = getIdentity().copy();
 
     final Record oldRecord = oldIdentity.getRecord();
     var doc = baseDoc.copy();
-    ORecordInternal.setIdentity(doc, new ChangeableRecordId());
+    RecordInternal.setIdentity(doc, new ChangeableRecordId());
 
     // DELETE THE OLD RECORD FIRST TO AVOID ISSUES WITH UNIQUE CONSTRAINTS
     copyRidBags(db, oldRecord, doc);
@@ -591,8 +591,8 @@ public interface VertexInternal extends Vertex, EntityInternal {
     db.delete(oldRecord);
 
     var delegate = new VertexDelegate(doc);
-    final Iterable<Edge> outEdges = delegate.getEdges(ODirection.OUT);
-    final Iterable<Edge> inEdges = delegate.getEdges(ODirection.IN);
+    final Iterable<Edge> outEdges = delegate.getEdges(Direction.OUT);
+    final Iterable<Edge> inEdges = delegate.getEdges(Direction.IN);
     if (className != null) {
       doc.setClassName(className);
     }
@@ -600,17 +600,17 @@ public interface VertexInternal extends Vertex, EntityInternal {
     // SAVE THE NEW VERTEX
     doc.setDirty();
 
-    ORecordInternal.setIdentity(doc, new ChangeableRecordId());
+    RecordInternal.setIdentity(doc, new ChangeableRecordId());
     db.save(doc, clusterName);
     if (db.getTransaction().getEntryCount() == 2) {
       System.out.println("WTF");
       db.save(doc, clusterName);
     }
-    final YTRID newIdentity = doc.getIdentity();
+    final RID newIdentity = doc.getIdentity();
 
     // CONVERT OUT EDGES
     for (Edge oe : outEdges) {
-      final YTIdentifiable inVLink = oe.getVertexLink(ODirection.IN);
+      final Identifiable inVLink = oe.getVertexLink(Direction.IN);
       var optSchemaType = oe.getSchemaType();
 
       String schemaType;
@@ -621,7 +621,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
         schemaType = null;
       }
 
-      final String inFieldName = getEdgeLinkFieldName(ODirection.IN, schemaType, true);
+      final String inFieldName = getEdgeLinkFieldName(Direction.IN, schemaType, true);
 
       // link to itself
       EntityImpl inRecord;
@@ -643,7 +643,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
     }
 
     for (Edge ine : inEdges) {
-      final YTIdentifiable outVLink = ine.getVertexLink(ODirection.OUT);
+      final Identifiable outVLink = ine.getVertexLink(Direction.OUT);
 
       var optSchemaType = ine.getSchemaType();
 
@@ -655,7 +655,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
         schemaType = null;
       }
 
-      final String outFieldName = getEdgeLinkFieldName(ODirection.OUT, schemaType, true);
+      final String outFieldName = getEdgeLinkFieldName(Direction.OUT, schemaType, true);
 
       EntityImpl outRecord;
       if (outVLink.equals(oldIdentity)) {
@@ -697,21 +697,21 @@ public interface VertexInternal extends Vertex, EntityInternal {
     }
   }
 
-  static boolean checkDeletedInTx(YTRID id) {
-    var db = ODatabaseRecordThreadLocal.instance().get();
+  static boolean checkDeletedInTx(RID id) {
+    var db = DatabaseRecordThreadLocal.instance().get();
     if (db == null) {
       return false;
     }
 
-    final ORecordOperation oper = db.getTransaction().getRecordEntry(id);
+    final RecordOperation oper = db.getTransaction().getRecordEntry(id);
     if (oper == null) {
       return id.isTemporary();
     } else {
-      return oper.type == ORecordOperation.DELETED;
+      return oper.type == RecordOperation.DELETED;
     }
   }
 
-  private static void copyRidBags(YTDatabaseSessionInternal db, Record oldRecord,
+  private static void copyRidBags(DatabaseSessionInternal db, Record oldRecord,
       EntityImpl newDoc) {
     EntityImpl oldDoc = (EntityImpl) oldRecord;
     for (String field : oldDoc.getPropertyNamesInternal()) {
@@ -725,7 +725,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
         if (val instanceof RidBag bag) {
           if (!bag.isEmbedded()) {
             RidBag newBag = new RidBag(db);
-            for (YTIdentifiable identifiable : bag) {
+            for (Identifiable identifiable : bag) {
               newBag.add(identifiable);
             }
             newDoc.setPropertyInternal(field, newBag);
@@ -735,12 +735,12 @@ public interface VertexInternal extends Vertex, EntityInternal {
     }
   }
 
-  private static String getConnectionClass(final ODirection iDirection, final String iFieldName) {
-    if (iDirection == ODirection.OUT) {
+  private static String getConnectionClass(final Direction iDirection, final String iFieldName) {
+    if (iDirection == Direction.OUT) {
       if (iFieldName.length() > DIRECTION_OUT_PREFIX.length()) {
         return iFieldName.substring(DIRECTION_OUT_PREFIX.length());
       }
-    } else if (iDirection == ODirection.IN) {
+    } else if (iDirection == Direction.IN) {
       if (iFieldName.length() > DIRECTION_IN_PREFIX.length()) {
         return iFieldName.substring(DIRECTION_IN_PREFIX.length());
       }
@@ -749,17 +749,17 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   static String getEdgeLinkFieldName(
-      final ODirection direction,
+      final Direction direction,
       final String className,
       final boolean useVertexFieldsForEdgeLabels) {
-    if (direction == null || direction == ODirection.BOTH) {
+    if (direction == null || direction == Direction.BOTH) {
       throw new IllegalArgumentException("Direction not valid");
     }
 
     if (useVertexFieldsForEdgeLabels) {
       // PREFIX "out_" or "in_" TO THE FIELD NAME
       final String prefix =
-          direction == ODirection.OUT ? DIRECTION_OUT_PREFIX : DIRECTION_IN_PREFIX;
+          direction == Direction.OUT ? DIRECTION_OUT_PREFIX : DIRECTION_IN_PREFIX;
       if (className == null || className.isEmpty() || className.equals(EdgeInternal.CLASS_NAME)) {
         return prefix;
       }
@@ -768,7 +768,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
     } else
     // "out" or "in"
     {
-      return direction == ODirection.OUT ? EdgeInternal.DIRECTION_OUT
+      return direction == Direction.OUT ? EdgeInternal.DIRECTION_OUT
           : EdgeInternal.DIRECTION_IN;
     }
   }
@@ -778,28 +778,28 @@ public interface VertexInternal extends Vertex, EntityInternal {
    */
   static void changeVertexEdgePointers(
       EntityImpl edge,
-      YTIdentifiable prevInVertex,
-      YTIdentifiable currentInVertex,
-      YTIdentifiable prevOutVertex,
-      YTIdentifiable currentOutVertex) {
+      Identifiable prevInVertex,
+      Identifiable currentInVertex,
+      Identifiable prevOutVertex,
+      Identifiable currentOutVertex) {
     var edgeClass = edge.getClassName();
 
     if (currentInVertex != prevInVertex) {
       changeVertexEdgePointersOneDirection(
-          edge, prevInVertex, currentInVertex, edgeClass, ODirection.IN);
+          edge, prevInVertex, currentInVertex, edgeClass, Direction.IN);
     }
     if (currentOutVertex != prevOutVertex) {
       changeVertexEdgePointersOneDirection(
-          edge, prevOutVertex, currentOutVertex, edgeClass, ODirection.OUT);
+          edge, prevOutVertex, currentOutVertex, edgeClass, Direction.OUT);
     }
   }
 
   private static void changeVertexEdgePointersOneDirection(
       EntityImpl edge,
-      YTIdentifiable prevInVertex,
-      YTIdentifiable currentInVertex,
+      Identifiable prevInVertex,
+      Identifiable currentInVertex,
       String edgeClass,
-      ODirection direction) {
+      Direction direction) {
     if (prevInVertex != null) {
       var inFieldName = Vertex.getEdgeLinkFieldName(direction, edgeClass);
       var prevRecord = prevInVertex.<EntityImpl>getRecord();
@@ -817,7 +817,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
     }
   }
 
-  private static String[] resolveAliases(YTSchema schema, String[] labels) {
+  private static String[] resolveAliases(Schema schema, String[] labels) {
     if (labels == null) {
       return null;
     }
@@ -830,8 +830,8 @@ public interface VertexInternal extends Vertex, EntityInternal {
     return result;
   }
 
-  private static String resolveAlias(String label, YTSchema schema) {
-    YTClass clazz = schema.getClass(label);
+  private static String resolveAlias(String label, Schema schema) {
+    SchemaClass clazz = schema.getClass(label);
     if (clazz != null) {
       return clazz.getName();
     }
@@ -845,12 +845,12 @@ public interface VertexInternal extends Vertex, EntityInternal {
       String fieldName,
       Object link,
       String label,
-      YTIdentifiable identifiable) {
+      Identifiable identifiable) {
     if (link instanceof Collection) {
       ((Collection<?>) link).remove(identifiable);
     } else if (link instanceof RidBag) {
       ((RidBag) link).remove(identifiable);
-    } else if (link instanceof YTIdentifiable && link.equals(vertex)) {
+    } else if (link instanceof Identifiable && link.equals(vertex)) {
       vertex.removePropertyInternal(fieldName);
     } else {
       throw new IllegalArgumentException(
@@ -862,45 +862,46 @@ public interface VertexInternal extends Vertex, EntityInternal {
    * Creates a link between a vertices and a Graph Element.
    */
   static void createLink(
-      final EntityImpl fromVertex, final YTIdentifiable to, final String fieldName) {
+      final EntityImpl fromVertex, final Identifiable to, final String fieldName) {
     final Object out;
-    YTType outType = fromVertex.fieldType(fieldName);
+    PropertyType outType = fromVertex.fieldType(fieldName);
     Object found = fromVertex.getPropertyInternal(fieldName);
 
-    final YTClass linkClass = ODocumentInternal.getImmutableSchemaClass(fromVertex);
+    final SchemaClass linkClass = DocumentInternal.getImmutableSchemaClass(fromVertex);
     if (linkClass == null) {
       throw new IllegalArgumentException("Class not found in source vertex: " + fromVertex);
     }
 
-    final YTProperty prop = linkClass.getProperty(fieldName);
-    final YTType propType = prop != null && prop.getType() != YTType.ANY ? prop.getType() : null;
+    final Property prop = linkClass.getProperty(fieldName);
+    final PropertyType propType =
+        prop != null && prop.getType() != PropertyType.ANY ? prop.getType() : null;
 
     if (found == null) {
-      if (propType == YTType.LINKLIST
+      if (propType == PropertyType.LINKLIST
           || (prop != null
           && "true".equalsIgnoreCase(prop.getCustom("ordered")))) { // TODO constant
         var coll = new LinkList(fromVertex);
         coll.add(to);
         out = coll;
-        outType = YTType.LINKLIST;
-      } else if (propType == null || propType == YTType.LINKBAG) {
+        outType = PropertyType.LINKLIST;
+      } else if (propType == null || propType == PropertyType.LINKBAG) {
         final RidBag bag = new RidBag(fromVertex.getSession());
         bag.add(to);
         out = bag;
-        outType = YTType.LINKBAG;
-      } else if (propType == YTType.LINK) {
+        outType = PropertyType.LINKBAG;
+      } else if (propType == PropertyType.LINK) {
         out = to;
-        outType = YTType.LINK;
+        outType = PropertyType.LINK;
       } else {
-        throw new YTDatabaseException(
+        throw new DatabaseException(
             "Type of field provided in schema '"
                 + prop.getType()
                 + "' cannot be used for link creation.");
       }
 
-    } else if (found instanceof YTIdentifiable foundId) {
-      if (prop != null && propType == YTType.LINK) {
-        throw new YTDatabaseException(
+    } else if (found instanceof Identifiable foundId) {
+      if (prop != null && propType == PropertyType.LINK) {
+        throw new DatabaseException(
             "Type of field provided in schema '"
                 + prop.getType()
                 + "' cannot be used for creation to hold several links.");
@@ -911,13 +912,13 @@ public interface VertexInternal extends Vertex, EntityInternal {
         coll.add(foundId);
         coll.add(to);
         out = coll;
-        outType = YTType.LINKLIST;
+        outType = PropertyType.LINKLIST;
       } else {
         final RidBag bag = new RidBag(fromVertex.getSession());
         bag.add(foundId);
         bag.add(to);
         out = bag;
-        outType = YTType.LINKBAG;
+        outType = PropertyType.LINKBAG;
       }
     } else if (found instanceof RidBag) {
       // ADD THE LINK TO THE COLLECTION
@@ -929,10 +930,10 @@ public interface VertexInternal extends Vertex, EntityInternal {
       // USE THE FOUND COLLECTION
       out = null;
       //noinspection unchecked
-      ((Collection<YTIdentifiable>) found).add(to);
+      ((Collection<Identifiable>) found).add(to);
 
     } else {
-      throw new YTDatabaseException(
+      throw new DatabaseException(
           "Relationship content is invalid on field " + fieldName + ". Found: " + found);
     }
 
@@ -943,23 +944,23 @@ public interface VertexInternal extends Vertex, EntityInternal {
     }
   }
 
-  private static void removeLinkFromEdge(EntityImpl vertex, Edge edge, ODirection direction) {
+  private static void removeLinkFromEdge(EntityImpl vertex, Edge edge, Direction direction) {
     var schemaType = edge.getSchemaType();
     assert schemaType.isPresent();
 
     String className = schemaType.get().getName();
-    YTIdentifiable edgeId = edge.getIdentity();
+    Identifiable edgeId = edge.getIdentity();
 
     removeLinkFromEdge(
         vertex, edge, Vertex.getEdgeLinkFieldName(direction, className), edgeId, direction);
   }
 
   private static void removeLinkFromEdge(
-      EntityImpl vertex, Edge edge, String edgeField, YTIdentifiable edgeId,
-      ODirection direction) {
+      EntityImpl vertex, Edge edge, String edgeField, Identifiable edgeId,
+      Direction direction) {
     Object edgeProp = vertex.getPropertyInternal(edgeField);
-    YTRID oppositeVertexId = null;
-    if (direction == ODirection.IN) {
+    RID oppositeVertexId = null;
+    if (direction == Direction.IN) {
       var fromIdentifiable = edge.getFromIdentifiable();
       if (fromIdentifiable != null) {
         oppositeVertexId = fromIdentifiable.getIdentity();
@@ -980,15 +981,15 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   private static void removeEdgeLinkFromProperty(
-      EntityImpl vertex, Edge edge, String edgeField, YTIdentifiable edgeId, Object edgeProp) {
+      EntityImpl vertex, Edge edge, String edgeField, Identifiable edgeId, Object edgeProp) {
     if (edgeProp instanceof Collection) {
       ((Collection<?>) edgeProp).remove(edgeId);
     } else if (edgeProp instanceof RidBag) {
       ((RidBag) edgeProp).remove(edgeId);
     } else //noinspection deprecation
-      if (edgeProp instanceof YTIdentifiable
-          && ((YTIdentifiable) edgeProp).getIdentity() != null
-          && ((YTIdentifiable) edgeProp).getIdentity().equals(edgeId)
+      if (edgeProp instanceof Identifiable
+          && ((Identifiable) edgeProp).getIdentity() != null
+          && ((Identifiable) edgeProp).getIdentity().equals(edgeId)
           || edge.isLightweight()) {
         vertex.removePropertyInternal(edgeField);
       } else {
@@ -1001,10 +1002,10 @@ public interface VertexInternal extends Vertex, EntityInternal {
   }
 
   static void removeIncomingEdge(Vertex vertex, Edge edge) {
-    removeLinkFromEdge(((VertexInternal) vertex).getBaseDocument(), edge, ODirection.IN);
+    removeLinkFromEdge(((VertexInternal) vertex).getBaseDocument(), edge, Direction.IN);
   }
 
   static void removeOutgoingEdge(Vertex vertex, Edge edge) {
-    removeLinkFromEdge(((VertexInternal) vertex).getBaseDocument(), edge, ODirection.OUT);
+    removeLinkFromEdge(((VertexInternal) vertex).getBaseDocument(), edge, Direction.OUT);
   }
 }

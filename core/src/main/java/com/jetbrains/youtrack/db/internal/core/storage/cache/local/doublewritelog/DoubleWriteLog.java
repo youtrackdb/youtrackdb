@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.cache.local.doublewritelog;
 
-import com.jetbrains.youtrack.db.internal.common.directmemory.OByteBufferPool;
-import com.jetbrains.youtrack.db.internal.common.directmemory.OPointer;
+import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
+import com.jetbrains.youtrack.db.internal.common.directmemory.Pointer;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -35,7 +35,7 @@ public interface DoubleWriteLog {
 
   void open(String storageName, Path storagePath, int pageSize) throws IOException;
 
-  OPointer loadPage(final int fileId, final int pageIndex, OByteBufferPool bufferPool)
+  Pointer loadPage(final int fileId, final int pageIndex, ByteBufferPool bufferPool)
       throws IOException;
 
   void restoreModeOn() throws IOException;

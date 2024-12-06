@@ -3,10 +3,10 @@ package com.jetbrains.youtrack.db.internal.core.tx;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.OCreateDatabaseUtil;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
@@ -19,26 +19,26 @@ import org.junit.Test;
 public class TransactionMetadataTest {
 
   private YouTrackDB youTrackDB;
-  private YTDatabaseSessionInternal db;
+  private DatabaseSessionInternal db;
   private static final String DB_NAME = TransactionMetadataTest.class.getSimpleName();
 
   @Before
   public void before() {
     youTrackDB =
-        OCreateDatabaseUtil.createDatabase(
-            DB_NAME, DBTestBase.embeddedDBUrl(getClass()),
-            OCreateDatabaseUtil.TYPE_PLOCAL);
+        CreateDatabaseUtil.createDatabase(
+            DB_NAME, DbTestBase.embeddedDBUrl(getClass()),
+            CreateDatabaseUtil.TYPE_PLOCAL);
     db =
-        (YTDatabaseSessionInternal)
-            youTrackDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        (DatabaseSessionInternal)
+            youTrackDB.open(DB_NAME, "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @Test
   public void test() {
     db.begin();
     byte[] metadata = new byte[]{1, 2, 4};
-    ((OTransactionInternal) db.getTransaction())
-        .setMetadataHolder(new TestMetadataHolder(metadata));
+    ((TransactionInternal) db.getTransaction())
+        .setMetadataHolder(new TestTransacationMetadataHolder(metadata));
     Vertex v = db.newVertex("V");
     v.setProperty("name", "Foo");
     db.save(v);
@@ -48,13 +48,13 @@ public class TransactionMetadataTest {
 
     youTrackDB =
         new YouTrackDB(
-            DBTestBase.embeddedDBUrl(getClass()),
+            DbTestBase.embeddedDBUrl(getClass()),
             YouTrackDBConfig.builder()
                 .addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     db =
-        (YTDatabaseSessionInternal)
-            youTrackDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        (DatabaseSessionInternal)
+            youTrackDB.open(DB_NAME, "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     Optional<byte[]> fromStorage = ((AbstractPaginatedStorage) db.getStorage()).getLastMetadata();
     assertTrue(fromStorage.isPresent());
@@ -71,11 +71,12 @@ public class TransactionMetadataTest {
     youTrackDB.close();
   }
 
-  private static class TestMetadataHolder implements OTxMetadataHolder {
+  private static class TestTransacationMetadataHolder implements
+      FrontendTransacationMetadataHolder {
 
     private final byte[] metadata;
 
-    public TestMetadataHolder(byte[] metadata) {
+    public TestTransacationMetadataHolder(byte[] metadata) {
       this.metadata = metadata;
     }
 
@@ -89,12 +90,12 @@ public class TransactionMetadataTest {
     }
 
     @Override
-    public OTransactionId getId() {
+    public FrontendTransactionId getId() {
       return null;
     }
 
     @Override
-    public OTransactionSequenceStatus getStatus() {
+    public FrontendTransactionSequenceStatus getStatus() {
       return null;
     }
   }

@@ -3,11 +3,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.enterprise.OEnterpriseEndpoint;
+import com.jetbrains.youtrack.db.internal.enterprise.EnterpriseEndpoint;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,16 +28,16 @@ public class SQLHaSetStatement extends SQLSimpleExecStatement {
 
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    List<YTResult> result = new ArrayList<>();
+    List<Result> result = new ArrayList<>();
 
     String operation = this.operation.getStringValue();
     var db = ctx.getDatabase();
-    Object key = this.key.execute(new YTResultInternal(db), ctx);
+    Object key = this.key.execute(new ResultInternal(db), ctx);
     if (key == null) {
       key = this.key.getDefaultAlias();
     }
 
-    Object value = this.value.execute(new YTResultInternal(db), ctx);
+    Object value = this.value.execute(new ResultInternal(db), ctx);
     if (value == null) {
       value = this.value.getDefaultAlias();
       if (value.equals("null")) {
@@ -45,9 +45,9 @@ public class SQLHaSetStatement extends SQLSimpleExecStatement {
       }
     }
 
-    OEnterpriseEndpoint ee = db.getEnterpriseEndpoint();
+    EnterpriseEndpoint ee = db.getEnterpriseEndpoint();
     if (ee == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "HA SET statements are only supported in YouTrackDB Enterprise Edition");
     }
     if (operation.equalsIgnoreCase("status")) {
@@ -58,7 +58,7 @@ public class SQLHaSetStatement extends SQLSimpleExecStatement {
       } catch (UnsupportedOperationException e) {
         finalResult = e.getMessage();
       }
-      YTResultInternal item = new YTResultInternal(db);
+      ResultInternal item = new ResultInternal(db);
       item.setProperty("operation", "ha set status");
       item.setProperty("result", finalResult);
       result.add(item);
@@ -70,7 +70,7 @@ public class SQLHaSetStatement extends SQLSimpleExecStatement {
       } catch (UnsupportedOperationException e) {
         finalResult = e.getMessage();
       }
-      YTResultInternal item = new YTResultInternal(db);
+      ResultInternal item = new ResultInternal(db);
       item.setProperty("operation", "ha set owner");
       item.setProperty("result", finalResult);
       result.add(item);
@@ -82,7 +82,7 @@ public class SQLHaSetStatement extends SQLSimpleExecStatement {
       } catch (UnsupportedOperationException e) {
         finalResult = e.getMessage();
       }
-      YTResultInternal item = new YTResultInternal(db);
+      ResultInternal item = new ResultInternal(db);
       item.setProperty("operation", "ha set role");
       item.setProperty("result", finalResult);
       result.add(item);

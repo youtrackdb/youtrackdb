@@ -32,7 +32,7 @@ public abstract class CommandExecutorSQLRetryAbstract extends CommandExecutorSQL
   /**
    * Parses the RETRY number of times
    */
-  protected void parseRetry() throws YTCommandSQLParsingException {
+  protected void parseRetry() throws CommandSQLParsingException {
     retry = Integer.parseInt(parserNextWord(true));
 
     String temp = parseOptionalWord(true);

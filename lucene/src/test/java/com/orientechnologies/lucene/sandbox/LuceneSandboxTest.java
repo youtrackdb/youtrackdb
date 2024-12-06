@@ -1,8 +1,8 @@
 package com.orientechnologies.lucene.sandbox;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.orientechnologies.lucene.tests.OLuceneBaseTest;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.orientechnologies.lucene.tests.LuceneBaseTest;
 import org.apache.lucene.codecs.simpletext.SimpleTextCodec;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -14,7 +14,7 @@ import org.junit.Test;
 /**
  *
  */
-public class LuceneSandboxTest extends OLuceneBaseTest {
+public class LuceneSandboxTest extends LuceneBaseTest {
 
   @Before
   public void setUp() throws Exception {
@@ -35,7 +35,7 @@ public class LuceneSandboxTest extends OLuceneBaseTest {
   public void shouldFetchOneDocumentWithExactMatchOnLuceneIndexStandardAnalyzer() throws Exception {
     db.command("CREATE INDEX cdr.filename ON cdr(filename) FULLTEXT ENGINE LUCENE ");
     // partial match
-    YTResultSet res =
+    ResultSet res =
         db.query("select from cdr WHERE filename LUCENE ' RRC.20161229193002.PROD_R4.eno.data '");
 
     Assertions.assertThat(res).hasSize(2);
@@ -63,7 +63,7 @@ public class LuceneSandboxTest extends OLuceneBaseTest {
             + " 'allowLeadingWildcard': true}");
 
     // partial match
-    YTResultSet res =
+    ResultSet res =
         db.query(
             "select from cdr WHERE SEARCH_CLASS( ' RRC.20161229193002.PROD_R4.eno.data ') = true");
 
@@ -100,7 +100,7 @@ public class LuceneSandboxTest extends OLuceneBaseTest {
     db.command("CREATE PROPERTY Son.textOfSon STRING");
 
     db.command("CREATE INDEX Son.textOfSon ON Son(textOfSon) FULLTEXT ENGINE LUCENE ");
-    YTClass father = db.getMetadata().getSchema().getClass("Father");
+    SchemaClass father = db.getMetadata().getSchema().getClass("Father");
   }
 
   @Test

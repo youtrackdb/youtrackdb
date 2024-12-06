@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.internal.core.serialization.OSerializableStream;
+import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 
 /**
  * Extension of RecordBytes that handle lazy serialization and converts temporary links (record id
@@ -33,12 +33,12 @@ import com.jetbrains.youtrack.db.internal.core.serialization.OSerializableStream
 @Deprecated
 public class RecordBytesLazy extends RecordBytes {
 
-  private OSerializableStream serializableContent;
+  private SerializableStream serializableContent;
 
   public RecordBytesLazy() {
   }
 
-  public RecordBytesLazy(final OSerializableStream iSerializable) {
+  public RecordBytesLazy(final SerializableStream iSerializable) {
     this.serializableContent = iSerializable;
   }
 
@@ -57,11 +57,11 @@ public class RecordBytesLazy extends RecordBytes {
     return c;
   }
 
-  public OSerializableStream getSerializableContent() {
+  public SerializableStream getSerializableContent() {
     return serializableContent;
   }
 
-  public void recycle(final OSerializableStream iSerializableContent) {
+  public void recycle(final SerializableStream iSerializableContent) {
     this.serializableContent = iSerializableContent;
   }
 }

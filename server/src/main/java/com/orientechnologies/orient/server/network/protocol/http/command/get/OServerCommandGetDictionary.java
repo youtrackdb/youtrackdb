@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -37,14 +37,14 @@ public class OServerCommandGetDictionary extends OServerCommandAuthenticatedDbAb
     String[] urlParts =
         checkSyntax(iRequest.getUrl(), 3, "Syntax error: dictionary/<database>/<key>");
 
-    YTDatabaseSessionInternal db = null;
+    DatabaseSessionInternal db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);
 
       final Record record = db.getDictionary().get(urlParts[2]);
       if (record == null) {
-        throw new YTRecordNotFoundException(
+        throw new RecordNotFoundException(
             null, "Key '" + urlParts[2] + "' was not found in the database dictionary");
       }
 

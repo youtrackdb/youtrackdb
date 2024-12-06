@@ -3,14 +3,14 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
 
-public class SQLDropClusterStatement extends ODDLStatement {
+public class SQLDropClusterStatement extends DDLStatement {
 
   protected SQLIdentifier name;
   protected SQLInteger id;
@@ -37,15 +37,15 @@ public class SQLDropClusterStatement extends ODDLStatement {
         if (ifExists) {
           return ExecutionStream.empty();
         } else {
-          throw new YTCommandExecutionException("Cluster not found: " + name);
+          throw new CommandExecutionException("Cluster not found: " + name);
         }
       }
     }
-    for (YTClass iClass : database.getMetadata().getSchema().getClasses()) {
+    for (SchemaClass iClass : database.getMetadata().getSchema().getClasses()) {
       for (int i : iClass.getClusterIds()) {
         if (i == clusterId) {
           // IN USE
-          throw new YTCommandExecutionException(
+          throw new CommandExecutionException(
               "Cannot drop cluster "
                   + clusterId
                   + " because it's used by class "
@@ -60,13 +60,13 @@ public class SQLDropClusterStatement extends ODDLStatement {
       if (ifExists) {
         return ExecutionStream.empty();
       } else {
-        throw new YTCommandExecutionException("Cluster not found: " + clusterId);
+        throw new CommandExecutionException("Cluster not found: " + clusterId);
       }
     }
 
     database.dropCluster(clusterId);
 
-    YTResultInternal result = new YTResultInternal(database);
+    ResultInternal result = new ResultInternal(database);
     result.setProperty("operation", "drop cluster");
     result.setProperty("clusterName", name == null ? null : name.getStringValue());
     result.setProperty("clusterId", id == null ? null : id.getValue());

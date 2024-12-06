@@ -7,19 +7,19 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabasePool;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabasePool;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
+import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.util.List;
@@ -44,7 +44,7 @@ public class YouTrackDBRemoteTest {
 
   @Before
   public void before() throws Exception {
-    ODatabaseRecordThreadLocal.instance().remove();
+    DatabaseRecordThreadLocal.instance().remove();
 
     GlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
     server = new OServer(false);
@@ -71,7 +71,7 @@ public class YouTrackDBRemoteTest {
       factory.execute("create database test memory users (admin identified by 'admin' role admin)");
     }
 
-    YTDatabaseSessionInternal db = (YTDatabaseSessionInternal) factory.open("test", "admin",
+    DatabaseSessionInternal db = (DatabaseSessionInternal) factory.open("test", "admin",
         "admin");
     db.begin();
     db.save(new EntityImpl(), db.getClusterNameById(db.getDefaultClusterId()));
@@ -79,9 +79,9 @@ public class YouTrackDBRemoteTest {
     db.close();
   }
 
-  // @Test(expected = YTStorageExistsException.class)
+  // @Test(expected = StorageExistsException.class)
   // TODO: Uniform database exist exceptions
-  @Test(expected = YTStorageException.class)
+  @Test(expected = StorageException.class)
   public void doubleCreateRemoteDatabase() {
     factory.execute("create database test memory users (admin identified by 'admin' role admin)");
     factory.execute("create database test memory users (admin identified by 'admin' role admin)");
@@ -101,8 +101,8 @@ public class YouTrackDBRemoteTest {
       factory.execute("create database test memory users (admin identified by 'admin' role admin)");
     }
 
-    ODatabasePool pool = new ODatabasePool(factory, "test", "admin", "admin");
-    YTDatabaseSessionInternal db = (YTDatabaseSessionInternal) pool.acquire();
+    DatabasePool pool = new DatabasePool(factory, "test", "admin", "admin");
+    DatabaseSessionInternal db = (DatabaseSessionInternal) pool.acquire();
     db.begin();
     db.save(new EntityImpl(), db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
@@ -119,20 +119,20 @@ public class YouTrackDBRemoteTest {
               + " identified by 'reader' role reader, writer identified by 'writer' role writer)");
     }
 
-    ODatabasePool poolAdmin1 = factory.cachedPool("testdb", "admin", "admin");
-    ODatabasePool poolAdmin2 = factory.cachedPool("testdb", "admin", "admin");
-    ODatabasePool poolReader1 = factory.cachedPool("testdb", "reader", "reader");
-    ODatabasePool poolReader2 = factory.cachedPool("testdb", "reader", "reader");
+    DatabasePool poolAdmin1 = factory.cachedPool("testdb", "admin", "admin");
+    DatabasePool poolAdmin2 = factory.cachedPool("testdb", "admin", "admin");
+    DatabasePool poolReader1 = factory.cachedPool("testdb", "reader", "reader");
+    DatabasePool poolReader2 = factory.cachedPool("testdb", "reader", "reader");
 
     assertEquals(poolAdmin1, poolAdmin2);
     assertEquals(poolReader1, poolReader2);
     assertNotEquals(poolAdmin1, poolReader1);
 
-    ODatabasePool poolWriter1 = factory.cachedPool("testdb", "writer", "writer");
-    ODatabasePool poolWriter2 = factory.cachedPool("testdb", "writer", "writer");
+    DatabasePool poolWriter1 = factory.cachedPool("testdb", "writer", "writer");
+    DatabasePool poolWriter2 = factory.cachedPool("testdb", "writer", "writer");
     assertEquals(poolWriter1, poolWriter2);
 
-    ODatabasePool poolAdmin3 = factory.cachedPool("testdb", "admin", "admin");
+    DatabasePool poolAdmin3 = factory.cachedPool("testdb", "admin", "admin");
     assertNotEquals(poolAdmin1, poolAdmin3);
 
     poolAdmin1.close();
@@ -147,8 +147,8 @@ public class YouTrackDBRemoteTest {
           "create database testdb memory users (admin identified by 'admin' role admin)");
     }
 
-    ODatabasePool poolAdmin1 = factory.cachedPool("testdb", "admin", "admin");
-    ODatabasePool poolAdmin2 = factory.cachedPool("testdb", "admin", "admin");
+    DatabasePool poolAdmin1 = factory.cachedPool("testdb", "admin", "admin");
+    DatabasePool poolAdmin2 = factory.cachedPool("testdb", "admin", "admin");
 
     assertFalse(poolAdmin1.isClosed());
     assertEquals(poolAdmin1, poolAdmin2);
@@ -159,7 +159,7 @@ public class YouTrackDBRemoteTest {
 
     Thread.sleep(5_000);
 
-    ODatabasePool poolAdmin3 = factory.cachedPool("testdb", "admin", "admin");
+    DatabasePool poolAdmin3 = factory.cachedPool("testdb", "admin", "admin");
     assertNotEquals(poolAdmin1, poolAdmin3);
     assertFalse(poolAdmin3.isClosed());
 
@@ -175,7 +175,7 @@ public class YouTrackDBRemoteTest {
               + " identified by 'reader' role reader, writer identified by 'writer' role writer)");
     }
 
-    ODatabasePool pool = new ODatabasePool(factory, "test", "admin", "admin");
+    DatabasePool pool = new DatabasePool(factory, "test", "admin", "admin");
 
     // do a query and assert on other thread
     Runnable acquirer =
@@ -185,7 +185,7 @@ public class YouTrackDBRemoteTest {
           try {
             assertThat(db.isActiveOnCurrentThread()).isTrue();
 
-            YTResultSet res = db.query("SELECT * FROM OUser");
+            ResultSet res = db.query("SELECT * FROM OUser");
 
             assertEquals(3, res.stream().count());
 
@@ -220,11 +220,11 @@ public class YouTrackDBRemoteTest {
   public void createDatabaseNoUsers() {
     factory.create(
         "noUser",
-        ODatabaseType.MEMORY,
+        DatabaseType.MEMORY,
         YouTrackDBConfig.builder()
             .addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, false)
             .build());
-    try (YTDatabaseSession session = factory.open("noUser", "root", "root")) {
+    try (DatabaseSession session = factory.open("noUser", "root", "root")) {
       assertEquals(0, session.query("select from OUser").stream().count());
     }
   }
@@ -233,11 +233,11 @@ public class YouTrackDBRemoteTest {
   public void createDatabaseDefaultUsers() {
     factory.create(
         "noUser",
-        ODatabaseType.MEMORY,
+        DatabaseType.MEMORY,
         YouTrackDBConfig.builder()
             .addConfig(GlobalConfiguration.CREATE_DEFAULT_USERS, true)
             .build());
-    try (YTDatabaseSession session = factory.open("noUser", "root", "root")) {
+    try (DatabaseSession session = factory.open("noUser", "root", "root")) {
       assertEquals(3, session.query("select from OUser").stream().count());
     }
   }
@@ -245,9 +245,9 @@ public class YouTrackDBRemoteTest {
   @Test
   public void testCopyOpenedDatabase() {
     factory.execute("create database test memory users (admin identified by 'admin' role admin)");
-    YTDatabaseSession db1;
-    try (YTDatabaseSessionInternal db =
-        (YTDatabaseSessionInternal) factory.open("test", "admin", "admin")) {
+    DatabaseSession db1;
+    try (DatabaseSessionInternal db =
+        (DatabaseSessionInternal) factory.open("test", "admin", "admin")) {
       db1 = db.copy();
     }
     db1.activateOnCurrentThread();
@@ -259,9 +259,9 @@ public class YouTrackDBRemoteTest {
   public void testCreateDatabaseViaSQL() {
     String dbName = "testCreateDatabaseViaSQL";
 
-    try (YTResultSet result = factory.execute("create database " + dbName + " plocal")) {
+    try (ResultSet result = factory.execute("create database " + dbName + " plocal")) {
       Assert.assertTrue(result.hasNext());
-      YTResult item = result.next();
+      Result item = result.next();
       Assert.assertEquals(true, item.getProperty("created"));
     }
     Assert.assertTrue(factory.exists(dbName));
@@ -281,6 +281,6 @@ public class YouTrackDBRemoteTest {
     FileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
     YouTrackDBManager.instance().startup();
 
-    ODatabaseRecordThreadLocal.instance().remove();
+    DatabaseRecordThreadLocal.instance().remove();
   }
 }

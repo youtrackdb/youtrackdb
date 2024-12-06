@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OByteSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 
 public interface Change {
 
-  int SIZE = OByteSerializer.BYTE_SIZE + OIntegerSerializer.INT_SIZE;
+  int SIZE = ByteSerializer.BYTE_SIZE + IntegerSerializer.INT_SIZE;
 
   void increment();
 

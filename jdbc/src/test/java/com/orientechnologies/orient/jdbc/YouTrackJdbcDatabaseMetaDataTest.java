@@ -19,8 +19,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.core.OConstants;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -49,13 +49,14 @@ public class YouTrackJdbcDatabaseMetaDataTest extends OrientJdbcDbPerClassTempla
   public void verifyDriverAndDatabaseVersions() throws SQLException {
     assertEquals("admin", metaData.getUserName());
     assertEquals("YouTrackDB", metaData.getDatabaseProductName());
-    assertEquals(OConstants.getVersion(), metaData.getDatabaseProductVersion());
+    assertEquals(YouTrackDBConstants.getVersion(), metaData.getDatabaseProductVersion());
     assertEquals(1, metaData.getDatabaseMajorVersion());
     assertEquals(0, metaData.getDatabaseMinorVersion());
 
     assertEquals("YouTrackDB JDBC Driver", metaData.getDriverName());
     assertEquals(
-        "YouTrackDB " + OConstants.getVersion() + " JDBC Driver", metaData.getDriverVersion());
+        "YouTrackDB " + YouTrackDBConstants.getVersion() + " JDBC Driver",
+        metaData.getDriverVersion());
     assertEquals(1, metaData.getDriverMajorVersion());
     assertEquals(0, metaData.getDriverMinorVersion());
   }
@@ -163,7 +164,7 @@ public class YouTrackJdbcDatabaseMetaDataTest extends OrientJdbcDbPerClassTempla
 
     assertThat(tableCount)
         .isEqualTo(
-            ((YTDatabaseSessionInternal) conn.getDatabase()).getMetadata().getSchema().getClasses()
+            ((DatabaseSessionInternal) conn.getDatabase()).getMetadata().getSchema().getClasses()
                 .size());
   }
 
@@ -188,7 +189,7 @@ public class YouTrackJdbcDatabaseMetaDataTest extends OrientJdbcDbPerClassTempla
     int tableCount = sizeOf(rs);
     assertThat(tableCount)
         .isEqualTo(
-            ((YTDatabaseSessionInternal) conn.getDatabase()).getMetadata().getSchema().getClasses()
+            ((DatabaseSessionInternal) conn.getDatabase()).getMetadata().getSchema().getClasses()
                 .size());
   }
 

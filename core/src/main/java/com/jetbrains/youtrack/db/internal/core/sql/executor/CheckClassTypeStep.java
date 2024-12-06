@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 
 /**
@@ -14,7 +14,7 @@ import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionS
  *
  * <p>It accepts two values: a target class and a parent class. If the two classes are the same or
  * if the parent class is indeed a parent class of the target class, then the syncPool() returns an
- * empty result set, otherwise it throws an YTCommandExecutionException
+ * empty result set, otherwise it throws an CommandExecutionException
  */
 public class CheckClassTypeStep extends AbstractExecutionStep {
 
@@ -36,7 +36,7 @@ public class CheckClassTypeStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext context) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext context) throws TimeoutException {
     if (prev != null) {
       prev.start(context).close(ctx);
     }
@@ -44,23 +44,23 @@ public class CheckClassTypeStep extends AbstractExecutionStep {
     if (this.targetClass.equals(this.parentClass)) {
       return ExecutionStream.empty();
     }
-    YTDatabaseSessionInternal db = context.getDatabase();
+    DatabaseSessionInternal db = context.getDatabase();
 
-    YTSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
-    YTClass parentClazz = schema.getClass(this.parentClass);
+    Schema schema = db.getMetadata().getImmutableSchemaSnapshot();
+    SchemaClass parentClazz = schema.getClass(this.parentClass);
     if (parentClazz == null) {
-      throw new YTCommandExecutionException("Class not found: " + this.parentClass);
+      throw new CommandExecutionException("Class not found: " + this.parentClass);
     }
-    YTClass targetClazz = schema.getClass(this.targetClass);
+    SchemaClass targetClazz = schema.getClass(this.targetClass);
     if (targetClazz == null) {
-      throw new YTCommandExecutionException("Class not found: " + this.targetClass);
+      throw new CommandExecutionException("Class not found: " + this.targetClass);
     }
 
     boolean found = false;
     if (parentClazz.equals(targetClazz)) {
       found = true;
     } else {
-      for (YTClass sublcass : parentClazz.getAllSubclasses()) {
+      for (SchemaClass sublcass : parentClazz.getAllSubclasses()) {
         if (sublcass.equals(targetClazz)) {
           found = true;
           break;
@@ -68,7 +68,7 @@ public class CheckClassTypeStep extends AbstractExecutionStep {
       }
     }
     if (!found) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Class  " + this.targetClass + " is not a subclass of " + this.parentClass);
     }
     return ExecutionStream.empty();

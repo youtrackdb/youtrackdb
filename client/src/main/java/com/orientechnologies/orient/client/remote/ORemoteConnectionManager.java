@@ -24,9 +24,9 @@ import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration
 import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.NETWORK_LOCK_TIMEOUT;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
-import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
+import com.orientechnologies.orient.client.binary.SocketChannelBinaryAsynchClient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -46,13 +46,13 @@ public class ORemoteConnectionManager {
 
   public static final String PARAM_MAX_POOL = "maxpool";
 
-  protected final ConcurrentMap<String, ORemoteConnectionPool> connections;
+  protected final ConcurrentMap<String, RemoteConnectionPool> connections;
   protected final long timeout;
   protected final long idleTimeout;
   private final TimerTask idleTask;
 
-  public ORemoteConnectionManager(final YTContextConfiguration clientConfiguration, Timer timer) {
-    connections = new ConcurrentHashMap<String, ORemoteConnectionPool>();
+  public ORemoteConnectionManager(final ContextConfiguration clientConfiguration, Timer timer) {
+    connections = new ConcurrentHashMap<String, RemoteConnectionPool>();
     timeout = clientConfiguration.getValueAsLong(NETWORK_LOCK_TIMEOUT);
     int idleSecs = clientConfiguration.getValueAsInteger(CLIENT_CHANNEL_IDLE_TIMEOUT);
     this.idleTimeout = TimeUnit.MILLISECONDS.convert(idleSecs, TimeUnit.SECONDS);
@@ -72,7 +72,7 @@ public class ORemoteConnectionManager {
   }
 
   public void close() {
-    for (Map.Entry<String, ORemoteConnectionPool> entry : connections.entrySet()) {
+    for (Map.Entry<String, RemoteConnectionPool> entry : connections.entrySet()) {
       closePool(entry.getValue());
     }
 
@@ -82,12 +82,12 @@ public class ORemoteConnectionManager {
     }
   }
 
-  public OChannelBinaryAsynchClient acquire(
-      String iServerURL, final YTContextConfiguration clientConfiguration) {
+  public SocketChannelBinaryAsynchClient acquire(
+      String iServerURL, final ContextConfiguration clientConfiguration) {
 
     long localTimeout = timeout;
 
-    ORemoteConnectionPool pool = connections.get(iServerURL);
+    RemoteConnectionPool pool = connections.get(iServerURL);
     if (pool == null) {
       int maxPool = 8;
 
@@ -104,8 +104,8 @@ public class ORemoteConnectionManager {
         }
       }
 
-      pool = new ORemoteConnectionPool(maxPool);
-      final ORemoteConnectionPool prev = connections.putIfAbsent(iServerURL, pool);
+      pool = new RemoteConnectionPool(maxPool);
+      final RemoteConnectionPool prev = connections.putIfAbsent(iServerURL, pool);
       if (prev != null) {
         // ALREADY PRESENT, DESTROY IT AND GET THE ALREADY EXISTENT OBJ
         pool.getPool().close();
@@ -115,7 +115,8 @@ public class ORemoteConnectionManager {
 
     try {
       // RETURN THE RESOURCE
-      OChannelBinaryAsynchClient ret = pool.acquire(iServerURL, localTimeout, clientConfiguration);
+      SocketChannelBinaryAsynchClient ret = pool.acquire(iServerURL, localTimeout,
+          clientConfiguration);
       ret.markInUse();
       return ret;
 
@@ -130,13 +131,13 @@ public class ORemoteConnectionManager {
     return null;
   }
 
-  public void release(final OChannelBinaryAsynchClient conn) {
+  public void release(final SocketChannelBinaryAsynchClient conn) {
     if (conn == null) {
       return;
     }
 
     conn.markReturned();
-    final ORemoteConnectionPool pool = connections.get(conn.getServerURL());
+    final RemoteConnectionPool pool = connections.get(conn.getServerURL());
     if (pool != null) {
       if (!conn.isConnected()) {
         LogManager.instance()
@@ -150,12 +151,12 @@ public class ORemoteConnectionManager {
     }
   }
 
-  public void remove(final OChannelBinaryAsynchClient conn) {
+  public void remove(final SocketChannelBinaryAsynchClient conn) {
     if (conn == null) {
       return;
     }
 
-    final ORemoteConnectionPool pool = connections.get(conn.getServerURL());
+    final RemoteConnectionPool pool = connections.get(conn.getServerURL());
     if (pool == null) {
       throw new IllegalStateException(
           "Connection cannot be released because the pool doesn't exist anymore");
@@ -181,7 +182,7 @@ public class ORemoteConnectionManager {
   }
 
   public int getMaxResources(final String url) {
-    final ORemoteConnectionPool pool = connections.get(url);
+    final RemoteConnectionPool pool = connections.get(url);
     if (pool == null) {
       return 0;
     }
@@ -190,7 +191,7 @@ public class ORemoteConnectionManager {
   }
 
   public int getAvailableConnections(final String url) {
-    final ORemoteConnectionPool pool = connections.get(url);
+    final RemoteConnectionPool pool = connections.get(url);
     if (pool == null) {
       return 0;
     }
@@ -202,7 +203,7 @@ public class ORemoteConnectionManager {
     if (url == null) {
       return 0;
     }
-    final ORemoteConnectionPool pool = connections.get(url);
+    final RemoteConnectionPool pool = connections.get(url);
     if (pool == null) {
       return 0;
     }
@@ -211,7 +212,7 @@ public class ORemoteConnectionManager {
   }
 
   public int getCreatedInstancesInPool(final String url) {
-    final ORemoteConnectionPool pool = connections.get(url);
+    final RemoteConnectionPool pool = connections.get(url);
     if (pool == null) {
       return 0;
     }
@@ -220,7 +221,7 @@ public class ORemoteConnectionManager {
   }
 
   public void closePool(final String url) {
-    final ORemoteConnectionPool pool = connections.remove(url);
+    final RemoteConnectionPool pool = connections.remove(url);
     if (pool == null) {
       return;
     }
@@ -228,10 +229,10 @@ public class ORemoteConnectionManager {
     closePool(pool);
   }
 
-  protected void closePool(ORemoteConnectionPool pool) {
-    final List<OChannelBinaryAsynchClient> conns =
-        new ArrayList<OChannelBinaryAsynchClient>(pool.getPool().getAllResources());
-    for (OChannelBinaryAsynchClient c : conns) {
+  protected void closePool(RemoteConnectionPool pool) {
+    final List<SocketChannelBinaryAsynchClient> conns =
+        new ArrayList<SocketChannelBinaryAsynchClient>(pool.getPool().getAllResources());
+    for (SocketChannelBinaryAsynchClient c : conns) {
       try {
         // Unregister the listener that make the connection return to the closing pool.
         c.close();
@@ -242,12 +243,12 @@ public class ORemoteConnectionManager {
     pool.getPool().close();
   }
 
-  public ORemoteConnectionPool getPool(String url) {
+  public RemoteConnectionPool getPool(String url) {
     return connections.get(url);
   }
 
   public void checkIdle() {
-    for (Map.Entry<String, ORemoteConnectionPool> entry : connections.entrySet()) {
+    for (Map.Entry<String, RemoteConnectionPool> entry : connections.entrySet()) {
       entry.getValue().checkIdle(idleTimeout);
     }
   }

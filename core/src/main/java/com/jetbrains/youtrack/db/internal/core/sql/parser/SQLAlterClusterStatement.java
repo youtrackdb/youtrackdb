@@ -3,13 +3,13 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.storage.OCluster;
+import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.lang.reflect.Field;
@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class SQLAlterClusterStatement extends ODDLStatement {
+public class SQLAlterClusterStatement extends DDLStatement {
 
   protected SQLIdentifier name;
   protected boolean starred = false;
@@ -73,13 +73,13 @@ public class SQLAlterClusterStatement extends ODDLStatement {
 
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
-    List<YTResult> result = new ArrayList<>();
+    List<Result> result = new ArrayList<>();
     IntArrayList clustersToUpdate = getClusters(ctx);
 
-    Object finalValue = attributeValue.execute((YTIdentifiable) null, ctx);
+    Object finalValue = attributeValue.execute((Identifiable) null, ctx);
 
-    final OCluster.ATTRIBUTES attribute =
-        Arrays.stream(OCluster.ATTRIBUTES.values())
+    final StorageCluster.ATTRIBUTES attribute =
+        Arrays.stream(StorageCluster.ATTRIBUTES.values())
             .filter(e -> e.name().equalsIgnoreCase(notNull(attributeName.getStringValue())))
             .findAny()
             .orElseThrow(
@@ -88,13 +88,13 @@ public class SQLAlterClusterStatement extends ODDLStatement {
                         "Unknown class attribute '"
                             + attributeName
                             + "'. Supported attributes are: "
-                            + noDeprecatedValues(OCluster.ATTRIBUTES.values())));
+                            + noDeprecatedValues(StorageCluster.ATTRIBUTES.values())));
 
     final Storage storage = ctx.getDatabase().getStorage();
     for (final int clusterId : clustersToUpdate) {
       storage.setClusterAttribute(clusterId, attribute, finalValue);
 
-      YTResultInternal resultItem = new YTResultInternal(ctx.getDatabase());
+      ResultInternal resultItem = new ResultInternal(ctx.getDatabase());
       resultItem.setProperty("cluster", storage.getClusterName(ctx.getDatabase(), clusterId));
       result.add(resultItem);
     }
@@ -102,12 +102,13 @@ public class SQLAlterClusterStatement extends ODDLStatement {
     return ExecutionStream.resultIterator(result.iterator());
   }
 
-  private List<OCluster.ATTRIBUTES> noDeprecatedValues(final OCluster.ATTRIBUTES[] values) {
+  private List<StorageCluster.ATTRIBUTES> noDeprecatedValues(
+      final StorageCluster.ATTRIBUTES[] values) {
     return Arrays.stream(values)
         .filter(
             value -> {
               try {
-                final Field field = OCluster.ATTRIBUTES.class.getField(value.name());
+                final Field field = StorageCluster.ATTRIBUTES.class.getField(value.name());
                 return !field.isAnnotationPresent(Deprecated.class);
               } catch (final NoSuchFieldException | SecurityException e) {
                 return false;
@@ -121,7 +122,7 @@ public class SQLAlterClusterStatement extends ODDLStatement {
   }
 
   private IntArrayList getClusters(CommandContext ctx) {
-    YTDatabaseSessionInternal database = ctx.getDatabase();
+    DatabaseSessionInternal database = ctx.getDatabase();
     if (starred) {
       IntArrayList result = new IntArrayList();
       for (String clusterName : database.getClusterNames()) {
@@ -133,7 +134,7 @@ public class SQLAlterClusterStatement extends ODDLStatement {
     } else {
       final int clusterId = database.getClusterIdByName(name.getStringValue());
       if (clusterId <= 0) {
-        throw new YTCommandExecutionException("Cannot find cluster " + name);
+        throw new CommandExecutionException("Cannot find cluster " + name);
       }
 
       return IntArrayList.of(clusterId);

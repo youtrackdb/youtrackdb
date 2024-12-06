@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCondition;
@@ -18,13 +18,13 @@ import java.util.List;
  */
 public class IndexSearchDescriptor {
 
-  private final OIndex index;
+  private final Index index;
   private final SQLBooleanExpression keyCondition;
   private final SQLBinaryCondition additionalRangeCondition;
   private final SQLBooleanExpression remainingCondition;
 
   public IndexSearchDescriptor(
-      OIndex idx,
+      Index idx,
       SQLBooleanExpression keyCondition,
       SQLBinaryCondition additional,
       SQLBooleanExpression remainingCondition) {
@@ -34,14 +34,14 @@ public class IndexSearchDescriptor {
     this.remainingCondition = remainingCondition;
   }
 
-  public IndexSearchDescriptor(OIndex idx) {
+  public IndexSearchDescriptor(Index idx) {
     this.index = idx;
     this.keyCondition = null;
     this.additionalRangeCondition = null;
     this.remainingCondition = null;
   }
 
-  public IndexSearchDescriptor(OIndex idx, SQLBooleanExpression keyCondition) {
+  public IndexSearchDescriptor(Index idx, SQLBooleanExpression keyCondition) {
     this.index = idx;
     this.keyCondition = keyCondition;
     this.additionalRangeCondition = null;
@@ -49,7 +49,7 @@ public class IndexSearchDescriptor {
   }
 
   public int cost(CommandContext ctx) {
-    OQueryStats stats = OQueryStats.get(ctx.getDatabase());
+    QueryStats stats = QueryStats.get(ctx.getDatabase());
 
     String indexName = index.getName();
     int size = getSubBlocks().size();
@@ -84,7 +84,7 @@ public class IndexSearchDescriptor {
     return getSubBlocks().size();
   }
 
-  protected OIndex getIndex() {
+  protected Index getIndex() {
     return index;
   }
 
@@ -121,15 +121,15 @@ public class IndexSearchDescriptor {
   }
 
   public boolean duplicateResultsForRecord() {
-    if (index.getDefinition() instanceof OCompositeIndexDefinition) {
-      return ((OCompositeIndexDefinition) index.getDefinition()).getMultiValueDefinition() != null;
+    if (index.getDefinition() instanceof CompositeIndexDefinition) {
+      return ((CompositeIndexDefinition) index.getDefinition()).getMultiValueDefinition() != null;
     }
     return false;
   }
 
   public boolean fullySorted(List<String> orderItems) {
     List<SQLBooleanExpression> conditions = getSubBlocks();
-    OIndex idx = index;
+    Index idx = index;
 
     if (!idx.supportsOrderedIterations()) {
       return false;
@@ -166,7 +166,7 @@ public class IndexSearchDescriptor {
     }
     orderedFields.addAll(orderItems);
 
-    final OIndexDefinition definition = idx.getDefinition();
+    final IndexDefinition definition = idx.getDefinition();
     final List<String> fields = definition.getFields();
     if (fields.size() < orderedFields.size()) {
       return false;

@@ -15,13 +15,13 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
@@ -29,7 +29,7 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
-public class DbCopyTest extends DocumentDBBaseTest implements OCommandOutputListener {
+public class DbCopyTest extends DocumentDBBaseTest implements CommandOutputListener {
 
   @Parameters(value = {"remote"})
   public DbCopyTest(@Optional Boolean remote) {
@@ -51,7 +51,7 @@ public class DbCopyTest extends DocumentDBBaseTest implements OCommandOutputList
         new Thread() {
           @Override
           public void run() {
-            final YTDatabaseSessionInternal otherDB = database.copy();
+            final DatabaseSessionInternal otherDB = database.copy();
             otherDB.activateOnCurrentThread();
             for (int i = 0; i < 5; i++) {
               otherDB.begin();
@@ -90,7 +90,7 @@ public class DbCopyTest extends DocumentDBBaseTest implements OCommandOutputList
     }
 
     database.begin();
-    YTResultSet result = database.query("SELECT FROM " + className);
+    ResultSet result = database.query("SELECT FROM " + className);
     Assert.assertEquals(result.stream().count(), 25);
     database.commit();
   }

@@ -23,12 +23,12 @@ import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.traverse.OTraverse;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTQueryParsingException;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.command.traverse.Traverse;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -38,7 +38,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Executes a TRAVERSE crossing records. Returns a List<YTIdentifiable> containing all the traversed
+ * Executes a TRAVERSE crossing records. Returns a List<Identifiable> containing all the traversed
  * records that match the WHERE condition.
  *
  * <p>SYNTAX: <code>TRAVERSE <field>* FROM <target> WHERE <condition></code>
@@ -62,7 +62,7 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
   public static final String KEYWORD_MAXDEPTH = "MAXDEPTH";
 
   // HANDLES ITERATION IN LAZY WAY
-  private OTraverse traverse;
+  private Traverse traverse;
 
   /**
    * Compile the filter conditions only the first time.
@@ -72,7 +72,7 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
     String queryText = textRequest.getText();
     String originalQuery = queryText;
     try {
-      traverse = new OTraverse(iRequest.getContext().getDatabase());
+      traverse = new Traverse(iRequest.getContext().getDatabase());
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
@@ -80,7 +80,7 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
 
       final int pos = parseFields();
       if (pos == -1) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Traverse must have the field list. Use " + getSyntax());
       }
       parserSetCurrentPosition(pos);
@@ -88,7 +88,7 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
       int endPosition = parserText.length();
 
       parsedTarget =
-          OSQLEngine
+          SQLEngine
               .parseTarget(parserText.substring(pos, endPosition), getContext());
 
       if (parsedTarget.parserIsEnded()) {
@@ -110,7 +110,7 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
             || parserGetLastWord().equalsIgnoreCase(KEYWORD_WHILE)) {
 
           compiledFilter =
-              OSQLEngine
+              SQLEngine
                   .parseCondition(
                       parserText.substring(parserGetCurrentPosition(), endPosition),
                       getContext(),
@@ -168,7 +168,7 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
     return this;
   }
 
-  protected boolean parseMaxDepth(final String w) throws YTCommandSQLParsingException {
+  protected boolean parseMaxDepth(final String w) throws CommandSQLParsingException {
     if (!w.equals(KEYWORD_MAXDEPTH)) {
       return false;
     }
@@ -200,22 +200,22 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
     return true;
   }
 
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     context.beginExecution(timeoutMs, timeoutStrategy);
 
     if (!assignTarget(iArgs)) {
-      throw new YTQueryParsingException(
+      throw new QueryParsingException(
           "No source found in query: specify class, cluster(s) or single record(s)");
     }
 
     try {
       if (traverse == null) {
-        traverse = new OTraverse(querySession);
+        traverse = new Traverse(querySession);
       }
 
       // BROWSE ALL THE RECORDS AND COLLECTS RESULT
-      final List<YTIdentifiable> result = traverse.execute(querySession);
-      for (YTIdentifiable r : result) {
+      final List<Identifiable> result = traverse.execute(querySession);
+      for (Identifiable r : result) {
         if (!handleResult(r, context))
         // LIMIT REACHED
         {
@@ -234,11 +234,11 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
     return traverse.getContext();
   }
 
-  public Iterator<YTIdentifiable> iterator() {
-    return iterator(ODatabaseRecordThreadLocal.instance().get(), null);
+  public Iterator<Identifiable> iterator() {
+    return iterator(DatabaseRecordThreadLocal.instance().get(), null);
   }
 
-  public Iterator<YTIdentifiable> iterator(YTDatabaseSessionInternal querySession,
+  public Iterator<Identifiable> iterator(DatabaseSessionInternal querySession,
       final Map<Object, Object> iArgs) {
     assignTarget(iArgs);
     return traverse;
@@ -278,7 +278,7 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
 
     int fromPosition = parserTextUpperCase.indexOf(KEYWORD_FROM_2FIND, currentPos);
     if (fromPosition == -1) {
-      throw new YTQueryParsingException("Missed " + KEYWORD_FROM, parserText, currentPos);
+      throw new QueryParsingException("Missed " + KEYWORD_FROM, parserText, currentPos);
     }
 
     Set<Object> fields = new HashSet<Object>();
@@ -286,19 +286,19 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
     final String fieldString = parserText.substring(currentPos, fromPosition).trim();
     if (fieldString.length() > 0) {
       // EXTRACT PROJECTIONS
-      final List<String> items = OStringSerializerHelper.smartSplit(fieldString, ',');
+      final List<String> items = StringSerializerHelper.smartSplit(fieldString, ',');
 
       for (String field : items) {
         final String fieldName = field.trim();
 
         if (fieldName.contains("(")) {
-          fields.add(OSQLHelper.parseValue(null, fieldName, context));
+          fields.add(SQLHelper.parseValue(null, fieldName, context));
         } else {
           fields.add(fieldName);
         }
       }
     } else {
-      throw new YTQueryParsingException(
+      throw new QueryParsingException(
           "Missed field list to cross in TRAVERSE. Use " + getSyntax(), parserText, currentPos);
     }
 
@@ -312,7 +312,7 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
   /**
    * Parses the strategy keyword if found.
    */
-  protected boolean parseStrategy(final String w) throws YTCommandSQLParsingException {
+  protected boolean parseStrategy(final String w) throws CommandSQLParsingException {
     if (!w.equals(KEYWORD_STRATEGY)) {
       return false;
     }
@@ -320,13 +320,13 @@ public class CommandExecutorSQLTraverse extends CommandExecutorSQLResultsetAbstr
     final String strategyWord = parserNextWord(true);
 
     try {
-      traverse.setStrategy(OTraverse.STRATEGY.valueOf(strategyWord.toUpperCase(Locale.ENGLISH)));
+      traverse.setStrategy(Traverse.STRATEGY.valueOf(strategyWord.toUpperCase(Locale.ENGLISH)));
     } catch (IllegalArgumentException ignore) {
       throwParsingException(
           "Invalid "
               + KEYWORD_STRATEGY
               + ". Use one between "
-              + Arrays.toString(OTraverse.STRATEGY.values()));
+              + Arrays.toString(Traverse.STRATEGY.values()));
     }
     return true;
   }

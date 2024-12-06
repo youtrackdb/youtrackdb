@@ -19,20 +19,20 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.YTUser;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.security.OSecurityManager;
-import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
-import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionAbstract;
+import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionAbstract;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
@@ -70,7 +70,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryMax() {
-    YTResultSet result = database.command("select max(id) as max from Account");
+    ResultSet result = database.command("select max(id) as max from Account");
 
     assertNotNull(result.next().getProperty("max"));
     assertFalse(result.hasNext());
@@ -94,9 +94,9 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryMin() {
-    YTResultSet result = database.command("select min(id) as min from Account");
+    ResultSet result = database.command("select min(id) as min from Account");
 
-    YTResult d = result.next();
+    Result d = result.next();
     Assert.assertNotNull(d.getProperty("min"));
 
     Assert.assertEquals(((Number) d.getProperty("min")).longValue(), 0L);
@@ -121,8 +121,8 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void querySum() {
-    YTResultSet result = database.command("select sum(id) as sum from Account");
-    YTResult d = result.next();
+    ResultSet result = database.command("select sum(id) as sum from Account");
+    Result d = result.next();
     Assert.assertNotNull(d.getProperty("sum"));
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -130,8 +130,8 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryCount() {
-    YTResultSet result = database.command("select count(*) as total from Account");
-    YTResult d = result.next();
+    ResultSet result = database.command("select count(*) as total from Account");
+    Result d = result.next();
     Assert.assertNotNull(d.getProperty("total"));
     Assert.assertTrue(((Number) d.getProperty("total")).longValue() > 0);
     Assert.assertFalse(result.hasNext());
@@ -139,23 +139,23 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
   }
 
   public void queryCountExtendsRestricted() {
-    YTClass restricted = database.getMetadata().getSchema().getClass("ORestricted");
+    SchemaClass restricted = database.getMetadata().getSchema().getClass("ORestricted");
     Assert.assertNotNull(restricted);
 
     database.getMetadata().getSchema().createClass("QueryCountExtendsRestrictedClass", restricted);
 
     database.begin();
-    YTUser admin = database.getMetadata().getSecurity().getUser("admin");
-    YTUser reader = database.getMetadata().getSecurity().getUser("reader");
+    SecurityUserIml admin = database.getMetadata().getSecurity().getUser("admin");
+    SecurityUserIml reader = database.getMetadata().getSecurity().getUser("reader");
 
     @SuppressWarnings("deprecation")
-    ORole byPassRestrictedRole =
+    Role byPassRestrictedRole =
         database
             .getMetadata()
             .getSecurity()
-            .createRole("byPassRestrictedRole", ORole.ALLOW_MODES.DENY_ALL_BUT);
+            .createRole("byPassRestrictedRole", Role.ALLOW_MODES.DENY_ALL_BUT);
     byPassRestrictedRole.addRule(database,
-        ORule.ResourceGeneric.BYPASS_RESTRICTED, null, ORole.PERMISSION_READ);
+        Rule.ResourceGeneric.BYPASS_RESTRICTED, null, Role.PERMISSION_READ);
     byPassRestrictedRole.save(dbName);
 
     database
@@ -166,7 +166,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
     EntityImpl docAdmin = new EntityImpl("QueryCountExtendsRestrictedClass");
     docAdmin.field(
         "_allowRead",
-        new HashSet<YTIdentifiable>(
+        new HashSet<Identifiable>(
             Collections.singletonList(admin.getIdentity(database).getIdentity())));
 
     docAdmin.save();
@@ -210,9 +210,9 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryCountWithConditions() {
-    YTClass indexed = database.getMetadata().getSchema().getOrCreateClass("Indexed");
-    indexed.createProperty(database, "key", YTType.STRING);
-    indexed.createIndex(database, "keyed", YTClass.INDEX_TYPE.NOTUNIQUE, "key");
+    SchemaClass indexed = database.getMetadata().getSchema().getOrCreateClass("Indexed");
+    indexed.createProperty(database, "key", PropertyType.STRING);
+    indexed.createIndex(database, "keyed", SchemaClass.INDEX_TYPE.NOTUNIQUE, "key");
 
     database.begin();
     database.<EntityImpl>newInstance("Indexed").field("key", "one").save();
@@ -433,11 +433,11 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void querySysdateNoFormat() {
-    YTResultSet result = database.command("select sysdate() as date from Account");
+    ResultSet result = database.command("select sysdate() as date from Account");
 
     Assert.assertTrue(result.hasNext());
     while (result.hasNext()) {
-      YTResult d = result.next();
+      Result d = result.next();
       Assert.assertNotNull(d.getProperty("date"));
     }
   }
@@ -457,7 +457,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryDate() {
-    YTResultSet result = database.command("select count(*) as tot from Account");
+    ResultSet result = database.command("select count(*) as tot from Account");
 
     int tot = ((Number) result.next().getProperty("tot")).intValue();
     assertFalse(result.hasNext());
@@ -489,12 +489,12 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
                 + pattern
                 + "\")");
     while (result.hasNext()) {
-      YTResult d = result.next();
+      Result d = result.next();
       Assert.assertNotNull(d.getProperty("created"));
     }
   }
 
-  @Test(expectedExceptions = YTCommandSQLParsingException.class)
+  @Test(expectedExceptions = CommandSQLParsingException.class)
   public void queryUndefinedFunction() {
     //noinspection ResultOfMethodCallIgnored
     database.query("select blaaaa(salary) as max from Account").stream()
@@ -504,19 +504,19 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
 
   @Test
   public void queryCustomFunction() {
-    OSQLEngine.getInstance()
+    SQLEngine.getInstance()
         .registerFunction(
             "bigger",
-            new OSQLFunctionAbstract("bigger", 2, 2) {
+            new SQLFunctionAbstract("bigger", 2, 2) {
               @Override
-              public String getSyntax(YTDatabaseSession session) {
+              public String getSyntax(DatabaseSession session) {
                 return "bigger(<first>, <second>)";
               }
 
               @Override
               public Object execute(
                   Object iThis,
-                  YTIdentifiable iCurrentRecord,
+                  Identifiable iCurrentRecord,
                   Object iCurrentResult,
                   final Object[] iParams,
                   CommandContext iContext) {
@@ -550,7 +550,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
       Assert.assertTrue((Integer) d.field("id") <= 1000);
     }
 
-    OSQLEngine.getInstance().unregisterFunction("bigger");
+    SQLEngine.getInstance().unregisterFunction("bigger");
   }
 
   @Test
@@ -584,8 +584,8 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
     for (EntityImpl d : result) {
       final String name = d.field("name");
 
-      Assert.assertEquals(OSecurityManager.createHash(name, "SHA-256"), d.field("n256"));
-      Assert.assertEquals(OSecurityManager.createHash(name, "SHA-512"), d.field("n512"));
+      Assert.assertEquals(SecurityManager.createHash(name, "SHA-256"), d.field("n256"));
+      Assert.assertEquals(SecurityManager.createHash(name, "SHA-512"), d.field("n512"));
     }
   }
 

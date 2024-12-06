@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
@@ -24,8 +24,8 @@ public class IfStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
-    OScriptExecutionPlan plan = producePlan(ctx);
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
+    ScriptExecutionPlan plan = producePlan(ctx);
     if (plan != null) {
       return plan.start();
     } else {
@@ -33,32 +33,32 @@ public class IfStep extends AbstractExecutionStep {
     }
   }
 
-  public OScriptExecutionPlan producePlan(CommandContext ctx) {
-    if (condition.evaluate((YTResult) null, ctx)) {
-      OScriptExecutionPlan positivePlan = initPositivePlan(ctx);
+  public ScriptExecutionPlan producePlan(CommandContext ctx) {
+    if (condition.evaluate((Result) null, ctx)) {
+      ScriptExecutionPlan positivePlan = initPositivePlan(ctx);
       return positivePlan;
     } else {
-      OScriptExecutionPlan negativePlan = initNegativePlan(ctx);
+      ScriptExecutionPlan negativePlan = initNegativePlan(ctx);
       return negativePlan;
     }
   }
 
-  public OScriptExecutionPlan initPositivePlan(CommandContext ctx) {
+  public ScriptExecutionPlan initPositivePlan(CommandContext ctx) {
     BasicCommandContext subCtx1 = new BasicCommandContext();
     subCtx1.setParent(ctx);
-    OScriptExecutionPlan positivePlan = new OScriptExecutionPlan(subCtx1);
+    ScriptExecutionPlan positivePlan = new ScriptExecutionPlan(subCtx1);
     for (SQLStatement stm : positiveStatements) {
       positivePlan.chain(stm.createExecutionPlan(subCtx1, profilingEnabled), profilingEnabled);
     }
     return positivePlan;
   }
 
-  public OScriptExecutionPlan initNegativePlan(CommandContext ctx) {
+  public ScriptExecutionPlan initNegativePlan(CommandContext ctx) {
     if (negativeStatements != null) {
       if (negativeStatements.size() > 0) {
         BasicCommandContext subCtx2 = new BasicCommandContext();
         subCtx2.setParent(ctx);
-        OScriptExecutionPlan negativePlan = new OScriptExecutionPlan(subCtx2);
+        ScriptExecutionPlan negativePlan = new ScriptExecutionPlan(subCtx2);
         for (SQLStatement stm : negativeStatements) {
           negativePlan.chain(stm.createExecutionPlan(subCtx2, profilingEnabled), profilingEnabled);
         }

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
 import java.util.Collections;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
@@ -14,11 +14,11 @@ import org.mockito.Mockito;
 
 public class OLuceneQueryBuilderTest {
 
-  private OIndexDefinition indexDef;
+  private IndexDefinition indexDef;
 
   @Before
   public void setUp() throws Exception {
-    indexDef = Mockito.mock(OIndexDefinition.class);
+    indexDef = Mockito.mock(IndexDefinition.class);
     when(indexDef.getFields()).thenReturn(Collections.emptyList());
     when(indexDef.isAutomatic()).thenReturn(true);
     when(indexDef.getClassName()).thenReturn("Song");

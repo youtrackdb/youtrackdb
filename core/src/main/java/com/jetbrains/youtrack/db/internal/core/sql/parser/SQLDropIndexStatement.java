@@ -3,19 +3,19 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexManagerAbstract;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class SQLDropIndexStatement extends ODDLStatement {
+public class SQLDropIndexStatement extends DDLStatement {
 
   protected boolean all = false;
   protected SQLIndexName name;
@@ -31,13 +31,13 @@ public class SQLDropIndexStatement extends ODDLStatement {
 
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
-    List<YTResult> rs = new ArrayList<>();
-    YTDatabaseSessionInternal db = ctx.getDatabase();
-    OIndexManagerAbstract idxMgr = db.getMetadata().getIndexManagerInternal();
+    List<Result> rs = new ArrayList<>();
+    DatabaseSessionInternal db = ctx.getDatabase();
+    IndexManagerAbstract idxMgr = db.getMetadata().getIndexManagerInternal();
     if (all) {
-      for (OIndex idx : idxMgr.getIndexes(db)) {
+      for (Index idx : idxMgr.getIndexes(db)) {
         db.getMetadata().getIndexManagerInternal().dropIndex(db, idx.getName());
-        YTResultInternal result = new YTResultInternal(db);
+        ResultInternal result = new ResultInternal(db);
         result.setProperty("operation", "drop index");
         result.setProperty("clusterName", idx.getName());
         rs.add(result);
@@ -45,10 +45,10 @@ public class SQLDropIndexStatement extends ODDLStatement {
 
     } else {
       if (!idxMgr.existsIndex(name.getValue()) && !ifExists) {
-        throw new YTCommandExecutionException("Index not found: " + name.getValue());
+        throw new CommandExecutionException("Index not found: " + name.getValue());
       }
       idxMgr.dropIndex(db, name.getValue());
-      YTResultInternal result = new YTResultInternal(db);
+      ResultInternal result = new ResultInternal(db);
       result.setProperty("operation", "drop index");
       result.setProperty("indexName", name.getValue());
       rs.add(result);

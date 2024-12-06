@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import java.io.IOException;
@@ -40,13 +40,13 @@ public class ODistributedStatusResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
+  public void read(DatabaseSessionInternal db, ChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
     clusterConfig = new EntityImpl(network.readBytes());
   }
 
-  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel,
-      int protocolVersion, ORecordSerializer serializer)
+  public void write(DatabaseSessionInternal session, ChannelDataOutput channel,
+      int protocolVersion, RecordSerializer serializer)
       throws IOException {
     byte[] bytes = serializer.toStream(session, clusterConfig);
     channel.writeBytes(bytes);

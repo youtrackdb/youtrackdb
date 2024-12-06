@@ -15,14 +15,14 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.util.OPair;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryMonitor;
-import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryResultListener;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.common.util.Pair;
+import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.LiveQueryMonitor;
+import com.jetbrains.youtrack.db.internal.core.db.LiveQueryResultListener;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,40 +36,40 @@ import org.testng.annotations.Test;
  * only for remote usage (it requires registered LiveQuery plugin)
  */
 @Test(groups = "Query")
-public class LiveQuery30Test extends DocumentDBBaseTest implements OCommandOutputListener {
+public class LiveQuery30Test extends DocumentDBBaseTest implements CommandOutputListener {
 
   private final CountDownLatch latch = new CountDownLatch(2);
   private final CountDownLatch unLatch = new CountDownLatch(1);
 
-  class MyLiveQueryListener implements YTLiveQueryResultListener {
+  class MyLiveQueryListener implements LiveQueryResultListener {
 
-    public List<OPair<String, YTResult>> ops = new ArrayList<>();
+    public List<Pair<String, Result>> ops = new ArrayList<>();
     public int unsubscribe;
 
     @Override
-    public void onCreate(YTDatabaseSession database, YTResult data) {
-      ops.add(new OPair<>("create", data));
+    public void onCreate(DatabaseSession database, Result data) {
+      ops.add(new Pair<>("create", data));
       latch.countDown();
     }
 
     @Override
-    public void onUpdate(YTDatabaseSession database, YTResult before, YTResult after) {
-      ops.add(new OPair<>("update", after));
+    public void onUpdate(DatabaseSession database, Result before, Result after) {
+      ops.add(new Pair<>("update", after));
       latch.countDown();
     }
 
     @Override
-    public void onDelete(YTDatabaseSession database, YTResult data) {
-      ops.add(new OPair<>("delete", data));
+    public void onDelete(DatabaseSession database, Result data) {
+      ops.add(new Pair<>("delete", data));
       latch.countDown();
     }
 
     @Override
-    public void onError(YTDatabaseSession database, YTException exception) {
+    public void onError(DatabaseSession database, BaseException exception) {
     }
 
     @Override
-    public void onEnd(YTDatabaseSession database) {
+    public void onEnd(DatabaseSession database) {
       unsubscribe = 1;
       unLatch.countDown();
     }
@@ -89,7 +89,7 @@ public class LiveQuery30Test extends DocumentDBBaseTest implements OCommandOutpu
 
     MyLiveQueryListener listener = new MyLiveQueryListener();
 
-    YTLiveQueryMonitor monitor = database.live("live select from " + className1, listener);
+    LiveQueryMonitor monitor = database.live("live select from " + className1, listener);
     Assert.assertNotNull(monitor);
 
     database.command("insert into " + className1 + " set name = 'foo', surname = 'bar'");
@@ -100,12 +100,12 @@ public class LiveQuery30Test extends DocumentDBBaseTest implements OCommandOutpu
     monitor.unSubscribe();
     database.command("insert into " + className1 + " set name = 'foo', surname = 'bax'");
     Assert.assertEquals(listener.ops.size(), 2);
-    for (OPair doc : listener.ops) {
+    for (Pair doc : listener.ops) {
       Assert.assertEquals(doc.getKey(), "create");
-      YTResult res = (YTResult) doc.getValue();
+      Result res = (Result) doc.getValue();
       Assert.assertEquals((res).getProperty("name"), "foo");
       Assert.assertNotNull(res.getProperty("@rid"));
-      Assert.assertTrue(((YTRID) res.getProperty("@rid")).getClusterPosition() >= 0);
+      Assert.assertTrue(((RID) res.getProperty("@rid")).getClusterPosition() >= 0);
     }
     unLatch.await(1, TimeUnit.MINUTES);
   }

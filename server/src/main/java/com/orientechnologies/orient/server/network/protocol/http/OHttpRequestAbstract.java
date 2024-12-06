@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.security.OParsedToken;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.security.ParsedToken;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
 import com.orientechnologies.orient.server.network.protocol.http.multipart.OHttpMultipartBaseInputStream;
 import java.io.InputStream;
@@ -35,7 +35,7 @@ import java.util.Map;
  */
 public abstract class OHttpRequestAbstract implements OHttpRequest {
 
-  private final YTContextConfiguration configuration;
+  private final ContextConfiguration configuration;
   private final InputStream in;
   private final ONetworkProtocolData data;
   private final ONetworkHttpExecutor executor;
@@ -49,7 +49,7 @@ public abstract class OHttpRequestAbstract implements OHttpRequest {
       final ONetworkHttpExecutor iExecutor,
       final InputStream iInStream,
       final ONetworkProtocolData iData,
-      final YTContextConfiguration iConfiguration) {
+      final ContextConfiguration iConfiguration) {
     executor = iExecutor;
     in = iInStream;
     data = iData;
@@ -144,7 +144,7 @@ public abstract class OHttpRequestAbstract implements OHttpRequest {
   public abstract String getUrl();
 
   @Override
-  public YTContextConfiguration getConfiguration() {
+  public ContextConfiguration getConfiguration() {
     return configuration;
   }
 
@@ -272,8 +272,8 @@ public abstract class OHttpRequestAbstract implements OHttpRequest {
   public abstract void setBearerTokenRaw(String bearerTokenRaw);
 
   @Override
-  public abstract OParsedToken getBearerToken();
+  public abstract ParsedToken getBearerToken();
 
   @Override
-  public abstract void setBearerToken(OParsedToken bearerToken);
+  public abstract void setBearerToken(ParsedToken bearerToken);
 }

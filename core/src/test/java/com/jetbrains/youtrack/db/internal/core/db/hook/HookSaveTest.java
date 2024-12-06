@@ -2,8 +2,8 @@ package com.jetbrains.youtrack.db.internal.core.db.hook;
 
 import static org.junit.Assert.assertNotNull;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.hook.YTRecordHook;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Test;
@@ -11,12 +11,12 @@ import org.junit.Test;
 /**
  *
  */
-public class HookSaveTest extends DBTestBase {
+public class HookSaveTest extends DbTestBase {
 
   @Test
   public void testCreatedLinkedInHook() {
     db.registerHook(
-        new YTRecordHook() {
+        new RecordHook() {
           @Override
           public void onUnregister() {
           }
@@ -55,7 +55,7 @@ public class HookSaveTest extends DBTestBase {
   @Test
   public void testCreatedBackLinkedInHook() {
     db.registerHook(
-        new YTRecordHook() {
+        new RecordHook() {
           @Override
           public void onUnregister() {
           }

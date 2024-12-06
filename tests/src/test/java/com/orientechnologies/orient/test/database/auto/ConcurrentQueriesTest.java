@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTNeedRetryException;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.test.ConcurrentTestHelper;
 import java.util.concurrent.Callable;
@@ -46,7 +46,7 @@ public class ConcurrentQueriesTest extends DocumentDBBaseTest {
     @Override
     public Void call() {
       for (int i = 0; i < CYCLES; i++) {
-        YTDatabaseSession db = acquireSession();
+        DatabaseSession db = acquireSession();
         try {
           for (int retry = 0; retry < MAX_RETRIES; ++retry) {
             try {
@@ -55,7 +55,7 @@ public class ConcurrentQueriesTest extends DocumentDBBaseTest {
               counter.incrementAndGet();
               totalRetries.addAndGet(retry);
               break;
-            } catch (YTNeedRetryException e) {
+            } catch (NeedRetryException e) {
               try {
                 Thread.sleep(retry * 10);
               } catch (InterruptedException e1) {

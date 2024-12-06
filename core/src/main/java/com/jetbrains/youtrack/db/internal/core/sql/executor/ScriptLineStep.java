@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
@@ -11,62 +11,62 @@ import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLReturnStatement;
  */
 public class ScriptLineStep extends AbstractExecutionStep {
 
-  protected final OInternalExecutionPlan plan;
+  protected final InternalExecutionPlan plan;
 
   public ScriptLineStep(
-      OInternalExecutionPlan nextPlan, CommandContext ctx, boolean profilingEnabled) {
+      InternalExecutionPlan nextPlan, CommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.plan = nextPlan;
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
-    if (plan instanceof OInsertExecutionPlan) {
-      ((OInsertExecutionPlan) plan).executeInternal();
-    } else if (plan instanceof ODeleteExecutionPlan) {
-      ((ODeleteExecutionPlan) plan).executeInternal();
-    } else if (plan instanceof OUpdateExecutionPlan) {
-      ((OUpdateExecutionPlan) plan).executeInternal();
-    } else if (plan instanceof ODDLExecutionPlan) {
-      ((ODDLExecutionPlan) plan).executeInternal((BasicCommandContext) ctx);
-    } else if (plan instanceof OSingleOpExecutionPlan) {
-      ((OSingleOpExecutionPlan) plan).executeInternal((BasicCommandContext) ctx);
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
+    if (plan instanceof InsertExecutionPlan) {
+      ((InsertExecutionPlan) plan).executeInternal();
+    } else if (plan instanceof DeleteExecutionPlan) {
+      ((DeleteExecutionPlan) plan).executeInternal();
+    } else if (plan instanceof UpdateExecutionPlan) {
+      ((UpdateExecutionPlan) plan).executeInternal();
+    } else if (plan instanceof DDLExecutionPlan) {
+      ((DDLExecutionPlan) plan).executeInternal((BasicCommandContext) ctx);
+    } else if (plan instanceof SingleOpExecutionPlan) {
+      ((SingleOpExecutionPlan) plan).executeInternal((BasicCommandContext) ctx);
     }
     return plan.start();
   }
 
   public boolean containsReturn() {
-    if (plan instanceof OScriptExecutionPlan) {
-      return ((OScriptExecutionPlan) plan).containsReturn();
+    if (plan instanceof ScriptExecutionPlan) {
+      return ((ScriptExecutionPlan) plan).containsReturn();
     }
-    if (plan instanceof OSingleOpExecutionPlan) {
-      if (((OSingleOpExecutionPlan) plan).statement instanceof SQLReturnStatement) {
+    if (plan instanceof SingleOpExecutionPlan) {
+      if (((SingleOpExecutionPlan) plan).statement instanceof SQLReturnStatement) {
         return true;
       }
     }
-    if (plan instanceof OIfExecutionPlan) {
-      if (((OIfExecutionPlan) plan).containsReturn()) {
+    if (plan instanceof IfExecutionPlan) {
+      if (((IfExecutionPlan) plan).containsReturn()) {
         return true;
       }
     }
 
-    if (plan instanceof OForEachExecutionPlan) {
-      return ((OForEachExecutionPlan) plan).containsReturn();
+    if (plan instanceof ForEachExecutionPlan) {
+      return ((ForEachExecutionPlan) plan).containsReturn();
     }
     return false;
   }
 
   public ExecutionStepInternal executeUntilReturn(CommandContext ctx) {
-    if (plan instanceof OScriptExecutionPlan) {
-      return ((OScriptExecutionPlan) plan).executeUntilReturn();
+    if (plan instanceof ScriptExecutionPlan) {
+      return ((ScriptExecutionPlan) plan).executeUntilReturn();
     }
-    if (plan instanceof OSingleOpExecutionPlan) {
-      if (((OSingleOpExecutionPlan) plan).statement instanceof SQLReturnStatement) {
-        return new ReturnStep(((OSingleOpExecutionPlan) plan).statement, ctx, profilingEnabled);
+    if (plan instanceof SingleOpExecutionPlan) {
+      if (((SingleOpExecutionPlan) plan).statement instanceof SQLReturnStatement) {
+        return new ReturnStep(((SingleOpExecutionPlan) plan).statement, ctx, profilingEnabled);
       }
     }
-    if (plan instanceof OIfExecutionPlan) {
-      return ((OIfExecutionPlan) plan).executeUntilReturn();
+    if (plan instanceof IfExecutionPlan) {
+      return ((IfExecutionPlan) plan).executeUntilReturn();
     }
     throw new IllegalStateException();
   }

@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.io.InputStream;
 import org.junit.Assert;
 import org.junit.Before;
@@ -44,7 +44,7 @@ public class LuceneMixIndexTest extends BaseLuceneTest {
   @Test
   public void testMixQuery() {
 
-    YTResultSet docs =
+    ResultSet docs =
         db.query(
             "select * from Song where  author = 'Hornsby' and [title,lyrics]  LUCENE"
                 + " \"(title:mountain)\" ");
@@ -75,7 +75,7 @@ public class LuceneMixIndexTest extends BaseLuceneTest {
   //  @Ignore
   public void testMixCompositeQuery() {
 
-    YTResultSet docs =
+    ResultSet docs =
         db.query(
             "select * from Song where  author = 'Hornsby' and [title,lyrics] LUCENE"
                 + " \"title:mountain\" ");
@@ -89,11 +89,11 @@ public class LuceneMixIndexTest extends BaseLuceneTest {
 
     Assert.assertEquals(1, docs.stream().count());
 
-    // docs = databaseDocumentTx.query(new OSQLSynchQuery<EntityImpl>(
+    // docs = databaseDocumentTx.query(new SQLSynchQuery<EntityImpl>(
     // "select * from Song where  author = 'Hornsby' and [title] LUCENE \"(title:ballad)\" "));
     // Assert.assertEquals(docs.size(), 0);
     //
-    // docs = databaseDocumentTx.query(new OSQLSynchQuery<EntityImpl>(
+    // docs = databaseDocumentTx.query(new SQLSynchQuery<EntityImpl>(
     // "select * from Song where  author = 'Hornsby' and title LUCENE \"(title:ballad)\" "));
     // Assert.assertEquals(docs.size(), 0);
 

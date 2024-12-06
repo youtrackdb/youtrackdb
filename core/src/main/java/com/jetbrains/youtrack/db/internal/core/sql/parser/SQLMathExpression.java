@@ -2,18 +2,18 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.core.collate.Collate;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.AggregationContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OPath;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.MetadataPath;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayDeque;
@@ -32,10 +32,10 @@ public class SQLMathExpression extends SimpleNode {
   private static final Object NULL_VALUE = new Object();
 
   public SQLExpression getExpandContent() {
-    throw new YTCommandExecutionException("Invalid expand expression");
+    throw new CommandExecutionException("Invalid expand expression");
   }
 
-  public boolean isDefinedFor(YTResult currentRecord) {
+  public boolean isDefinedFor(Result currentRecord) {
     return true;
   }
 
@@ -43,7 +43,7 @@ public class SQLMathExpression extends SimpleNode {
     return true;
   }
 
-  public boolean isIndexChain(CommandContext ctx, YTClass clazz) {
+  public boolean isIndexChain(CommandContext ctx, SchemaClass clazz) {
     return false;
   }
 
@@ -636,7 +636,7 @@ public class SQLMathExpression extends SimpleNode {
     super(p, id);
   }
 
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     if (childExpressions != null) {
       for (SQLMathExpression exp : childExpressions) {
         if (!exp.isCacheable(session)) {
@@ -647,7 +647,7 @@ public class SQLMathExpression extends SimpleNode {
     return true;
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
+  public Object execute(Identifiable iCurrentRecord, CommandContext ctx) {
     if (childExpressions == null || operators == null) {
       return null;
     }
@@ -668,7 +668,7 @@ public class SQLMathExpression extends SimpleNode {
     return calculateWithOpPriority(iCurrentRecord, ctx);
   }
 
-  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
+  public Object execute(Result iCurrentRecord, CommandContext ctx) {
     if (childExpressions == null || operators == null) {
       return null;
     }
@@ -688,7 +688,7 @@ public class SQLMathExpression extends SimpleNode {
     return calculateWithOpPriority(iCurrentRecord, ctx);
   }
 
-  private Object calculateWithOpPriority(YTResult iCurrentRecord, CommandContext ctx) {
+  private Object calculateWithOpPriority(Result iCurrentRecord, CommandContext ctx) {
     Deque valuesStack = new ArrayDeque<>();
     Deque<Operator> operatorsStack = new ArrayDeque<Operator>();
     if (childExpressions != null && operators != null) {
@@ -718,7 +718,7 @@ public class SQLMathExpression extends SimpleNode {
     return iterateOnPriorities(valuesStack, operatorsStack);
   }
 
-  private Object calculateWithOpPriority(YTIdentifiable iCurrentRecord, CommandContext ctx) {
+  private Object calculateWithOpPriority(Identifiable iCurrentRecord, CommandContext ctx) {
     Deque valuesStack = new ArrayDeque<>();
     Deque<Operator> operatorsStack = new ArrayDeque<Operator>();
     if (childExpressions != null && operators != null) {
@@ -931,7 +931,7 @@ public class SQLMathExpression extends SimpleNode {
     return true;
   }
 
-  public boolean isIndexedFunctionCall(YTDatabaseSessionInternal session) {
+  public boolean isIndexedFunctionCall(DatabaseSessionInternal session) {
     if (this.childExpressions != null) {
       if (this.childExpressions.size() == 1) {
         return this.childExpressions.get(0).isIndexedFunctionCall(session);
@@ -953,7 +953,7 @@ public class SQLMathExpression extends SimpleNode {
     return -1;
   }
 
-  public Iterable<YTIdentifiable> executeIndexedFunction(
+  public Iterable<Identifiable> executeIndexedFunction(
       SQLFromClause target, CommandContext context, SQLBinaryCompareOperator operator,
       Object right) {
     if (this.childExpressions != null) {
@@ -1062,7 +1062,7 @@ public class SQLMathExpression extends SimpleNode {
     return false;
   }
 
-  public Optional<OPath> getPath() {
+  public Optional<MetadataPath> getPath() {
     if (this.childExpressions != null) {
       if (childExpressions.size() == 1) {
         return childExpressions.get(0).getPath();
@@ -1071,7 +1071,7 @@ public class SQLMathExpression extends SimpleNode {
     return Optional.empty();
   }
 
-  public OCollate getCollate(YTResult currentRecord, CommandContext ctx) {
+  public Collate getCollate(Result currentRecord, CommandContext ctx) {
     if (this.childExpressions != null) {
       if (childExpressions.size() == 1) {
         return childExpressions.get(0).getCollate(currentRecord, ctx);
@@ -1108,7 +1108,7 @@ public class SQLMathExpression extends SimpleNode {
       for (SQLMathExpression expr : this.childExpressions) {
         if (expr.isExpand()) {
           if (this.childExpressions.size() > 1) {
-            throw new YTCommandExecutionException(
+            throw new CommandExecutionException(
                 "Cannot calculate expand() with other expressions");
           }
           return true;
@@ -1118,7 +1118,7 @@ public class SQLMathExpression extends SimpleNode {
     return false;
   }
 
-  public boolean isAggregate(YTDatabaseSessionInternal session) {
+  public boolean isAggregate(DatabaseSessionInternal session) {
     if (this.childExpressions != null) {
       for (SQLMathExpression expr : this.childExpressions) {
         if (expr.isAggregate(session)) {
@@ -1155,7 +1155,7 @@ public class SQLMathExpression extends SimpleNode {
             if (res.isEarlyCalculated(ctx) || res.isAggregate(db)) {
               result.addChildExpression(res);
             } else {
-              throw new YTCommandExecutionException(
+              throw new CommandExecutionException(
                   "Cannot mix aggregate and single record attribute values in the same projection");
             }
           } else if (splitResult instanceof SQLExpression) {
@@ -1261,14 +1261,14 @@ public class SQLMathExpression extends SimpleNode {
     return result;
   }
 
-  public void applyRemove(YTResultInternal result, CommandContext ctx) {
+  public void applyRemove(ResultInternal result, CommandContext ctx) {
     if (childExpressions == null || childExpressions.size() != 1) {
-      throw new YTCommandExecutionException("cannot apply REMOVE " + this);
+      throw new CommandExecutionException("cannot apply REMOVE " + this);
     }
     childExpressions.get(0).applyRemove(result, ctx);
   }
 
-  public static SQLMathExpression deserializeFromResult(YTResult fromResult) {
+  public static SQLMathExpression deserializeFromResult(Result fromResult) {
     String className = fromResult.getProperty("__class");
     try {
       SQLMathExpression result =
@@ -1277,12 +1277,12 @@ public class SQLMathExpression extends SimpleNode {
       result.deserialize(fromResult);
       return result;
     } catch (Exception e) {
-      throw YTException.wrapException(new YTCommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(""), e);
     }
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("__class", getClass().getName());
     if (childExpressions != null) {
       result.setProperty(
@@ -1297,9 +1297,9 @@ public class SQLMathExpression extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     if (fromResult.getProperty("childExpressions") != null) {
-      List<YTResult> ser = fromResult.getProperty("childExpressions");
+      List<Result> ser = fromResult.getProperty("childExpressions");
       childExpressions =
           ser.stream().map(x -> deserializeFromResult(x)).collect(Collectors.toList());
     }

@@ -2,7 +2,7 @@ package com.orientechnologies.orient.server;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
@@ -37,7 +37,7 @@ public class OServerTest {
 
     conf.handlers = new ArrayList<OServerHandlerConfiguration>();
     OServerHandlerConfiguration handlerConfiguration = new OServerHandlerConfiguration();
-    handlerConfiguration.clazz = OServerFailingOnStarupPluginStub.class.getName();
+    handlerConfiguration.clazz = ServerFailingOnStarupPluginStub.class.getName();
     handlerConfiguration.parameters = new OServerParameterConfiguration[0];
 
     conf.handlers.add(0, handlerConfiguration);
@@ -70,7 +70,7 @@ public class OServerTest {
       server.startup(conf);
       server.activate();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(YTException.class);
+      assertThat(e).isInstanceOf(BaseException.class);
     }
 
     assertThat(server.isActive()).isFalse();

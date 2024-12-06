@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Set;
 
@@ -8,8 +8,8 @@ public class PropertyAccess {
 
   private final Set<String> filtered;
 
-  public PropertyAccess(YTDatabaseSessionInternal session, EntityImpl document,
-      OSecurityInternal security) {
+  public PropertyAccess(DatabaseSessionInternal session, EntityImpl document,
+      SecurityInternal security) {
     filtered = security.getFilteredProperties(session, document);
   }
 

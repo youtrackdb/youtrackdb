@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLNonBlockingQuery;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLNonBlockingQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -38,14 +38,14 @@ public class NonBlockingQueryTest extends DocumentDBBaseTest {
   @Test
   public void testClone() {
 
-    YTDatabaseSessionInternal db = database;
+    DatabaseSessionInternal db = database;
 
     db.begin();
     db.command("insert into Foo (a) values ('bar')").close();
     db.commit();
-    YTDatabaseSessionInternal newDb = db.copy();
+    DatabaseSessionInternal newDb = db.copy();
 
-    List<EntityImpl> result = newDb.query(new OSQLSynchQuery<EntityImpl>("Select from Foo"));
+    List<EntityImpl> result = newDb.query(new SQLSynchQuery<EntityImpl>("Select from Foo"));
     Assert.assertEquals(result.size(), 1);
     Assert.assertEquals(result.get(0).field("a"), "bar");
     newDb.close();
@@ -53,18 +53,18 @@ public class NonBlockingQueryTest extends DocumentDBBaseTest {
 
   @Test
   public void testNonBlockingQuery() {
-    YTDatabaseSessionInternal db = database;
+    DatabaseSessionInternal db = database;
     final AtomicInteger counter = new AtomicInteger(0); // db.begin();
     for (int i = 0; i < 1000; i++) {
       db.command("insert into Foo (a) values ('bar')").close();
     }
     Future future =
         db.query(
-            new OSQLNonBlockingQuery<Object>(
+            new SQLNonBlockingQuery<Object>(
                 "select from Foo",
-                new OCommandResultListener() {
+                new CommandResultListener() {
                   @Override
-                  public boolean result(YTDatabaseSessionInternal querySession, Object iRecord) {
+                  public boolean result(DatabaseSessionInternal querySession, Object iRecord) {
                     counter.incrementAndGet();
                     return true;
                   }
@@ -97,18 +97,18 @@ public class NonBlockingQueryTest extends DocumentDBBaseTest {
     database.command("create property Foo.y integer").close();
     database.command("create index Foo_xy_index on Foo (x, y) notunique").close();
 
-    YTDatabaseSessionInternal db = database;
+    DatabaseSessionInternal db = database;
     final AtomicInteger counter = new AtomicInteger(0); // db.begin();
     for (int i = 0; i < 1000; i++) {
       db.command("insert into Foo (a, x, y) values ('bar', ?, ?)", i, 1000 - i).close();
     }
     Future future =
         db.query(
-            new OSQLNonBlockingQuery<Object>(
+            new SQLNonBlockingQuery<Object>(
                 "select from Foo where x=500 and y=500",
-                new OCommandResultListener() {
+                new CommandResultListener() {
                   @Override
-                  public boolean result(YTDatabaseSessionInternal querySession, Object iRecord) {
+                  public boolean result(DatabaseSessionInternal querySession, Object iRecord) {
                     counter.incrementAndGet();
                     return true;
                   }

@@ -3,7 +3,7 @@ package com.orientechnologies.orient.server;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.hook.YTDocumentHookAbstract;
+import com.jetbrains.youtrack.db.internal.core.hook.DocumentHookAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.server.config.OServerConfigurationManager;
@@ -25,7 +25,7 @@ public class HookInstallServerTest {
 
   private static final String SERVER_DIRECTORY = "./target/dbfactory";
 
-  public static class MyHook extends YTDocumentHookAbstract {
+  public static class MyHook extends DocumentHookAbstract {
 
     public MyHook() {
     }

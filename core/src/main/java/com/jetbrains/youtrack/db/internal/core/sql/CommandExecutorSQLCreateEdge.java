@@ -20,21 +20,21 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.util.OPair;
+import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItem;
-import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionRuntime;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItem;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionRuntime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,17 +46,17 @@ import java.util.Set;
  * SQL CREATE EDGE command.
  */
 public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String NAME = "CREATE EDGE";
   private static final String KEYWORD_BATCH = "BATCH";
 
   private String from;
   private String to;
-  private YTClass clazz;
+  private SchemaClass clazz;
   private String edgeLabel;
   private String clusterName;
-  private List<OPair<String, Object>> fields;
+  private List<Pair<String, Object>> fields;
   private int batch = 100;
 
   @SuppressWarnings("unchecked")
@@ -92,7 +92,7 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
           to = parserRequiredWord(false, "Syntax error", " =><,\r\n");
 
         } else if (temp.equals(KEYWORD_SET)) {
-          fields = new ArrayList<OPair<String, Object>>();
+          fields = new ArrayList<Pair<String, Object>>();
           parseSetFields(clazz, fields);
 
         } else if (temp.equals(KEYWORD_CONTENT)) {
@@ -126,8 +126,8 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
             }
 
             try {
-              YTSchema schema = database.getMetadata().getSchema();
-              YTClass e = schema.getClass("E");
+              Schema schema = database.getMetadata().getSchema();
+              SchemaClass e = schema.getClass("E");
               clazz = schema.createClass(className, e);
             } finally {
               // RESTART TRANSACTION
@@ -152,7 +152,7 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
 
       // GET/CHECK CLASS NAME
       if (clazz == null) {
-        throw new YTCommandSQLParsingException("Class '" + className + "' was not found");
+        throw new CommandSQLParsingException("Class '" + className + "' was not found");
       }
 
       edgeLabel = className;
@@ -165,29 +165,29 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
   /**
    * Execute the command and return the EntityImpl object created.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (clazz == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    YTDatabaseSessionInternal db = getDatabase();
+    DatabaseSessionInternal db = getDatabase();
     final List<Object> edges = new ArrayList<Object>();
-    Set<YTIdentifiable> fromIds = null;
-    Set<YTIdentifiable> toIds = null;
+    Set<Identifiable> fromIds = null;
+    Set<Identifiable> toIds = null;
     db.begin();
     try {
-      fromIds = OSQLEngine.getInstance().parseRIDTarget(db, from, context, iArgs);
-      toIds = OSQLEngine.getInstance().parseRIDTarget(db, to, context, iArgs);
+      fromIds = SQLEngine.getInstance().parseRIDTarget(db, from, context, iArgs);
+      toIds = SQLEngine.getInstance().parseRIDTarget(db, to, context, iArgs);
 
       // CREATE EDGES
-      for (YTIdentifiable from : fromIds) {
+      for (Identifiable from : fromIds) {
         final Vertex fromVertex = toVertex(from);
         if (fromVertex == null) {
-          throw new YTCommandExecutionException("Source vertex '" + from + "' does not exist");
+          throw new CommandExecutionException("Source vertex '" + from + "' does not exist");
         }
 
-        for (YTIdentifiable to : toIds) {
+        for (Identifiable to : toIds) {
           final Vertex toVertex;
           if (from.equals(to)) {
             toVertex = fromVertex;
@@ -195,17 +195,17 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
             toVertex = toVertex(to);
           }
           if (toVertex == null) {
-            throw new YTCommandExecutionException("Source vertex '" + to + "' does not exist");
+            throw new CommandExecutionException("Source vertex '" + to + "' does not exist");
           }
 
           if (fields != null)
           // EVALUATE FIELDS
           {
-            for (final OPair<String, Object> f : fields) {
-              if (f.getValue() instanceof OSQLFunctionRuntime) {
-                f.setValue(((OSQLFunctionRuntime) f.getValue()).getValue(to, null, context));
-              } else if (f.getValue() instanceof OSQLFilterItem) {
-                f.setValue(((OSQLFilterItem) f.getValue()).getValue(to, null, context));
+            for (final Pair<String, Object> f : fields) {
+              if (f.getValue() instanceof SQLFunctionRuntime) {
+                f.setValue(((SQLFunctionRuntime) f.getValue()).getValue(to, null, context));
+              } else if (f.getValue() instanceof SQLFilterItem) {
+                f.setValue(((SQLFilterItem) f.getValue()).getValue(to, null, context));
               }
             }
           }
@@ -216,16 +216,16 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
             if (fields != null)
             // MERGE CONTENT WITH FIELDS
             {
-              fields.addAll(OPair.convertFromMap(content.toMap()));
+              fields.addAll(Pair.convertFromMap(content.toMap()));
             } else {
-              fields = OPair.convertFromMap(content.toMap());
+              fields = Pair.convertFromMap(content.toMap());
             }
           }
 
           edge = (EdgeInternal) fromVertex.addEdge(toVertex, edgeLabel);
           if (fields != null && !fields.isEmpty()) {
-            OSQLHelper.bindParameters(
-                edge.getRecord(), fields, new OCommandParameters(iArgs), context);
+            SQLHelper.bindParameters(
+                edge.getRecord(), fields, new CommandParameters(iArgs), context);
           }
 
           edge.getBaseDocument().save(clusterName);
@@ -247,19 +247,19 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
 
     if (edges.isEmpty()) {
       if (fromIds.isEmpty()) {
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "No edge has been created because no source vertices: " + this);
       } else if (toIds.isEmpty()) {
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "No edge has been created because no target vertices: " + this);
       }
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "No edge has been created between " + fromIds + " and " + toIds + ": " + this);
     }
     return edges;
   }
 
-  private static Vertex toVertex(YTIdentifiable item) {
+  private static Vertex toVertex(Identifiable item) {
     if (item == null) {
       return null;
     }
@@ -268,7 +268,7 @@ public class CommandExecutorSQLCreateEdge extends CommandExecutorSQLSetAware
     } else {
       try {
         item = getDatabase().load(item.getIdentity());
-      } catch (YTRecordNotFoundException e) {
+      } catch (RecordNotFoundException e) {
         return null;
       }
       if (item instanceof Entity) {

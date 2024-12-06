@@ -2,7 +2,6 @@ package com.jetbrains.youtrack.db.internal.common.concur.lock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.common.concur.lock.OReadersWriterSpinLock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -30,7 +29,7 @@ public class ReadersWriterSpinLockTst {
   private final AtomicLong writersCounter = new AtomicLong();
   private final AtomicLong readRetryCounter = new AtomicLong();
 
-  private final OReadersWriterSpinLock spinLock = new OReadersWriterSpinLock();
+  private final ReadersWriterSpinLock spinLock = new ReadersWriterSpinLock();
   private final ExecutorService executorService = Executors.newCachedThreadPool();
   private volatile boolean stop = false;
   private volatile long c = 47;

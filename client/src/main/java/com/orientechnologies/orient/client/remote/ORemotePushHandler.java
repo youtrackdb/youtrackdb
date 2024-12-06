@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.client.remote;
 
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinary;
 import com.orientechnologies.orient.client.remote.message.OBinaryPushRequest;
 import com.orientechnologies.orient.client.remote.message.OBinaryPushResponse;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
@@ -9,14 +10,13 @@ import com.orientechnologies.orient.client.remote.message.OPushIndexManagerReque
 import com.orientechnologies.orient.client.remote.message.OPushSchemaRequest;
 import com.orientechnologies.orient.client.remote.message.OPushSequencesRequest;
 import com.orientechnologies.orient.client.remote.message.OPushStorageConfigurationRequest;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinary;
 
 /**
  *
  */
 public interface ORemotePushHandler {
 
-  OChannelBinary getNetwork(String host);
+  SocketChannelBinary getNetwork(String host);
 
   OBinaryPushRequest createPush(byte push);
 
@@ -28,9 +28,9 @@ public interface ORemotePushHandler {
 
   void onPushReconnect(String host);
 
-  void onPushDisconnect(OChannelBinary network, Exception e);
+  void onPushDisconnect(SocketChannelBinary network, Exception e);
 
-  void returnSocket(OChannelBinary network);
+  void returnSocket(SocketChannelBinary network);
 
   OBinaryPushResponse executeUpdateSchema(OPushSchemaRequest request);
 

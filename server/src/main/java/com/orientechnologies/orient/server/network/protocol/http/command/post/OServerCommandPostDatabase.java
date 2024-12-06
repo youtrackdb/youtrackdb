@@ -21,21 +21,21 @@ package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.config.OStorageEntryConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.engine.local.OEngineLocalPaginated;
-import com.jetbrains.youtrack.db.internal.core.engine.memory.OEngineMemory;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityAccessException;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.YTUser;
+import com.jetbrains.youtrack.db.internal.core.config.StorageEntryConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
+import com.jetbrains.youtrack.db.internal.core.engine.local.EngineLocalPaginated;
+import com.jetbrains.youtrack.db.internal.core.engine.memory.EngineMemory;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.SecurityAccessException;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OJSONWriter;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -95,9 +95,9 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
             null);
       } else {
         server.createDatabase(
-            databaseName, ODatabaseType.valueOf(storageMode.toUpperCase(Locale.ENGLISH)), null);
+            databaseName, DatabaseType.valueOf(storageMode.toUpperCase(Locale.ENGLISH)), null);
 
-        try (YTDatabaseSessionInternal database =
+        try (DatabaseSessionInternal database =
             server.openDatabase(databaseName, serverUser, serverPassword, null)) {
 
           if (createAdmin) {
@@ -115,7 +115,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
         }
       }
     } else {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "The '" + storageMode + "' storage mode does not exists.");
     }
     return false;
@@ -127,9 +127,9 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
   }
 
   protected String getStoragePath(final String databaseName, final String iStorageMode) {
-    if (iStorageMode.equals(OEngineLocalPaginated.NAME)) {
+    if (iStorageMode.equals(EngineLocalPaginated.NAME)) {
       return iStorageMode + ":" + server.getDatabaseDirectory() + databaseName;
-    } else if (iStorageMode.equals(OEngineMemory.NAME)) {
+    } else if (iStorageMode.equals(EngineMemory.NAME)) {
       return iStorageMode + ":" + databaseName;
     }
 
@@ -138,17 +138,17 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
 
   protected void sendDatabaseInfo(
       final OHttpRequest iRequest, final OHttpResponse iResponse,
-      final YTDatabaseSessionInternal db)
+      final DatabaseSessionInternal db)
       throws IOException {
     final StringWriter buffer = new StringWriter();
-    final OJSONWriter json = new OJSONWriter(buffer);
+    final JSONWriter json = new JSONWriter(buffer);
 
     json.beginObject();
 
     if (db.getMetadata().getSchema().getClasses() != null) {
       json.beginCollection(1, false, "classes");
       Set<String> exportedNames = new HashSet<String>();
-      for (YTClass cls : db.getMetadata().getSchema().getClasses()) {
+      for (SchemaClass cls : db.getMetadata().getSchema().getClasses()) {
         if (!exportedNames.contains(cls.getName())) {
           try {
             exportClass(db, json, cls);
@@ -191,9 +191,9 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
     }
 
     json.beginCollection(1, false, "users");
-    YTUser user;
+    SecurityUserIml user;
     for (EntityImpl doc : db.getMetadata().getSecurity().getAllUsers()) {
-      user = new YTUser(db, doc);
+      user = new SecurityUserIml(db, doc);
       json.beginObject(2, true, null);
       json.writeAttribute(3, false, "name", user.getName(db));
       json.writeAttribute(
@@ -206,9 +206,9 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
     json.endCollection(1, true);
 
     json.beginCollection(1, true, "roles");
-    ORole role;
+    Role role;
     for (EntityImpl doc : db.getMetadata().getSecurity().getAllRoles()) {
-      role = new ORole(db, doc);
+      role = new Role(db, doc);
       json.beginObject(2, true, null);
       json.writeAttribute(3, false, "name", role.getName(db));
       json.writeAttribute(3, false, "mode", role.getMode().toString());
@@ -217,10 +217,10 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
       for (Map.Entry<String, Byte> rule : role.getRules().entrySet()) {
         json.beginObject(4);
         json.writeAttribute(4, true, "name", rule.getKey());
-        json.writeAttribute(4, false, "create", role.allow(rule.getKey(), ORole.PERMISSION_CREATE));
-        json.writeAttribute(4, false, "read", role.allow(rule.getKey(), ORole.PERMISSION_READ));
-        json.writeAttribute(4, false, "update", role.allow(rule.getKey(), ORole.PERMISSION_UPDATE));
-        json.writeAttribute(4, false, "delete", role.allow(rule.getKey(), ORole.PERMISSION_DELETE));
+        json.writeAttribute(4, false, "create", role.allow(rule.getKey(), Role.PERMISSION_CREATE));
+        json.writeAttribute(4, false, "read", role.allow(rule.getKey(), Role.PERMISSION_READ));
+        json.writeAttribute(4, false, "update", role.allow(rule.getKey(), Role.PERMISSION_UPDATE));
+        json.writeAttribute(4, false, "delete", role.allow(rule.getKey(), Role.PERMISSION_DELETE));
         json.endObject(4, true);
       }
       json.endCollection(3, false);
@@ -257,7 +257,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
 
     json.beginCollection(2, true, "properties");
     if (db.getStorage().getConfiguration().getProperties() != null) {
-      for (OStorageEntryConfiguration entry : db.getStorage().getConfiguration().getProperties()) {
+      for (StorageEntryConfiguration entry : db.getStorage().getConfiguration().getProperties()) {
         if (entry != null) {
           json.beginObject(3, true, null);
           json.writeAttribute(4, false, "name", entry.name);
@@ -281,7 +281,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
   }
 
   protected void exportClass(
-      final YTDatabaseSessionInternal db, final OJSONWriter json, final YTClass cls)
+      final DatabaseSessionInternal db, final JSONWriter json, final SchemaClass cls)
       throws IOException {
     json.beginObject(2, true, null);
     json.writeAttribute(3, true, "name", cls.getName());
@@ -293,13 +293,13 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
     json.writeAttribute(3, true, "clusterSelection", cls.getClusterSelection().getName());
     try {
       json.writeAttribute(3, false, "records", db.countClass(cls.getName()));
-    } catch (YTSecurityAccessException e) {
+    } catch (SecurityAccessException e) {
       json.writeAttribute(3, false, "records", "? (Unauthorized)");
     }
 
     if (cls.properties(db) != null && cls.properties(db).size() > 0) {
       json.beginCollection(3, true, "properties");
-      for (final YTProperty prop : cls.properties(db)) {
+      for (final Property prop : cls.properties(db)) {
         json.beginObject(4, true, null);
         json.writeAttribute(4, true, "name", prop.getName());
         if (prop.getLinkedClass() != null) {
@@ -319,15 +319,15 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
       json.endCollection(1, true);
     }
 
-    final Set<OIndex> indexes = cls.getIndexes(db);
+    final Set<Index> indexes = cls.getIndexes(db);
     if (!indexes.isEmpty()) {
       json.beginCollection(3, true, "indexes");
-      for (final OIndex index : indexes) {
+      for (final Index index : indexes) {
         json.beginObject(4, true, null);
         json.writeAttribute(4, true, "name", index.getName());
         json.writeAttribute(4, true, "type", index.getType());
 
-        final OIndexDefinition indexDefinition = index.getDefinition();
+        final IndexDefinition indexDefinition = index.getDefinition();
         if (indexDefinition != null && !indexDefinition.getFields().isEmpty()) {
           json.writeAttribute(4, true, "fields", indexDefinition.getFields());
         }

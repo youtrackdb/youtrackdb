@@ -22,11 +22,11 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTQueryParsingException;
-import com.jetbrains.youtrack.db.internal.core.query.live.OLiveQueryHook;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
+import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHook;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Locale;
 import java.util.Map;
@@ -35,7 +35,7 @@ import java.util.Map;
  *
  */
 public class CommandExecutorSQLLiveUnsubscribe extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String KEYWORD_LIVE_UNSUBSCRIBE = "LIVE UNSUBSCRIBE";
 
@@ -47,7 +47,7 @@ public class CommandExecutorSQLLiveUnsubscribe extends CommandExecutorSQLAbstrac
   private Object executeUnsubscribe() {
     try {
 
-      OLiveQueryHook.unsubscribe(Integer.parseInt(unsubscribeToken), getDatabase());
+      LiveQueryHook.unsubscribe(Integer.parseInt(unsubscribeToken), getDatabase());
       EntityImpl result = new EntityImpl();
       result.field("unsubscribed", unsubscribeToken);
       result.field("unsubscribe", true);
@@ -80,7 +80,7 @@ public class CommandExecutorSQLLiveUnsubscribe extends CommandExecutorSQLAbstrac
         .getValueAsLong(GlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT);
   }
 
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (this.unsubscribeToken != null) {
       return executeUnsubscribe();
     }
@@ -99,7 +99,7 @@ public class CommandExecutorSQLLiveUnsubscribe extends CommandExecutorSQLAbstrac
       if (remainingText.toLowerCase(Locale.ENGLISH).startsWith("unsubscribe")) {
         remainingText = remainingText.substring("unsubscribe".length()).trim();
         if (remainingText.contains(" ")) {
-          throw new YTQueryParsingException(
+          throw new QueryParsingException(
               "invalid unsubscribe token for live query: " + remainingText);
         }
         this.unsubscribeToken = remainingText;

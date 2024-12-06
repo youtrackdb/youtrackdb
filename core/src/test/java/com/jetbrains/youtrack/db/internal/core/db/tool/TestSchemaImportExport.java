@@ -1,36 +1,36 @@
 package com.jetbrains.youtrack.db.internal.core.db.tool;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestSchemaImportExport extends DBTestBase {
+public class TestSchemaImportExport extends DbTestBase {
 
   @Test
   public void testExportImportCustomData() throws IOException {
     context.createIfNotExists(
         TestSchemaImportExport.class.getSimpleName(),
-        ODatabaseType.MEMORY,
+        DatabaseType.MEMORY,
         "admin",
         "admin",
         "admin");
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     try (var db =
-        (YTDatabaseSessionInternal)
+        (DatabaseSessionInternal)
             context.open(TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
-      YTClass clazz = db.getMetadata().getSchema().createClass("Test");
-      clazz.createProperty(db, "some", YTType.STRING);
+      SchemaClass clazz = db.getMetadata().getSchema().createClass("Test");
+      clazz.createProperty(db, "some", PropertyType.STRING);
       clazz.setCustom(db, "testcustom", "test");
-      ODatabaseExport exp = new ODatabaseExport(db, output, new MockOutputListener());
+      DatabaseExport exp = new DatabaseExport(db, output, new MockOutputListener());
       exp.exportDatabase();
     } finally {
       context.drop(TestSchemaImportExport.class.getSimpleName());
@@ -38,18 +38,18 @@ public class TestSchemaImportExport extends DBTestBase {
 
     context.createIfNotExists(
         "imp_" + TestSchemaImportExport.class.getSimpleName(),
-        ODatabaseType.MEMORY,
+        DatabaseType.MEMORY,
         "admin",
         "admin",
         "admin");
     try (var db1 =
-        (YTDatabaseSessionInternal)
+        (DatabaseSessionInternal)
             context.open("imp_" + TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
-      ODatabaseImport imp =
-          new ODatabaseImport(
+      DatabaseImport imp =
+          new DatabaseImport(
               db1, new ByteArrayInputStream(output.toByteArray()), new MockOutputListener());
       imp.importDatabase();
-      YTClass clas1 = db1.getMetadata().getSchema().getClass("Test");
+      SchemaClass clas1 = db1.getMetadata().getSchema().getClass("Test");
       Assert.assertNotNull(clas1);
       Assert.assertEquals("test", clas1.getCustom("testcustom"));
     } finally {
@@ -61,18 +61,18 @@ public class TestSchemaImportExport extends DBTestBase {
   public void testExportImportDefaultValue() throws IOException {
     context.createIfNotExists(
         TestSchemaImportExport.class.getSimpleName(),
-        ODatabaseType.MEMORY,
+        DatabaseType.MEMORY,
         "admin",
         "admin",
         "admin");
     ByteArrayOutputStream output = new ByteArrayOutputStream();
 
     try (var db =
-        (YTDatabaseSessionInternal)
+        (DatabaseSessionInternal)
             context.open(TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
-      YTClass clazz = db.getMetadata().getSchema().createClass("Test");
-      clazz.createProperty(db, "bla", YTType.STRING).setDefaultValue(db, "something");
-      ODatabaseExport exp = new ODatabaseExport(db, output, new MockOutputListener());
+      SchemaClass clazz = db.getMetadata().getSchema().createClass("Test");
+      clazz.createProperty(db, "bla", PropertyType.STRING).setDefaultValue(db, "something");
+      DatabaseExport exp = new DatabaseExport(db, output, new MockOutputListener());
       exp.exportDatabase();
     } finally {
       context.drop(TestSchemaImportExport.class.getSimpleName());
@@ -80,21 +80,21 @@ public class TestSchemaImportExport extends DBTestBase {
 
     context.createIfNotExists(
         "imp_" + TestSchemaImportExport.class.getSimpleName(),
-        ODatabaseType.MEMORY,
+        DatabaseType.MEMORY,
         "admin",
         "admin",
         "admin");
     try (var db1 =
-        (YTDatabaseSessionInternal)
+        (DatabaseSessionInternal)
             context.open("imp_" + TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
-      ODatabaseImport imp =
-          new ODatabaseImport(
+      DatabaseImport imp =
+          new DatabaseImport(
               db1, new ByteArrayInputStream(output.toByteArray()), new MockOutputListener());
       imp.importDatabase();
 
-      YTClass clas1 = db1.getMetadata().getSchema().getClass("Test");
+      SchemaClass clas1 = db1.getMetadata().getSchema().getClass("Test");
       Assert.assertNotNull(clas1);
-      YTProperty prop1 = clas1.getProperty("bla");
+      Property prop1 = clas1.getProperty("bla");
       Assert.assertNotNull(prop1);
       Assert.assertEquals("something", prop1.getDefaultValue());
     } finally {
@@ -106,19 +106,19 @@ public class TestSchemaImportExport extends DBTestBase {
   public void testExportImportMultipleInheritance() throws IOException {
     context.createIfNotExists(
         TestSchemaImportExport.class.getSimpleName(),
-        ODatabaseType.MEMORY,
+        DatabaseType.MEMORY,
         "admin",
         "admin",
         "admin");
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     try (var db =
-        (YTDatabaseSessionInternal)
+        (DatabaseSessionInternal)
             context.open(TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
-      YTClass clazz = db.getMetadata().getSchema().createClass("Test");
+      SchemaClass clazz = db.getMetadata().getSchema().createClass("Test");
       clazz.addSuperClass(db, db.getMetadata().getSchema().getClass("ORestricted"));
       clazz.addSuperClass(db, db.getMetadata().getSchema().getClass("OIdentity"));
 
-      ODatabaseExport exp = new ODatabaseExport(db, output, new MockOutputListener());
+      DatabaseExport exp = new DatabaseExport(db, output, new MockOutputListener());
       exp.exportDatabase();
     } finally {
       context.drop(TestSchemaImportExport.class.getSimpleName());
@@ -126,18 +126,18 @@ public class TestSchemaImportExport extends DBTestBase {
 
     context.createIfNotExists(
         "imp_" + TestSchemaImportExport.class.getSimpleName(),
-        ODatabaseType.MEMORY,
+        DatabaseType.MEMORY,
         "admin",
         "admin",
         "admin");
     try (var db1 =
-        (YTDatabaseSessionInternal)
+        (DatabaseSessionInternal)
             context.open("imp_" + TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
-      ODatabaseImport imp =
-          new ODatabaseImport(
+      DatabaseImport imp =
+          new DatabaseImport(
               db1, new ByteArrayInputStream(output.toByteArray()), new MockOutputListener());
       imp.importDatabase();
-      YTClass clas1 = db1.getMetadata().getSchema().getClass("Test");
+      SchemaClass clas1 = db1.getMetadata().getSchema().getClass("Test");
       Assert.assertTrue(clas1.isSubClassOf("OIdentity"));
       Assert.assertTrue(clas1.isSubClassOf("ORestricted"));
     } finally {
@@ -145,7 +145,7 @@ public class TestSchemaImportExport extends DBTestBase {
     }
   }
 
-  private static final class MockOutputListener implements OCommandOutputListener {
+  private static final class MockOutputListener implements CommandOutputListener {
 
     @Override
     public void onMessage(String iText) {

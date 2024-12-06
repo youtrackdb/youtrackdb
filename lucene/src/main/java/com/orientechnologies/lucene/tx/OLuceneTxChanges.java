@@ -18,8 +18,8 @@
 
 package com.orientechnologies.lucene.tx;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import java.util.Collections;
 import java.util.Set;
 import org.apache.lucene.document.Document;
@@ -31,9 +31,9 @@ import org.apache.lucene.search.Query;
  */
 public interface OLuceneTxChanges {
 
-  void put(Object key, YTIdentifiable value, Document doc);
+  void put(Object key, Identifiable value, Document doc);
 
-  void remove(YTDatabaseSessionInternal session, Object key, YTIdentifiable value);
+  void remove(DatabaseSessionInternal session, Object key, Identifiable value);
 
   IndexSearcher searcher();
 
@@ -45,9 +45,9 @@ public interface OLuceneTxChanges {
     return Collections.emptySet();
   }
 
-  boolean isDeleted(Document document, Object key, YTIdentifiable value);
+  boolean isDeleted(Document document, Object key, Identifiable value);
 
-  boolean isUpdated(Document document, Object key, YTIdentifiable value);
+  boolean isUpdated(Document document, Object key, Identifiable value);
 
   default long deletedDocs(Query query) {
     return 0;

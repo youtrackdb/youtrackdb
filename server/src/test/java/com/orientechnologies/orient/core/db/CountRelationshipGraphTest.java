@@ -3,10 +3,10 @@ package com.orientechnologies.orient.core.db;
 import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.record.ODirection;
+import com.jetbrains.youtrack.db.internal.core.record.Direction;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.orientechnologies.orient.server.AbstractRemoteTest;
 import java.util.Iterator;
@@ -38,7 +38,7 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
 
   @Test
   public void test() throws Exception {
-    YTDatabaseSession g = youTrackDB.open(name.getMethodName(), "admin", "admin");
+    DatabaseSession g = youTrackDB.open(name.getMethodName(), "admin", "admin");
     g.begin();
     Vertex vertex1 = g.newVertex("V");
     vertex1.save();
@@ -50,11 +50,11 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
     vertex2 = g.load(vertex2.getIdentity());
 
     int version = vertex1.getProperty("@version");
-    assertEquals(0, countEdges(vertex1, ODirection.OUT));
-    assertEquals(0, countEdges(vertex1, ODirection.OUT));
+    assertEquals(0, countEdges(vertex1, Direction.OUT));
+    assertEquals(0, countEdges(vertex1, Direction.OUT));
     System.out.println("Version: " + version);
-    System.out.println("vertex1 out: " + countEdges(vertex1, ODirection.OUT));
-    System.out.println("vertex2 in: " + countEdges(vertex2, ODirection.IN));
+    System.out.println("vertex1 out: " + countEdges(vertex1, Direction.OUT));
+    System.out.println("vertex2 in: " + countEdges(vertex2, Direction.IN));
     /*
      * output: Version: 1 vertex1 out: 0 vertex2 in: 0
      */
@@ -68,12 +68,12 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
     vertex1.save();
 
     version = vertex1.getProperty("@version");
-    assertEquals(1, countEdges(vertex1, ODirection.OUT));
-    assertEquals(1, countEdges(vertex1, ODirection.OUT));
+    assertEquals(1, countEdges(vertex1, Direction.OUT));
+    assertEquals(1, countEdges(vertex1, Direction.OUT));
     System.out.println("Pre-commit:");
     System.out.println("Version: " + version);
-    System.out.println("vertex1 out: " + countEdges(vertex1, ODirection.OUT));
-    System.out.println("vertex2 in: " + countEdges(vertex2, ODirection.IN));
+    System.out.println("vertex1 out: " + countEdges(vertex1, Direction.OUT));
+    System.out.println("vertex2 in: " + countEdges(vertex2, Direction.IN));
     /*
      * output: Pre-commit: Version: 1 vertex1 out: 1 vertex2 in: 1
      */
@@ -84,12 +84,12 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
     vertex2 = g.load(vertex2.getIdentity());
 
     version = vertex1.getProperty("@version");
-    assertEquals(1, countEdges(vertex1, ODirection.OUT));
-    assertEquals(1, countEdges(vertex1, ODirection.OUT));
+    assertEquals(1, countEdges(vertex1, Direction.OUT));
+    assertEquals(1, countEdges(vertex1, Direction.OUT));
     System.out.println("Post-commit:");
     System.out.println("Version: " + version);
-    System.out.println("vertex1 out: " + countEdges(vertex1, ODirection.OUT));
-    System.out.println("vertex2 in: " + countEdges(vertex2, ODirection.IN));
+    System.out.println("vertex1 out: " + countEdges(vertex1, Direction.OUT));
+    System.out.println("vertex2 in: " + countEdges(vertex2, Direction.IN));
     /*
      * output: Post-commit: Version: 2 vertex1 out: 0 <- INCORRECT vertex2 in: 0 <- INCORRECT
      */
@@ -101,18 +101,18 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
     vertex2 = g.load(vertex2.getIdentity());
 
     version = vertex1.getProperty("@version");
-    assertEquals(1, countEdges(vertex1, ODirection.OUT));
-    assertEquals(1, countEdges(vertex1, ODirection.OUT));
+    assertEquals(1, countEdges(vertex1, Direction.OUT));
+    assertEquals(1, countEdges(vertex1, Direction.OUT));
     System.out.println("Reload in new transaction:");
     System.out.println("Version: " + version);
-    System.out.println("vertex1 out: " + countEdges(vertex1, ODirection.OUT));
-    System.out.println("vertex2 in: " + countEdges(vertex2, ODirection.IN));
+    System.out.println("vertex1 out: " + countEdges(vertex1, Direction.OUT));
+    System.out.println("vertex2 in: " + countEdges(vertex2, Direction.IN));
     /*
      * output: Reload in new transaction: Version: 2 vertex1 out: 1 vertex2 in: 1
      */
   }
 
-  private int countEdges(Vertex v, ODirection dir) throws Exception {
+  private int countEdges(Vertex v, Direction dir) throws Exception {
     int c = 0;
     Iterator it = v.getEdges(dir).iterator();
     while (it.hasNext()) {

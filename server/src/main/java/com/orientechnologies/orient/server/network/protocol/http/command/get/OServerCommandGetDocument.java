@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -47,10 +47,10 @@ public class OServerCommandGetDocument extends OServerCommandAuthenticatedDbAbst
     final int parametersPos = urlParts[2].indexOf('?');
     final String rid = parametersPos > -1 ? urlParts[2].substring(0, parametersPos) : urlParts[2];
 
-    try (YTDatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
+    try (DatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
       try {
-        rec = db.load(new YTRecordId(rid));
-      } catch (YTRecordNotFoundException e) {
+        rec = db.load(new RecordId(rid));
+      } catch (RecordNotFoundException e) {
         iResponse.send(
             OHttpUtils.STATUS_NOTFOUND_CODE,
             OHttpUtils.STATUS_NOTFOUND_DESCRIPTION,

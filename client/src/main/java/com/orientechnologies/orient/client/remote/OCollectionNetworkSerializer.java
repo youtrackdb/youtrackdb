@@ -20,10 +20,10 @@
 
 package com.orientechnologies.orient.client.remote;
 
-import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.OBonsaiBucketPointer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.BonsaiBucketPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 
 public class OCollectionNetworkSerializer {
@@ -33,22 +33,22 @@ public class OCollectionNetworkSerializer {
   public OCollectionNetworkSerializer() {
   }
 
-  public OBonsaiCollectionPointer readCollectionPointer(OChannelDataInput client)
+  public BonsaiCollectionPointer readCollectionPointer(ChannelDataInput client)
       throws IOException {
     final long fileId = client.readLong();
-    final OBonsaiBucketPointer rootPointer = readBonsaiBucketPointer(client);
-    return new OBonsaiCollectionPointer(fileId, rootPointer);
+    final BonsaiBucketPointer rootPointer = readBonsaiBucketPointer(client);
+    return new BonsaiCollectionPointer(fileId, rootPointer);
   }
 
-  private OBonsaiBucketPointer readBonsaiBucketPointer(OChannelDataInput client)
+  private BonsaiBucketPointer readBonsaiBucketPointer(ChannelDataInput client)
       throws IOException {
     long pageIndex = client.readLong();
     int pageOffset = client.readInt();
-    return new OBonsaiBucketPointer(pageIndex, pageOffset);
+    return new BonsaiBucketPointer(pageIndex, pageOffset);
   }
 
   public void writeCollectionPointer(
-      OChannelDataOutput client, OBonsaiCollectionPointer treePointer) throws IOException {
+      ChannelDataOutput client, BonsaiCollectionPointer treePointer) throws IOException {
     client.writeLong(treePointer.getFileId());
     client.writeLong(treePointer.getRootPointer().getPageIndex());
     client.writeInt(treePointer.getRootPointer().getPageOffset());

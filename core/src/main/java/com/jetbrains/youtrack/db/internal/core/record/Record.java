@@ -19,16 +19,16 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.tx.OTransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import java.io.Serializable;
 
 /**
  * Generic record representation.
  */
-public interface Record extends YTIdentifiable, Serializable {
+public interface Record extends Identifiable, Serializable {
 
   /**
    * Returns true if the record is unloaded.
@@ -42,9 +42,9 @@ public interface Record extends YTIdentifiable, Serializable {
    *
    * @param session The session to check
    * @return <code>true</code> if record is bound to the passed in session.
-   * @see YTDatabaseSession#bindToSession(YTIdentifiable)
+   * @see DatabaseSession#bindToSession(Identifiable)
    */
-  boolean isNotBound(YTDatabaseSession session);
+  boolean isNotBound(DatabaseSession session);
 
   /**
    * All the fields are deleted but the record identity is maintained. Use this to remove all the
@@ -55,7 +55,7 @@ public interface Record extends YTIdentifiable, Serializable {
   /**
    * Returns the record identity as &lt;cluster-id&gt;:&lt;cluster-position&gt;
    */
-  YTRID getIdentity();
+  RID getIdentity();
 
   /**
    * Returns the current version number of the record. When the record is created has version = 0.
@@ -63,7 +63,7 @@ public interface Record extends YTIdentifiable, Serializable {
    * transactions to check if the record is changed in the meanwhile of the transaction.
    *
    * @return The version number. 0 if it's a brand new record.
-   * @see OTransactionOptimistic
+   * @see TransactionOptimistic
    */
   int getVersion();
 
@@ -128,7 +128,7 @@ public interface Record extends YTIdentifiable, Serializable {
 
   /**
    * Checks if the record exists in the database. It adheres the same rules
-   * {@link YTDatabaseSession#exists(YTRID)}.
+   * {@link DatabaseSession#exists(RID)}.
    *
    * @return true if the record exists, otherwise false
    */

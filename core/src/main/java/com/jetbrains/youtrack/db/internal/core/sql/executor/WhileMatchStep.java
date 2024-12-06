@@ -12,13 +12,13 @@ import java.util.List;
  */
 public class WhileMatchStep extends AbstractUnrollStep {
 
-  private final OInternalExecutionPlan body;
+  private final InternalExecutionPlan body;
   private final SQLWhereClause condition;
 
   public WhileMatchStep(
       CommandContext ctx,
       SQLWhereClause condition,
-      OInternalExecutionPlan body,
+      InternalExecutionPlan body,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
     this.body = body;
@@ -26,9 +26,9 @@ public class WhileMatchStep extends AbstractUnrollStep {
   }
 
   @Override
-  protected Collection<YTResult> unroll(YTResult doc, CommandContext iContext) {
+  protected Collection<Result> unroll(Result doc, CommandContext iContext) {
     body.reset(iContext);
-    List<YTResult> result = new ArrayList<>();
+    List<Result> result = new ArrayList<>();
     ExecutionStream block = body.start();
     while (block.hasNext(iContext)) {
       result.add(block.next(iContext));

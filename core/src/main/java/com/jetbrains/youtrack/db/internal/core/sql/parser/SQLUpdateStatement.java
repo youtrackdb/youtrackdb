@@ -4,11 +4,11 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OUpdateExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OUpdateExecutionPlanner;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.UpdateExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.UpdateExecutionPlanner;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,7 +60,7 @@ public class SQLUpdateStatement extends SQLStatement {
     if (returnBefore || returnAfter || returnCount) {
       builder.append(" RETURN");
       if (returnBefore) {
-        throw new YTDatabaseException("BEFORE is not supported");
+        throw new DatabaseException("BEFORE is not supported");
       } else if (returnAfter) {
         builder.append(" AFTER");
       } else {
@@ -102,7 +102,7 @@ public class SQLUpdateStatement extends SQLStatement {
     if (returnBefore || returnAfter || returnCount) {
       builder.append(" RETURN");
       if (returnBefore) {
-        throw new YTDatabaseException("BEFORE is not supported");
+        throw new DatabaseException("BEFORE is not supported");
       } else if (returnAfter) {
         builder.append(" AFTER");
       } else {
@@ -155,8 +155,8 @@ public class SQLUpdateStatement extends SQLStatement {
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
+  public ResultSet execute(
+      DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
     BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
@@ -170,38 +170,38 @@ public class SQLUpdateStatement extends SQLStatement {
       }
     }
     ctx.setInputParameters(params);
-    OUpdateExecutionPlan executionPlan;
+    UpdateExecutionPlan executionPlan;
     if (usePlanCache) {
       executionPlan = createExecutionPlan(ctx, false);
     } else {
-      executionPlan = (OUpdateExecutionPlan) createExecutionPlanNoCache(ctx, false);
+      executionPlan = (UpdateExecutionPlan) createExecutionPlanNoCache(ctx, false);
     }
     executionPlan.executeInternal();
-    return new YTLocalResultSet(executionPlan);
+    return new LocalResultSet(executionPlan);
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
+  public ResultSet execute(
+      DatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
     BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     ctx.setInputParameters(params);
-    OUpdateExecutionPlan executionPlan;
+    UpdateExecutionPlan executionPlan;
     if (usePlanCache) {
       executionPlan = createExecutionPlan(ctx, false);
     } else {
-      executionPlan = (OUpdateExecutionPlan) createExecutionPlanNoCache(ctx, false);
+      executionPlan = (UpdateExecutionPlan) createExecutionPlanNoCache(ctx, false);
     }
     executionPlan.executeInternal();
-    return new YTLocalResultSet(executionPlan);
+    return new LocalResultSet(executionPlan);
   }
 
-  public OUpdateExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    OUpdateExecutionPlanner planner = new OUpdateExecutionPlanner(this);
-    OUpdateExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling);
+  public UpdateExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
+    UpdateExecutionPlanner planner = new UpdateExecutionPlanner(this);
+    UpdateExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling);
     result.setStatement(this.originalStatement);
     result.setGenericStatement(this.toGenericStatement());
     return result;
@@ -277,7 +277,7 @@ public class SQLUpdateStatement extends SQLStatement {
 
   public boolean isReturnBefore() {
     if (returnBefore) {
-      throw new YTDatabaseException("BEFORE is not supported");
+      throw new DatabaseException("BEFORE is not supported");
     }
 
     return false;

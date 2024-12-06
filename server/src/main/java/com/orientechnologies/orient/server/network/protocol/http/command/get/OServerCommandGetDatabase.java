@@ -20,23 +20,23 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.OConstants;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.OStorageEntryConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityAccessException;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexManagerAbstract;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClassImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTPropertyImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.YTUser;
+import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.StorageEntryConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.SecurityAccessException;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OJSONWriter;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -55,7 +55,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
   private static final String[] NAMES = {"GET|database/*"};
 
   public static void exportClass(
-      final YTDatabaseSessionInternal db, final OJSONWriter json, final YTClass cls)
+      final DatabaseSessionInternal db, final JSONWriter json, final SchemaClass cls)
       throws IOException {
     json.beginObject();
     json.writeAttribute("name", cls.getName());
@@ -64,7 +64,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
 
     json.beginCollection("superClasses");
     int i = 0;
-    for (YTClass oClass : cls.getSuperClasses()) {
+    for (SchemaClass oClass : cls.getSuperClasses()) {
       json.write((i > 0 ? "," : "") + "\"" + oClass.getName() + "\"");
       i++;
     }
@@ -76,8 +76,8 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
     json.writeAttribute("clusters", cls.getClusterIds());
     json.writeAttribute("defaultCluster", cls.getDefaultClusterId());
     json.writeAttribute("clusterSelection", cls.getClusterSelection().getName());
-    if (cls instanceof YTClassImpl) {
-      final Map<String, String> custom = ((YTClassImpl) cls).getCustomInternal();
+    if (cls instanceof SchemaClassImpl) {
+      final Map<String, String> custom = ((SchemaClassImpl) cls).getCustomInternal();
       if (custom != null && !custom.isEmpty()) {
         json.writeAttribute("custom", custom);
       }
@@ -85,7 +85,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
 
     try {
       json.writeAttribute("records", db.countClass(cls.getName()));
-    } catch (YTSecurityAccessException e) {
+    } catch (SecurityAccessException e) {
       json.writeAttribute("records", "? (Unauthorized)");
     } catch (Exception e) {
       json.writeAttribute("records", "? (Error)");
@@ -93,7 +93,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
 
     if (cls.properties(db) != null && cls.properties(db).size() > 0) {
       json.beginCollection("properties");
-      for (final YTProperty prop : cls.properties(db)) {
+      for (final Property prop : cls.properties(db)) {
         json.beginObject();
         json.writeAttribute("name", prop.getName());
         if (prop.getLinkedClass() != null) {
@@ -113,8 +113,8 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
             "collate", prop.getCollate() != null ? prop.getCollate().getName() : "default");
         json.writeAttribute("defaultValue", prop.getDefaultValue());
 
-        if (prop instanceof YTPropertyImpl) {
-          final Map<String, String> custom = ((YTPropertyImpl) prop).getCustomInternal();
+        if (prop instanceof PropertyImpl) {
+          final Map<String, String> custom = ((PropertyImpl) prop).getCustomInternal();
           if (custom != null && !custom.isEmpty()) {
             json.writeAttribute("custom", custom);
           }
@@ -125,15 +125,15 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
       json.endCollection();
     }
 
-    final Set<OIndex> indexes = cls.getIndexes(db);
+    final Set<Index> indexes = cls.getIndexes(db);
     if (!indexes.isEmpty()) {
       json.beginCollection("indexes");
-      for (final OIndex index : indexes) {
+      for (final Index index : indexes) {
         json.beginObject();
         json.writeAttribute("name", index.getName());
         json.writeAttribute("type", index.getType());
 
-        final OIndexDefinition indexDefinition = index.getDefinition();
+        final IndexDefinition indexDefinition = index.getDefinition();
         if (indexDefinition != null && !indexDefinition.getFields().isEmpty()) {
           json.writeAttribute("fields", indexDefinition.getFields());
         }
@@ -169,7 +169,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
   protected void exec(
       final OHttpRequest iRequest, final OHttpResponse iResponse, final String[] urlParts)
       throws InterruptedException, IOException {
-    YTDatabaseSessionInternal db = null;
+    DatabaseSessionInternal db = null;
     try {
       if (urlParts.length > 2) {
         db = server.openDatabase(urlParts[1], urlParts[2], urlParts[3]);
@@ -178,13 +178,13 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
       }
 
       final StringWriter buffer = new StringWriter();
-      final OJSONWriter json = new OJSONWriter(buffer);
+      final JSONWriter json = new JSONWriter(buffer);
       json.beginObject();
 
       json.beginObject("server");
-      json.writeAttribute("version", OConstants.getRawVersion());
-      if (OConstants.getBuildNumber() != null) {
-        json.writeAttribute("build", OConstants.getBuildNumber());
+      json.writeAttribute("version", YouTrackDBConstants.getRawVersion());
+      if (YouTrackDBConstants.getBuildNumber() != null) {
+        json.writeAttribute("build", YouTrackDBConstants.getBuildNumber());
       }
       json.writeAttribute("osName", System.getProperty("os.name"));
       json.writeAttribute("osVersion", System.getProperty("os.version"));
@@ -224,13 +224,13 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
         json.beginCollection("classes");
         List<String> classNames = new ArrayList<String>();
 
-        for (YTClass cls : db.getMetadata().getImmutableSchemaSnapshot().getClasses()) {
+        for (SchemaClass cls : db.getMetadata().getImmutableSchemaSnapshot().getClasses()) {
           classNames.add(cls.getName());
         }
         Collections.sort(classNames);
 
         for (String className : classNames) {
-          final YTClass cls = db.getMetadata().getImmutableSchemaSnapshot().getClass(className);
+          final SchemaClass cls = db.getMetadata().getImmutableSchemaSnapshot().getClass(className);
 
           try {
             exportClass(db, json, cls);
@@ -273,9 +273,9 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
 
         // exportSecurityInfo(db, json);
       }
-      final OIndexManagerAbstract idxManager = db.getMetadata().getIndexManagerInternal();
+      final IndexManagerAbstract idxManager = db.getMetadata().getIndexManagerInternal();
       json.beginCollection("indexes");
-      for (OIndex index : idxManager.getIndexes(db)) {
+      for (Index index : idxManager.getIndexes(db)) {
         json.beginObject();
         try {
           json.writeAttribute("name", index.getName());
@@ -292,7 +292,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
       json.beginObject("config");
 
       json.beginCollection("values");
-      OStorageConfiguration configuration = db.getStorageInfo().getConfiguration();
+      StorageConfiguration configuration = db.getStorageInfo().getConfiguration();
       json.writeObjects(
           null,
           new Object[]{"name", "dateFormat", "value", configuration.getDateFormat()},
@@ -309,7 +309,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
 
       json.beginCollection("properties");
       if (configuration.getProperties() != null) {
-        for (OStorageEntryConfiguration entry : configuration.getProperties()) {
+        for (StorageEntryConfiguration entry : configuration.getProperties()) {
           if (entry != null) {
             json.beginObject();
             json.writeAttribute("name", entry.name);
@@ -337,11 +337,11 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
     }
   }
 
-  private void exportSecurityInfo(YTDatabaseSessionInternal db, OJSONWriter json)
+  private void exportSecurityInfo(DatabaseSessionInternal db, JSONWriter json)
       throws IOException {
     json.beginCollection("users");
     for (EntityImpl doc : db.getMetadata().getSecurity().getAllUsers()) {
-      YTUser user = new YTUser(db, doc);
+      SecurityUserIml user = new SecurityUserIml(db, doc);
       json.beginObject();
       json.writeAttribute("name", user.getName(db));
       json.writeAttribute(
@@ -351,9 +351,9 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
     json.endCollection();
 
     json.beginCollection("roles");
-    ORole role;
+    Role role;
     for (EntityImpl doc : db.getMetadata().getSecurity().getAllRoles()) {
-      role = new ORole(db, doc);
+      role = new Role(db, doc);
       json.beginObject();
       json.writeAttribute("name", role.getName(db));
       json.writeAttribute("mode", role.getMode().toString());
@@ -363,10 +363,10 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
         for (Map.Entry<String, Byte> rule : role.getRules().entrySet()) {
           json.beginObject();
           json.writeAttribute("name", rule.getKey());
-          json.writeAttribute("create", role.allow(rule.getKey(), ORole.PERMISSION_CREATE));
-          json.writeAttribute("read", role.allow(rule.getKey(), ORole.PERMISSION_READ));
-          json.writeAttribute("update", role.allow(rule.getKey(), ORole.PERMISSION_UPDATE));
-          json.writeAttribute("delete", role.allow(rule.getKey(), ORole.PERMISSION_DELETE));
+          json.writeAttribute("create", role.allow(rule.getKey(), Role.PERMISSION_CREATE));
+          json.writeAttribute("read", role.allow(rule.getKey(), Role.PERMISSION_READ));
+          json.writeAttribute("update", role.allow(rule.getKey(), Role.PERMISSION_UPDATE));
+          json.writeAttribute("delete", role.allow(rule.getKey(), Role.PERMISSION_DELETE));
           json.endObject();
         }
       }

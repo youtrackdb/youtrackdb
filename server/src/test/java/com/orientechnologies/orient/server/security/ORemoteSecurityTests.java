@@ -1,14 +1,14 @@
 package com.orientechnologies.orient.server.security;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.orient.server.OServer;
 import java.io.IOException;
 import org.junit.After;
@@ -21,7 +21,7 @@ public class ORemoteSecurityTests {
   private static final String DB_NAME = ORemoteSecurityTests.class.getSimpleName();
   private YouTrackDB orient;
   private OServer server;
-  private YTDatabaseSession db;
+  private DatabaseSession db;
 
   @Before
   public void before()
@@ -33,8 +33,8 @@ public class ORemoteSecurityTests {
             + " by 'writer' role writer, reader identified by 'reader' role reader)",
         DB_NAME);
     this.db = orient.open(DB_NAME, "admin", "admin");
-    YTClass person = db.createClass("Person");
-    person.createProperty(db, "name", YTType.STRING);
+    SchemaClass person = db.createClass("Person");
+    person.createProperty(db, "name", PropertyType.STRING);
   }
 
   @After
@@ -53,7 +53,7 @@ public class ORemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
+    try (DatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
       Entity elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
@@ -66,7 +66,7 @@ public class ORemoteSecurityTests {
         filteredSession.save(elem);
         filteredSession.commit();
         Assert.fail();
-      } catch (YTSecurityException ex) {
+      } catch (SecurityException ex) {
       }
     }
   }
@@ -78,7 +78,7 @@ public class ORemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
+    try (DatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
       filteredSession.command("insert into Person SET name = 'foo'");
       filteredSession.commit();
@@ -87,7 +87,7 @@ public class ORemoteSecurityTests {
         filteredSession.command("insert into Person SET name = 'bar'");
         filteredSession.commit();
         Assert.fail();
-      } catch (YTSecurityException ex) {
+      } catch (SecurityException ex) {
       }
     }
   }
@@ -110,8 +110,8 @@ public class ORemoteSecurityTests {
     db.commit();
 
     db.close();
-    try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
-      try (YTResultSet rs = filteredSession.query("select from Person")) {
+    try (DatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
+      try (ResultSet rs = filteredSession.query("select from Person")) {
         Assert.assertTrue(rs.hasNext());
         rs.next();
         Assert.assertFalse(rs.hasNext());
@@ -138,8 +138,8 @@ public class ORemoteSecurityTests {
     db.save(elem);
     db.commit();
 
-    try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
-      try (YTResultSet rs = filteredSession.query("select from Person where name = 'bar'")) {
+    try (DatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
+      try (ResultSet rs = filteredSession.query("select from Person where name = 'bar'")) {
 
         Assert.assertFalse(rs.hasNext());
       }
@@ -167,10 +167,10 @@ public class ORemoteSecurityTests {
     db.save(elem);
     db.commit();
 
-    try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
-      try (YTResultSet rs = filteredSession.query("select from Person where name = 'foo'")) {
+    try (DatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
+      try (ResultSet rs = filteredSession.query("select from Person where name = 'foo'")) {
         Assert.assertTrue(rs.hasNext());
-        YTResult item = rs.next();
+        Result item = rs.next();
         Assert.assertEquals("foo", item.getProperty("surname"));
         Assert.assertFalse(rs.hasNext());
       }
@@ -184,7 +184,7 @@ public class ORemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
+    try (DatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
       Entity elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
@@ -197,7 +197,7 @@ public class ORemoteSecurityTests {
         filteredSession.save(elem);
         filteredSession.commit();
         Assert.fail();
-      } catch (YTSecurityException ex) {
+      } catch (SecurityException ex) {
       }
       Assert.assertEquals("foo", filteredSession.bindToSession(elem).getProperty("name"));
     }
@@ -210,7 +210,7 @@ public class ORemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
+    try (DatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
       Entity elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
@@ -221,7 +221,7 @@ public class ORemoteSecurityTests {
         filteredSession.command("update Person set name = 'bar'");
         filteredSession.commit();
         Assert.fail();
-      } catch (YTSecurityException ex) {
+      } catch (SecurityException ex) {
       }
 
       Assert.assertEquals("foo", filteredSession.bindToSession(elem).getProperty("name"));
@@ -235,7 +235,7 @@ public class ORemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
+    try (DatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
       Entity elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
@@ -248,7 +248,7 @@ public class ORemoteSecurityTests {
         filteredSession.save(elem);
         filteredSession.commit();
         Assert.fail();
-      } catch (YTSecurityException ex) {
+      } catch (SecurityException ex) {
       }
 
       Assert.assertEquals("foo", filteredSession.bindToSession(elem).getProperty("name"));
@@ -262,7 +262,7 @@ public class ORemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
+    try (DatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
       Entity elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
@@ -273,7 +273,7 @@ public class ORemoteSecurityTests {
         filteredSession.command("update Person set name = 'bar'");
         filteredSession.commit();
         Assert.fail();
-      } catch (YTSecurityException ex) {
+      } catch (SecurityException ex) {
       }
 
       Assert.assertEquals("foo", filteredSession.bindToSession(elem).getProperty("name"));
@@ -287,7 +287,7 @@ public class ORemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
+    try (DatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
 
       filteredSession.begin();
       Entity elem = filteredSession.newEntity("Person");
@@ -300,7 +300,7 @@ public class ORemoteSecurityTests {
         filteredSession.delete(elem);
         filteredSession.commit();
         Assert.fail();
-      } catch (YTSecurityException ex) {
+      } catch (SecurityException ex) {
       }
 
       filteredSession.begin();
@@ -319,7 +319,7 @@ public class ORemoteSecurityTests {
     db.command("ALTER ROLE writer SET POLICY testPolicy ON database.class.Person");
     db.commit();
 
-    try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
+    try (DatabaseSession filteredSession = orient.open(DB_NAME, "writer", "writer")) {
       filteredSession.begin();
       Entity elem = filteredSession.newEntity("Person");
       elem.setProperty("name", "foo");
@@ -338,10 +338,10 @@ public class ORemoteSecurityTests {
         filteredSession.command("delete from Person where name = 'bar'");
         filteredSession.commit();
         Assert.fail();
-      } catch (YTSecurityException ex) {
+      } catch (SecurityException ex) {
       }
 
-      try (YTResultSet rs = filteredSession.query("select from Person")) {
+      try (ResultSet rs = filteredSession.query("select from Person")) {
         Assert.assertTrue(rs.hasNext());
         Assert.assertEquals("bar", rs.next().getProperty("name"));
         Assert.assertFalse(rs.hasNext());
@@ -366,8 +366,8 @@ public class ORemoteSecurityTests {
     db.save(elem);
     db.commit();
 
-    try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
-      try (YTResultSet rs = filteredSession.query("select count(*) as count from Person")) {
+    try (DatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
+      try (ResultSet rs = filteredSession.query("select count(*) as count from Person")) {
         Assert.assertEquals(1L, (long) rs.next().getProperty("count"));
       }
     }
@@ -393,13 +393,13 @@ public class ORemoteSecurityTests {
     db.commit();
 
     db.close();
-    try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
-      try (YTResultSet rs =
+    try (DatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
+      try (ResultSet rs =
           filteredSession.query("select count(*) as count from Person where name = 'bar'")) {
         Assert.assertEquals(0L, (long) rs.next().getProperty("count"));
       }
 
-      try (YTResultSet rs =
+      try (ResultSet rs =
           filteredSession.query("select count(*) as count from Person where name = 'foo'")) {
         Assert.assertEquals(1L, (long) rs.next().getProperty("count"));
       }
@@ -425,13 +425,13 @@ public class ORemoteSecurityTests {
     db.save(elem);
     db.commit();
 
-    try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
-      try (final YTResultSet resultSet =
+    try (DatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
+      try (final ResultSet resultSet =
           filteredSession.query("SELECT from Person where name = ?", "bar")) {
         Assert.assertEquals(0, resultSet.stream().count());
       }
 
-      try (final YTResultSet resultSet =
+      try (final ResultSet resultSet =
           filteredSession.query("SELECT from Person where name = ?", "foo")) {
         Assert.assertEquals(1, resultSet.stream().count());
       }
@@ -457,13 +457,13 @@ public class ORemoteSecurityTests {
     db.save(elem);
     db.commit();
 
-    try (YTDatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
-      try (final YTResultSet resultSet =
+    try (DatabaseSession filteredSession = orient.open(DB_NAME, "reader", "reader")) {
+      try (final ResultSet resultSet =
           filteredSession.query("SELECT from Person where name = ?", "bar")) {
         Assert.assertEquals(0, resultSet.stream().count());
       }
 
-      try (final YTResultSet resultSet =
+      try (final ResultSet resultSet =
           filteredSession.query("SELECT from Person where name = ?", "foo")) {
         Assert.assertEquals(1, resultSet.stream().count());
       }
@@ -487,8 +487,8 @@ public class ORemoteSecurityTests {
     db.close();
 
     db = orient.open(DB_NAME, "reader", "reader");
-    try (final YTResultSet resultSet = db.query("SELECT from Person")) {
-      YTResult item = resultSet.next();
+    try (final ResultSet resultSet = db.query("SELECT from Person")) {
+      Result item = resultSet.next();
       Assert.assertNull(item.getProperty("name"));
     }
   }
@@ -510,10 +510,10 @@ public class ORemoteSecurityTests {
     db.close();
 
     db = orient.open(DB_NAME, "reader", "reader");
-    try (final YTResultSet resultSet = db.query("SELECT from Person")) {
+    try (final ResultSet resultSet = db.query("SELECT from Person")) {
       try {
         db.begin();
-        YTResult item = resultSet.next();
+        Result item = resultSet.next();
         Entity doc = item.getEntity().get();
         doc.setProperty("name", "bar");
 

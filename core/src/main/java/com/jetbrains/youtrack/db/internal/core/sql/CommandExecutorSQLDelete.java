@@ -19,33 +19,33 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.parser.OStringParser;
-import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
+import com.jetbrains.youtrack.db.internal.common.parser.StringParser;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexAbstract;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
+import com.jetbrains.youtrack.db.internal.core.index.IndexAbstract;
+import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterCondition;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilter;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLDeleteStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLAsynchQuery;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLQuery;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -55,13 +55,13 @@ import java.util.Map;
  * SQL UPDATE command.
  */
 public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest, OCommandResultListener {
+    implements CommandDistributedReplicateRequest, CommandResultListener {
 
   public static final String NAME = "DELETE FROM";
   public static final String KEYWORD_DELETE = "DELETE";
   private static final String VALUE_NOT_FOUND = "_not_found_";
 
-  private OSQLQuery<EntityImpl> query;
+  private SQLQuery<EntityImpl> query;
   private String indexName = null;
   private int recordCount = 0;
   private String returning = "COUNT";
@@ -106,7 +106,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
             "Invalid subject name. Expected cluster, class, index or sub-query");
       }
 
-      if (OStringParser.startsWithIgnoreCase(
+      if (StringParser.startsWithIgnoreCase(
           subjectName, CommandExecutorSQLAbstract.INDEX_PREFIX)) {
         // INDEX
         indexName = subjectName.substring(CommandExecutorSQLAbstract.INDEX_PREFIX.length());
@@ -121,7 +121,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
               unsafe = true;
             } else if (word.equalsIgnoreCase(KEYWORD_WHERE)) {
               compiledFilter =
-                  OSQLEngine
+                  SQLEngine
                       .parseCondition(
                           parserText.substring(parserGetCurrentPosition()),
                           getContext(),
@@ -139,7 +139,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
         subjectName = subjectName.trim();
         query =
             database.command(
-                new OSQLAsynchQuery<EntityImpl>(
+                new SQLAsynchQuery<EntityImpl>(
                     subjectName.substring(1, subjectName.length() - 1), this));
         parserNextWord(true);
         if (!parserIsEnded()) {
@@ -152,7 +152,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
               unsafe = true;
             } else if (word.equalsIgnoreCase(KEYWORD_WHERE)) {
               compiledFilter =
-                  OSQLEngine
+                  SQLEngine
                       .parseCondition(
                           parserText.substring(parserGetCurrentPosition()),
                           getContext(),
@@ -184,7 +184,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
                 : "";
         query =
             database.command(
-                new OSQLAsynchQuery<EntityImpl>(
+                new SQLAsynchQuery<EntityImpl>(
                     "select from " + getSelectTarget(subjectName) + condition, this));
       }
     } finally {
@@ -201,9 +201,9 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
     return ((SQLDeleteStatement) preParsedStatement).fromClause.toString();
   }
 
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (query == null && indexName == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -237,18 +237,18 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
         compiledFilter.bindParameters(iArgs);
       }
 
-      final YTDatabaseSessionInternal database = getDatabase();
-      final OIndexInternal index =
+      final DatabaseSessionInternal database = getDatabase();
+      final IndexInternal index =
           database
               .getMetadata()
               .getIndexManagerInternal()
               .getIndex(database, indexName)
               .getInternal();
       if (index == null) {
-        throw new YTCommandExecutionException("Target index '" + indexName + "' not found");
+        throw new CommandExecutionException("Target index '" + indexName + "' not found");
       }
 
-      OIndexAbstract.manualIndexesWarning();
+      IndexAbstract.manualIndexesWarning();
 
       Object key = null;
       Object value = VALUE_NOT_FOUND;
@@ -261,11 +261,11 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
           return total;
         } else {
           // RETURNS ALL THE DELETED RECORDS
-          Iterator<ORawPair<Object, YTRID>> cursor = index.stream(database).iterator();
+          Iterator<RawPair<Object, RID>> cursor = index.stream(database).iterator();
 
           while (cursor.hasNext()) {
-            final ORawPair<Object, YTRID> entry = cursor.next();
-            YTIdentifiable rec = entry.second;
+            final RawPair<Object, RID> entry = cursor.next();
+            Identifiable rec = entry.second;
             rec = rec.getRecord();
             if (rec != null) {
               allDeletedRecords.add((Record) rec);
@@ -287,26 +287,26 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
         } else if (KEYWORD_RID.equalsIgnoreCase(
             compiledFilter.getRootCondition().getLeft().toString())) {
           // BY RID
-          value = OSQLHelper.getValue(compiledFilter.getRootCondition().getRight());
+          value = SQLHelper.getValue(compiledFilter.getRootCondition().getRight());
 
         } else if (compiledFilter.getRootCondition().getLeft()
-            instanceof OSQLFilterCondition leftCondition) {
+            instanceof SQLFilterCondition leftCondition) {
           // KEY AND VALUE
           if (KEYWORD_KEY.equalsIgnoreCase(leftCondition.getLeft().toString())) {
             key = getIndexKey(database, index.getDefinition(), leftCondition.getRight());
           }
 
-          final OSQLFilterCondition rightCondition =
-              (OSQLFilterCondition) compiledFilter.getRootCondition().getRight();
+          final SQLFilterCondition rightCondition =
+              (SQLFilterCondition) compiledFilter.getRootCondition().getRight();
           if (KEYWORD_RID.equalsIgnoreCase(rightCondition.getLeft().toString())) {
-            value = OSQLHelper.getValue(rightCondition.getRight());
+            value = SQLHelper.getValue(rightCondition.getRight());
           }
         }
 
         final boolean result;
         if (value != VALUE_NOT_FOUND) {
           assert key != null;
-          result = index.remove(database, key, (YTIdentifiable) value);
+          result = index.remove(database, key, (Identifiable) value);
         } else {
           result = index.remove(database, key);
         }
@@ -332,8 +332,8 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
   /**
    * Deletes the current record.
    */
-  public boolean result(YTDatabaseSessionInternal querySession, final Object iRecord) {
-    final RecordAbstract record = ((YTIdentifiable) iRecord).getRecord();
+  public boolean result(DatabaseSessionInternal querySession, final Object iRecord) {
+    final RecordAbstract record = ((Identifiable) iRecord).getRecord();
 
     if (record instanceof EntityImpl
         && compiledFilter != null
@@ -348,22 +348,22 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
 
       // RESET VERSION TO DISABLE MVCC AVOIDING THE CONCURRENT EXCEPTION IF LOCAL CACHE IS NOT
       // UPDATED
-      //        ORecordInternal.setVersion(record, -1);
+      //        RecordInternal.setVersion(record, -1);
 
       if (!unsafe && record instanceof EntityImpl) {
         // CHECK IF ARE VERTICES OR EDGES
-        final YTClass cls = ODocumentInternal.getImmutableSchemaClass(((EntityImpl) record));
+        final SchemaClass cls = DocumentInternal.getImmutableSchemaClass(((EntityImpl) record));
         if (cls != null) {
           if (cls.isSubClassOf("V"))
           // FOUND VERTEX
           {
-            throw new YTCommandExecutionException(
+            throw new CommandExecutionException(
                 "'DELETE' command cannot delete vertices. Use 'DELETE VERTEX' command instead, or"
                     + " apply the 'UNSAFE' keyword to force it");
           } else if (cls.isSubClassOf("E"))
           // FOUND EDGE
           {
-            throw new YTCommandExecutionException(
+            throw new CommandExecutionException(
                 "'DELETE' command cannot delete edges. Use 'DELETE EDGE' command instead, or"
                     + " apply the 'UNSAFE' keyword to force it");
           }
@@ -389,13 +389,13 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
 
   @Override
   public int getSecurityOperationType() {
-    return ORole.PERMISSION_DELETE;
+    return Role.PERMISSION_DELETE;
   }
 
   /**
    * Parses the returning keyword if found.
    */
-  protected String parseReturn() throws YTCommandSQLParsingException {
+  protected String parseReturn() throws CommandSQLParsingException {
     final String returning = parserNextWord(true);
 
     if (!returning.equalsIgnoreCase("COUNT") && !returning.equalsIgnoreCase("BEFORE")) {
@@ -413,25 +413,25 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
   }
 
   private Object getIndexKey(
-      YTDatabaseSessionInternal session, final OIndexDefinition indexDefinition, Object value) {
-    if (indexDefinition instanceof OCompositeIndexDefinition) {
+      DatabaseSessionInternal session, final IndexDefinition indexDefinition, Object value) {
+    if (indexDefinition instanceof CompositeIndexDefinition) {
       if (value instanceof List<?> values) {
         List<Object> keyParams = new ArrayList<Object>(values.size());
 
         for (Object o : values) {
-          keyParams.add(OSQLHelper.getValue(o));
+          keyParams.add(SQLHelper.getValue(o));
         }
         return indexDefinition.createValue(session, keyParams);
       } else {
-        value = OSQLHelper.getValue(value);
-        if (value instanceof OCompositeKey) {
+        value = SQLHelper.getValue(value);
+        if (value instanceof CompositeKey) {
           return value;
         } else {
           return indexDefinition.createValue(session, value);
         }
       }
     } else {
-      return OSQLHelper.getValue(value);
+      return SQLHelper.getValue(value);
     }
   }
 
@@ -441,7 +441,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
   }
 
   @Override
-  public OCommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
+  public CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
   getDistributedExecutionMode() {
     return DISTRIBUTED_EXECUTION_MODE.LOCAL;
     // ALWAYS EXECUTE THE COMMAND LOCALLY BECAUSE THERE IS NO A DISTRIBUTED UNDO WITH SHARDING

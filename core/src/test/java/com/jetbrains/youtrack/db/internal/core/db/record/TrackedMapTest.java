@@ -1,9 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.OMemoryStream;
+import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.NotSerializableException;
@@ -16,22 +17,22 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TrackedMapTest extends DBTestBase {
+public class TrackedMapTest extends DbTestBase {
 
   @Test
   public void testPutOne() {
     final EntityImpl doc = new EntityImpl();
 
     final TrackedMap<String> map = new TrackedMap<String>(doc);
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
     map.enableTracking(doc);
 
     map.put("key1", "value1");
 
-    OMultiValueChangeEvent<Object, Object> event =
-        new OMultiValueChangeEvent<Object, Object>(
-            OMultiValueChangeEvent.OChangeType.ADD, "key1", "value1", null);
+    MultiValueChangeEvent<Object, Object> event =
+        new MultiValueChangeEvent<Object, Object>(
+            ChangeType.ADD, "key1", "value1", null);
     Assert.assertEquals(event, map.getTimeLine().getMultiValueChangeEvents().get(0));
     Assert.assertTrue(map.isModified());
     Assert.assertTrue(doc.isDirty());
@@ -42,20 +43,20 @@ public class TrackedMapTest extends DBTestBase {
     final EntityImpl doc = new EntityImpl();
 
     final TrackedMap<String> map = new TrackedMap<String>(doc);
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     map.put("key1", "value1");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
     map.disableTracking(doc);
     map.enableTracking(doc);
 
     map.put("key1", "value2");
-    OMultiValueChangeEvent<Object, Object> event =
-        new OMultiValueChangeEvent<Object, Object>(
-            OMultiValueChangeEvent.OChangeType.UPDATE, "key1", "value2", "value1");
+    MultiValueChangeEvent<Object, Object> event =
+        new MultiValueChangeEvent<Object, Object>(
+            ChangeType.UPDATE, "key1", "value2", "value1");
     Assert.assertEquals(event, map.getTimeLine().getMultiValueChangeEvents().get(0));
     Assert.assertTrue(map.isModified());
     Assert.assertTrue(doc.isDirty());
@@ -66,12 +67,12 @@ public class TrackedMapTest extends DBTestBase {
     final EntityImpl doc = new EntityImpl();
 
     final TrackedMap<String> map = new TrackedMap<String>(doc);
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     map.put("key1", "value1");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
     map.disableTracking(doc);
     map.enableTracking(doc);
@@ -86,12 +87,12 @@ public class TrackedMapTest extends DBTestBase {
     final EntityImpl doc = new EntityImpl();
 
     final TrackedMap<String> map = new TrackedMap<String>(doc);
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     map.put("key1", "value1");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
     map.disableTracking(doc);
     map.enableTracking(doc);
@@ -108,7 +109,7 @@ public class TrackedMapTest extends DBTestBase {
 
     final TrackedMap<String> map = new TrackedMap<String>(doc);
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
     map.enableTracking(doc);
 
@@ -126,14 +127,14 @@ public class TrackedMapTest extends DBTestBase {
 
     map.put("key1", "value1");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
     map.disableTracking(doc);
     map.enableTracking(doc);
 
-    OMultiValueChangeEvent<Object, Object> event =
-        new OMultiValueChangeEvent<Object, Object>(
-            OMultiValueChangeEvent.OChangeType.REMOVE, "key1", null, "value1");
+    MultiValueChangeEvent<Object, Object> event =
+        new MultiValueChangeEvent<Object, Object>(
+            ChangeType.REMOVE, "key1", null, "value1");
     map.remove("key1");
     Assert.assertEquals(event, map.getTimeLine().getMultiValueChangeEvents().get(0));
     Assert.assertTrue(map.isModified());
@@ -148,7 +149,7 @@ public class TrackedMapTest extends DBTestBase {
 
     map.put("key1", "value1");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
     map.disableTracking(doc);
     map.enableTracking(doc);
@@ -169,19 +170,19 @@ public class TrackedMapTest extends DBTestBase {
     trackedMap.put("key2", "value2");
     trackedMap.put("key3", "value3");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final List<OMultiValueChangeEvent<Object, String>> firedEvents = new ArrayList<>();
+    final List<MultiValueChangeEvent<Object, String>> firedEvents = new ArrayList<>();
     firedEvents.add(
-        new OMultiValueChangeEvent<Object, String>(
-            OMultiValueChangeEvent.OChangeType.REMOVE, "key1", null, "value1"));
+        new MultiValueChangeEvent<Object, String>(
+            ChangeType.REMOVE, "key1", null, "value1"));
     firedEvents.add(
-        new OMultiValueChangeEvent<Object, String>(
-            OMultiValueChangeEvent.OChangeType.REMOVE, "key2", null, "value2"));
+        new MultiValueChangeEvent<Object, String>(
+            ChangeType.REMOVE, "key2", null, "value2"));
     firedEvents.add(
-        new OMultiValueChangeEvent<Object, String>(
-            OMultiValueChangeEvent.OChangeType.REMOVE, "key3", null, "value3"));
+        new MultiValueChangeEvent<Object, String>(
+            ChangeType.REMOVE, "key3", null, "value3"));
 
     trackedMap.enableTracking(doc);
     trackedMap.clear();
@@ -201,7 +202,7 @@ public class TrackedMapTest extends DBTestBase {
     trackedMap.put("key2", "value2");
     trackedMap.put("key3", "value3");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     trackedMap.clear();
@@ -292,7 +293,7 @@ public class TrackedMapTest extends DBTestBase {
     beforeSerialization.put(0, "firstVal");
     beforeSerialization.put(1, "secondVal");
 
-    final OMemoryStream memoryStream = new OMemoryStream();
+    final MemoryStream memoryStream = new MemoryStream();
     final ObjectOutputStream out = new ObjectOutputStream(memoryStream);
     out.writeObject(beforeSerialization);
     out.close();

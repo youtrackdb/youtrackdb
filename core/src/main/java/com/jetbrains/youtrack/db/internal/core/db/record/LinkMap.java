@@ -19,11 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
-import com.jetbrains.youtrack.db.internal.common.util.OSizeable;
-import com.jetbrains.youtrack.db.internal.core.db.record.ORecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
@@ -35,10 +35,10 @@ import java.util.Map;
  * changes. This avoid to call the makeDirty() by hand when the map is changed.
  */
 @SuppressWarnings({"serial"})
-public class LinkMap extends TrackedMap<YTIdentifiable> implements OSizeable {
+public class LinkMap extends TrackedMap<Identifiable> implements Sizeable {
 
   private final byte recordType;
-  private ORecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE multiValueStatus =
+  private RecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE multiValueStatus =
       MULTIVALUE_CONTENT_TYPE.EMPTY;
   private boolean autoConvertToRecord = true;
 
@@ -60,7 +60,7 @@ public class LinkMap extends TrackedMap<YTIdentifiable> implements OSizeable {
     }
   }
 
-  public LinkMap(final EntityImpl iSourceRecord, final Map<Object, YTIdentifiable> iOrigin) {
+  public LinkMap(final EntityImpl iSourceRecord, final Map<Object, Identifiable> iOrigin) {
     this(iSourceRecord);
     if (iOrigin != null && !iOrigin.isEmpty()) {
       putAll(iOrigin);
@@ -73,7 +73,7 @@ public class LinkMap extends TrackedMap<YTIdentifiable> implements OSizeable {
   }
 
   @Override
-  public YTIdentifiable get(final Object iKey) {
+  public Identifiable get(final Object iKey) {
     if (iKey == null) {
       return null;
     }
@@ -88,7 +88,7 @@ public class LinkMap extends TrackedMap<YTIdentifiable> implements OSizeable {
   }
 
   @Override
-  public YTIdentifiable put(final Object key, YTIdentifiable value) {
+  public Identifiable put(final Object key, Identifiable value) {
     if (multiValueStatus == MULTIVALUE_CONTENT_TYPE.ALL_RIDS
         && value instanceof Record
         && !value.getIdentity().isNew())
@@ -96,20 +96,20 @@ public class LinkMap extends TrackedMap<YTIdentifiable> implements OSizeable {
     {
       value = value.getIdentity();
     } else {
-      multiValueStatus = ORecordMultiValueHelper.updateContentType(multiValueStatus, value);
+      multiValueStatus = RecordMultiValueHelper.updateContentType(multiValueStatus, value);
     }
 
     return super.put(key, value);
   }
 
   @Override
-  public Collection<YTIdentifiable> values() {
+  public Collection<Identifiable> values() {
     return super.values();
   }
 
   @Override
-  public YTIdentifiable remove(Object o) {
-    final YTIdentifiable result = super.remove(o);
+  public Identifiable remove(Object o) {
+    final Identifiable result = super.remove(o);
     if (size() == 0) {
       multiValueStatus = MULTIVALUE_CONTENT_TYPE.EMPTY;
     }
@@ -124,7 +124,7 @@ public class LinkMap extends TrackedMap<YTIdentifiable> implements OSizeable {
 
   @Override
   public String toString() {
-    return ORecordMultiValueHelper.toString(this);
+    return RecordMultiValueHelper.toString(this);
   }
 
   public boolean isAutoConvertToRecord() {
@@ -147,20 +147,20 @@ public class LinkMap extends TrackedMap<YTIdentifiable> implements OSizeable {
 
     final Object value;
 
-    if (iKey instanceof YTRID) {
+    if (iKey instanceof RID) {
       value = iKey;
     } else {
       value = super.get(iKey);
     }
 
-    if (value instanceof YTRID rid) {
+    if (value instanceof RID rid) {
       try {
         // OVERWRITE IT
         Record record = rid.getRecord();
-        ORecordInternal.unTrack(sourceRecord, rid);
-        ORecordInternal.track(sourceRecord, record);
+        RecordInternal.unTrack(sourceRecord, rid);
+        RecordInternal.track(sourceRecord, record);
         super.putInternal(iKey, record);
-      } catch (YTRecordNotFoundException ignore) {
+      } catch (RecordNotFoundException ignore) {
         // IGNORE THIS
       }
     }
@@ -170,7 +170,7 @@ public class LinkMap extends TrackedMap<YTIdentifiable> implements OSizeable {
     return recordType;
   }
 
-  public Iterator<YTIdentifiable> rawIterator() {
+  public Iterator<Identifiable> rawIterator() {
     return super.values().iterator();
   }
 

@@ -4,14 +4,14 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.EmptyStep;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStepInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.IfExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.IfStep;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OIfExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OSelectExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OUpdateExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.SelectExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.UpdateExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,8 +64,8 @@ public class SQLIfStatement extends SQLStatement {
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
+  public ResultSet execute(
+      DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
     BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
@@ -80,11 +80,11 @@ public class SQLIfStatement extends SQLStatement {
     }
     ctx.setInputParameters(params);
 
-    OIfExecutionPlan executionPlan;
+    IfExecutionPlan executionPlan;
     if (usePlanCache) {
       executionPlan = createExecutionPlan(ctx, false);
     } else {
-      executionPlan = (OIfExecutionPlan) createExecutionPlanNoCache(ctx, false);
+      executionPlan = (IfExecutionPlan) createExecutionPlanNoCache(ctx, false);
     }
 
     ExecutionStepInternal last = executionPlan.executeUntilReturn();
@@ -92,20 +92,20 @@ public class SQLIfStatement extends SQLStatement {
       last = new EmptyStep(ctx, false);
     }
     if (isIdempotent()) {
-      OSelectExecutionPlan finalPlan = new OSelectExecutionPlan(ctx);
+      SelectExecutionPlan finalPlan = new SelectExecutionPlan(ctx);
       finalPlan.chain(last);
-      return new YTLocalResultSet(finalPlan);
+      return new LocalResultSet(finalPlan);
     } else {
-      OUpdateExecutionPlan finalPlan = new OUpdateExecutionPlan(ctx);
+      UpdateExecutionPlan finalPlan = new UpdateExecutionPlan(ctx);
       finalPlan.chain(last);
       finalPlan.executeInternal();
-      return new YTLocalResultSet(finalPlan);
+      return new LocalResultSet(finalPlan);
     }
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
+  public ResultSet execute(
+      DatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
     BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
@@ -113,11 +113,11 @@ public class SQLIfStatement extends SQLStatement {
     ctx.setDatabase(db);
     ctx.setInputParameters(params);
 
-    OIfExecutionPlan executionPlan;
+    IfExecutionPlan executionPlan;
     if (usePlanCache) {
       executionPlan = createExecutionPlan(ctx, false);
     } else {
-      executionPlan = (OIfExecutionPlan) createExecutionPlanNoCache(ctx, false);
+      executionPlan = (IfExecutionPlan) createExecutionPlanNoCache(ctx, false);
     }
 
     ExecutionStepInternal last = executionPlan.executeUntilReturn();
@@ -125,21 +125,21 @@ public class SQLIfStatement extends SQLStatement {
       last = new EmptyStep(ctx, false);
     }
     if (isIdempotent()) {
-      OSelectExecutionPlan finalPlan = new OSelectExecutionPlan(ctx);
+      SelectExecutionPlan finalPlan = new SelectExecutionPlan(ctx);
       finalPlan.chain(last);
-      return new YTLocalResultSet(finalPlan);
+      return new LocalResultSet(finalPlan);
     } else {
-      OUpdateExecutionPlan finalPlan = new OUpdateExecutionPlan(ctx);
+      UpdateExecutionPlan finalPlan = new UpdateExecutionPlan(ctx);
       finalPlan.chain(last);
       finalPlan.executeInternal();
-      return new YTLocalResultSet(finalPlan);
+      return new LocalResultSet(finalPlan);
     }
   }
 
   @Override
-  public OIfExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
+  public IfExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
 
-    OIfExecutionPlan plan = new OIfExecutionPlan(ctx);
+    IfExecutionPlan plan = new IfExecutionPlan(ctx);
 
     IfStep step = new IfStep(ctx, enableProfiling);
     step.setCondition(this.expression);

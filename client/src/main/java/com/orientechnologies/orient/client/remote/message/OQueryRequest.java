@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
@@ -40,7 +40,7 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
   public static byte EXECUTE = 2;
 
   private int recordsPerPage = 100;
-  private ORecordSerializer serializer;
+  private RecordSerializer serializer;
   private String language;
   private String statement;
   private byte operationType;
@@ -49,11 +49,11 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
   private boolean namedParams;
 
   public OQueryRequest(
-      YTDatabaseSessionInternal session, String language,
+      DatabaseSessionInternal session, String language,
       String iCommand,
       Object[] positionalParams,
       byte operationType,
-      ORecordSerializer serializer,
+      RecordSerializer serializer,
       int recordsPerPage) {
     this.language = language;
     this.statement = iCommand;
@@ -72,11 +72,11 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
   }
 
   public OQueryRequest(
-      YTDatabaseSessionInternal session, String language,
+      DatabaseSessionInternal session, String language,
       String iCommand,
       Map<String, Object> namedParams,
       byte operationType,
-      ORecordSerializer serializer,
+      RecordSerializer serializer,
       int recordsPerPage) {
     this.language = language;
     this.statement = iCommand;
@@ -98,7 +98,7 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     network.writeString(language);
     network.writeString(statement);
@@ -112,8 +112,8 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
     network.writeBoolean(namedParams);
   }
 
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
-      ORecordSerializer serializer)
+  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+      RecordSerializer serializer)
       throws IOException {
     this.language = channel.readString();
     this.statement = channel.readString();
@@ -129,7 +129,7 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
 
   @Override
   public byte getCommand() {
-    return OChannelBinaryProtocol.REQUEST_QUERY;
+    return ChannelBinaryProtocol.REQUEST_QUERY;
   }
 
   @Override
@@ -151,7 +151,7 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
     return statement;
   }
 
-  public Map<String, Object> getParams(YTDatabaseSessionInternal db) {
+  public Map<String, Object> getParams(DatabaseSessionInternal db) {
     if (params == null && this.paramsBytes != null) {
       // params
       EntityImpl paramsDoc = new EntityImpl();
@@ -170,11 +170,11 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
     return namedParams;
   }
 
-  public Map getNamedParameters(YTDatabaseSessionInternal db) {
+  public Map getNamedParameters(DatabaseSessionInternal db) {
     return getParams(db);
   }
 
-  public Object[] getPositionalParameters(YTDatabaseSessionInternal db) {
+  public Object[] getPositionalParameters(DatabaseSessionInternal db) {
     Map<String, Object> params = getParams(db);
     if (params == null) {
       return null;
@@ -193,7 +193,7 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
     return recordsPerPage;
   }
 
-  public ORecordSerializer getSerializer() {
+  public RecordSerializer getSerializer() {
     return serializer;
   }
 

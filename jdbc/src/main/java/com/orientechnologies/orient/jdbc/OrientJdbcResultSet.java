@@ -14,18 +14,18 @@
 package com.orientechnologies.orient.jdbc;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.YouTrackDBSql;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
@@ -40,7 +40,6 @@ import java.sql.Clob;
 import java.sql.Date;
 import java.sql.NClob;
 import java.sql.Ref;
-import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.RowId;
 import java.sql.SQLException;
@@ -61,13 +60,13 @@ import java.util.stream.Collectors;
 /**
  *
  */
-public class OrientJdbcResultSet implements ResultSet {
+public class OrientJdbcResultSet implements java.sql.ResultSet {
 
   private final OrientJdbcResultSetMetaData resultSetMetaData;
   private final List<String> fieldNames;
-  private List<YTResult> records;
+  private List<Result> records;
   private final OrientJdbcStatement statement;
-  private YTResult result;
+  private Result result;
 
   private int cursor = -1;
   private int rowCount = 0;
@@ -79,7 +78,7 @@ public class OrientJdbcResultSet implements ResultSet {
 
   protected OrientJdbcResultSet(
       final OrientJdbcStatement statement,
-      final YTResultSet oResultSet,
+      final ResultSet oResultSet,
       final int type,
       final int concurrency,
       int holdability)
@@ -99,7 +98,7 @@ public class OrientJdbcResultSet implements ResultSet {
     if (!records.isEmpty()) {
       result = records.get(0);
     } else {
-      result = new YTResultInternal(statement.database);
+      result = new ResultInternal(statement.database);
     }
 
     fieldNames = extractFieldNames(statement);
@@ -153,10 +152,10 @@ public class OrientJdbcResultSet implements ResultSet {
       try {
 
         YouTrackDBSql osql = null;
-        YTDatabaseSessionInternal db = null;
+        DatabaseSessionInternal db = null;
         try {
           db =
-              (YTDatabaseSessionInternal)
+              (DatabaseSessionInternal)
                   ((OrientJdbcConnection) statement.getConnection()).getDatabase();
           if (db == null) {
             osql = new YouTrackDBSql(new ByteArrayInputStream(statement.sql.getBytes()));
@@ -322,12 +321,12 @@ public class OrientJdbcResultSet implements ResultSet {
 
   public Array getArray(String columnLabel) throws SQLException {
 
-    YTType columnType =
+    PropertyType columnType =
         result
             .toEntity()
             .getSchemaType()
             .map(t -> t.getProperty(columnLabel).getType())
-            .orElse(YTType.EMBEDDEDLIST);
+            .orElse(PropertyType.EMBEDDEDLIST);
 
     assert columnType.isEmbedded() && columnType.isMultiValue();
 
@@ -412,8 +411,8 @@ public class OrientJdbcResultSet implements ResultSet {
     try {
       Object value = result.getProperty(columnLabel);
 
-      if (value instanceof YTRID) {
-        value = ((YTRID) value).getRecord();
+      if (value instanceof RID) {
+        value = ((RID) value).getRecord();
       }
 
       if (value instanceof Blob) {
@@ -421,16 +420,16 @@ public class OrientJdbcResultSet implements ResultSet {
         return new OrientBlob((Blob) value);
       } else if (value instanceof LinkList list) {
         // check if all the list items are instances of RecordBytes
-        ListIterator<YTIdentifiable> iterator = list.listIterator();
+        ListIterator<Identifiable> iterator = list.listIterator();
 
         List<Blob> binaryRecordList = new ArrayList<>(list.size());
         while (iterator.hasNext()) {
-          YTIdentifiable listElement = iterator.next();
+          Identifiable listElement = iterator.next();
 
           try {
             Blob ob = statement.database.load(listElement.getIdentity());
             binaryRecordList.add(ob);
-          } catch (YTRecordNotFoundException rnf) {
+          } catch (RecordNotFoundException rnf) {
             // ignore
           }
         }

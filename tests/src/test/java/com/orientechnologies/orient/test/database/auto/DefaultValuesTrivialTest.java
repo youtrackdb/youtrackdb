@@ -4,21 +4,21 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.Date;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -34,12 +34,12 @@ public class DefaultValuesTrivialTest {
 
   private static final int DOCUMENT_COUNT = 50;
 
-  private YTDatabaseSessionInternal database;
+  private DatabaseSessionInternal database;
 
   @BeforeMethod
   public void before() {
     //noinspection deprecation
-    database = new YTDatabaseDocumentTx("memory:" + DefaultValuesTrivialTest.class.getSimpleName());
+    database = new DatabaseDocumentTx("memory:" + DefaultValuesTrivialTest.class.getSimpleName());
     //noinspection deprecation
     database.create();
   }
@@ -54,13 +54,13 @@ public class DefaultValuesTrivialTest {
   public void test() {
 
     // create example schema
-    YTSchema schema = database.getMetadata().getSchema();
-    YTClass classPerson = schema.createClass("Person");
+    Schema schema = database.getMetadata().getSchema();
+    SchemaClass classPerson = schema.createClass("Person");
 
-    classPerson.createProperty(database, "name", YTType.STRING);
-    classPerson.createProperty(database, "join_date", YTType.DATETIME)
+    classPerson.createProperty(database, "name", PropertyType.STRING);
+    classPerson.createProperty(database, "join_date", PropertyType.DATETIME)
         .setDefaultValue(database, "sysdate()");
-    classPerson.createProperty(database, "active", YTType.BOOLEAN)
+    classPerson.createProperty(database, "active", PropertyType.BOOLEAN)
         .setDefaultValue(database, "true");
 
     Date dtStart = getDatabaseSysdate(database);
@@ -82,13 +82,13 @@ public class DefaultValuesTrivialTest {
 
       try {
         //
-        Date dt = doc.field("join_date", YTType.DATETIME);
+        Date dt = doc.field("join_date", PropertyType.DATETIME);
 
         boolean isInRange = (!dt.before(dtStart)) && (!dt.after(dtAfter));
         Assert.assertTrue(isInRange);
 
         //
-        boolean active = doc.field("active", YTType.BOOLEAN);
+        boolean active = doc.field("active", PropertyType.BOOLEAN);
         Assert.assertTrue(active);
       } catch (Exception ex) {
         ex.printStackTrace();
@@ -97,17 +97,17 @@ public class DefaultValuesTrivialTest {
     }
   }
 
-  private static Date getDatabaseSysdate(YTDatabaseSession database) {
-    try (YTResultSet dates = database.query("SELECT sysdate() as sysdate")) {
+  private static Date getDatabaseSysdate(DatabaseSession database) {
+    try (ResultSet dates = database.query("SELECT sysdate() as sysdate")) {
       return dates.next().getProperty("sysdate");
     }
   }
 
   @Test
   public void testDefaultValueConversion() {
-    YTSchema schema = database.getMetadata().getSchema();
-    YTClass classPerson = schema.createClass("Person");
-    classPerson.createProperty(database, "users", YTType.LINKSET)
+    Schema schema = database.getMetadata().getSchema();
+    SchemaClass classPerson = schema.createClass("Person");
+    classPerson.createProperty(database, "users", PropertyType.LINKSET)
         .setDefaultValue(database, "[#5:1]");
 
     EntityImpl doc = new EntityImpl("Person");
@@ -117,21 +117,23 @@ public class DefaultValuesTrivialTest {
     database.commit();
 
     EntityImpl doc1 = database.load(record.getIdentity());
-    Set<YTIdentifiable> rids = doc1.field("users");
+    Set<Identifiable> rids = doc1.field("users");
     assertEquals(rids.size(), 1);
-    assertEquals(rids.iterator().next(), new YTRecordId(5, 1));
+    assertEquals(rids.iterator().next(), new RecordId(5, 1));
   }
 
   @Test
   public void testPrepopulation() {
     // create example schema
-    YTSchema schema = database.getMetadata().getSchema();
-    YTClass classA = schema.createClass("ClassA");
+    Schema schema = database.getMetadata().getSchema();
+    SchemaClass classA = schema.createClass("ClassA");
 
-    classA.createProperty(database, "name", YTType.STRING)
+    classA.createProperty(database, "name", PropertyType.STRING)
         .setDefaultValue(database, "default name");
-    classA.createProperty(database, "date", YTType.DATETIME).setDefaultValue(database, "sysdate()");
-    classA.createProperty(database, "active", YTType.BOOLEAN).setDefaultValue(database, "true");
+    classA.createProperty(database, "date", PropertyType.DATETIME)
+        .setDefaultValue(database, "sysdate()");
+    classA.createProperty(database, "active", PropertyType.BOOLEAN)
+        .setDefaultValue(database, "true");
 
     {
       EntityImpl doc = new EntityImpl(classA);
@@ -166,12 +168,12 @@ public class DefaultValuesTrivialTest {
   @Test
   public void testPrepopulationIndex() {
     // create example schema
-    YTSchema schema = database.getMetadata().getSchema();
-    YTClass classA = schema.createClass("ClassA");
+    Schema schema = database.getMetadata().getSchema();
+    SchemaClass classA = schema.createClass("ClassA");
 
-    YTProperty prop = classA.createProperty(database, "name", YTType.STRING);
+    Property prop = classA.createProperty(database, "name", PropertyType.STRING);
     prop.setDefaultValue(database, "default name");
-    OIndex index = prop.createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
+    Index index = prop.createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     {
       EntityImpl doc = new EntityImpl(classA);
@@ -179,7 +181,7 @@ public class DefaultValuesTrivialTest {
       database.begin();
       database.save(doc);
       database.commit();
-      try (Stream<YTRID> stream = index.getInternal().getRids(database, "default name")) {
+      try (Stream<RID> stream = index.getInternal().getRids(database, "default name")) {
         assertEquals(1, stream.count());
       }
     }
@@ -189,12 +191,12 @@ public class DefaultValuesTrivialTest {
   public void testPrepopulationIndexTx() {
 
     // create example schema
-    YTSchema schema = database.getMetadata().getSchema();
-    YTClass classA = schema.createClass("ClassA");
+    Schema schema = database.getMetadata().getSchema();
+    SchemaClass classA = schema.createClass("ClassA");
 
-    YTProperty prop = classA.createProperty(database, "name", YTType.STRING);
+    Property prop = classA.createProperty(database, "name", PropertyType.STRING);
     prop.setDefaultValue(database, "default name");
-    OIndex index = prop.createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
+    Index index = prop.createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     {
       database.begin();
@@ -205,11 +207,11 @@ public class DefaultValuesTrivialTest {
       database.save(doc);
       database.commit();
 
-      try (Stream<YTRID> stream = index.getInternal().getRids(database, "default name")) {
+      try (Stream<RID> stream = index.getInternal().getRids(database, "default name")) {
         assertEquals(1, stream.count());
       }
       database.commit();
-      try (Stream<YTRID> stream = index.getInternal().getRids(database, "default name")) {
+      try (Stream<RID> stream = index.getInternal().getRids(database, "default name")) {
         assertEquals(1, stream.count());
       }
     }
@@ -219,13 +221,13 @@ public class DefaultValuesTrivialTest {
   public void testPrepopulationMultivalueIndex() {
 
     // create example schema
-    YTSchema schema = database.getMetadata().getSchema();
-    YTClass classA = schema.createClass("ClassA");
+    Schema schema = database.getMetadata().getSchema();
+    SchemaClass classA = schema.createClass("ClassA");
 
-    YTProperty prop = classA.createProperty(database, "name", YTType.STRING);
+    Property prop = classA.createProperty(database, "name", PropertyType.STRING);
     prop.setDefaultValue(database, "default name");
-    YTProperty prop2 = classA.createProperty(database, "value", YTType.STRING);
-    OIndex index = classA.createIndex(database, "multi", YTClass.INDEX_TYPE.NOTUNIQUE, "value",
+    Property prop2 = classA.createProperty(database, "value", PropertyType.STRING);
+    Index index = classA.createIndex(database, "multi", SchemaClass.INDEX_TYPE.NOTUNIQUE, "value",
         "name");
 
     {
@@ -237,7 +239,7 @@ public class DefaultValuesTrivialTest {
       database.save(doc);
       database.commit();
 
-      try (Stream<YTRID> stream = index.getInternal().getRids(database, new OCompositeKey("1"))) {
+      try (Stream<RID> stream = index.getInternal().getRids(database, new CompositeKey("1"))) {
         assertEquals(1, stream.count());
       }
     }
@@ -250,11 +252,11 @@ public class DefaultValuesTrivialTest {
       database.save(doc);
       database.commit();
 
-      try (Stream<YTRID> stream = index.getInternal().getRids(database, new OCompositeKey("2"))) {
+      try (Stream<RID> stream = index.getInternal().getRids(database, new CompositeKey("2"))) {
         assertEquals(1, stream.count());
       }
     }
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, new OCompositeKey("3"))) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, new CompositeKey("3"))) {
       assertEquals(0, stream.count());
     }
   }

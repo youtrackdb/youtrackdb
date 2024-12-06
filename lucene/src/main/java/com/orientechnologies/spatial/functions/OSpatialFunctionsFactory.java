@@ -13,16 +13,16 @@
  */
 package com.orientechnologies.spatial.functions;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionFactoryTemplate;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionFactoryTemplate;
 
-public class OSpatialFunctionsFactory extends OSQLFunctionFactoryTemplate {
+public class OSpatialFunctionsFactory extends SQLFunctionFactoryTemplate {
 
   public OSpatialFunctionsFactory() {
   }
 
   @Override
-  public void registerDefaultFunctions(YTDatabaseSessionInternal session) {
+  public void registerDefaultFunctions(DatabaseSessionInternal session) {
     register(session, new OSTGeomFromTextFunction());
     register(session, new OSTAsTextFunction());
     register(session, new OSTWithinFunction());

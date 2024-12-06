@@ -18,15 +18,15 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -44,8 +44,8 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
   @Before
   public void init() {
 
-    final YTClass c1 = db.createVertexClass("C1");
-    c1.createProperty(db, "p1", YTType.STRING);
+    final SchemaClass c1 = db.createVertexClass("C1");
+    c1.createProperty(db, "p1", PropertyType.STRING);
     c1.createIndex(db, "C1.p1", "FULLTEXT", null, null, "LUCENE", new String[]{"p1"});
   }
 
@@ -57,7 +57,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
     db.begin();
     db.save(doc);
 
-    YTResultSet vertices = db.query("select from C1 where p1 lucene \"abc\" ");
+    ResultSet vertices = db.query("select from C1 where p1 lucene \"abc\" ");
 
     Assert.assertEquals(vertices.stream().count(), 1);
     db.rollback();
@@ -73,11 +73,11 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
     EntityImpl doc = new EntityImpl("c1");
     doc.field("p1", "abc");
 
-    OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
+    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
 
     db.save(doc);
 
-    YTResultSet vertices = db.query("select from C1 where p1 lucene \"abc\" ");
+    ResultSet vertices = db.query("select from C1 where p1 lucene \"abc\" ");
 
     Assert.assertEquals(1, vertices.stream().count());
 
@@ -86,7 +86,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
 
     vertices = db.query("select from C1 where p1 lucene \"abc\" ");
 
-    YTResult result = vertices.next();
+    Result result = vertices.next();
     db.begin();
 
     Assert.assertFalse(vertices.hasNext());
@@ -100,7 +100,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
     vertices = db.query("select from C1 where p1 lucene \"abc\" ");
 
     Collection coll;
-    try (Stream<YTRID> rids = index.getInternal().getRids(db, "abc")) {
+    try (Stream<RID> rids = index.getInternal().getRids(db, "abc")) {
       coll = rids.collect(Collectors.toList());
     }
 
@@ -128,8 +128,8 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
   @Test
   public void txUpdateTest() {
 
-    OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
-    YTClass c1 = db.getMetadata().getSchema().getClass("C1");
+    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
+    SchemaClass c1 = db.getMetadata().getSchema().getClass("C1");
     try {
       c1.truncate(db);
     } catch (IOException e) {
@@ -144,7 +144,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
 
     db.save(doc);
 
-    YTResultSet vertices = db.query("select from C1 where p1 lucene \"update\" ");
+    ResultSet vertices = db.query("select from C1 where p1 lucene \"update\" ");
 
     Assert.assertEquals(vertices.stream().count(), 1);
 
@@ -155,11 +155,11 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
     vertices = db.query("select from C1 where p1 lucene \"update\" ");
 
     Collection coll;
-    try (Stream<YTRID> stream = index.getInternal().getRids(db, "update")) {
+    try (Stream<RID> stream = index.getInternal().getRids(db, "update")) {
       coll = stream.collect(Collectors.toList());
     }
 
-    YTResult res = vertices.next();
+    Result res = vertices.next();
     Assert.assertFalse(vertices.hasNext());
     Assert.assertEquals(coll.size(), 1);
     Assert.assertEquals(index.getInternal().size(db), 1);
@@ -171,7 +171,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
     db.save(record);
 
     vertices = db.query("select from C1 where p1 lucene \"update\" ");
-    try (Stream<YTRID> stream = index.getInternal().getRids(db, "update")) {
+    try (Stream<RID> stream = index.getInternal().getRids(db, "update")) {
       coll = stream.collect(Collectors.toList());
     }
 
@@ -189,7 +189,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
     Assert.assertEquals(index.getInternal().size(db), 1);
 
     vertices = db.query("select from C1 where p1 lucene \"removed\"");
-    try (Stream<YTRID> stream = index.getInternal().getRids(db, "removed")) {
+    try (Stream<RID> stream = index.getInternal().getRids(db, "removed")) {
       coll = stream.collect(Collectors.toList());
     }
 
@@ -208,8 +208,8 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
   @Test
   public void txUpdateTestComplex() {
 
-    OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
-    YTClass c1 = db.getMetadata().getSchema().getClass("C1");
+    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
+    SchemaClass c1 = db.getMetadata().getSchema().getClass("C1");
     try {
       c1.truncate(db);
     } catch (IOException e) {
@@ -236,9 +236,9 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
     doc.field("p1", "removed");
     db.save(doc);
 
-    YTResultSet vertices = db.query("select from C1 where p1 lucene \"abc\"");
+    ResultSet vertices = db.query("select from C1 where p1 lucene \"abc\"");
     Collection coll;
-    try (Stream<YTRID> stream = index.getInternal().getRids(db, "abc")) {
+    try (Stream<RID> stream = index.getInternal().getRids(db, "abc")) {
       coll = stream.collect(Collectors.toList());
     }
 
@@ -247,9 +247,9 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
 
     Iterator iterator = coll.iterator();
     int i = 0;
-    YTRecordId rid = null;
+    RecordId rid = null;
     while (iterator.hasNext()) {
-      rid = (YTRecordId) iterator.next();
+      rid = (RecordId) iterator.next();
       i++;
     }
 
@@ -260,7 +260,7 @@ public class LuceneTransactionQueryTest extends BaseLuceneTest {
     Assert.assertEquals(index.getInternal().size(db), 2);
 
     vertices = db.query("select from C1 where p1 lucene \"removed\" ");
-    try (Stream<YTRID> stream = index.getInternal().getRids(db, "removed")) {
+    try (Stream<RID> stream = index.getInternal().getRids(db, "removed")) {
       coll = stream.collect(Collectors.toList());
     }
 

@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 
@@ -9,7 +9,7 @@ import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionS
  */
 public class SubQueryStep extends AbstractExecutionStep {
 
-  private final OInternalExecutionPlan subExecuitonPlan;
+  private final InternalExecutionPlan subExecuitonPlan;
   private final boolean sameContextAsParent;
 
   /**
@@ -20,7 +20,7 @@ public class SubQueryStep extends AbstractExecutionStep {
    * @param subCtx           the context of the subquery execution plan
    */
   public SubQueryStep(
-      OInternalExecutionPlan subExecutionPlan,
+      InternalExecutionPlan subExecutionPlan,
       CommandContext ctx,
       CommandContext subCtx,
       boolean profilingEnabled) {
@@ -31,7 +31,7 @@ public class SubQueryStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -40,7 +40,7 @@ public class SubQueryStep extends AbstractExecutionStep {
     return parentRs.map(this::mapResult);
   }
 
-  private YTResult mapResult(YTResult result, CommandContext ctx) {
+  private Result mapResult(Result result, CommandContext ctx) {
     ctx.setVariable("$current", result);
     return result;
   }

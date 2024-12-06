@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -34,18 +34,18 @@ import java.util.Map;
 public abstract class CommandExecutorSQLEarlyResultsetAbstract
     extends CommandExecutorSQLResultsetAbstract {
 
-  private Iterator<YTIdentifiable> iterator;
+  private Iterator<Identifiable> iterator;
 
-  public Iterator<YTIdentifiable> iterator() {
-    return iterator(ODatabaseRecordThreadLocal.instance().get(), null);
+  public Iterator<Identifiable> iterator() {
+    return iterator(DatabaseRecordThreadLocal.instance().get(), null);
   }
 
   @Override
-  public Iterator<YTIdentifiable> iterator(YTDatabaseSessionInternal querySession,
+  public Iterator<Identifiable> iterator(DatabaseSessionInternal querySession,
       Map<Object, Object> iArgs) {
     if (iterator == null) {
       if (tempResult == null) {
-        tempResult = (List<YTIdentifiable>) execute(iArgs, querySession);
+        tempResult = (List<Identifiable>) execute(iArgs, querySession);
       }
       iterator = tempResult.iterator();
     }

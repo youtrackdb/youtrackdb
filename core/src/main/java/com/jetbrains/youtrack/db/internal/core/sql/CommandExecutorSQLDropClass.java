@@ -22,11 +22,11 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLDropClassStatement;
 import java.util.Map;
 
@@ -36,7 +36,7 @@ import java.util.Map;
  */
 @SuppressWarnings("unchecked")
 public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String KEYWORD_DROP = "DROP";
   public static final String KEYWORD_CLASS = "CLASS";
@@ -77,19 +77,19 @@ public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
     int oldPos = 0;
     int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
     if (pos == -1 || !word.toString().equals(KEYWORD_DROP)) {
-      throw new YTCommandSQLParsingException(
+      throw new CommandSQLParsingException(
           "Keyword " + KEYWORD_DROP + " not found. Use " + getSyntax(), parserText, oldPos);
     }
 
     pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
     if (pos == -1 || !word.toString().equals(KEYWORD_CLASS)) {
-      throw new YTCommandSQLParsingException(
+      throw new CommandSQLParsingException(
           "Keyword " + KEYWORD_CLASS + " not found. Use " + getSyntax(), parserText, oldPos);
     }
 
     pos = nextWord(parserText, parserTextUpperCase, pos, word, false);
     if (pos == -1) {
-      throw new YTCommandSQLParsingException(
+      throw new CommandSQLParsingException(
           "Expected <class>. Use " + getSyntax(), parserText, pos);
     }
 
@@ -108,7 +108,7 @@ public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
 
   @Override
   public long getDistributedTimeout() {
-    final YTClass cls = getDatabase().getMetadata().getSchema().getClass(className);
+    final SchemaClass cls = getDatabase().getMetadata().getSchema().getClass(className);
     if (className != null && cls != null) {
       return getDatabase()
           .getConfiguration()
@@ -124,9 +124,9 @@ public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
   /**
    * Execute the DROP CLASS.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (className == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -134,7 +134,7 @@ public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
     if (ifExists && !database.getMetadata().getSchema().existsClass(className)) {
       return true;
     }
-    final YTClass cls = database.getMetadata().getSchema().getClass(className);
+    final SchemaClass cls = database.getMetadata().getSchema().getClass(className);
     if (cls == null) {
       return null;
     }
@@ -145,14 +145,14 @@ public class CommandExecutorSQLDropClass extends CommandExecutorSQLAbstract
       // NOT EMPTY, CHECK IF CLASS IS OF VERTEX OR EDGES
       if (cls.isSubClassOf("V")) {
         // FOUND VERTEX CLASS
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "'DROP CLASS' command cannot drop class '"
                 + className
                 + "' because it contains Vertices. Use 'DELETE VERTEX' command first to avoid"
                 + " broken edges in a database, or apply the 'UNSAFE' keyword to force it");
       } else if (cls.isSubClassOf("E")) {
         // FOUND EDGE CLASS
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "'DROP CLASS' command cannot drop class '"
                 + className
                 + "' because it contains Edges. Use 'DELETE EDGE' command first to avoid broken"

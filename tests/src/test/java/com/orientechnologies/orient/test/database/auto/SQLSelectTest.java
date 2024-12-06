@@ -15,21 +15,21 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.iterator.ORecordIteratorCluster;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.INDEX_TYPE;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.INDEX_TYPE;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
-import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -83,7 +83,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     Assert.assertFalse(result.isEmpty());
 
     for (EntityImpl d : result) {
-      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
@@ -98,7 +98,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     Assert.assertFalse(result.isEmpty());
 
     for (EntityImpl d : result) {
-      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
@@ -126,7 +126,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     Assert.assertFalse(result.isEmpty());
 
     for (EntityImpl d : result) {
-      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
@@ -180,7 +180,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     tags.add("nice");
 
     EntityImpl doc = new EntityImpl("Profile");
-    doc.field("tags", tags, YTType.EMBEDDEDSET);
+    doc.field("tags", tags, PropertyType.EMBEDDEDSET);
 
     database.begin();
     doc.save();
@@ -234,7 +234,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     coll.add(new EntityImpl("name", "Jay", "surname", "Miner"));
 
     EntityImpl doc = new EntityImpl("Profile");
-    doc.field("coll", coll, YTType.EMBEDDEDSET);
+    doc.field("coll", coll, PropertyType.EMBEDDEDSET);
 
     database.begin();
     doc.save();
@@ -260,7 +260,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     coll.add(new EntityImpl("name", "Jay", "surname", "Miner"));
 
     EntityImpl doc = new EntityImpl("Profile");
-    doc.field("coll", coll, YTType.EMBEDDEDLIST);
+    doc.field("coll", coll, PropertyType.EMBEDDEDLIST);
 
     database.begin();
     doc.save();
@@ -286,7 +286,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     customReferences.put("second", new EntityImpl("name", "Jay", "surname", "Miner"));
 
     EntityImpl doc = new EntityImpl("Profile");
-    doc.field("customReferences", customReferences, YTType.EMBEDDEDMAP);
+    doc.field("customReferences", customReferences, PropertyType.EMBEDDEDMAP);
 
     database.begin();
     doc.save();
@@ -317,7 +317,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     customReferences.put("second", new EntityImpl("name", "Jay", "surname", "Miner"));
 
     EntityImpl doc = new EntityImpl("Profile");
-    doc.field("customReferences", customReferences, YTType.EMBEDDEDMAP);
+    doc.field("customReferences", customReferences, PropertyType.EMBEDDEDMAP);
 
     database.begin();
     doc.save();
@@ -373,7 +373,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     record.field("name", "Cat");
 
     database.begin();
-    Collection<YTIdentifiable> races = new HashSet<>();
+    Collection<Identifiable> races = new HashSet<>();
     races.add(((EntityImpl) database.newInstance("AnimalRace")).field("name", "European"));
     races.add(((EntityImpl) database.newInstance("AnimalRace")).field("name", "Siamese"));
     record.field("age", 10);
@@ -394,7 +394,7 @@ public class SQLSelectTest extends AbstractSelectTest {
       Assert.assertNotNull(record.field("races"));
 
       races = record.field("races");
-      for (YTIdentifiable race : races) {
+      for (Identifiable race : races) {
         if (Objects.equals(race.getEntity().getProperty("name"), "European")
             || Objects.equals(race.getEntity().getProperty("name"), "Asiatic")) {
           found = true;
@@ -417,7 +417,7 @@ public class SQLSelectTest extends AbstractSelectTest {
       Assert.assertNotNull(record.field("races"));
 
       races = record.field("races");
-      for (YTIdentifiable race : races) {
+      for (Identifiable race : races) {
         if (Objects.equals(race.getEntity().getProperty("name"), "European")
             || Objects.equals(race.getEntity().getProperty("name"), "Asiatic")) {
           found = true;
@@ -613,7 +613,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     try {
       executeQuery("select from Profile order by name aaaa", database);
       Assert.fail();
-    } catch (YTCommandSQLParsingException ignored) {
+    } catch (CommandSQLParsingException ignored) {
     }
   }
 
@@ -844,7 +844,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     Assert.assertFalse(result.isEmpty());
 
     for (EntityImpl d : result) {
-      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
@@ -1040,7 +1040,7 @@ public class SQLSelectTest extends AbstractSelectTest {
       Assert.assertEquals(
           Objects.requireNonNull(
                   ((EntityImpl)
-                      ((Collection<YTIdentifiable>) d.field("addresses"))
+                      ((Collection<Identifiable>) d.field("addresses"))
                           .iterator()
                           .next()
                           .getRecord())
@@ -1059,10 +1059,10 @@ public class SQLSelectTest extends AbstractSelectTest {
     for (EntityImpl d : result) {
       Assert.assertTrue(
           d.field("addresses") == null
-              || ((Collection<YTIdentifiable>) d.field("addresses")).isEmpty()
+              || ((Collection<Identifiable>) d.field("addresses")).isEmpty()
               || !Objects.requireNonNull(
                   ((EntityImpl)
-                      ((Collection<YTIdentifiable>) d.field("addresses"))
+                      ((Collection<Identifiable>) d.field("addresses"))
                           .iterator()
                           .next()
                           .getRecord())
@@ -1073,11 +1073,11 @@ public class SQLSelectTest extends AbstractSelectTest {
   }
 
   public void testParams() {
-    YTClass test = database.getMetadata().getSchema().getClass("test");
+    SchemaClass test = database.getMetadata().getSchema().getClass("test");
     if (test == null) {
       test = database.getMetadata().getSchema().createClass("test");
-      test.createProperty(database, "f1", YTType.STRING);
-      test.createProperty(database, "f2", YTType.STRING);
+      test.createProperty(database, "f1", PropertyType.STRING);
+      test.createProperty(database, "f2", PropertyType.STRING);
     }
     EntityImpl document = new EntityImpl(test);
     document.field("f1", "a").field("f2", "a");
@@ -1144,13 +1144,13 @@ public class SQLSelectTest extends AbstractSelectTest {
   @Test
   public void queryOrderByWithLimit() {
 
-    YTSchema schema = database.getMetadata().getSchema();
-    YTClass facClass = schema.getClass("FicheAppelCDI");
+    Schema schema = database.getMetadata().getSchema();
+    SchemaClass facClass = schema.getClass("FicheAppelCDI");
     if (facClass == null) {
       facClass = schema.createClass("FicheAppelCDI");
     }
     if (!facClass.existsProperty("date")) {
-      facClass.createProperty(database, "date", YTType.DATE);
+      facClass.createProperty(database, "date", PropertyType.DATE);
     }
 
     final Calendar currentYear = Calendar.getInstance();
@@ -1215,19 +1215,19 @@ public class SQLSelectTest extends AbstractSelectTest {
                 + positions.get(25)
                 + "]) AND @rid > ? LIMIT 10000",
             database,
-            new YTRecordId(clusterId, minPos));
+            new RecordId(clusterId, minPos));
 
     Assert.assertEquals(resultset.size(), 1);
 
     Assert.assertEquals(resultset.get(0).field("oid"),
-        new YTRecordId(clusterId, maxPos).toString());
+        new RecordId(clusterId, maxPos).toString());
   }
 
   @Test
   public void testSelectFromListParameter() {
-    YTClass placeClass = database.getMetadata().getSchema().createClass("Place", 1);
-    placeClass.createProperty(database, "id", YTType.STRING);
-    placeClass.createProperty(database, "descr", YTType.STRING);
+    SchemaClass placeClass = database.getMetadata().getSchema().createClass("Place", 1);
+    placeClass.createProperty(database, "id", PropertyType.STRING);
+    placeClass.createProperty(database, "descr", PropertyType.STRING);
     placeClass.createIndex(database, "place_id_index", INDEX_TYPE.UNIQUE, "id");
 
     EntityImpl odoc = new EntityImpl("Place");
@@ -1261,12 +1261,12 @@ public class SQLSelectTest extends AbstractSelectTest {
 
   @Test
   public void testSelectRidFromListParameter() {
-    YTClass placeClass = database.getMetadata().getSchema().createClass("Place", 1);
-    placeClass.createProperty(database, "id", YTType.STRING);
-    placeClass.createProperty(database, "descr", YTType.STRING);
+    SchemaClass placeClass = database.getMetadata().getSchema().createClass("Place", 1);
+    placeClass.createProperty(database, "id", PropertyType.STRING);
+    placeClass.createProperty(database, "descr", PropertyType.STRING);
     placeClass.createIndex(database, "place_id_index", INDEX_TYPE.UNIQUE, "id");
 
-    List<YTRID> inputValues = new ArrayList<>();
+    List<RID> inputValues = new ArrayList<>();
 
     EntityImpl odoc = new EntityImpl("Place");
     odoc.field("id", "adda");
@@ -1300,7 +1300,7 @@ public class SQLSelectTest extends AbstractSelectTest {
 
   @Test
   public void testSelectRidInList() {
-    YTClass placeClass = database.getMetadata().getSchema().createClass("Place", 1);
+    SchemaClass placeClass = database.getMetadata().getSchema().createClass("Place", 1);
     database.getMetadata().getSchema().createClass("FamousPlace", 1, placeClass);
 
     EntityImpl firstPlace = new EntityImpl("Place");
@@ -1321,8 +1321,8 @@ public class SQLSelectTest extends AbstractSelectTest {
     database.save(famousPlace);
     database.commit();
 
-    YTRID secondPlaceId = secondPlace.getIdentity();
-    YTRID famousPlaceId = famousPlace.getIdentity();
+    RID secondPlaceId = secondPlace.getIdentity();
+    RID famousPlaceId = famousPlace.getIdentity();
     // if one of these two asserts fails, the test will be meaningless.
     Assert.assertTrue(secondPlaceId.getClusterId() < famousPlaceId.getClusterId());
     Assert.assertTrue(secondPlaceId.getClusterPosition() > famousPlaceId.getClusterPosition());
@@ -1354,9 +1354,9 @@ public class SQLSelectTest extends AbstractSelectTest {
 
     Assert.assertFalse(result.isEmpty());
 
-    YTRID lastRid = null;
+    RID lastRid = null;
     for (EntityImpl d : result) {
-      YTRID rid = d.getIdentity();
+      RID rid = d.getIdentity();
 
       if (lastRid != null) {
         Assert.assertTrue(rid.compareTo(lastRid) < 0);
@@ -1383,14 +1383,15 @@ public class SQLSelectTest extends AbstractSelectTest {
 
     Assert.assertFalse(result.isEmpty());
     int i = 1;
-    for (YTIdentifiable r : result) {
+    for (Identifiable r : result) {
       Assert.assertEquals(((EntityImpl) r.getRecord()).<Object>field("counter"), 1);
     }
   }
 
   @Test
   public void testMultipleClustersWithPagination() {
-    final YTClass cls = database.getMetadata().getSchema().createClass("PersonMultipleClusters");
+    final SchemaClass cls = database.getMetadata().getSchema()
+        .createClass("PersonMultipleClusters");
     cls.addCluster(database, "PersonMultipleClusters_1");
     cls.addCluster(database, "PersonMultipleClusters_2");
     cls.addCluster(database, "PersonMultipleClusters_3");
@@ -1409,7 +1410,7 @@ public class SQLSelectTest extends AbstractSelectTest {
       List<EntityImpl> resultset = executeQuery(query, new ChangeableRecordId());
 
       while (!resultset.isEmpty()) {
-        final YTRID last = resultset.get(resultset.size() - 1).getIdentity();
+        final RID last = resultset.get(resultset.size() - 1).getIdentity();
 
         for (EntityImpl personDoc : resultset) {
           Assert.assertTrue(names.contains(personDoc.<String>field("First")));
@@ -1428,7 +1429,7 @@ public class SQLSelectTest extends AbstractSelectTest {
 
   @Test
   public void testOutFilterInclude() {
-    YTSchema schema = database.getMetadata().getSchema();
+    Schema schema = database.getMetadata().getSchema();
     schema.createClass("TestOutFilterInclude", schema.getClass("V"));
     database.command("create class linkedToOutFilterInclude extends E").close();
 
@@ -1450,7 +1451,7 @@ public class SQLSelectTest extends AbstractSelectTest {
 
     Assert.assertEquals(result.size(), 1);
 
-    for (YTIdentifiable r : result) {
+    for (Identifiable r : result) {
       Assert.assertNull(((EntityImpl) r.getRecord()).field("name"));
     }
   }
@@ -1458,7 +1459,7 @@ public class SQLSelectTest extends AbstractSelectTest {
   private List<Long> getValidPositions(int clusterId) {
     final List<Long> positions = new ArrayList<>();
 
-    final ORecordIteratorCluster<EntityImpl> iteratorCluster =
+    final RecordIteratorCluster<EntityImpl> iteratorCluster =
         database.browseCluster(database.getClusterNameById(clusterId));
 
     for (int i = 0; i < 100; i++) {
@@ -1482,7 +1483,7 @@ public class SQLSelectTest extends AbstractSelectTest {
     database.save(bytes, "binarycluster");
     database.commit();
 
-    YTResultSet result = database.query("select from cluster:binarycluster");
+    ResultSet result = database.query("select from cluster:binarycluster");
 
     Assert.assertEquals(result.stream().count(), 1);
 
@@ -1497,10 +1498,10 @@ public class SQLSelectTest extends AbstractSelectTest {
 
   @Test
   public void testExpandSkip() {
-    YTSchema schema = database.getMetadata().getSchema();
-    YTClass v = schema.getClass("V");
-    final YTClass cls = schema.createClass("TestExpandSkip", v);
-    cls.createProperty(database, "name", YTType.STRING);
+    Schema schema = database.getMetadata().getSchema();
+    SchemaClass v = schema.getClass("V");
+    final SchemaClass cls = schema.createClass("TestExpandSkip", v);
+    cls.createProperty(database, "name", PropertyType.STRING);
     cls.createIndex(database, "TestExpandSkip.name", INDEX_TYPE.UNIQUE, "name");
 
     database.begin();
@@ -1516,7 +1517,7 @@ public class SQLSelectTest extends AbstractSelectTest {
         .close();
     database.commit();
 
-    YTResultSet result = database.query(
+    ResultSet result = database.query(
         "select expand(out()) from TestExpandSkip where name = '1'");
 
     Assert.assertEquals(result.stream().count(), 3);
@@ -1545,11 +1546,11 @@ public class SQLSelectTest extends AbstractSelectTest {
 
   @Test
   public void testPolymorphicEdges() {
-    YTSchema schema = database.getMetadata().getSchema();
-    YTClass v = schema.getClass("V");
-    YTClass e = schema.getClass("E");
+    Schema schema = database.getMetadata().getSchema();
+    SchemaClass v = schema.getClass("V");
+    SchemaClass e = schema.getClass("E");
     schema.createClass("TestPolymorphicEdges_V", v);
-    final YTClass e1 = schema.createClass("TestPolymorphicEdges_E1", e);
+    final SchemaClass e1 = schema.createClass("TestPolymorphicEdges_E1", e);
     schema.createClass("TestPolymorphicEdges_E2", e1);
 
     database.begin();
@@ -1569,7 +1570,7 @@ public class SQLSelectTest extends AbstractSelectTest {
         .close();
     database.commit();
 
-    YTResultSet result =
+    ResultSet result =
         database.query(
             "select expand(out('TestPolymorphicEdges_E1')) from TestPolymorphicEdges_V where name ="
                 + " '1'");
@@ -1584,8 +1585,8 @@ public class SQLSelectTest extends AbstractSelectTest {
 
   @Test
   public void testSizeOfLink() {
-    YTSchema schema = database.getMetadata().getSchema();
-    YTClass v = schema.getClass("V");
+    Schema schema = database.getMetadata().getSchema();
+    SchemaClass v = schema.getClass("V");
     schema.createClass("TestSizeOfLink", v);
 
     database.begin();
@@ -1599,7 +1600,7 @@ public class SQLSelectTest extends AbstractSelectTest {
         .close();
     database.commit();
 
-    YTResultSet result =
+    ResultSet result =
         database.query(
             " select from (select from TestSizeOfLink where name = '1') where out()[name=2].size()"
                 + " > 0");
@@ -1608,8 +1609,8 @@ public class SQLSelectTest extends AbstractSelectTest {
 
   @Test
   public void testEmbeddedMapAndDotNotation() {
-    YTSchema schema = database.getMetadata().getSchema();
-    YTClass v = schema.getClass("V");
+    Schema schema = database.getMetadata().getSchema();
+    SchemaClass v = schema.getClass("V");
     schema.createClass("EmbeddedMapAndDotNotation", v);
 
     database.begin();
@@ -1644,14 +1645,14 @@ public class SQLSelectTest extends AbstractSelectTest {
 
   @Test
   public void testLetWithQuotedValue() {
-    YTSchema schema = database.getMetadata().getSchema();
-    YTClass v = schema.getClass("V");
+    Schema schema = database.getMetadata().getSchema();
+    SchemaClass v = schema.getClass("V");
     schema.createClass("LetWithQuotedValue", v);
     database.begin();
     database.command("CREATE VERTEX LetWithQuotedValue set name = \"\\\"foo\\\"\"").close();
     database.commit();
 
-    YTResultSet result =
+    ResultSet result =
         database.query(
             " select expand($a) let $a = (select from LetWithQuotedValue where name ="
                 + " \"\\\"foo\\\"\")");

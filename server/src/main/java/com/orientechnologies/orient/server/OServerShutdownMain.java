@@ -20,11 +20,11 @@
 package com.orientechnologies.orient.server;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
+import com.orientechnologies.orient.client.binary.SocketChannelBinaryAsynchClient;
 import com.orientechnologies.orient.client.remote.message.OShutdownRequest;
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTNetworkProtocolException;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.NetworkProtocolException;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.network.OServerNetworkListener;
 import java.io.IOException;
@@ -37,9 +37,9 @@ public class OServerShutdownMain {
 
   public String networkAddress;
   public int[] networkPort;
-  public OChannelBinaryAsynchClient channel;
+  public SocketChannelBinaryAsynchClient channel;
 
-  private final YTContextConfiguration contextConfig;
+  private final ContextConfiguration contextConfig;
   private final String rootUser;
   private final String rootPassword;
 
@@ -48,7 +48,7 @@ public class OServerShutdownMain {
       final String iServerPorts,
       final String iRootUser,
       final String iRootPassword) {
-    contextConfig = new YTContextConfiguration();
+    contextConfig = new ContextConfiguration();
 
     rootUser = iRootUser;
     rootPassword = iRootPassword;
@@ -62,11 +62,11 @@ public class OServerShutdownMain {
     for (int port : networkPort) {
       try {
         channel =
-            new OChannelBinaryAsynchClient(
+            new SocketChannelBinaryAsynchClient(
                 networkAddress,
                 port,
                 contextConfig,
-                OChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION);
+                ChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION);
         break;
       } catch (Exception e) {
         LogManager.instance().error(this, "Error on connecting to %s:%d", e, networkAddress, port);
@@ -74,7 +74,7 @@ public class OServerShutdownMain {
     }
 
     if (channel == null) {
-      throw new YTNetworkProtocolException(
+      throw new NetworkProtocolException(
           "Cannot connect to server host '"
               + networkAddress
               + "', ports: "

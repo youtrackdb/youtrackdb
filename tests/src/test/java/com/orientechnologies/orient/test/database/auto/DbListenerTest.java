@@ -18,12 +18,12 @@ package com.orientechnologies.orient.test.database.auto;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseListener;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
-import com.jetbrains.youtrack.db.internal.core.hook.YTDocumentHookAbstract;
-import com.jetbrains.youtrack.db.internal.core.hook.YTRecordHook;
+import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
+import com.jetbrains.youtrack.db.internal.core.hook.DocumentHookAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -59,13 +59,13 @@ public class DbListenerTest extends DocumentDBBaseTest {
 
     final Map<EntityImpl, List<String>> changes = new HashMap<EntityImpl, List<String>>();
 
-    public DocumentChangeListener(final YTDatabaseSession db) {
+    public DocumentChangeListener(final DatabaseSession db) {
       db.registerHook(
-          new YTDocumentHookAbstract(db) {
+          new DocumentHookAbstract(db) {
 
             @Override
-            public YTRecordHook.DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
-              return YTRecordHook.DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE;
+            public RecordHook.DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
+              return RecordHook.DISTRIBUTED_EXECUTION_MODE.SOURCE_NODE;
             }
 
             @Override
@@ -82,35 +82,35 @@ public class DbListenerTest extends DocumentDBBaseTest {
     }
   }
 
-  public class DbListener implements YTDatabaseListener {
+  public class DbListener implements DatabaseListener {
 
     @Override
-    public void onAfterTxCommit(YTDatabaseSession iDatabase) {
+    public void onAfterTxCommit(DatabaseSession iDatabase) {
       onAfterTxCommit++;
     }
 
     @Override
-    public void onAfterTxRollback(YTDatabaseSession iDatabase) {
+    public void onAfterTxRollback(DatabaseSession iDatabase) {
       onAfterTxRollback++;
     }
 
     @Override
-    public void onBeforeTxBegin(YTDatabaseSession iDatabase) {
+    public void onBeforeTxBegin(DatabaseSession iDatabase) {
       onBeforeTxBegin++;
     }
 
     @Override
-    public void onBeforeTxCommit(YTDatabaseSession iDatabase) {
+    public void onBeforeTxCommit(DatabaseSession iDatabase) {
       onBeforeTxCommit++;
     }
 
     @Override
-    public void onBeforeTxRollback(YTDatabaseSession iDatabase) {
+    public void onBeforeTxRollback(DatabaseSession iDatabase) {
       onBeforeTxRollback++;
     }
 
     @Override
-    public void onClose(YTDatabaseSession iDatabase) {
+    public void onClose(DatabaseSession iDatabase) {
       onClose++;
     }
 
@@ -126,23 +126,23 @@ public class DbListenerTest extends DocumentDBBaseTest {
     }
 
     @Override
-    public void onCreate(YTDatabaseSession iDatabase) {
+    public void onCreate(DatabaseSession iDatabase) {
       onCreate++;
     }
 
     @Override
-    public void onDelete(YTDatabaseSession iDatabase) {
+    public void onDelete(DatabaseSession iDatabase) {
       onDelete++;
     }
 
     @Override
-    public void onOpen(YTDatabaseSession iDatabase) {
+    public void onOpen(DatabaseSession iDatabase) {
       onOpen++;
     }
 
     @Override
     public boolean onCorruptionRepairDatabase(
-        YTDatabaseSession iDatabase, final String iReason, String iWhatWillbeFixed) {
+        DatabaseSession iDatabase, final String iReason, String iWhatWillbeFixed) {
       onCorruption++;
       return true;
     }

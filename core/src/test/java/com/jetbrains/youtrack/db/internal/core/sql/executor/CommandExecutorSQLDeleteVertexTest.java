@@ -19,20 +19,20 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  *
  */
-public class CommandExecutorSQLDeleteVertexTest extends DBTestBase {
+public class CommandExecutorSQLDeleteVertexTest extends DbTestBase {
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    final YTSchema schema = db.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     schema.createClass("User", schema.getClass("V"));
   }
 
@@ -50,7 +50,7 @@ public class CommandExecutorSQLDeleteVertexTest extends DBTestBase {
     db.command("delete vertex User limit 4").close();
     db.commit();
 
-    YTResultSet result = db.query("select from User");
+    ResultSet result = db.query("select from User");
     Assert.assertEquals(result.stream().count(), 6);
   }
 
@@ -68,11 +68,11 @@ public class CommandExecutorSQLDeleteVertexTest extends DBTestBase {
     db.command("delete vertex User batch 5").close();
     db.commit();
 
-    YTResultSet result = db.query("select from User");
+    ResultSet result = db.query("select from User");
     Assert.assertEquals(result.stream().count(), 0);
   }
 
-  @Test(expected = YTCommandExecutionException.class)
+  @Test(expected = CommandExecutionException.class)
   public void testDeleteVertexWithEdgeRid() throws Exception {
 
     db.begin();
@@ -84,7 +84,7 @@ public class CommandExecutorSQLDeleteVertexTest extends DBTestBase {
         .close();
     db.commit();
 
-    try (YTResultSet edges = db.query("select from e limit 1")) {
+    try (ResultSet edges = db.query("select from e limit 1")) {
       db.begin();
       db.command("delete vertex [" + edges.next().getIdentity().get() + "]").close();
       db.commit();
@@ -106,7 +106,7 @@ public class CommandExecutorSQLDeleteVertexTest extends DBTestBase {
     db.command("delete vertex from (select from User)").close();
     db.commit();
 
-    YTResultSet result = db.query("select from User");
+    ResultSet result = db.query("select from User");
     Assert.assertEquals(result.stream().count(), 0);
   }
 
@@ -124,7 +124,7 @@ public class CommandExecutorSQLDeleteVertexTest extends DBTestBase {
     db.command("delete vertex from (select from User where name = 'foo10')").close();
     db.commit();
 
-    YTResultSet result = db.query("select from User");
+    ResultSet result = db.query("select from User");
     Assert.assertEquals(result.stream().count(), 99);
   }
 }

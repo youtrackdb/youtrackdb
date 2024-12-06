@@ -22,12 +22,12 @@ package com.jetbrains.youtrack.db.internal.core.index;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +35,7 @@ import org.junit.Test;
 /**
  *
  */
-public class TxNonUniqueIndexWithCollationTest extends DBTestBase {
+public class TxNonUniqueIndexWithCollationTest extends DbTestBase {
 
   @Before
   public void beforeTest() throws Exception {
@@ -43,9 +43,9 @@ public class TxNonUniqueIndexWithCollationTest extends DBTestBase {
     db.getMetadata()
         .getSchema()
         .createClass("user")
-        .createProperty(db, "name", YTType.STRING)
+        .createProperty(db, "name", PropertyType.STRING)
         .setCollate(db, "ci")
-        .createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE);
+        .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
     Entity user = db.newEntity("user");
@@ -69,7 +69,7 @@ public class TxNonUniqueIndexWithCollationTest extends DBTestBase {
 
     db.command("update user set name='abd' where name='Aby'").close();
 
-    final YTResultSet r = db.command("select * from user where name like '%B%' order by name");
+    final ResultSet r = db.command("select * from user where name like '%B%' order by name");
     assertEquals("abc", r.next().getProperty("name"));
     assertEquals("abd", r.next().getProperty("name"));
     assertEquals("abd", r.next().getProperty("name"));
@@ -86,7 +86,7 @@ public class TxNonUniqueIndexWithCollationTest extends DBTestBase {
 
     db.command("update user set name='Abd' where name='Aby'").close();
 
-    final YTResultSet r = db.command("select * from user where name >= 'abd' order by name");
+    final ResultSet r = db.command("select * from user where name >= 'abd' order by name");
     assertEquals("Abd", r.next().getProperty("name"));
     assertEquals("Abd", r.next().getProperty("name"));
     assertEquals("abz", r.next().getProperty("name"));

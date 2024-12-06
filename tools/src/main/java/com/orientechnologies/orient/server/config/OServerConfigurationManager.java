@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.config;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,12 +74,12 @@ public class OServerConfigurationManager {
     int userPositionInArray = -1;
 
     if (configuration.users == null) {
-      configuration.users = new OServerUserConfiguration[1];
+      configuration.users = new ServerUserConfiguration[1];
       userPositionInArray = 0;
     } else {
       // LOOK FOR EXISTENT USER
       for (int i = 0; i < configuration.users.length; ++i) {
-        final OServerUserConfiguration u = configuration.users[i];
+        final ServerUserConfiguration u = configuration.users[i];
 
         if (u != null && iServerUserName.equalsIgnoreCase(u.name)) {
           // FOUND
@@ -96,7 +96,7 @@ public class OServerConfigurationManager {
     }
 
     configuration.users[userPositionInArray] =
-        new OServerUserConfiguration(iServerUserName, iServerUserPasswd, iPermissions);
+        new ServerUserConfiguration(iServerUserName, iServerUserPasswd, iPermissions);
 
     return this;
   }
@@ -109,7 +109,7 @@ public class OServerConfigurationManager {
     configurationLoader.save(configuration);
   }
 
-  public OServerUserConfiguration getUser(final String iServerUserName) {
+  public ServerUserConfiguration getUser(final String iServerUserName) {
     if (iServerUserName == null || iServerUserName.length() == 0) {
       throw new IllegalArgumentException("User name is null or empty");
     }
@@ -117,7 +117,7 @@ public class OServerConfigurationManager {
     checkForAutoReloading();
 
     if (configuration.users != null) {
-      for (OServerUserConfiguration user : configuration.users) {
+      for (ServerUserConfiguration user : configuration.users) {
         if (iServerUserName.equalsIgnoreCase(user.name)) {
           // FOUND
           return user;
@@ -141,12 +141,12 @@ public class OServerConfigurationManager {
 
     // LOOK FOR EXISTENT USER
     for (int i = 0; i < configuration.users.length; ++i) {
-      final OServerUserConfiguration u = configuration.users[i];
+      final ServerUserConfiguration u = configuration.users[i];
 
       if (u != null && iServerUserName.equalsIgnoreCase(u.name)) {
         // FOUND
-        final OServerUserConfiguration[] newArray =
-            new OServerUserConfiguration[configuration.users.length - 1];
+        final ServerUserConfiguration[] newArray =
+            new ServerUserConfiguration[configuration.users.length - 1];
         // COPY LEFT PART
         System.arraycopy(configuration.users, 0, newArray, 0, i);
         // COPY RIGHT PART
@@ -159,10 +159,10 @@ public class OServerConfigurationManager {
     }
   }
 
-  public Set<OServerUserConfiguration> getUsers() {
+  public Set<ServerUserConfiguration> getUsers() {
     checkForAutoReloading();
 
-    final HashSet<OServerUserConfiguration> result = new HashSet<OServerUserConfiguration>();
+    final HashSet<ServerUserConfiguration> result = new HashSet<ServerUserConfiguration>();
     if (configuration.users != null) {
       for (int i = 0; i < configuration.users.length; ++i) {
         if (configuration.users[i] != null) {
@@ -180,8 +180,8 @@ public class OServerConfigurationManager {
         try {
           configuration = configurationLoader.load();
         } catch (IOException e) {
-          throw YTException.wrapException(
-              new YTConfigurationException("Cannot load server configuration"), e);
+          throw BaseException.wrapException(
+              new ConfigurationException("Cannot load server configuration"), e);
         }
       }
     }

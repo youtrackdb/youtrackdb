@@ -18,11 +18,11 @@
 
 package com.orientechnologies.lucene.tx;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
-import com.orientechnologies.lucene.exception.YTLuceneIndexException;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.orientechnologies.lucene.engine.LuceneIndexEngine;
+import com.orientechnologies.lucene.exception.LuceneIndexException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,21 +46,21 @@ public class OLuceneTxChangesMultiRid extends OLuceneTxChangesAbstract {
   private final Set<Document> deletedDocs = new HashSet<Document>();
 
   public OLuceneTxChangesMultiRid(
-      final OLuceneIndexEngine engine, final IndexWriter writer, final IndexWriter deletedIdx) {
+      final LuceneIndexEngine engine, final IndexWriter writer, final IndexWriter deletedIdx) {
     super(engine, writer, deletedIdx);
   }
 
-  public void put(final Object key, final YTIdentifiable value, final Document doc) {
+  public void put(final Object key, final Identifiable value, final Document doc) {
     try {
       writer.addDocument(doc);
     } catch (IOException e) {
-      throw YTException.wrapException(
-          new YTLuceneIndexException("unable to add document to changes index"), e);
+      throw BaseException.wrapException(
+          new LuceneIndexException("unable to add document to changes index"), e);
     }
   }
 
-  public void remove(YTDatabaseSessionInternal session, final Object key,
-      final YTIdentifiable value) {
+  public void remove(DatabaseSessionInternal session, final Object key,
+      final Identifiable value) {
     try {
       if (value.getIdentity().isTemporary()) {
         writer.deleteDocuments(engine.deleteQuery(key, value));
@@ -73,8 +73,8 @@ public class OLuceneTxChangesMultiRid extends OLuceneTxChangesAbstract {
         deletedIdx.addDocument(doc);
       }
     } catch (final IOException e) {
-      throw YTException.wrapException(
-          new YTLuceneIndexException(
+      throw BaseException.wrapException(
+          new LuceneIndexException(
               "Error while deleting documents in transaction from lucene index"),
           e);
     }
@@ -88,7 +88,7 @@ public class OLuceneTxChangesMultiRid extends OLuceneTxChangesAbstract {
     return deletedDocs;
   }
 
-  public boolean isDeleted(final Document document, final Object key, final YTIdentifiable value) {
+  public boolean isDeleted(final Document document, final Object key, final Identifiable value) {
     boolean match = false;
     final List<String> strings = deleted.get(value.getIdentity().toString());
     if (strings != null) {
@@ -107,7 +107,7 @@ public class OLuceneTxChangesMultiRid extends OLuceneTxChangesAbstract {
   }
 
   // TODO is this valid?
-  public boolean isUpdated(final Document document, final Object key, final YTIdentifiable value) {
+  public boolean isUpdated(final Document document, final Object key, final Identifiable value) {
     return false;
   }
 }

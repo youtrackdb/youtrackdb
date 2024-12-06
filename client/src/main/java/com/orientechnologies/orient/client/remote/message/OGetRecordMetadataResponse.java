@@ -19,43 +19,43 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.ORecordMetadata;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.storage.RecordMetadata;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 
 public class OGetRecordMetadataResponse implements OBinaryResponse {
 
-  private ORecordMetadata metadata;
+  private RecordMetadata metadata;
 
   public OGetRecordMetadataResponse() {
   }
 
-  public OGetRecordMetadataResponse(ORecordMetadata metadata) {
+  public OGetRecordMetadataResponse(RecordMetadata metadata) {
     this.metadata = metadata;
   }
 
   @Override
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
+  public void read(DatabaseSessionInternal db, ChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
-    YTRecordId recordId = network.readRID();
+    RecordId recordId = network.readRID();
     int version = network.readVersion();
-    metadata = new ORecordMetadata(recordId, version);
+    metadata = new RecordMetadata(recordId, version);
   }
 
-  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel,
-      int protocolVersion, ORecordSerializer serializer)
+  public void write(DatabaseSessionInternal session, ChannelDataOutput channel,
+      int protocolVersion, RecordSerializer serializer)
       throws IOException {
     channel.writeRID(metadata.getRecordId());
     channel.writeVersion(metadata.getVersion());
   }
 
-  public ORecordMetadata getMetadata() {
+  public RecordMetadata getMetadata() {
     return metadata;
   }
 }

@@ -14,8 +14,8 @@
 package com.orientechnologies.spatial.shape;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -103,7 +103,7 @@ public abstract class OShapeBuilder<T extends Shape> {
     return fromDoc(doc);
   }
 
-  public abstract void initClazz(YTDatabaseSessionInternal db);
+  public abstract void initClazz(DatabaseSessionInternal db);
 
   public String asText(T shape) {
     return SHAPE_FACTORY.getGeometryFrom(shape).toText();
@@ -152,7 +152,7 @@ public abstract class OShapeBuilder<T extends Shape> {
     return SHAPE_FACTORY.makeShape(geometry);
   }
 
-  protected YTClass superClass(YTDatabaseSessionInternal db) {
+  protected SchemaClass superClass(DatabaseSessionInternal db) {
     return db.getMetadata().getSchema().getClass(BASE_CLASS);
   }
 

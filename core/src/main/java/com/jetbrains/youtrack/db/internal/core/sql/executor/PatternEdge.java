@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchPathItem;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchStatement;
 
@@ -14,10 +14,10 @@ public class PatternEdge {
   public PatternNode out;
   public SQLMatchPathItem item;
 
-  public Iterable<YTIdentifiable> executeTraversal(
+  public Iterable<Identifiable> executeTraversal(
       SQLMatchStatement.MatchContext matchContext,
       CommandContext iCommandContext,
-      YTIdentifiable startingPoint,
+      Identifiable startingPoint,
       int depth) {
     return item.executeTraversal(matchContext, iCommandContext, startingPoint, depth);
   }

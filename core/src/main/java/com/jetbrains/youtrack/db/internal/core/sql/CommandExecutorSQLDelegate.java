@@ -23,10 +23,10 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.command.YTCommandExecutorNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandExecutorNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +35,7 @@ import java.util.Set;
  * SQL UPDATE command.
  */
 public class CommandExecutorSQLDelegate extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   protected CommandExecutor delegate;
 
@@ -49,9 +49,9 @@ public class CommandExecutorSQLDelegate extends CommandExecutorSQLAbstract
 
       final String textUpperCase = SQLPredicate.upperCase(text);
 
-      delegate = OSQLEngine.getInstance().getCommand(textUpperCase);
+      delegate = SQLEngine.getInstance().getCommand(textUpperCase);
       if (delegate == null) {
-        throw new YTCommandExecutorNotFoundException(
+        throw new CommandExecutorNotFoundException(
             "Cannot find a command executor for the command request: " + iCommand);
       }
 
@@ -64,7 +64,7 @@ public class CommandExecutorSQLDelegate extends CommandExecutorSQLAbstract
       }
 
     } else {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot find a command executor for the command request: " + iCommand);
     }
     return this;
@@ -75,7 +75,7 @@ public class CommandExecutorSQLDelegate extends CommandExecutorSQLAbstract
     return delegate.getDistributedTimeout();
   }
 
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     return delegate.execute(iArgs, querySession);
   }
 
@@ -114,8 +114,8 @@ public class CommandExecutorSQLDelegate extends CommandExecutorSQLAbstract
 
   @Override
   public QUORUM_TYPE getQuorumType() {
-    if (delegate instanceof OCommandDistributedReplicateRequest) {
-      return ((OCommandDistributedReplicateRequest) delegate).getQuorumType();
+    if (delegate instanceof CommandDistributedReplicateRequest) {
+      return ((CommandDistributedReplicateRequest) delegate).getQuorumType();
     }
     return QUORUM_TYPE.ALL;
   }

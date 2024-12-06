@@ -19,36 +19,36 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CommandExecutorSQLDropPropertyTest extends DBTestBase {
+public class CommandExecutorSQLDropPropertyTest extends DbTestBase {
 
   @Test
   public void test() {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass foo = schema.createClass("Foo");
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass foo = schema.createClass("Foo");
 
-    foo.createProperty(db, "name", YTType.STRING);
+    foo.createProperty(db, "name", PropertyType.STRING);
     Assert.assertTrue(schema.getClass("Foo").existsProperty("name"));
     db.command("DROP PROPERTY Foo.name").close();
     Assert.assertFalse(schema.getClass("Foo").existsProperty("name"));
 
-    foo.createProperty(db, "name", YTType.STRING);
+    foo.createProperty(db, "name", PropertyType.STRING);
     Assert.assertTrue(schema.getClass("Foo").existsProperty("name"));
     db.command("DROP PROPERTY `Foo`.name").close();
     Assert.assertFalse(schema.getClass("Foo").existsProperty("name"));
 
-    foo.createProperty(db, "name", YTType.STRING);
+    foo.createProperty(db, "name", PropertyType.STRING);
     Assert.assertTrue(schema.getClass("Foo").existsProperty("name"));
     db.command("DROP PROPERTY Foo.`name`").close();
     Assert.assertFalse(schema.getClass("Foo").existsProperty("name"));
 
-    foo.createProperty(db, "name", YTType.STRING);
+    foo.createProperty(db, "name", PropertyType.STRING);
     Assert.assertTrue(schema.getClass("Foo").existsProperty("name"));
     db.command("DROP PROPERTY `Foo`.`name`").close();
     Assert.assertFalse(schema.getClass("Foo").existsProperty("name"));
@@ -56,10 +56,10 @@ public class CommandExecutorSQLDropPropertyTest extends DBTestBase {
 
   @Test
   public void testIfExists() {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass testIfExistsClass = schema.createClass("testIfExists");
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass testIfExistsClass = schema.createClass("testIfExists");
 
-    testIfExistsClass.createProperty(db, "name", YTType.STRING);
+    testIfExistsClass.createProperty(db, "name", PropertyType.STRING);
     Assert.assertTrue(schema.getClass("testIfExists").existsProperty("name"));
     db.command("DROP PROPERTY testIfExists.name if exists").close();
     Assert.assertFalse(schema.getClass("testIfExists").existsProperty("name"));

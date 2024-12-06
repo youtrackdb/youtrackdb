@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.global;
 
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALChanges;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
 import java.nio.ByteBuffer;
 
 public final class LongSerializer {
@@ -25,7 +25,7 @@ public final class LongSerializer {
   }
 
   public static int getObjectSize(
-      final ByteBuffer buffer, final OWALChanges changes, final int position) {
+      final ByteBuffer buffer, final WALChanges changes, final int position) {
     return changes.getByteValue(buffer, position) + 1;
   }
 
@@ -95,7 +95,7 @@ public final class LongSerializer {
   }
 
   public static long deserialize(
-      final ByteBuffer buffer, final OWALChanges changes, int startPosition) {
+      final ByteBuffer buffer, final WALChanges changes, int startPosition) {
     final int numberSize = changes.getByteValue(buffer, startPosition);
     startPosition++;
 

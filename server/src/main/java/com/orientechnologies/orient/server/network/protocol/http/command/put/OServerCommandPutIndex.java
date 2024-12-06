@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.put;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -43,22 +43,22 @@ public class OServerCommandPutIndex extends OServerCommandDocumentAbstract {
 
     iRequest.getData().commandInfo = "Index put";
 
-    YTDatabaseSessionInternal db = null;
+    DatabaseSessionInternal db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);
 
-      final OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, urlParts[2]);
+      final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, urlParts[2]);
       if (index == null) {
         throw new IllegalArgumentException("Index name '" + urlParts[2] + "' not found");
       }
 
-      final YTIdentifiable record;
+      final Identifiable record;
 
       if (urlParts.length > 4)
       // GET THE RECORD ID AS VALUE
       {
-        record = new YTRecordId(urlParts[4]);
+        record = new RecordId(urlParts[4]);
       } else {
         // GET THE REQUEST CONTENT AS DOCUMENT
         if (iRequest.getContent() == null || iRequest.getContent().isEmpty()) {
@@ -70,7 +70,7 @@ public class OServerCommandPutIndex extends OServerCommandDocumentAbstract {
         record = doc;
       }
 
-      final OIndexDefinition indexDefinition = index.getDefinition();
+      final IndexDefinition indexDefinition = index.getDefinition();
       final Object key;
       if (indexDefinition != null) {
         key = indexDefinition.createValue(db, urlParts[3]);

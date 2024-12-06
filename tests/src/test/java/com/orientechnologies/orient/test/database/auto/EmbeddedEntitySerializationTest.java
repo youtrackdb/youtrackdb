@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,8 +25,8 @@ public class EmbeddedEntitySerializationTest extends DocumentDBBaseTest {
     database.begin();
     final EntityImpl originalDoc = new EntityImpl();
 
-    final OCompositeKey compositeKey =
-        new OCompositeKey(123, "56", new Date(), new YTRecordId("#0:12"));
+    final CompositeKey compositeKey =
+        new CompositeKey(123, "56", new Date(), new RecordId("#0:12"));
     originalDoc.field("compositeKey", compositeKey);
     originalDoc.field("int", 12);
     originalDoc.field("val", "test");
@@ -36,7 +36,7 @@ public class EmbeddedEntitySerializationTest extends DocumentDBBaseTest {
     final EntityImpl loadedDoc = database.load(originalDoc.getIdentity());
     Assert.assertNotSame(loadedDoc, originalDoc);
 
-    final OCompositeKey loadedCompositeKey = loadedDoc.field("compositeKey");
+    final CompositeKey loadedCompositeKey = loadedDoc.field("compositeKey");
     Assert.assertEquals(loadedCompositeKey, compositeKey);
 
     database.begin();
@@ -47,14 +47,14 @@ public class EmbeddedEntitySerializationTest extends DocumentDBBaseTest {
   public void testEmbeddedObjectSerializationInsideOfOtherEmbeddedObjects() {
     final EntityImpl originalDoc = new EntityImpl();
 
-    final OCompositeKey compositeKeyOne =
-        new OCompositeKey(123, "56", new Date(), new YTRecordId("#0:12"));
-    final OCompositeKey compositeKeyTwo =
-        new OCompositeKey(
-            245, "63", new Date(System.currentTimeMillis() + 100), new YTRecordId("#0:2"));
-    final OCompositeKey compositeKeyThree =
-        new OCompositeKey(
-            36, "563", new Date(System.currentTimeMillis() + 1000), new YTRecordId("#0:23"));
+    final CompositeKey compositeKeyOne =
+        new CompositeKey(123, "56", new Date(), new RecordId("#0:12"));
+    final CompositeKey compositeKeyTwo =
+        new CompositeKey(
+            245, "63", new Date(System.currentTimeMillis() + 100), new RecordId("#0:2"));
+    final CompositeKey compositeKeyThree =
+        new CompositeKey(
+            36, "563", new Date(System.currentTimeMillis() + 1000), new RecordId("#0:23"));
 
     final EntityImpl embeddedDocOne = new EntityImpl();
     embeddedDocOne.field("compositeKey", compositeKeyOne);
@@ -75,8 +75,8 @@ public class EmbeddedEntitySerializationTest extends DocumentDBBaseTest {
     embeddedCollection.add(embeddedDocTwo);
     embeddedCollection.add(embeddedDocThree);
 
-    originalDoc.field("embeddedDoc", embeddedDocOne, YTType.EMBEDDED);
-    originalDoc.field("embeddedCollection", embeddedCollection, YTType.EMBEDDEDLIST);
+    originalDoc.field("embeddedDoc", embeddedDocOne, PropertyType.EMBEDDED);
+    originalDoc.field("embeddedCollection", embeddedCollection, PropertyType.EMBEDDEDLIST);
 
     database.begin();
     originalDoc.save(database.getClusterNameById(database.getDefaultClusterId()));

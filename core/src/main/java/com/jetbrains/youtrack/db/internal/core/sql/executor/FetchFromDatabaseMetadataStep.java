@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
 
 /**
- * Returns an YTResult containing metadata regarding the database
+ * Returns an Result containing metadata regarding the database
  */
 public class FetchFromDatabaseMetadataStep extends AbstractExecutionStep {
 
@@ -16,7 +16,7 @@ public class FetchFromDatabaseMetadataStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -24,9 +24,9 @@ public class FetchFromDatabaseMetadataStep extends AbstractExecutionStep {
     return new ProduceExecutionStream(FetchFromDatabaseMetadataStep::produce).limit(1);
   }
 
-  private static YTResult produce(CommandContext ctx) {
+  private static Result produce(CommandContext ctx) {
     var db = ctx.getDatabase();
-    YTResultInternal result = new YTResultInternal(db);
+    ResultInternal result = new ResultInternal(db);
 
 
     result.setProperty("name", db.getName());

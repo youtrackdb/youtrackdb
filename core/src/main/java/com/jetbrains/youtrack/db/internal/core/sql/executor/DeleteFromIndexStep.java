@@ -1,17 +1,17 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStreamProducer;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStreamProducer;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBetweenCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
@@ -38,7 +38,7 @@ import java.util.stream.Stream;
  */
 public class DeleteFromIndexStep extends AbstractExecutionStep {
 
-  protected final OIndexInternal index;
+  protected final IndexInternal index;
   private final SQLBinaryCondition additional;
   private final SQLBooleanExpression ridCondition;
   private final boolean orderAsc;
@@ -46,7 +46,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
   private final SQLBooleanExpression condition;
 
   public DeleteFromIndexStep(
-      OIndex index,
+      Index index,
       SQLBooleanExpression condition,
       SQLBinaryCondition additionalRangeCondition,
       SQLBooleanExpression ridCondition,
@@ -56,7 +56,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
   }
 
   private DeleteFromIndexStep(
-      OIndex index,
+      Index index,
       SQLBooleanExpression condition,
       SQLBinaryCondition additionalRangeCondition,
       SQLBooleanExpression ridCondition,
@@ -72,20 +72,20 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
     var session = ctx.getDatabase();
-    Set<Stream<ORawPair<Object, YTRID>>> streams = init(session, condition);
-    OExecutionStreamProducer res =
-        new OExecutionStreamProducer() {
-          private final Iterator<Stream<ORawPair<Object, YTRID>>> iter = streams.iterator();
+    Set<Stream<RawPair<Object, RID>>> streams = init(session, condition);
+    ExecutionStreamProducer res =
+        new ExecutionStreamProducer() {
+          private final Iterator<Stream<RawPair<Object, RID>>> iter = streams.iterator();
 
           @Override
           public ExecutionStream next(CommandContext ctx) {
-            Stream<ORawPair<Object, YTRID>> s = iter.next();
+            Stream<RawPair<Object, RID>> s = iter.next();
             return ExecutionStream.resultIterator(
                 s.filter(
                         (entry) -> {
@@ -110,16 +110,16 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     return new MultipleExecutionStream(res);
   }
 
-  private YTResult readResult(YTDatabaseSessionInternal session, ORawPair<Object, YTRID> entry) {
-    YTResultInternal result = new YTResultInternal(session);
-    YTRID value = entry.second;
+  private Result readResult(DatabaseSessionInternal session, RawPair<Object, RID> entry) {
+    ResultInternal result = new ResultInternal(session);
+    RID value = entry.second;
     index.remove(session, entry.first, value);
     return result;
   }
 
-  private boolean filter(ORawPair<Object, YTRID> entry, CommandContext ctx) {
+  private boolean filter(RawPair<Object, RID> entry, CommandContext ctx) {
     if (ridCondition != null) {
-      YTResultInternal res = new YTResultInternal(ctx.getDatabase());
+      ResultInternal res = new ResultInternal(ctx.getDatabase());
       res.setProperty("rid", entry.second);
       return ridCondition.evaluate(res, ctx);
     } else {
@@ -132,9 +132,9 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     super.close();
   }
 
-  private Set<Stream<ORawPair<Object, YTRID>>> init(YTDatabaseSessionInternal session,
+  private Set<Stream<RawPair<Object, RID>>> init(DatabaseSessionInternal session,
       SQLBooleanExpression condition) {
-    Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams =
+    Set<Stream<RawPair<Object, RID>>> acquiredStreams =
         Collections.newSetFromMap(new IdentityHashMap<>());
     if (index.getDefinition() == null) {
       return acquiredStreams;
@@ -148,7 +148,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     } else if (condition instanceof SQLAndBlock) {
       processAndBlock(acquiredStreams);
     } else {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
     return acquiredStreams;
@@ -160,7 +160,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
    *
    * @param acquiredStreams TODO
    */
-  private void processAndBlock(Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams) {
+  private void processAndBlock(Set<Stream<RawPair<Object, RID>>> acquiredStreams) {
     SQLCollection fromKey = indexKeyFrom((SQLAndBlock) condition, additional);
     SQLCollection toKey = indexKeyTo((SQLAndBlock) condition, additional);
     boolean fromKeyIncluded = indexKeyFromIncluded((SQLAndBlock) condition, additional);
@@ -168,31 +168,31 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     init(acquiredStreams, fromKey, fromKeyIncluded, toKey, toKeyIncluded);
   }
 
-  private void processFlatIteration(YTDatabaseSessionInternal session,
-      Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams) {
-    Stream<ORawPair<Object, YTRID>> stream =
+  private void processFlatIteration(DatabaseSessionInternal session,
+      Set<Stream<RawPair<Object, RID>>> acquiredStreams) {
+    Stream<RawPair<Object, RID>> stream =
         orderAsc ? index.stream(session) : index.descStream(session);
     storeAcquiredStream(stream, acquiredStreams);
   }
 
   private static void storeAcquiredStream(
-      Stream<ORawPair<Object, YTRID>> stream,
-      Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams) {
+      Stream<RawPair<Object, RID>> stream,
+      Set<Stream<RawPair<Object, RID>>> acquiredStreams) {
     if (stream != null) {
       acquiredStreams.add(stream);
     }
   }
 
   private void init(
-      Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams,
+      Set<Stream<RawPair<Object, RID>>> acquiredStreams,
       SQLCollection fromKey,
       boolean fromKeyIncluded,
       SQLCollection toKey,
       boolean toKeyIncluded) {
-    Object secondValue = fromKey.execute((YTResult) null, ctx);
-    Object thirdValue = toKey.execute((YTResult) null, ctx);
-    OIndexDefinition indexDef = index.getDefinition();
-    Stream<ORawPair<Object, YTRID>> stream;
+    Object secondValue = fromKey.execute((Result) null, ctx);
+    Object thirdValue = toKey.execute((Result) null, ctx);
+    IndexDefinition indexDef = index.getDefinition();
+    Stream<RawPair<Object, RID>> stream;
     var database = ctx.getDatabase();
     if (index.supportsOrderedIterations()) {
       stream =
@@ -228,20 +228,20 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     return true;
   }
 
-  private void processBetweenCondition(YTDatabaseSessionInternal session,
-      Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams) {
-    OIndexDefinition definition = index.getDefinition();
+  private void processBetweenCondition(DatabaseSessionInternal session,
+      Set<Stream<RawPair<Object, RID>>> acquiredStreams) {
+    IndexDefinition definition = index.getDefinition();
     SQLExpression key = ((SQLBetweenCondition) condition).getFirst();
     if (!key.toString().equalsIgnoreCase("key")) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
     SQLExpression second = ((SQLBetweenCondition) condition).getSecond();
     SQLExpression third = ((SQLBetweenCondition) condition).getThird();
 
-    Object secondValue = second.execute((YTResult) null, ctx);
-    Object thirdValue = third.execute((YTResult) null, ctx);
-    Stream<ORawPair<Object, YTRID>> stream =
+    Object secondValue = second.execute((Result) null, ctx);
+    Object thirdValue = third.execute((Result) null, ctx);
+    Stream<RawPair<Object, RID>> stream =
         index.streamEntriesBetween(session,
             toBetweenIndexKey(session, definition, secondValue),
             true,
@@ -250,22 +250,22 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     storeAcquiredStream(stream, acquiredStreams);
   }
 
-  private void processBinaryCondition(Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams) {
-    OIndexDefinition definition = index.getDefinition();
+  private void processBinaryCondition(Set<Stream<RawPair<Object, RID>>> acquiredStreams) {
+    IndexDefinition definition = index.getDefinition();
     SQLBinaryCompareOperator operator = ((SQLBinaryCondition) condition).getOperator();
     SQLExpression left = ((SQLBinaryCondition) condition).getLeft();
     if (!left.toString().equalsIgnoreCase("key")) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
-    Object rightValue = ((SQLBinaryCondition) condition).getRight().execute((YTResult) null, ctx);
-    Stream<ORawPair<Object, YTRID>> stream =
+    Object rightValue = ((SQLBinaryCondition) condition).getRight().execute((Result) null, ctx);
+    Stream<RawPair<Object, RID>> stream =
         createStream(ctx.getDatabase(), operator, definition, rightValue);
     storeAcquiredStream(stream, acquiredStreams);
   }
 
   private static Collection<?> toIndexKey(
-      YTDatabaseSessionInternal session, OIndexDefinition definition, Object rightValue) {
+      DatabaseSessionInternal session, IndexDefinition definition, Object rightValue) {
     if (definition.getFields().size() == 1 && rightValue instanceof Collection) {
       rightValue = ((Collection<?>) rightValue).iterator().next();
     }
@@ -281,7 +281,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
   }
 
   private static Object toBetweenIndexKey(
-      YTDatabaseSessionInternal session, OIndexDefinition definition, Object rightValue) {
+      DatabaseSessionInternal session, IndexDefinition definition, Object rightValue) {
     if (definition.getFields().size() == 1 && rightValue instanceof Collection) {
       rightValue = ((Collection<?>) rightValue).iterator().next();
     }
@@ -293,10 +293,10 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     return rightValue;
   }
 
-  private Stream<ORawPair<Object, YTRID>> createStream(
-      YTDatabaseSessionInternal session,
+  private Stream<RawPair<Object, RID>> createStream(
+      DatabaseSessionInternal session,
       SQLBinaryCompareOperator operator,
-      OIndexDefinition definition,
+      IndexDefinition definition,
       Object value) {
     boolean orderAsc = this.orderAsc;
     if (operator instanceof SQLEqualsCompareOperator) {
@@ -310,7 +310,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     } else if (operator instanceof SQLLtOperator) {
       return index.streamEntriesMinor(session, value, false, orderAsc);
     } else {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
   }

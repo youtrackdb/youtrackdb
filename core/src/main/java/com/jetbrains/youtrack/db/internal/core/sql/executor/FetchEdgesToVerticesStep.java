@@ -1,16 +1,16 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.record.Direction;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.ODirection;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStreamProducer;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStreamProducer;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import java.util.Collections;
 import java.util.Iterator;
@@ -40,15 +40,15 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
     Stream<Object> source = init();
 
-    OExecutionStreamProducer res =
-        new OExecutionStreamProducer() {
+    ExecutionStreamProducer res =
+        new ExecutionStreamProducer() {
           private final Iterator iter = source.iterator();
 
           @Override
@@ -73,7 +73,7 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
     Object toValues;
 
     toValues = ctx.getVariable(toAlias);
-    if (toValues instanceof Iterable && !(toValues instanceof YTIdentifiable)) {
+    if (toValues instanceof Iterable && !(toValues instanceof Identifiable)) {
       toValues = ((Iterable<?>) toValues).iterator();
     } else if (!(toValues instanceof Iterator)) {
       toValues = Collections.singleton(toValues).iterator();
@@ -83,24 +83,24 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
         Spliterators.spliteratorUnknownSize((Iterator<?>) toValues, 0), false);
   }
 
-  private ExecutionStream edges(YTDatabaseSessionInternal db, Object from) {
-    if (from instanceof YTResult) {
-      from = ((YTResult) from).toEntity();
+  private ExecutionStream edges(DatabaseSessionInternal db, Object from) {
+    if (from instanceof Result) {
+      from = ((Result) from).toEntity();
     }
-    if (from instanceof YTIdentifiable && !(from instanceof Entity)) {
-      from = ((YTIdentifiable) from).getRecord();
+    if (from instanceof Identifiable && !(from instanceof Entity)) {
+      from = ((Identifiable) from).getRecord();
     }
     if (from instanceof Entity && ((Entity) from).isVertex()) {
       var vertex = ((Entity) from).toVertex();
       assert vertex != null;
-      Iterable<Edge> edges = vertex.getEdges(ODirection.IN);
-      Stream<YTResult> stream =
+      Iterable<Edge> edges = vertex.getEdges(Direction.IN);
+      Stream<Result> stream =
           StreamSupport.stream(edges.spliterator(), false)
               .filter((edge) -> matchesClass(edge) && matchesCluster(edge))
-              .map(e -> new YTResultInternal(db, e));
+              .map(e -> new ResultInternal(db, e));
       return ExecutionStream.resultIterator(stream.iterator());
     } else {
-      throw new YTCommandExecutionException("Invalid vertex: " + from);
+      throw new CommandExecutionException("Invalid vertex: " + from);
     }
   }
 

@@ -3,15 +3,15 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
 
-public class SQLDropClassStatement extends ODDLStatement {
+public class SQLDropClassStatement extends DDLStatement {
 
   public SQLIdentifier name;
   public SQLInputParameter nameParam;
@@ -29,32 +29,32 @@ public class SQLDropClassStatement extends ODDLStatement {
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
     var db = ctx.getDatabase();
-    YTSchema schema = db.getMetadata().getSchema();
+    Schema schema = db.getMetadata().getSchema();
     String className;
     if (name != null) {
       className = name.getStringValue();
     } else {
       className = String.valueOf(nameParam.getValue(ctx.getInputParameters()));
     }
-    YTClass clazz = schema.getClass(className);
+    SchemaClass clazz = schema.getClass(className);
     if (clazz == null) {
       if (ifExists) {
         return ExecutionStream.empty();
       }
-      throw new YTCommandExecutionException("Class " + className + " does not exist");
+      throw new CommandExecutionException("Class " + className + " does not exist");
     }
 
     if (!unsafe && clazz.count(db) > 0) {
       // check vertex or edge
       if (clazz.isVertexType()) {
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "'DROP CLASS' command cannot drop class '"
                 + className
                 + "' because it contains Vertices. Use 'DELETE VERTEX' command first to avoid"
                 + " broken edges in a database, or apply the 'UNSAFE' keyword to force it");
       } else if (clazz.isEdgeType()) {
         // FOUND EDGE CLASS
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "'DROP CLASS' command cannot drop class '"
                 + className
                 + "' because it contains Edges. Use 'DELETE EDGE' command first to avoid broken"
@@ -64,7 +64,7 @@ public class SQLDropClassStatement extends ODDLStatement {
 
     schema.dropClass(className);
 
-    YTResultInternal result = new YTResultInternal(db);
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("operation", "drop class");
     result.setProperty("className", className);
     return ExecutionStream.singleton(result);

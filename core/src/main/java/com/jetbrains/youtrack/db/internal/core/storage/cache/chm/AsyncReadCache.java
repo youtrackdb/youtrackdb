@@ -1,24 +1,24 @@
 package com.jetbrains.youtrack.db.internal.core.storage.cache.chm;
 
-import com.jetbrains.youtrack.db.internal.common.concur.lock.YTInterruptedException;
-import com.jetbrains.youtrack.db.internal.common.directmemory.OByteBufferPool;
-import com.jetbrains.youtrack.db.internal.common.directmemory.ODirectMemoryAllocator.Intention;
-import com.jetbrains.youtrack.db.internal.common.directmemory.OPointer;
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.types.OModifiableBoolean;
-import com.jetbrains.youtrack.db.internal.common.util.ORawPairLongInteger;
-import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OAbstractWriteCache;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntryImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCachePointer;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OReadCache;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OWriteCache;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.ThreadInterruptedException;
+import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
+import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator.Intention;
+import com.jetbrains.youtrack.db.internal.common.directmemory.Pointer;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.common.types.ModifiableBoolean;
+import com.jetbrains.youtrack.db.internal.common.util.RawPairLongInteger;
+import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.AbstractWriteCache;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntryImpl;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CachePointer;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.ReadCache;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.chm.readbuffer.BoundedBuffer;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.chm.readbuffer.Buffer;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.chm.writequeue.MPSCLinkedQueue;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurablePage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.LogSequenceNumber;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,18 +41,18 @@ import java.util.concurrent.locks.ReentrantLock;
  * policy because it prevents usage of ghost entries and as result considerably decrease usage of
  * heap memory.
  */
-public final class AsyncReadCache implements OReadCache {
+public final class AsyncReadCache implements ReadCache {
 
   private static final int N_CPU = Runtime.getRuntime().availableProcessors();
   private static final int WRITE_BUFFER_MAX_BATCH = 128 * ceilingPowerOfTwo(N_CPU);
 
-  private final ConcurrentHashMap<PageKey, OCacheEntry> data;
+  private final ConcurrentHashMap<PageKey, CacheEntry> data;
   private final Lock evictionLock = new ReentrantLock();
 
   private final WTinyLFUPolicy policy;
 
   private final Buffer readBuffer = new BoundedBuffer();
-  private final MPSCLinkedQueue<OCacheEntry> writeBuffer = new MPSCLinkedQueue<>();
+  private final MPSCLinkedQueue<CacheEntry> writeBuffer = new MPSCLinkedQueue<>();
   private final AtomicInteger cacheSize = new AtomicInteger();
   private final int maxCacheSize;
 
@@ -68,10 +68,10 @@ public final class AsyncReadCache implements OReadCache {
 
   private final int pageSize;
 
-  private final OByteBufferPool bufferPool;
+  private final ByteBufferPool bufferPool;
 
   public AsyncReadCache(
-      final OByteBufferPool bufferPool,
+      final ByteBufferPool bufferPool,
       final long maxCacheSizeInBytes,
       final int pageSize,
       final boolean trackHitRate) {
@@ -91,26 +91,26 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public long addFile(final String fileName, final OWriteCache writeCache) throws IOException {
+  public long addFile(final String fileName, final WriteCache writeCache) throws IOException {
     return writeCache.addFile(fileName);
   }
 
   @Override
-  public long addFile(final String fileName, long fileId, final OWriteCache writeCache)
+  public long addFile(final String fileName, long fileId, final WriteCache writeCache)
       throws IOException {
     assert fileId >= 0;
-    fileId = OAbstractWriteCache.checkFileIdCompatibility(writeCache.getId(), fileId);
+    fileId = AbstractWriteCache.checkFileIdCompatibility(writeCache.getId(), fileId);
     return writeCache.addFile(fileName, fileId);
   }
 
   @Override
-  public OCacheEntry loadForWrite(
+  public CacheEntry loadForWrite(
       final long fileId,
       final long pageIndex,
-      final OWriteCache writeCache,
+      final WriteCache writeCache,
       final boolean verifyChecksums,
-      final OLogSequenceNumber startLSN) {
-    final OCacheEntry cacheEntry = doLoad(fileId, (int) pageIndex, writeCache, verifyChecksums);
+      final LogSequenceNumber startLSN) {
+    final CacheEntry cacheEntry = doLoad(fileId, (int) pageIndex, writeCache, verifyChecksums);
 
     if (cacheEntry != null) {
       cacheEntry.acquireExclusiveLock();
@@ -121,28 +121,28 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public OCacheEntry loadForRead(
+  public CacheEntry loadForRead(
       final long fileId,
       final long pageIndex,
-      final OWriteCache writeCache,
+      final WriteCache writeCache,
       final boolean verifyChecksums) {
     return doLoad(fileId, (int) pageIndex, writeCache, verifyChecksums);
   }
 
   @Override
-  public OCacheEntry silentLoadForRead(
+  public CacheEntry silentLoadForRead(
       final long extFileId,
       final int pageIndex,
-      final OWriteCache writeCache,
+      final WriteCache writeCache,
       final boolean verifyChecksums) {
-    final long fileId = OAbstractWriteCache.checkFileIdCompatibility(writeCache.getId(), extFileId);
+    final long fileId = AbstractWriteCache.checkFileIdCompatibility(writeCache.getId(), extFileId);
     final PageKey pageKey = new PageKey(fileId, pageIndex);
 
     for (; ; ) {
-      OCacheEntry cacheEntry = data.get(pageKey);
+      CacheEntry cacheEntry = data.get(pageKey);
 
       if (cacheEntry == null) {
-        final OCacheEntry[] updatedEntry = new OCacheEntry[1];
+        final CacheEntry[] updatedEntry = new CacheEntry[1];
 
         cacheEntry =
             data.compute(
@@ -150,20 +150,20 @@ public final class AsyncReadCache implements OReadCache {
                 (page, entry) -> {
                   if (entry == null) {
                     try {
-                      final OCachePointer pointer =
+                      final CachePointer pointer =
                           writeCache.load(
-                              fileId, pageIndex, new OModifiableBoolean(), verifyChecksums);
+                              fileId, pageIndex, new ModifiableBoolean(), verifyChecksums);
                       if (pointer == null) {
                         return null;
                       }
 
                       updatedEntry[0] =
-                          new OCacheEntryImpl(
+                          new CacheEntryImpl(
                               page.getFileId(), page.getPageIndex(), pointer, false, this);
                       return null;
                     } catch (final IOException e) {
-                      throw YTException.wrapException(
-                          new YTStorageException(
+                      throw BaseException.wrapException(
+                          new StorageException(
                               "Error during loading of page " + pageIndex + " for file " + fileId),
                           e);
                     }
@@ -187,12 +187,12 @@ public final class AsyncReadCache implements OReadCache {
     }
   }
 
-  private OCacheEntry doLoad(
+  private CacheEntry doLoad(
       final long extFileId,
       final int pageIndex,
-      final OWriteCache writeCache,
+      final WriteCache writeCache,
       final boolean verifyChecksums) {
-    final long fileId = OAbstractWriteCache.checkFileIdCompatibility(writeCache.getId(), extFileId);
+    final long fileId = AbstractWriteCache.checkFileIdCompatibility(writeCache.getId(), extFileId);
     final PageKey pageKey = new PageKey(fileId, pageIndex);
 
     if (trackHitRate) {
@@ -202,7 +202,7 @@ public final class AsyncReadCache implements OReadCache {
     while (true) {
       checkWriteBuffer();
 
-      OCacheEntry cacheEntry;
+      CacheEntry cacheEntry;
 
       cacheEntry = data.get(pageKey);
 
@@ -225,19 +225,19 @@ public final class AsyncReadCache implements OReadCache {
                 (page, entry) -> {
                   if (entry == null) {
                     try {
-                      final OCachePointer pointer =
+                      final CachePointer pointer =
                           writeCache.load(
-                              fileId, pageIndex, new OModifiableBoolean(), verifyChecksums);
+                              fileId, pageIndex, new ModifiableBoolean(), verifyChecksums);
                       if (pointer == null) {
                         return null;
                       }
 
                       cacheSize.incrementAndGet();
-                      return new OCacheEntryImpl(
+                      return new CacheEntryImpl(
                           page.getFileId(), page.getPageIndex(), pointer, true, this);
                     } catch (final IOException e) {
-                      throw YTException.wrapException(
-                          new YTStorageException(
+                      throw BaseException.wrapException(
+                          new StorageException(
                               "Error during loading of page " + pageIndex + " for file " + fileId),
                           e);
                     }
@@ -263,9 +263,10 @@ public final class AsyncReadCache implements OReadCache {
 
             try {
               writeCache.checkCacheOverflow();
-            } catch (final InterruptedException e) {
-              throw YTException.wrapException(
-                  new YTInterruptedException("Check of write cache overflow was interrupted"), e);
+            } catch (final java.lang.InterruptedException e) {
+              throw BaseException.wrapException(
+                  new ThreadInterruptedException("Check of write cache overflow was interrupted"),
+                  e);
             }
           }
 
@@ -275,18 +276,18 @@ public final class AsyncReadCache implements OReadCache {
     }
   }
 
-  private OCacheEntry addNewPagePointerToTheCache(final long fileId, final int pageIndex) {
+  private CacheEntry addNewPagePointerToTheCache(final long fileId, final int pageIndex) {
 
-    final OPointer pointer = bufferPool.acquireDirect(true, Intention.ADD_NEW_PAGE_IN_DISK_CACHE);
-    final OCachePointer cachePointer = new OCachePointer(pointer, bufferPool, fileId, pageIndex);
+    final Pointer pointer = bufferPool.acquireDirect(true, Intention.ADD_NEW_PAGE_IN_DISK_CACHE);
+    final CachePointer cachePointer = new CachePointer(pointer, bufferPool, fileId, pageIndex);
     cachePointer.incrementReadersReferrer();
-    ODurablePage.setLogSequenceNumberForPage(
-        pointer.getNativeByteBuffer(), new OLogSequenceNumber(-1, -1));
+    DurablePage.setLogSequenceNumberForPage(
+        pointer.getNativeByteBuffer(), new LogSequenceNumber(-1, -1));
 
-    final OCacheEntry cacheEntry = new OCacheEntryImpl(fileId, pageIndex, cachePointer, true, this);
+    final CacheEntry cacheEntry = new CacheEntryImpl(fileId, pageIndex, cachePointer, true, this);
     cacheEntry.acquireEntry();
 
-    final OCacheEntry oldCacheEntry = data.putIfAbsent(cacheEntry.getPageKey(), cacheEntry);
+    final CacheEntry oldCacheEntry = data.putIfAbsent(cacheEntry.getPageKey(), cacheEntry);
     if (oldCacheEntry != null) {
       throw new IllegalStateException(
           "Page  " + fileId + ":" + pageIndex + " was allocated in other thread");
@@ -308,7 +309,7 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public void releaseFromRead(final OCacheEntry cacheEntry) {
+  public void releaseFromRead(final CacheEntry cacheEntry) {
     cacheEntry.releaseEntry();
 
     if (!cacheEntry.insideCache()) {
@@ -318,8 +319,8 @@ public final class AsyncReadCache implements OReadCache {
 
   @Override
   public void releaseFromWrite(
-      final OCacheEntry cacheEntry, final OWriteCache writeCache, final boolean changed) {
-    final OCachePointer cachePointer = cacheEntry.getCachePointer();
+      final CacheEntry cacheEntry, final WriteCache writeCache, final boolean changed) {
+    final CachePointer cachePointer = cacheEntry.getCachePointer();
     assert cachePointer != null;
 
     if (cacheEntry.isNewlyAllocatedPage() || changed) {
@@ -360,12 +361,12 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public OCacheEntry allocateNewPage(
-      long fileId, final OWriteCache writeCache, final OLogSequenceNumber startLSN)
+  public CacheEntry allocateNewPage(
+      long fileId, final WriteCache writeCache, final LogSequenceNumber startLSN)
       throws IOException {
-    fileId = OAbstractWriteCache.checkFileIdCompatibility(writeCache.getId(), fileId);
+    fileId = AbstractWriteCache.checkFileIdCompatibility(writeCache.getId(), fileId);
     final int newPageIndex = writeCache.allocateNewPage(fileId);
-    final OCacheEntry cacheEntry = addNewPagePointerToTheCache(fileId, newPageIndex);
+    final CacheEntry cacheEntry = addNewPagePointerToTheCache(fileId, newPageIndex);
 
     cacheEntry.acquireExclusiveLock();
     cacheEntry.markAllocated();
@@ -373,7 +374,7 @@ public final class AsyncReadCache implements OReadCache {
     return cacheEntry;
   }
 
-  private void afterRead(final OCacheEntry entry) {
+  private void afterRead(final CacheEntry entry) {
     final boolean bufferOverflow = readBuffer.offer(entry) == Buffer.FULL;
 
     if (drainStatus.get().shouldBeDrained(bufferOverflow)) {
@@ -381,11 +382,11 @@ public final class AsyncReadCache implements OReadCache {
     }
   }
 
-  private void afterAdd(final OCacheEntry entry) {
+  private void afterAdd(final CacheEntry entry) {
     afterWrite(entry);
   }
 
-  private void afterWrite(final OCacheEntry command) {
+  private void afterWrite(final CacheEntry command) {
     writeBuffer.offer(command);
 
     drainStatus.lazySet(DrainStatus.REQUIRED);
@@ -458,7 +459,7 @@ public final class AsyncReadCache implements OReadCache {
 
   private void drainWriteBuffer() {
     for (int i = 0; i < WRITE_BUFFER_MAX_BATCH; i++) {
-      final OCacheEntry entry = writeBuffer.poll();
+      final CacheEntry entry = writeBuffer.poll();
 
       if (entry == null) {
         break;
@@ -470,7 +471,7 @@ public final class AsyncReadCache implements OReadCache {
 
   private void emptyWriteBuffer() {
     while (true) {
-      final OCacheEntry entry = writeBuffer.poll();
+      final CacheEntry entry = writeBuffer.poll();
 
       if (entry == null) {
         break;
@@ -491,11 +492,11 @@ public final class AsyncReadCache implements OReadCache {
     try {
       emptyBuffers();
 
-      for (final OCacheEntry entry : data.values()) {
+      for (final CacheEntry entry : data.values()) {
         if (entry.freeze()) {
           policy.onRemove(entry);
         } else {
-          throw new YTStorageException(
+          throw new StorageException(
               "Page with index "
                   + entry.getPageIndex()
                   + " for file id "
@@ -512,8 +513,8 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public void truncateFile(long fileId, final OWriteCache writeCache) throws IOException {
-    fileId = OAbstractWriteCache.checkFileIdCompatibility(writeCache.getId(), fileId);
+  public void truncateFile(long fileId, final WriteCache writeCache) throws IOException {
+    fileId = AbstractWriteCache.checkFileIdCompatibility(writeCache.getId(), fileId);
 
     final int filledUpTo = (int) writeCache.getFilledUpTo(fileId);
     writeCache.truncateFile(fileId);
@@ -522,16 +523,16 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public void closeFile(long fileId, final boolean flush, final OWriteCache writeCache) {
-    fileId = OAbstractWriteCache.checkFileIdCompatibility(writeCache.getId(), fileId);
+  public void closeFile(long fileId, final boolean flush, final WriteCache writeCache) {
+    fileId = AbstractWriteCache.checkFileIdCompatibility(writeCache.getId(), fileId);
     final int filledUpTo = (int) writeCache.getFilledUpTo(fileId);
 
     clearFile(fileId, filledUpTo, writeCache);
     writeCache.close(fileId, flush);
   }
 
-  public void deleteFile(long fileId, final OWriteCache writeCache) throws IOException {
-    fileId = OAbstractWriteCache.checkFileIdCompatibility(writeCache.getId(), fileId);
+  public void deleteFile(long fileId, final WriteCache writeCache) throws IOException {
+    fileId = AbstractWriteCache.checkFileIdCompatibility(writeCache.getId(), fileId);
     final int filledUpTo = (int) writeCache.getFilledUpTo(fileId);
 
     clearFile(fileId, filledUpTo, writeCache);
@@ -539,14 +540,14 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public void deleteStorage(final OWriteCache writeCache) throws IOException {
+  public void deleteStorage(final WriteCache writeCache) throws IOException {
     final Collection<Long> files = writeCache.files().values();
-    final List<ORawPairLongInteger> filledUpTo = new ArrayList<>(1024);
+    final List<RawPairLongInteger> filledUpTo = new ArrayList<>(1024);
     for (final long fileId : files) {
-      filledUpTo.add(new ORawPairLongInteger(fileId, (int) writeCache.getFilledUpTo(fileId)));
+      filledUpTo.add(new RawPairLongInteger(fileId, (int) writeCache.getFilledUpTo(fileId)));
     }
 
-    for (final ORawPairLongInteger entry : filledUpTo) {
+    for (final RawPairLongInteger entry : filledUpTo) {
       clearFile(entry.first, entry.second, writeCache);
     }
 
@@ -554,28 +555,28 @@ public final class AsyncReadCache implements OReadCache {
   }
 
   @Override
-  public void closeStorage(final OWriteCache writeCache) throws IOException {
+  public void closeStorage(final WriteCache writeCache) throws IOException {
     final Collection<Long> files = writeCache.files().values();
-    final List<ORawPairLongInteger> filledUpTo = new ArrayList<>(1024);
+    final List<RawPairLongInteger> filledUpTo = new ArrayList<>(1024);
     for (final long fileId : files) {
-      filledUpTo.add(new ORawPairLongInteger(fileId, (int) writeCache.getFilledUpTo(fileId)));
+      filledUpTo.add(new RawPairLongInteger(fileId, (int) writeCache.getFilledUpTo(fileId)));
     }
 
-    for (final ORawPairLongInteger entry : filledUpTo) {
+    for (final RawPairLongInteger entry : filledUpTo) {
       clearFile(entry.first, entry.second, writeCache);
     }
 
     writeCache.close();
   }
 
-  private void clearFile(final long fileId, final int filledUpTo, final OWriteCache writeCache) {
+  private void clearFile(final long fileId, final int filledUpTo, final WriteCache writeCache) {
     evictionLock.lock();
     try {
       emptyBuffers();
 
       for (int pageIndex = 0; pageIndex < filledUpTo; pageIndex++) {
         final PageKey pageKey = new PageKey(fileId, pageIndex);
-        final OCacheEntry cacheEntry = data.remove(pageKey);
+        final CacheEntry cacheEntry = data.remove(pageKey);
         if (cacheEntry != null) {
           if (cacheEntry.freeze()) {
             policy.onRemove(cacheEntry);
@@ -583,12 +584,13 @@ public final class AsyncReadCache implements OReadCache {
 
             try {
               writeCache.checkCacheOverflow();
-            } catch (final InterruptedException e) {
-              throw YTException.wrapException(
-                  new YTInterruptedException("Check of write cache overflow was interrupted"), e);
+            } catch (final java.lang.InterruptedException e) {
+              throw BaseException.wrapException(
+                  new ThreadInterruptedException("Check of write cache overflow was interrupted"),
+                  e);
             }
           } else {
-            throw new YTStorageException(
+            throw new StorageException(
                 "Page with index "
                     + cacheEntry.getPageIndex()
                     + " for file id "

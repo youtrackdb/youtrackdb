@@ -19,23 +19,23 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CommandExecutorSQLCreateLinkTest extends DBTestBase {
+public class CommandExecutorSQLCreateLinkTest extends DbTestBase {
 
   @Test
   public void testBasic() {
     var basic1 = db.getMetadata().getSchema().createClass("Basic1");
-    basic1.createProperty(db, "theLink", YTType.LINK);
+    basic1.createProperty(db, "theLink", PropertyType.LINK);
 
     var basic2 = db.getMetadata().getSchema().createClass("Basic2");
-    basic2.createProperty(db, "theLink", YTType.LINK);
+    basic2.createProperty(db, "theLink", PropertyType.LINK);
 
     db.begin();
     db.command("insert into Basic1 set pk = 'pkb1_1', fk = 'pkb2_1'").close();
@@ -47,7 +47,7 @@ public class CommandExecutorSQLCreateLinkTest extends DBTestBase {
     db.command("CREATE LINK theLink type link FROM Basic1.fk TO Basic2.pk ").close();
     db.commit();
 
-    YTResultSet result = db.query("select pk, theLink.pk as other from Basic1 order by pk");
+    ResultSet result = db.query("select pk, theLink.pk as other from Basic1 order by pk");
 
     Object otherKey = result.next().getProperty("other");
     Assert.assertNotNull(otherKey);
@@ -61,10 +61,10 @@ public class CommandExecutorSQLCreateLinkTest extends DBTestBase {
   @Test
   public void testInverse() {
     var inverse1 = db.getMetadata().getSchema().createClass("Inverse1");
-    inverse1.createProperty(db, "theLink", YTType.LINK);
+    inverse1.createProperty(db, "theLink", PropertyType.LINK);
 
     var inverse2 = db.getMetadata().getSchema().createClass("Inverse2");
-    inverse2.createProperty(db, "theLink", YTType.LINKSET);
+    inverse2.createProperty(db, "theLink", PropertyType.LINKSET);
 
     db.begin();
     db.command("insert into Inverse1 set pk = 'pkb1_1', fk = 'pkb2_1'").close();
@@ -77,14 +77,14 @@ public class CommandExecutorSQLCreateLinkTest extends DBTestBase {
     db.command("CREATE LINK theLink TYPE LINKSET FROM Inverse1.fk TO Inverse2.pk INVERSE").close();
     db.commit();
 
-    YTResultSet result = db.query("select pk, theLink.pk as other from Inverse2 order by pk");
-    YTResult first = result.next();
+    ResultSet result = db.query("select pk, theLink.pk as other from Inverse2 order by pk");
+    Result first = result.next();
     Object otherKeys = first.getProperty("other");
     Assert.assertNotNull(otherKeys);
     Assert.assertTrue(otherKeys instanceof List);
     Assert.assertEquals(((List) otherKeys).get(0), "pkb1_1");
 
-    YTResult second = result.next();
+    Result second = result.next();
     otherKeys = second.getProperty("other");
     Assert.assertNotNull(otherKeys);
     Assert.assertTrue(otherKeys instanceof List);

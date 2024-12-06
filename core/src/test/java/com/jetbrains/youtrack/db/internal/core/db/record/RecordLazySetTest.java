@@ -4,23 +4,23 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.exception.YTValidationException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.exception.ValidationException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Test;
 
-public class RecordLazySetTest extends DBTestBase {
+public class RecordLazySetTest extends DbTestBase {
 
   private EntityImpl doc1;
   private EntityImpl doc2;
   private EntityImpl doc3;
-  private YTRID rid1;
-  private YTRID rid2;
-  private YTRID rid3;
+  private RID rid1;
+  private RID rid2;
+  private RID rid3;
 
   public void beforeTest() throws Exception {
     super.beforeTest();
@@ -68,22 +68,22 @@ public class RecordLazySetTest extends DBTestBase {
 
     set.add(doc1);
     set.add(doc2);
-    set.add(new YTRecordId(5, 1000));
+    set.add(new RecordId(5, 1000));
     assertEquals(set.size(), 3);
-    set.remove(new YTRecordId(5, 1000));
+    set.remove(new RecordId(5, 1000));
     assertEquals(set.size(), 2);
   }
 
-  @Test(expected = YTValidationException.class)
+  @Test(expected = ValidationException.class)
   public void testSetWithNotExistentRecordWithValidation() {
-    YTClass test = db.getMetadata().getSchema().createClass("test");
-    YTClass test1 = db.getMetadata().getSchema().createClass("test1");
-    test.createProperty(db, "fi", YTType.LINKSET).setLinkedClass(db, test1);
+    SchemaClass test = db.getMetadata().getSchema().createClass("test");
+    SchemaClass test1 = db.getMetadata().getSchema().createClass("test1");
+    test.createProperty(db, "fi", PropertyType.LINKSET).setLinkedClass(db, test1);
 
     db.begin();
     EntityImpl doc = new EntityImpl(test);
     LinkSet set = new LinkSet(doc);
-    set.add(new YTRecordId(5, 1000));
+    set.add(new RecordId(5, 1000));
     doc.field("fi", set);
     db.save(doc);
     db.commit();

@@ -47,7 +47,7 @@ public interface ODistributedMessageService {
 
   long getCurrentLatency(String server);
 
-  ODistributedResponseManager getResponseManager(ODistributedRequestId reqId);
+  ODistributedResponseManager getResponseManager(DistributedRequestId reqId);
 
   void registerRequest(final long id, final ODistributedResponseManager currentResponseMgr);
 }

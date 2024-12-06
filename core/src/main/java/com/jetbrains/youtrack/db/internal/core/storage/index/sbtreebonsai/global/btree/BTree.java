@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.global.btree;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.util.ORawPairObjectInteger;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.common.util.RawPairObjectInteger;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
+import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurableComponent;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.global.EntryPoint;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.global.IntSerializer;
@@ -40,7 +40,7 @@ public final class BTree extends DurableComponent {
     return fileId;
   }
 
-  public void create(final OAtomicOperation atomicOperation) {
+  public void create(final AtomicOperation atomicOperation) {
     executeInsideComponentOperation(
         atomicOperation,
         (operation) -> {
@@ -48,12 +48,12 @@ public final class BTree extends DurableComponent {
           try {
             fileId = addFile(atomicOperation, getFullName());
 
-            try (final OCacheEntry entryPointCacheEntry = addPage(atomicOperation, fileId)) {
+            try (final CacheEntry entryPointCacheEntry = addPage(atomicOperation, fileId)) {
               final EntryPoint entryPoint = new EntryPoint(entryPointCacheEntry);
               entryPoint.init();
             }
 
-            try (final OCacheEntry rootCacheEntry = addPage(atomicOperation, fileId)) {
+            try (final CacheEntry rootCacheEntry = addPage(atomicOperation, fileId)) {
               final Bucket rootBucket = new Bucket(rootCacheEntry);
               rootBucket.init(true);
             }
@@ -66,18 +66,18 @@ public final class BTree extends DurableComponent {
   public void load() {
     acquireExclusiveLock();
     try {
-      final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+      final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
 
       fileId = openFile(atomicOperation, getFullName());
     } catch (final IOException e) {
-      throw YTException.wrapException(
-          new YTStorageException("Exception during loading of rid bag " + getFullName()), e);
+      throw BaseException.wrapException(
+          new StorageException("Exception during loading of rid bag " + getFullName()), e);
     } finally {
       releaseExclusiveLock();
     }
   }
 
-  public void delete(final OAtomicOperation atomicOperation) {
+  public void delete(final AtomicOperation atomicOperation) {
     executeInsideComponentOperation(
         atomicOperation,
         operation -> {
@@ -95,7 +95,7 @@ public final class BTree extends DurableComponent {
     try {
       acquireSharedLock();
       try {
-        final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
         final BucketSearchResult bucketSearchResult = findBucket(key, atomicOperation);
         if (bucketSearchResult.getItemIndex() < 0) {
           return -1;
@@ -103,7 +103,7 @@ public final class BTree extends DurableComponent {
 
         final long pageIndex = bucketSearchResult.getPageIndex();
 
-        try (final OCacheEntry keyBucketCacheEntry =
+        try (final CacheEntry keyBucketCacheEntry =
             loadPageForRead(atomicOperation, fileId, pageIndex)) {
           final Bucket keyBucket = new Bucket(keyBucketCacheEntry);
           return keyBucket.getValue(bucketSearchResult.getItemIndex());
@@ -112,8 +112,8 @@ public final class BTree extends DurableComponent {
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw YTException.wrapException(
-          new YTStorageException(
+      throw BaseException.wrapException(
+          new StorageException(
               "Error during retrieving  of value for rid bag with name " + getName()),
           e);
     } finally {
@@ -121,7 +121,7 @@ public final class BTree extends DurableComponent {
     }
   }
 
-  public boolean put(final OAtomicOperation atomicOperation, final EdgeKey key, final int value) {
+  public boolean put(final AtomicOperation atomicOperation, final EdgeKey key, final int value) {
     return calculateInsideComponentOperation(
         atomicOperation,
         operation -> {
@@ -132,7 +132,7 @@ public final class BTree extends DurableComponent {
                 EdgeKeySerializer.INSTANCE.serializeNativeAsWhole(key, (Object[]) null);
             UpdateBucketSearchResult bucketSearchResult = findBucketForUpdate(key, atomicOperation);
 
-            OCacheEntry keyBucketCacheEntry =
+            CacheEntry keyBucketCacheEntry =
                 loadPageForWrite(
                     atomicOperation, fileId, bucketSearchResult.getLastPathItem(), true);
             Bucket keyBucket = new Bucket(keyBucketCacheEntry);
@@ -212,7 +212,7 @@ public final class BTree extends DurableComponent {
     try {
       acquireSharedLock();
       try {
-        final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
 
         final Optional<BucketSearchResult> searchResult = firstItem(atomicOperation);
         if (searchResult.isEmpty()) {
@@ -221,7 +221,7 @@ public final class BTree extends DurableComponent {
 
         final BucketSearchResult result = searchResult.get();
 
-        try (final OCacheEntry cacheEntry =
+        try (final CacheEntry cacheEntry =
             loadPageForRead(atomicOperation, fileId, result.getPageIndex())) {
           final Bucket bucket = new Bucket(cacheEntry);
           return bucket.getKey(result.getItemIndex());
@@ -230,20 +230,20 @@ public final class BTree extends DurableComponent {
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw YTException.wrapException(
-          new YTStorageException("Error during finding first key in btree [" + getName() + "]"), e);
+      throw BaseException.wrapException(
+          new StorageException("Error during finding first key in btree [" + getName() + "]"), e);
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
   }
 
-  private Optional<BucketSearchResult> firstItem(final OAtomicOperation atomicOperation)
+  private Optional<BucketSearchResult> firstItem(final AtomicOperation atomicOperation)
       throws IOException {
     final LinkedList<PagePathItemUnit> path = new LinkedList<>();
 
     long bucketIndex = ROOT_INDEX;
 
-    OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, bucketIndex);
+    CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, bucketIndex);
     int itemIndex = 0;
     try {
       Bucket bucket = new Bucket(cacheEntry);
@@ -302,7 +302,7 @@ public final class BTree extends DurableComponent {
     try {
       acquireSharedLock();
       try {
-        final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
 
         final Optional<BucketSearchResult> searchResult = lastItem(atomicOperation);
         if (searchResult.isEmpty()) {
@@ -311,7 +311,7 @@ public final class BTree extends DurableComponent {
 
         final BucketSearchResult result = searchResult.get();
 
-        try (final OCacheEntry cacheEntry =
+        try (final CacheEntry cacheEntry =
             loadPageForRead(atomicOperation, fileId, result.getPageIndex())) {
           final Bucket bucket = new Bucket(cacheEntry);
           return bucket.getKey(result.getItemIndex());
@@ -320,20 +320,20 @@ public final class BTree extends DurableComponent {
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw YTException.wrapException(
-          new YTStorageException("Error during finding last key in btree [" + getName() + "]"), e);
+      throw BaseException.wrapException(
+          new StorageException("Error during finding last key in btree [" + getName() + "]"), e);
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
   }
 
-  private Optional<BucketSearchResult> lastItem(final OAtomicOperation atomicOperation)
+  private Optional<BucketSearchResult> lastItem(final AtomicOperation atomicOperation)
       throws IOException {
     final LinkedList<PagePathItemUnit> path = new LinkedList<>();
 
     long bucketIndex = ROOT_INDEX;
 
-    OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, bucketIndex);
+    CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, bucketIndex);
 
     Bucket bucket = new Bucket(cacheEntry);
 
@@ -394,11 +394,11 @@ public final class BTree extends DurableComponent {
 
   private UpdateBucketSearchResult splitBucket(
       final Bucket bucketToSplit,
-      final OCacheEntry entryToSplit,
+      final CacheEntry entryToSplit,
       final IntList path,
       final IntList itemPointers,
       final int keyIndex,
-      final OAtomicOperation atomicOperation)
+      final AtomicOperation atomicOperation)
       throws IOException {
     final boolean splitLeaf = bucketToSplit.isLeaf();
     final int bucketSize = bucketToSplit.size();
@@ -448,11 +448,11 @@ public final class BTree extends DurableComponent {
       final int indexToSplit,
       final EdgeKey separationKey,
       final List<byte[]> rightEntries,
-      final OAtomicOperation atomicOperation)
+      final AtomicOperation atomicOperation)
       throws IOException {
 
-    final OCacheEntry rightBucketEntry;
-    try (final OCacheEntry entryPointCacheEntry =
+    final CacheEntry rightBucketEntry;
+    try (final CacheEntry entryPointCacheEntry =
         loadPageForWrite(atomicOperation, fileId, ENTRY_POINT_INDEX, true)) {
       final EntryPoint entryPoint = new EntryPoint(entryPointCacheEntry);
       int pageSize = entryPoint.getPagesSize();
@@ -486,7 +486,7 @@ public final class BTree extends DurableComponent {
 
         if (rightSiblingPageIndex >= 0) {
 
-          try (final OCacheEntry rightSiblingBucketEntry =
+          try (final CacheEntry rightSiblingBucketEntry =
               loadPageForWrite(atomicOperation, fileId, rightSiblingPageIndex, true)) {
             final Bucket rightSiblingBucket = new Bucket(rightSiblingBucketEntry);
             rightSiblingBucket.setLeftSibling(rightBucketEntry.getPageIndex());
@@ -495,7 +495,7 @@ public final class BTree extends DurableComponent {
       }
 
       long parentIndex = path.getInt(path.size() - 2);
-      OCacheEntry parentCacheEntry = loadPageForWrite(atomicOperation, fileId, parentIndex, true);
+      CacheEntry parentCacheEntry = loadPageForWrite(atomicOperation, fileId, parentIndex, true);
       try {
         Bucket parentBucket = new Bucket(parentCacheEntry);
         int insertionIndex = itemPointers.getInt(itemPointers.size() - 2);
@@ -562,13 +562,13 @@ public final class BTree extends DurableComponent {
 
   private UpdateBucketSearchResult splitRootBucket(
       final int keyIndex,
-      final OCacheEntry bucketEntry,
+      final CacheEntry bucketEntry,
       Bucket bucketToSplit,
       final boolean splitLeaf,
       final int indexToSplit,
       final EdgeKey separationKey,
       final List<byte[]> rightEntries,
-      final OAtomicOperation atomicOperation)
+      final AtomicOperation atomicOperation)
       throws IOException {
     final List<byte[]> leftEntries = new ArrayList<>(indexToSplit);
 
@@ -576,10 +576,10 @@ public final class BTree extends DurableComponent {
       leftEntries.add(bucketToSplit.getRawEntry(i));
     }
 
-    final OCacheEntry leftBucketEntry;
-    final OCacheEntry rightBucketEntry;
+    final CacheEntry leftBucketEntry;
+    final CacheEntry rightBucketEntry;
 
-    try (final OCacheEntry entryPointCacheEntry =
+    try (final CacheEntry entryPointCacheEntry =
         loadPageForWrite(atomicOperation, fileId, ENTRY_POINT_INDEX, true)) {
       final EntryPoint entryPoint = new EntryPoint(entryPointCacheEntry);
       int pageSize = entryPoint.getPagesSize();
@@ -670,9 +670,9 @@ public final class BTree extends DurableComponent {
     return new UpdateBucketSearchResult(itemPointers, resultPath, keyIndex - indexToSplit - 1);
   }
 
-  private void updateSize(final long diffSize, final OAtomicOperation atomicOperation)
+  private void updateSize(final long diffSize, final AtomicOperation atomicOperation)
       throws IOException {
-    try (final OCacheEntry entryPointCacheEntry =
+    try (final CacheEntry entryPointCacheEntry =
         loadPageForWrite(atomicOperation, fileId, ENTRY_POINT_INDEX, true)) {
       final EntryPoint entryPoint = new EntryPoint(entryPointCacheEntry);
       entryPoint.setTreeSize(entryPoint.getTreeSize() + diffSize);
@@ -680,7 +680,7 @@ public final class BTree extends DurableComponent {
   }
 
   private UpdateBucketSearchResult findBucketForUpdate(
-      final EdgeKey key, final OAtomicOperation atomicOperation) throws IOException {
+      final EdgeKey key, final AtomicOperation atomicOperation) throws IOException {
     int pageIndex = ROOT_INDEX;
 
     final IntArrayList path = new IntArrayList(8);
@@ -688,14 +688,14 @@ public final class BTree extends DurableComponent {
 
     while (true) {
       if (path.size() > MAX_PATH_LENGTH) {
-        throw new YTStorageException(
+        throw new StorageException(
             "We reached max level of depth of SBTree but still found nothing, seems like tree is in"
                 + " corrupted state. You should rebuild index related to given query.");
       }
 
       path.add(pageIndex);
 
-      try (final OCacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
+      try (final CacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
         final Bucket keyBucket = new Bucket(bucketEntry);
         final int index = keyBucket.find(key);
 
@@ -722,7 +722,7 @@ public final class BTree extends DurableComponent {
     }
   }
 
-  private BucketSearchResult findBucket(final EdgeKey key, final OAtomicOperation atomicOperation)
+  private BucketSearchResult findBucket(final EdgeKey key, final AtomicOperation atomicOperation)
       throws IOException {
     long pageIndex = ROOT_INDEX;
 
@@ -730,12 +730,12 @@ public final class BTree extends DurableComponent {
     while (true) {
       depth++;
       if (depth > MAX_PATH_LENGTH) {
-        throw new YTStorageException(
+        throw new StorageException(
             "We reached max level of depth of SBTree but still found nothing, seems like tree is in"
                 + " corrupted state. You should rebuild index related to given query.");
       }
 
-      try (final OCacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
+      try (final CacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
         final Bucket keyBucket = new Bucket(bucketEntry);
         final int index = keyBucket.find(key);
 
@@ -757,7 +757,7 @@ public final class BTree extends DurableComponent {
     }
   }
 
-  public int remove(final OAtomicOperation atomicOperation, final EdgeKey key) {
+  public int remove(final AtomicOperation atomicOperation, final EdgeKey key) {
     return calculateInsideComponentOperation(
         atomicOperation,
         operation -> {
@@ -772,7 +772,7 @@ public final class BTree extends DurableComponent {
 
             final byte[] serializedKey = EdgeKeySerializer.INSTANCE.serializeNativeAsWhole(key);
             final byte[] rawValue;
-            try (final OCacheEntry keyBucketCacheEntry =
+            try (final CacheEntry keyBucketCacheEntry =
                 loadPageForWrite(
                     atomicOperation, fileId, bucketSearchResult.getPageIndex(), true)) {
               final Bucket keyBucket = new Bucket(keyBucketCacheEntry);
@@ -790,7 +790,7 @@ public final class BTree extends DurableComponent {
         });
   }
 
-  public Stream<ORawPairObjectInteger<EdgeKey>> iterateEntriesMinor(
+  public Stream<RawPairObjectInteger<EdgeKey>> iterateEntriesMinor(
       final EdgeKey key, final boolean inclusive, final boolean ascSortOrder) {
     atomicOperationsManager.acquireReadLock(this);
     try {
@@ -809,7 +809,7 @@ public final class BTree extends DurableComponent {
     }
   }
 
-  public Stream<ORawPairObjectInteger<EdgeKey>> iterateEntriesMajor(
+  public Stream<RawPairObjectInteger<EdgeKey>> iterateEntriesMajor(
       final EdgeKey key, final boolean inclusive, final boolean ascSortOrder) {
     atomicOperationsManager.acquireReadLock(this);
     try {
@@ -827,7 +827,7 @@ public final class BTree extends DurableComponent {
     }
   }
 
-  public Stream<ORawPairObjectInteger<EdgeKey>> iterateEntriesBetween(
+  public Stream<RawPairObjectInteger<EdgeKey>> iterateEntriesBetween(
       final EdgeKey keyFrom,
       final boolean fromInclusive,
       final EdgeKey keyTo,
@@ -852,32 +852,32 @@ public final class BTree extends DurableComponent {
     }
   }
 
-  private Spliterator<ORawPairObjectInteger<EdgeKey>> iterateEntriesMinorDesc(
+  private Spliterator<RawPairObjectInteger<EdgeKey>> iterateEntriesMinorDesc(
       EdgeKey key, final boolean inclusive) {
     return new SpliteratorBackward(this, null, key, false, inclusive);
   }
 
-  private Spliterator<ORawPairObjectInteger<EdgeKey>> iterateEntriesMinorAsc(
+  private Spliterator<RawPairObjectInteger<EdgeKey>> iterateEntriesMinorAsc(
       EdgeKey key, final boolean inclusive) {
     return new SpliteratorForward(this, null, key, false, inclusive);
   }
 
-  private Spliterator<ORawPairObjectInteger<EdgeKey>> iterateEntriesMajorAsc(
+  private Spliterator<RawPairObjectInteger<EdgeKey>> iterateEntriesMajorAsc(
       EdgeKey key, final boolean inclusive) {
     return new SpliteratorForward(this, key, null, inclusive, false);
   }
 
-  private Spliterator<ORawPairObjectInteger<EdgeKey>> iterateEntriesMajorDesc(
+  private Spliterator<RawPairObjectInteger<EdgeKey>> iterateEntriesMajorDesc(
       EdgeKey key, final boolean inclusive) {
     return new SpliteratorBackward(this, key, null, inclusive, false);
   }
 
-  private Spliterator<ORawPairObjectInteger<EdgeKey>> iterateEntriesBetweenAscOrder(
+  private Spliterator<RawPairObjectInteger<EdgeKey>> iterateEntriesBetweenAscOrder(
       EdgeKey keyFrom, final boolean fromInclusive, EdgeKey keyTo, final boolean toInclusive) {
     return new SpliteratorForward(this, keyFrom, keyTo, fromInclusive, toInclusive);
   }
 
-  private Spliterator<ORawPairObjectInteger<EdgeKey>> iterateEntriesBetweenDescOrder(
+  private Spliterator<RawPairObjectInteger<EdgeKey>> iterateEntriesBetweenDescOrder(
       EdgeKey keyFrom, final boolean fromInclusive, EdgeKey keyTo, final boolean toInclusive) {
     return new SpliteratorBackward(this, keyFrom, keyTo, fromInclusive, toInclusive);
   }
@@ -896,7 +896,7 @@ public final class BTree extends DurableComponent {
     try {
       acquireSharedLock();
       try {
-        final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
         if (iter.getPageIndex() > -1) {
           if (readKeysFromBucketsForward(iter, atomicOperation)) {
             return;
@@ -951,15 +951,15 @@ public final class BTree extends DurableComponent {
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw YTException.wrapException(new YTStorageException("Error during element iteration"), e);
+      throw BaseException.wrapException(new StorageException("Error during element iteration"), e);
     } finally {
       atomicOperationsManager.releaseReadLock(BTree.this);
     }
   }
 
   private boolean readKeysFromBucketsForward(
-      SpliteratorForward iter, OAtomicOperation atomicOperation) throws IOException {
-    OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, iter.getPageIndex());
+      SpliteratorForward iter, AtomicOperation atomicOperation) throws IOException {
+    CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, iter.getPageIndex());
     try {
       Bucket bucket = new Bucket(cacheEntry);
       if (iter.getLastLSN() == null
@@ -1001,7 +1001,7 @@ public final class BTree extends DurableComponent {
             }
 
             //noinspection ObjectAllocationInLoop
-            iter.getDataCache().add(new ORawPairObjectInteger<>(entry.getKey(), entry.getValue()));
+            iter.getDataCache().add(new RawPairObjectInteger<>(entry.getKey(), entry.getValue()));
           }
 
           if (iter.getDataCache().size() >= 10) {
@@ -1030,7 +1030,7 @@ public final class BTree extends DurableComponent {
     try {
       acquireSharedLock();
       try {
-        final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+        final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
         if (iter.getPageIndex() > -1) {
           if (readKeysFromBucketsBackward(iter, atomicOperation)) {
             return;
@@ -1084,15 +1084,15 @@ public final class BTree extends DurableComponent {
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw YTException.wrapException(new YTStorageException("Error during element iteration"), e);
+      throw BaseException.wrapException(new StorageException("Error during element iteration"), e);
     } finally {
       atomicOperationsManager.releaseReadLock(BTree.this);
     }
   }
 
   private boolean readKeysFromBucketsBackward(
-      SpliteratorBackward iter, OAtomicOperation atomicOperation) throws IOException {
-    OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, iter.getPageIndex());
+      SpliteratorBackward iter, AtomicOperation atomicOperation) throws IOException {
+    CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, iter.getPageIndex());
     try {
       Bucket bucket = new Bucket(cacheEntry);
       if (iter.getLastLSN() == null
@@ -1130,7 +1130,7 @@ public final class BTree extends DurableComponent {
             }
 
             //noinspection ObjectAllocationInLoop
-            iter.getDataCache().add(new ORawPairObjectInteger<>(entry.getKey(), entry.getValue()));
+            iter.getDataCache().add(new RawPairObjectInteger<>(entry.getKey(), entry.getValue()));
           }
 
           if (iter.getDataCache().size() >= 10) {

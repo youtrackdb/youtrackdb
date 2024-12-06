@@ -1,9 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.OMemoryStream;
+import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.NotSerializableException;
@@ -14,19 +15,19 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TrackedListTest extends DBTestBase {
+public class TrackedListTest extends DbTestBase {
 
   @Test
   public void testAddNotificationOne() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedList<String> trackedList = new TrackedList<String>(doc);
     trackedList.enableTracking(doc);
-    OMultiValueChangeEvent<Object, Object> event =
-        new OMultiValueChangeEvent<Object, Object>(
-            OMultiValueChangeEvent.OChangeType.ADD, 0, "value1", null);
+    MultiValueChangeEvent<Object, Object> event =
+        new MultiValueChangeEvent<Object, Object>(
+            ChangeType.ADD, 0, "value1", null);
     trackedList.add("value1");
 
     Assert.assertEquals(event, trackedList.getTimeLine().getMultiValueChangeEvents().get(0));
@@ -37,7 +38,7 @@ public class TrackedListTest extends DBTestBase {
   @Test
   public void testAddNotificationTwo() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedList<String> trackedList = new TrackedList<String>(doc);
@@ -46,9 +47,9 @@ public class TrackedListTest extends DBTestBase {
 
     trackedList.disableTracking(doc);
     trackedList.enableTracking(doc);
-    OMultiValueChangeEvent<Object, Object> event =
-        new OMultiValueChangeEvent<Object, Object>(
-            OMultiValueChangeEvent.OChangeType.ADD, 2, "value3", null);
+    MultiValueChangeEvent<Object, Object> event =
+        new MultiValueChangeEvent<Object, Object>(
+            ChangeType.ADD, 2, "value3", null);
 
     trackedList.add("value3");
     Assert.assertEquals(event, trackedList.getTimeLine().getMultiValueChangeEvents().get(0));
@@ -59,7 +60,7 @@ public class TrackedListTest extends DBTestBase {
   @Test
   public void testAddNotificationThree() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedList<String> trackedList = new TrackedList<String>(doc);
@@ -71,14 +72,14 @@ public class TrackedListTest extends DBTestBase {
   @Test
   public void testAddNotificationFour() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedList<String> trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
     trackedList.disableTracking(doc);
     Assert.assertFalse(trackedList.isModified());
@@ -92,7 +93,7 @@ public class TrackedListTest extends DBTestBase {
   @Test
   public void testAddAllNotificationOne() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedList<String> trackedList = new TrackedList<String>(doc);
@@ -100,17 +101,17 @@ public class TrackedListTest extends DBTestBase {
     valuesToAdd.add("value1");
     valuesToAdd.add("value3");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final List<OMultiValueChangeEvent<Integer, String>> firedEvents =
-        new ArrayList<OMultiValueChangeEvent<Integer, String>>();
+    final List<MultiValueChangeEvent<Integer, String>> firedEvents =
+        new ArrayList<MultiValueChangeEvent<Integer, String>>();
     firedEvents.add(
-        new OMultiValueChangeEvent<Integer, String>(
-            OMultiValueChangeEvent.OChangeType.ADD, 0, "value1"));
+        new MultiValueChangeEvent<Integer, String>(
+            ChangeType.ADD, 0, "value1"));
     firedEvents.add(
-        new OMultiValueChangeEvent<Integer, String>(
-            OMultiValueChangeEvent.OChangeType.ADD, 1, "value3"));
+        new MultiValueChangeEvent<Integer, String>(
+            ChangeType.ADD, 1, "value3"));
     trackedList.enableTracking(doc);
     trackedList.addAll(valuesToAdd);
 
@@ -121,7 +122,7 @@ public class TrackedListTest extends DBTestBase {
   @Test
   public void testAddAllNotificationTwo() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedList<String> trackedList = new TrackedList<String>(doc);
@@ -138,7 +139,7 @@ public class TrackedListTest extends DBTestBase {
   @Test
   public void testAddAllNotificationThree() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedList<String> trackedList = new TrackedList<String>(doc);
@@ -146,7 +147,7 @@ public class TrackedListTest extends DBTestBase {
     valuesToAdd.add("value1");
     valuesToAdd.add("value3");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     trackedList.disableTracking(doc);
@@ -162,20 +163,20 @@ public class TrackedListTest extends DBTestBase {
   @Test
   public void testAddIndexNotificationOne() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedList<String> trackedList = new TrackedList<String>(doc);
     trackedList.add("value1");
     trackedList.add("value2");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
     trackedList.disableTracking(doc);
     trackedList.enableTracking(doc);
 
-    OMultiValueChangeEvent<Integer, String> event =
-        new OMultiValueChangeEvent<>(OMultiValueChangeEvent.OChangeType.ADD, 1, "value3", null);
+    MultiValueChangeEvent<Integer, String> event =
+        new MultiValueChangeEvent<>(ChangeType.ADD, 1, "value3", null);
 
     trackedList.add(1, "value3");
     Assert.assertEquals(event, trackedList.getTimeLine().getMultiValueChangeEvents().get(0));
@@ -186,7 +187,7 @@ public class TrackedListTest extends DBTestBase {
   @Test
   public void testAddIndexNotificationTwo() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedList<String> trackedList = new TrackedList<String>(doc);
@@ -194,7 +195,7 @@ public class TrackedListTest extends DBTestBase {
     trackedList.add("value1");
     trackedList.add("value2");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
     trackedList.add(1, "value3");
     Assert.assertTrue(doc.isDirty());
@@ -203,7 +204,7 @@ public class TrackedListTest extends DBTestBase {
   @Test
   public void testSetNotificationOne() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedList<String> trackedList = new TrackedList<String>(doc);
@@ -211,12 +212,12 @@ public class TrackedListTest extends DBTestBase {
     trackedList.add("value2");
     trackedList.add("value3");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
     trackedList.enableTracking(doc);
-    OMultiValueChangeEvent<Object, Object> event =
-        new OMultiValueChangeEvent<Object, Object>(
-            OMultiValueChangeEvent.OChangeType.UPDATE, 1, "value4", "value2");
+    MultiValueChangeEvent<Object, Object> event =
+        new MultiValueChangeEvent<Object, Object>(
+            ChangeType.UPDATE, 1, "value4", "value2");
     trackedList.set(1, "value4");
     Assert.assertEquals(event, trackedList.getTimeLine().getMultiValueChangeEvents().get(0));
     Assert.assertTrue(trackedList.isModified());
@@ -226,7 +227,7 @@ public class TrackedListTest extends DBTestBase {
   @Test
   public void testSetNotificationTwo() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedList<String> trackedList = new TrackedList<String>(doc);
@@ -235,7 +236,7 @@ public class TrackedListTest extends DBTestBase {
     trackedList.add("value2");
     trackedList.add("value3");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     trackedList.set(1, "value4");
@@ -245,7 +246,7 @@ public class TrackedListTest extends DBTestBase {
   @Test
   public void testRemoveNotificationOne() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedList<String> trackedList = new TrackedList<String>(doc);
@@ -253,13 +254,13 @@ public class TrackedListTest extends DBTestBase {
     trackedList.add("value2");
     trackedList.add("value3");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     trackedList.enableTracking(doc);
     trackedList.remove("value2");
-    OMultiValueChangeEvent<Integer, String> event =
-        new OMultiValueChangeEvent<>(OMultiValueChangeEvent.OChangeType.REMOVE, 1, null, "value2");
+    MultiValueChangeEvent<Integer, String> event =
+        new MultiValueChangeEvent<>(ChangeType.REMOVE, 1, null, "value2");
     Assert.assertEquals(event, trackedList.getTimeLine().getMultiValueChangeEvents().get(0));
     Assert.assertTrue(doc.isDirty());
   }
@@ -267,7 +268,7 @@ public class TrackedListTest extends DBTestBase {
   @Test
   public void testRemoveNotificationTwo() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedList<String> trackedList = new TrackedList<String>(doc);
@@ -276,7 +277,7 @@ public class TrackedListTest extends DBTestBase {
     trackedList.add("value2");
     trackedList.add("value3");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     trackedList.remove("value2");
@@ -286,7 +287,7 @@ public class TrackedListTest extends DBTestBase {
   @Test
   public void testRemoveNotificationFour() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedList<String> trackedList = new TrackedList<String>(doc);
@@ -294,7 +295,7 @@ public class TrackedListTest extends DBTestBase {
     trackedList.add("value2");
     trackedList.add("value3");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
     trackedList.disableTracking(doc);
 
@@ -306,7 +307,7 @@ public class TrackedListTest extends DBTestBase {
   @Test
   public void testRemoveIndexOne() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedList<String> trackedList = new TrackedList<String>(doc);
@@ -314,14 +315,14 @@ public class TrackedListTest extends DBTestBase {
     trackedList.add("value2");
     trackedList.add("value3");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
     trackedList.enableTracking(doc);
 
     trackedList.remove(1);
-    OMultiValueChangeEvent<Object, Object> event =
-        new OMultiValueChangeEvent<Object, Object>(
-            OMultiValueChangeEvent.OChangeType.REMOVE, 1, null, "value2");
+    MultiValueChangeEvent<Object, Object> event =
+        new MultiValueChangeEvent<Object, Object>(
+            ChangeType.REMOVE, 1, null, "value2");
     Assert.assertTrue(trackedList.isModified());
     Assert.assertEquals(event, trackedList.getTimeLine().getMultiValueChangeEvents().get(0));
     Assert.assertTrue(doc.isDirty());
@@ -330,7 +331,7 @@ public class TrackedListTest extends DBTestBase {
   @Test
   public void testClearOne() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedList<String> trackedList = new TrackedList<String>(doc);
@@ -338,20 +339,20 @@ public class TrackedListTest extends DBTestBase {
     trackedList.add("value2");
     trackedList.add("value3");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
-    final List<OMultiValueChangeEvent<Integer, String>> firedEvents =
-        new ArrayList<OMultiValueChangeEvent<Integer, String>>();
+    final List<MultiValueChangeEvent<Integer, String>> firedEvents =
+        new ArrayList<MultiValueChangeEvent<Integer, String>>();
     firedEvents.add(
-        new OMultiValueChangeEvent<Integer, String>(
-            OMultiValueChangeEvent.OChangeType.REMOVE, 2, null, "value3"));
+        new MultiValueChangeEvent<Integer, String>(
+            ChangeType.REMOVE, 2, null, "value3"));
     firedEvents.add(
-        new OMultiValueChangeEvent<Integer, String>(
-            OMultiValueChangeEvent.OChangeType.REMOVE, 1, null, "value2"));
+        new MultiValueChangeEvent<Integer, String>(
+            ChangeType.REMOVE, 1, null, "value2"));
     firedEvents.add(
-        new OMultiValueChangeEvent<Integer, String>(
-            OMultiValueChangeEvent.OChangeType.REMOVE, 0, null, "value1"));
+        new MultiValueChangeEvent<Integer, String>(
+            ChangeType.REMOVE, 0, null, "value1"));
     trackedList.enableTracking(doc);
 
     trackedList.clear();
@@ -362,7 +363,7 @@ public class TrackedListTest extends DBTestBase {
   @Test
   public void testClearTwo() {
     final EntityImpl doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     final TrackedList<String> trackedList = new TrackedList<String>(doc);
@@ -371,7 +372,7 @@ public class TrackedListTest extends DBTestBase {
     trackedList.add("value2");
     trackedList.add("value3");
 
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     Assert.assertFalse(doc.isDirty());
 
     trackedList.clear();
@@ -463,7 +464,7 @@ public class TrackedListTest extends DBTestBase {
     beforeSerialization.add("firstVal");
     beforeSerialization.add("secondVal");
 
-    final OMemoryStream memoryStream = new OMemoryStream();
+    final MemoryStream memoryStream = new MemoryStream();
     ObjectOutputStream out = new ObjectOutputStream(memoryStream);
     out.writeObject(beforeSerialization);
     out.close();

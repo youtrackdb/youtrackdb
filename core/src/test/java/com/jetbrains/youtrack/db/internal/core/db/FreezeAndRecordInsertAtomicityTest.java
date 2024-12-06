@@ -23,11 +23,11 @@ package com.jetbrains.youtrack.db.internal.core.db;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.File;
 import java.util.HashSet;
@@ -67,7 +67,7 @@ public class FreezeAndRecordInsertAtomicityTest {
   }
 
   private Random random;
-  private YTDatabaseDocumentTx db;
+  private DatabaseDocumentTx db;
   private ExecutorService executorService;
   private CountDownLatch countDownLatch;
 
@@ -77,7 +77,7 @@ public class FreezeAndRecordInsertAtomicityTest {
     System.out.println(FreezeAndRecordInsertAtomicityTest.class.getSimpleName() + " seed: " + seed);
     random = new Random(seed);
 
-    db = new YTDatabaseDocumentTx(URL);
+    db = new DatabaseDocumentTx(URL);
     if (db.exists()) {
       db.open("admin", "admin");
       db.drop();
@@ -86,8 +86,8 @@ public class FreezeAndRecordInsertAtomicityTest {
     db.getMetadata()
         .getSchema()
         .createClass("Person")
-        .createProperty(db, "name", YTType.STRING)
-        .createIndex(db, YTClass.INDEX_TYPE.UNIQUE);
+        .createProperty(db, "name", PropertyType.STRING)
+        .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
 
     executorService = Executors.newFixedThreadPool(THREADS);
 
@@ -113,9 +113,9 @@ public class FreezeAndRecordInsertAtomicityTest {
           executorService.submit(
               () -> {
                 try {
-                  final YTDatabaseSessionInternal db = new YTDatabaseDocumentTx(URL);
+                  final DatabaseSessionInternal db = new DatabaseDocumentTx(URL);
                   db.open("admin", "admin");
-                  final OIndex index =
+                  final Index index =
                       db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.name");
 
                   for (int i1 = 0; i1 < ITERATIONS; ++i1) {
@@ -133,7 +133,7 @@ public class FreezeAndRecordInsertAtomicityTest {
                         db.freeze();
                         try {
                           for (EntityImpl document : db.browseClass("Person")) {
-                            try (Stream<YTRID> rids =
+                            try (Stream<RID> rids =
                                 index.getInternal().getRids(db, document.field("name"))) {
                               assertEquals(document.getIdentity(), rids.findFirst().orElse(null));
                             }

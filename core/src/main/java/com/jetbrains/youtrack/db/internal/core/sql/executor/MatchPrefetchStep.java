@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
@@ -14,11 +14,11 @@ public class MatchPrefetchStep extends AbstractExecutionStep {
   public static final String PREFETCHED_MATCH_ALIAS_PREFIX = "$$OrientDB_Prefetched_Alias_Prefix__";
 
   private final String alias;
-  private final OInternalExecutionPlan prefetchExecutionPlan;
+  private final InternalExecutionPlan prefetchExecutionPlan;
 
   public MatchPrefetchStep(
       CommandContext ctx,
-      OInternalExecutionPlan prefetchExecPlan,
+      InternalExecutionPlan prefetchExecPlan,
       String alias,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
@@ -32,13 +32,13 @@ public class MatchPrefetchStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
     ExecutionStream nextBlock = prefetchExecutionPlan.start();
-    List<YTResult> prefetched = new ArrayList<>();
+    List<Result> prefetched = new ArrayList<>();
     while (nextBlock.hasNext(ctx)) {
       prefetched.add(nextBlock.next(ctx));
     }

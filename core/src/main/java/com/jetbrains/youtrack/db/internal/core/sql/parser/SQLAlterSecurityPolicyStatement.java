@@ -3,10 +3,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityPolicyImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityPolicyImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 
@@ -39,10 +39,10 @@ public class SQLAlterSecurityPolicyStatement extends SQLSimpleExecStatement {
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
     var db = ctx.getDatabase();
-    OSecurityInternal security = db.getSharedContext().getSecurity();
-    OSecurityPolicyImpl policy = security.getSecurityPolicy(db, name.getStringValue());
+    SecurityInternal security = db.getSharedContext().getSecurity();
+    SecurityPolicyImpl policy = security.getSecurityPolicy(db, name.getStringValue());
     if (policy == null) {
-      throw new YTCommandExecutionException("Cannot find security policy " + name.toString());
+      throw new CommandExecutionException("Cannot find security policy " + name.toString());
     }
 
     if (create != null) {
@@ -84,7 +84,7 @@ public class SQLAlterSecurityPolicyStatement extends SQLSimpleExecStatement {
     }
     security.saveSecurityPolicy(db, policy);
 
-    YTResultInternal result = new YTResultInternal(db);
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("operation", "alter security policy");
     result.setProperty("name", name.getStringValue());
     return ExecutionStream.singleton(result);

@@ -3,10 +3,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -55,7 +55,7 @@ public class SQLArraySelector extends SimpleNode {
     }
   }
 
-  public Object getValue(YTIdentifiable iCurrentRecord, Object iResult, CommandContext ctx) {
+  public Object getValue(Identifiable iCurrentRecord, Object iResult, CommandContext ctx) {
     Object result = null;
     if (inputParam != null) {
       result = inputParam.getValue(ctx.getInputParameters());
@@ -74,7 +74,7 @@ public class SQLArraySelector extends SimpleNode {
     return result;
   }
 
-  public Object getValue(YTResult iCurrentRecord, Object iResult, CommandContext ctx) {
+  public Object getValue(Result iCurrentRecord, Object iResult, CommandContext ctx) {
     Object result = null;
     if (inputParam != null) {
       result = inputParam.getValue(ctx.getInputParameters());
@@ -153,7 +153,7 @@ public class SQLArraySelector extends SimpleNode {
     return expression != null && expression.refersToParent();
   }
 
-  public void setValue(YTResult currentRecord, Object target, Object value, CommandContext ctx) {
+  public void setValue(Result currentRecord, Object target, Object value, CommandContext ctx) {
     Object idx = null;
     if (this.rid != null) {
       idx = this.rid.toRecordId(currentRecord, ctx);
@@ -218,8 +218,8 @@ public class SQLArraySelector extends SimpleNode {
     }
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     if (rid != null) {
       result.setProperty("rid", rid.serialize(db));
     }
@@ -235,7 +235,7 @@ public class SQLArraySelector extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     if (fromResult.getProperty("rid") != null) {
       rid = new SQLRid(-1);
       rid.deserialize(fromResult.getProperty("rid"));

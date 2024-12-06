@@ -2,9 +2,9 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -332,8 +332,8 @@ public class SQLFromItem extends SimpleNode {
     this.inputParams = inputParams;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     if (rids != null) {
       result.setProperty(
           "rids", rids.stream().map(x -> x.serialize(db)).collect(Collectors.toList()));
@@ -373,11 +373,11 @@ public class SQLFromItem extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     if (fromResult.getProperty("rids") != null) {
-      List<YTResult> serRids = fromResult.getProperty("rids");
+      List<Result> serRids = fromResult.getProperty("rids");
       rids = new ArrayList<>();
-      for (YTResult res : serRids) {
+      for (Result res : serRids) {
         SQLRid rid = new SQLRid(-1);
         rid.deserialize(res);
         rids.add(rid);
@@ -385,9 +385,9 @@ public class SQLFromItem extends SimpleNode {
     }
 
     if (fromResult.getProperty("inputParams") != null) {
-      List<YTResult> ser = fromResult.getProperty("inputParams");
+      List<Result> ser = fromResult.getProperty("inputParams");
       inputParams = new ArrayList<>();
-      for (YTResult res : ser) {
+      for (Result res : ser) {
         inputParams.add(SQLInputParameter.deserializeFromOResult(res));
       }
     }
@@ -428,7 +428,7 @@ public class SQLFromItem extends SimpleNode {
     }
   }
 
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     if (modifier != null) {
       return false;
     }

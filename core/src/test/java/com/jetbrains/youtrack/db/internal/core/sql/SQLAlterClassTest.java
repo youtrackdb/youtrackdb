@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class SQLAlterClassTest extends DBTestBase {
+public class SQLAlterClassTest extends DbTestBase {
 
   @Test
   public void alterClassRenameTest() {
@@ -14,7 +14,7 @@ public class SQLAlterClassTest extends DBTestBase {
     try {
       db.command("alter class TestClass name = 'test_class'").close();
       Assert.fail("the rename should fail for wrong syntax");
-    } catch (YTCommandSQLParsingException ex) {
+    } catch (CommandSQLParsingException ex) {
 
     }
     Assert.assertNotNull(db.getMetadata().getSchema().getClass("TestClass"));
@@ -30,9 +30,9 @@ public class SQLAlterClassTest extends DBTestBase {
       db.command("insert into `Client-Type` set foo = 'bar'").close();
       db.commit();
 
-      YTResultSet result = db.query("Select from `Client-Type`");
+      ResultSet result = db.query("Select from `Client-Type`");
       Assert.assertEquals(result.stream().count(), 1);
-    } catch (YTCommandSQLParsingException ex) {
+    } catch (CommandSQLParsingException ex) {
       Assert.fail();
     }
   }

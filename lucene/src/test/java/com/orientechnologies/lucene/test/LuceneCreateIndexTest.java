@@ -19,7 +19,7 @@
 package com.orientechnologies.lucene.test;
 
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.io.InputStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.junit.Assert;
@@ -80,7 +80,7 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
   }
 
   protected void assertQuery() {
-    YTResultSet docs = db.query("select * from Song where title LUCENE \"mountain\"");
+    ResultSet docs = db.query("select * from Song where title LUCENE \"mountain\"");
 
     Assert.assertEquals(4, docs.stream().count());
 
@@ -104,7 +104,7 @@ public class LuceneCreateIndexTest extends BaseLuceneTest {
 
   protected void assertNewQuery() {
 
-    YTResultSet docs = db.query("select * from Song where [title] LUCENE \"(title:Local)\"");
+    ResultSet docs = db.query("select * from Song where [title] LUCENE \"(title:Local)\"");
 
     Assert.assertEquals(1, docs.stream().count());
   }

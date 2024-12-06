@@ -14,7 +14,7 @@
 package com.orientechnologies.orient.jdbc;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.OConstants;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
@@ -36,7 +36,7 @@ public class OrientJdbcDriver implements java.sql.Driver {
   }
 
   public static String getVersion() {
-    return "YouTrackDB " + OConstants.getVersion() + " JDBC Driver";
+    return "YouTrackDB " + YouTrackDBConstants.getVersion() + " JDBC Driver";
   }
 
   @Override
@@ -68,12 +68,12 @@ public class OrientJdbcDriver implements java.sql.Driver {
 
   @Override
   public int getMajorVersion() {
-    return OConstants.getVersionMajor();
+    return YouTrackDBConstants.getVersionMajor();
   }
 
   @Override
   public int getMinorVersion() {
-    return OConstants.getVersionMinor();
+    return YouTrackDBConstants.getVersionMinor();
   }
 
   @Override

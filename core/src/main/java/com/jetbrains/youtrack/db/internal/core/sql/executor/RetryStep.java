@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTNeedRetryException;
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.OExecutionThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandInterruptedException;
+import com.jetbrains.youtrack.db.internal.core.db.ExecutionThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandInterruptedException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import java.util.List;
@@ -35,7 +35,7 @@ public class RetryStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -43,16 +43,16 @@ public class RetryStep extends AbstractExecutionStep {
     for (int i = 0; i < retries; i++) {
       try {
 
-        if (OExecutionThreadLocal.isInterruptCurrentOperation()) {
-          throw new YTCommandInterruptedException("The command has been interrupted");
+        if (ExecutionThreadLocal.isInterruptCurrentOperation()) {
+          throw new CommandInterruptedException("The command has been interrupted");
         }
-        OScriptExecutionPlan plan = initPlan(body, ctx);
+        ScriptExecutionPlan plan = initPlan(body, ctx);
         ExecutionStepInternal result = plan.executeFull();
         if (result != null) {
           return result.start(ctx);
         }
         break;
-      } catch (YTNeedRetryException ex) {
+      } catch (NeedRetryException ex) {
         try {
           var db = ctx.getDatabase();
           db.rollback();
@@ -61,7 +61,7 @@ public class RetryStep extends AbstractExecutionStep {
 
         if (i == retries - 1) {
           if (elseBody != null && !elseBody.isEmpty()) {
-            OScriptExecutionPlan plan = initPlan(elseBody, ctx);
+            ScriptExecutionPlan plan = initPlan(elseBody, ctx);
             ExecutionStepInternal result = plan.executeFull();
             if (result != null) {
               return result.start(ctx);
@@ -79,10 +79,10 @@ public class RetryStep extends AbstractExecutionStep {
     return new EmptyStep(ctx, false).start(ctx);
   }
 
-  public OScriptExecutionPlan initPlan(List<SQLStatement> body, CommandContext ctx) {
+  public ScriptExecutionPlan initPlan(List<SQLStatement> body, CommandContext ctx) {
     BasicCommandContext subCtx1 = new BasicCommandContext();
     subCtx1.setParent(ctx);
-    OScriptExecutionPlan plan = new OScriptExecutionPlan(subCtx1);
+    ScriptExecutionPlan plan = new ScriptExecutionPlan(subCtx1);
     for (SQLStatement stm : body) {
       plan.chain(stm.createExecutionPlan(subCtx1, profilingEnabled), profilingEnabled);
     }

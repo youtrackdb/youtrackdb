@@ -19,17 +19,17 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClassImpl;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAlterClassStatement;
 import java.util.Arrays;
 import java.util.Locale;
@@ -40,7 +40,7 @@ import java.util.Map;
  */
 @SuppressWarnings("unchecked")
 public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String KEYWORD_ALTER = "ALTER";
   public static final String KEYWORD_CLASS = "CLASS";
@@ -66,21 +66,21 @@ public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_ALTER)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_ALTER + " not found", parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CLASS)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_CLASS + " not found", parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new YTCommandSQLParsingException("Expected <class>", parserText, oldPos);
+        throw new CommandSQLParsingException("Expected <class>", parserText, oldPos);
       }
 
       className = decodeClassName(word.toString());
@@ -88,21 +88,21 @@ public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Missed the class's attribute to change", parserText, oldPos);
       }
 
       final String attributeAsString = word.toString();
 
       try {
-        attribute = YTClass.ATTRIBUTES.valueOf(attributeAsString.toUpperCase(Locale.ENGLISH));
+        attribute = SchemaClass.ATTRIBUTES.valueOf(attributeAsString.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
-        throw YTException.wrapException(
-            new YTCommandSQLParsingException(
+        throw BaseException.wrapException(
+            new CommandSQLParsingException(
                 "Unknown class's attribute '"
                     + attributeAsString
                     + "'. Supported attributes are: "
-                    + Arrays.toString(YTClass.ATTRIBUTES.values()),
+                    + Arrays.toString(SchemaClass.ATTRIBUTES.values()),
                 parserText,
                 oldPos),
             e);
@@ -127,7 +127,7 @@ public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
         }
       }
       if (value.length() == 0) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Missed the property's value to change for attribute '" + attribute + "'",
             parserText,
             oldPos);
@@ -146,21 +146,22 @@ public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
   /**
    * Execute the ALTER CLASS.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     final var database = getDatabase();
     if (attribute == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final YTClassImpl cls = (YTClassImpl) database.getMetadata().getSchema().getClass(className);
+    final SchemaClassImpl cls = (SchemaClassImpl) database.getMetadata().getSchema()
+        .getClass(className);
     if (cls == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot alter class '" + className + "' because not found");
     }
 
     if (!unsafe && attribute == ATTRIBUTES.NAME && cls.isSubClassOf("E")) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot alter class '"
               + className
               + "' because is an Edge class and could break vertices. Use UNSAFE if you want to"
@@ -178,7 +179,7 @@ public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
     }
     if (!unsafe && value != null && attribute == ATTRIBUTES.NAME) {
       if (!cls.getIndexes(database).isEmpty()) {
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "Cannot rename class '"
                 + className
                 + "' because it has indexes defined on it. Drop indexes before or use UNSAFE (at"
@@ -198,16 +199,16 @@ public class CommandExecutorSQLAlterClass extends CommandExecutorSQLAbstract
   }
 
   protected void checkClassExists(
-      YTDatabaseSession database, String targetClass, String superClass) {
+      DatabaseSession database, String targetClass, String superClass) {
     if (superClass.startsWith("+") || superClass.startsWith("-")) {
       superClass = superClass.substring(1);
     }
-    if (((YTDatabaseSessionInternal) database)
+    if (((DatabaseSessionInternal) database)
         .getMetadata()
         .getImmutableSchemaSnapshot()
         .getClass(decodeClassName(superClass))
         == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot alter superClass of '"
               + targetClass
               + "' because "

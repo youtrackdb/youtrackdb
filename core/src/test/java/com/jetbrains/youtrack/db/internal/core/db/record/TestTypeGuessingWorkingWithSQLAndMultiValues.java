@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.Collection;
 import org.junit.Assert;
 import org.junit.Before;
@@ -12,7 +12,7 @@ import org.junit.Test;
 /**
  *
  */
-public class TestTypeGuessingWorkingWithSQLAndMultiValues extends DBTestBase {
+public class TestTypeGuessingWorkingWithSQLAndMultiValues extends DbTestBase {
 
   @Before
   public void beforeTest() throws Exception {
@@ -34,7 +34,7 @@ public class TestTypeGuessingWorkingWithSQLAndMultiValues extends DBTestBase {
   @Test
   public void testLinkedValue() {
 
-    try (YTResultSet result =
+    try (ResultSet result =
         db.execute(
             "sql",
             "begin; let res = insert into client set name = 'James Bond', phones = ['1234',"
@@ -44,7 +44,7 @@ public class TestTypeGuessingWorkingWithSQLAndMultiValues extends DBTestBase {
                 + " [{'@type':'d','@class':'Address','city':'London', 'zip':'67373'}]; commit;"
                 + " return $res")) {
       Assert.assertTrue(result.hasNext());
-      YTResult doc = result.next();
+      Result doc = result.next();
 
       Collection<EntityImpl> addresses = doc.getProperty("addresses");
       Assert.assertEquals(addresses.size(), 3);
@@ -54,18 +54,18 @@ public class TestTypeGuessingWorkingWithSQLAndMultiValues extends DBTestBase {
     }
 
     db.begin();
-    try (YTResultSet result =
+    try (ResultSet result =
         db.command(
             "update client set addresses = addresses || [{'city':'London', 'zip':'67373'}] return"
                 + " after")) {
       Assert.assertTrue(result.hasNext());
 
-      YTResult doc = result.next();
+      Result doc = result.next();
 
-      Collection<YTResult> addresses = doc.getProperty("addresses");
+      Collection<Result> addresses = doc.getProperty("addresses");
       Assert.assertEquals(addresses.size(), 4);
 
-      for (YTResult a : addresses) {
+      for (Result a : addresses) {
         Assert.assertEquals("Address", a.getProperty("@class"));
       }
     }

@@ -2,19 +2,19 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.core.command.ServerCommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OInternalExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLAsynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
 import java.util.Map;
 
 public class SQLServerStatement extends SimpleNode {
@@ -37,7 +37,7 @@ public class SQLServerStatement extends SimpleNode {
     throw new UnsupportedOperationException();
   }
 
-  public void validate() throws YTCommandSQLParsingException {
+  public void validate() throws CommandSQLParsingException {
   }
 
   @Override
@@ -48,34 +48,34 @@ public class SQLServerStatement extends SimpleNode {
   }
 
   public Object execute(
-      OSQLAsynchQuery<EntityImpl> request,
+      SQLAsynchQuery<EntityImpl> request,
       ServerCommandContext context,
-      OProgressListener progressListener) {
+      ProgressListener progressListener) {
     throw new UnsupportedOperationException("Unsupported command: " + getClass().getSimpleName());
   }
 
-  public YTResultSet execute(YouTrackDBInternal db, Object[] args) {
+  public ResultSet execute(YouTrackDBInternal db, Object[] args) {
     return execute(db, args, true);
   }
 
-  public YTResultSet execute(
+  public ResultSet execute(
       YouTrackDBInternal db, Object[] args, ServerCommandContext parentContext) {
     return execute(db, args, parentContext, true);
   }
 
-  public YTResultSet execute(YouTrackDBInternal db, Map args) {
+  public ResultSet execute(YouTrackDBInternal db, Map args) {
     return execute(db, args, true);
   }
 
-  public YTResultSet execute(YouTrackDBInternal db, Map args, ServerCommandContext parentContext) {
+  public ResultSet execute(YouTrackDBInternal db, Map args, ServerCommandContext parentContext) {
     return execute(db, args, parentContext, true);
   }
 
-  public YTResultSet execute(YouTrackDBInternal db, Object[] args, boolean usePlanCache) {
+  public ResultSet execute(YouTrackDBInternal db, Object[] args, boolean usePlanCache) {
     return execute(db, args, null, usePlanCache);
   }
 
-  public YTResultSet execute(
+  public ResultSet execute(
       YouTrackDBInternal db,
       Object[] args,
       ServerCommandContext parentContext,
@@ -83,11 +83,11 @@ public class SQLServerStatement extends SimpleNode {
     throw new UnsupportedOperationException();
   }
 
-  public YTResultSet execute(YouTrackDBInternal db, Map args, boolean usePlanCache) {
+  public ResultSet execute(YouTrackDBInternal db, Map args, boolean usePlanCache) {
     return execute(db, args, null, usePlanCache);
   }
 
-  public YTResultSet execute(
+  public ResultSet execute(
       YouTrackDBInternal db, Map args, ServerCommandContext parentContext, boolean usePlanCache) {
     throw new UnsupportedOperationException();
   }
@@ -98,7 +98,7 @@ public class SQLServerStatement extends SimpleNode {
    * @param ctx the context that will be used to execute the statement
    * @return an execution plan
    */
-  public OInternalExecutionPlan createExecutionPlan(ServerCommandContext ctx) {
+  public InternalExecutionPlan createExecutionPlan(ServerCommandContext ctx) {
     return createExecutionPlan(ctx, false);
   }
 
@@ -109,11 +109,11 @@ public class SQLServerStatement extends SimpleNode {
    * @param profile true to enable profiling, false to disable it
    * @return an execution plan
    */
-  public OInternalExecutionPlan createExecutionPlan(ServerCommandContext ctx, boolean profile) {
+  public InternalExecutionPlan createExecutionPlan(ServerCommandContext ctx, boolean profile) {
     throw new UnsupportedOperationException();
   }
 
-  public OInternalExecutionPlan createExecutionPlanNoCache(
+  public InternalExecutionPlan createExecutionPlanNoCache(
       ServerCommandContext ctx, boolean profile) {
     return createExecutionPlan(ctx, profile);
   }
@@ -131,7 +131,7 @@ public class SQLServerStatement extends SimpleNode {
     return false;
   }
 
-  public static SQLStatement deserializeFromOResult(YTResult doc) {
+  public static SQLStatement deserializeFromOResult(Result doc) {
     try {
       SQLStatement result =
           (SQLStatement)
@@ -140,18 +140,18 @@ public class SQLServerStatement extends SimpleNode {
                   .newInstance(-1);
       result.deserialize(doc);
     } catch (Exception e) {
-      throw YTException.wrapException(new YTCommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(""), e);
     }
     return null;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("__class", getClass().getName());
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     throw new UnsupportedOperationException();
   }
 

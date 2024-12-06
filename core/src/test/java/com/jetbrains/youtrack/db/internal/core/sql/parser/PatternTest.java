@@ -11,7 +11,7 @@ import org.junit.Test;
 /**
  *
  */
-public class PatternTest extends OParserTestAbstract {
+public class PatternTest extends ParserTestAbstract {
 
   @Test
   public void testSimplePattern() {

@@ -16,15 +16,15 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.common.util.OPair;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,7 +55,7 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
     }
   }
 
-  protected void parseSetFields(final YTClass iClass, final List<OPair<String, Object>> fields) {
+  protected void parseSetFields(final SchemaClass iClass, final List<Pair<String, Object>> fields) {
     String fieldName;
     String fieldValue;
 
@@ -75,7 +75,7 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
       // INSERT TRANSFORMED FIELD VALUE
       final Object v = convertValue(iClass, fieldName, getFieldValueCountingParameters(fieldValue));
 
-      fields.add(new OPair(fieldName, v));
+      fields.add(new Pair(fieldName, v));
       parserSkipWhiteSpaces();
     }
 
@@ -85,7 +85,7 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
     }
   }
 
-  protected YTClass extractClassFromTarget(String iTarget) {
+  protected SchemaClass extractClassFromTarget(String iTarget) {
     // CLASS
     if (!iTarget.toUpperCase(Locale.ENGLISH).startsWith(CommandExecutorSQLAbstract.CLUSTER_PREFIX)
         && !iTarget.startsWith(CommandExecutorSQLAbstract.INDEX_PREFIX)) {
@@ -96,11 +96,11 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
         iTarget = iTarget.substring(CommandExecutorSQLAbstract.CLASS_PREFIX.length());
       }
 
-      if (iTarget.charAt(0) == YTRID.PREFIX) {
+      if (iTarget.charAt(0) == RID.PREFIX) {
         return getDatabase()
             .getMetadata()
             .getImmutableSchemaSnapshot()
-            .getClassByClusterId(new YTRecordId(iTarget).getClusterId());
+            .getClassByClusterId(new RecordId(iTarget).getClusterId());
       }
 
       return getDatabase().getMetadata().getImmutableSchemaSnapshot().getClass(iTarget);
@@ -111,16 +111,16 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
         .startsWith(CommandExecutorSQLAbstract.CLUSTER_PREFIX)) {
       String clusterName =
           iTarget.substring(CommandExecutorSQLAbstract.CLUSTER_PREFIX.length()).trim();
-      YTDatabaseSessionInternal db = getDatabase();
+      DatabaseSessionInternal db = getDatabase();
       if (clusterName.startsWith("[") && clusterName.endsWith("]")) {
         String[] clusterNames = clusterName.substring(1, clusterName.length() - 1).split(",");
-        YTClass candidateClass = null;
+        SchemaClass candidateClass = null;
         for (String cName : clusterNames) {
           final int clusterId = db.getClusterIdByName(cName.trim());
           if (clusterId < 0) {
             return null;
           }
-          YTClass aClass =
+          SchemaClass aClass =
               db.getMetadata().getImmutableSchemaSnapshot().getClassByClusterId(clusterId);
           if (aClass == null) {
             return null;
@@ -144,12 +144,12 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
     return null;
   }
 
-  protected Object convertValue(YTClass iClass, String fieldName, Object v) {
+  protected Object convertValue(SchemaClass iClass, String fieldName, Object v) {
     if (iClass != null) {
       // CHECK TYPE AND CONVERT IF NEEDED
-      final YTProperty p = iClass.getProperty(fieldName);
+      final Property p = iClass.getProperty(fieldName);
       if (p != null) {
-        final YTClass embeddedType = p.getLinkedClass();
+        final SchemaClass embeddedType = p.getLinkedClass();
 
         switch (p.getType()) {
           case EMBEDDED:
@@ -163,16 +163,16 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
             // CONVERT MAPS IN DOCUMENTS ASSIGNING THE CLASS TAKEN FROM SCHEMA
             if (v instanceof Map) {
               return createDocumentFromMap(embeddedType, (Map<String, Object>) v);
-            } else if (OMultiValue.isMultiValue(v)) {
+            } else if (MultiValue.isMultiValue(v)) {
               final Set set = new HashSet();
 
-              for (Object o : OMultiValue.getMultiValueIterable(v)) {
+              for (Object o : MultiValue.getMultiValueIterable(v)) {
                 if (o instanceof Map) {
                   final EntityImpl doc =
                       createDocumentFromMap(embeddedType, (Map<String, Object>) o);
                   set.add(doc);
-                } else if (o instanceof YTIdentifiable) {
-                  set.add(((YTIdentifiable) o).getRecord());
+                } else if (o instanceof Identifiable) {
+                  set.add(((Identifiable) o).getRecord());
                 } else {
                   set.add(o);
                 }
@@ -186,16 +186,16 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
             // CONVERT MAPS IN DOCUMENTS ASSIGNING THE CLASS TAKEN FROM SCHEMA
             if (v instanceof Map) {
               return createDocumentFromMap(embeddedType, (Map<String, Object>) v);
-            } else if (OMultiValue.isMultiValue(v)) {
+            } else if (MultiValue.isMultiValue(v)) {
               final List set = new ArrayList();
 
-              for (Object o : OMultiValue.getMultiValueIterable(v)) {
+              for (Object o : MultiValue.getMultiValueIterable(v)) {
                 if (o instanceof Map) {
                   final EntityImpl doc =
                       createDocumentFromMap(embeddedType, (Map<String, Object>) o);
                   set.add(doc);
-                } else if (o instanceof YTIdentifiable) {
-                  set.add(((YTIdentifiable) o).getRecord());
+                } else if (o instanceof Identifiable) {
+                  set.add(((Identifiable) o).getRecord());
                 } else {
                   set.add(o);
                 }
@@ -215,8 +215,8 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
                   final EntityImpl doc =
                       createDocumentFromMap(embeddedType, (Map<String, Object>) entry.getValue());
                   map.put(entry.getKey(), doc);
-                } else if (entry.getValue() instanceof YTIdentifiable) {
-                  map.put(entry.getKey(), ((YTIdentifiable) entry.getValue()).getRecord());
+                } else if (entry.getValue() instanceof Identifiable) {
+                  map.put(entry.getKey(), ((Identifiable) entry.getValue()).getRecord());
                 } else {
                   map.put(entry.getKey(), entry.getValue());
                 }
@@ -231,7 +231,7 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
     return v;
   }
 
-  private EntityImpl createDocumentFromMap(YTClass embeddedType, Map<String, Object> o) {
+  private EntityImpl createDocumentFromMap(SchemaClass embeddedType, Map<String, Object> o) {
     final EntityImpl doc = new EntityImpl();
     if (embeddedType != null) {
       doc.setClassName(embeddedType.getName());
@@ -252,7 +252,7 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
     if (fieldValue.trim().equals("?")) {
       parameterCounter++;
     }
-    return OSQLHelper.parseValue(this, fieldValue, context, true);
+    return SQLHelper.parseValue(this, fieldValue, context, true);
   }
 
   protected EntityImpl parseJSON() {

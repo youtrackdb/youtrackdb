@@ -19,11 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 
 /**
- * Internal specialization of generic OCommand interface based on a text command.
+ * Internal specialization of generic Command interface based on a text command.
  */
 public interface CommandRequestText extends CommandRequestInternal {
 
@@ -31,8 +31,8 @@ public interface CommandRequestText extends CommandRequestInternal {
 
   CommandRequestText setText(String iText);
 
-  CommandRequestText fromStream(YTDatabaseSessionInternal db, byte[] bytes,
-      ORecordSerializer serializer);
+  CommandRequestText fromStream(DatabaseSessionInternal db, byte[] bytes,
+      RecordSerializer serializer);
 
   byte[] toStream();
 }

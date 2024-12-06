@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIndexIdentifier;
@@ -30,7 +30,7 @@ public class CountFromIndexStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -38,16 +38,16 @@ public class CountFromIndexStep extends AbstractExecutionStep {
     return new ProduceExecutionStream(this::produce).limit(1);
   }
 
-  private YTResult produce(CommandContext ctx) {
-    final YTDatabaseSessionInternal database = ctx.getDatabase();
-    OIndexInternal idx =
+  private Result produce(CommandContext ctx) {
+    final DatabaseSessionInternal database = ctx.getDatabase();
+    IndexInternal idx =
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, target.getIndexName())
             .getInternal();
     long size = idx.size(database);
-    YTResultInternal result = new YTResultInternal(database);
+    ResultInternal result = new ResultInternal(database);
     result.setProperty(alias, size);
     return result;
   }

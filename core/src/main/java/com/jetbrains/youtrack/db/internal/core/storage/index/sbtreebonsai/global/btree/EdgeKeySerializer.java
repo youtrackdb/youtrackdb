@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.global.btree;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALChanges;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.global.IntSerializer;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.global.LongSerializer;
 import java.nio.ByteBuffer;
 
-public final class EdgeKeySerializer implements OBinarySerializer<EdgeKey> {
+public final class EdgeKeySerializer implements BinarySerializer<EdgeKey> {
 
   static final EdgeKeySerializer INSTANCE = new EdgeKeySerializer();
 
@@ -151,7 +151,7 @@ public final class EdgeKeySerializer implements OBinarySerializer<EdgeKey> {
 
   @Override
   public EdgeKey deserializeFromByteBufferObject(
-      ByteBuffer buffer, OWALChanges walChanges, int offset) {
+      ByteBuffer buffer, WALChanges walChanges, int offset) {
     long ownerId = LongSerializer.deserialize(buffer, walChanges, offset);
     int size = LongSerializer.getObjectSize(buffer, walChanges, offset);
     offset += size;
@@ -167,7 +167,7 @@ public final class EdgeKeySerializer implements OBinarySerializer<EdgeKey> {
   }
 
   @Override
-  public int getObjectSizeInByteBuffer(ByteBuffer buffer, OWALChanges walChanges, int offset) {
+  public int getObjectSizeInByteBuffer(ByteBuffer buffer, WALChanges walChanges, int offset) {
     int size = LongSerializer.getObjectSize(buffer, walChanges, offset);
     size += IntSerializer.INSTANCE.getObjectSizeInByteBuffer(buffer, walChanges, offset + size);
     return size + LongSerializer.getObjectSize(buffer, walChanges, offset + size);

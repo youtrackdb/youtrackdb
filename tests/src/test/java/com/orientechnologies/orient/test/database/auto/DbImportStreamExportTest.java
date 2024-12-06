@@ -16,13 +16,13 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseCompare;
-import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseExport;
-import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseImport;
-import com.jetbrains.youtrack.db.internal.core.hook.YTRecordHook;
+import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
+import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseExport;
+import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImport;
+import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -33,7 +33,7 @@ import org.testng.annotations.Test;
 
 // FIXME: let exporter version exports be 13 and check whether new stream processing is used.
 @Test(groups = {"db", "import-export"})
-public class DbImportStreamExportTest extends DocumentDBBaseTest implements OCommandOutputListener {
+public class DbImportStreamExportTest extends DocumentDBBaseTest implements CommandOutputListener {
 
   public static final String EXPORT_FILE_PATH = "target/db.export.gz";
   public static final String NEW_DB_PATH = "target/test-import";
@@ -52,12 +52,12 @@ public class DbImportStreamExportTest extends DocumentDBBaseTest implements OCom
 
   @Test
   public void testDbExport() throws IOException {
-    final YTDatabaseSessionInternal database = acquireSession();
+    final DatabaseSessionInternal database = acquireSession();
     // ADD A CUSTOM TO THE CLASS
     database.command("alter class V custom onBeforeCreate=onBeforeCreateItem").close();
 
-    final ODatabaseExport export =
-        new ODatabaseExport(database, testPath + "/" + exportFilePath, this);
+    final DatabaseExport export =
+        new DatabaseExport(database, testPath + "/" + exportFilePath, this);
     export.exportDatabase();
     export.close();
     database.close();
@@ -74,14 +74,14 @@ public class DbImportStreamExportTest extends DocumentDBBaseTest implements OCom
       importDir.mkdir();
     }
 
-    final YTDatabaseSessionInternal database =
-        new YTDatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
+    final DatabaseSessionInternal database =
+        new DatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
     database.create();
 
-    final ODatabaseImport dbImport =
-        new ODatabaseImport(database, new FileInputStream(importDir), this);
+    final DatabaseImport dbImport =
+        new DatabaseImport(database, new FileInputStream(importDir), this);
     // UNREGISTER ALL THE HOOKS
-    for (final YTRecordHook hook : new ArrayList<>(database.getHooks().keySet())) {
+    for (final RecordHook hook : new ArrayList<>(database.getHooks().keySet())) {
       database.unregisterHook(hook);
     }
 
@@ -101,12 +101,12 @@ public class DbImportStreamExportTest extends DocumentDBBaseTest implements OCom
       }
       // EXECUTES ONLY IF NOT REMOTE ON CI/RELEASE TEST ENV
     }
-    YTDatabaseSessionInternal first = acquireSession();
-    YTDatabaseSessionInternal second =
-        new YTDatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
+    DatabaseSessionInternal first = acquireSession();
+    DatabaseSessionInternal second =
+        new DatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
     second.open("admin", "admin");
 
-    final ODatabaseCompare databaseCompare = new ODatabaseCompare(first, second, this);
+    final DatabaseCompare databaseCompare = new DatabaseCompare(first, second, this);
     databaseCompare.setCompareEntriesForAutomaticIndexes(true);
     databaseCompare.setCompareIndexMetadata(true);
 

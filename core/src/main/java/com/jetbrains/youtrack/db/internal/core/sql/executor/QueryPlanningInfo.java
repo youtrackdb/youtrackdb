@@ -40,7 +40,7 @@ public class QueryPlanningInfo {
    */
   protected Map<String, Set<String>> serverToClusters;
 
-  protected Map<String, OSelectExecutionPlan> distributedFetchExecutionPlans;
+  protected Map<String, SelectExecutionPlan> distributedFetchExecutionPlans;
 
   /**
    * set to true when the distributedFetchExecutionPlans are aggregated in the main execution plan
@@ -75,7 +75,7 @@ public class QueryPlanningInfo {
     result.perRecordLetClause = this.perRecordLetClause;
     result.serverToClusters = this.serverToClusters;
 
-    //    Map<String, OSelectExecutionPlan> distributedFetchExecutionPlans;//TODO!
+    //    Map<String, SelectExecutionPlan> distributedFetchExecutionPlans;//TODO!
 
     result.distributedPlanCreated = this.distributedPlanCreated;
     result.target = this.target;

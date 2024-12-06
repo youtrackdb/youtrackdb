@@ -1,16 +1,16 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
+import com.jetbrains.youtrack.db.internal.core.collate.Collate;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.record.ODirection;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.record.Direction;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.text.Collator;
 import java.util.Iterator;
 import java.util.Locale;
@@ -32,7 +32,7 @@ public class SQLOrderByItem {
   protected SQLExpression collate;
 
   // calculated at run time
-  private OCollate collateStrategy;
+  private Collate collateStrategy;
   private Collator stringCollator;
   private boolean isEdge;
 
@@ -89,7 +89,7 @@ public class SQLOrderByItem {
     }
   }
 
-  public int compare(YTResult a, YTResult b, CommandContext ctx) {
+  public int compare(Result a, Result b, CommandContext ctx) {
     Object aVal = null;
     Object bVal = null;
     if (rid != null) {
@@ -104,12 +104,12 @@ public class SQLOrderByItem {
       if (isEdge) {
         Vertex aElement = (Vertex) a.asEntity();
         Iterator<Vertex> aIter =
-            aElement != null ? aElement.getVertices(ODirection.OUT, alias).iterator() : null;
+            aElement != null ? aElement.getVertices(Direction.OUT, alias).iterator() : null;
         aVal = (aIter != null && aIter.hasNext()) ? aIter.next() : null;
 
         Vertex bElement = (Vertex) b.asEntity();
         Iterator<Vertex> bIter =
-            bElement != null ? bElement.getVertices(ODirection.OUT, alias).iterator() : null;
+            bElement != null ? bElement.getVertices(Direction.OUT, alias).iterator() : null;
         bVal = (bIter != null && bIter.hasNext()) ? bIter.next() : null;
       } else {
         aVal = a.getProperty(alias);
@@ -125,7 +125,7 @@ public class SQLOrderByItem {
       bVal = modifier.execute(b, bVal, ctx);
     }
     if (collate != null && collateStrategy == null) {
-      Object collateVal = collate.execute(new YTResultInternal(ctx.getDatabase()), ctx);
+      Object collateVal = collate.execute(new ResultInternal(ctx.getDatabase()), ctx);
       if (collateVal == null) {
         collateVal = collate.toString();
         if (collateVal.equals("null")) {
@@ -133,17 +133,17 @@ public class SQLOrderByItem {
         }
       }
       if (collateVal != null) {
-        collateStrategy = OSQLEngine.getCollate(String.valueOf(collateVal));
+        collateStrategy = SQLEngine.getCollate(String.valueOf(collateVal));
         if (collateStrategy == null) {
           collateStrategy =
-              OSQLEngine.getCollate(String.valueOf(collateVal).toUpperCase(Locale.ENGLISH));
+              SQLEngine.getCollate(String.valueOf(collateVal).toUpperCase(Locale.ENGLISH));
         }
         if (collateStrategy == null) {
           collateStrategy =
-              OSQLEngine.getCollate(String.valueOf(collateVal).toLowerCase(Locale.ENGLISH));
+              SQLEngine.getCollate(String.valueOf(collateVal).toLowerCase(Locale.ENGLISH));
         }
         if (collateStrategy == null) {
-          throw new YTCommandExecutionException("Invalid collate for ORDER BY: " + collateVal);
+          throw new CommandExecutionException("Invalid collate for ORDER BY: " + collateVal);
         }
       }
     }
@@ -161,7 +161,7 @@ public class SQLOrderByItem {
         result = 1;
       } else if (aVal instanceof String && bVal instanceof String) {
 
-        YTDatabaseSessionInternal internal = ctx.getDatabase();
+        DatabaseSessionInternal internal = ctx.getDatabase();
         if (stringCollator == null) {
           String language = (String) internal.get(ATTRIBUTES.LOCALELANGUAGE);
           String country = (String) internal.get(ATTRIBUTES.LOCALECOUNTRY);
@@ -230,8 +230,8 @@ public class SQLOrderByItem {
     this.modifier = modifier;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("alias", alias);
     if (modifier != null) {
       result.setProperty("modifier", modifier.serialize(db));
@@ -247,7 +247,7 @@ public class SQLOrderByItem {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     alias = fromResult.getProperty("alias");
     if (fromResult.getProperty("modifier") != null) {
       modifier = new SQLModifier(-1);

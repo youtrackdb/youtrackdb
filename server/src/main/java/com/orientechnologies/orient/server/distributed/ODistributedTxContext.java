@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.tx.OTransactionId;
-import com.jetbrains.youtrack.db.internal.core.tx.OTransactionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionId;
+import com.jetbrains.youtrack.db.internal.core.tx.TransactionInternal;
 import java.util.Set;
 
 /**
@@ -31,17 +31,17 @@ import java.util.Set;
  */
 public interface ODistributedTxContext {
 
-  OTransactionId acquirePromise(YTRID rid, int version, boolean force);
+  FrontendTransactionId acquirePromise(RID rid, int version, boolean force);
 
-  OTransactionId acquireIndexKeyPromise(Object key, int version, boolean force);
+  FrontendTransactionId acquireIndexKeyPromise(Object key, int version, boolean force);
 
   void releasePromises();
 
-  ODistributedRequestId getReqId();
+  DistributedRequestId getReqId();
 
-  void commit(YTDatabaseSessionInternal database);
+  void commit(DatabaseSessionInternal database);
 
-  Set<YTRecordId> rollback(YTDatabaseSessionInternal database);
+  Set<RecordId> rollback(DatabaseSessionInternal database);
 
   void destroy();
 
@@ -49,11 +49,11 @@ public interface ODistributedTxContext {
 
   long getStartedOn();
 
-  Set<YTRecordId> cancel(ODistributedServerManager current, YTDatabaseSessionInternal database);
+  Set<RecordId> cancel(ODistributedServerManager current, DatabaseSessionInternal database);
 
-  OTransactionInternal getTransaction();
+  TransactionInternal getTransaction();
 
-  OTransactionId getTransactionId();
+  FrontendTransactionId getTransactionId();
 
-  void begin(YTDatabaseSessionInternal distributed, boolean local);
+  void begin(DatabaseSessionInternal distributed, boolean local);
 }

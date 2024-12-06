@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.id;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
 import javax.annotation.Nonnull;
 
-public class ChangeableRecordId extends YTRecordId implements ChangeableIdentity {
+public class ChangeableRecordId extends RecordId implements ChangeableIdentity {
 
   private Set<IdentityChangeListener> identityChangeListeners;
 
@@ -102,10 +102,10 @@ public class ChangeableRecordId extends YTRecordId implements ChangeableIdentity
     if (obj == null) {
       return false;
     }
-    if (!(obj instanceof YTIdentifiable)) {
+    if (!(obj instanceof Identifiable)) {
       return false;
     }
-    final YTRecordId other = (YTRecordId) ((YTIdentifiable) obj).getIdentity();
+    final RecordId other = (RecordId) ((Identifiable) obj).getIdentity();
 
     if (clusterId == other.clusterId && clusterPosition == other.clusterPosition) {
       if (clusterId != CLUSTER_ID_INVALID || clusterPosition != CLUSTER_POS_INVALID) {
@@ -131,7 +131,7 @@ public class ChangeableRecordId extends YTRecordId implements ChangeableIdentity
     return 31 * clusterId + 103 * (int) clusterPosition + 17 * tempId;
   }
 
-  public int compareTo(@Nonnull final YTIdentifiable other) {
+  public int compareTo(@Nonnull final Identifiable other) {
     if (other == this) {
       return 0;
     }
@@ -158,7 +158,7 @@ public class ChangeableRecordId extends YTRecordId implements ChangeableIdentity
     return -1;
   }
 
-  public YTRecordId copy() {
+  public RecordId copy() {
     if (clusterId == CLUSTER_ID_INVALID && clusterPosition == CLUSTER_POS_INVALID) {
       var recordId = new ChangeableRecordId();
       recordId.clusterId = clusterId;
@@ -168,7 +168,7 @@ public class ChangeableRecordId extends YTRecordId implements ChangeableIdentity
       return recordId;
     }
 
-    var recordId = new YTRecordId();
+    var recordId = new RecordId();
     recordId.clusterId = clusterId;
     recordId.clusterPosition = clusterPosition;
 

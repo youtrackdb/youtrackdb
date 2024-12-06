@@ -19,12 +19,12 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordStringable;
+import com.jetbrains.youtrack.db.internal.core.record.RecordStringable;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -33,23 +33,23 @@ import java.nio.charset.StandardCharsets;
  */
 @SuppressWarnings({"unchecked"})
 @Deprecated
-public class RecordFlat extends RecordAbstract implements ORecordStringable {
+public class RecordFlat extends RecordAbstract implements RecordStringable {
 
   private static final long serialVersionUID = 1L;
   public static final byte RECORD_TYPE = 'f';
   protected String value;
 
-  public RecordFlat(YTDatabaseSessionInternal iDatabase) {
+  public RecordFlat(DatabaseSessionInternal iDatabase) {
     this();
-    ODatabaseRecordThreadLocal.instance().set(iDatabase);
+    DatabaseRecordThreadLocal.instance().set(iDatabase);
   }
 
-  public RecordFlat(YTRID rid) {
-    recordId = (YTRecordId) rid.copy();
+  public RecordFlat(RID rid) {
+    recordId = (RecordId) rid.copy();
   }
 
   public RecordFlat() {
-    setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
+    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
   }
 
   public RecordFlat value(final String iValue) {

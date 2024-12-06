@@ -3,15 +3,15 @@ package com.jetbrains.youtrack.db.internal.core.db.graph;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.OCreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,14 +19,14 @@ import org.junit.Test;
 public class LightWeightEdgesTest {
 
   private YouTrackDB youTrackDB;
-  private YTDatabaseSession session;
+  private DatabaseSession session;
 
   @Before
   public void before() {
     youTrackDB =
-        OCreateDatabaseUtil.createDatabase("test", DBTestBase.embeddedDBUrl(getClass()),
-            OCreateDatabaseUtil.TYPE_MEMORY);
-    session = youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        CreateDatabaseUtil.createDatabase("test", DbTestBase.embeddedDBUrl(getClass()),
+            CreateDatabaseUtil.TYPE_MEMORY);
+    session = youTrackDB.open("test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     session.createVertexClass("Vertex");
     session.createLightweightEdgeClass("Edge");
@@ -43,17 +43,17 @@ public class LightWeightEdgesTest {
     session.save(v);
     session.commit();
 
-    try (YTResultSet res =
+    try (ResultSet res =
         session.query(" select expand(out('Edge')) from `Vertex` where name = 'aName'")) {
       assertTrue(res.hasNext());
-      YTResult r = res.next();
+      Result r = res.next();
       assertEquals(r.getProperty("name"), "bName");
     }
 
-    try (YTResultSet res =
+    try (ResultSet res =
         session.query(" select expand(in('Edge')) from `Vertex` where name = 'bName'")) {
       assertTrue(res.hasNext());
-      YTResult r = res.next();
+      Result r = res.next();
       assertEquals(r.getProperty("name"), "aName");
     }
   }
@@ -61,13 +61,13 @@ public class LightWeightEdgesTest {
   @Test
   public void testRegularBySchema() {
     String vClazz = "VtestRegularBySchema";
-    YTClass vClass = session.createVertexClass(vClazz);
+    SchemaClass vClass = session.createVertexClass(vClazz);
 
     String eClazz = "EtestRegularBySchema";
-    YTClass eClass = session.createEdgeClass(eClazz);
+    SchemaClass eClass = session.createEdgeClass(eClazz);
 
-    vClass.createProperty(session, "out_" + eClazz, YTType.LINKBAG, eClass);
-    vClass.createProperty(session, "in_" + eClazz, YTType.LINKBAG, eClass);
+    vClass.createProperty(session, "out_" + eClazz, PropertyType.LINKBAG, eClass);
+    vClass.createProperty(session, "in_" + eClazz, PropertyType.LINKBAG, eClass);
 
     session.begin();
     Vertex v = session.newVertex(vClass);

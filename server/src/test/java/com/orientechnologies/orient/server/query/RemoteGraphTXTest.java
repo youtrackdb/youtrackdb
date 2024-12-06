@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server.query;
 
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
 import java.util.HashMap;
 import java.util.List;
@@ -29,11 +29,11 @@ public class RemoteGraphTXTest extends BaseServerMemoryDatabase {
     db.commit();
 
     db.begin();
-    try (YTResultSet resultSet =
+    try (ResultSet resultSet =
         db.command(
             "create edge TestEdge  from ( select from FirstV where id = '1') to ( select from"
                 + " SecondV where id = '2')")) {
-      YTResult result = resultSet.stream().iterator().next();
+      Result result = resultSet.stream().iterator().next();
 
       Assert.assertTrue(result.isEdge());
     }
@@ -56,10 +56,10 @@ public class RemoteGraphTXTest extends BaseServerMemoryDatabase {
 
     db.begin();
     Assert.assertEquals(0, db.query("select from TestEdge").stream().count());
-    List<YTResult> results =
+    List<Result> results =
         db.query("select bothE().size() as count from V").stream().collect(Collectors.toList());
 
-    for (YTResult result : results) {
+    for (Result result : results) {
       Assert.assertEquals(0, (int) result.getProperty("count"));
     }
     db.commit();

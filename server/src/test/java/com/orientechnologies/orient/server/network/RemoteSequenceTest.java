@@ -2,7 +2,7 @@ package com.orientechnologies.orient.server.network;
 
 import static org.junit.Assert.assertNotEquals;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
 import org.junit.Test;
@@ -14,7 +14,7 @@ public class RemoteSequenceTest extends BaseServerMemoryDatabase {
 
   @Test
   public void testSequences() {
-    YTDatabaseSessionInternal database = db;
+    DatabaseSessionInternal database = db;
     database.command("CREATE CLASS SV extends V").close();
     database.command("CREATE SEQUENCE seqCounter TYPE ORDERED").close();
     database.command("CREATE PROPERTY SV.uniqueID Long").close();

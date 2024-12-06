@@ -2,13 +2,13 @@ package com.orientechnologies.lucene.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -24,13 +24,13 @@ public class LuceneRangeTest extends BaseLuceneTest {
 
   @Before
   public void setUp() throws Exception {
-    YTSchema schema = db.getMetadata().getSchema();
+    Schema schema = db.getMetadata().getSchema();
 
-    YTClass cls = schema.createClass("Person");
-    cls.createProperty(db, "name", YTType.STRING);
-    cls.createProperty(db, "surname", YTType.STRING);
-    cls.createProperty(db, "date", YTType.DATETIME);
-    cls.createProperty(db, "age", YTType.INTEGER);
+    SchemaClass cls = schema.createClass("Person");
+    cls.createProperty(db, "name", PropertyType.STRING);
+    cls.createProperty(db, "surname", PropertyType.STRING);
+    cls.createProperty(db, "date", PropertyType.DATETIME);
+    cls.createProperty(db, "age", PropertyType.INTEGER);
 
     List<String> names =
         Arrays.asList(
@@ -72,7 +72,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
     db.commit();
 
     // range
-    YTResultSet results = db.command("SELECT FROM Person WHERE age LUCENE 'age:[5 TO 6]'");
+    ResultSet results = db.command("SELECT FROM Person WHERE age LUCENE 'age:[5 TO 6]'");
 
     assertThat(results).hasSize(2);
 
@@ -102,7 +102,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
             System.currentTimeMillis() - (5 * 3600 * 24 * 1000), DateTools.Resolution.MINUTE);
 
     // range
-    YTResultSet results =
+    ResultSet results =
         db.command(
             "SELECT FROM Person WHERE date LUCENE 'date:[" + fiveDaysAgo + " TO " + today + "]'");
 
@@ -132,7 +132,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
             System.currentTimeMillis() - (5 * 3600 * 24 * 1000), DateTools.Resolution.MINUTE);
 
     // name and age range
-    YTResultSet results =
+    ResultSet results =
         db.query(
             "SELECT * FROM Person WHERE [name,surname,date,age] LUCENE 'age:[5 TO 6] name:robert "
                 + " '");
@@ -184,20 +184,20 @@ public class LuceneRangeTest extends BaseLuceneTest {
             System.currentTimeMillis() - (5 * 3600 * 24 * 1000), DateTools.Resolution.MINUTE);
 
     // name and age range
-    final OIndex index =
+    final Index index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.composite");
-    try (Stream<YTRID> stream = index.getInternal().getRids(db, "name:luke  age:[5 TO 6]")) {
+    try (Stream<RID> stream = index.getInternal().getRids(db, "name:luke  age:[5 TO 6]")) {
       assertThat(stream.count()).isEqualTo(2);
     }
 
     // date range
-    try (Stream<YTRID> stream =
+    try (Stream<RID> stream =
         index.getInternal().getRids(db, "date:[" + fiveDaysAgo + " TO " + today + "]")) {
       assertThat(stream.count()).isEqualTo(5);
     }
 
     // age and date range with MUST
-    try (Stream<YTRID> stream =
+    try (Stream<RID> stream =
         index
             .getInternal()
             .getRids(db, "+age:[4 TO 7]  +date:[" + fiveDaysAgo + " TO " + today + "]")) {
@@ -221,7 +221,7 @@ public class LuceneRangeTest extends BaseLuceneTest {
 
     int cluster = db.getMetadata().getSchema().getClass("Person").getClusterIds()[1];
 
-    YTResultSet results =
+    ResultSet results =
         db.command("SELECT FROM Person WHERE name LUCENE '+_CLUSTER:" + cluster + "'");
 
     assertThat(results).hasSize(2);

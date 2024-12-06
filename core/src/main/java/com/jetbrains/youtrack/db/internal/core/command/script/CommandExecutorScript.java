@@ -19,37 +19,37 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command.script;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.common.concur.YTNeedRetryException;
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.parser.OContextVariableResolver;
+import com.jetbrains.youtrack.db.internal.common.parser.ContextVariableResolver;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutorAbstract;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTTransactionException;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.exception.TransactionException;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
-import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
-import com.jetbrains.youtrack.db.internal.core.sql.OTemporaryRidGenerator;
-import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
+import com.jetbrains.youtrack.db.internal.core.sql.TemporaryRidGenerator;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilter;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIfStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.YouTrackDBSql;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OLegacyResultSet;
-import com.jetbrains.youtrack.db.internal.core.storage.YTRecordDuplicatedException;
+import com.jetbrains.youtrack.db.internal.core.sql.query.LegacyResultSet;
+import com.jetbrains.youtrack.db.internal.core.storage.RecordDuplicatedException;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -78,7 +78,7 @@ import javax.script.SimpleBindings;
  * @see CommandScript
  */
 public class CommandExecutorScript extends CommandExecutorAbstract
-    implements OCommandDistributedReplicateRequest, OTemporaryRidGenerator {
+    implements CommandDistributedReplicateRequest, TemporaryRidGenerator {
 
   private static final int MAX_DELAY = 100;
   protected CommandScript request;
@@ -95,12 +95,12 @@ public class CommandExecutorScript extends CommandExecutorAbstract
     return this;
   }
 
-  public OCommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
+  public CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
   getDistributedExecutionMode() {
     return executionMode;
   }
 
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (context == null) {
       context = new BasicCommandContext();
     }
@@ -118,8 +118,8 @@ public class CommandExecutorScript extends CommandExecutorAbstract
       try {
         parserText = preParse(parserText, iArgs);
       } catch (ParseException e) {
-        throw YTException.wrapException(
-            new YTCommandExecutionException("Invalid script:" + e.getMessage()), e);
+        throw BaseException.wrapException(
+            new CommandExecutionException("Invalid script:" + e.getMessage()), e);
       }
       return executeSQL();
     } else {
@@ -133,7 +133,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
     if (strict) {
       parserText = addSemicolons(parserText);
 
-      YTDatabaseSessionInternal db = getDatabase();
+      DatabaseSessionInternal db = getDatabase();
 
       byte[] bytes;
       try {
@@ -210,9 +210,9 @@ public class CommandExecutorScript extends CommandExecutorAbstract
 
   protected Object executeJsr223Script(
       final String language, final CommandContext iContext, final Map<Object, Object> iArgs) {
-    YTDatabaseSessionInternal db = iContext.getDatabase();
+    DatabaseSessionInternal db = iContext.getDatabase();
 
-    final OScriptManager scriptManager = db.getSharedContext().getYouTrackDB().getScriptManager();
+    final ScriptManager scriptManager = db.getSharedContext().getYouTrackDB().getScriptManager();
     CompiledScript compiledScript = request.getCompiledScript();
 
     final ScriptEngine scriptEngine = scriptManager.acquireDatabaseEngine(db.getName(), language);
@@ -220,7 +220,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
 
       if (compiledScript == null) {
         if (!(scriptEngine instanceof Compilable c)) {
-          throw new YTCommandExecutionException(
+          throw new CommandExecutionException(
               "Language '" + language + "' does not support compilation");
         }
 
@@ -244,10 +244,10 @@ public class CommandExecutorScript extends CommandExecutorAbstract
       try {
         final Object ob = compiledScript.eval(binding);
 
-        return OCommandExecutorUtility.transformResult(ob);
+        return CommandExecutorUtility.transformResult(ob);
       } catch (ScriptException e) {
-        throw YTException.wrapException(
-            new YTCommandScriptException(
+        throw BaseException.wrapException(
+            new CommandScriptException(
                 "Error on execution of the script", request.getText(), e.getColumnNumber()),
             e);
 
@@ -261,24 +261,24 @@ public class CommandExecutorScript extends CommandExecutorAbstract
 
   // TODO: CREATE A REGULAR JSR223 SCRIPT IMPL
   protected Object executeSQL() {
-    var db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    var db = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
 
       return executeSQLScript(parserText, db);
 
     } catch (IOException e) {
-      throw YTException.wrapException(
-          new YTCommandExecutionException("Error on executing command: " + parserText), e);
+      throw BaseException.wrapException(
+          new CommandExecutionException("Error on executing command: " + parserText), e);
     }
   }
 
   @Override
   protected void throwSyntaxErrorException(String iText) {
-    throw new YTCommandScriptException(
+    throw new CommandScriptException(
         "Error on execution of the script: " + iText, request.getText(), 0);
   }
 
-  protected Object executeSQLScript(final String iText, final YTDatabaseSessionInternal db)
+  protected Object executeSQLScript(final String iText, final DatabaseSessionInternal db)
       throws IOException {
     Object lastResult = null;
     int maxRetry = 1;
@@ -314,7 +314,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
             // this block is here (and not below, with the other conditions)
             // just because of the smartSprit() that does not parse correctly a single bracket
 
-            // final List<String> lineParts = OStringSerializerHelper.smartSplit(lastLine, ';',
+            // final List<String> lineParts = StringSerializerHelper.smartSplit(lastLine, ';',
             // true);
             final List<String> lineParts = splitBySemicolon(lastLine);
 
@@ -350,13 +350,13 @@ public class CommandExecutorScript extends CommandExecutorAbstract
                 continue;
               } else if (skippingScriptsAtNestedLevel >= 0) {
                 continue; // I'm in an IF that did not match the condition
-              } else if (OStringSerializerHelper.startsWithIgnoreCase(lastCommand, "let ")) {
+              } else if (StringSerializerHelper.startsWithIgnoreCase(lastCommand, "let ")) {
                 lastResult = executeLet(lastCommand, db);
 
-              } else if (OStringSerializerHelper.startsWithIgnoreCase(lastCommand, "begin")) {
+              } else if (StringSerializerHelper.startsWithIgnoreCase(lastCommand, "begin")) {
 
                 if (txBegun) {
-                  throw new YTCommandSQLParsingException("Transaction already begun");
+                  throw new CommandSQLParsingException("Transaction already begun");
                 }
 
                 if (db.getTransaction().isActive())
@@ -373,7 +373,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
               } else if ("rollback".equalsIgnoreCase(lastCommand)) {
 
                 if (!txBegun) {
-                  throw new YTCommandSQLParsingException("Transaction not begun");
+                  throw new CommandSQLParsingException("Transaction not begun");
                 }
 
                 db.rollback();
@@ -382,15 +382,15 @@ public class CommandExecutorScript extends CommandExecutorAbstract
                 txBegunAtLine = -1;
                 txBegunAtPart = -1;
 
-              } else if (OStringSerializerHelper.startsWithIgnoreCase(lastCommand, "commit")) {
+              } else if (StringSerializerHelper.startsWithIgnoreCase(lastCommand, "commit")) {
                 if (txBegunAtLine < 0) {
-                  throw new YTCommandSQLParsingException("Transaction not begun");
+                  throw new CommandSQLParsingException("Transaction not begun");
                 }
 
                 if (retry == 1 && lastCommand.length() > "commit ".length()) {
                   // FIRST CYCLE: PARSE RETRY TIMES OVERWRITING DEFAULT = 1
                   String next = lastCommand.substring("commit ".length()).trim();
-                  if (OStringSerializerHelper.startsWithIgnoreCase(next, "retry ")) {
+                  if (StringSerializerHelper.startsWithIgnoreCase(next, "retry ")) {
                     next = next.substring("retry ".length()).trim();
                     maxRetry = Integer.parseInt(next);
                   }
@@ -402,22 +402,22 @@ public class CommandExecutorScript extends CommandExecutorAbstract
                 txBegunAtLine = -1;
                 txBegunAtPart = -1;
 
-              } else if (OStringSerializerHelper.startsWithIgnoreCase(lastCommand, "sleep ")) {
+              } else if (StringSerializerHelper.startsWithIgnoreCase(lastCommand, "sleep ")) {
                 executeSleep(lastCommand);
 
-              } else if (OStringSerializerHelper.startsWithIgnoreCase(
+              } else if (StringSerializerHelper.startsWithIgnoreCase(
                   lastCommand, "console.log ")) {
                 executeConsoleLog(lastCommand, db);
 
-              } else if (OStringSerializerHelper.startsWithIgnoreCase(
+              } else if (StringSerializerHelper.startsWithIgnoreCase(
                   lastCommand, "console.output ")) {
                 executeConsoleOutput(lastCommand, db);
 
-              } else if (OStringSerializerHelper.startsWithIgnoreCase(
+              } else if (StringSerializerHelper.startsWithIgnoreCase(
                   lastCommand, "console.error ")) {
                 executeConsoleError(lastCommand, db);
 
-              } else if (OStringSerializerHelper.startsWithIgnoreCase(lastCommand, "return ")) {
+              } else if (StringSerializerHelper.startsWithIgnoreCase(lastCommand, "return ")) {
                 lastResult = getValue(lastCommand.substring("return ".length()), db);
 
                 // END OF SCRIPT
@@ -442,7 +442,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
         // COMPLETED
         break;
 
-      } catch (YTTransactionException e) {
+      } catch (TransactionException e) {
         // THIS CASE IS ON UPSERT
         context.setVariable("retries", retry);
         if (retry >= maxRetry) {
@@ -451,7 +451,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
 
         waitForNextRetry();
 
-      } catch (YTRecordDuplicatedException e) {
+      } catch (RecordDuplicatedException e) {
         // THIS CASE IS ON UPSERT
         context.setVariable("retries", retry);
         if (retry >= maxRetry) {
@@ -460,14 +460,14 @@ public class CommandExecutorScript extends CommandExecutorAbstract
 
         waitForNextRetry();
 
-      } catch (YTRecordNotFoundException e) {
+      } catch (RecordNotFoundException e) {
         // THIS CASE IS ON UPSERT
         context.setVariable("retries", retry);
         if (retry >= maxRetry) {
           throw e;
         }
 
-      } catch (YTNeedRetryException e) {
+      } catch (NeedRetryException e) {
         context.setVariable("retries", retry);
         if (retry >= maxRetry) {
           throw e;
@@ -517,13 +517,13 @@ public class CommandExecutorScript extends CommandExecutorAbstract
     String cmd = lastCommand;
     cmd = cmd.trim().substring(2); // remove IF
     cmd = cmd.trim().substring(0, cmd.trim().length() - 1); // remove {
-    SQLFilter condition = OSQLEngine.parseCondition(cmd, getContext(), "IF");
+    SQLFilter condition = SQLEngine.parseCondition(cmd, getContext(), "IF");
     Object result = null;
     try {
       result = condition.evaluate(null, null, getContext());
     } catch (Exception e) {
-      throw YTException.wrapException(
-          new YTCommandExecutionException(
+      throw BaseException.wrapException(
+          new CommandExecutionException(
               "Could not evaluate IF condition: " + cmd + " - " + e.getMessage()),
           e);
     }
@@ -539,8 +539,8 @@ public class CommandExecutorScript extends CommandExecutorAbstract
     if (cmd.length() < 3) {
       return false;
     }
-    if (!((OStringSerializerHelper.startsWithIgnoreCase(cmd, "if "))
-        || OStringSerializerHelper.startsWithIgnoreCase(cmd, "if("))) {
+    if (!((StringSerializerHelper.startsWithIgnoreCase(cmd, "if "))
+        || StringSerializerHelper.startsWithIgnoreCase(cmd, "if("))) {
       return false;
     }
     return cmd.endsWith("{");
@@ -557,9 +557,9 @@ public class CommandExecutorScript extends CommandExecutorAbstract
     }
   }
 
-  private Object executeCommand(final String lastCommand, final YTDatabaseSession db) {
+  private Object executeCommand(final String lastCommand, final DatabaseSession db) {
     final CommandSQL command = new CommandSQL(lastCommand);
-    var database = (YTDatabaseSessionInternal) db;
+    var database = (DatabaseSessionInternal) db;
     Object result =
         database
             .command(command.setContext(getContext()))
@@ -577,7 +577,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
     return parameters;
   }
 
-  private Object getValue(final String iValue, final YTDatabaseSessionInternal db) {
+  private Object getValue(final String iValue, final DatabaseSessionInternal db) {
     Object lastResult = null;
     boolean recordResultSet = true;
     if (iValue.equalsIgnoreCase("NULL")) {
@@ -586,7 +586,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
       // ARRAY - COLLECTION
       final List<String> items = new ArrayList<String>();
 
-      OStringSerializerHelper.getCollection(iValue, 0, items);
+      StringSerializerHelper.getCollection(iValue, 0, items);
       final List<Object> result = new ArrayList<Object>(items.size());
 
       for (int i = 0; i < items.size(); ++i) {
@@ -598,7 +598,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
       checkIsRecordResultSet(lastResult);
     } else if (iValue.startsWith("{") && iValue.endsWith("}")) {
       // MAP
-      final Map<String, String> map = OStringSerializerHelper.getMap(db, iValue);
+      final Map<String, String> map = StringSerializerHelper.getMap(db, iValue);
       final Map<Object, Object> result = new HashMap<Object, Object>(map.size());
 
       for (Map.Entry<String, String> entry : map.entrySet()) {
@@ -617,8 +617,8 @@ public class CommandExecutorScript extends CommandExecutorAbstract
           key = stringKey;
         }
 
-        if (OMultiValue.isMultiValue(key) && OMultiValue.getSize(key) == 1) {
-          key = OMultiValue.getFirstValue(key);
+        if (MultiValue.isMultiValue(key) && MultiValue.getSize(key) == 1) {
+          key = MultiValue.getFirstValue(key);
         }
 
         // VALUE
@@ -642,7 +642,7 @@ public class CommandExecutorScript extends CommandExecutorAbstract
       checkIsRecordResultSet(lastResult);
     } else if (iValue.startsWith("\"") && iValue.endsWith("\"")
         || iValue.startsWith("'") && iValue.endsWith("'")) {
-      lastResult = new OContextVariableResolver(context).parse(OIOUtils.getStringContent(iValue));
+      lastResult = new ContextVariableResolver(context).parse(IOUtils.getStringContent(iValue));
       checkIsRecordResultSet(lastResult);
     } else if (iValue.startsWith("(") && iValue.endsWith(")")) {
       lastResult = executeCommand(iValue, db);
@@ -655,12 +655,12 @@ public class CommandExecutorScript extends CommandExecutorAbstract
   }
 
   private void checkIsRecordResultSet(Object result) {
-    if (!(result instanceof YTIdentifiable) && !(result instanceof OLegacyResultSet)) {
-      if (!OMultiValue.isMultiValue(result)) {
+    if (!(result instanceof Identifiable) && !(result instanceof LegacyResultSet)) {
+      if (!MultiValue.isMultiValue(result)) {
         request.setRecordResultSet(false);
       } else {
-        for (Object val : OMultiValue.getMultiValueIterable(result)) {
-          if (!(val instanceof YTIdentifiable)) {
+        for (Object val : MultiValue.getMultiValueIterable(result)) {
+          if (!(val instanceof Identifiable)) {
             request.setRecordResultSet(false);
           }
         }
@@ -677,22 +677,22 @@ public class CommandExecutorScript extends CommandExecutorAbstract
     }
   }
 
-  private void executeConsoleLog(final String lastCommand, final YTDatabaseSessionInternal db) {
+  private void executeConsoleLog(final String lastCommand, final DatabaseSessionInternal db) {
     final String value = lastCommand.substring("console.log ".length()).trim();
-    LogManager.instance().info(this, "%s", getValue(OIOUtils.wrapStringContent(value, '\''), db));
+    LogManager.instance().info(this, "%s", getValue(IOUtils.wrapStringContent(value, '\''), db));
   }
 
-  private void executeConsoleOutput(final String lastCommand, final YTDatabaseSessionInternal db) {
+  private void executeConsoleOutput(final String lastCommand, final DatabaseSessionInternal db) {
     final String value = lastCommand.substring("console.output ".length()).trim();
-    System.out.println(getValue(OIOUtils.wrapStringContent(value, '\''), db));
+    System.out.println(getValue(IOUtils.wrapStringContent(value, '\''), db));
   }
 
-  private void executeConsoleError(final String lastCommand, final YTDatabaseSessionInternal db) {
+  private void executeConsoleError(final String lastCommand, final DatabaseSessionInternal db) {
     final String value = lastCommand.substring("console.error ".length()).trim();
-    System.err.println(getValue(OIOUtils.wrapStringContent(value, '\''), db));
+    System.err.println(getValue(IOUtils.wrapStringContent(value, '\''), db));
   }
 
-  private Object executeLet(final String lastCommand, final YTDatabaseSessionInternal db) {
+  private Object executeLet(final String lastCommand, final DatabaseSessionInternal db) {
     final int equalsPos = lastCommand.indexOf('=');
     final String variable = lastCommand.substring("let ".length(), equalsPos).trim();
     final String cmd = lastCommand.substring(equalsPos + 1).trim();

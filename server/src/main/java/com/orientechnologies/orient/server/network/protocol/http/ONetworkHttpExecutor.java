@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 
 public interface ONetworkHttpExecutor {
 
   String getRemoteAddress();
 
-  void setDatabase(YTDatabaseSessionInternal db);
+  void setDatabase(DatabaseSessionInternal db);
 }

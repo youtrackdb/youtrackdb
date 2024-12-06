@@ -18,19 +18,19 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import java.io.IOException;
 import java.io.InputStream;
 
 /**
  *
  */
-public abstract class BaseLuceneTest extends DBTestBase {
+public abstract class BaseLuceneTest extends DbTestBase {
 
   protected static String getScriptFromStream(final InputStream scriptStream) {
     try {
-      return OIOUtils.readStreamAsString(scriptStream);
+      return IOUtils.readStreamAsString(scriptStream);
     } catch (final IOException e) {
       throw new RuntimeException("Could not read script stream.", e);
     }

@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTImmutableSchema;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
@@ -32,7 +32,7 @@ public class CountFromClassStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -40,19 +40,19 @@ public class CountFromClassStep extends AbstractExecutionStep {
     return new ProduceExecutionStream(this::produce).limit(1);
   }
 
-  private YTResult produce(CommandContext ctx) {
+  private Result produce(CommandContext ctx) {
     var db = ctx.getDatabase();
-    YTImmutableSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
-    YTClass clazz = schema.getClass(target.getStringValue());
+    ImmutableSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
+    SchemaClass clazz = schema.getClass(target.getStringValue());
     if (clazz == null) {
       clazz = schema.getView(target.getStringValue());
     }
     if (clazz == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Class " + target.getStringValue() + " does not exist in the database schema");
     }
     long size = clazz.count(db);
-    YTResultInternal result = new YTResultInternal(db);
+    ResultInternal result = new ResultInternal(db);
     result.setProperty(alias, size);
     return result;
   }

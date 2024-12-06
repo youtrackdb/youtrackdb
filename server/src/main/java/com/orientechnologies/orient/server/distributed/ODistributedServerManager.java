@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.jetbrains.youtrack.db.internal.common.util.OCallable;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.distributed.ODistributedRequest.EXECUTION_MODE;
@@ -133,7 +133,7 @@ public interface ODistributedServerManager {
   ODistributedServerManager unregisterLifecycleListener(ODistributedLifecycleListener iListener);
 
   Object executeOnLocalNode(
-      ODistributedRequestId reqId, ORemoteTask task, YTDatabaseSessionInternal database);
+      DistributedRequestId reqId, ORemoteTask task, DatabaseSessionInternal database);
 
   void executeOnLocalNodeFromRemote(ODistributedRequest request);
 
@@ -289,7 +289,7 @@ public interface ODistributedServerManager {
       String databaseName,
       long timeoutLocking,
       OModifiableDistributedConfiguration lastCfg,
-      OCallable<T, OModifiableDistributedConfiguration> iCallback);
+      CallableFunction<T, OModifiableDistributedConfiguration> iCallback);
 
   /**
    * Returns true if the quorum is present in terms of number of available nodes for full
@@ -308,13 +308,13 @@ public interface ODistributedServerManager {
       ODistributedRequest request, Set<Integer> involvedWorkerQueues) {
   }
 
-  default void messageBeforeOp(String op, ODistributedRequestId requestId) {
+  default void messageBeforeOp(String op, DistributedRequestId requestId) {
   }
 
-  default void messageAfterOp(String op, ODistributedRequestId requestId) {
+  default void messageAfterOp(String op, DistributedRequestId requestId) {
   }
 
-  default void messageCurrentPayload(ODistributedRequestId requestId, Object responsePayload) {
+  default void messageCurrentPayload(DistributedRequestId requestId, Object responsePayload) {
   }
 
   default void messageProcessStart(ODistributedRequest message) {

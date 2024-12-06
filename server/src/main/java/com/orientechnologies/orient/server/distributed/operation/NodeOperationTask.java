@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.server.distributed.operation;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.orientechnologies.orient.server.OServer;
-import com.orientechnologies.orient.server.distributed.ODistributedRequestId;
+import com.orientechnologies.orient.server.distributed.DistributedRequestId;
 import com.orientechnologies.orient.server.distributed.ODistributedServerManager;
 import com.orientechnologies.orient.server.distributed.ORemoteTaskFactory;
 import com.orientechnologies.orient.server.distributed.task.ORemoteTask;
@@ -52,16 +52,16 @@ public class NodeOperationTask implements ORemoteTask {
   }
 
   @Override
-  public OCommandDistributedReplicateRequest.QUORUM_TYPE getQuorumType() {
+  public CommandDistributedReplicateRequest.QUORUM_TYPE getQuorumType() {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public Object execute(
-      ODistributedRequestId requestId,
+      DistributedRequestId requestId,
       OServer iServer,
       ODistributedServerManager iManager,
-      YTDatabaseSessionInternal database)
+      DatabaseSessionInternal database)
       throws Exception {
 
     if (task != null) {

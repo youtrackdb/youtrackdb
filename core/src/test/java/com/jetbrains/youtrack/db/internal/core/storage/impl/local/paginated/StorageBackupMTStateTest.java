@@ -1,24 +1,24 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
-import com.jetbrains.youtrack.db.internal.common.concur.lock.OReadersWriterSpinLock;
-import com.jetbrains.youtrack.db.internal.common.concur.lock.YTModificationOperationProhibitedException;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.ModificationOperationProhibitedException;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.ReadersWriterSpinLock;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.PartitionedDatabasePool;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseCompare;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConcurrentModificationException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
+import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentModificationException;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.File;
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ public class StorageBackupMTStateTest {
     GlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(10);
   }
 
-  private final OReadersWriterSpinLock flowLock = new OReadersWriterSpinLock();
+  private final ReadersWriterSpinLock flowLock = new ReadersWriterSpinLock();
 
   private final ConcurrentMap<String, AtomicInteger> classInstancesCounters =
       new ConcurrentHashMap<String, AtomicInteger>();
@@ -87,11 +87,11 @@ public class StorageBackupMTStateTest {
     dbURL = "plocal:" + dbDirectory;
 
     System.out.println("Create database");
-    YTDatabaseSessionInternal databaseDocumentTx = new YTDatabaseDocumentTx(dbURL);
+    DatabaseSessionInternal databaseDocumentTx = new DatabaseDocumentTx(dbURL);
     databaseDocumentTx.create();
 
     System.out.println("Create schema");
-    final YTSchema schema = databaseDocumentTx.getMetadata().getSchema();
+    final Schema schema = databaseDocumentTx.getMetadata().getSchema();
 
     for (int i = 0; i < 3; i++) {
       createClass(schema, databaseDocumentTx);
@@ -153,7 +153,7 @@ public class StorageBackupMTStateTest {
     pool.close();
 
     System.out.println("Final incremental  backup");
-    databaseDocumentTx = new YTDatabaseDocumentTx(dbURL);
+    databaseDocumentTx = new DatabaseDocumentTx(dbURL);
     databaseDocumentTx.open("admin", "admin");
     databaseDocumentTx.incrementalBackup(backupDir.getAbsolutePath());
 
@@ -163,8 +163,8 @@ public class StorageBackupMTStateTest {
     storage.shutdown();
 
     System.out.println("Create backup database");
-    final YTDatabaseSessionInternal backedUpDb =
-        new YTDatabaseDocumentTx("plocal:" + backedUpDbDirectory);
+    final DatabaseSessionInternal backedUpDb =
+        new DatabaseDocumentTx("plocal:" + backedUpDbDirectory);
     backedUpDb.create(backupDir.getAbsolutePath());
 
     final Storage backupStorage = backedUpDb.getStorage();
@@ -176,11 +176,11 @@ public class StorageBackupMTStateTest {
     databaseDocumentTx.open("admin", "admin");
     backedUpDb.open("admin", "admin");
 
-    final ODatabaseCompare compare =
-        new ODatabaseCompare(
+    final DatabaseCompare compare =
+        new DatabaseCompare(
             databaseDocumentTx,
             backedUpDb,
-            new OCommandOutputListener() {
+            new CommandOutputListener() {
               @Override
               public void onMessage(String iText) {
                 System.out.println(iText);
@@ -200,17 +200,17 @@ public class StorageBackupMTStateTest {
     FileUtils.deleteRecursively(backupDir);
   }
 
-  private YTClass createClass(YTSchema schema, YTDatabaseSession db) {
-    YTClass cls = schema.createClass(CLASS_PREFIX + classCounter.getAndIncrement());
+  private SchemaClass createClass(Schema schema, DatabaseSession db) {
+    SchemaClass cls = schema.createClass(CLASS_PREFIX + classCounter.getAndIncrement());
 
-    cls.createProperty(db, "id", YTType.LONG);
-    cls.createProperty(db, "intValue", YTType.INTEGER);
-    cls.createProperty(db, "stringValue", YTType.STRING);
-    cls.createProperty(db, "linkedDocuments", YTType.LINKBAG);
+    cls.createProperty(db, "id", PropertyType.LONG);
+    cls.createProperty(db, "intValue", PropertyType.INTEGER);
+    cls.createProperty(db, "stringValue", PropertyType.STRING);
+    cls.createProperty(db, "linkedDocuments", PropertyType.LINKBAG);
 
-    cls.createIndex(db, cls.getName() + "IdIndex", YTClass.INDEX_TYPE.UNIQUE, "id");
+    cls.createIndex(db, cls.getName() + "IdIndex", SchemaClass.INDEX_TYPE.UNIQUE, "id");
     cls.createIndex(db,
-        cls.getName() + "IntValueIndex", YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "intValue");
+        cls.getName() + "IntValueIndex", SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "intValue");
 
     classInstancesCounters.put(cls.getName(), new AtomicInteger());
 
@@ -225,7 +225,7 @@ public class StorageBackupMTStateTest {
     public Void call() throws Exception {
       while (!stop) {
         while (true) {
-          YTDatabaseSessionInternal db = pool.acquire();
+          DatabaseSessionInternal db = pool.acquire();
           try {
             flowLock.acquireReadLock();
             try {
@@ -234,11 +234,11 @@ public class StorageBackupMTStateTest {
             } finally {
               flowLock.releaseReadLock();
             }
-          } catch (YTRecordNotFoundException rne) {
+          } catch (RecordNotFoundException rne) {
             // retry
-          } catch (YTConcurrentModificationException cme) {
+          } catch (ConcurrentModificationException cme) {
             // retry
-          } catch (YTModificationOperationProhibitedException e) {
+          } catch (ModificationOperationProhibitedException e) {
             System.out.println("Modification prohibited , wait 5s ...");
             Thread.sleep(2000);
             // retry
@@ -262,7 +262,7 @@ public class StorageBackupMTStateTest {
 
       while (!stop) {
         while (true) {
-          YTDatabaseSessionInternal db = pool.acquire();
+          DatabaseSessionInternal db = pool.acquire();
           try {
             flowLock.acquireReadLock();
             try {
@@ -273,11 +273,11 @@ public class StorageBackupMTStateTest {
             } finally {
               flowLock.releaseReadLock();
             }
-          } catch (YTRecordNotFoundException rne) {
+          } catch (RecordNotFoundException rne) {
             // retry
-          } catch (YTConcurrentModificationException cme) {
+          } catch (ConcurrentModificationException cme) {
             // retry
-          } catch (YTModificationOperationProhibitedException e) {
+          } catch (ModificationOperationProhibitedException e) {
             System.out.println("Modification prohibited , wait 5s ...");
             Thread.sleep(2000);
             // retry
@@ -298,7 +298,7 @@ public class StorageBackupMTStateTest {
 
     protected final Random random = new Random();
 
-    protected void insertRecord(YTDatabaseSessionInternal db) {
+    protected void insertRecord(DatabaseSessionInternal db) {
       final int docId;
       final int classes = classCounter.get();
 
@@ -336,7 +336,7 @@ public class StorageBackupMTStateTest {
       long tCount = 0;
 
       while (linkedDocuments.size() < 5 && linkedDocuments.size() < linkedClassCount) {
-        YTResultSet docs =
+        ResultSet docs =
             db.query(
                 "select * from "
                     + linkedClassName
@@ -367,7 +367,7 @@ public class StorageBackupMTStateTest {
 
     @Override
     public void run() {
-      YTDatabaseSessionInternal db = new YTDatabaseDocumentTx(dbURL);
+      DatabaseSessionInternal db = new DatabaseDocumentTx(dbURL);
       db.open("admin", "admin");
       try {
         flowLock.acquireReadLock();
@@ -390,12 +390,12 @@ public class StorageBackupMTStateTest {
 
     @Override
     public void run() {
-      YTDatabaseSessionInternal databaseDocumentTx = new YTDatabaseDocumentTx(dbURL);
+      DatabaseSessionInternal databaseDocumentTx = new DatabaseDocumentTx(dbURL);
       databaseDocumentTx.open("admin", "admin");
       try {
         flowLock.acquireReadLock();
         try {
-          YTSchema schema = databaseDocumentTx.getMetadata().getSchema();
+          Schema schema = databaseDocumentTx.getMetadata().getSchema();
           createClass(schema, databaseDocumentTx);
         } finally {
           flowLock.releaseReadLock();
@@ -417,7 +417,7 @@ public class StorageBackupMTStateTest {
       int counter = 0;
       while (!stop) {
         while (true) {
-          YTDatabaseSessionInternal databaseDocumentTx = pool.acquire();
+          DatabaseSessionInternal databaseDocumentTx = pool.acquire();
           try {
             flowLock.acquireReadLock();
             try {
@@ -440,7 +440,7 @@ public class StorageBackupMTStateTest {
 
               boolean deleted = false;
               do {
-                YTResultSet docs =
+                ResultSet docs =
                     databaseDocumentTx.query(
                         "select * from "
                             + className
@@ -448,7 +448,7 @@ public class StorageBackupMTStateTest {
                             + random.nextInt(classCounter.get()));
 
                 if (docs.hasNext()) {
-                  YTResult document = docs.next();
+                  Result document = docs.next();
                   databaseDocumentTx.delete(document.getIdentity().get());
                   deleted = true;
                 }
@@ -466,12 +466,12 @@ public class StorageBackupMTStateTest {
             } finally {
               flowLock.releaseReadLock();
             }
-          } catch (YTModificationOperationProhibitedException mope) {
+          } catch (ModificationOperationProhibitedException mope) {
             System.out.println("Modification was prohibited ... wait 3s.");
             Thread.sleep(3 * 1000);
-          } catch (YTRecordNotFoundException rnfe) {
+          } catch (RecordNotFoundException rnfe) {
             // retry
-          } catch (YTConcurrentModificationException cme) {
+          } catch (ConcurrentModificationException cme) {
             // retry
           } catch (RuntimeException e) {
             e.printStackTrace();
@@ -496,7 +496,7 @@ public class StorageBackupMTStateTest {
       try {
         flowLock.acquireWriteLock();
         try {
-          final YTSchema schema = db.getMetadata().getSchema();
+          final Schema schema = db.getMetadata().getSchema();
           final int classes = classCounter.get();
 
           String className;

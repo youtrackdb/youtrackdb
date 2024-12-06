@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.common.profiler;
 
 import com.jetbrains.youtrack.db.internal.common.profiler.AbstractProfiler.ProfilerHookValue;
-import com.jetbrains.youtrack.db.internal.common.types.OModifiableLong;
+import com.jetbrains.youtrack.db.internal.common.types.ModifiableLong;
 
 public class ModifiableLongProfileHookValue implements ProfilerHookValue {
 
-  private final OModifiableLong value;
+  private final ModifiableLong value;
 
-  public ModifiableLongProfileHookValue(OModifiableLong value) {
+  public ModifiableLongProfileHookValue(ModifiableLong value) {
     this.value = value;
   }
 

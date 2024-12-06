@@ -2,13 +2,13 @@ package com.jetbrains.youtrack.db.internal.core.db.record;
 
 import static org.junit.Assert.assertNotNull;
 
-import com.jetbrains.youtrack.db.internal.core.OCreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,28 +22,28 @@ import org.junit.Test;
 public class RecordLazyListTest {
 
   private YouTrackDB youTrackDb;
-  private YTDatabaseSessionInternal dbSession;
+  private DatabaseSessionInternal dbSession;
 
   @Before
   public void init() throws Exception {
     youTrackDb =
-        OCreateDatabaseUtil.createDatabase(
-            RecordLazyListTest.class.getSimpleName(), "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
+        CreateDatabaseUtil.createDatabase(
+            RecordLazyListTest.class.getSimpleName(), "memory:", CreateDatabaseUtil.TYPE_MEMORY);
     dbSession =
-        (YTDatabaseSessionInternal) youTrackDb.open(
+        (DatabaseSessionInternal) youTrackDb.open(
             RecordLazyListTest.class.getSimpleName(),
             "admin",
-            OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+            CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @Test
   public void test() {
-    YTSchema schema = dbSession.getMetadata().getSchema();
-    YTClass mainClass = schema.createClass("MainClass");
-    mainClass.createProperty(dbSession, "name", YTType.STRING);
-    YTProperty itemsProp = mainClass.createProperty(dbSession, "items", YTType.LINKLIST);
-    YTClass itemClass = schema.createClass("ItemClass");
-    itemClass.createProperty(dbSession, "name", YTType.STRING);
+    Schema schema = dbSession.getMetadata().getSchema();
+    SchemaClass mainClass = schema.createClass("MainClass");
+    mainClass.createProperty(dbSession, "name", PropertyType.STRING);
+    Property itemsProp = mainClass.createProperty(dbSession, "items", PropertyType.LINKLIST);
+    SchemaClass itemClass = schema.createClass("ItemClass");
+    itemClass.createProperty(dbSession, "name", PropertyType.STRING);
     itemsProp.setLinkedClass(dbSession, itemClass);
 
     dbSession.begin();

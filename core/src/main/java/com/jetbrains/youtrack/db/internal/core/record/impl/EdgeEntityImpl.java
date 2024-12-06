@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
@@ -12,7 +12,7 @@ import javax.annotation.Nullable;
 
 public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
 
-  public EdgeEntityImpl(YTDatabaseSessionInternal session, String cl) {
+  public EdgeEntityImpl(DatabaseSessionInternal session, String cl) {
     super(session, cl);
   }
 
@@ -20,11 +20,11 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
     super();
   }
 
-  public EdgeEntityImpl(YTDatabaseSessionInternal session) {
+  public EdgeEntityImpl(DatabaseSessionInternal session) {
     super(session);
   }
 
-  public EdgeEntityImpl(YTDatabaseSessionInternal database, YTRID rid) {
+  public EdgeEntityImpl(DatabaseSessionInternal database, RID rid) {
     super(database, rid);
   }
 
@@ -44,7 +44,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
 
   @Override
   @Nullable
-  public YTIdentifiable getFromIdentifiable() {
+  public Identifiable getFromIdentifiable() {
     var db = getSession();
     var schema = db.getMetadata().getImmutableSchemaSnapshot();
 
@@ -76,7 +76,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
   }
 
   @Override
-  public YTIdentifiable getToIdentifiable() {
+  public Identifiable getToIdentifiable() {
     var db = getSession();
     var schema = db.getMetadata().getImmutableSchemaSnapshot();
 
@@ -136,7 +136,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
 
   @Nullable
   @Override
-  public YTIdentifiable getLinkProperty(String fieldName) {
+  public Identifiable getLinkProperty(String fieldName) {
     checkForBinding();
 
     EdgeInternal.checkPropertyName(fieldName);
@@ -154,7 +154,7 @@ public class EdgeEntityImpl extends EntityImpl implements EdgeInternal {
   }
 
   @Override
-  public void setProperty(String name, Object value, YTType... types) {
+  public void setProperty(String name, Object value, PropertyType... types) {
     checkForBinding();
     EdgeInternal.checkPropertyName(name);
 

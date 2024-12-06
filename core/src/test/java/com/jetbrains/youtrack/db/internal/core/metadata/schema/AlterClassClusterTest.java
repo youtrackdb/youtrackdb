@@ -3,16 +3,16 @@ package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSchemaException;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import org.junit.Test;
 
-public class AlterClassClusterTest extends DBTestBase {
+public class AlterClassClusterTest extends DbTestBase {
 
   @Test
   public void testRemoveClusterDefaultCluster() {
-    YTClass clazz = db.getMetadata().getSchema().createClass("Test", 1, null);
+    SchemaClass clazz = db.getMetadata().getSchema().createClass("Test", 1, null);
     clazz.addCluster(db, "TestOneMore");
 
     clazz.removeClusterId(db, db.getClusterIdByName("Test"));
@@ -20,33 +20,33 @@ public class AlterClassClusterTest extends DBTestBase {
     assertEquals(clazz.getDefaultClusterId(), db.getClusterIdByName("TestOneMore"));
   }
 
-  @Test(expected = YTDatabaseException.class)
+  @Test(expected = DatabaseException.class)
   public void testRemoveLastClassCluster() {
-    YTClass clazz = db.getMetadata().getSchema().createClass("Test", 1, null);
+    SchemaClass clazz = db.getMetadata().getSchema().createClass("Test", 1, null);
     clazz.removeClusterId(db, db.getClusterIdByName("Test"));
   }
 
-  @Test(expected = YTSchemaException.class)
+  @Test(expected = SchemaException.class)
   public void testAddClusterToAbstracClass() {
-    YTClass clazz = db.getMetadata().getSchema().createAbstractClass("Test");
+    SchemaClass clazz = db.getMetadata().getSchema().createAbstractClass("Test");
     clazz.addCluster(db, "TestOneMore");
   }
 
-  @Test(expected = YTSchemaException.class)
+  @Test(expected = SchemaException.class)
   public void testAddClusterIdToAbstracClass() {
-    YTClass clazz = db.getMetadata().getSchema().createAbstractClass("Test");
+    SchemaClass clazz = db.getMetadata().getSchema().createAbstractClass("Test");
     int id = db.addCluster("TestOneMore");
     clazz.addClusterId(db, id);
   }
 
   @Test
   public void testSetAbstractRestrictedClass() {
-    YTSchema oSchema = db.getMetadata().getSchema();
-    YTClass oRestricted = oSchema.getClass("ORestricted");
-    YTClass v = oSchema.getClass("V");
+    Schema oSchema = db.getMetadata().getSchema();
+    SchemaClass oRestricted = oSchema.getClass("ORestricted");
+    SchemaClass v = oSchema.getClass("V");
     v.addSuperClass(db, oRestricted);
 
-    YTClass ovt = oSchema.createClass("Some", v);
+    SchemaClass ovt = oSchema.createClass("Some", v);
     ovt.setAbstract(db, true);
     assertTrue(ovt.isAbstract());
   }

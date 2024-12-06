@@ -3,10 +3,10 @@ package com.orientechnologies.orient.client.remote;
 import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.CLIENT_CONNECTION_FETCH_HOST_LIST;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
+import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.orientechnologies.orient.client.remote.StorageRemote.CONNECTION_STRATEGY;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +27,7 @@ public class ORemoteURLs {
   private List<String> initialServerURLs;
   private int nextServerToConnect;
 
-  public ORemoteURLs(String[] hosts, YTContextConfiguration config) {
+  public ORemoteURLs(String[] hosts, ContextConfiguration config) {
     for (String host : hosts) {
       addHost(host, config);
     }
@@ -55,7 +55,7 @@ public class ORemoteURLs {
     }
   }
 
-  public synchronized void addAll(List<String> toAdd, YTContextConfiguration clientConfiguration) {
+  public synchronized void addAll(List<String> toAdd, ContextConfiguration clientConfiguration) {
     if (toAdd.size() > 0) {
       serverURLs.clear();
       this.nextServerToConnect = 0;
@@ -68,7 +68,7 @@ public class ORemoteURLs {
   /**
    * Registers the remote server with port.
    */
-  protected String addHost(String host, YTContextConfiguration clientConfiguration) {
+  protected String addHost(String host, ContextConfiguration clientConfiguration) {
 
     if (host.contains("/")) {
       host = host.substring(0, host.indexOf('/'));
@@ -119,7 +119,7 @@ public class ORemoteURLs {
   }
 
   public synchronized String parseServerUrls(
-      String url, YTContextConfiguration contextConfiguration) {
+      String url, ContextConfiguration contextConfiguration) {
     int dbPos = url.indexOf('/');
     String name;
     if (dbPos == -1) {
@@ -151,7 +151,7 @@ public class ORemoteURLs {
   }
 
   private List<String> fetchHostsFromDns(
-      final String primaryServer, YTContextConfiguration contextConfiguration) {
+      final String primaryServer, ContextConfiguration contextConfiguration) {
     LogManager.instance()
         .debug(
             this,
@@ -198,11 +198,11 @@ public class ORemoteURLs {
   }
 
   private synchronized String getNextConnectUrl(
-      OStorageRemoteSession session, YTContextConfiguration contextConfiguration) {
+      OStorageRemoteSession session, ContextConfiguration contextConfiguration) {
     if (serverURLs.isEmpty()) {
       reloadOriginalURLs();
       if (serverURLs.isEmpty()) {
-        throw new YTStorageException(
+        throw new StorageException(
             "Cannot create a connection to remote server because url list is empty");
       }
     }
@@ -226,14 +226,14 @@ public class ORemoteURLs {
   public synchronized String getServerURFromList(
       boolean iNextAvailable,
       OStorageRemoteSession session,
-      YTContextConfiguration contextConfiguration) {
+      ContextConfiguration contextConfiguration) {
     if (session != null && session.getCurrentUrl() != null && !iNextAvailable) {
       return session.getCurrentUrl();
     }
     if (serverURLs.isEmpty()) {
       reloadOriginalURLs();
       if (serverURLs.isEmpty()) {
-        throw new YTStorageException(
+        throw new StorageException(
             "Cannot create a connection to remote server because url list is empty");
       }
     }
@@ -269,7 +269,7 @@ public class ORemoteURLs {
   public synchronized String getNextAvailableServerURL(
       boolean iIsConnectOperation,
       OStorageRemoteSession session,
-      YTContextConfiguration contextConfiguration,
+      ContextConfiguration contextConfiguration,
       CONNECTION_STRATEGY strategy) {
     String url = null;
     if (session.isStickToSession()) {
@@ -310,14 +310,14 @@ public class ORemoteURLs {
         break;
 
       default:
-        throw new YTConfigurationException("Connection mode " + strategy + " is not supported");
+        throw new ConfigurationException("Connection mode " + strategy + " is not supported");
     }
 
     return url;
   }
 
   public synchronized void updateDistributedNodes(
-      List<String> hosts, YTContextConfiguration clientConfiguration) {
+      List<String> hosts, ContextConfiguration clientConfiguration) {
     if (!clientConfiguration.getValueAsBoolean(CLIENT_CONNECTION_FETCH_HOST_LIST)) {
       List<String> definedHosts = initialServerURLs;
       for (String host : definedHosts) {

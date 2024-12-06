@@ -20,19 +20,19 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.index.versionmap;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
+import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import java.io.IOException;
 
 /**
  * The version position map in version 0 stores a version of type int for all change operations on
  * the `AbstractPaginatedStorage` storage. It creates one file with extension `vpm` (i.e. w/o meta
- * data) and expected number of elements OBaseIndexEngine.DEFAULT_VERSION_ARRAY_SIZE.
+ * data) and expected number of elements BaseIndexEngine.DEFAULT_VERSION_ARRAY_SIZE.
  */
 public final class VersionPositionMapV0 extends VersionPositionMap {
 
@@ -50,7 +50,7 @@ public final class VersionPositionMapV0 extends VersionPositionMap {
   }
 
   @Override
-  public void create(final OAtomicOperation atomicOperation) {
+  public void create(final AtomicOperation atomicOperation) {
     executeInsideComponentOperation(
         atomicOperation,
         operation -> {
@@ -64,7 +64,7 @@ public final class VersionPositionMapV0 extends VersionPositionMap {
   }
 
   @Override
-  public void delete(final OAtomicOperation atomicOperation) {
+  public void delete(final AtomicOperation atomicOperation) {
     executeInsideComponentOperation(
         atomicOperation,
         operation -> {
@@ -81,7 +81,7 @@ public final class VersionPositionMapV0 extends VersionPositionMap {
   public void open() throws IOException {
     acquireExclusiveLock();
     try {
-      final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+      final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
       this.openVPM(atomicOperation);
     } finally {
       releaseExclusiveLock();
@@ -90,17 +90,17 @@ public final class VersionPositionMapV0 extends VersionPositionMap {
 
   @Override
   public void updateVersion(final int hash) {
-    final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+    final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
     executeInsideComponentOperation(
         atomicOperation,
         operation -> {
           acquireExclusiveLock();
           try {
-            final int startPositionWithOffset = OVersionPositionMapBucket.entryPosition(hash);
+            final int startPositionWithOffset = VersionPositionMapBucket.entryPosition(hash);
             final int pageIndex = calculatePageIndex(startPositionWithOffset);
-            try (final OCacheEntry cacheEntry =
+            try (final CacheEntry cacheEntry =
                 loadPageForWrite(atomicOperation, fileId, pageIndex, true)) {
-              final OVersionPositionMapBucket bucket = new OVersionPositionMapBucket(cacheEntry);
+              final VersionPositionMapBucket bucket = new VersionPositionMapBucket(cacheEntry);
               bucket.incrementVersion(hash);
             }
           } finally {
@@ -111,19 +111,19 @@ public final class VersionPositionMapV0 extends VersionPositionMap {
 
   @Override
   public int getVersion(final int hash) {
-    final int startPositionWithOffset = OVersionPositionMapBucket.entryPosition(hash);
+    final int startPositionWithOffset = VersionPositionMapBucket.entryPosition(hash);
     final int pageIndex = calculatePageIndex(startPositionWithOffset);
     acquireSharedLock();
     try {
-      final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+      final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
 
-      try (final OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-        final OVersionPositionMapBucket bucket = new OVersionPositionMapBucket(cacheEntry);
+      try (final CacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
+        final VersionPositionMapBucket bucket = new VersionPositionMapBucket(cacheEntry);
         return bucket.getVersion(hash);
       }
     } catch (final IOException e) {
-      throw YTException.wrapException(
-          new YTStorageException("Error during reading the size of rid bag"), e);
+      throw BaseException.wrapException(
+          new StorageException("Error during reading the size of rid bag"), e);
     } finally {
       releaseSharedLock();
     }
@@ -138,7 +138,7 @@ public final class VersionPositionMapV0 extends VersionPositionMap {
     return keyHash;
   }
 
-  private void openVPM(final OAtomicOperation atomicOperation) throws IOException {
+  private void openVPM(final AtomicOperation atomicOperation) throws IOException {
     // In case an old storage does not have a VPM yet, it will be created.
     // If the creation of a VPM is interrupted due to any error / exception, the file is either
     // created corrupt, and thus subsequent access will (not hiding the issue), or the file will not
@@ -160,7 +160,7 @@ public final class VersionPositionMapV0 extends VersionPositionMap {
     LogManager.instance().debug(this, "VPM open fileId:%s: fileName = %s", fileId, getFullName());
   }
 
-  private void createVPM(final OAtomicOperation atomicOperation) throws IOException {
+  private void createVPM(final AtomicOperation atomicOperation) throws IOException {
     fileId = addFile(atomicOperation, getFullName());
     final int sizeOfIntInBytes = Integer.SIZE / 8;
     numberOfPages =
@@ -182,21 +182,21 @@ public final class VersionPositionMapV0 extends VersionPositionMap {
         addInitializedPage(atomicOperation);
       }
     } else {
-      try (final OCacheEntry cacheEntry = loadPageForWrite(atomicOperation, fileId, 0, false)) {
+      try (final CacheEntry cacheEntry = loadPageForWrite(atomicOperation, fileId, 0, false)) {
         final MapEntryPoint mapEntryPoint = new MapEntryPoint(cacheEntry);
         mapEntryPoint.setFileSize(0);
       }
     }
   }
 
-  private void addInitializedPage(final OAtomicOperation atomicOperation) throws IOException {
-    try (final OCacheEntry cacheEntry = addPage(atomicOperation, fileId)) {
+  private void addInitializedPage(final AtomicOperation atomicOperation) throws IOException {
+    try (final CacheEntry cacheEntry = addPage(atomicOperation, fileId)) {
       final MapEntryPoint mapEntryPoint = new MapEntryPoint(cacheEntry);
       mapEntryPoint.setFileSize(0);
     }
   }
 
-  private void deleteVPM(final OAtomicOperation atomicOperation) throws IOException {
+  private void deleteVPM(final AtomicOperation atomicOperation) throws IOException {
     deleteFile(atomicOperation, fileId);
   }
 

@@ -19,28 +19,28 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.types.OModifiableBoolean;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.common.types.ModifiableBoolean;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestInternal;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLAsynchQuery;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -51,17 +51,17 @@ import java.util.Set;
  * SQL DELETE VERTEX command.
  */
 public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest, OCommandResultListener {
+    implements CommandDistributedReplicateRequest, CommandResultListener {
 
   public static final String NAME = "DELETE VERTEX";
   private static final String KEYWORD_BATCH = "BATCH";
-  private YTRecordId rid;
+  private RecordId rid;
   private int removed = 0;
-  private YTDatabaseSessionInternal database;
+  private DatabaseSessionInternal database;
   private CommandRequest query;
   private String returning = "COUNT";
   private List<Record> allDeletedRecords;
-  private final OModifiableBoolean shutdownFlag = new OModifiableBoolean();
+  private final ModifiableBoolean shutdownFlag = new ModifiableBoolean();
   private boolean txAlreadyBegun;
   private int batch = 100;
 
@@ -81,7 +81,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
       parserRequiredKeyword("DELETE");
       parserRequiredKeyword("VERTEX");
 
-      YTClass clazz = null;
+      SchemaClass clazz = null;
       String where = null;
 
       int limit = -1;
@@ -89,14 +89,14 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
       while (word != null) {
 
         if (word.startsWith("#")) {
-          rid = new YTRecordId(word);
+          rid = new RecordId(word);
 
         } else if (word.equalsIgnoreCase("from")) {
           final StringBuilder q = new StringBuilder();
           final int newPos =
-              OStringSerializerHelper.getEmbedded(parserText, parserGetCurrentPosition(), -1, q);
+              StringSerializerHelper.getEmbedded(parserText, parserGetCurrentPosition(), -1, q);
 
-          query = database.command(new OSQLAsynchQuery<EntityImpl>(q.toString(), this));
+          query = database.command(new SQLAsynchQuery<EntityImpl>(q.toString(), this));
 
           parserSetCurrentPosition(newPos);
 
@@ -113,7 +113,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
                   : "";
           query =
               database.command(
-                  new OSQLAsynchQuery<EntityImpl>(
+                  new SQLAsynchQuery<EntityImpl>(
                       "select from `" + clazz.getName() + "`" + where, this));
           break;
 
@@ -122,8 +122,8 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
           try {
             limit = Integer.parseInt(word);
           } catch (Exception e) {
-            throw YTException.wrapException(
-                new YTCommandSQLParsingException("Invalid LIMIT: " + word), e);
+            throw BaseException.wrapException(
+                new CommandSQLParsingException("Invalid LIMIT: " + word), e);
           }
         } else if (word.equals(KEYWORD_RETURN)) {
           returning = parseReturn();
@@ -138,7 +138,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
           // GET/CHECK CLASS NAME
           clazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(word);
           if (clazz == null) {
-            throw new YTCommandSQLParsingException("Class '" + word + "' was not found");
+            throw new CommandSQLParsingException("Class '" + word + "' was not found");
           }
         }
 
@@ -168,7 +168,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
         if (limit > -1) {
           queryString.append(" LIMIT ").append(limit);
         }
-        query = database.command(new OSQLAsynchQuery<EntityImpl>(queryString.toString(), this));
+        query = database.command(new SQLAsynchQuery<EntityImpl>(queryString.toString(), this));
       }
     } finally {
       textRequest.setText(originalQuery);
@@ -180,9 +180,9 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
   /**
    * Execute the command and return the EntityImpl object created.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (rid == null && query == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -192,7 +192,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
 
     txAlreadyBegun = getDatabase().getTransaction().isActive();
 
-    YTDatabaseSessionInternal db = getDatabase();
+    DatabaseSessionInternal db = getDatabase();
     if (rid != null) {
       // REMOVE PUNCTUAL RID
       db.begin();
@@ -213,7 +213,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
       db.commit();
 
     } else {
-      throw new YTCommandExecutionException("Invalid target");
+      throw new CommandExecutionException("Invalid target");
     }
 
     if (returning.equalsIgnoreCase("COUNT"))
@@ -230,11 +230,11 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
   /**
    * Delete the current vertex.
    */
-  public boolean result(YTDatabaseSessionInternal querySession, final Object iRecord) {
-    final YTIdentifiable id = (YTIdentifiable) iRecord;
+  public boolean result(DatabaseSessionInternal querySession, final Object iRecord) {
+    final Identifiable id = (Identifiable) iRecord;
     if (id.getIdentity().isValid()) {
       final EntityImpl record = id.getRecord();
-      YTDatabaseSessionInternal db = getDatabase();
+      DatabaseSessionInternal db = getDatabase();
 
       final Vertex v = toVertex(record);
       if (v != null) {
@@ -269,7 +269,7 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
 
   @Override
   public void end() {
-    YTDatabaseSessionInternal db = getDatabase();
+    DatabaseSessionInternal db = getDatabase();
     if (!txAlreadyBegun) {
       db.commit();
     }
@@ -277,13 +277,13 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
 
   @Override
   public int getSecurityOperationType() {
-    return ORole.PERMISSION_DELETE;
+    return Role.PERMISSION_DELETE;
   }
 
   /**
    * Parses the returning keyword if found.
    */
-  protected String parseReturn() throws YTCommandSQLParsingException {
+  protected String parseReturn() throws CommandSQLParsingException {
     final String returning = parserNextWord(true);
 
     if (!returning.equalsIgnoreCase("COUNT") && !returning.equalsIgnoreCase("BEFORE")) {
@@ -355,13 +355,13 @@ public class CommandExecutorSQLDeleteVertex extends CommandExecutorSQLAbstract
     return (RET) this;
   }
 
-  private static Vertex toVertex(YTIdentifiable item) {
+  private static Vertex toVertex(Identifiable item) {
     if (item instanceof Entity) {
       return ((Entity) item).asVertex().orElse(null);
     } else {
       try {
         item = getDatabase().load(item.getIdentity());
-      } catch (YTRecordNotFoundException rnf) {
+      } catch (RecordNotFoundException rnf) {
         return null;
       }
 

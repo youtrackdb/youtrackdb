@@ -20,15 +20,15 @@
 package com.orientechnologies.orient.client.remote.message;
 
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
+import com.jetbrains.youtrack.db.internal.core.storage.RawBuffer;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
-import com.jetbrains.youtrack.db.internal.core.storage.ORawBuffer;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 import java.util.Set;
 
@@ -38,7 +38,7 @@ public final class OReadRecordResponse implements OBinaryResponse {
   private int version;
   private byte[] record;
   private Set<RecordAbstract> recordsToSend;
-  private ORawBuffer result;
+  private RawBuffer result;
 
   public OReadRecordResponse() {
   }
@@ -51,12 +51,12 @@ public final class OReadRecordResponse implements OBinaryResponse {
     this.recordsToSend = recordsToSend;
   }
 
-  public void write(YTDatabaseSessionInternal session, OChannelDataOutput network,
-      int protocolVersion, ORecordSerializer serializer)
+  public void write(DatabaseSessionInternal session, ChannelDataOutput network,
+      int protocolVersion, RecordSerializer serializer)
       throws IOException {
     if (record != null) {
       network.writeByte((byte) 1);
-      if (protocolVersion <= OChannelBinaryProtocol.PROTOCOL_VERSION_27) {
+      if (protocolVersion <= ChannelBinaryProtocol.PROTOCOL_VERSION_27) {
         network.writeBytes(record);
         network.writeVersion(version);
         network.writeByte(recordType);
@@ -78,18 +78,18 @@ public final class OReadRecordResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
+  public void read(DatabaseSessionInternal db, ChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
-    ORecordSerializerNetworkV37Client serializer = ORecordSerializerNetworkV37Client.INSTANCE;
+    RecordSerializerNetworkV37Client serializer = RecordSerializerNetworkV37Client.INSTANCE;
     if (network.readByte() == 0) {
       return;
     }
 
-    final ORawBuffer buffer;
+    final RawBuffer buffer;
     final byte type = network.readByte();
     final int recVersion = network.readVersion();
     final byte[] bytes = network.readBytes();
-    buffer = new ORawBuffer(bytes, recVersion, type);
+    buffer = new RawBuffer(bytes, recVersion, type);
 
     // TODO: This should not be here, move it in a callback or similar
     RecordAbstract record;
@@ -115,7 +115,7 @@ public final class OReadRecordResponse implements OBinaryResponse {
     return record;
   }
 
-  public ORawBuffer getResult() {
+  public RawBuffer getResult() {
     return result;
   }
 }

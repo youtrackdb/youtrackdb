@@ -1,11 +1,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import java.util.Optional;
@@ -25,7 +25,7 @@ public class FilterByClassStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
@@ -34,9 +34,9 @@ public class FilterByClassStep extends AbstractExecutionStep {
     return resultSet.filter(this::filterMap);
   }
 
-  private YTResult filterMap(YTResult result, CommandContext ctx) {
+  private Result filterMap(Result result, CommandContext ctx) {
     if (result.isEntity()) {
-      Optional<YTClass> clazz = result.toEntity().getSchemaType();
+      Optional<SchemaClass> clazz = result.toEntity().getSchemaType();
       if (clazz.isPresent() && clazz.get().isSubClassOf(className)) {
         return result;
       }
@@ -60,20 +60,20 @@ public class FilterByClassStep extends AbstractExecutionStep {
   }
 
   @Override
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("identifier", identifier.serialize(db));
 
     return result;
   }
 
   @Override
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     try {
       ExecutionStepInternal.basicDeserialize(fromResult, this);
       identifier = SQLIdentifier.deserialize(fromResult.getProperty("identifier"));
     } catch (Exception e) {
-      throw YTException.wrapException(new YTCommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(""), e);
     }
   }
 

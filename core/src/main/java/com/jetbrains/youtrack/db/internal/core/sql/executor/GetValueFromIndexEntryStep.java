@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.stream.Collectors;
@@ -28,7 +28,7 @@ public class GetValueFromIndexEntryStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
 
     if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
@@ -37,13 +37,13 @@ public class GetValueFromIndexEntryStep extends AbstractExecutionStep {
     return resultSet.filter(this::filterMap);
   }
 
-  private YTResult filterMap(YTResult result, CommandContext ctx) {
+  private Result filterMap(Result result, CommandContext ctx) {
     Object finalVal = result.getProperty("rid");
     if (filterClusterIds != null) {
-      if (!(finalVal instanceof YTIdentifiable)) {
+      if (!(finalVal instanceof Identifiable)) {
         return null;
       }
-      YTRID rid = ((YTIdentifiable) finalVal).getIdentity();
+      RID rid = ((Identifiable) finalVal).getIdentity();
       boolean found = false;
       for (int filterClusterId : filterClusterIds) {
         if (rid.getClusterId() < 0 || filterClusterId == rid.getClusterId()) {
@@ -55,11 +55,11 @@ public class GetValueFromIndexEntryStep extends AbstractExecutionStep {
         return null;
       }
     }
-    if (finalVal instanceof YTIdentifiable) {
-      return new YTResultInternal(ctx.getDatabase(), (YTIdentifiable) finalVal);
+    if (finalVal instanceof Identifiable) {
+      return new ResultInternal(ctx.getDatabase(), (Identifiable) finalVal);
 
-    } else if (finalVal instanceof YTResult) {
-      return (YTResult) finalVal;
+    } else if (finalVal instanceof Result) {
+      return (Result) finalVal;
     }
     return null;
   }

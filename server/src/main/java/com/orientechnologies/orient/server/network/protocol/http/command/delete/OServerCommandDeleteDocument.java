@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.delete;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -37,7 +37,7 @@ public class OServerCommandDeleteDocument extends OServerCommandDocumentAbstract
   @Override
   public boolean execute(final OHttpRequest iRequest, OHttpResponse iResponse) throws Exception {
 
-    try (YTDatabaseSession db = getProfiledDatabaseInstance(iRequest)) {
+    try (DatabaseSession db = getProfiledDatabaseInstance(iRequest)) {
       final String[] urlParts =
           checkSyntax(iRequest.getUrl(), 3, "Syntax error: document/<database>/<record-id>");
 
@@ -46,7 +46,7 @@ public class OServerCommandDeleteDocument extends OServerCommandDocumentAbstract
       // PARSE PARAMETERS
       final int parametersPos = urlParts[2].indexOf('?');
       final String rid = parametersPos > -1 ? urlParts[2].substring(0, parametersPos) : urlParts[2];
-      final YTRecordId recordId = new YTRecordId(rid);
+      final RecordId recordId = new RecordId(rid);
 
       if (!recordId.isValid()) {
         throw new IllegalArgumentException("Invalid Record ID in request: " + urlParts[2]);
@@ -65,15 +65,15 @@ public class OServerCommandDeleteDocument extends OServerCommandDocumentAbstract
               if (iRequest.getIfMatch() != null)
               // USE THE IF-MATCH HTTP HEADER AS VERSION
               {
-                ORecordInternal.setVersion(doc, Integer.parseInt(iRequest.getIfMatch()));
+                RecordInternal.setVersion(doc, Integer.parseInt(iRequest.getIfMatch()));
               } else
               // IGNORE THE VERSION
               {
-                ORecordInternal.setVersion(doc, -1);
+                RecordInternal.setVersion(doc, -1);
               }
             }
 
-            final YTClass cls = ODocumentInternal.getImmutableSchemaClass(doc);
+            final SchemaClass cls = DocumentInternal.getImmutableSchemaClass(doc);
             if (cls != null) {
               if (cls.isSubClassOf("V"))
               // DELETE IT AS VERTEX

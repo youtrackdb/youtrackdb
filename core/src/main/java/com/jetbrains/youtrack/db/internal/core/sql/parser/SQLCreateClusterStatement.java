@@ -3,13 +3,13 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
 
-public class SQLCreateClusterStatement extends ODDLStatement {
+public class SQLCreateClusterStatement extends DDLStatement {
 
   /**
    * Class name
@@ -38,7 +38,7 @@ public class SQLCreateClusterStatement extends ODDLStatement {
       if (ifNotExists) {
         return ExecutionStream.empty();
       } else {
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "Cluster " + name.getStringValue() + " already exists");
       }
     }
@@ -48,12 +48,12 @@ public class SQLCreateClusterStatement extends ODDLStatement {
         if (ifNotExists) {
           return ExecutionStream.empty();
         } else {
-          throw new YTCommandExecutionException("Cluster " + id.getValue() + " already exists");
+          throw new CommandExecutionException("Cluster " + id.getValue() + " already exists");
         }
       }
     }
 
-    YTResultInternal result = new YTResultInternal(db);
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("operation", "create cluster");
     result.setProperty("clusterName", name.getStringValue());
 
@@ -64,7 +64,7 @@ public class SQLCreateClusterStatement extends ODDLStatement {
         finalId = db.addBlobCluster(name.getStringValue());
         result.setProperty("finalId", finalId);
       } else {
-        throw new YTCommandExecutionException("Request id not supported by blob cluster creation.");
+        throw new CommandExecutionException("Request id not supported by blob cluster creation.");
       }
     } else {
       if (requestedId == -1) {

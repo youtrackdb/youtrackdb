@@ -2,9 +2,9 @@ package com.orientechnologies.orient.test.database.auto;
 
 import static org.testng.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -20,13 +20,13 @@ public class IndexClusterTest extends DocumentDBBaseTest {
   @Test
   public void indexAfterRebuildShouldIncludeAllClusters() {
     // given
-    YTSchema schema = database.getMetadata().getSchema();
+    Schema schema = database.getMetadata().getSchema();
     String className = "IndexClusterTest";
 
-    YTClass oclass = schema.createClass(className);
-    oclass.createProperty(database, "key", YTType.STRING);
-    oclass.createProperty(database, "value", YTType.INTEGER);
-    oclass.createIndex(database, className + "index1", YTClass.INDEX_TYPE.NOTUNIQUE, "key");
+    SchemaClass oclass = schema.createClass(className);
+    oclass.createProperty(database, "key", PropertyType.STRING);
+    oclass.createProperty(database, "value", PropertyType.INTEGER);
+    oclass.createIndex(database, className + "index1", SchemaClass.INDEX_TYPE.NOTUNIQUE, "key");
 
     database.begin();
     database.<EntityImpl>newInstance(className).field("key", "a").field("value", 1).save();

@@ -1,33 +1,34 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.record.ODirection;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.record.Direction;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.storage.YTRecordDuplicatedException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.storage.RecordDuplicatedException;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  *
  */
-public class UniqueIndexTest extends DBTestBase {
+public class UniqueIndexTest extends DbTestBase {
 
   @Test
   public void compositeIndexWithEdgesTestOne() {
     var linkClass = db.createLightweightEdgeClass("Link");
 
     var entityClass = db.createVertexClass("Entity");
-    var edgeOutPropertyName = Vertex.getEdgeLinkFieldName(ODirection.OUT, "Link");
-    entityClass.createProperty(db, edgeOutPropertyName, YTType.LINKBAG);
+    var edgeOutPropertyName = Vertex.getEdgeLinkFieldName(Direction.OUT, "Link");
+    entityClass.createProperty(db, edgeOutPropertyName, PropertyType.LINKBAG);
 
-    entityClass.createProperty(db, "type", YTType.STRING);
-    entityClass.createIndex(db, "typeLink", YTClass.INDEX_TYPE.UNIQUE, "type", edgeOutPropertyName);
+    entityClass.createProperty(db, "type", PropertyType.STRING);
+    entityClass.createIndex(db, "typeLink", SchemaClass.INDEX_TYPE.UNIQUE, "type",
+        edgeOutPropertyName);
 
     db.begin();
     var firstEntity = db.newVertex(entityClass);
@@ -54,7 +55,7 @@ public class UniqueIndexTest extends DBTestBase {
     try {
       db.commit();
       Assert.fail();
-    } catch (YTRecordDuplicatedException e) {
+    } catch (RecordDuplicatedException e) {
       db.rollback();
     }
   }
@@ -64,11 +65,12 @@ public class UniqueIndexTest extends DBTestBase {
     var linkClass = db.createLightweightEdgeClass("Link");
 
     var entityClass = db.createVertexClass("Entity");
-    var edgeOutPropertyName = Vertex.getEdgeLinkFieldName(ODirection.OUT, "Link");
-    entityClass.createProperty(db, edgeOutPropertyName, YTType.LINKBAG);
+    var edgeOutPropertyName = Vertex.getEdgeLinkFieldName(Direction.OUT, "Link");
+    entityClass.createProperty(db, edgeOutPropertyName, PropertyType.LINKBAG);
 
-    entityClass.createProperty(db, "type", YTType.STRING);
-    entityClass.createIndex(db, "typeLink", YTClass.INDEX_TYPE.UNIQUE, "type", edgeOutPropertyName);
+    entityClass.createProperty(db, "type", PropertyType.STRING);
+    entityClass.createIndex(db, "typeLink", SchemaClass.INDEX_TYPE.UNIQUE, "type",
+        edgeOutPropertyName);
 
     db.begin();
     var firstEntity = db.newVertex(entityClass);
@@ -93,11 +95,12 @@ public class UniqueIndexTest extends DBTestBase {
     var linkClass = db.createLightweightEdgeClass("Link");
 
     var entityClass = db.createVertexClass("Entity");
-    var edgeOutPropertyName = Vertex.getEdgeLinkFieldName(ODirection.OUT, "Link");
-    entityClass.createProperty(db, edgeOutPropertyName, YTType.LINKBAG);
+    var edgeOutPropertyName = Vertex.getEdgeLinkFieldName(Direction.OUT, "Link");
+    entityClass.createProperty(db, edgeOutPropertyName, PropertyType.LINKBAG);
 
-    entityClass.createProperty(db, "type", YTType.STRING);
-    entityClass.createIndex(db, "typeLink", YTClass.INDEX_TYPE.UNIQUE, "type", edgeOutPropertyName);
+    entityClass.createProperty(db, "type", PropertyType.STRING);
+    entityClass.createIndex(db, "typeLink", SchemaClass.INDEX_TYPE.UNIQUE, "type",
+        edgeOutPropertyName);
 
     db.begin();
     var firstEntity = db.newVertex(entityClass);
@@ -118,10 +121,10 @@ public class UniqueIndexTest extends DBTestBase {
 
   @Test()
   public void testUniqueOnUpdate() {
-    final YTSchema schema = db.getMetadata().getSchema();
-    YTClass userClass = schema.createClass("User");
-    userClass.createProperty(db, "MailAddress", YTType.STRING)
-        .createIndex(db, YTClass.INDEX_TYPE.UNIQUE);
+    final Schema schema = db.getMetadata().getSchema();
+    SchemaClass userClass = schema.createClass("User");
+    userClass.createProperty(db, "MailAddress", PropertyType.STRING)
+        .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
 
     db.begin();
     EntityImpl john = new EntityImpl("User");
@@ -144,7 +147,7 @@ public class UniqueIndexTest extends DBTestBase {
       db.save(toUp);
       db.commit();
       Assert.fail("Expected record duplicate exception");
-    } catch (YTRecordDuplicatedException ex) {
+    } catch (RecordDuplicatedException ex) {
       // ignore
     }
     EntityImpl fromDb = db.load(id.getIdentity());
@@ -153,10 +156,10 @@ public class UniqueIndexTest extends DBTestBase {
 
   @Test
   public void testUniqueOnUpdateNegativeVersion() {
-    final YTSchema schema = db.getMetadata().getSchema();
-    YTClass userClass = schema.createClass("User");
-    userClass.createProperty(db, "MailAddress", YTType.STRING)
-        .createIndex(db, YTClass.INDEX_TYPE.UNIQUE);
+    final Schema schema = db.getMetadata().getSchema();
+    SchemaClass userClass = schema.createClass("User");
+    userClass.createProperty(db, "MailAddress", PropertyType.STRING)
+        .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
 
     db.begin();
     EntityImpl jane = new EntityImpl("User");
@@ -164,7 +167,7 @@ public class UniqueIndexTest extends DBTestBase {
     jane.save();
     db.commit();
 
-    final YTRID rid = jane.getIdentity();
+    final RID rid = jane.getIdentity();
 
     reOpen("admin", "adminpwd");
 
@@ -188,11 +191,11 @@ public class UniqueIndexTest extends DBTestBase {
       db.commit();
 
       Assert.fail("Expected record duplicate exception");
-    } catch (YTRecordDuplicatedException ex) {
+    } catch (RecordDuplicatedException ex) {
       // ignore
     }
 
-    final YTResultSet result = db.query("select from User where MailAddress = 'john@doe.com'");
+    final ResultSet result = db.query("select from User where MailAddress = 'john@doe.com'");
     Assert.assertEquals(result.stream().count(), 1);
   }
 }

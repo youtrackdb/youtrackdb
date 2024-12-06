@@ -18,11 +18,11 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.orientechnologies.lucene.index.OLuceneIndexNotUnique;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.orientechnologies.lucene.index.LuceneIndexNotUnique;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,11 +34,11 @@ public class LuceneGetSearcherTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass v = schema.getClass("V");
-    YTClass song = schema.createClass("Person");
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass v = schema.getClass("V");
+    SchemaClass song = schema.createClass("Person");
     song.setSuperClass(db, v);
-    song.createProperty(db, "isDeleted", YTType.BOOLEAN);
+    song.createProperty(db, "isDeleted", PropertyType.BOOLEAN);
 
     db.command("create index Person.isDeleted on Person (isDeleted) FULLTEXT ENGINE LUCENE")
         .close();
@@ -47,11 +47,11 @@ public class LuceneGetSearcherTest extends BaseLuceneTest {
   @Test
   public void testSearcherInstance() {
 
-    OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.isDeleted");
+    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.isDeleted");
 
-    Assert.assertTrue(index.getInternal() instanceof OLuceneIndexNotUnique);
+    Assert.assertTrue(index.getInternal() instanceof LuceneIndexNotUnique);
 
-    OLuceneIndexNotUnique idx = (OLuceneIndexNotUnique) index.getInternal();
+    LuceneIndexNotUnique idx = (LuceneIndexNotUnique) index.getInternal();
 
     Assert.assertNotNull(idx.searcher());
   }

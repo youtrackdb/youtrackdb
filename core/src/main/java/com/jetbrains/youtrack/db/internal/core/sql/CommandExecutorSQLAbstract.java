@@ -19,21 +19,21 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext.TIMEOUT_STRATEGY;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutorAbstract;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestAbstract;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.OMetadataInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClassImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatementCache;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.StatementCache;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
@@ -83,9 +83,9 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
    *
    * @return
    */
-  public OCommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
+  public CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
   getDistributedExecutionMode() {
-    return OCommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE.REPLICATE;
+    return CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE.REPLICATE;
   }
 
   public boolean isIdempotent() {
@@ -93,23 +93,23 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
   }
 
   protected void throwSyntaxErrorException(final String iText) {
-    throw new YTCommandSQLParsingException(
+    throw new CommandSQLParsingException(
         iText + ". Use " + getSyntax(), parserText, parserGetPreviousPosition());
   }
 
   protected void throwParsingException(final String iText) {
-    throw new YTCommandSQLParsingException(iText, parserText, parserGetPreviousPosition());
+    throw new CommandSQLParsingException(iText, parserText, parserGetPreviousPosition());
   }
 
   protected void throwParsingException(final String iText, Exception e) {
-    throw YTException.wrapException(
-        new YTCommandSQLParsingException(iText, parserText, parserGetPreviousPosition()), e);
+    throw BaseException.wrapException(
+        new CommandSQLParsingException(iText, parserText, parserGetPreviousPosition()), e);
   }
 
   /**
    * Parses the timeout keyword if found.
    */
-  protected boolean parseTimeout(final String w) throws YTCommandSQLParsingException {
+  protected boolean parseTimeout(final String w) throws CommandSQLParsingException {
     if (!w.equals(KEYWORD_TIMEOUT)) {
       return false;
     }
@@ -159,7 +159,7 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
     final Set<String> clusters = new HashSet<String>();
 
     for (String clazz : iClassNames) {
-      final YTClass cls = db.getMetadata().getImmutableSchemaSnapshot().getClass(clazz);
+      final SchemaClass cls = db.getMetadata().getImmutableSchemaSnapshot().getClass(clazz);
       if (cls != null) {
         for (int clId : cls.getPolymorphicClusterIds()) {
           // FILTER THE CLUSTER WHERE THE USER HAS THE RIGHT ACCESS
@@ -190,17 +190,17 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
   }
 
   protected Set<String> getInvolvedClustersOfIndex(final String iIndexName) {
-    final YTDatabaseSessionInternal db = getDatabase();
+    final DatabaseSessionInternal db = getDatabase();
 
     final Set<String> clusters = new HashSet<String>();
 
-    final OMetadataInternal metadata = db.getMetadata();
-    final OIndex idx = metadata.getIndexManagerInternal().getIndex(db, iIndexName);
+    final MetadataInternal metadata = db.getMetadata();
+    final Index idx = metadata.getIndexManagerInternal().getIndex(db, iIndexName);
     if (idx != null && idx.getDefinition() != null) {
       final String clazz = idx.getDefinition().getClassName();
 
       if (clazz != null) {
-        final YTClass cls = metadata.getImmutableSchemaSnapshot().getClass(clazz);
+        final SchemaClass cls = metadata.getImmutableSchemaSnapshot().getClass(clazz);
         if (cls != null) {
           for (int clId : cls.getClusterIds()) {
             final String clName = db.getClusterNameById(clId);
@@ -215,12 +215,12 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
     return clusters;
   }
 
-  protected boolean checkClusterAccess(final YTDatabaseSessionInternal db,
+  protected boolean checkClusterAccess(final DatabaseSessionInternal db,
       final String iClusterName) {
     return db.getUser() == null
         || db.getUser()
         .checkIfAllowed(db,
-            ORule.ResourceGeneric.CLUSTER, iClusterName, getSecurityOperationType())
+            Rule.ResourceGeneric.CLUSTER, iClusterName, getSecurityOperationType())
         != null;
   }
 
@@ -237,7 +237,7 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
 
     if (strict) {
       try {
-        final SQLStatement result = OStatementCache.get(queryText, getDatabase());
+        final SQLStatement result = StatementCache.get(queryText, getDatabase());
         preParsedStatement = result;
 
         if (iRequest instanceof CommandRequestAbstract) {
@@ -247,7 +247,7 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
           return builder.toString();
         }
         return result.toString();
-      } catch (YTCommandSQLParsingException sqlx) {
+      } catch (CommandSQLParsingException sqlx) {
         throw sqlx;
       } catch (Exception e) {
         throwParsingException("Error parsing query: \n" + queryText + "\n" + e.getMessage(), e);
@@ -257,6 +257,6 @@ public abstract class CommandExecutorSQLAbstract extends CommandExecutorAbstract
   }
 
   protected String decodeClassName(String s) {
-    return YTClassImpl.decodeClassName(s);
+    return SchemaClassImpl.decodeClassName(s);
   }
 }

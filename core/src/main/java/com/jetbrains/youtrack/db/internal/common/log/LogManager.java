@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.common.log;
 
-import com.jetbrains.youtrack.db.internal.common.parser.OSystemVariableResolver;
+import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.ConsoleHandler;
@@ -35,16 +35,16 @@ import org.slf4j.event.Level;
  * Centralized Log Manager. All the logging must be done using this class to have a centralized
  * configuration and avoid hard-coding. It uses SLF4J as the logging facade. Logging methods are
  * accepting messages formatted as in {@link String#format(String, Object...)} It is strongly
- * recommended to use specialized logging methods from {@link OSL4JLogManager} class instead of
- * generic {@link OSL4JLogManager#log(Object, Level, String, Throwable, Object...)} methods from
- * this of {@link OSL4JLogManager} class.
+ * recommended to use specialized logging methods from {@link SL4JLogManager} class instead of
+ * generic {@link SL4JLogManager#log(Object, Level, String, Throwable, Object...)} methods from
+ * this of {@link SL4JLogManager} class.
  *
  * <p>There are additional methods to manage JUL runtime configuration. That is used for logging
  * messages in server and console.
  *
- * @see OSL4JLogManager
+ * @see SL4JLogManager
  */
-public class LogManager extends OSL4JLogManager {
+public class LogManager extends SL4JLogManager {
 
   private static final String ENV_INSTALL_CUSTOM_FORMATTER = "orientdb.installCustomFormatter";
   private static final LogManager instance = new LogManager();
@@ -80,7 +80,7 @@ public class LogManager extends OSL4JLogManager {
   public void installCustomFormatter() {
     final boolean installCustomFormatter =
         Boolean.parseBoolean(
-            OSystemVariableResolver.resolveSystemVariables(
+            SystemVariableResolver.resolveSystemVariables(
                 "${" + ENV_INSTALL_CUSTOM_FORMATTER + "}", "true"));
 
     if (!installCustomFormatter) {
@@ -97,13 +97,13 @@ public class LogManager extends OSL4JLogManager {
       if (log.getHandlers().length == 0) {
         // SET DEFAULT LOG FORMATTER
         final Handler h = new ConsoleHandler();
-        h.setFormatter(new OAnsiLogFormatter());
+        h.setFormatter(new AnsiLogFormatter());
         log.addHandler(h);
       } else {
         for (Handler h : log.getHandlers()) {
           if (h instanceof ConsoleHandler
-              && !h.getFormatter().getClass().equals(OAnsiLogFormatter.class)) {
-            h.setFormatter(new OAnsiLogFormatter());
+              && !h.getFormatter().getClass().equals(AnsiLogFormatter.class)) {
+            h.setFormatter(new AnsiLogFormatter());
           }
         }
       }

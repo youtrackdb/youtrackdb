@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinary;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinary;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -12,12 +12,12 @@ import java.net.Socket;
 /**
  *
  */
-public class MockChannel extends OChannelBinary {
+public class MockChannel extends SocketChannelBinary {
 
   private final ByteArrayOutputStream byteOut;
 
   public MockChannel() throws IOException {
-    super(new Socket(), new YTContextConfiguration());
+    super(new Socket(), new ContextConfiguration());
 
     this.byteOut = new ByteArrayOutputStream();
     this.out = new DataOutputStream(byteOut);

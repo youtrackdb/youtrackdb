@@ -1,14 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v3;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.OBinarySerializerFactory;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
-import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.OHashFunction;
-import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.OHashTable;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperationsManager;
+import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.HashFunction;
+import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.HashTable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,10 +28,10 @@ public class LocalHashTableV3IterationTestIT {
 
   private static final int KEYS_COUNT = 500000;
 
-  private YTDatabaseSessionInternal db;
+  private DatabaseSessionInternal db;
 
   private LocalHashTableV3<Integer, String> localHashTable;
-  private OAtomicOperationsManager atomicOperationsManager;
+  private AtomicOperationsManager atomicOperationsManager;
 
   @Before
   public void beforeClass() throws Exception {
@@ -40,7 +40,7 @@ public class LocalHashTableV3IterationTestIT {
       buildDirectory = ".";
     }
 
-    db = new YTDatabaseDocumentTx("plocal:" + buildDirectory + "/localHashTableV3IterationTest");
+    db = new DatabaseDocumentTx("plocal:" + buildDirectory + "/localHashTableV3IterationTest");
     if (db.exists()) {
       db.open("admin", "admin");
       db.drop();
@@ -48,7 +48,7 @@ public class LocalHashTableV3IterationTestIT {
 
     db.create();
 
-    OHashFunction<Integer> hashFunction = value -> Long.MAX_VALUE / 2 + value;
+    HashFunction<Integer> hashFunction = value -> Long.MAX_VALUE / 2 + value;
 
     localHashTable =
         new LocalHashTableV3<>(
@@ -66,8 +66,8 @@ public class LocalHashTableV3IterationTestIT {
         atomicOperation ->
             localHashTable.create(
                 atomicOperation,
-                OIntegerSerializer.INSTANCE,
-                OBinarySerializerFactory.getInstance().getObjectSerializer(YTType.STRING),
+                IntegerSerializer.INSTANCE,
+                BinarySerializerFactory.getInstance().getObjectSerializer(PropertyType.STRING),
                 null,
                 null,
                 hashFunction,
@@ -84,12 +84,12 @@ public class LocalHashTableV3IterationTestIT {
   }
 
   private void doClearTable() throws java.io.IOException {
-    final OHashTable.Entry<Integer, String> firstEntry = localHashTable.firstEntry();
+    final HashTable.Entry<Integer, String> firstEntry = localHashTable.firstEntry();
 
     if (firstEntry != null) {
-      OHashTable.Entry<Integer, String>[] entries = localHashTable.ceilingEntries(firstEntry.key);
+      HashTable.Entry<Integer, String>[] entries = localHashTable.ceilingEntries(firstEntry.key);
       while (entries.length > 0) {
-        for (final OHashTable.Entry<Integer, String> entry : entries) {
+        for (final HashTable.Entry<Integer, String> entry : entries) {
           atomicOperationsManager.executeInsideAtomicOperation(
               null, atomicOperation -> localHashTable.remove(atomicOperation, entry.key));
         }
@@ -125,7 +125,7 @@ public class LocalHashTableV3IterationTestIT {
       }
     }
 
-    OHashTable.Entry<Integer, String>[] entries = localHashTable.ceilingEntries(Integer.MIN_VALUE);
+    HashTable.Entry<Integer, String>[] entries = localHashTable.ceilingEntries(Integer.MIN_VALUE);
     int curPos = 0;
     for (int key : keys) {
       int sKey = entries[curPos].key;
@@ -156,7 +156,7 @@ public class LocalHashTableV3IterationTestIT {
 
     Collections.sort(keys);
 
-    OHashTable.Entry<Integer, String>[] entries = localHashTable.ceilingEntries(keys.get(10));
+    HashTable.Entry<Integer, String>[] entries = localHashTable.ceilingEntries(keys.get(10));
     int curPos = 0;
     for (int key : keys) {
       if (key < keys.get(10)) {
@@ -193,7 +193,7 @@ public class LocalHashTableV3IterationTestIT {
     Collections.sort(keys);
 
     for (int key : keys) {
-      OHashTable.Entry<Integer, String>[] entries = localHashTable.ceilingEntries(key);
+      HashTable.Entry<Integer, String>[] entries = localHashTable.ceilingEntries(key);
       Assert.assertEquals(key, (int) entries[0].key);
     }
 

@@ -18,18 +18,18 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.stream.Collectors;
@@ -49,7 +49,7 @@ public class LuceneTransactionEmbeddedQueryTest {
   public void testRollback() {
 
     @SuppressWarnings("deprecation")
-    YTDatabaseSessionInternal db = new YTDatabaseDocumentTx("memory:updateTxTest");
+    DatabaseSessionInternal db = new DatabaseDocumentTx("memory:updateTxTest");
     db.create();
     createSchema(db);
     try {
@@ -59,7 +59,7 @@ public class LuceneTransactionEmbeddedQueryTest {
       db.save(doc);
 
       String query = "select from C1 where p1 lucene \"abc\" ";
-      YTResultSet vertices = db.query(query);
+      ResultSet vertices = db.query(query);
 
       Assert.assertEquals(vertices.stream().count(), 1);
       db.rollback();
@@ -72,16 +72,16 @@ public class LuceneTransactionEmbeddedQueryTest {
     }
   }
 
-  private static void createSchema(YTDatabaseSession db) {
-    final YTClass c1 = db.createVertexClass("C1");
-    c1.createProperty(db, "p1", YTType.EMBEDDEDLIST, YTType.STRING);
+  private static void createSchema(DatabaseSession db) {
+    final SchemaClass c1 = db.createVertexClass("C1");
+    c1.createProperty(db, "p1", PropertyType.EMBEDDEDLIST, PropertyType.STRING);
     c1.createIndex(db, "C1.p1", "FULLTEXT", null, null, "LUCENE", new String[]{"p1"});
   }
 
   @Test
   public void txRemoveTest() {
     @SuppressWarnings("deprecation")
-    YTDatabaseSessionInternal db = new YTDatabaseDocumentTx("memory:updateTxTest");
+    DatabaseSessionInternal db = new DatabaseDocumentTx("memory:updateTxTest");
     //noinspection deprecation
     db.create();
     createSchema(db);
@@ -91,12 +91,12 @@ public class LuceneTransactionEmbeddedQueryTest {
       EntityImpl doc = new EntityImpl("c1");
       doc.field("p1", new String[]{"abc"});
 
-      OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
+      Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
 
       db.save(doc);
 
       String query = "select from C1 where p1 lucene \"abc\" ";
-      YTResultSet vertices = db.query(query);
+      ResultSet vertices = db.query(query);
 
       Assert.assertEquals(1, vertices.stream().count());
 
@@ -106,7 +106,7 @@ public class LuceneTransactionEmbeddedQueryTest {
       query = "select from C1 where p1 lucene \"abc\" ";
       vertices = db.query(query);
 
-      YTResult res = vertices.next();
+      Result res = vertices.next();
       db.begin();
       Assert.assertEquals(1, index.getInternal().size(db));
 
@@ -116,7 +116,7 @@ public class LuceneTransactionEmbeddedQueryTest {
       vertices = db.query(query);
 
       Collection coll;
-      try (Stream<YTRID> stream = index.getInternal().getRids(db, "abc")) {
+      try (Stream<RID> stream = index.getInternal().getRids(db, "abc")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -150,13 +150,13 @@ public class LuceneTransactionEmbeddedQueryTest {
   public void txUpdateTest() {
 
     @SuppressWarnings("deprecation")
-    YTDatabaseSessionInternal db = new YTDatabaseDocumentTx("memory:updateTxTest");
+    DatabaseSessionInternal db = new DatabaseDocumentTx("memory:updateTxTest");
     //noinspection deprecation
     db.create();
     createSchema(db);
     try {
 
-      OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
+      Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
 
       db.begin();
       Assert.assertEquals(0, index.getInternal().size(db));
@@ -167,7 +167,7 @@ public class LuceneTransactionEmbeddedQueryTest {
       db.save(doc);
 
       String query = "select from C1 where p1 lucene \"update\" ";
-      YTResultSet vertices = db.query(query);
+      ResultSet vertices = db.query(query);
 
       Assert.assertEquals(vertices.stream().count(), 1);
 
@@ -180,11 +180,11 @@ public class LuceneTransactionEmbeddedQueryTest {
       vertices = db.query(query);
 
       Collection coll;
-      try (final Stream<YTRID> stream = index.getInternal().getRids(db, "update")) {
+      try (final Stream<RID> stream = index.getInternal().getRids(db, "update")) {
         coll = stream.collect(Collectors.toList());
       }
 
-      YTResult resultRecord = vertices.next();
+      Result resultRecord = vertices.next();
       Assert.assertEquals(2, coll.size());
       Assert.assertEquals(2, index.getInternal().size(db));
 
@@ -198,7 +198,7 @@ public class LuceneTransactionEmbeddedQueryTest {
 
       query = "select from C1 where p1 lucene \"update\" ";
       vertices = db.query(query);
-      try (Stream<YTRID> stream = index.getInternal().getRids(db, "update")) {
+      try (Stream<RID> stream = index.getInternal().getRids(db, "update")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -218,7 +218,7 @@ public class LuceneTransactionEmbeddedQueryTest {
       query = "select from C1 where p1 lucene \"update\"";
       vertices = db.query(query);
 
-      try (Stream<YTRID> stream = index.getInternal().getRids(db, "update")) {
+      try (Stream<RID> stream = index.getInternal().getRids(db, "update")) {
         coll = stream.collect(Collectors.toList());
       }
       Assert.assertEquals(coll.size(), 1);
@@ -243,12 +243,12 @@ public class LuceneTransactionEmbeddedQueryTest {
   public void txUpdateTestComplex() {
 
     @SuppressWarnings("deprecation")
-    YTDatabaseSessionInternal db = new YTDatabaseDocumentTx("memory:updateTxTest");
+    DatabaseSessionInternal db = new DatabaseDocumentTx("memory:updateTxTest");
     //noinspection deprecation
     db.create();
     createSchema(db);
     try {
-      OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
+      Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
 
       Assert.assertEquals(0, index.getInternal().size(db));
 
@@ -272,9 +272,9 @@ public class LuceneTransactionEmbeddedQueryTest {
       db.save(doc);
 
       String query = "select from C1 where p1 lucene \"abc\"";
-      YTResultSet vertices = db.query(query);
+      ResultSet vertices = db.query(query);
       Collection coll;
-      try (Stream<YTRID> stream = index.getInternal().getRids(db, "abc")) {
+      try (Stream<RID> stream = index.getInternal().getRids(db, "abc")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -283,9 +283,9 @@ public class LuceneTransactionEmbeddedQueryTest {
 
       Iterator iterator = coll.iterator();
       int i = 0;
-      YTRecordId rid = null;
+      RecordId rid = null;
       while (iterator.hasNext()) {
-        rid = (YTRecordId) iterator.next();
+        rid = (RecordId) iterator.next();
         i++;
       }
 
@@ -297,7 +297,7 @@ public class LuceneTransactionEmbeddedQueryTest {
 
       query = "select from C1 where p1 lucene \"removed\" ";
       vertices = db.query(query);
-      try (Stream<YTRID> stream = index.getInternal().getRids(db, "removed")) {
+      try (Stream<RID> stream = index.getInternal().getRids(db, "removed")) {
         coll = stream.collect(Collectors.toList());
       }
 

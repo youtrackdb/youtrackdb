@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.distributed;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -703,7 +703,7 @@ public class ODistributedConfiguration {
    * Returns the list of servers in a data center.
    *
    * @param dataCenter Data center name
-   * @throws YTConfigurationException if the list of servers is not found in data center
+   * @throws ConfigurationException if the list of servers is not found in data center
    *                                 configuration
    */
   public List<String> getDataCenterServers(final String dataCenter) {
@@ -712,7 +712,7 @@ public class ODistributedConfiguration {
 
     final List<String> servers = dc.field(SERVERS);
     if (servers == null || servers.isEmpty()) {
-      throw new YTConfigurationException(
+      throw new ConfigurationException(
           "Data center '"
               + dataCenter
               + "' does not contain any server in distributed database configuration");
@@ -809,7 +809,7 @@ public class ODistributedConfiguration {
   private EntityImpl getConfiguredClusters() {
     final EntityImpl clusters = configuration.field(CLUSTERS);
     if (clusters == null) {
-      throw new YTConfigurationException(
+      throw new ConfigurationException(
           "Cannot find '" + CLUSTERS + "' in distributed database configuration");
     }
     return clusters;
@@ -825,7 +825,7 @@ public class ODistributedConfiguration {
    *
    * @param iClusterName Cluster name, or null for *
    * @return Always a EntityImpl
-   * @throws YTConfigurationException in case "clusters" field is not found in configuration
+   * @throws ConfigurationException in case "clusters" field is not found in configuration
    */
   protected EntityImpl getClusterConfiguration(String iClusterName) {
     final EntityImpl clusters = getConfiguredClusters();
@@ -857,14 +857,14 @@ public class ODistributedConfiguration {
    *
    * @param dataCenter Data center name
    * @return Always a EntityImpl
-   * @throws YTConfigurationException if the data center configuration is not found
+   * @throws ConfigurationException if the data center configuration is not found
    */
   private EntityImpl getDataCenterConfiguration(final String dataCenter) {
     final EntityImpl dcs = configuration.field(DCS);
     if (dcs != null) {
       return dcs.field(dataCenter);
     }
-    throw new YTConfigurationException(
+    throw new ConfigurationException(
         "Cannot find the data center '" + dataCenter + "' in distributed database configuration");
   }
 
@@ -910,12 +910,12 @@ public class ODistributedConfiguration {
       } else if (value.toString().equalsIgnoreCase(QUORUM_LOCAL_DC)) {
         final String dc = getDataCenterOfServer(server);
         if (dc == null) {
-          throw new YTConfigurationException(
+          throw new ConfigurationException(
               "Data center not specified for server '" + server + "' in distributed configuration");
         }
         value = getDataCenterWriteQuorum(dc);
       } else {
-        throw new YTConfigurationException(
+        throw new ConfigurationException(
             "The value '"
                 + value
                 + "' is not supported for "

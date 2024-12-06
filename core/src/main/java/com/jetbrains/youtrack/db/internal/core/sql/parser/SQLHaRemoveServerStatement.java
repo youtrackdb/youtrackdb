@@ -3,10 +3,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTInternalResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.Map;
 
 public class SQLHaRemoveServerStatement extends SQLStatement {
@@ -34,28 +34,28 @@ public class SQLHaRemoveServerStatement extends SQLStatement {
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db,
+  public ResultSet execute(
+      DatabaseSessionInternal db,
       Object[] args,
       CommandContext parentContext,
       boolean usePlanCache) {
-    YTDatabaseSessionInternal internalDb = db;
+    DatabaseSessionInternal internalDb = db;
     boolean res = internalDb.removeHaServer(serverName.getStringValue());
-    YTResultInternal r = new YTResultInternal(internalDb);
+    ResultInternal r = new ResultInternal(internalDb);
     r.setProperty("result", res);
-    YTInternalResultSet rs = new YTInternalResultSet();
+    InternalResultSet rs = new InternalResultSet();
     rs.add(r);
     return rs;
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Map args, CommandContext parentContext, boolean usePlanCache) {
-    YTDatabaseSessionInternal internalDb = db;
+  public ResultSet execute(
+      DatabaseSessionInternal db, Map args, CommandContext parentContext, boolean usePlanCache) {
+    DatabaseSessionInternal internalDb = db;
     boolean res = internalDb.removeHaServer(serverName.getStringValue());
-    YTResultInternal r = new YTResultInternal(internalDb);
+    ResultInternal r = new ResultInternal(internalDb);
     r.setProperty("result", res);
-    YTInternalResultSet rs = new YTInternalResultSet();
+    InternalResultSet rs = new InternalResultSet();
     rs.add(r);
     return rs;
   }

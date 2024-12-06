@@ -2,15 +2,15 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.ServerCommandContext;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,7 @@ public class SQLCreateDatabaseStatement extends SQLSimpleExecServerStatement {
   @Override
   public ExecutionStream executeSimple(ServerCommandContext ctx) {
     YouTrackDBInternal server = ctx.getServer();
-    YTResultInternal result = new YTResultInternal(ctx.getDatabase());
+    ResultInternal result = new ResultInternal(ctx.getDatabase());
     result.setProperty("operation", "create database");
     String dbName =
         name != null
@@ -53,12 +53,12 @@ public class SQLCreateDatabaseStatement extends SQLSimpleExecServerStatement {
             : String.valueOf(nameParam.getValue(ctx.getInputParameters()));
     result.setProperty("name", dbName);
 
-    ODatabaseType dbType;
+    DatabaseType dbType;
     try {
 
-      dbType = ODatabaseType.valueOf(type.getStringValue().toUpperCase(Locale.ENGLISH));
+      dbType = DatabaseType.valueOf(type.getStringValue().toUpperCase(Locale.ENGLISH));
     } catch (IllegalArgumentException ex) {
-      throw new YTCommandExecutionException("Invalid db type: " + type.getStringValue());
+      throw new CommandExecutionException("Invalid db type: " + type.getStringValue());
     }
     if (ifNotExists && server.exists(dbName, null, null)) {
       result.setProperty("created", false);
@@ -95,8 +95,8 @@ public class SQLCreateDatabaseStatement extends SQLSimpleExecServerStatement {
             });
         result.setProperty("created", true);
       } catch (Exception e) {
-        throw YTException.wrapException(
-            new YTCommandExecutionException(
+        throw BaseException.wrapException(
+            new CommandExecutionException(
                 "Could not create database " + type.getStringValue() + ":" + e.getMessage()),
             e);
       }
@@ -107,7 +107,7 @@ public class SQLCreateDatabaseStatement extends SQLSimpleExecServerStatement {
 
   private YouTrackDBConfigBuilder mapOrientDBConfig(
       SQLJson config, ServerCommandContext ctx, YouTrackDBConfigBuilder builder) {
-    Map<String, Object> configMap = config.toMap(new YTResultInternal(ctx.getDatabase()), ctx);
+    Map<String, Object> configMap = config.toMap(new ResultInternal(ctx.getDatabase()), ctx);
 
     Object globalConfig = configMap.get("config");
     if (globalConfig != null && globalConfig instanceof Map) {

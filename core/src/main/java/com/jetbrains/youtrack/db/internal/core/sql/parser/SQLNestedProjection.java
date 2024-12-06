@@ -3,13 +3,13 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -39,17 +39,17 @@ public class SQLNestedProjection extends SimpleNode {
    * @param ctx
    */
   public Object apply(SQLExpression expression, Object input, CommandContext ctx) {
-    if (input instanceof YTResult) {
+    if (input instanceof Result) {
       return apply(
           expression,
-          (YTResult) input,
+          (Result) input,
           ctx,
           recursion == null ? 0 : recursion.getValue().intValue());
     }
-    if (input instanceof YTIdentifiable) {
+    if (input instanceof Identifiable) {
       return apply(
           expression,
-          (YTIdentifiable) input,
+          (Identifiable) input,
           ctx,
           recursion == null ? 0 : recursion.getValue().intValue());
     }
@@ -78,8 +78,8 @@ public class SQLNestedProjection extends SimpleNode {
     return input;
   }
 
-  private Object apply(SQLExpression expression, YTResult elem, CommandContext ctx, int recursion) {
-    YTResultInternal result = new YTResultInternal(ctx.getDatabase());
+  private Object apply(SQLExpression expression, Result elem, CommandContext ctx, int recursion) {
+    ResultInternal result = new ResultInternal(ctx.getDatabase());
     if (starItem != null || includeItems.isEmpty()) {
       for (String property : elem.getPropertyNames()) {
         if (isExclude(property)) {
@@ -131,7 +131,7 @@ public class SQLNestedProjection extends SimpleNode {
   }
 
   private Object apply(
-      SQLExpression expression, YTIdentifiable input, CommandContext ctx, int recursion) {
+      SQLExpression expression, Identifiable input, CommandContext ctx, int recursion) {
     Entity elem;
     if (input instanceof Entity) {
       elem = (Entity) input;
@@ -143,7 +143,7 @@ public class SQLNestedProjection extends SimpleNode {
         return input;
       }
     }
-    YTResultInternal result = new YTResultInternal(ctx.getDatabase());
+    ResultInternal result = new ResultInternal(ctx.getDatabase());
     if (starItem != null || includeItems.isEmpty()) {
       for (String property : elem.getPropertyNames()) {
         if (isExclude(property)) {
@@ -174,7 +174,7 @@ public class SQLNestedProjection extends SimpleNode {
 
   private Object apply(
       SQLExpression expression, Map<String, Object> input, CommandContext ctx, int recursion) {
-    YTResultInternal result = new YTResultInternal(ctx.getDatabase());
+    ResultInternal result = new ResultInternal(ctx.getDatabase());
 
     if (starItem != null || includeItems.size() == 0) {
       for (String property : input.keySet()) {
@@ -193,7 +193,7 @@ public class SQLNestedProjection extends SimpleNode {
             item.alias != null
                 ? item.alias.getStringValue()
                 : item.expression.getDefaultAlias().getStringValue();
-        YTResultInternal elem = new YTResultInternal(ctx.getDatabase());
+        ResultInternal elem = new ResultInternal(ctx.getDatabase());
         input.forEach(elem::setProperty);
         Object value = item.expression.execute(elem, ctx);
         if (item.expansion != null) {
@@ -317,8 +317,8 @@ public class SQLNestedProjection extends SimpleNode {
     return value;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal database) {
-    YTResultInternal result = new YTResultInternal(database);
+  public Result serialize(DatabaseSessionInternal database) {
+    ResultInternal result = new ResultInternal(database);
     if (includeItems != null) {
       result.setProperty(
           "includeItems",
@@ -340,11 +340,11 @@ public class SQLNestedProjection extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     if (fromResult.getProperty("includeItems") != null) {
       includeItems = new ArrayList<>();
-      List<YTResult> ser = fromResult.getProperty("includeItems");
-      for (YTResult x : ser) {
+      List<Result> ser = fromResult.getProperty("includeItems");
+      for (Result x : ser) {
         SQLNestedProjectionItem item = new SQLNestedProjectionItem(-1);
         item.deserialize(x);
         includeItems.add(item);
@@ -352,8 +352,8 @@ public class SQLNestedProjection extends SimpleNode {
     }
     if (fromResult.getProperty("excludeItems") != null) {
       excludeItems = new ArrayList<>();
-      List<YTResult> ser = fromResult.getProperty("excludeItems");
-      for (YTResult x : ser) {
+      List<Result> ser = fromResult.getProperty("excludeItems");
+      for (Result x : ser) {
         SQLNestedProjectionItem item = new SQLNestedProjectionItem(-1);
         item.deserialize(x);
         excludeItems.add(item);

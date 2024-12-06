@@ -1,22 +1,22 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.common;
 
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALRecord;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.LogSequenceNumber;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALRecord;
 
-public final class MilestoneWALRecord implements OWALRecord {
+public final class MilestoneWALRecord implements WALRecord {
 
   private int distance = -1;
   private int diskSize = -1;
 
-  private volatile OLogSequenceNumber logSequenceNumber;
+  private volatile LogSequenceNumber logSequenceNumber;
 
   @Override
-  public OLogSequenceNumber getLsn() {
+  public LogSequenceNumber getLsn() {
     return logSequenceNumber;
   }
 
   @Override
-  public void setLsn(OLogSequenceNumber lsn) {
+  public void setLsn(LogSequenceNumber lsn) {
     this.logSequenceNumber = lsn;
   }
 

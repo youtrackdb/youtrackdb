@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.spatial.strategy;
 
-import com.jetbrains.youtrack.db.internal.core.index.YTIndexEngineException;
+import com.jetbrains.youtrack.db.internal.core.index.IndexEngineException;
 import com.orientechnologies.spatial.engine.OLuceneSpatialIndexContainer;
 import com.orientechnologies.spatial.query.OSpatialQueryContext;
 import com.orientechnologies.spatial.shape.OShapeBuilder;
@@ -64,7 +64,7 @@ public class SpatialQueryBuilder extends SpatialQueryBuilderAbstract {
     String operator = (String) query.get(GEO_FILTER);
     SpatialQueryBuilderAbstract spatialQueryBuilder = operators.get(operator);
     if (spatialQueryBuilder == null) {
-      throw new YTIndexEngineException("Operator " + operator + " not supported.", null);
+      throw new IndexEngineException("Operator " + operator + " not supported.", null);
     }
     return spatialQueryBuilder;
   }

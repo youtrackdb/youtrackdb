@@ -15,18 +15,18 @@
  */
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BytesContainer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerBinary;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.OVarIntSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.YTResultBinary;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerBinary;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.VarIntSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ResultBinary;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,8 +48,8 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class RecordSerializerBinaryTest {
 
-  private static YTDatabaseSession db = null;
-  private static ORecordSerializerBinary serializer;
+  private static DatabaseSession db = null;
+  private static RecordSerializerBinary serializer;
   private final int serializerVersion;
   private YouTrackDB odb;
 
@@ -59,7 +59,7 @@ public class RecordSerializerBinaryTest {
     // first we want to run tests for all registreted serializers, and then for two network
     // serializers
     // testig for each serializer type has its own index
-    for (byte i = 0; i < ORecordSerializerBinary.INSTANCE.getNumberOfSupportedVersions(); i++) {
+    for (byte i = 0; i < RecordSerializerBinary.INSTANCE.getNumberOfSupportedVersions(); i++) {
       params.add(new Object[]{i});
     }
     return params;
@@ -77,7 +77,7 @@ public class RecordSerializerBinaryTest {
     db.createClass("TestClass");
     db.command("create property TestClass.TestEmbedded EMBEDDED").close();
     db.command("create property TestClass.TestPropAny ANY").close();
-    serializer = new ORecordSerializerBinary((byte) serializerVersion);
+    serializer = new RecordSerializerBinary((byte) serializerVersion);
   }
 
   @After
@@ -97,10 +97,10 @@ public class RecordSerializerBinaryTest {
     db.commit();
 
     doc = db.bindToSession(doc);
-    byte[] serializedDoc = serializer.toStream((YTDatabaseSessionInternal) db, doc);
-    YTResultBinary docBinary =
-        (YTResultBinary) serializer.getBinaryResult((YTDatabaseSessionInternal) db, serializedDoc,
-            new YTRecordId(-1, -1));
+    byte[] serializedDoc = serializer.toStream((DatabaseSessionInternal) db, doc);
+    ResultBinary docBinary =
+        (ResultBinary) serializer.getBinaryResult((DatabaseSessionInternal) db, serializedDoc,
+            new RecordId(-1, -1));
     Integer value = docBinary.getProperty("TestPropAny");
     Assert.assertEquals(setValue, value);
   }
@@ -110,10 +110,10 @@ public class RecordSerializerBinaryTest {
     EntityImpl doc = new EntityImpl();
     Integer setValue = 16;
     doc.setProperty("TestField", setValue);
-    byte[] serializedDoc = serializer.toStream((YTDatabaseSessionInternal) db, doc);
-    YTResultBinary docBinary =
-        (YTResultBinary) serializer.getBinaryResult((YTDatabaseSessionInternal) db, serializedDoc,
-            new YTRecordId(-1, -1));
+    byte[] serializedDoc = serializer.toStream((DatabaseSessionInternal) db, doc);
+    ResultBinary docBinary =
+        (ResultBinary) serializer.getBinaryResult((DatabaseSessionInternal) db, serializedDoc,
+            new RecordId(-1, -1));
     Integer value = docBinary.getProperty("TestField");
     Assert.assertEquals(setValue, value);
   }
@@ -123,7 +123,7 @@ public class RecordSerializerBinaryTest {
   }
 
   protected static String readString(final BytesContainer bytes) {
-    final int len = OVarIntSerializer.readAsInteger(bytes);
+    final int len = VarIntSerializer.readAsInteger(bytes);
     final String res = stringFromBytes(bytes.bytes, bytes.offset, len);
     bytes.skip(len);
     return res;
@@ -131,8 +131,8 @@ public class RecordSerializerBinaryTest {
 
   protected static int readInteger(final BytesContainer container) {
     final int value =
-        OIntegerSerializer.INSTANCE.deserializeLiteral(container.bytes, container.offset);
-    container.offset += OIntegerSerializer.INT_SIZE;
+        IntegerSerializer.INSTANCE.deserializeLiteral(container.bytes, container.offset);
+    container.offset += IntegerSerializer.INT_SIZE;
     return value;
   }
 
@@ -151,11 +151,11 @@ public class RecordSerializerBinaryTest {
     db.commit();
 
     root = db.bindToSession(root);
-    byte[] rootBytes = serializer.toStream((YTDatabaseSessionInternal) db, root);
-    YTResultBinary docBinary =
-        (YTResultBinary) serializer.getBinaryResult((YTDatabaseSessionInternal) db, rootBytes,
-            new YTRecordId(-1, -1));
-    YTResultBinary embeddedBytesViaGet = docBinary.getProperty("TestEmbedded");
+    byte[] rootBytes = serializer.toStream((DatabaseSessionInternal) db, root);
+    ResultBinary docBinary =
+        (ResultBinary) serializer.getBinaryResult((DatabaseSessionInternal) db, rootBytes,
+            new RecordId(-1, -1));
+    ResultBinary embeddedBytesViaGet = docBinary.getProperty("TestEmbedded");
     Set<String> fieldNames = embeddedBytesViaGet.getPropertyNames();
     Assert.assertTrue(fieldNames.contains("TestField"));
     Assert.assertTrue(fieldNames.contains("TestField2"));
@@ -179,17 +179,17 @@ public class RecordSerializerBinaryTest {
     db.commit();
 
     root = db.bindToSession(root);
-    byte[] rootBytes = serializer.toStream((YTDatabaseSessionInternal) db, root);
+    byte[] rootBytes = serializer.toStream((DatabaseSessionInternal) db, root);
     embedded = root.field("TestEmbedded");
-    byte[] embeddedNativeBytes = serializer.toStream((YTDatabaseSessionInternal) db, embedded);
+    byte[] embeddedNativeBytes = serializer.toStream((DatabaseSessionInternal) db, embedded);
     // want to update data pointers because first byte will be removed
     decreasePositionsBy(embeddedNativeBytes, 1, false);
     // skip serializer version
     embeddedNativeBytes = Arrays.copyOfRange(embeddedNativeBytes, 1, embeddedNativeBytes.length);
-    YTResultBinary resBinary =
-        (YTResultBinary) serializer.getBinaryResult((YTDatabaseSessionInternal) db, rootBytes,
-            new YTRecordId(-1, -1));
-    YTResultBinary embeddedBytesViaGet = resBinary.getProperty("TestEmbedded");
+    ResultBinary resBinary =
+        (ResultBinary) serializer.getBinaryResult((DatabaseSessionInternal) db, rootBytes,
+            new RecordId(-1, -1));
+    ResultBinary embeddedBytesViaGet = resBinary.getProperty("TestEmbedded");
     byte[] deserializedBytes =
         Arrays.copyOfRange(
             embeddedBytesViaGet.getBytes(),
@@ -199,7 +199,7 @@ public class RecordSerializerBinaryTest {
     // if by default serializer doesn't store class name then original
     // value embeddedNativeBytes will not have class name in byes so we want to skip them
     if (!serializer.getCurrentSerializer().isSerializingClassNameByDefault()) {
-      int len = OVarIntSerializer.readAsInteger(container);
+      int len = VarIntSerializer.readAsInteger(container);
       container.skip(len);
     }
     decreasePositionsBy(
@@ -224,12 +224,12 @@ public class RecordSerializerBinaryTest {
     db.commit();
 
     root = db.bindToSession(root);
-    byte[] rootBytes = serializer.toStream((YTDatabaseSessionInternal) db, root);
+    byte[] rootBytes = serializer.toStream((DatabaseSessionInternal) db, root);
 
-    YTResultBinary docBinary =
-        (YTResultBinary) serializer.getBinaryResult((YTDatabaseSessionInternal) db, rootBytes,
-            new YTRecordId(-1, -1));
-    YTResultBinary embeddedBytesViaGet = docBinary.getProperty("TestEmbedded");
+    ResultBinary docBinary =
+        (ResultBinary) serializer.getBinaryResult((DatabaseSessionInternal) db, rootBytes,
+            new RecordId(-1, -1));
+    ResultBinary embeddedBytesViaGet = docBinary.getProperty("TestEmbedded");
 
     Integer testValue = embeddedBytesViaGet.getProperty("TestField");
 
@@ -252,12 +252,12 @@ public class RecordSerializerBinaryTest {
     db.commit();
 
     root = db.bindToSession(root);
-    byte[] rootBytes = serializer.toStream((YTDatabaseSessionInternal) db, root);
-    YTResultBinary docBinary =
-        (YTResultBinary) serializer.getBinaryResult((YTDatabaseSessionInternal) db, rootBytes,
-            new YTRecordId(-1, -1));
-    YTResultBinary embeddedBytesViaGet = docBinary.getProperty("TestEmbedded");
-    YTResultBinary embeddedLKevel2BytesViaGet = embeddedBytesViaGet.getProperty("TestEmbedded");
+    byte[] rootBytes = serializer.toStream((DatabaseSessionInternal) db, root);
+    ResultBinary docBinary =
+        (ResultBinary) serializer.getBinaryResult((DatabaseSessionInternal) db, rootBytes,
+            new RecordId(-1, -1));
+    ResultBinary embeddedBytesViaGet = docBinary.getProperty("TestEmbedded");
+    ResultBinary embeddedLKevel2BytesViaGet = embeddedBytesViaGet.getProperty("TestEmbedded");
     Integer testValue = embeddedLKevel2BytesViaGet.getProperty("InnerTestFields");
     Assert.assertEquals(setValue, testValue);
   }
@@ -270,21 +270,21 @@ public class RecordSerializerBinaryTest {
     Integer setValue2 = 21;
     embeddedListElement.field("InnerTestFields", setValue);
 
-    byte[] rawElementBytes = serializer.toStream((YTDatabaseSessionInternal) db,
+    byte[] rawElementBytes = serializer.toStream((DatabaseSessionInternal) db,
         embeddedListElement);
 
     List embeddedList = new ArrayList();
     embeddedList.add(embeddedListElement);
     embeddedList.add(setValue2);
 
-    root.field("TestEmbeddedList", embeddedList, YTType.EMBEDDEDLIST);
+    root.field("TestEmbeddedList", embeddedList, PropertyType.EMBEDDEDLIST);
 
-    byte[] rootBytes = serializer.toStream((YTDatabaseSessionInternal) db, root);
-    YTResultBinary docBinary =
-        (YTResultBinary) serializer.getBinaryResult((YTDatabaseSessionInternal) db, rootBytes,
-            new YTRecordId(-1, -1));
+    byte[] rootBytes = serializer.toStream((DatabaseSessionInternal) db, root);
+    ResultBinary docBinary =
+        (ResultBinary) serializer.getBinaryResult((DatabaseSessionInternal) db, rootBytes,
+            new RecordId(-1, -1));
     List<Object> embeddedListFieldValue = docBinary.getProperty("TestEmbeddedList");
-    YTResultBinary embeddedListElementBytes = (YTResultBinary) embeddedListFieldValue.get(0);
+    ResultBinary embeddedListElementBytes = (ResultBinary) embeddedListFieldValue.get(0);
     Integer deserializedValue = embeddedListElementBytes.getProperty("InnerTestFields");
     Assert.assertEquals(setValue, deserializedValue);
 
@@ -307,14 +307,14 @@ public class RecordSerializerBinaryTest {
     map.put("embed", "Super Embedded field numbe");
     map.put("nullValue", null);
 
-    root.field("TestEmbeddedMap", map, YTType.EMBEDDEDMAP);
-    byte[] rootBytes = serializer.toStream((YTDatabaseSessionInternal) db, root);
+    root.field("TestEmbeddedMap", map, PropertyType.EMBEDDEDMAP);
+    byte[] rootBytes = serializer.toStream((DatabaseSessionInternal) db, root);
 
-    YTResultBinary docBinary =
-        (YTResultBinary) serializer.getBinaryResult((YTDatabaseSessionInternal) db, rootBytes,
-            new YTRecordId(-1, -1));
+    ResultBinary docBinary =
+        (ResultBinary) serializer.getBinaryResult((DatabaseSessionInternal) db, rootBytes,
+            new RecordId(-1, -1));
     Map deserializedMap = docBinary.getProperty("TestEmbeddedMap");
-    YTResultBinary firstValDeserialized = (YTResultBinary) deserializedMap.get("first");
+    ResultBinary firstValDeserialized = (ResultBinary) deserializedMap.get("first");
     Integer deserializedValue = firstValDeserialized.getProperty("InnerTestFields");
     Assert.assertEquals(setValue, deserializedValue);
 
@@ -340,7 +340,7 @@ public class RecordSerializerBinaryTest {
     }
     int len = 1;
     while (len != 0) {
-      len = OVarIntSerializer.readAsInteger(container);
+      len = VarIntSerializer.readAsInteger(container);
       if (len > 0) {
         // read field name
         container.offset += len;
@@ -350,8 +350,8 @@ public class RecordSerializerBinaryTest {
         // shift pointer by start ofset
         pointer -= stepSize;
         // write to byte container
-        OIntegerSerializer.INSTANCE.serializeLiteral(
-            pointer, container.bytes, container.offset - OIntegerSerializer.INT_SIZE);
+        IntegerSerializer.INSTANCE.serializeLiteral(
+            pointer, container.bytes, container.offset - IntegerSerializer.INT_SIZE);
         // read type
         container.offset++;
       } else if (len < 0) {
@@ -360,8 +360,8 @@ public class RecordSerializerBinaryTest {
         // shift pointer
         pointer -= stepSize;
         // write to byte container
-        OIntegerSerializer.INSTANCE.serializeLiteral(
-            pointer, container.bytes, container.offset - OIntegerSerializer.INT_SIZE);
+        IntegerSerializer.INSTANCE.serializeLiteral(
+            pointer, container.bytes, container.offset - IntegerSerializer.INT_SIZE);
       }
     }
   }

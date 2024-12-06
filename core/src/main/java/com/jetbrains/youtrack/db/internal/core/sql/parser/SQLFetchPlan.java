@@ -2,9 +2,9 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -79,8 +79,8 @@ public class SQLFetchPlan extends SimpleNode {
     return items != null ? items.hashCode() : 0;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     if (items != null) {
       result.setProperty(
           "items", items.stream().map(oFetchPlanItem -> oFetchPlanItem.serialize(db))
@@ -89,12 +89,12 @@ public class SQLFetchPlan extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
 
     if (fromResult.getProperty("items") != null) {
-      List<YTResult> ser = fromResult.getProperty("items");
+      List<Result> ser = fromResult.getProperty("items");
       items = new ArrayList<>();
-      for (YTResult r : ser) {
+      for (Result r : ser) {
         SQLFetchPlanItem exp = new SQLFetchPlanItem(-1);
         exp.deserialize(r);
         items.add(exp);

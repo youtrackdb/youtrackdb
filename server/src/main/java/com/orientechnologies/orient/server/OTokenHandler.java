@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.server;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OToken;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
-import com.jetbrains.youtrack.db.internal.core.security.OParsedToken;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
+import com.jetbrains.youtrack.db.internal.core.security.ParsedToken;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -19,42 +19,42 @@ public interface OTokenHandler {
 
   // Return null if token is unparseable or fails verification.
   // The returned token should be checked to ensure isVerified == true.
-  OToken parseWebToken(byte[] tokenBytes)
+  Token parseWebToken(byte[] tokenBytes)
       throws InvalidKeyException, NoSuchAlgorithmException, IOException;
 
-  OParsedToken parseOnlyWebToken(byte[] tokenBytes);
+  ParsedToken parseOnlyWebToken(byte[] tokenBytes);
 
-  OToken parseNotVerifyBinaryToken(byte[] tokenBytes);
+  Token parseNotVerifyBinaryToken(byte[] tokenBytes);
 
-  OToken parseBinaryToken(byte[] tokenBytes);
+  Token parseBinaryToken(byte[] tokenBytes);
 
-  OParsedToken parseOnlyBinary(byte[] tokenBytes);
+  ParsedToken parseOnlyBinary(byte[] tokenBytes);
 
-  boolean validateToken(OToken token, String command, String database);
+  boolean validateToken(Token token, String command, String database);
 
-  boolean validateToken(OParsedToken token, String command, String database);
+  boolean validateToken(ParsedToken token, String command, String database);
 
-  boolean validateBinaryToken(OToken token);
+  boolean validateBinaryToken(Token token);
 
-  boolean validateBinaryToken(OParsedToken token);
+  boolean validateBinaryToken(ParsedToken token);
 
-  ONetworkProtocolData getProtocolDataFromToken(OClientConnection oClientConnection, OToken token);
+  ONetworkProtocolData getProtocolDataFromToken(OClientConnection oClientConnection, Token token);
 
   // Return a byte array representing a signed token
-  byte[] getSignedWebToken(YTDatabaseSessionInternal db, YTSecurityUser user);
+  byte[] getSignedWebToken(DatabaseSessionInternal db, SecurityUser user);
 
-  default byte[] getSignedWebTokenServerUser(YTSecurityUser user) {
+  default byte[] getSignedWebTokenServerUser(SecurityUser user) {
     throw new UnsupportedOperationException();
   }
 
-  default boolean validateServerUserToken(OToken token, String command, String database) {
+  default boolean validateServerUserToken(Token token, String command, String database) {
     throw new UnsupportedOperationException();
   }
 
   byte[] getSignedBinaryToken(
-      YTDatabaseSessionInternal db, YTSecurityUser user, ONetworkProtocolData data);
+      DatabaseSessionInternal db, SecurityUser user, ONetworkProtocolData data);
 
-  byte[] renewIfNeeded(OToken token);
+  byte[] renewIfNeeded(Token token);
 
   boolean isEnabled();
 }

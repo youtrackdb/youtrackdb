@@ -20,27 +20,27 @@
 
 package com.jetbrains.youtrack.db.internal.core.db.record.ridbag;
 
-import com.jetbrains.youtrack.db.internal.common.util.OSizeable;
-import com.jetbrains.youtrack.db.internal.core.db.record.OTrackedMultiValue;
+import com.jetbrains.youtrack.db.internal.common.util.Sizeable;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMultiValue;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.record.impl.OSimpleMultiValueTracker;
+import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.Change;
 import java.util.Collection;
 import java.util.NavigableMap;
 import java.util.UUID;
 
 public interface RidBagDelegate
-    extends Iterable<YTIdentifiable>,
-    OSizeable,
-    OTrackedMultiValue<YTIdentifiable, YTIdentifiable>,
+    extends Iterable<Identifiable>,
+    Sizeable,
+    TrackedMultiValue<Identifiable, Identifiable>,
     RecordElement {
 
-  void addAll(Collection<YTIdentifiable> values);
+  void addAll(Collection<Identifiable> values);
 
-  void add(YTIdentifiable identifiable);
+  void add(Identifiable identifiable);
 
-  void remove(YTIdentifiable identifiable);
+  void remove(Identifiable identifiable);
 
   boolean isEmpty();
 
@@ -70,7 +70,7 @@ public interface RidBagDelegate
    * @return true if ridbag contains at leas one instance with the same rid as passed in
    * identifiable.
    */
-  boolean contains(YTIdentifiable identifiable);
+  boolean contains(Identifiable identifiable);
 
   void setOwner(RecordElement owner);
 
@@ -78,13 +78,13 @@ public interface RidBagDelegate
 
   String toString();
 
-  NavigableMap<YTIdentifiable, Change> getChanges();
+  NavigableMap<Identifiable, Change> getChanges();
 
   void setSize(int size);
 
-  OSimpleMultiValueTracker<YTIdentifiable, YTIdentifiable> getTracker();
+  SimpleMultiValueTracker<Identifiable, Identifiable> getTracker();
 
-  void setTracker(OSimpleMultiValueTracker<YTIdentifiable, YTIdentifiable> tracker);
+  void setTracker(SimpleMultiValueTracker<Identifiable, Identifiable> tracker);
 
   void setTransactionModified(boolean transactionModified);
 }

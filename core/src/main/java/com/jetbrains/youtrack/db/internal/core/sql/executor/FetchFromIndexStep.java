@@ -1,26 +1,26 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.OExecutionThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandInterruptedException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinitionMultiValue;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.ExecutionThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandInterruptedException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionMultiValue;
+import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStreamProducer;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStreamProducer;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBetweenCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBinaryCompareOperator;
@@ -70,26 +70,26 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     this.desc = desc;
     this.orderAsc = orderAsc;
 
-    YTDatabaseSessionInternal database = ctx.getDatabase();
+    DatabaseSessionInternal database = ctx.getDatabase();
     database.queryStartUsingViewIndex(desc.getIndex().getName());
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     var prev = this.prev;
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
-    List<Stream<ORawPair<Object, YTRID>>> streams = init(desc, orderAsc, ctx);
+    List<Stream<RawPair<Object, RID>>> streams = init(desc, orderAsc, ctx);
 
-    OExecutionStreamProducer res =
-        new OExecutionStreamProducer() {
-          private final Iterator<Stream<ORawPair<Object, YTRID>>> iter = streams.iterator();
+    ExecutionStreamProducer res =
+        new ExecutionStreamProducer() {
+          private final Iterator<Stream<RawPair<Object, RID>>> iter = streams.iterator();
 
           @Override
           public ExecutionStream next(CommandContext ctx) {
-            Stream<ORawPair<Object, YTRID>> s = iter.next();
+            Stream<RawPair<Object, RID>> s = iter.next();
             return ExecutionStream.resultIterator(
                 s.map((nextEntry) -> readResult(ctx, nextEntry)).iterator());
           }
@@ -113,15 +113,15 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     updateIndexStats();
   }
 
-  private YTResult readResult(CommandContext ctx, ORawPair<Object, YTRID> nextEntry) {
-    if (OExecutionThreadLocal.isInterruptCurrentOperation()) {
-      throw new YTCommandInterruptedException("The command has been interrupted");
+  private Result readResult(CommandContext ctx, RawPair<Object, RID> nextEntry) {
+    if (ExecutionThreadLocal.isInterruptCurrentOperation()) {
+      throw new CommandInterruptedException("The command has been interrupted");
     }
     count++;
     Object key = nextEntry.first;
-    YTIdentifiable value = nextEntry.second;
+    Identifiable value = nextEntry.second;
 
-    YTResultInternal result = new YTResultInternal(ctx.getDatabase());
+    ResultInternal result = new ResultInternal(ctx.getDatabase());
     result.setProperty("key", convertKey(key));
     result.setProperty("rid", value);
     ctx.setVariable("$current", result);
@@ -129,16 +129,16 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   private static Object convertKey(Object key) {
-    if (key instanceof OCompositeKey) {
-      return new ArrayList<>(((OCompositeKey) key).getKeys());
+    if (key instanceof CompositeKey) {
+      return new ArrayList<>(((CompositeKey) key).getKeys());
     }
     return key;
   }
 
   private void updateIndexStats() {
     // stats
-    OQueryStats stats = OQueryStats.get(ctx.getDatabase());
-    OIndex index = desc.getIndex();
+    QueryStats stats = QueryStats.get(ctx.getDatabase());
+    Index index = desc.getIndex();
     SQLBooleanExpression condition = desc.getKeyCondition();
     SQLBinaryCondition additionalRangeCondition = desc.getAdditionalRangeCondition();
     if (index == null) {
@@ -169,10 +169,10 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     stats.pushIndexStats(indexName, size, range, additionalRangeCondition != null, count);
   }
 
-  private static List<Stream<ORawPair<Object, YTRID>>> init(
+  private static List<Stream<RawPair<Object, RID>>> init(
       IndexSearchDescriptor desc, boolean isOrderAsc, CommandContext ctx) {
 
-    OIndexInternal index = desc.getIndex().getInternal();
+    IndexInternal index = desc.getIndex().getInternal();
     SQLBooleanExpression condition = desc.getKeyCondition();
     SQLBinaryCondition additionalRangeCondition = desc.getAdditionalRangeCondition();
 
@@ -191,39 +191,39 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       return processInCondition(index, condition, ctx, isOrderAsc);
     } else {
       // TODO process containsAny
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
   }
 
-  private static List<Stream<ORawPair<Object, YTRID>>> processInCondition(
-      OIndexInternal index, SQLBooleanExpression condition, CommandContext ctx, boolean orderAsc) {
-    List<Stream<ORawPair<Object, YTRID>>> streams = new ArrayList<>();
-    Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams =
+  private static List<Stream<RawPair<Object, RID>>> processInCondition(
+      IndexInternal index, SQLBooleanExpression condition, CommandContext ctx, boolean orderAsc) {
+    List<Stream<RawPair<Object, RID>>> streams = new ArrayList<>();
+    Set<Stream<RawPair<Object, RID>>> acquiredStreams =
         Collections.newSetFromMap(new IdentityHashMap<>());
-    OIndexDefinition definition = index.getDefinition();
+    IndexDefinition definition = index.getDefinition();
     SQLInCondition inCondition = (SQLInCondition) condition;
 
     SQLExpression left = inCondition.getLeft();
     if (!left.toString().equalsIgnoreCase("key")) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
-    Object rightValue = inCondition.evaluateRight((YTResult) null, ctx);
+    Object rightValue = inCondition.evaluateRight((Result) null, ctx);
     SQLEqualsCompareOperator equals = new SQLEqualsCompareOperator(-1);
-    if (OMultiValue.isMultiValue(rightValue)) {
-      for (Object item : OMultiValue.getMultiValueIterable(rightValue)) {
-        if (item instanceof YTResult) {
-          if (((YTResult) item).isEntity()) {
-            item = ((YTResult) item).getEntity().orElseThrow(IllegalStateException::new);
-          } else if (((YTResult) item).getPropertyNames().size() == 1) {
+    if (MultiValue.isMultiValue(rightValue)) {
+      for (Object item : MultiValue.getMultiValueIterable(rightValue)) {
+        if (item instanceof Result) {
+          if (((Result) item).isEntity()) {
+            item = ((Result) item).getEntity().orElseThrow(IllegalStateException::new);
+          } else if (((Result) item).getPropertyNames().size() == 1) {
             item =
-                ((YTResult) item).getProperty(
-                    ((YTResult) item).getPropertyNames().iterator().next());
+                ((Result) item).getProperty(
+                    ((Result) item).getPropertyNames().iterator().next());
           }
         }
 
-        Stream<ORawPair<Object, YTRID>> localCursor =
+        Stream<RawPair<Object, RID>> localCursor =
             createCursor(ctx.getDatabase(), index, equals, definition, item, orderAsc, condition);
 
         if (acquiredStreams.add(localCursor)) {
@@ -231,7 +231,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
         }
       }
     } else {
-      Stream<ORawPair<Object, YTRID>> stream =
+      Stream<RawPair<Object, RID>> stream =
           createCursor(
               ctx.getDatabase(), index, equals, definition, rightValue, orderAsc, condition);
       if (acquiredStreams.add(stream)) {
@@ -246,8 +246,8 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
    * it's not key = [...] but a real condition on field names, already ordered (field names will be
    * ignored)
    */
-  private static List<Stream<ORawPair<Object, YTRID>>> processAndBlock(
-      OIndexInternal index,
+  private static List<Stream<RawPair<Object, RID>>> processAndBlock(
+      IndexInternal index,
       SQLBooleanExpression condition,
       SQLBinaryCondition additionalRangeCondition,
       boolean isOrderAsc,
@@ -269,10 +269,10 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
         ctx);
   }
 
-  private static List<Stream<ORawPair<Object, YTRID>>> processFlatIteration(
-      YTDatabaseSessionInternal session, OIndexInternal index, boolean isOrderAsc) {
-    List<Stream<ORawPair<Object, YTRID>>> streams = new ArrayList<>();
-    Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams =
+  private static List<Stream<RawPair<Object, RID>>> processFlatIteration(
+      DatabaseSessionInternal session, IndexInternal index, boolean isOrderAsc) {
+    List<Stream<RawPair<Object, RID>>> streams = new ArrayList<>();
+    Set<Stream<RawPair<Object, RID>>> acquiredStreams =
         Collections.newSetFromMap(new IdentityHashMap<>());
 
     var stream = fetchNullKeys(session, index);
@@ -288,8 +288,8 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     return streams;
   }
 
-  private static Stream<ORawPair<Object, YTRID>> fetchNullKeys(YTDatabaseSessionInternal session,
-      OIndexInternal index) {
+  private static Stream<RawPair<Object, RID>> fetchNullKeys(DatabaseSessionInternal session,
+      IndexInternal index) {
     if (index.getDefinition().isNullValuesIgnored()) {
       return null;
     }
@@ -297,8 +297,8 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     return getStreamForNullKey(session, index);
   }
 
-  private static List<Stream<ORawPair<Object, YTRID>>> multipleRange(
-      OIndexInternal index,
+  private static List<Stream<RawPair<Object, RID>>> multipleRange(
+      IndexInternal index,
       SQLCollection fromKey,
       boolean fromKeyIncluded,
       SQLCollection toKey,
@@ -308,30 +308,30 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       SQLBinaryCondition additionalRangeCondition,
       CommandContext ctx) {
     var db = ctx.getDatabase();
-    List<Stream<ORawPair<Object, YTRID>>> streams = new ArrayList<>();
-    Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams =
+    List<Stream<RawPair<Object, RID>>> streams = new ArrayList<>();
+    Set<Stream<RawPair<Object, RID>>> acquiredStreams =
         Collections.newSetFromMap(new IdentityHashMap<>());
     List<SQLCollection> secondValueCombinations = cartesianProduct(fromKey, ctx);
     List<SQLCollection> thirdValueCombinations = cartesianProduct(toKey, ctx);
 
-    OIndexDefinition indexDef = index.getDefinition();
+    IndexDefinition indexDef = index.getDefinition();
 
     for (int i = 0; i < secondValueCombinations.size(); i++) {
 
-      Object secondValue = secondValueCombinations.get(i).execute((YTResult) null, ctx);
+      Object secondValue = secondValueCombinations.get(i).execute((Result) null, ctx);
       if (secondValue instanceof List
           && ((List<?>) secondValue).size() == 1
           && indexDef.getFields().size() == 1
-          && !(indexDef instanceof OIndexDefinitionMultiValue)) {
+          && !(indexDef instanceof IndexDefinitionMultiValue)) {
         secondValue = ((List<?>) secondValue).get(0);
       }
       secondValue = unboxOResult(secondValue);
       // TODO unwind collections!
-      Object thirdValue = thirdValueCombinations.get(i).execute((YTResult) null, ctx);
+      Object thirdValue = thirdValueCombinations.get(i).execute((Result) null, ctx);
       if (thirdValue instanceof List
           && ((List<?>) thirdValue).size() == 1
           && indexDef.getFields().size() == 1
-          && !(indexDef instanceof OIndexDefinitionMultiValue)) {
+          && !(indexDef instanceof IndexDefinitionMultiValue)) {
         thirdValue = ((List<?>) thirdValue).get(0);
       }
       thirdValue = unboxOResult(thirdValue);
@@ -346,7 +346,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
           ((Collection) secondValue)
               .forEach(
                   item -> {
-                    Stream<ORawPair<Object, YTRID>> stream;
+                    Stream<RawPair<Object, RID>> stream;
                     Object itemVal =
                         convertToIndexDefinitionTypes(db, condition, item, indexDef.getTypes());
                     if (index.supportsOrderedIterations()) {
@@ -397,7 +397,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
         // some problems in key conversion, so the params do not match the key types
         continue;
       }
-      Stream<ORawPair<Object, YTRID>> stream;
+      Stream<RawPair<Object, RID>> stream;
       if (index.supportsOrderedIterations()) {
 
         Object from = toBetweenIndexKey(db, indexDef, secondValue);
@@ -440,19 +440,19 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     return streams;
   }
 
-  private static boolean isFullTextIndex(OIndex index) {
+  private static boolean isFullTextIndex(Index index) {
     return index.getType().equalsIgnoreCase("FULLTEXT")
         && !index.getAlgorithm().equalsIgnoreCase("LUCENE");
   }
 
-  private static Stream<ORawPair<Object, YTRID>> getStreamForNullKey(
-      YTDatabaseSessionInternal session, OIndexInternal index) {
-    final Stream<YTRID> stream = index.getRids(session, null);
-    return stream.map((rid) -> new ORawPair<>(null, rid));
+  private static Stream<RawPair<Object, RID>> getStreamForNullKey(
+      DatabaseSessionInternal session, IndexInternal index) {
+    final Stream<RID> stream = index.getRids(session, null);
+    return stream.map((rid) -> new RawPair<>(null, rid));
   }
 
   /**
-   * this is for subqueries, when a YTResult is found
+   * this is for subqueries, when a Result is found
    *
    * <ul>
    *   <li>if it's a projection with a single column, the value is returned
@@ -465,14 +465,14 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
         return stream.map(FetchFromIndexStep::unboxOResult).collect(Collectors.toList());
       }
     }
-    if (value instanceof YTResult) {
-      if (((YTResult) value).isEntity()) {
-        return ((YTResult) value).getIdentity().orElse(null);
+    if (value instanceof Result) {
+      if (((Result) value).isEntity()) {
+        return ((Result) value).getIdentity().orElse(null);
       }
 
-      var props = ((YTResult) value).getPropertyNames();
+      var props = ((Result) value).getPropertyNames();
       if (props.size() == 1) {
-        return ((YTResult) value).getProperty(props.iterator().next());
+        return ((Result) value).getProperty(props.iterator().next());
       }
     }
     return value;
@@ -490,8 +490,8 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
 
     var db = ctx.getDatabase();
     SQLExpression nextElementInKey = key.getExpressions().get(0);
-    Object value = nextElementInKey.execute(new YTResultInternal(db), ctx);
-    if (value instanceof Iterable && !(value instanceof YTIdentifiable)) {
+    Object value = nextElementInKey.execute(new ResultInternal(db), ctx);
+    if (value instanceof Iterable && !(value instanceof Identifiable)) {
       List<SQLCollection> result = new ArrayList<>();
       for (Object elemInKey : (Collection<?>) value) {
         SQLCollection newHead = new SQLCollection(-1);
@@ -521,16 +521,16 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   private static Object convertToIndexDefinitionTypes(
-      YTDatabaseSessionInternal session, SQLBooleanExpression condition, Object val,
-      YTType[] types) {
+      DatabaseSessionInternal session, SQLBooleanExpression condition, Object val,
+      PropertyType[] types) {
     if (val == null) {
       return null;
     }
-    if (OMultiValue.isMultiValue(val)) {
+    if (MultiValue.isMultiValue(val)) {
       List<Object> result = new ArrayList<>();
       int i = 0;
-      for (Object o : OMultiValue.getMultiValueIterable(val)) {
-        result.add(YTType.convert(session, o, types[i++].getDefaultJavaType()));
+      for (Object o : MultiValue.getMultiValueIterable(val)) {
+        result.add(PropertyType.convert(session, o, types[i++].getDefaultJavaType()));
       }
       if (condition instanceof SQLAndBlock) {
 
@@ -556,7 +556,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       }
       return result;
     }
-    return YTType.convert(session, val, types[0].getDefaultJavaType());
+    return PropertyType.convert(session, val, types[0].getDefaultJavaType());
   }
 
   private static boolean allEqualities(SQLAndBlock condition) {
@@ -577,26 +577,26 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     return true;
   }
 
-  private static List<Stream<ORawPair<Object, YTRID>>> processBetweenCondition(
-      OIndexInternal index, SQLBooleanExpression condition, boolean isOrderAsc,
+  private static List<Stream<RawPair<Object, RID>>> processBetweenCondition(
+      IndexInternal index, SQLBooleanExpression condition, boolean isOrderAsc,
       CommandContext ctx) {
-    List<Stream<ORawPair<Object, YTRID>>> streams = new ArrayList<>();
+    List<Stream<RawPair<Object, RID>>> streams = new ArrayList<>();
 
-    OIndexDefinition definition = index.getDefinition();
+    IndexDefinition definition = index.getDefinition();
     SQLExpression key = ((SQLBetweenCondition) condition).getFirst();
     if (!key.toString().equalsIgnoreCase("key")) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
     SQLExpression second = ((SQLBetweenCondition) condition).getSecond();
     SQLExpression third = ((SQLBetweenCondition) condition).getThird();
 
-    Object secondValue = second.execute((YTResult) null, ctx);
+    Object secondValue = second.execute((Result) null, ctx);
     secondValue = unboxOResult(secondValue);
-    Object thirdValue = third.execute((YTResult) null, ctx);
+    Object thirdValue = third.execute((Result) null, ctx);
     thirdValue = unboxOResult(thirdValue);
     var db = ctx.getDatabase();
-    Stream<ORawPair<Object, YTRID>> stream =
+    Stream<RawPair<Object, RID>> stream =
         index.streamEntriesBetween(db,
             toBetweenIndexKey(db, definition, secondValue),
             true,
@@ -606,25 +606,25 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     return streams;
   }
 
-  private static List<Stream<ORawPair<Object, YTRID>>> processBinaryCondition(
-      YTDatabaseSessionInternal session,
-      OIndexInternal index,
+  private static List<Stream<RawPair<Object, RID>>> processBinaryCondition(
+      DatabaseSessionInternal session,
+      IndexInternal index,
       SQLBooleanExpression condition,
       boolean isOrderAsc,
       CommandContext ctx) {
-    List<Stream<ORawPair<Object, YTRID>>> streams = new ArrayList<>();
-    Set<Stream<ORawPair<Object, YTRID>>> acquiredStreams =
+    List<Stream<RawPair<Object, RID>>> streams = new ArrayList<>();
+    Set<Stream<RawPair<Object, RID>>> acquiredStreams =
         Collections.newSetFromMap(new IdentityHashMap<>());
 
-    OIndexDefinition definition = index.getDefinition();
+    IndexDefinition definition = index.getDefinition();
     SQLBinaryCompareOperator operator = ((SQLBinaryCondition) condition).getOperator();
     SQLExpression left = ((SQLBinaryCondition) condition).getLeft();
     if (!left.toString().equalsIgnoreCase("key")) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
-    Object rightValue = ((SQLBinaryCondition) condition).getRight().execute((YTResult) null, ctx);
-    Stream<ORawPair<Object, YTRID>> stream =
+    Object rightValue = ((SQLBinaryCondition) condition).getRight().execute((Result) null, ctx);
+    Stream<RawPair<Object, RID>> stream =
         createCursor(session, index, operator, definition, rightValue, isOrderAsc, condition);
     if (acquiredStreams.add(stream)) {
       streams.add(stream);
@@ -634,13 +634,13 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   private static Collection<?> toIndexKey(
-      YTDatabaseSessionInternal session, OIndexDefinition definition, Object rightValue) {
+      DatabaseSessionInternal session, IndexDefinition definition, Object rightValue) {
     if (definition.getFields().size() == 1 && rightValue instanceof Collection) {
       rightValue = ((Collection<?>) rightValue).iterator().next();
     }
     if (rightValue instanceof List) {
       rightValue = definition.createValue(session, (List<?>) rightValue);
-    } else if (!(rightValue instanceof OCompositeKey)) {
+    } else if (!(rightValue instanceof CompositeKey)) {
       rightValue = definition.createValue(session, rightValue);
     }
     if (!(rightValue instanceof Collection)) {
@@ -650,7 +650,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   private static Object toBetweenIndexKey(
-      YTDatabaseSessionInternal session, OIndexDefinition definition, Object rightValue) {
+      DatabaseSessionInternal session, IndexDefinition definition, Object rightValue) {
     if (definition.getFields().size() == 1 && rightValue instanceof Collection) {
       if (!((Collection<?>) rightValue).isEmpty()) {
         rightValue = ((Collection<?>) rightValue).iterator().next();
@@ -668,11 +668,11 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     return rightValue;
   }
 
-  private static Stream<ORawPair<Object, YTRID>> createCursor(
-      YTDatabaseSessionInternal session,
-      OIndexInternal index,
+  private static Stream<RawPair<Object, RID>> createCursor(
+      DatabaseSessionInternal session,
+      IndexInternal index,
       SQLBinaryCompareOperator operator,
-      OIndexDefinition definition,
+      IndexDefinition definition,
       Object value,
       boolean orderAsc,
       SQLBooleanExpression condition) {
@@ -689,7 +689,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     } else if (operator instanceof SQLLtOperator) {
       return index.streamEntriesMinor(session, value, false, orderAsc);
     } else {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "search for index for " + condition + " is not supported yet");
     }
   }
@@ -832,8 +832,8 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   @Override
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("indexName", desc.getIndex().getName());
     if (desc.getKeyCondition() != null) {
       result.setProperty("condition", desc.getKeyCondition().serialize(db));
@@ -847,7 +847,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   @Override
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     try {
       ExecutionStepInternal.basicDeserialize(fromResult, this);
       String indexName = fromResult.getProperty("indexName");
@@ -861,12 +861,12 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
         additionalRangeCondition = new SQLBinaryCondition(-1);
         additionalRangeCondition.deserialize(fromResult.getProperty("additionalRangeCondition"));
       }
-      YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
-      OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, indexName);
+      DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
+      Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, indexName);
       desc = new IndexSearchDescriptor(index, condition, additionalRangeCondition, null);
       orderAsc = fromResult.getProperty("orderAsc");
     } catch (Exception e) {
-      throw YTException.wrapException(new YTCommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(""), e);
     }
   }
 

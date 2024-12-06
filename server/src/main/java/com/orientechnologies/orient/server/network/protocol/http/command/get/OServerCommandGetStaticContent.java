@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.util.OCallable;
+import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
@@ -74,8 +74,8 @@ public class OServerCommandGetStaticContent extends OServerCommandConfigurableAb
   private String cacheHttpDefault = "Cache-Control: max-age=3000";
   private String rootPath;
   private String filePath;
-  private final ConcurrentHashMap<String, OCallable<Object, String>> virtualFolders =
-      new ConcurrentHashMap<String, OCallable<Object, String>>();
+  private final ConcurrentHashMap<String, CallableFunction<Object, String>> virtualFolders =
+      new ConcurrentHashMap<String, CallableFunction<Object, String>>();
 
   public static class OStaticContent {
 
@@ -155,7 +155,7 @@ public class OServerCommandGetStaticContent extends OServerCommandConfigurableAb
         ByteArrayOutputStream bytesOutput = new ByteArrayOutputStream();
         GZIPOutputStream stream = new GZIPOutputStream(bytesOutput, 16384);
         try {
-          OIOUtils.copyStream(staticContent.is, stream);
+          IOUtils.copyStream(staticContent.is, stream);
           stream.finish();
           byte[] compressedBytes = bytesOutput.toByteArray();
           iResponse.sendStream(
@@ -200,7 +200,8 @@ public class OServerCommandGetStaticContent extends OServerCommandConfigurableAb
     return false;
   }
 
-  public void registerVirtualFolder(final String iName, final OCallable<Object, String> iCallback) {
+  public void registerVirtualFolder(final String iName,
+      final CallableFunction<Object, String> iCallback) {
     virtualFolders.put(iName, iCallback);
   }
 
@@ -231,7 +232,8 @@ public class OServerCommandGetStaticContent extends OServerCommandConfigurableAb
           endPos > -1
               ? iRequest.getUrl().substring(beginPos, endPos)
               : iRequest.getUrl().substring(beginPos);
-      final OCallable<Object, String> virtualFolderCallback = virtualFolders.get(firstFolderName);
+      final CallableFunction<Object, String> virtualFolderCallback = virtualFolders.get(
+          firstFolderName);
       if (virtualFolderCallback != null) {
         // DELEGATE TO THE CALLBACK
         final Object content =

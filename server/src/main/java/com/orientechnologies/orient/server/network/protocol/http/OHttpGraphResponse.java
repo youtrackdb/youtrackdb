@@ -19,20 +19,20 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.common.util.OCallable;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.record.Direction;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
-import com.jetbrains.youtrack.db.internal.core.record.ODirection;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OJSONWriter;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -72,7 +72,7 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
       final String accept,
       final Map<String, Object> iAdditionalProperties,
       final String mode,
-      YTDatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal databaseDocumentInternal)
       throws IOException {
     if (iRecords == null) {
       return;
@@ -94,35 +94,35 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
       throw new IllegalArgumentException("Graph mode cannot accept '" + accept + "'");
     }
 
-    YTDatabaseSessionInternal graph = ODatabaseRecordThreadLocal.instance().get();
+    DatabaseSessionInternal graph = DatabaseRecordThreadLocal.instance().get();
 
     try {
       // DIVIDE VERTICES FROM EDGES
       final Set<Vertex> vertices = new HashSet<>();
 
-      Set<YTRID> edgeRids = new HashSet<YTRID>();
+      Set<RID> edgeRids = new HashSet<RID>();
       boolean lightweightFound = false;
 
-      final Iterator<?> iIterator = OMultiValue.getMultiValueIterator(iRecords);
+      final Iterator<?> iIterator = MultiValue.getMultiValueIterator(iRecords);
       while (iIterator.hasNext()) {
         Object entry = iIterator.next();
 
-        if (entry != null && entry instanceof YTResult && ((YTResult) entry).isEntity()) {
+        if (entry != null && entry instanceof Result && ((Result) entry).isEntity()) {
 
-          entry = ((YTResult) entry).getEntity().get();
+          entry = ((Result) entry).getEntity().get();
 
-        } else if (entry == null || !(entry instanceof YTIdentifiable)) {
+        } else if (entry == null || !(entry instanceof Identifiable)) {
           // IGNORE IT
           continue;
         }
 
         try {
-          entry = ((YTIdentifiable) entry).getRecord();
+          entry = ((Identifiable) entry).getRecord();
         } catch (Exception e) {
           // IGNORE IT
           continue;
         }
-        entry = ((YTIdentifiable) entry).getRecord();
+        entry = ((Identifiable) entry).getRecord();
 
         if (entry instanceof Entity element) {
           if (element.isVertex()) {
@@ -145,7 +145,7 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
       }
 
       final StringWriter buffer = new StringWriter();
-      final OJSONWriter json = new OJSONWriter(buffer, "");
+      final JSONWriter json = new JSONWriter(buffer, "");
       json.beginObject();
       json.beginObject("graph");
 
@@ -178,14 +178,14 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
 
       if (edgeRids.isEmpty()) {
         for (Vertex vertex : vertices) {
-          for (Edge e : vertex.getEdges(ODirection.OUT)) {
+          for (Edge e : vertex.getEdges(Direction.OUT)) {
             Edge edge = e;
             if (edgeRids.contains(e.getIdentity())
                 && e.getIdentity() != null /* only for non-lighweight */) {
               continue;
             }
-            if (!vertices.contains(edge.getVertex(ODirection.OUT))
-                || !vertices.contains(edge.getVertex(ODirection.IN)))
+            if (!vertices.contains(edge.getVertex(Direction.OUT))
+                || !vertices.contains(edge.getVertex(Direction.IN)))
             // ONE OF THE 2 VERTICES ARE NOT PART OF THE RESULT SET: DISCARD IT
             {
               continue;
@@ -197,7 +197,7 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
           }
         }
       } else {
-        for (YTRID edgeRid : edgeRids) {
+        for (RID edgeRid : edgeRids) {
           try {
             Entity elem = edgeRid.getRecord();
             Edge edge = elem.asEdge().orElse(null);
@@ -205,7 +205,7 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
             if (edge != null) {
               printEdge(json, edge);
             }
-          } catch (YTRecordNotFoundException rnf) {
+          } catch (RecordNotFoundException rnf) {
             // ignore
           }
         }
@@ -217,9 +217,9 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
         for (Map.Entry<String, Object> entry : iAdditionalProperties.entrySet()) {
 
           final Object v = entry.getValue();
-          if (OMultiValue.isMultiValue(v)) {
+          if (MultiValue.isMultiValue(v)) {
             json.beginCollection(-1, true, entry.getKey());
-            formatMultiValue(OMultiValue.getMultiValueIterator(v), buffer, null, graph);
+            formatMultiValue(MultiValue.getMultiValueIterator(v), buffer, null, graph);
             json.endCollection(-1, true);
           } else {
             json.writeAttribute(entry.getKey(), v);
@@ -245,13 +245,13 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
     }
   }
 
-  private void printEdge(OJSONWriter json, Edge edge) throws IOException {
+  private void printEdge(JSONWriter json, Edge edge) throws IOException {
     json.beginObject();
     json.writeAttribute("@rid", edge.getIdentity());
     json.writeAttribute("@class", edge.getSchemaType().map(x -> x.getName()).orElse(null));
 
-    json.writeAttribute("out", edge.getVertex(ODirection.OUT).getIdentity());
-    json.writeAttribute("in", edge.getVertex(ODirection.IN).getIdentity());
+    json.writeAttribute("out", edge.getVertex(Direction.OUT).getIdentity());
+    json.writeAttribute("in", edge.getVertex(Direction.IN).getIdentity());
 
     for (String field : edge.getPropertyNames()) {
       final Object v = edge.getProperty(field);
@@ -360,7 +360,7 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
       final String iReason,
       final String iContentType,
       final String iFileName,
-      final OCallable<Void, OChunkedResponse> iWriter)
+      final CallableFunction<Void, OChunkedResponse> iWriter)
       throws IOException {
     writeStatus(iCode, iReason);
     writeHeaders(iContentType);

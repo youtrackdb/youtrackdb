@@ -1,14 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.versionmap;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.OCreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperationsManager;
 import java.io.File;
 import java.util.Random;
 import org.junit.After;
@@ -23,7 +23,7 @@ public class VersionPositionMapTestIT {
   public static final String DIR_NAME = "/" + VersionPositionMapTestIT.class.getSimpleName();
   public static final String DB_NAME = "versionPositionMapTest";
   private static YouTrackDB youTrackDB;
-  private static OAtomicOperationsManager atomicOperationsManager;
+  private static AtomicOperationsManager atomicOperationsManager;
   private static AbstractPaginatedStorage storage;
   private static String buildDirectory;
 
@@ -40,17 +40,17 @@ public class VersionPositionMapTestIT {
     FileUtils.deleteRecursively(new File(buildDirectory));
 
     youTrackDB =
-        OCreateDatabaseUtil.createDatabase(
-            DB_NAME, DBTestBase.embeddedDBUrl(VersionPositionMapTestIT.class),
-            OCreateDatabaseUtil.TYPE_PLOCAL);
+        CreateDatabaseUtil.createDatabase(
+            DB_NAME, DbTestBase.embeddedDBUrl(VersionPositionMapTestIT.class),
+            CreateDatabaseUtil.TYPE_PLOCAL);
     if (youTrackDB.exists(DB_NAME)) {
       youTrackDB.drop(DB_NAME);
     }
-    OCreateDatabaseUtil.createDatabase(DB_NAME, youTrackDB, OCreateDatabaseUtil.TYPE_PLOCAL);
+    CreateDatabaseUtil.createDatabase(DB_NAME, youTrackDB, CreateDatabaseUtil.TYPE_PLOCAL);
 
-    YTDatabaseSession databaseSession =
-        youTrackDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    storage = (AbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseSession).getStorage();
+    DatabaseSession databaseSession =
+        youTrackDB.open(DB_NAME, "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    storage = (AbstractPaginatedStorage) ((DatabaseSessionInternal) databaseSession).getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
     databaseSession.close();
   }
@@ -67,7 +67,7 @@ public class VersionPositionMapTestIT {
     final String name = "Person.name";
     versionPositionMap =
         new VersionPositionMapV0(storage, name, name + ".cbt", VersionPositionMap.DEF_EXTENSION);
-    final OAtomicOperation atomicOperation = atomicOperationsManager.startAtomicOperation(null);
+    final AtomicOperation atomicOperation = atomicOperationsManager.startAtomicOperation(null);
     versionPositionMap.create(atomicOperation);
     Assert.assertEquals("Number of pages do not match", 1, versionPositionMap.getNumberOfPages());
     versionPositionMap.open();
@@ -75,7 +75,7 @@ public class VersionPositionMapTestIT {
 
   @After
   public void tearDown() throws Exception {
-    final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+    final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
     versionPositionMap.delete(atomicOperation);
     atomicOperationsManager.alarmClearOfAtomicOperation();
   }
@@ -130,7 +130,7 @@ public class VersionPositionMapTestIT {
 
   @Test
   public void testGracefulOldStorageHandling() throws Exception {
-    final OAtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
+    final AtomicOperation atomicOperation = atomicOperationsManager.getCurrentOperation();
     versionPositionMap.delete(atomicOperation);
     versionPositionMap.open();
     versionPositionMap.getVersion(0);

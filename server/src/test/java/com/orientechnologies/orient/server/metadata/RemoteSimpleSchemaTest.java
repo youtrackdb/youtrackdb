@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.server.OServer;
@@ -19,7 +19,7 @@ public class RemoteSimpleSchemaTest {
   private static final String SERVER_DIRECTORY = "./target/metadata-push";
   private OServer server;
   private YouTrackDB youTrackDB;
-  private YTDatabaseSessionInternal database;
+  private DatabaseSessionInternal database;
 
   @Before
   public void before() throws Exception {
@@ -33,7 +33,7 @@ public class RemoteSimpleSchemaTest {
     youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         RemoteSimpleSchemaTest.class.getSimpleName());
-    database = (YTDatabaseSessionInternal) youTrackDB.open(
+    database = (DatabaseSessionInternal) youTrackDB.open(
         RemoteSimpleSchemaTest.class.getSimpleName(), "admin", "admin");
   }
 

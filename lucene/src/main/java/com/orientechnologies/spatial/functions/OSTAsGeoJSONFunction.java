@@ -14,16 +14,16 @@
 package com.orientechnologies.spatial.functions;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionAbstract;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionAbstract;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 
 /**
  *
  */
-public class OSTAsGeoJSONFunction extends OSQLFunctionAbstract {
+public class OSTAsGeoJSONFunction extends SQLFunctionAbstract {
 
   public static final String NAME = "ST_AsGeoJSON";
 
@@ -36,7 +36,7 @@ public class OSTAsGeoJSONFunction extends OSQLFunctionAbstract {
   @Override
   public Object execute(
       Object iThis,
-      YTIdentifiable iCurrentRecord,
+      Identifiable iCurrentRecord,
       Object iCurrentResult,
       Object[] iParams,
       CommandContext iContext) {
@@ -44,7 +44,7 @@ public class OSTAsGeoJSONFunction extends OSQLFunctionAbstract {
   }
 
   @Override
-  public String getSyntax(YTDatabaseSession session) {
+  public String getSyntax(DatabaseSession session) {
     return "asGeoJson(<doc>)";
   }
 }

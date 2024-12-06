@@ -18,17 +18,17 @@ package com.orientechnologies.orient.test.database.auto;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORestrictedOperation;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityShared;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.RestrictedOperation;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
@@ -41,10 +41,10 @@ import org.testng.annotations.Test;
 @Test
 public class RestrictedTest extends DocumentDBBaseTest {
 
-  private YTRID adminRecordId;
-  private YTRID writerRecordId;
+  private RID adminRecordId;
+  private RID writerRecordId;
 
-  private ORole readerRole = null;
+  private Role readerRole = null;
 
   @Parameters(value = "remote")
   public RestrictedTest(@Optional Boolean remote) {
@@ -82,7 +82,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
   public void testFilteredQuery() throws IOException {
     database = createSessionInstance("writer", "writer");
     database.begin();
-    YTResultSet result = database.query("select from CMSDocument");
+    ResultSet result = database.query("select from CMSDocument");
     Assert.assertEquals(result.stream().count(), 0);
     database.commit();
   }
@@ -102,7 +102,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database = createSessionInstance("reader", "reader");
 
     database.begin();
-    YTResultSet result = database.query("select from CMSDocument");
+    ResultSet result = database.query("select from CMSDocument");
     Assert.assertEquals(result.stream().count(), 0);
     database.commit();
   }
@@ -112,7 +112,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database = createSessionInstance();
 
     database.begin();
-    YTResultSet result = database.query("select from CMSDocument where user = 'writer'");
+    ResultSet result = database.query("select from CMSDocument where user = 'writer'");
     Assert.assertEquals(result.stream().count(), 1);
     database.commit();
   }
@@ -122,7 +122,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database = createSessionInstance("writer", "writer");
 
     database.begin();
-    YTResultSet result = database.query("select from CMSDocument");
+    ResultSet result = database.query("select from CMSDocument");
     Assert.assertEquals(result.stream().count(), 1);
     database.commit();
   }
@@ -134,7 +134,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     try {
       database.load(adminRecordId.getIdentity());
       Assert.fail();
-    } catch (YTRecordNotFoundException e) {
+    } catch (RecordNotFoundException e) {
       // ignore
     }
 
@@ -150,7 +150,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
       adminRecord.setProperty("user", "writer-hacker");
       adminRecord.save();
       database.commit();
-    } catch (YTSecurityException | YTRecordNotFoundException e) {
+    } catch (SecurityException | RecordNotFoundException e) {
       // OK AS EXCEPTION
     }
     database.close();
@@ -169,7 +169,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
       database.begin();
       database.delete(adminRecordId);
       database.commit();
-    } catch (YTSecurityException | YTRecordNotFoundException e) {
+    } catch (SecurityException | RecordNotFoundException e) {
       // OK AS EXCEPTION
     }
     database.close();
@@ -188,13 +188,13 @@ public class RestrictedTest extends DocumentDBBaseTest {
       database.begin();
       // FORCE LOADING
       EntityImpl adminRecord = database.load(this.adminRecordId);
-      Set<YTIdentifiable> allows = adminRecord.field(OSecurityShared.ALLOW_ALL_FIELD);
+      Set<Identifiable> allows = adminRecord.field(SecurityShared.ALLOW_ALL_FIELD);
       allows.add(
           database.getMetadata().getSecurity().getUser(database.getUser().getName(database))
               .getIdentity(database));
       adminRecord.save();
       database.commit();
-    } catch (YTSecurityException | YTRecordNotFoundException e) {
+    } catch (SecurityException | RecordNotFoundException e) {
       // OK AS EXCEPTION
     }
     database.close();
@@ -207,7 +207,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database = createSessionInstance("writer", "writer");
     database.begin();
     var writerRecord = database.<EntityImpl>load(this.writerRecordId);
-    Set<YTIdentifiable> allows = writerRecord.field(OSecurityShared.ALLOW_ALL_FIELD);
+    Set<Identifiable> allows = writerRecord.field(SecurityShared.ALLOW_ALL_FIELD);
     allows.add(readerRole.getIdentity(database));
 
     writerRecord.save();
@@ -228,14 +228,14 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database.begin();
     EntityImpl writerRecord = database.load(this.writerRecordId);
     Assert.assertEquals(
-        ((Collection<?>) writerRecord.field(ORestrictedOperation.ALLOW_ALL.getFieldName())).size(),
+        ((Collection<?>) writerRecord.field(RestrictedOperation.ALLOW_ALL.getFieldName())).size(),
         2);
     database
         .getMetadata()
         .getSecurity()
-        .denyRole(writerRecord, ORestrictedOperation.ALLOW_ALL, "reader");
+        .denyRole(writerRecord, RestrictedOperation.ALLOW_ALL, "reader");
     Assert.assertEquals(
-        ((Collection<?>) writerRecord.field(ORestrictedOperation.ALLOW_ALL.getFieldName())).size(),
+        ((Collection<?>) writerRecord.field(RestrictedOperation.ALLOW_ALL.getFieldName())).size(),
         1);
     writerRecord.save();
     database.commit();
@@ -248,7 +248,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     try {
       database.load(writerRecordId.getIdentity());
       Assert.fail();
-    } catch (YTRecordNotFoundException e) {
+    } catch (RecordNotFoundException e) {
       // ignore
     }
     database.commit();
@@ -262,7 +262,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database
         .getMetadata()
         .getSecurity()
-        .allowUser(writerRecord, ORestrictedOperation.ALLOW_READ, "reader");
+        .allowUser(writerRecord, RestrictedOperation.ALLOW_READ, "reader");
     writerRecord.save();
     database.commit();
   }
@@ -286,7 +286,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database
         .getMetadata()
         .getSecurity()
-        .denyUser(writerRecord, ORestrictedOperation.ALLOW_READ, "reader");
+        .denyUser(writerRecord, RestrictedOperation.ALLOW_READ, "reader");
     writerRecord.save();
     database.commit();
   }
@@ -298,7 +298,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     try {
       database.load(writerRecordId.getIdentity());
       Assert.fail();
-    } catch (YTRecordNotFoundException e) {
+    } catch (RecordNotFoundException e) {
       // ignore
     }
     database.commit();
@@ -308,7 +308,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
   public void testReaderRoleInheritsFromWriterRole() throws IOException {
     database = createSessionInstance();
     database.begin();
-    ORole reader = database.getMetadata().getSecurity().getRole("reader");
+    Role reader = database.getMetadata().getSecurity().getRole("reader");
     reader.setParentRole(database, database.getMetadata().getSecurity().getRole("writer"));
 
     reader.save(database);
@@ -323,7 +323,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database
         .getMetadata()
         .getSecurity()
-        .allowRole(writerRecord, ORestrictedOperation.ALLOW_READ, "writer");
+        .allowRole(writerRecord, RestrictedOperation.ALLOW_READ, "writer");
     writerRecord.save();
     database.commit();
   }
@@ -341,7 +341,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
   public void testReaderRoleDesntInheritsFromWriterRole() throws IOException {
     database = createSessionInstance();
     database.begin();
-    ORole reader = database.getMetadata().getSecurity().getRole("reader");
+    Role reader = database.getMetadata().getSecurity().getRole("reader");
     reader.setParentRole(database, null);
     reader.save(database);
     database.commit();
@@ -356,7 +356,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     try {
       database.command("truncate class CMSDocument").close();
       Assert.fail();
-    } catch (YTSecurityException e) {
+    } catch (SecurityException e) {
       Assert.assertTrue(true);
     }
   }
@@ -366,7 +366,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database = createSessionInstance();
     try {
       database.command("truncate cluster CMSDocument").close();
-    } catch (YTSecurityException e) {
+    } catch (SecurityException e) {
 
     }
   }
@@ -390,7 +390,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
 
     database = createSessionInstance("writer", "writer");
     database.begin();
-    YTResultSet result = database.query("select from TestUpdateRestricted");
+    ResultSet result = database.query("select from TestUpdateRestricted");
     Assert.assertEquals(result.stream().count(), 0);
     database.commit();
 
@@ -404,7 +404,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
 
     database.begin();
     result = database.query("select from TestUpdateRestricted");
-    YTResult res = result.next();
+    Result res = result.next();
     Assert.assertFalse(result.hasNext());
 
     final Entity doc = res.getEntity().get();

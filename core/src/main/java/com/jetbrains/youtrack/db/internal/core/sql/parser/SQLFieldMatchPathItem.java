@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collections;
 import java.util.Map;
@@ -46,14 +46,14 @@ public class SQLFieldMatchPathItem extends SQLMatchPathItem {
     }
   }
 
-  protected Iterable<YTIdentifiable> traversePatternEdge(
+  protected Iterable<Identifiable> traversePatternEdge(
       SQLMatchStatement.MatchContext matchContext,
-      YTIdentifiable startingPoint,
+      Identifiable startingPoint,
       CommandContext iCommandContext) {
 
     //    Iterable possibleResults = null;
     //    if (filter != null) {
-    //      YTIdentifiable matchedNode = matchContext.matched.get(filter.getAlias());
+    //      Identifiable matchedNode = matchContext.matched.get(filter.getAlias());
     //      if (matchedNode != null) {
     //        possibleResults = Collections.singleton(matchedNode);
     //      } else if (matchContext.matched.containsKey(filter.getAlias())) {
@@ -72,7 +72,7 @@ public class SQLFieldMatchPathItem extends SQLMatchPathItem {
     Object qR = this.exp.execute(startingPoint, iCommandContext);
     return (qR instanceof Iterable && !(qR instanceof EntityImpl))
         ? (Iterable) qR
-        : Collections.singleton((YTIdentifiable) qR);
+        : Collections.singleton((Identifiable) qR);
   }
 
   @Override

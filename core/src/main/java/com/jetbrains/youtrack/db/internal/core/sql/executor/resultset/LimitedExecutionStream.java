@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.resultset;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 
 public class LimitedExecutionStream implements ExecutionStream {
 
@@ -24,11 +24,11 @@ public class LimitedExecutionStream implements ExecutionStream {
   }
 
   @Override
-  public YTResult next(CommandContext ctx) {
+  public Result next(CommandContext ctx) {
     if (count >= limit) {
       throw new IllegalStateException();
     } else {
-      YTResult read = upstream.next(ctx);
+      Result read = upstream.next(ctx);
       this.count += 1;
       return read;
     }

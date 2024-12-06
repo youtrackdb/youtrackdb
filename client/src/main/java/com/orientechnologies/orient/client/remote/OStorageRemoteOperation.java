@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
+import com.orientechnologies.orient.client.binary.SocketChannelBinaryAsynchClient;
 import java.io.IOException;
 
 /**
@@ -27,6 +27,6 @@ import java.io.IOException;
  */
 public interface OStorageRemoteOperation<T> {
 
-  T execute(final OChannelBinaryAsynchClient network, OStorageRemoteSession session)
+  T execute(final SocketChannelBinaryAsynchClient network, OStorageRemoteSession session)
       throws IOException;
 }

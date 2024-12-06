@@ -1,377 +1,239 @@
+/*
+ *
+ *
+ *  *
+ *  *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  *  you may not use this file except in compliance with the License.
+ *  *  You may obtain a copy of the License at
+ *  *
+ *  *       http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  *  Unless required by applicable law or agreed to in writing, software
+ *  *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  *  See the License for the specific language governing permissions and
+ *  *  limitations under the License.
+ *  *
+ *
+ *
+ */
+
 package com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OByteSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OLongSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OShortSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OUTF8Serializer;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
-import com.jetbrains.youtrack.db.internal.core.index.YTIndexException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.OCompactedLinkSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALChanges;
-import java.math.BigDecimal;
-import java.math.BigInteger;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.NullSerializer;
+import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
-public final class CompositeKeySerializer implements OBinarySerializer<OCompositeKey> {
+/**
+ * Serializer that is used for serialization of {@link CompositeKey} keys in index.
+ *
+ * @since 29.07.11
+ */
+public class CompositeKeySerializer implements BinarySerializer<CompositeKey> {
 
-  public int getObjectSize(OCompositeKey compositeKey, Object... hints) {
-    final YTType[] types = (YTType[]) hints;
+  public static final CompositeKeySerializer INSTANCE = new CompositeKeySerializer();
+  public static final byte ID = 14;
+
+  public int getObjectSize(CompositeKey compositeKey, Object... hints) {
+    final PropertyType[] types = getKeyTypes(hints);
+
     final List<Object> keys = compositeKey.getKeys();
 
-    int size = 0;
+    int size = 2 * IntegerSerializer.INT_SIZE;
+
+    final BinarySerializerFactory factory = BinarySerializerFactory.getInstance();
     for (int i = 0; i < keys.size(); i++) {
-      final YTType type = types[i];
       final Object key = keys.get(i);
 
-      size += OByteSerializer.BYTE_SIZE;
       if (key != null) {
-        size += sizeOfKey(type, key);
+        final PropertyType type;
+        if (types.length > i) {
+          type = types[i];
+        } else {
+          type = PropertyType.getTypeByClass(key.getClass());
+        }
+
+        size +=
+            BinarySerializerFactory.TYPE_IDENTIFIER_SIZE
+                + factory.getObjectSerializer(type).getObjectSize(key);
+      } else {
+        size +=
+            BinarySerializerFactory.TYPE_IDENTIFIER_SIZE
+                + NullSerializer.INSTANCE.getObjectSize(null);
       }
     }
 
-    return size + 2 * OIntegerSerializer.INT_SIZE;
-  }
-
-  private static int sizeOfKey(final YTType type, final Object key) {
-    return switch (type) {
-      case BOOLEAN, BYTE -> 1;
-      case DATE, DATETIME, DOUBLE, LONG -> OLongSerializer.LONG_SIZE;
-      case BINARY -> ((byte[]) key).length + OIntegerSerializer.INT_SIZE;
-      case DECIMAL -> {
-        final BigDecimal bigDecimal = ((BigDecimal) key);
-        yield 2 * OIntegerSerializer.INT_SIZE + bigDecimal.unscaledValue().toByteArray().length;
-      }
-      case FLOAT, INTEGER -> OIntegerSerializer.INT_SIZE;
-      case LINK -> OCompactedLinkSerializer.INSTANCE.getObjectSize((YTRID) key);
-      case SHORT -> OShortSerializer.SHORT_SIZE;
-      case STRING -> OUTF8Serializer.INSTANCE.getObjectSize((String) key);
-      default -> throw new YTIndexException("Unsupported key type " + type);
-    };
+    return size;
   }
 
   public void serialize(
-      OCompositeKey compositeKey, byte[] stream, int startPosition, Object... hints) {
-    final ByteBuffer buffer = ByteBuffer.wrap(stream);
-    buffer.position(startPosition);
+      CompositeKey compositeKey, byte[] stream, int startPosition, Object... hints) {
+    final PropertyType[] types = getKeyTypes(hints);
 
-    serialize(compositeKey, buffer, (YTType[]) hints);
-  }
-
-  private static void serialize(OCompositeKey compositeKey, ByteBuffer buffer, YTType[] types) {
     final List<Object> keys = compositeKey.getKeys();
-    final int startPosition = buffer.position();
-    buffer.position(startPosition + OIntegerSerializer.INT_SIZE);
+    final int keysSize = keys.size();
 
-    buffer.putInt(types.length);
+    final int oldStartPosition = startPosition;
 
-    for (int i = 0; i < types.length; i++) {
-      final YTType type = types[i];
+    startPosition += IntegerSerializer.INT_SIZE;
+
+    IntegerSerializer.INSTANCE.serializeLiteral(keysSize, stream, startPosition);
+
+    startPosition += IntegerSerializer.INT_SIZE;
+
+    final BinarySerializerFactory factory = BinarySerializerFactory.getInstance();
+
+    for (int i = 0; i < keys.size(); i++) {
       final Object key = keys.get(i);
 
-      if (key == null) {
-        buffer.put((byte) (-(type.getId() + 1)));
+      BinarySerializer<Object> binarySerializer;
+      if (key != null) {
+        final PropertyType type;
+        if (types.length > i) {
+          type = types[i];
+        } else {
+          type = PropertyType.getTypeByClass(key.getClass());
+        }
+
+        binarySerializer = factory.getObjectSerializer(type);
       } else {
-        buffer.put((byte) type.getId());
-        serializeKeyToByteBuffer(buffer, type, key);
+        binarySerializer = NullSerializer.INSTANCE;
       }
+
+      stream[startPosition] = binarySerializer.getId();
+      startPosition += BinarySerializerFactory.TYPE_IDENTIFIER_SIZE;
+
+      binarySerializer.serialize(key, stream, startPosition);
+      startPosition += binarySerializer.getObjectSize(key);
     }
 
-    buffer.putInt(startPosition, buffer.position() - startPosition);
+    IntegerSerializer.INSTANCE.serializeLiteral(
+        (startPosition - oldStartPosition), stream, oldStartPosition);
   }
 
-  private static void serializeKeyToByteBuffer(
-      final ByteBuffer buffer, final YTType type, final Object key) {
-    switch (type) {
-      case BINARY:
-        final byte[] array = (byte[]) key;
-        buffer.putInt(array.length);
-        buffer.put(array);
-        return;
-      case BOOLEAN:
-        buffer.put((Boolean) key ? (byte) 1 : 0);
-        return;
-      case BYTE:
-        buffer.put((Byte) key);
-        return;
-      case DATE:
-      case DATETIME:
-        buffer.putLong(((Date) key).getTime());
-        return;
-      case DECIMAL:
-        final BigDecimal decimal = (BigDecimal) key;
-        buffer.putInt(decimal.scale());
-        final byte[] unscaledValue = decimal.unscaledValue().toByteArray();
-        buffer.putInt(unscaledValue.length);
-        buffer.put(unscaledValue);
-        return;
-      case DOUBLE:
-        buffer.putLong(Double.doubleToLongBits((Double) key));
-        return;
-      case FLOAT:
-        buffer.putInt(Float.floatToIntBits((Float) key));
-        return;
-      case INTEGER:
-        buffer.putInt((Integer) key);
-        return;
-      case LINK:
-        OCompactedLinkSerializer.INSTANCE.serializeInByteBufferObject((YTRID) key, buffer);
-        return;
-      case LONG:
-        buffer.putLong((Long) key);
-        return;
-      case SHORT:
-        buffer.putShort((Short) key);
-        return;
-      case STRING:
-        OUTF8Serializer.INSTANCE.serializeInByteBufferObject((String) key, buffer);
-        return;
-      default:
-        throw new YTIndexException("Unsupported index type " + type);
-    }
-  }
+  @SuppressWarnings("unchecked")
+  public CompositeKey deserialize(byte[] stream, int startPosition) {
+    final CompositeKey compositeKey = new CompositeKey();
 
-  public OCompositeKey deserialize(byte[] stream, int startPosition) {
-    final ByteBuffer buffer = ByteBuffer.wrap(stream);
-    buffer.position(startPosition);
+    startPosition += IntegerSerializer.INT_SIZE;
 
-    return deserialize(buffer);
-  }
+    final int keysSize = IntegerSerializer.INSTANCE.deserializeLiteral(stream, startPosition);
+    startPosition += IntegerSerializer.INSTANCE.getObjectSize(keysSize);
 
-  private static OCompositeKey deserialize(ByteBuffer buffer) {
-    buffer.position(buffer.position() + OIntegerSerializer.INT_SIZE);
+    final BinarySerializerFactory factory = BinarySerializerFactory.getInstance();
+    for (int i = 0; i < keysSize; i++) {
+      final byte serializerId = stream[startPosition];
+      startPosition += BinarySerializerFactory.TYPE_IDENTIFIER_SIZE;
 
-    final int keyLen = buffer.getInt();
-    OCompositeKey keys = new OCompositeKey(keyLen);
-    for (int i = 0; i < keyLen; i++) {
-      final byte typeId = buffer.get();
-      if (typeId < 0) {
-        keys.addKey(null);
-      } else {
-        final YTType type = YTType.getById(typeId);
-        assert type != null;
-        keys.addKey(deserializeKeyFromByteBuffer(buffer, type));
-      }
+      BinarySerializer<Object> binarySerializer =
+          (BinarySerializer<Object>) factory.getObjectSerializer(serializerId);
+      final Object key = binarySerializer.deserialize(stream, startPosition);
+      compositeKey.addKey(key);
+
+      startPosition += binarySerializer.getObjectSize(key);
     }
 
-    return keys;
-  }
-
-  private static OCompositeKey deserialize(int offset, ByteBuffer buffer) {
-    offset += Integer.BYTES;
-    final int keyLen = buffer.getInt(offset);
-    offset += OIntegerSerializer.INT_SIZE;
-
-    OCompositeKey keys = new OCompositeKey(keyLen);
-    for (int i = 0; i < keyLen; i++) {
-      final byte typeId = buffer.get(offset);
-      offset++;
-
-      if (typeId < 0) {
-        keys.addKey(null);
-      } else {
-        final YTType type = YTType.getById(typeId);
-        assert type != null;
-        var delta = getKeySizeInByteBuffer(offset, buffer, type);
-        keys.addKey(deserializeKeyFromByteBuffer(offset, buffer, type));
-        offset += delta;
-      }
-    }
-
-    return keys;
-  }
-
-  private static Object deserializeKeyFromByteBuffer(final ByteBuffer buffer, final YTType type) {
-    switch (type) {
-      case BINARY:
-        final int len = buffer.getInt();
-        final byte[] array = new byte[len];
-        buffer.get(array);
-        return array;
-      case BOOLEAN:
-        return buffer.get() > 0;
-      case BYTE:
-        return buffer.get();
-      case DATE:
-      case DATETIME:
-        return new Date(buffer.getLong());
-      case DECIMAL:
-        final int scale = buffer.getInt();
-        final int unscaledValueLen = buffer.getInt();
-        final byte[] unscaledValue = new byte[unscaledValueLen];
-        buffer.get(unscaledValue);
-        return new BigDecimal(new BigInteger(unscaledValue), scale);
-      case DOUBLE:
-        return Double.longBitsToDouble(buffer.getLong());
-      case FLOAT:
-        return Float.intBitsToFloat(buffer.getInt());
-      case INTEGER:
-        return buffer.getInt();
-      case LINK:
-        return OCompactedLinkSerializer.INSTANCE.deserializeFromByteBufferObject(buffer);
-      case LONG:
-        return buffer.getLong();
-      case SHORT:
-        return buffer.getShort();
-      case STRING:
-        return OUTF8Serializer.INSTANCE.deserializeFromByteBufferObject(buffer);
-      default:
-        throw new YTIndexException("Unsupported index type " + type);
-    }
-  }
-
-  private static Object deserializeKeyFromByteBuffer(
-      int offset, final ByteBuffer buffer, final YTType type) {
-    switch (type) {
-      case BINARY:
-        final int len = buffer.getInt(offset);
-        offset += Integer.BYTES;
-
-        final byte[] array = new byte[len];
-        buffer.get(offset, array);
-        return array;
-      case BOOLEAN:
-        return buffer.get(offset) > 0;
-      case BYTE:
-        return buffer.get(offset);
-      case DATE:
-      case DATETIME:
-        return new Date(buffer.getLong(offset));
-      case DECIMAL:
-        final int scale = buffer.getInt(offset);
-        offset += Integer.BYTES;
-
-        final int unscaledValueLen = buffer.getInt(offset);
-        offset += Integer.BYTES;
-
-        final byte[] unscaledValue = new byte[unscaledValueLen];
-        buffer.get(offset, unscaledValue);
-
-        return new BigDecimal(new BigInteger(unscaledValue), scale);
-      case DOUBLE:
-        return Double.longBitsToDouble(buffer.getLong(offset));
-      case FLOAT:
-        return Float.intBitsToFloat(buffer.getInt(offset));
-      case INTEGER:
-        return buffer.getInt(offset);
-      case LINK:
-        return OCompactedLinkSerializer.INSTANCE.deserializeFromByteBufferObject(offset, buffer);
-      case LONG:
-        return buffer.getLong(offset);
-      case SHORT:
-        return buffer.getShort(offset);
-      case STRING:
-        return OUTF8Serializer.INSTANCE.deserializeFromByteBufferObject(offset, buffer);
-      default:
-        throw new YTIndexException("Unsupported index type " + type);
-    }
-  }
-
-  private static int getKeySizeInByteBuffer(int offset, final ByteBuffer buffer,
-      final YTType type) {
-    switch (type) {
-      case BINARY:
-        final int len = buffer.getInt(offset);
-        return Integer.BYTES + len;
-      case BOOLEAN, BYTE:
-        return Byte.BYTES;
-      case DATE:
-      case DATETIME, DOUBLE, LONG:
-        return Long.BYTES;
-      case DECIMAL:
-        offset += Integer.BYTES;
-        final int unscaledValueLen = buffer.getInt(offset);
-        return 2 * Integer.BYTES + unscaledValueLen;
-      case FLOAT, INTEGER:
-        return Integer.BYTES;
-      case LINK:
-        return OCompactedLinkSerializer.INSTANCE.getObjectSizeInByteBuffer(offset, buffer);
-      case SHORT:
-        return Short.BYTES;
-      case STRING:
-        return OUTF8Serializer.INSTANCE.getObjectSizeInByteBuffer(offset, buffer);
-      default:
-        throw new YTIndexException("Unsupported index type " + type);
-    }
-  }
-
-  private static Object deserializeKeyFromByteBuffer(
-      final int offset, final ByteBuffer buffer, final YTType type, final OWALChanges walChanges) {
-    switch (type) {
-      case BINARY:
-        final int len = walChanges.getIntValue(buffer, offset);
-        return walChanges.getBinaryValue(buffer, offset + OIntegerSerializer.INT_SIZE, len);
-      case BOOLEAN:
-        return walChanges.getByteValue(buffer, offset) > 0;
-      case BYTE:
-        return walChanges.getByteValue(buffer, offset);
-      case DATE:
-      case DATETIME:
-        return new Date(walChanges.getLongValue(buffer, offset));
-      case DECIMAL:
-        final int scale = walChanges.getIntValue(buffer, offset);
-        final int unscaledValueLen =
-            walChanges.getIntValue(buffer, offset + OIntegerSerializer.INT_SIZE);
-        final byte[] unscaledValue =
-            walChanges.getBinaryValue(
-                buffer, offset + 2 * OIntegerSerializer.INT_SIZE, unscaledValueLen);
-        return new BigDecimal(new BigInteger(unscaledValue), scale);
-      case DOUBLE:
-        return Double.longBitsToDouble(walChanges.getLongValue(buffer, offset));
-      case FLOAT:
-        return Float.intBitsToFloat(walChanges.getIntValue(buffer, offset));
-      case INTEGER:
-        return walChanges.getIntValue(buffer, offset);
-      case LINK:
-        return OCompactedLinkSerializer.INSTANCE.deserializeFromByteBufferObject(
-            buffer, walChanges, offset);
-      case LONG:
-        return walChanges.getLongValue(buffer, offset);
-      case SHORT:
-        return walChanges.getShortValue(buffer, offset);
-      case STRING:
-        return OUTF8Serializer.INSTANCE.deserializeFromByteBufferObject(buffer, walChanges, offset);
-      default:
-        throw new YTIndexException("Unsupported index type " + type);
-    }
+    return compositeKey;
   }
 
   public int getObjectSize(byte[] stream, int startPosition) {
-    //noinspection RedundantCast
-    return ((ByteBuffer) ByteBuffer.wrap(stream).position(startPosition)).getInt();
+    return IntegerSerializer.INSTANCE.deserializeLiteral(stream, startPosition);
   }
 
   public byte getId() {
-    return -1;
+    return ID;
   }
 
   public int getObjectSizeNative(byte[] stream, int startPosition) {
-    //noinspection RedundantCast
-    return ((ByteBuffer)
-        ByteBuffer.wrap(stream).order(ByteOrder.nativeOrder()).position(startPosition))
-        .getInt();
+    return IntegerSerializer.INSTANCE.deserializeNative(stream, startPosition);
   }
 
   public void serializeNativeObject(
-      OCompositeKey compositeKey, byte[] stream, int startPosition, Object... hints) {
-    @SuppressWarnings("RedundantCast") final ByteBuffer buffer =
-        (ByteBuffer) ByteBuffer.wrap(stream).order(ByteOrder.nativeOrder()).position(startPosition);
-    serialize(compositeKey, buffer, (YTType[]) hints);
+      CompositeKey compositeKey, byte[] stream, int startPosition, Object... hints) {
+    final PropertyType[] types = getKeyTypes(hints);
+
+    final List<Object> keys = compositeKey.getKeys();
+    final int keysSize = keys.size();
+
+    final int oldStartPosition = startPosition;
+
+    startPosition += IntegerSerializer.INT_SIZE;
+
+    IntegerSerializer.INSTANCE.serializeNative(keysSize, stream, startPosition);
+
+    startPosition += IntegerSerializer.INT_SIZE;
+
+    final BinarySerializerFactory factory = BinarySerializerFactory.getInstance();
+
+    for (int i = 0; i < keys.size(); i++) {
+      final Object key = keys.get(i);
+      BinarySerializer<Object> binarySerializer;
+      if (key != null) {
+        final PropertyType type;
+        if (types.length > i) {
+          type = types[i];
+        } else {
+          type = PropertyType.getTypeByClass(key.getClass());
+        }
+
+        binarySerializer = factory.getObjectSerializer(type);
+      } else {
+        binarySerializer = NullSerializer.INSTANCE;
+      }
+
+      stream[startPosition] = binarySerializer.getId();
+      startPosition += BinarySerializerFactory.TYPE_IDENTIFIER_SIZE;
+
+      binarySerializer.serializeNativeObject(key, stream, startPosition);
+      startPosition += binarySerializer.getObjectSize(key);
+    }
+
+    IntegerSerializer.INSTANCE.serializeNative(
+        (startPosition - oldStartPosition), stream, oldStartPosition);
   }
 
-  public OCompositeKey deserializeNativeObject(byte[] stream, int startPosition) {
-    @SuppressWarnings("RedundantCast") final ByteBuffer buffer =
-        (ByteBuffer) ByteBuffer.wrap(stream).order(ByteOrder.nativeOrder()).position(startPosition);
-    return deserialize(buffer);
+  public CompositeKey deserializeNativeObject(byte[] stream, int startPosition) {
+    final CompositeKey compositeKey = new CompositeKey();
+
+    startPosition += IntegerSerializer.INT_SIZE;
+
+    final int keysSize = IntegerSerializer.INSTANCE.deserializeNative(stream, startPosition);
+    startPosition += IntegerSerializer.INSTANCE.getObjectSize(keysSize);
+
+    final BinarySerializerFactory factory = BinarySerializerFactory.getInstance();
+    for (int i = 0; i < keysSize; i++) {
+      final byte serializerId = stream[startPosition];
+      startPosition += BinarySerializerFactory.TYPE_IDENTIFIER_SIZE;
+
+      @SuppressWarnings("unchecked")
+      BinarySerializer<Object> binarySerializer =
+          (BinarySerializer<Object>) factory.getObjectSerializer(serializerId);
+      final Object key = binarySerializer.deserializeNativeObject(stream, startPosition);
+      compositeKey.addKey(key);
+
+      startPosition += binarySerializer.getObjectSize(key);
+    }
+
+    return compositeKey;
+  }
+
+  private static PropertyType[] getKeyTypes(Object[] hints) {
+    final PropertyType[] types;
+
+    if (hints != null && hints.length > 0) {
+      types = (PropertyType[]) hints;
+    } else {
+      types = CommonConst.EMPTY_TYPES_ARRAY;
+    }
+    return types;
   }
 
   public boolean isFixedLength() {
@@ -383,50 +245,43 @@ public final class CompositeKeySerializer implements OBinarySerializer<OComposit
   }
 
   @Override
-  public OCompositeKey preprocess(OCompositeKey value, Object... hints) {
+  public CompositeKey preprocess(CompositeKey value, Object... hints) {
     if (value == null) {
       return null;
     }
 
-    final YTType[] types = (YTType[]) hints;
+    final PropertyType[] types = getKeyTypes(hints);
+
     final List<Object> keys = value.getKeys();
+    final CompositeKey compositeKey = new CompositeKey();
 
-    boolean preprocess = false;
+    final BinarySerializerFactory factory = BinarySerializerFactory.getInstance();
     for (int i = 0; i < keys.size(); i++) {
-      final YTType type = types[i];
+      Object key = keys.get(i);
 
-      if (type == YTType.DATE || (type == YTType.LINK && !(keys.get(i) instanceof YTRID))) {
-        preprocess = true;
-        break;
-      }
-    }
-
-    if (!preprocess) {
-      return value;
-    }
-
-    final OCompositeKey compositeKey = new OCompositeKey();
-
-    for (int i = 0; i < keys.size(); i++) {
-      final Object key = keys.get(i);
-      final YTType type = types[i];
       if (key != null) {
-        if (type == YTType.DATE) {
-          final Calendar calendar = Calendar.getInstance();
-          calendar.setTime((Date) key);
-          calendar.set(Calendar.HOUR_OF_DAY, 0);
-          calendar.set(Calendar.MINUTE, 0);
-          calendar.set(Calendar.SECOND, 0);
-          calendar.set(Calendar.MILLISECOND, 0);
-
-          compositeKey.addKey(calendar.getTime());
-        } else if (type == YTType.LINK) {
-          compositeKey.addKey(((YTIdentifiable) key).getIdentity());
+        final PropertyType type;
+        if (types.length > i) {
+          type = types[i];
         } else {
-          compositeKey.addKey(key);
+          type = PropertyType.getTypeByClass(key.getClass());
         }
+
+        BinarySerializer<Object> keySerializer = factory.getObjectSerializer(type);
+        if (key instanceof Map
+            && !(type == PropertyType.EMBEDDEDMAP || type == PropertyType.LINKMAP)
+            && ((Map<?, ?>) key).size() == 1
+            && ((Map<?, ?>) key)
+            .keySet()
+            .iterator()
+            .next()
+            .getClass()
+            .isAssignableFrom(type.getDefaultJavaType())) {
+          key = ((Map<?, ?>) key).keySet().iterator().next();
+        }
+        compositeKey.addKey(keySerializer.preprocess(key));
       } else {
-        compositeKey.addKey(null);
+        compositeKey.addKey(key);
       }
     }
 
@@ -438,21 +293,98 @@ public final class CompositeKeySerializer implements OBinarySerializer<OComposit
    */
   @Override
   public void serializeInByteBufferObject(
-      OCompositeKey object, ByteBuffer buffer, Object... hints) {
-    serialize(object, buffer, (YTType[]) hints);
+      CompositeKey object, ByteBuffer buffer, Object... hints) {
+    final PropertyType[] types = getKeyTypes(hints);
+
+    final List<Object> keys = object.getKeys();
+    final int keysSize = keys.size();
+
+    final int oldStartOffset = buffer.position();
+    buffer.position(oldStartOffset + IntegerSerializer.INT_SIZE);
+
+    buffer.putInt(keysSize);
+    final BinarySerializerFactory factory = BinarySerializerFactory.getInstance();
+
+    for (int i = 0; i < keys.size(); i++) {
+      final Object key = keys.get(i);
+
+      BinarySerializer<Object> binarySerializer;
+      if (key != null) {
+        final PropertyType type;
+        if (types.length > i) {
+          type = types[i];
+        } else {
+          type = PropertyType.getTypeByClass(key.getClass());
+        }
+
+        binarySerializer = factory.getObjectSerializer(type);
+      } else {
+        binarySerializer = NullSerializer.INSTANCE;
+      }
+
+      buffer.put(binarySerializer.getId());
+      binarySerializer.serializeInByteBufferObject(key, buffer);
+    }
+
+    final int finalPosition = buffer.position();
+    final int serializedSize = buffer.position() - oldStartOffset;
+
+    buffer.position(oldStartOffset);
+    buffer.putInt(serializedSize);
+
+    buffer.position(finalPosition);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public OCompositeKey deserializeFromByteBufferObject(ByteBuffer buffer) {
-    return deserialize(buffer);
+  public CompositeKey deserializeFromByteBufferObject(ByteBuffer buffer) {
+    final CompositeKey compositeKey = new CompositeKey();
+
+    buffer.position(buffer.position() + IntegerSerializer.INT_SIZE);
+    final int keysSize = buffer.getInt();
+
+    final BinarySerializerFactory factory = BinarySerializerFactory.getInstance();
+    for (int i = 0; i < keysSize; i++) {
+      final byte serializerId = buffer.get();
+      @SuppressWarnings("unchecked")
+      BinarySerializer<Object> binarySerializer =
+          (BinarySerializer<Object>) factory.getObjectSerializer(serializerId);
+      final Object key = binarySerializer.deserializeFromByteBufferObject(buffer);
+      compositeKey.addKey(key);
+    }
+
+    return compositeKey;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public OCompositeKey deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
-    return deserialize(offset, buffer);
+  public CompositeKey deserializeFromByteBufferObject(int offset, ByteBuffer buffer) {
+    final CompositeKey compositeKey = new CompositeKey();
+
+    offset += IntegerSerializer.INT_SIZE;
+    final int keysSize = buffer.getInt(offset);
+    offset += IntegerSerializer.INT_SIZE;
+
+    final BinarySerializerFactory factory = BinarySerializerFactory.getInstance();
+    for (int i = 0; i < keysSize; i++) {
+      final byte serializerId = buffer.get(offset);
+      offset++;
+      @SuppressWarnings("unchecked")
+      BinarySerializer<Object> binarySerializer =
+          (BinarySerializer<Object>) factory.getObjectSerializer(serializerId);
+
+      var delta = binarySerializer.getObjectSizeInByteBuffer(offset, buffer);
+      final Object key = binarySerializer.deserializeFromByteBufferObject(offset, buffer);
+      offset += delta;
+
+      compositeKey.addKey(key);
+    }
+
+    return compositeKey;
   }
 
   /**
@@ -472,37 +404,38 @@ public final class CompositeKeySerializer implements OBinarySerializer<OComposit
    * {@inheritDoc}
    */
   @Override
-  public OCompositeKey deserializeFromByteBufferObject(
-      ByteBuffer buffer, OWALChanges walChanges, int offset) {
-    offset += OIntegerSerializer.INT_SIZE;
+  public CompositeKey deserializeFromByteBufferObject(
+      ByteBuffer buffer, WALChanges walChanges, int offset) {
+    final CompositeKey compositeKey = new CompositeKey();
 
-    final int keyLen = walChanges.getIntValue(buffer, offset);
-    offset += OIntegerSerializer.INT_SIZE;
+    offset += IntegerSerializer.INT_SIZE;
 
-    final List<Object> keys = new ArrayList<>(keyLen);
-    for (int i = 0; i < keyLen; i++) {
-      final byte typeId = walChanges.getByteValue(buffer, offset);
-      offset += OByteSerializer.BYTE_SIZE;
+    final int keysSize = walChanges.getIntValue(buffer, offset);
+    offset += IntegerSerializer.INT_SIZE;
 
-      if (typeId < 0) {
-        keys.add(null);
-      } else {
-        final YTType type = YTType.getById(typeId);
-        assert type != null;
-        final Object key = deserializeKeyFromByteBuffer(offset, buffer, type, walChanges);
-        offset += sizeOfKey(type, key);
-        keys.add(key);
-      }
+    final BinarySerializerFactory factory = BinarySerializerFactory.getInstance();
+    for (int i = 0; i < keysSize; i++) {
+      final byte serializerId = walChanges.getByteValue(buffer, offset);
+      offset += BinarySerializerFactory.TYPE_IDENTIFIER_SIZE;
+
+      @SuppressWarnings("unchecked")
+      BinarySerializer<Object> binarySerializer =
+          (BinarySerializer<Object>) factory.getObjectSerializer(serializerId);
+      final Object key =
+          binarySerializer.deserializeFromByteBufferObject(buffer, walChanges, offset);
+      compositeKey.addKey(key);
+
+      offset += binarySerializer.getObjectSize(key);
     }
 
-    return new OCompositeKey(keys);
+    return compositeKey;
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public int getObjectSizeInByteBuffer(ByteBuffer buffer, OWALChanges walChanges, int offset) {
+  public int getObjectSizeInByteBuffer(ByteBuffer buffer, WALChanges walChanges, int offset) {
     return walChanges.getIntValue(buffer, offset);
   }
 }

@@ -15,13 +15,13 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -70,7 +70,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
       Assert.assertEquals(colNames[2], "followers", "document: " + d);
 
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
@@ -86,7 +86,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
     for (EntityImpl d : result) {
       Assert.assertTrue(d.fieldNames().length <= 3);
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
@@ -111,7 +111,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
       }
 
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
@@ -134,7 +134,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
       Assert.assertNotNull(d.field("name2"));
 
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
@@ -157,7 +157,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
       Assert.assertNull(d.field("address"));
 
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
@@ -174,7 +174,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
       Assert.assertEquals(
           d.field("test").toString(), "Mr. " + d.field("name") + " " + d.field("surname") + "!");
 
-      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
@@ -192,7 +192,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
       Assert.assertTrue(d.field("name").toString().endsWith("."));
 
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
@@ -208,7 +208,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
       Assert.assertEquals(d.field("'ciao'"), "ciao");
 
       Assert.assertNull(d.getClassName());
-      Assert.assertEquals(ORecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
+      Assert.assertEquals(RecordInternal.getRecordType(d), EntityImpl.RECORD_TYPE);
     }
   }
 
@@ -234,7 +234,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
       Assert.assertTrue(d.fieldNames().length <= 1);
       Assert.assertNotNull(d.field("rid"));
 
-      final YTRID rid = d.field("rid", YTRID.class);
+      final RID rid = d.field("rid", RID.class);
       Assert.assertTrue(rid.isValid());
     }
   }
@@ -269,10 +269,10 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
 
       final EntityImpl a0doc = d.field("a0");
       final EntityImpl firstADoc =
-          d.<Iterable<YTIdentifiable>>field("a").iterator().next().getRecord();
+          d.<Iterable<Identifiable>>field("a").iterator().next().getRecord();
 
       Assert.assertTrue(
-          ODocumentHelper.hasSameContentOf(a0doc, database, firstADoc, database, null));
+          DocumentHelper.hasSameContentOf(a0doc, database, firstADoc, database, null));
     }
   }
 
@@ -294,8 +294,8 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
     var result = executeQuery("SELECT set(name) as set from OUser");
     Assert.assertEquals(result.size(), 1);
     for (EntityImpl d : result) {
-      Assert.assertTrue(OMultiValue.isMultiValue(d.<Object>field("set")));
-      Assert.assertTrue(OMultiValue.getSize(d.field("set")) <= 3);
+      Assert.assertTrue(MultiValue.isMultiValue(d.<Object>field("set")));
+      Assert.assertTrue(MultiValue.getSize(d.field("set")) <= 3);
     }
   }
 
@@ -346,7 +346,7 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
       childElement.setProperty("d", "d");
       childElement.setProperty("e", "e");
 
-      rootElement.setProperty("child", childElement, YTType.LINK);
+      rootElement.setProperty("child", childElement, PropertyType.LINK);
 
       rootElement.save();
       database.commit();
@@ -381,8 +381,8 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
       childElement.setProperty("d", "d");
       childElement.setProperty("e", "e");
 
-      rootElement.setProperty("child", childElement, YTType.LINK);
-      childElement.setProperty("root", List.of(rootElement), YTType.LINKLIST);
+      rootElement.setProperty("child", childElement, PropertyType.LINK);
+      childElement.setProperty("root", List.of(rootElement), PropertyType.LINKLIST);
 
       rootElement.save();
       database.commit();
@@ -414,20 +414,20 @@ public class SQLSelectProjectionsTest extends DocumentDBBaseTest {
 
     Assert.assertNotNull(resultset);
 
-    Set<YTRID> rids = new HashSet<>();
-    for (YTIdentifiable d : resultset) {
-      final YTRID rid = d.getIdentity();
+    Set<RID> rids = new HashSet<>();
+    for (Identifiable d : resultset) {
+      final RID rid = d.getIdentity();
       Assert.assertFalse(rids.contains(rid));
 
       rids.add(rid);
 
-      final List<YTIdentifiable> embeddedList = ((EntityImpl) d.getRecord()).field("l");
+      final List<Identifiable> embeddedList = ((EntityImpl) d.getRecord()).field("l");
       Assert.assertNotNull(embeddedList);
       Assert.assertFalse(embeddedList.isEmpty());
 
-      for (YTIdentifiable embedded : embeddedList) {
+      for (Identifiable embedded : embeddedList) {
         if (embedded != null) {
-          final YTRID embeddedRid = embedded.getIdentity();
+          final RID embeddedRid = embedded.getIdentity();
 
           Assert.assertFalse(rids.contains(embeddedRid));
           rids.add(rid);

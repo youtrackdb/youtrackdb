@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,10 +27,10 @@ public class SQLCreateVertexTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
 
-    YTSchema schema = database.getMetadata().getSchema();
+    Schema schema = database.getMetadata().getSchema();
     if (!schema.existsClass("CreateVertexByContent")) {
-      YTClass vClass = schema.createClass("CreateVertexByContent", schema.getClass("V"));
-      vClass.createProperty(database, "message", YTType.STRING);
+      SchemaClass vClass = schema.createClass("CreateVertexByContent", schema.getClass("V"));
+      vClass.createProperty(database, "message", PropertyType.STRING);
     }
 
     database.begin();
@@ -41,7 +41,7 @@ public class SQLCreateVertexTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    List<YTResult> result =
+    List<Result> result =
         database.query("select from CreateVertexByContent").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
 
@@ -51,7 +51,7 @@ public class SQLCreateVertexTest extends DocumentDBBaseTest {
 
     List<String> resultMessages = new ArrayList<String>();
 
-    for (YTResult document : result) {
+    for (Result document : result) {
       resultMessages.add(document.getProperty("message"));
     }
 
@@ -99,7 +99,7 @@ public class SQLCreateVertexTest extends DocumentDBBaseTest {
     database.close();
 
     database = createSessionInstance();
-    database.createVertexClass("Like").createProperty(database, "anything", YTType.STRING);
-    database.createVertexClass("Is").createProperty(database, "anything", YTType.STRING);
+    database.createVertexClass("Like").createProperty(database, "anything", PropertyType.STRING);
+    database.createVertexClass("Is").createProperty(database, "anything", PropertyType.STRING);
   }
 }

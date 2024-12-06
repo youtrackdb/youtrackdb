@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
@@ -83,13 +83,13 @@ public class VertexDelegate implements VertexInternal {
   }
 
   @Override
-  public Optional<YTClass> getSchemaType() {
+  public Optional<SchemaClass> getSchemaType() {
     return element.getSchemaType();
   }
 
   @Nullable
   @Override
-  public YTClass getSchemaClass() {
+  public SchemaClass getSchemaClass() {
     return element.getSchemaClass();
   }
 
@@ -101,22 +101,22 @@ public class VertexDelegate implements VertexInternal {
   }
 
   @Override
-  public int compareTo(YTIdentifiable o) {
+  public int compareTo(Identifiable o) {
     return element.compareTo(o);
   }
 
   @Override
-  public int compare(YTIdentifiable o1, YTIdentifiable o2) {
+  public int compare(Identifiable o1, Identifiable o2) {
     return element.compare(o1, o2);
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof YTIdentifiable)) {
+    if (!(obj instanceof Identifiable)) {
       return false;
     }
     if (!(obj instanceof Entity)) {
-      obj = ((YTIdentifiable) obj).getRecordSilently();
+      obj = ((Identifiable) obj).getRecordSilently();
     }
 
     if (obj == null) {
@@ -147,7 +147,7 @@ public class VertexDelegate implements VertexInternal {
   }
 
   @Override
-  public YTRID getIdentity() {
+  public RID getIdentity() {
     return element.getIdentity();
   }
 

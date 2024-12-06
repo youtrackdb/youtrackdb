@@ -3,10 +3,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityPolicyImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityPolicyImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
@@ -33,8 +33,8 @@ public class SQLCreateSecurityPolicyStatement extends SQLSimpleExecStatement {
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
     var db = ctx.getDatabase();
-    OSecurityInternal security = db.getSharedContext().getSecurity();
-    OSecurityPolicyImpl policy = security.createSecurityPolicy(db, name.getStringValue());
+    SecurityInternal security = db.getSharedContext().getSecurity();
+    SecurityPolicyImpl policy = security.createSecurityPolicy(db, name.getStringValue());
     policy.setActive(ctx.getDatabase(), true);
     if (create != null) {
       policy.setCreateRule(ctx.getDatabase(), create.toString());
@@ -57,7 +57,7 @@ public class SQLCreateSecurityPolicyStatement extends SQLSimpleExecStatement {
 
     security.saveSecurityPolicy(db, policy);
 
-    YTResultInternal result = new YTResultInternal(db);
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("operation", "create security policy");
     result.setProperty("name", name.getStringValue());
     return ExecutionStream.singleton(result);
@@ -252,7 +252,7 @@ public class SQLCreateSecurityPolicyStatement extends SQLSimpleExecStatement {
   }
 
   @Override
-  public boolean executinPlanCanBeCached(YTDatabaseSessionInternal session) {
+  public boolean executinPlanCanBeCached(DatabaseSessionInternal session) {
     if (create != null && !create.isCacheable(session)) {
       return false;
     }

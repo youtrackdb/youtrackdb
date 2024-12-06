@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ProduceExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
@@ -36,7 +36,7 @@ public class CountFromIndexWithKeyStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -44,14 +44,14 @@ public class CountFromIndexWithKeyStep extends AbstractExecutionStep {
     return new ProduceExecutionStream(this::produce).limit(1);
   }
 
-  private YTResult produce(CommandContext ctx) {
-    OIndex idx = ctx.getDatabase().getMetadata().getIndexManager().getIndex(target.getIndexName());
+  private Result produce(CommandContext ctx) {
+    Index idx = ctx.getDatabase().getMetadata().getIndexManager().getIndex(target.getIndexName());
     var db = ctx.getDatabase();
     Object val =
         idx.getDefinition()
-            .createValue(db, keyValue.execute(new YTResultInternal(db), ctx));
+            .createValue(db, keyValue.execute(new ResultInternal(db), ctx));
     long size = idx.getInternal().getRids(db, val).distinct().count();
-    YTResultInternal result = new YTResultInternal(db);
+    ResultInternal result = new ResultInternal(db);
     result.setProperty(alias, size);
     return result;
   }

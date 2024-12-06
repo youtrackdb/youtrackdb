@@ -34,7 +34,7 @@ public class OServerPluginInfo {
   private final String version;
   private final String description;
   private final String web;
-  private final OServerPlugin instance;
+  private final ServerPlugin instance;
   private final Map<String, Object> parameters;
   private final long loadedOn;
   private final URLClassLoader pluginClassLoader;
@@ -44,7 +44,7 @@ public class OServerPluginInfo {
       final String version,
       final String description,
       final String web,
-      final OServerPlugin instance,
+      final ServerPlugin instance,
       final Map<String, Object> parameters,
       final long loadedOn,
       final URLClassLoader pluginClassLoader) {
@@ -90,7 +90,7 @@ public class OServerPluginInfo {
     return name;
   }
 
-  public OServerPlugin getInstance() {
+  public ServerPlugin getInstance() {
     return instance;
   }
 

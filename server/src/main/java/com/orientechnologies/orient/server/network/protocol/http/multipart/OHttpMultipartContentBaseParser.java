@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.multipart;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import java.io.IOException;
 import java.util.Map;
@@ -30,7 +30,7 @@ public class OHttpMultipartContentBaseParser implements OHttpMultipartContentPar
       OHttpRequest iRequest,
       Map<String, String> headers,
       OHttpMultipartContentInputStream in,
-      YTDatabaseSession database)
+      DatabaseSession database)
       throws IOException {
     StringBuilder builder = new StringBuilder();
     int b;

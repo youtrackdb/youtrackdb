@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.orientechnologies.orient.server.OServer;
 import java.util.Locale;
 import org.testng.SkipException;
@@ -20,7 +20,7 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test
-public abstract class BaseTest<T extends YTDatabaseSessionInternal> {
+public abstract class BaseTest<T extends DatabaseSessionInternal> {
 
   public static final String SERVER_PASSWORD =
       "D2AFD02F20640EC8B7A5140F34FCA49D2289DB1F0D0598BB9DE8AAA75A0792F3";
@@ -32,7 +32,7 @@ public abstract class BaseTest<T extends YTDatabaseSessionInternal> {
   protected String dbName;
 
   protected boolean remoteDB = false;
-  protected ODatabaseType databaseType;
+  protected DatabaseType databaseType;
 
   public static YouTrackDB youTrackDB;
 
@@ -44,11 +44,11 @@ public abstract class BaseTest<T extends YTDatabaseSessionInternal> {
     String config = System.getProperty("youtrackdb.test.env");
 
     if ("ci".equals(config) || "release".equals(config)) {
-      databaseType = ODatabaseType.PLOCAL;
+      databaseType = DatabaseType.PLOCAL;
     }
 
     if (databaseType == null) {
-      databaseType = ODatabaseType.MEMORY;
+      databaseType = DatabaseType.MEMORY;
     }
 
     this.remoteDB = remote;
@@ -200,12 +200,12 @@ public abstract class BaseTest<T extends YTDatabaseSessionInternal> {
     return createSessionInstance(dbName, user, password);
   }
 
-  protected YTDatabaseSessionInternal acquireSession() {
+  protected DatabaseSessionInternal acquireSession() {
     return acquireSession(dbName);
   }
 
-  protected YTDatabaseSessionInternal acquireSession(String dbName) {
-    return (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
+  protected DatabaseSessionInternal acquireSession(String dbName) {
+    return (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
   }
 
   protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
@@ -227,8 +227,8 @@ public abstract class BaseTest<T extends YTDatabaseSessionInternal> {
     }
   }
 
-  protected OIndex getIndex(final String indexName) {
-    final YTDatabaseSessionInternal db = database;
+  protected Index getIndex(final String indexName) {
+    final DatabaseSessionInternal db = database;
 
     return (db.getMetadata()).getIndexManagerInternal().getIndex(db, indexName);
   }

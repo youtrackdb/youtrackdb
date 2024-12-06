@@ -19,7 +19,7 @@
 
 package com.jetbrains.youtrack.db.internal.core.tx;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ import org.junit.Test;
 /**
  *
  */
-public class ExternalCollectionsTest extends DBTestBase {
+public class ExternalCollectionsTest extends DbTestBase {
 
   @Ignore // re-enable or remove after decision on #6370 is made
   @Test

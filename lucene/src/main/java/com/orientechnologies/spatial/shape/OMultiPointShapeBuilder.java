@@ -13,10 +13,10 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,11 +51,12 @@ public class OMultiPointShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
   }
 
   @Override
-  public void initClazz(YTDatabaseSessionInternal db) {
+  public void initClazz(DatabaseSessionInternal db) {
 
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass multiPoint = schema.createAbstractClass(getName(), superClass(db));
-    multiPoint.createProperty(db, COORDINATES, YTType.EMBEDDEDLIST, YTType.EMBEDDEDLIST);
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass multiPoint = schema.createAbstractClass(getName(), superClass(db));
+    multiPoint.createProperty(db, COORDINATES, PropertyType.EMBEDDEDLIST,
+        PropertyType.EMBEDDEDLIST);
   }
 
   @Override

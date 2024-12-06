@@ -3,16 +3,16 @@ package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v2;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.OLinkSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index.OCompositeKeySerializer;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index.CompositeKeySerializer;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperationsManager;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Set;
@@ -25,10 +25,10 @@ import org.junit.Test;
 /**
  * @since 15.08.13
  */
-public class SBTreeV2CompositeKeyTest extends DBTestBase {
+public class SBTreeV2CompositeKeyTest extends DbTestBase {
 
-  private OSBTreeV2<OCompositeKey, YTIdentifiable> localSBTree;
-  private OAtomicOperationsManager atomicOperationsManager;
+  private SBTreeV2<CompositeKey, Identifiable> localSBTree;
+  private AtomicOperationsManager atomicOperationsManager;
 
   @Before
   public void beforeMethod() throws Exception {
@@ -36,7 +36,7 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
         ((AbstractPaginatedStorage) db.getStorage()).getAtomicOperationsManager();
     //noinspection deprecation
     localSBTree =
-        new OSBTreeV2<>(
+        new SBTreeV2<>(
             "localSBTreeCompositeKeyTest",
             ".sbt",
             ".nbt",
@@ -46,8 +46,8 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
         atomicOperation ->
             localSBTree.create(
                 atomicOperation,
-                OCompositeKeySerializer.INSTANCE,
-                OLinkSerializer.INSTANCE,
+                CompositeKeySerializer.INSTANCE,
+                LinkSerializer.INSTANCE,
                 null,
                 2,
                 false,
@@ -55,7 +55,7 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
 
     for (double i = 1; i < 4; i++) {
       for (double j = 1; j < 10; j++) {
-        final OCompositeKey compositeKey = new OCompositeKey();
+        final CompositeKey compositeKey = new CompositeKey();
         compositeKey.addKey(i);
         compositeKey.addKey(j);
         atomicOperationsManager.executeInsideAtomicOperation(
@@ -64,7 +64,7 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
                 localSBTree.put(
                     atomicOperation,
                     compositeKey,
-                    new YTRecordId(
+                    new RecordId(
                         ((Double) compositeKey.getKeys().get(0)).intValue(),
                         ((Double) compositeKey.getKeys().get(1)).longValue())));
       }
@@ -73,7 +73,7 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
 
   @After
   public void afterClass() throws Exception {
-    try (Stream<OCompositeKey> keyStream = localSBTree.keyStream()) {
+    try (Stream<CompositeKey> keyStream = localSBTree.keyStream()) {
       keyStream.forEach(
           (key) -> {
             try {
@@ -96,16 +96,16 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
 
   @Test
   public void testIterateBetweenValuesInclusive() {
-    Stream<ORawPair<OCompositeKey, YTIdentifiable>> stream =
+    Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesBetween(compositeKey(2.0), true, compositeKey(3.0), true, true);
 
-    Set<YTRID> orids = extractRids(stream);
+    Set<RID> orids = extractRids(stream);
 
     assertEquals(orids.size(), 18);
 
     for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
-        assertTrue(orids.contains(new YTRecordId(i, j)));
+        assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
 
@@ -116,21 +116,21 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
     assertEquals(orids.size(), 18);
     for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
-        assertTrue(orids.contains(new YTRecordId(i, j)));
+        assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
   }
 
   @Test
   public void testIterateBetweenValuesFromInclusive() {
-    Stream<ORawPair<OCompositeKey, YTIdentifiable>> stream =
+    Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesBetween(compositeKey(2.0), true, compositeKey(3.0), false, true);
 
-    Set<YTRID> orids = extractRids(stream);
+    Set<RID> orids = extractRids(stream);
     assertEquals(orids.size(), 9);
 
     for (int j = 1; j <= 9; j++) {
-      assertTrue(orids.contains(new YTRecordId(2, j)));
+      assertTrue(orids.contains(new RecordId(2, j)));
     }
 
     stream =
@@ -140,20 +140,20 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
     assertEquals(orids.size(), 9);
 
     for (int j = 1; j <= 9; j++) {
-      assertTrue(orids.contains(new YTRecordId(2, j)));
+      assertTrue(orids.contains(new RecordId(2, j)));
     }
   }
 
   @Test
   public void testIterateBetweenValuesToInclusive() {
-    Stream<ORawPair<OCompositeKey, YTIdentifiable>> stream =
+    Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesBetween(compositeKey(2.0), false, compositeKey(3.0), true, true);
-    Set<YTRID> orids = extractRids(stream);
+    Set<RID> orids = extractRids(stream);
 
     assertEquals(orids.size(), 9);
 
     for (int i = 1; i <= 9; i++) {
-      assertTrue(orids.contains(new YTRecordId(3, i)));
+      assertTrue(orids.contains(new RecordId(3, i)));
     }
 
     stream =
@@ -163,15 +163,15 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
     assertEquals(orids.size(), 9);
 
     for (int i = 1; i <= 9; i++) {
-      assertTrue(orids.contains(new YTRecordId(3, i)));
+      assertTrue(orids.contains(new RecordId(3, i)));
     }
   }
 
   @Test
   public void testIterateEntriesNonInclusive() {
-    Stream<ORawPair<OCompositeKey, YTIdentifiable>> stream =
+    Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesBetween(compositeKey(2.0), false, compositeKey(3.0), false, true);
-    Set<YTRID> orids = extractRids(stream);
+    Set<RID> orids = extractRids(stream);
 
     assertEquals(orids.size(), 0);
 
@@ -189,7 +189,7 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
     assertEquals(orids.size(), 9);
 
     for (int i = 1; i <= 9; i++) {
-      assertTrue(orids.contains(new YTRecordId(2, i)));
+      assertTrue(orids.contains(new RecordId(2, i)));
     }
 
     stream =
@@ -200,16 +200,16 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
     assertEquals(orids.size(), 9);
 
     for (int i = 1; i <= 9; i++) {
-      assertTrue(orids.contains(new YTRecordId(2, i)));
+      assertTrue(orids.contains(new RecordId(2, i)));
     }
   }
 
   @Test
   public void testIterateBetweenValuesInclusivePartialKey() {
-    Stream<ORawPair<OCompositeKey, YTIdentifiable>> stream =
+    Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesBetween(
             compositeKey(2.0, 4.0), true, compositeKey(3.0), true, true);
-    Set<YTRID> orids = extractRids(stream);
+    Set<RID> orids = extractRids(stream);
 
     assertEquals(orids.size(), 15);
 
@@ -218,7 +218,7 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
         if (i == 2 && j < 4) {
           continue;
         }
-        assertTrue(orids.contains(new YTRecordId(i, j)));
+        assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
 
@@ -234,22 +234,22 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
         if (i == 2 && j < 4) {
           continue;
         }
-        assertTrue(orids.contains(new YTRecordId(i, j)));
+        assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
   }
 
   @Test
   public void testIterateBetweenValuesFromInclusivePartialKey() {
-    Stream<ORawPair<OCompositeKey, YTIdentifiable>> stream =
+    Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesBetween(
             compositeKey(2.0, 4.0), true, compositeKey(3.0), false, true);
 
-    Set<YTRID> orids = extractRids(stream);
+    Set<RID> orids = extractRids(stream);
     assertEquals(orids.size(), 6);
 
     for (int j = 4; j <= 9; j++) {
-      assertTrue(orids.contains(new YTRecordId(2, j)));
+      assertTrue(orids.contains(new RecordId(2, j)));
     }
 
     stream =
@@ -260,17 +260,17 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
     assertEquals(orids.size(), 6);
 
     for (int j = 4; j <= 9; j++) {
-      assertTrue(orids.contains(new YTRecordId(2, j)));
+      assertTrue(orids.contains(new RecordId(2, j)));
     }
   }
 
   @Test
   public void testIterateBetweenValuesToInclusivePartialKey() {
-    Stream<ORawPair<OCompositeKey, YTIdentifiable>> stream =
+    Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesBetween(
             compositeKey(2.0, 4.0), false, compositeKey(3.0), true, true);
 
-    Set<YTRID> orids = extractRids(stream);
+    Set<RID> orids = extractRids(stream);
     assertEquals(orids.size(), 14);
 
     for (int i = 2; i <= 3; i++) {
@@ -278,7 +278,7 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
         if (i == 2 && j <= 4) {
           continue;
         }
-        assertTrue(orids.contains(new YTRecordId(i, j)));
+        assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
 
@@ -293,22 +293,22 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
         if (i == 2 && j <= 4) {
           continue;
         }
-        assertTrue(orids.contains(new YTRecordId(i, j)));
+        assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
   }
 
   @Test
   public void testIterateBetweenValuesNonInclusivePartial() {
-    Stream<ORawPair<OCompositeKey, YTIdentifiable>> stream =
+    Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesBetween(
             compositeKey(2.0, 4.0), false, compositeKey(3.0), false, true);
 
-    Set<YTRID> orids = extractRids(stream);
+    Set<RID> orids = extractRids(stream);
     assertEquals(orids.size(), 5);
 
     for (int i = 5; i <= 9; i++) {
-      assertTrue(orids.contains(new YTRecordId(2, i)));
+      assertTrue(orids.contains(new RecordId(2, i)));
     }
 
     stream =
@@ -319,21 +319,21 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
     assertEquals(orids.size(), 5);
 
     for (int i = 5; i <= 9; i++) {
-      assertTrue(orids.contains(new YTRecordId(2, i)));
+      assertTrue(orids.contains(new RecordId(2, i)));
     }
   }
 
   @Test
   public void testIterateValuesMajorInclusivePartial() {
-    Stream<ORawPair<OCompositeKey, YTIdentifiable>> stream =
+    Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesMajor(compositeKey(2.0), true, true);
-    Set<YTRID> orids = extractRids(stream);
+    Set<RID> orids = extractRids(stream);
 
     assertEquals(orids.size(), 18);
 
     for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
-        assertTrue(orids.contains(new YTRecordId(i, j)));
+        assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
 
@@ -344,20 +344,20 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
 
     for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
-        assertTrue(orids.contains(new YTRecordId(i, j)));
+        assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
   }
 
   @Test
   public void testIterateMajorNonInclusivePartial() {
-    Stream<ORawPair<OCompositeKey, YTIdentifiable>> stream =
+    Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesMajor(compositeKey(2.0), false, true);
-    Set<YTRID> orids = extractRids(stream);
+    Set<RID> orids = extractRids(stream);
     assertEquals(orids.size(), 9);
 
     for (int i = 1; i <= 9; i++) {
-      assertTrue(orids.contains(new YTRecordId(3, i)));
+      assertTrue(orids.contains(new RecordId(3, i)));
     }
 
     stream = localSBTree.iterateEntriesMajor(compositeKey(2.0), false, false);
@@ -366,15 +366,15 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
     assertEquals(orids.size(), 9);
 
     for (int i = 1; i <= 9; i++) {
-      assertTrue(orids.contains(new YTRecordId(3, i)));
+      assertTrue(orids.contains(new RecordId(3, i)));
     }
   }
 
   @Test
   public void testIterateValuesMajorInclusive() {
-    Stream<ORawPair<OCompositeKey, YTIdentifiable>> stream =
+    Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesMajor(compositeKey(2.0, 3.0), true, true);
-    Set<YTRID> orids = extractRids(stream);
+    Set<RID> orids = extractRids(stream);
     assertEquals(orids.size(), 16);
 
     for (int i = 2; i <= 3; i++) {
@@ -382,7 +382,7 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
         if (i == 2 && j < 3) {
           continue;
         }
-        assertTrue(orids.contains(new YTRecordId(i, j)));
+        assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
 
@@ -396,16 +396,16 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
         if (i == 2 && j < 3) {
           continue;
         }
-        assertTrue(orids.contains(new YTRecordId(i, j)));
+        assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
   }
 
   @Test
   public void testIterateValuesMajorNonInclusive() {
-    Stream<ORawPair<OCompositeKey, YTIdentifiable>> stream =
+    Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesMajor(compositeKey(2.0, 3.0), false, true);
-    Set<YTRID> orids = extractRids(stream);
+    Set<RID> orids = extractRids(stream);
     assertEquals(orids.size(), 15);
 
     for (int i = 2; i <= 3; i++) {
@@ -413,7 +413,7 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
         if (i == 2 && j <= 3) {
           continue;
         }
-        assertTrue(orids.contains(new YTRecordId(i, j)));
+        assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
 
@@ -427,21 +427,21 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
         if (i == 2 && j <= 3) {
           continue;
         }
-        assertTrue(orids.contains(new YTRecordId(i, j)));
+        assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
   }
 
   @Test
   public void testIterateValuesMinorInclusivePartial() {
-    Stream<ORawPair<OCompositeKey, YTIdentifiable>> stream =
+    Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesMinor(compositeKey(3.0), true, true);
-    Set<YTRID> orids = extractRids(stream);
+    Set<RID> orids = extractRids(stream);
     assertEquals(orids.size(), 27);
 
     for (int i = 1; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
-        assertTrue(orids.contains(new YTRecordId(i, j)));
+        assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
 
@@ -452,21 +452,21 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
 
     for (int i = 1; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
-        assertTrue(orids.contains(new YTRecordId(i, j)));
+        assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
   }
 
   @Test
   public void testIterateValuesMinorNonInclusivePartial() {
-    Stream<ORawPair<OCompositeKey, YTIdentifiable>> stream =
+    Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesMinor(compositeKey(3.0), false, true);
-    Set<YTRID> orids = extractRids(stream);
+    Set<RID> orids = extractRids(stream);
     assertEquals(orids.size(), 18);
 
     for (int i = 1; i < 3; i++) {
       for (int j = 1; j <= 9; j++) {
-        assertTrue(orids.contains(new YTRecordId(i, j)));
+        assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
 
@@ -477,16 +477,16 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
 
     for (int i = 1; i < 3; i++) {
       for (int j = 1; j <= 9; j++) {
-        assertTrue(orids.contains(new YTRecordId(i, j)));
+        assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
   }
 
   @Test
   public void testIterateValuesMinorInclusive() {
-    Stream<ORawPair<OCompositeKey, YTIdentifiable>> stream =
+    Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesMinor(compositeKey(3.0, 2.0), true, true);
-    Set<YTRID> orids = extractRids(stream);
+    Set<RID> orids = extractRids(stream);
     assertEquals(orids.size(), 20);
 
     for (int i = 1; i <= 3; i++) {
@@ -495,7 +495,7 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
           continue;
         }
 
-        assertTrue(orids.contains(new YTRecordId(i, j)));
+        assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
 
@@ -510,22 +510,22 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
           continue;
         }
 
-        assertTrue(orids.contains(new YTRecordId(i, j)));
+        assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
   }
 
   @Test
   public void testIterateValuesMinorNonInclusive() {
-    Stream<ORawPair<OCompositeKey, YTIdentifiable>> stream =
+    Stream<RawPair<CompositeKey, Identifiable>> stream =
         localSBTree.iterateEntriesMinor(compositeKey(3.0, 2.0), false, true);
-    Set<YTRID> orids = extractRids(stream);
+    Set<RID> orids = extractRids(stream);
 
     assertEquals(orids.size(), 19);
 
     for (int i = 1; i < 3; i++) {
       for (int j = 1; j <= 9; j++) {
-        assertTrue(orids.contains(new YTRecordId(i, j)));
+        assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
 
@@ -536,16 +536,16 @@ public class SBTreeV2CompositeKeyTest extends DBTestBase {
 
     for (int i = 1; i < 3; i++) {
       for (int j = 1; j <= 9; j++) {
-        assertTrue(orids.contains(new YTRecordId(i, j)));
+        assertTrue(orids.contains(new RecordId(i, j)));
       }
     }
   }
 
-  private static OCompositeKey compositeKey(Comparable<?>... params) {
-    return new OCompositeKey(Arrays.asList(params));
+  private static CompositeKey compositeKey(Comparable<?>... params) {
+    return new CompositeKey(Arrays.asList(params));
   }
 
-  private static Set<YTRID> extractRids(Stream<ORawPair<OCompositeKey, YTIdentifiable>> stream) {
+  private static Set<RID> extractRids(Stream<RawPair<CompositeKey, Identifiable>> stream) {
     return stream.map((entry) -> entry.second.getIdentity()).collect(Collectors.toSet());
   }
 }

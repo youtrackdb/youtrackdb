@@ -3,13 +3,13 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OLegacyResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.query.LegacyResultSet;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -120,7 +120,7 @@ public class SQLProjection extends SimpleNode {
     }
   }
 
-  public YTResult calculateSingle(CommandContext iContext, YTResult iRecord) {
+  public Result calculateSingle(CommandContext iContext, Result iRecord) {
     initExcludes(iContext);
     if (isExpand()) {
       throw new IllegalStateException(
@@ -132,7 +132,7 @@ public class SQLProjection extends SimpleNode {
       return iRecord;
     }
 
-    YTResultInternal result = new YTResultInternal(iContext.getDatabase());
+    ResultInternal result = new ResultInternal(iContext.getDatabase());
     for (SQLProjectionItem item : items) {
       if (item.exclude) {
         continue;
@@ -193,7 +193,7 @@ public class SQLProjection extends SimpleNode {
     }
   }
 
-  public OLegacyResultSet calculateExpand(CommandContext iContext, YTResult iRecord) {
+  public LegacyResultSet calculateExpand(CommandContext iContext, Result iRecord) {
     if (!isExpand()) {
       throw new IllegalStateException("This is not an expand projection:" + this);
     }
@@ -208,7 +208,7 @@ public class SQLProjection extends SimpleNode {
     if (items != null && items.size() > 1) {
       for (SQLProjectionItem item : items) {
         if (item.isExpand()) {
-          throw new YTCommandSQLParsingException(
+          throw new CommandSQLParsingException(
               "Cannot execute a query with expand() together with other projections");
         }
       }
@@ -279,8 +279,8 @@ public class SQLProjection extends SimpleNode {
     return false;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("distinct", distinct);
     if (items != null) {
       result.setProperty(
@@ -290,13 +290,13 @@ public class SQLProjection extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     distinct = fromResult.getProperty("distinct");
     if (fromResult.getProperty("items") != null) {
       items = new ArrayList<>();
 
-      List<YTResult> ser = fromResult.getProperty("items");
-      for (YTResult x : ser) {
+      List<Result> ser = fromResult.getProperty("items");
+      for (Result x : ser) {
         SQLProjectionItem item = new SQLProjectionItem(-1);
         item.deserialize(x);
         items.add(item);
@@ -304,7 +304,7 @@ public class SQLProjection extends SimpleNode {
     }
   }
 
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     if (items != null) {
       for (SQLProjectionItem item : items) {
         if (!item.isCacheable(session)) {

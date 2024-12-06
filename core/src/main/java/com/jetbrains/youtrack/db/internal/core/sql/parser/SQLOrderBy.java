@@ -3,9 +3,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +64,7 @@ public class SQLOrderBy extends SimpleNode {
     }
   }
 
-  public int compare(YTResult a, YTResult b, CommandContext ctx) {
+  public int compare(Result a, Result b, CommandContext ctx) {
     for (SQLOrderByItem item : items) {
       int result = item.compare(a, b, ctx);
       if (result != 0) {
@@ -119,8 +119,8 @@ public class SQLOrderBy extends SimpleNode {
     return false;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     if (items != null) {
       result.setProperty(
           "items", items.stream().map(oOrderByItem -> oOrderByItem.serialize(db))
@@ -129,12 +129,12 @@ public class SQLOrderBy extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
 
     if (fromResult.getProperty("items") != null) {
-      List<YTResult> ser = fromResult.getProperty("items");
+      List<Result> ser = fromResult.getProperty("items");
       items = new ArrayList<>();
-      for (YTResult r : ser) {
+      for (Result r : ser) {
         SQLOrderByItem exp = new SQLOrderByItem();
         exp.deserialize(r);
         items.add(exp);

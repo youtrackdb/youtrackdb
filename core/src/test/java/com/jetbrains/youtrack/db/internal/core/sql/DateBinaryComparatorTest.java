@@ -2,18 +2,18 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
 
-public class DateBinaryComparatorTest extends DBTestBase {
+public class DateBinaryComparatorTest extends DbTestBase {
 
   private final String dateFormat = "yyyy-MM-dd";
   private final String dateValue = "2017-07-18";
@@ -24,8 +24,8 @@ public class DateBinaryComparatorTest extends DBTestBase {
   }
 
   private void initSchema() {
-    YTClass testClass = db.getMetadata().getSchema().createClass("Test");
-    testClass.createProperty(db, "date", YTType.DATE);
+    SchemaClass testClass = db.getMetadata().getSchema().createClass("Test");
+    testClass.createProperty(db, "date", PropertyType.DATE);
     db.begin();
     EntityImpl document = new EntityImpl(testClass.getName());
 
@@ -44,7 +44,7 @@ public class DateBinaryComparatorTest extends DBTestBase {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("dateParam", new SimpleDateFormat(dateFormat).parse(dateValue));
 
-    try (YTResultSet result = db.query(str, params)) {
+    try (ResultSet result = db.query(str, params)) {
       assertEquals(1, result.stream().count());
     }
   }

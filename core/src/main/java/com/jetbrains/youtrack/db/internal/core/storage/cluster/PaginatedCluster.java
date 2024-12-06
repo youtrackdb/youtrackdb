@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.storage.cluster;
 
-import com.jetbrains.youtrack.db.internal.core.config.OStoragePaginatedClusterConfiguration;
-import com.jetbrains.youtrack.db.internal.core.storage.OCluster;
+import com.jetbrains.youtrack.db.internal.core.config.StoragePaginatedClusterConfiguration;
+import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurableComponent;
 import java.io.IOException;
 
-public abstract class PaginatedCluster extends DurableComponent implements OCluster {
+public abstract class PaginatedCluster extends DurableComponent implements StorageCluster {
 
   public enum RECORD_STATUS {
     NOT_EXISTENT,
@@ -32,7 +32,7 @@ public abstract class PaginatedCluster extends DurableComponent implements OClus
 
   public abstract RECORD_STATUS getRecordStatus(final long clusterPosition) throws IOException;
 
-  public abstract OStoragePaginatedClusterConfiguration generateClusterConfig();
+  public abstract StoragePaginatedClusterConfiguration generateClusterConfig();
 
   public abstract long getFileId();
 }

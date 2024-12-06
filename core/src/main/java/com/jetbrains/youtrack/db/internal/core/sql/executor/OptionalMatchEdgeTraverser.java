@@ -8,9 +8,9 @@ import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionS
  */
 public class OptionalMatchEdgeTraverser extends MatchEdgeTraverser {
 
-  public static final YTResult EMPTY_OPTIONAL = new YTResultInternal(null);
+  public static final Result EMPTY_OPTIONAL = new ResultInternal(null);
 
-  public OptionalMatchEdgeTraverser(YTResult lastUpstreamRecord, EdgeTraversal edge) {
+  public OptionalMatchEdgeTraverser(Result lastUpstreamRecord, EdgeTraversal edge) {
     super(lastUpstreamRecord, edge);
   }
 
@@ -23,7 +23,7 @@ public class OptionalMatchEdgeTraverser extends MatchEdgeTraverser {
     }
   }
 
-  public YTResult next(CommandContext ctx) {
+  public Result next(CommandContext ctx) {
     init(ctx);
     if (!downstream.hasNext(ctx)) {
       throw new IllegalStateException();
@@ -31,7 +31,7 @@ public class OptionalMatchEdgeTraverser extends MatchEdgeTraverser {
 
     String endPointAlias = getEndpointAlias();
     Object prevValue = sourceRecord.getProperty(endPointAlias);
-    YTResult next = downstream.next(ctx);
+    Result next = downstream.next(ctx);
 
     if (isEmptyOptional(prevValue)) {
       return sourceRecord;
@@ -43,7 +43,7 @@ public class OptionalMatchEdgeTraverser extends MatchEdgeTraverser {
     }
 
     var db = ctx.getDatabase();
-    YTResultInternal result = new YTResultInternal(db);
+    ResultInternal result = new ResultInternal(db);
     for (String prop : sourceRecord.getPropertyNames()) {
       result.setProperty(prop, sourceRecord.getProperty(prop));
     }
@@ -56,7 +56,7 @@ public class OptionalMatchEdgeTraverser extends MatchEdgeTraverser {
       return true;
     }
 
-    return elem instanceof YTResult && EMPTY_OPTIONAL == ((YTResult) elem).getEntity()
+    return elem instanceof Result && EMPTY_OPTIONAL == ((Result) elem).getEntity()
         .orElse(null);
   }
 }

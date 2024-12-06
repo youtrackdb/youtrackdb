@@ -2,16 +2,16 @@ package com.jetbrains.youtrack.db.internal.core.sql.fetch;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.fetch.OFetchContext;
-import com.jetbrains.youtrack.db.internal.core.fetch.OFetchHelper;
-import com.jetbrains.youtrack.db.internal.core.fetch.remote.ORemoteFetchContext;
-import com.jetbrains.youtrack.db.internal.core.fetch.remote.ORemoteFetchListener;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.fetch.FetchContext;
+import com.jetbrains.youtrack.db.internal.core.fetch.FetchHelper;
+import com.jetbrains.youtrack.db.internal.core.fetch.remote.RemoteFetchContext;
+import com.jetbrains.youtrack.db.internal.core.fetch.remote.RemoteFetchListener;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Test;
 
-public class DepthFetchPlanTest extends DBTestBase {
+public class DepthFetchPlanTest extends DbTestBase {
 
   @Test
   public void testFetchPlanDepth() {
@@ -40,10 +40,10 @@ public class DepthFetchPlanTest extends DBTestBase {
     db.commit();
 
     doc2 = db.bindToSession(doc2);
-    OFetchContext context = new ORemoteFetchContext();
+    FetchContext context = new RemoteFetchContext();
     CountFetchListener listener = new CountFetchListener();
-    OFetchHelper.fetch(
-        doc2, doc2, OFetchHelper.buildFetchPlan("ref:1 *:-2"), listener, context, "");
+    FetchHelper.fetch(
+        doc2, doc2, FetchHelper.buildFetchPlan("ref:1 *:-2"), listener, context, "");
 
     assertEquals(1, listener.count);
   }
@@ -85,13 +85,13 @@ public class DepthFetchPlanTest extends DBTestBase {
     db.commit();
 
     doc3 = db.bindToSession(doc3);
-    OFetchContext context = new ORemoteFetchContext();
+    FetchContext context = new RemoteFetchContext();
     CountFetchListener listener = new CountFetchListener();
-    OFetchHelper.fetch(doc3, doc3, OFetchHelper.buildFetchPlan("[*]ref:-1"), listener, context, "");
+    FetchHelper.fetch(doc3, doc3, FetchHelper.buildFetchPlan("[*]ref:-1"), listener, context, "");
     assertEquals(3, listener.count);
   }
 
-  private final class CountFetchListener extends ORemoteFetchListener {
+  private final class CountFetchListener extends RemoteFetchListener {
 
     public int count;
 

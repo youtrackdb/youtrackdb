@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,74 +33,78 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass oClass = schema.createClass("sqlSelectHashIndexReuseTestClass");
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass oClass = schema.createClass("sqlSelectHashIndexReuseTestClass");
 
-    oClass.createProperty(database, "prop1", YTType.INTEGER);
-    oClass.createProperty(database, "prop2", YTType.INTEGER);
-    oClass.createProperty(database, "prop3", YTType.INTEGER);
-    oClass.createProperty(database, "prop4", YTType.INTEGER);
-    oClass.createProperty(database, "prop5", YTType.INTEGER);
-    oClass.createProperty(database, "prop6", YTType.INTEGER);
-    oClass.createProperty(database, "prop7", YTType.STRING);
-    oClass.createProperty(database, "prop8", YTType.INTEGER);
-    oClass.createProperty(database, "prop9", YTType.INTEGER);
+    oClass.createProperty(database, "prop1", PropertyType.INTEGER);
+    oClass.createProperty(database, "prop2", PropertyType.INTEGER);
+    oClass.createProperty(database, "prop3", PropertyType.INTEGER);
+    oClass.createProperty(database, "prop4", PropertyType.INTEGER);
+    oClass.createProperty(database, "prop5", PropertyType.INTEGER);
+    oClass.createProperty(database, "prop6", PropertyType.INTEGER);
+    oClass.createProperty(database, "prop7", PropertyType.STRING);
+    oClass.createProperty(database, "prop8", PropertyType.INTEGER);
+    oClass.createProperty(database, "prop9", PropertyType.INTEGER);
 
-    oClass.createProperty(database, "fEmbeddedMap", YTType.EMBEDDEDMAP, YTType.INTEGER);
-    oClass.createProperty(database, "fEmbeddedMapTwo", YTType.EMBEDDEDMAP, YTType.INTEGER);
+    oClass.createProperty(database, "fEmbeddedMap", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
+    oClass.createProperty(database, "fEmbeddedMapTwo", PropertyType.EMBEDDEDMAP,
+        PropertyType.INTEGER);
 
-    oClass.createProperty(database, "fLinkMap", YTType.LINKMAP);
+    oClass.createProperty(database, "fLinkMap", PropertyType.LINKMAP);
 
-    oClass.createProperty(database, "fEmbeddedList", YTType.EMBEDDEDLIST, YTType.INTEGER);
-    oClass.createProperty(database, "fEmbeddedListTwo", YTType.EMBEDDEDLIST, YTType.INTEGER);
+    oClass.createProperty(database, "fEmbeddedList", PropertyType.EMBEDDEDLIST,
+        PropertyType.INTEGER);
+    oClass.createProperty(database, "fEmbeddedListTwo", PropertyType.EMBEDDEDLIST,
+        PropertyType.INTEGER);
 
-    oClass.createProperty(database, "fLinkList", YTType.LINKLIST);
+    oClass.createProperty(database, "fLinkList", PropertyType.LINKLIST);
 
-    oClass.createProperty(database, "fEmbeddedSet", YTType.EMBEDDEDSET, YTType.INTEGER);
-    oClass.createProperty(database, "fEmbeddedSetTwo", YTType.EMBEDDEDSET, YTType.INTEGER);
+    oClass.createProperty(database, "fEmbeddedSet", PropertyType.EMBEDDEDSET, PropertyType.INTEGER);
+    oClass.createProperty(database, "fEmbeddedSetTwo", PropertyType.EMBEDDEDSET,
+        PropertyType.INTEGER);
 
-    oClass.createIndex(database, "indexone", YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX, "prop1",
+    oClass.createIndex(database, "indexone", SchemaClass.INDEX_TYPE.UNIQUE_HASH_INDEX, "prop1",
         "prop2");
-    oClass.createIndex(database, "indextwo", YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX, "prop3");
+    oClass.createIndex(database, "indextwo", SchemaClass.INDEX_TYPE.UNIQUE_HASH_INDEX, "prop3");
     oClass.createIndex(database,
-        "indexthree", YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "prop1", "prop2", "prop4");
+        "indexthree", SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "prop1", "prop2", "prop4");
     oClass.createIndex(database,
-        "indexfour", YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "prop4", "prop1", "prop3");
+        "indexfour", SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "prop4", "prop1", "prop3");
     oClass.createIndex(database,
-        "indexfive", YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "prop6", "prop1", "prop3");
+        "indexfive", SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "prop6", "prop1", "prop3");
 
     oClass.createIndex(database,
         "sqlSelectHashIndexReuseTestEmbeddedMapByKey",
-        YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "fEmbeddedMap");
+        SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "fEmbeddedMap");
     oClass.createIndex(database,
         "sqlSelectHashIndexReuseTestEmbeddedMapByValue",
-        YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "fEmbeddedMap by value");
+        SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "fEmbeddedMap by value");
     oClass.createIndex(database,
         "sqlSelectHashIndexReuseTestEmbeddedList",
-        YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "fEmbeddedList");
+        SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "fEmbeddedList");
 
     oClass.createIndex(database,
         "sqlSelectHashIndexReuseTestEmbeddedMapByKeyProp8",
-        YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX,
+        SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX,
         "fEmbeddedMapTwo", "prop8");
     oClass.createIndex(database,
         "sqlSelectHashIndexReuseTestEmbeddedMapByValueProp8",
-        YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX,
+        SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX,
         "fEmbeddedMapTwo by value", "prop8");
 
     oClass.createIndex(database,
         "sqlSelectHashIndexReuseTestEmbeddedSetProp8",
-        YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX,
+        SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX,
         "fEmbeddedSetTwo", "prop8");
     oClass.createIndex(database,
         "sqlSelectHashIndexReuseTestProp9EmbeddedSetProp8",
-        YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX,
+        SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX,
         "prop9",
         "fEmbeddedSetTwo", "prop8");
 
     oClass.createIndex(database,
         "sqlSelectHashIndexReuseTestEmbeddedListTwoProp8",
-        YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX,
+        SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX,
         "fEmbeddedListTwo", "prop8");
 
     final String[] fullTextIndexStrings = {
@@ -189,7 +193,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 = 2"))
             .execute(database);
 
@@ -212,7 +216,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1.asInteger() = 1 and"
                         + " prop2 = 2"))
             .execute(database);
@@ -249,7 +253,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1"))
             .execute(database);
 
@@ -312,7 +316,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedMapTwo"
                         + " containsKey 'key11'"))
             .execute(database);
@@ -385,7 +389,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass "
                         + "where prop8 = 1 and fEmbeddedMapTwo containsKey 'key11'"))
             .execute(database);
@@ -437,7 +441,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedMapTwo"
                         + " containsValue 22"))
             .execute(database);
@@ -493,7 +497,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass "
                         + "where prop8 = 1 and fEmbeddedMapTwo containsValue 22"))
             .execute(database);
@@ -532,7 +536,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass "
                         + "where prop8 = 1 and fEmbeddedSetTwo contains 12"))
             .execute(database);
@@ -589,7 +593,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass "
                         + "where prop9 = 0 and fEmbeddedSetTwo contains 92 and prop8 > 2"))
             .execute(database);
@@ -664,7 +668,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedListTwo contains"
                         + " 4"))
             .execute(database);
@@ -718,7 +722,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where"
                         + " prop8 = 1 and fEmbeddedListTwo contains 4"))
             .execute(database);
@@ -751,7 +755,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 = 1"))
             .execute(database);
 
@@ -776,7 +780,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = ? and prop2 = ?"))
             .execute(database, 1, 2);
 
@@ -801,7 +805,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = ?"))
             .execute(database, 1);
 
@@ -829,7 +833,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 = ?"))
             .execute(database, 1);
 
@@ -854,7 +858,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 > 2"))
             .execute(database);
 
@@ -884,7 +888,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 > 7"))
             .execute(database);
 
@@ -914,7 +918,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 > 7"))
             .execute(database);
 
@@ -942,7 +946,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = ? and prop2 > ?"))
             .execute(database, 1, 2);
 
@@ -972,7 +976,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 > ?"))
             .execute(database, 7);
 
@@ -1002,7 +1006,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 > ?"))
             .execute(database, 7);
 
@@ -1030,7 +1034,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 >="
                         + " 2"))
             .execute(database);
@@ -1061,7 +1065,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 >= 7"))
             .execute(database);
 
@@ -1091,7 +1095,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 >= 7"))
             .execute(database);
 
@@ -1119,7 +1123,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = ? and prop2 >="
                         + " ?"))
             .execute(database, 1, 2);
@@ -1150,7 +1154,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 >= ?"))
             .execute(database, 7);
 
@@ -1180,7 +1184,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 >= ?"))
             .execute(database, 7);
 
@@ -1208,7 +1212,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 <="
                         + " 2"))
             .execute(database);
@@ -1239,7 +1243,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 <= 7"))
             .execute(database);
 
@@ -1269,7 +1273,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 <= 7"))
             .execute(database);
 
@@ -1297,7 +1301,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = ? and prop2 <="
                         + " ?"))
             .execute(database, 1, 2);
@@ -1328,7 +1332,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 <= ?"))
             .execute(database, 7);
 
@@ -1358,7 +1362,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 <= ?"))
             .execute(database, 7);
 
@@ -1386,7 +1390,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 < 2"))
             .execute(database);
 
@@ -1416,7 +1420,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 < 7"))
             .execute(database);
 
@@ -1446,7 +1450,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 < 7"))
             .execute(database);
 
@@ -1474,7 +1478,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = ? and prop2 < ?"))
             .execute(database, 1, 2);
 
@@ -1504,7 +1508,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 < ?"))
             .execute(database, 7);
 
@@ -1534,7 +1538,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 < ?"))
             .execute(database, 7);
 
@@ -1562,7 +1566,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2"
                         + " between 1 and 3"))
             .execute(database);
@@ -1593,7 +1597,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 between 1 and 3"))
             .execute(database);
 
@@ -1623,7 +1627,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 between 1 and 3"))
             .execute(database);
 
@@ -1651,7 +1655,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2"
                         + " between ? and ?"))
             .execute(database, 1, 3);
@@ -1682,7 +1686,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 between ? and ?"))
             .execute(database, 1, 3);
 
@@ -1712,7 +1716,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop2 between ? and ?"))
             .execute(database, 1, 3);
 
@@ -1739,7 +1743,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 = 1"))
             .execute(database);
 
@@ -1760,7 +1764,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 = ?"))
             .execute(database, 1);
 
@@ -1781,7 +1785,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 > 90"))
             .execute(database);
 
@@ -1806,7 +1810,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 > ?"))
             .execute(database, 90);
 
@@ -1847,7 +1851,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 >= 90"))
             .execute(database);
 
@@ -1872,7 +1876,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 >= ?"))
             .execute(database, 90);
 
@@ -1897,7 +1901,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 <= 10"))
             .execute(database);
 
@@ -1922,7 +1926,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 <= ?"))
             .execute(database, 10);
 
@@ -1947,7 +1951,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 < 10"))
             .execute(database);
 
@@ -1972,7 +1976,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 < ?"))
             .execute(database, 10);
 
@@ -1997,7 +2001,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 between 1 and 10"))
             .execute(database);
 
@@ -2022,7 +2026,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 between ? and ?"))
             .execute(database, 1, 10);
 
@@ -2047,7 +2051,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 in [0, 5, 10]"))
             .execute(database);
 
@@ -2072,7 +2076,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop3 in [?, ?, ?]"))
             .execute(database, 0, 5, 10);
 
@@ -2098,7 +2102,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where (prop1 = 1 and prop2 = 1)"
                         + " and prop3 = 11"))
             .execute(database);
@@ -2126,7 +2130,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 = 1"
                         + " and prop4 = 1"))
             .execute(database);
@@ -2154,7 +2158,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where (prop1 = 1 and prop2 = 1)"
                         + " and prop5 >= 1"))
             .execute(database);
@@ -2182,7 +2186,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop4 >="
                         + " 1"))
             .execute(database);
@@ -2217,7 +2221,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop4 = 1"))
             .execute(database);
 
@@ -2261,7 +2265,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop6 <= 1 and prop4 <"
                         + " 1"))
             .execute(database);
@@ -2306,7 +2310,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1 and prop2 + 1 ="
                         + " 3"))
             .execute(database);
@@ -2332,7 +2336,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedMap containskey"
                         + " 'key12'"))
             .execute(database);
@@ -2368,7 +2372,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where ( fEmbeddedMap"
                         + " containskey 'key12' ) and ( fEmbeddedMap['key12'] = 12 )"))
             .execute(database);
@@ -2404,7 +2408,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedMap"
                         + " containsvalue 11"))
             .execute(database);
@@ -2440,7 +2444,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where fEmbeddedList contains"
                         + " 7"))
             .execute(database);
@@ -2471,7 +2475,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where (prop1 = 1 and prop2  ="
                         + " 2) and (prop4 = 3 or prop4 = 1)"))
             .execute(database);
@@ -2497,7 +2501,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where ( prop1 = 1 and prop2 = 2"
                         + " ) or ( prop4  = 1 and prop6 = 2 )"))
             .execute(database);
@@ -2522,7 +2526,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop1 = 1777 and prop2  ="
                         + " 2777"))
             .execute(database);
@@ -2538,15 +2542,16 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
   @Test
   public void testReuseOfIndexOnSeveralClassesFields() {
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass superClass = schema.createClass("sqlSelectHashIndexReuseTestSuperClass");
-    superClass.createProperty(database, "prop0", YTType.INTEGER);
-    final YTClass oClass = schema.createClass("sqlSelectHashIndexReuseTestChildClass", superClass);
-    oClass.createProperty(database, "prop1", YTType.INTEGER);
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass superClass = schema.createClass("sqlSelectHashIndexReuseTestSuperClass");
+    superClass.createProperty(database, "prop0", PropertyType.INTEGER);
+    final SchemaClass oClass = schema.createClass("sqlSelectHashIndexReuseTestChildClass",
+        superClass);
+    oClass.createProperty(database, "prop1", PropertyType.INTEGER);
 
     oClass.createIndex(database,
         "sqlSelectHashIndexReuseTestOnPropertiesFromClassAndSuperclass",
-        YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX,
+        SchemaClass.INDEX_TYPE.UNIQUE_HASH_INDEX,
         "prop0", "prop1");
 
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
@@ -2568,7 +2573,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestChildClass where prop0 = 0 and prop1"
                         + " = 1"))
             .execute(database);
@@ -2584,10 +2589,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
   @Test
   public void testCountFunctionWithNotUniqueIndex() {
-    YTClass klazz =
+    SchemaClass klazz =
         database.getMetadata().getSchema().getOrCreateClass("CountFunctionWithNotUniqueHashIndex");
     if (!klazz.existsProperty("a")) {
-      klazz.createProperty(database, "a", YTType.STRING);
+      klazz.createProperty(database, "a", PropertyType.STRING);
       klazz.createIndex(database, "CountFunctionWithNotUniqueHashIndex_A", "NOTUNIQUE_HASH_INDEX",
           "a");
     }
@@ -2621,10 +2626,10 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
 
-    YTClass klazz =
+    SchemaClass klazz =
         database.getMetadata().getSchema().getOrCreateClass("CountFunctionWithUniqueHashIndex");
     if (!klazz.existsProperty("a")) {
-      klazz.createProperty(database, "a", YTType.STRING);
+      klazz.createProperty(database, "a", PropertyType.STRING);
       klazz.createIndex(database, "CountFunctionWithUniqueHashIndex_A", "UNIQUE_HASH_INDEX", "a");
     }
 
@@ -2641,7 +2646,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
         (EntityImpl)
             database
                 .query(
-                    new OSQLSynchQuery<EntityImpl>(
+                    new SQLSynchQuery<EntityImpl>(
                         "select count(*) from CountFunctionWithUniqueHashIndex where a = 'a'"))
                 .get(0);
 
@@ -2665,7 +2670,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop4 = 1 and prop1 = 1"
                         + " and prop3 in [13, 113]"))
             .execute(database);
@@ -2696,7 +2701,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop4 = 1 and prop1 in"
                         + " [1, 2] and prop3 = 13"))
             .execute(database);
@@ -2729,7 +2734,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop4 = 1 and prop1 in"
                         + " [1, 2] and prop3 in [13, 15]"))
             .execute(database);
@@ -2763,7 +2768,7 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectHashIndexReuseTestClass where prop4 in [1, 2] and prop1"
                         + " = 1 and prop3 = 13"))
             .execute(database);

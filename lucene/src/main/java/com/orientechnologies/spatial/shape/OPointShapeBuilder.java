@@ -14,11 +14,11 @@
 package com.orientechnologies.spatial.shape;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,19 +40,19 @@ public class OPointShapeBuilder extends OShapeBuilder<Point> {
   }
 
   @Override
-  public void initClazz(YTDatabaseSessionInternal db) {
+  public void initClazz(DatabaseSessionInternal db) {
 
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass point = schema.createAbstractClass(NAME, superClass(db));
-    YTProperty coordinates = point.createProperty(db, COORDINATES, YTType.EMBEDDEDLIST,
-        YTType.DOUBLE);
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass point = schema.createAbstractClass(NAME, superClass(db));
+    Property coordinates = point.createProperty(db, COORDINATES, PropertyType.EMBEDDEDLIST,
+        PropertyType.DOUBLE);
     coordinates.setMin(db, "2");
     coordinates.setMax(db, "2");
 
     if (GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
-      YTClass pointz = schema.createAbstractClass(NAME + "Z", superClass(db));
-      YTProperty coordinatesz = pointz.createProperty(db, COORDINATES, YTType.EMBEDDEDLIST,
-          YTType.DOUBLE);
+      SchemaClass pointz = schema.createAbstractClass(NAME + "Z", superClass(db));
+      Property coordinatesz = pointz.createProperty(db, COORDINATES, PropertyType.EMBEDDEDLIST,
+          PropertyType.DOUBLE);
       coordinatesz.setMin(db, "3");
       coordinatesz.setMax(db, "3");
     }

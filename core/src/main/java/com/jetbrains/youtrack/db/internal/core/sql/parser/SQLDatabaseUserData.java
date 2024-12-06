@@ -4,7 +4,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -124,7 +124,7 @@ public class SQLDatabaseUserData extends SimpleNode {
     return result;
   }
 
-  public void executeCreate(YTDatabaseSessionInternal db, CommandContext parentCtx) {
+  public void executeCreate(DatabaseSessionInternal db, CommandContext parentCtx) {
     BasicCommandContext ctx = new BasicCommandContext();
     ctx.setInputParameters(parentCtx.getInputParameters());
     ctx.setDatabase(db);

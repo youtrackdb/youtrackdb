@@ -152,14 +152,14 @@ public class ScalableRWLock implements ReadWriteLock, java.io.Serializable {
       return sharedTryLock();
     }
 
-    public boolean tryLock(long timeout, TimeUnit unit) throws InterruptedException {
+    public boolean tryLock(long timeout, TimeUnit unit) throws java.lang.InterruptedException {
       if (Thread.interrupted()) {
-        throw new InterruptedException();
+        throw new java.lang.InterruptedException();
       }
       return sharedTryLockNanos(unit.toNanos(timeout));
     }
 
-    public void lockInterruptibly() throws InterruptedException {
+    public void lockInterruptibly() throws java.lang.InterruptedException {
       // Not supported
       throw new UnsupportedOperationException();
     }
@@ -187,14 +187,14 @@ public class ScalableRWLock implements ReadWriteLock, java.io.Serializable {
       return exclusiveTryLock();
     }
 
-    public boolean tryLock(long timeout, TimeUnit unit) throws InterruptedException {
+    public boolean tryLock(long timeout, TimeUnit unit) throws java.lang.InterruptedException {
       if (Thread.interrupted()) {
-        throw new InterruptedException();
+        throw new java.lang.InterruptedException();
       }
       return exclusiveTryLockNanos(unit.toNanos(timeout));
     }
 
-    public void lockInterruptibly() throws InterruptedException {
+    public void lockInterruptibly() throws java.lang.InterruptedException {
       // Not supported
       throw new UnsupportedOperationException();
     }
@@ -527,7 +527,7 @@ public class ScalableRWLock implements ReadWriteLock, java.io.Serializable {
    * lock was already held by the current thread; and {@code false} if the waiting time elapsed
    * before the lock could be acquired.
    */
-  public boolean exclusiveTryLockNanos(long nanosTimeout) throws InterruptedException {
+  public boolean exclusiveTryLockNanos(long nanosTimeout) throws java.lang.InterruptedException {
     final long lastTime = System.nanoTime();
     // Try to acquire the lock in write-mode
     if (stampedLock.tryWriteLock(nanosTimeout, TimeUnit.NANOSECONDS) == 0) {

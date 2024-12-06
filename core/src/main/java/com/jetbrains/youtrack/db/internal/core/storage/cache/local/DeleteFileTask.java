@@ -1,24 +1,24 @@
 package com.jetbrains.youtrack.db.internal.core.storage.cache.local;
 
-import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import java.util.concurrent.Callable;
 
-final class DeleteFileTask implements Callable<ORawPair<String, String>> {
+final class DeleteFileTask implements Callable<RawPair<String, String>> {
 
   /**
    *
    */
-  private final OWOWCache cache;
+  private final WOWCache cache;
 
   private final long externalFileId;
 
-  DeleteFileTask(OWOWCache owowCache, long externalFileId) {
-    cache = owowCache;
+  DeleteFileTask(WOWCache WOWCache, long externalFileId) {
+    cache = WOWCache;
     this.externalFileId = externalFileId;
   }
 
   @Override
-  public ORawPair<String, String> call() throws Exception {
+  public RawPair<String, String> call() throws Exception {
     return cache.executeDeleteFile(externalFileId);
   }
 }

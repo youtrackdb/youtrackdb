@@ -4,10 +4,10 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OMoveVertexExecutionPlanner;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OUpdateExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.MoveVertexExecutionPlanner;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.UpdateExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -29,8 +29,8 @@ public class SQLMoveVertexStatement extends SQLStatement {
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
+  public ResultSet execute(
+      DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
@@ -42,26 +42,26 @@ public class SQLMoveVertexStatement extends SQLStatement {
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
+  public ResultSet execute(
+      DatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
     BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     ctx.setInputParameters(params);
-    OUpdateExecutionPlan executionPlan;
+    UpdateExecutionPlan executionPlan;
     if (usePlanCache) {
       executionPlan = createExecutionPlan(ctx, false);
     } else {
-      executionPlan = (OUpdateExecutionPlan) createExecutionPlanNoCache(ctx, false);
+      executionPlan = (UpdateExecutionPlan) createExecutionPlanNoCache(ctx, false);
     }
     executionPlan.executeInternal();
-    return new YTLocalResultSet(executionPlan);
+    return new LocalResultSet(executionPlan);
   }
 
-  public OUpdateExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    OMoveVertexExecutionPlanner planner = new OMoveVertexExecutionPlanner(this);
+  public UpdateExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
+    MoveVertexExecutionPlanner planner = new MoveVertexExecutionPlanner(this);
     return planner.createExecutionPlan(ctx, enableProfiling);
   }
 

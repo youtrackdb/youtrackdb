@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ResultSetEdgeTraverser;
@@ -20,19 +20,19 @@ public class MatchStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
 
     ExecutionStream resultSet = prev.start(ctx);
     return resultSet.flatMap(this::createNextResultSet);
   }
 
-  public ExecutionStream createNextResultSet(YTResult lastUpstreamRecord, CommandContext ctx) {
+  public ExecutionStream createNextResultSet(Result lastUpstreamRecord, CommandContext ctx) {
     MatchEdgeTraverser trav = createTraverser(lastUpstreamRecord);
     return new ResultSetEdgeTraverser(trav);
   }
 
-  protected MatchEdgeTraverser createTraverser(YTResult lastUpstreamRecord) {
+  protected MatchEdgeTraverser createTraverser(Result lastUpstreamRecord) {
     if (edge.edge.item instanceof SQLMultiMatchPathItem) {
       return new MatchMultiEdgeTraverser(lastUpstreamRecord, edge);
     } else if (edge.edge.item instanceof SQLFieldMatchPathItem) {

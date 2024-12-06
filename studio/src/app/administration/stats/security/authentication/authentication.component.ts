@@ -20,11 +20,11 @@ import { KerberosAuthenticatorComponent } from "./authenticators";
 declare const angular: any;
 
 const suppertedAuthenticators = {
-  "com.orientechnologies.orient.server.security.authenticator.ODefaultPasswordAuthenticator": {
+  "com.jetbrains.youtrack.db.internal.core.security.authenticator.DefaultPasswordAuthenticator": {
     defaultVal: {
       name: "Password",
       class:
-        "com.orientechnologies.orient.server.security.authenticator.ODefaultPasswordAuthenticator",
+        "com.jetbrains.youtrack.db.internal.core.security.authenticator.DefaultPasswordAuthenticator",
       enabled: true
     }
   },
@@ -56,19 +56,19 @@ const suppertedAuthenticators = {
       }
     }
   },
-  "com.orientechnologies.orient.server.security.authenticator.OServerConfigAuthenticator": {
+  "com.orientechnologies.orient.server.security.authenticator.ServerConfigAuthenticator": {
     defaultVal: {
       name: "ServerConfig",
       class:
-        "com.orientechnologies.orient.server.security.authenticator.OServerConfigAuthenticator",
+        "com.orientechnologies.orient.server.security.authenticator.ServerConfigAuthenticator",
       enabled: true
     }
   },
-  "com.orientechnologies.orient.server.security.authenticator.OSystemUserAuthenticator": {
+  "com.orientechnologies.orient.server.security.authenticator.SystemUserAuthenticator": {
     defaultVal: {
       name: "SystemAuthenticator",
       class:
-        "com.orientechnologies.orient.server.security.authenticator.OSystemUserAuthenticator",
+        "com.orientechnologies.orient.server.security.authenticator.SystemUserAuthenticator",
       enabled: true
     }
   }

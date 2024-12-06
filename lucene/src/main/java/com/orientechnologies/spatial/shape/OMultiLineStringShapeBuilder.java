@@ -14,10 +14,10 @@
 package com.orientechnologies.spatial.shape;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,14 +53,16 @@ public class OMultiLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeomet
   }
 
   @Override
-  public void initClazz(YTDatabaseSessionInternal db) {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass lineString = schema.createAbstractClass(getName(), superClass(db));
-    lineString.createProperty(db, COORDINATES, YTType.EMBEDDEDLIST, YTType.EMBEDDEDLIST);
+  public void initClazz(DatabaseSessionInternal db) {
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass lineString = schema.createAbstractClass(getName(), superClass(db));
+    lineString.createProperty(db, COORDINATES, PropertyType.EMBEDDEDLIST,
+        PropertyType.EMBEDDEDLIST);
 
     if (GlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
-      YTClass lineStringZ = schema.createAbstractClass(getName() + "Z", superClass(db));
-      lineStringZ.createProperty(db, COORDINATES, YTType.EMBEDDEDLIST, YTType.EMBEDDEDLIST);
+      SchemaClass lineStringZ = schema.createAbstractClass(getName() + "Z", superClass(db));
+      lineStringZ.createProperty(db, COORDINATES, PropertyType.EMBEDDEDLIST,
+          PropertyType.EMBEDDEDLIST);
     }
   }
 

@@ -961,7 +961,7 @@ ee.controller("AuditingController", [
         try {
           if (!security.auditing) {
             security.auditing = {
-              class: "com.orientechnologies.security.auditing.ODefaultAuditing",
+              class: "com.orientechnologies.security.auditing.DefaultAuditing",
               enabled: false,
               distributed: {
                 onNodeJoinedEnabled: false,
@@ -1339,7 +1339,7 @@ ee.controller("EEDashboardController", [
   function($scope, $rootScope, $routeParams, Database, PermissionService) {
     $scope.menus = [];
     $rootScope.$on("servermgmt:open", function() {
-      
+
 
         $scope.menus = PermissionService.getSideMenu();
 
@@ -1404,7 +1404,7 @@ ee.controller("EEDashboardController", [
         // ];
         $scope.show = "ee-view-show";
       });
-    
+
     $rootScope.$on("servermgmt:close", function() {
       $scope.show = "";
       $scope.menus = [];
@@ -2955,19 +2955,19 @@ ee.controller("ServerAuthTabController", [
           }
         }
       },
-      "com.orientechnologies.orient.server.security.authenticator.OServerConfigAuthenticator": {
+      "com.orientechnologies.orient.server.security.authenticator.ServerConfigAuthenticator": {
         defaultVal: {
           name: "ServerConfig",
           class:
-            "com.orientechnologies.orient.server.security.authenticator.OServerConfigAuthenticator",
+            "com.orientechnologies.orient.server.security.authenticator.ServerConfigAuthenticator",
           enabled: true
         }
       },
-      "com.orientechnologies.orient.server.security.authenticator.OSystemUserAuthenticator": {
+      "com.orientechnologies.orient.server.security.authenticator.SystemUserAuthenticator": {
         defaultVal: {
           name: "SystemAuthenticator",
           class:
-            "com.orientechnologies.orient.server.security.authenticator.OSystemUserAuthenticator",
+            "com.orientechnologies.orient.server.security.authenticator.SystemUserAuthenticator",
           enabled: true
         }
       }
@@ -3247,7 +3247,7 @@ ee.controller("OServerConfigController", [
   "$scope",
   function($scope) {
     $scope.serverConfig = $scope.getValue(
-      "com.orientechnologies.orient.server.security.authenticator.OServerConfigAuthenticator"
+      "com.orientechnologies.orient.server.security.authenticator.ServerConfigAuthenticator"
     );
   }
 ]);

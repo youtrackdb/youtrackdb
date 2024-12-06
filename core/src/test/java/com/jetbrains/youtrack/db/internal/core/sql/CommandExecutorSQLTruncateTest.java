@@ -2,18 +2,18 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.io.IOException;
 import org.junit.Test;
 
-public class CommandExecutorSQLTruncateTest extends DBTestBase {
+public class CommandExecutorSQLTruncateTest extends DbTestBase {
 
   @Test
   public void testTruncatePlain() {
-    YTClass vcl = db.getMetadata().getSchema().createClass("A");
+    SchemaClass vcl = db.getMetadata().getSchema().createClass("A");
     db.getMetadata().getSchema().createClass("ab", vcl);
 
     db.begin();
@@ -26,7 +26,7 @@ public class CommandExecutorSQLTruncateTest extends DBTestBase {
     db.save(doc);
     db.commit();
 
-    YTResultSet ret = db.command("truncate class A ");
+    ResultSet ret = db.command("truncate class A ");
     assertEquals((long) ret.next().getProperty("count"), 1L);
   }
 
@@ -51,7 +51,7 @@ public class CommandExecutorSQLTruncateTest extends DBTestBase {
 
   @Test
   public void testTruncatePolimorphic() {
-    YTClass vcl = db.getMetadata().getSchema().createClass("A");
+    SchemaClass vcl = db.getMetadata().getSchema().createClass("A");
     db.getMetadata().getSchema().createClass("ab", vcl);
 
     db.begin();
@@ -64,7 +64,7 @@ public class CommandExecutorSQLTruncateTest extends DBTestBase {
     db.save(doc);
     db.commit();
 
-    try (YTResultSet res = db.command("truncate class A POLYMORPHIC")) {
+    try (ResultSet res = db.command("truncate class A POLYMORPHIC")) {
       assertEquals((long) res.next().getProperty("count"), 1L);
       assertEquals((long) res.next().getProperty("count"), 1L);
     }

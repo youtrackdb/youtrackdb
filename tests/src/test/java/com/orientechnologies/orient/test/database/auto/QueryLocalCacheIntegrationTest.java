@@ -17,10 +17,10 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -47,7 +47,7 @@ public class QueryLocalCacheIntegrationTest extends DocumentDBBaseTest {
         .getMetadata()
         .getSchema()
         .createClass("SecondFetchClass")
-        .createProperty(database, "surname", YTType.STRING)
+        .createProperty(database, "surname", PropertyType.STRING)
         .setMandatory(database, true);
     database.getMetadata().getSchema().createClass("OutInFetchClass");
 
@@ -118,13 +118,13 @@ public class QueryLocalCacheIntegrationTest extends DocumentDBBaseTest {
     final long times = YouTrackDBManager.instance().getProfiler().getCounter("Cache.reused");
 
     List<EntityImpl> resultset =
-        database.query(new OSQLSynchQuery<EntityImpl>("select * from FetchClass"));
+        database.query(new SQLSynchQuery<EntityImpl>("select * from FetchClass"));
     Assert.assertEquals(YouTrackDBManager.instance().getProfiler().getCounter("Cache.reused"),
         times);
 
-    YTRID linked;
+    RID linked;
     for (EntityImpl d : resultset) {
-      linked = d.field("linked", YTRID.class);
+      linked = d.field("linked", RID.class);
       if (linked != null) {
         Assert.assertNull(database.getLocalCache().findRecord(linked));
       }

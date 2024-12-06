@@ -15,17 +15,17 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.ODirection;
+import com.jetbrains.youtrack.db.internal.core.record.Direction;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -78,9 +78,9 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     database.commit();
 
     tom = database.bindToSession(tom);
-    Assert.assertEquals(CollectionUtils.size(tom.getEdges(ODirection.OUT, "drives")), 2);
+    Assert.assertEquals(CollectionUtils.size(tom.getEdges(Direction.OUT, "drives")), 2);
 
-    YTResultSet result =
+    ResultSet result =
         database.query("select out_[in.@class = 'GraphCar'].in_ from V where name = 'Tom'");
     Assert.assertEquals(result.stream().count(), 1);
 
@@ -94,17 +94,17 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
   }
 
   public void testNotDuplicatedIndexTxChanges() throws IOException {
-    YTClass oc = database.createVertexClass("vertexA");
+    SchemaClass oc = database.createVertexClass("vertexA");
     if (oc == null) {
       oc = database.createVertexClass("vertexA");
     }
 
     if (!oc.existsProperty("name")) {
-      oc.createProperty(database, "name", YTType.STRING);
+      oc.createProperty(database, "name", PropertyType.STRING);
     }
 
     if (oc.getClassIndex(database, "vertexA_name_idx") == null) {
-      oc.createIndex(database, "vertexA_name_idx", YTClass.INDEX_TYPE.UNIQUE, "name");
+      oc.createIndex(database, "vertexA_name_idx", SchemaClass.INDEX_TYPE.UNIQUE, "name");
     }
 
     database.begin();
@@ -180,7 +180,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     database.commit();
 
     String query1 = "select driver from V where out().car contains 'ford'";
-    YTResultSet result = database.query(query1);
+    ResultSet result = database.query(query1);
     Assert.assertEquals(result.stream().count(), 1);
 
     String query2 = "select driver from V where outE()[color='red'].inV().car contains 'ford'";
@@ -224,7 +224,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
 
     database.commit();
     String subquery = "select out('owns') as out from V where name = 'UK'";
-    List<YTResult> result = database.query(subquery).stream().collect(Collectors.toList());
+    List<Result> result = database.query(subquery).stream().collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 1);
     Assert.assertEquals(((Collection) result.get(0).getProperty("out")).size(), 2);
@@ -233,7 +233,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     result = database.query(subquery).stream().collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 2);
-    for (YTResult value : result) {
+    for (Result value : result) {
       Assert.assertTrue(value.hasProperty("lat"));
     }
 
@@ -243,7 +243,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     result = database.query(query).stream().collect(Collectors.toList());
 
     Assert.assertEquals(result.size(), 2);
-    for (YTResult oResult : result) {
+    for (Result oResult : result) {
       Assert.assertTrue(oResult.hasProperty("lat"));
       Assert.assertTrue(oResult.hasProperty("distance"));
     }
@@ -253,7 +253,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     try {
       database.command("delete from GraphVehicle").close();
       Assert.fail();
-    } catch (YTCommandExecutionException e) {
+    } catch (CommandExecutionException e) {
       Assert.assertTrue(true);
     }
   }
@@ -262,7 +262,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     try {
       database.command(new CommandSQL("insert into E set a = 33")).execute(database);
       Assert.fail();
-    } catch (YTCommandExecutionException e) {
+    } catch (CommandExecutionException e) {
       Assert.assertTrue(true);
     }
   }
@@ -305,11 +305,11 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
 
     EntityImpl doc2 = new EntityImpl("V");
     doc2.field("foo", "bar1");
-    vertex.setProperty("emb2", doc2, YTType.EMBEDDED);
+    vertex.setProperty("emb2", doc2, PropertyType.EMBEDDED);
 
     EntityImpl doc3 = new EntityImpl("NonVertex");
     doc3.field("foo", "bar2");
-    vertex.setProperty("emb3", doc3, YTType.EMBEDDED);
+    vertex.setProperty("emb3", doc3, PropertyType.EMBEDDED);
 
     Object res1 = vertex.getProperty("emb1");
     Assert.assertNotNull(res1);

@@ -1,15 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseCompare;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.File;
@@ -22,7 +22,7 @@ public class StorageBackupTestWithLuceneIndex {
 
   private String buildDirectory;
 
-  private YTDatabaseSessionInternal db;
+  private DatabaseSessionInternal db;
   private String dbDirectory;
   private String backedUpDbDirectory;
 
@@ -32,7 +32,7 @@ public class StorageBackupTestWithLuceneIndex {
     dbDirectory =
         buildDirectory + File.separator + StorageBackupTestWithLuceneIndex.class.getSimpleName();
     FileUtils.deleteRecursively(new File(dbDirectory));
-    db = new YTDatabaseDocumentTx("plocal:" + dbDirectory);
+    db = new DatabaseDocumentTx("plocal:" + dbDirectory);
     db.create();
 
     backedUpDbDirectory =
@@ -51,8 +51,8 @@ public class StorageBackupTestWithLuceneIndex {
       db.drop();
     }
 
-    final YTDatabaseSessionInternal backedUpDb =
-        new YTDatabaseDocumentTx("plocal:" + backedUpDbDirectory);
+    final DatabaseSessionInternal backedUpDb =
+        new DatabaseDocumentTx("plocal:" + backedUpDbDirectory);
     if (backedUpDb.exists()) {
       if (backedUpDb.isClosed()) {
         backedUpDb.open("admin", "admin");
@@ -66,14 +66,14 @@ public class StorageBackupTestWithLuceneIndex {
 
   // @Test
   public void testSingeThreadFullBackup() throws IOException {
-    final YTSchema schema = db.getMetadata().getSchema();
-    final YTClass backupClass = schema.createClass("BackupClass");
-    backupClass.createProperty(db, "num", YTType.INTEGER);
-    backupClass.createProperty(db, "name", YTType.STRING);
+    final Schema schema = db.getMetadata().getSchema();
+    final SchemaClass backupClass = schema.createClass("BackupClass");
+    backupClass.createProperty(db, "num", PropertyType.INTEGER);
+    backupClass.createProperty(db, "name", PropertyType.STRING);
 
     backupClass.createIndex(db,
         "backupLuceneIndex",
-        YTClass.INDEX_TYPE.FULLTEXT.toString(),
+        SchemaClass.INDEX_TYPE.FULLTEXT.toString(),
         null,
         null,
         "LUCENE", new String[]{"name"});
@@ -100,8 +100,8 @@ public class StorageBackupTestWithLuceneIndex {
 
     FileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
-    final YTDatabaseSessionInternal backedUpDb =
-        new YTDatabaseDocumentTx("plocal:" + backedUpDbDirectory);
+    final DatabaseSessionInternal backedUpDb =
+        new DatabaseDocumentTx("plocal:" + backedUpDbDirectory);
     backedUpDb.create(backupDir.getAbsolutePath());
 
     final Storage backupStorage = backedUpDb.getStorage();
@@ -109,14 +109,14 @@ public class StorageBackupTestWithLuceneIndex {
 
     backupStorage.close(db, true);
 
-    var orientDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+    var orientDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
-    final ODatabaseCompare compare =
-        new ODatabaseCompare(
-            (YTDatabaseSessionInternal)
+    final DatabaseCompare compare =
+        new DatabaseCompare(
+            (DatabaseSessionInternal)
                 orientDB.open(
                     StorageBackupTestWithLuceneIndex.class.getSimpleName(), "admin", "admin"),
-            (YTDatabaseSessionInternal)
+            (DatabaseSessionInternal)
                 orientDB.open(
                     StorageBackupTestWithLuceneIndex.class.getSimpleName() + "BackUp",
                     "admin",
@@ -129,14 +129,14 @@ public class StorageBackupTestWithLuceneIndex {
   // @Test
   public void testSingeThreadIncrementalBackup() throws IOException {
 
-    final YTSchema schema = db.getMetadata().getSchema();
-    final YTClass backupClass = schema.createClass("BackupClass");
-    backupClass.createProperty(db, "num", YTType.INTEGER);
-    backupClass.createProperty(db, "name", YTType.STRING);
+    final Schema schema = db.getMetadata().getSchema();
+    final SchemaClass backupClass = schema.createClass("BackupClass");
+    backupClass.createProperty(db, "num", PropertyType.INTEGER);
+    backupClass.createProperty(db, "name", PropertyType.STRING);
 
     backupClass.createIndex(db,
         "backupLuceneIndex",
-        YTClass.INDEX_TYPE.FULLTEXT.toString(),
+        SchemaClass.INDEX_TYPE.FULLTEXT.toString(),
         null,
         null,
         "LUCENE", new String[]{"name"});
@@ -178,8 +178,8 @@ public class StorageBackupTestWithLuceneIndex {
             + "BackUp";
     FileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
-    final YTDatabaseSessionInternal backedUpDb =
-        new YTDatabaseDocumentTx("plocal:" + backedUpDbDirectory);
+    final DatabaseSessionInternal backedUpDb =
+        new DatabaseDocumentTx("plocal:" + backedUpDbDirectory);
     backedUpDb.create(backupDir.getAbsolutePath());
 
     final Storage backupStorage = backedUpDb.getStorage();
@@ -187,14 +187,14 @@ public class StorageBackupTestWithLuceneIndex {
 
     backupStorage.close(db, true);
 
-    var orientDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+    var orientDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
-    final ODatabaseCompare compare =
-        new ODatabaseCompare(
-            (YTDatabaseSessionInternal)
+    final DatabaseCompare compare =
+        new DatabaseCompare(
+            (DatabaseSessionInternal)
                 orientDB.open(
                     StorageBackupTestWithLuceneIndex.class.getSimpleName(), "admin", "admin"),
-            (YTDatabaseSessionInternal)
+            (DatabaseSessionInternal)
                 orientDB.open(
                     StorageBackupTestWithLuceneIndex.class.getSimpleName() + "BackUp",
                     "admin",

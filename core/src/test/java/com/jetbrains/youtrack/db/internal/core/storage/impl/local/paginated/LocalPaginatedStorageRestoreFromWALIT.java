@@ -2,14 +2,14 @@ package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseCompare;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import java.io.BufferedInputStream;
@@ -41,8 +41,8 @@ import org.junit.Test;
 public class LocalPaginatedStorageRestoreFromWALIT {
 
   private static File buildDir;
-  private YTDatabaseSessionInternal testDocumentTx;
-  private YTDatabaseSessionInternal baseDocumentTx;
+  private DatabaseSessionInternal testDocumentTx;
+  private DatabaseSessionInternal baseDocumentTx;
   private final ExecutorService executorService = Executors.newCachedThreadPool();
 
   private static void copyFile(String from, String to) throws IOException {
@@ -87,7 +87,7 @@ public class LocalPaginatedStorageRestoreFromWALIT {
   @Before
   public void beforeMethod() {
     baseDocumentTx =
-        new YTDatabaseDocumentTx(
+        new DatabaseDocumentTx(
             "plocal:" + buildDir.getAbsolutePath() + "/baseLocalPaginatedStorageRestoreFromWAL");
     if (baseDocumentTx.exists()) {
       baseDocumentTx.open("admin", "admin");
@@ -127,21 +127,21 @@ public class LocalPaginatedStorageRestoreFromWALIT {
     baseStorage.close(baseDocumentTx);
 
     testDocumentTx =
-        new YTDatabaseDocumentTx(
+        new DatabaseDocumentTx(
             "plocal:" + buildDir.getAbsolutePath() + "/testLocalPaginatedStorageRestoreFromWAL");
     testDocumentTx.open("admin", "admin");
     testDocumentTx.close();
 
     testDocumentTx =
-        new YTDatabaseDocumentTx(
+        new DatabaseDocumentTx(
             "plocal:" + buildDir.getAbsolutePath() + "/testLocalPaginatedStorageRestoreFromWAL");
     testDocumentTx.open("admin", "admin");
     baseDocumentTx =
-        new YTDatabaseDocumentTx(
+        new DatabaseDocumentTx(
             "plocal:" + buildDir.getAbsolutePath() + "/baseLocalPaginatedStorageRestoreFromWAL");
     baseDocumentTx.open("admin", "admin");
-    ODatabaseCompare databaseCompare =
-        new ODatabaseCompare(testDocumentTx, baseDocumentTx, System.out::println);
+    DatabaseCompare databaseCompare =
+        new DatabaseCompare(testDocumentTx, baseDocumentTx, System.out::println);
     databaseCompare.setCompareIndexMetadata(true);
 
     Assert.assertTrue(databaseCompare.compare());
@@ -288,21 +288,22 @@ public class LocalPaginatedStorageRestoreFromWALIT {
     }
   }
 
-  private void createSchema(YTDatabaseSessionInternal databaseDocumentTx) {
-    ODatabaseRecordThreadLocal.instance().set(databaseDocumentTx);
+  private void createSchema(DatabaseSessionInternal databaseDocumentTx) {
+    DatabaseRecordThreadLocal.instance().set(databaseDocumentTx);
 
-    YTSchema schema = databaseDocumentTx.getMetadata().getSchema();
-    YTClass testOneClass = schema.createClass("TestOne");
+    Schema schema = databaseDocumentTx.getMetadata().getSchema();
+    SchemaClass testOneClass = schema.createClass("TestOne");
 
-    testOneClass.createProperty(databaseDocumentTx, "intProp", YTType.INTEGER);
-    testOneClass.createProperty(databaseDocumentTx, "stringProp", YTType.STRING);
-    testOneClass.createProperty(databaseDocumentTx, "stringSet", YTType.EMBEDDEDSET, YTType.STRING);
-    testOneClass.createProperty(databaseDocumentTx, "linkMap", YTType.LINKMAP);
+    testOneClass.createProperty(databaseDocumentTx, "intProp", PropertyType.INTEGER);
+    testOneClass.createProperty(databaseDocumentTx, "stringProp", PropertyType.STRING);
+    testOneClass.createProperty(databaseDocumentTx, "stringSet", PropertyType.EMBEDDEDSET,
+        PropertyType.STRING);
+    testOneClass.createProperty(databaseDocumentTx, "linkMap", PropertyType.LINKMAP);
 
-    YTClass testTwoClass = schema.createClass("TestTwo");
+    SchemaClass testTwoClass = schema.createClass("TestTwo");
 
-    testTwoClass.createProperty(databaseDocumentTx, "stringList", YTType.EMBEDDEDLIST,
-        YTType.STRING);
+    testTwoClass.createProperty(databaseDocumentTx, "stringList", PropertyType.EMBEDDEDLIST,
+        PropertyType.STRING);
   }
 
   public class DataPropagationTask implements Callable<Void> {
@@ -312,14 +313,14 @@ public class LocalPaginatedStorageRestoreFromWALIT {
 
       Random random = new Random();
 
-      final YTDatabaseSessionInternal db = new YTDatabaseDocumentTx(baseDocumentTx.getURL());
+      final DatabaseSessionInternal db = new DatabaseDocumentTx(baseDocumentTx.getURL());
       db.open("admin", "admin");
       try {
-        List<YTRID> testTwoList = new ArrayList<YTRID>();
-        List<YTRID> firstDocs = new ArrayList<YTRID>();
+        List<RID> testTwoList = new ArrayList<RID>();
+        List<RID> firstDocs = new ArrayList<RID>();
 
-        YTClass classOne = db.getMetadata().getSchema().getClass("TestOne");
-        YTClass classTwo = db.getMetadata().getSchema().getClass("TestTwo");
+        SchemaClass classOne = db.getMetadata().getSchema().getClass("TestOne");
+        SchemaClass classTwo = db.getMetadata().getSchema().getClass("TestTwo");
 
         for (int i = 0; i < 5000; i++) {
           EntityImpl docOne = new EntityImpl(classOne);
@@ -360,10 +361,10 @@ public class LocalPaginatedStorageRestoreFromWALIT {
             int startIndex = random.nextInt(testTwoList.size());
             int endIndex = random.nextInt(testTwoList.size() - startIndex) + startIndex;
 
-            Map<String, YTRID> linkMap = new HashMap<String, YTRID>();
+            Map<String, RID> linkMap = new HashMap<String, RID>();
 
             for (int n = startIndex; n < endIndex; n++) {
-              YTRID docTwoRid = testTwoList.get(n);
+              RID docTwoRid = testTwoList.get(n);
               linkMap.put(docTwoRid.toString(), docTwoRid);
             }
 
@@ -373,7 +374,7 @@ public class LocalPaginatedStorageRestoreFromWALIT {
 
           boolean deleteDoc = random.nextDouble() <= 0.2;
           if (deleteDoc) {
-            YTRID rid = firstDocs.remove(random.nextInt(firstDocs.size()));
+            RID rid = firstDocs.remove(random.nextInt(firstDocs.size()));
             db.delete(rid);
           }
         }

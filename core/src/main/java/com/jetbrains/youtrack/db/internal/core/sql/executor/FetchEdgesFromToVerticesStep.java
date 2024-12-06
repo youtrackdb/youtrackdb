@@ -1,17 +1,17 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.record.Direction;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.ODirection;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStreamProducer;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStreamProducer;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import java.util.Collections;
 import java.util.HashSet;
@@ -44,20 +44,20 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
     final Iterator fromIter = loadFrom();
 
-    final Set<YTRID> toList = loadTo();
+    final Set<RID> toList = loadTo();
 
     var db = ctx.getDatabase();
-    OExecutionStreamProducer res =
-        new OExecutionStreamProducer() {
+    ExecutionStreamProducer res =
+        new ExecutionStreamProducer() {
           private final Iterator iter = fromIter;
-          private final Set<YTRID> to = toList;
+          private final Set<RID> to = toList;
 
           @Override
           public ExecutionStream next(CommandContext ctx) {
@@ -77,23 +77,23 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     return new MultipleExecutionStream(res);
   }
 
-  private ExecutionStream createResultSet(YTDatabaseSessionInternal db, Set<YTRID> toList,
+  private ExecutionStream createResultSet(DatabaseSessionInternal db, Set<RID> toList,
       Object val) {
     return ExecutionStream.resultIterator(
         StreamSupport.stream(this.loadNextResults(val).spliterator(), false)
             .filter((e) -> filterResult(e, toList))
             .map(
                 (edge) -> {
-                  return (YTResult) new YTResultInternal(db, edge);
+                  return (Result) new ResultInternal(db, edge);
                 })
             .iterator());
   }
 
-  private Set<YTRID> loadTo() {
+  private Set<RID> loadTo() {
     Object toValues = null;
 
     toValues = ctx.getVariable(toAlias);
-    if (toValues instanceof Iterable && !(toValues instanceof YTIdentifiable)) {
+    if (toValues instanceof Iterable && !(toValues instanceof Identifiable)) {
       toValues = ((Iterable<?>) toValues).iterator();
     } else if (!(toValues instanceof Iterator) && toValues != null) {
       toValues = Collections.singleton(toValues).iterator();
@@ -101,17 +101,17 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
 
     Iterator<?> toIter = (Iterator<?>) toValues;
     if (toIter != null) {
-      final Set<YTRID> toList = new HashSet<YTRID>();
+      final Set<RID> toList = new HashSet<RID>();
       while (toIter.hasNext()) {
         Object elem = toIter.next();
-        if (elem instanceof YTResult) {
-          elem = ((YTResult) elem).toEntity();
+        if (elem instanceof Result) {
+          elem = ((Result) elem).toEntity();
         }
-        if (elem instanceof YTIdentifiable && !(elem instanceof Entity)) {
-          elem = ((YTIdentifiable) elem).getRecord();
+        if (elem instanceof Identifiable && !(elem instanceof Entity)) {
+          elem = ((Identifiable) elem).getRecord();
         }
         if (!(elem instanceof Entity)) {
-          throw new YTCommandExecutionException("Invalid vertex: " + elem);
+          throw new CommandExecutionException("Invalid vertex: " + elem);
         }
         ((Entity) elem).asVertex().ifPresent(x -> toList.add(x.getIdentity()));
       }
@@ -125,7 +125,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     Object fromValues = null;
 
     fromValues = ctx.getVariable(fromAlias);
-    if (fromValues instanceof Iterable && !(fromValues instanceof YTIdentifiable)) {
+    if (fromValues instanceof Iterable && !(fromValues instanceof Identifiable)) {
       fromValues = ((Iterable<?>) fromValues).iterator();
     } else if (!(fromValues instanceof Iterator)) {
       fromValues = Collections.singleton(fromValues).iterator();
@@ -133,7 +133,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     return (Iterator<?>) fromValues;
   }
 
-  private boolean filterResult(Edge edge, Set<YTRID> toList) {
+  private boolean filterResult(Edge edge, Set<RID> toList) {
     if (toList == null || toList.contains(edge.getTo().getIdentity())) {
       return matchesClass(edge) && matchesCluster(edge);
     }
@@ -141,18 +141,18 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
   }
 
   private Iterable<Edge> loadNextResults(Object from) {
-    if (from instanceof YTResult) {
-      from = ((YTResult) from).toEntity();
+    if (from instanceof Result) {
+      from = ((Result) from).toEntity();
     }
-    if (from instanceof YTIdentifiable && !(from instanceof Entity)) {
-      from = ((YTIdentifiable) from).getRecord();
+    if (from instanceof Identifiable && !(from instanceof Entity)) {
+      from = ((Identifiable) from).getRecord();
     }
     if (from instanceof Entity && ((Entity) from).isVertex()) {
       var vertex = ((Entity) from).toVertex();
       assert vertex != null;
-      return vertex.getEdges(ODirection.OUT);
+      return vertex.getEdges(Direction.OUT);
     } else {
-      throw new YTCommandExecutionException("Invalid vertex: " + from);
+      throw new CommandExecutionException("Invalid vertex: " + from);
     }
   }
 

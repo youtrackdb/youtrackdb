@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.OExecutionStreamProducer;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStreamProducer;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.MultipleExecutionStream;
 import java.util.Iterator;
 import java.util.List;
@@ -14,10 +14,10 @@ import java.util.stream.Collectors;
  */
 public class ParallelExecStep extends AbstractExecutionStep {
 
-  private final List<OInternalExecutionPlan> subExecutionPlans;
+  private final List<InternalExecutionPlan> subExecutionPlans;
 
   public ParallelExecStep(
-      List<OInternalExecutionPlan> subExecuitonPlans,
+      List<InternalExecutionPlan> subExecuitonPlans,
       CommandContext ctx,
       boolean profilingEnabled) {
     super(ctx, profilingEnabled);
@@ -25,20 +25,20 @@ public class ParallelExecStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
 
-    List<OInternalExecutionPlan> stepsIter = subExecutionPlans;
+    List<InternalExecutionPlan> stepsIter = subExecutionPlans;
 
-    OExecutionStreamProducer res =
-        new OExecutionStreamProducer() {
-          private final Iterator<OInternalExecutionPlan> iter = stepsIter.iterator();
+    ExecutionStreamProducer res =
+        new ExecutionStreamProducer() {
+          private final Iterator<InternalExecutionPlan> iter = stepsIter.iterator();
 
           @Override
           public ExecutionStream next(CommandContext ctx) {
-            OInternalExecutionPlan step = iter.next();
+            InternalExecutionPlan step = iter.next();
             return step.start();
           }
 
@@ -63,7 +63,7 @@ public class ParallelExecStep extends AbstractExecutionStep {
     int[] blockSizes = new int[subExecutionPlans.size()];
 
     for (int i = 0; i < subExecutionPlans.size(); i++) {
-      OInternalExecutionPlan currentPlan = subExecutionPlans.get(subExecutionPlans.size() - 1 - i);
+      InternalExecutionPlan currentPlan = subExecutionPlans.get(subExecutionPlans.size() - 1 - i);
       String partial = currentPlan.prettyPrint(0, indent);
 
       String[] partials = partial.split("\n");
@@ -149,14 +149,14 @@ public class ParallelExecStep extends AbstractExecutionStep {
     return "| " + p;
   }
 
-  public List<OExecutionPlan> getSubExecutionPlans() {
+  public List<ExecutionPlan> getSubExecutionPlans() {
     //noinspection unchecked,rawtypes
     return (List) subExecutionPlans;
   }
 
   @Override
   public boolean canBeCached() {
-    for (OInternalExecutionPlan plan : subExecutionPlans) {
+    for (InternalExecutionPlan plan : subExecutionPlans) {
       if (!plan.canBeCached()) {
         return false;
       }

@@ -1,30 +1,30 @@
 package com.jetbrains.youtrack.db.internal.core.db.graph;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.storage.YTRecordDuplicatedException;
+import com.jetbrains.youtrack.db.internal.core.storage.RecordDuplicatedException;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  *
  */
-public class TestGraphOperations extends DBTestBase {
+public class TestGraphOperations extends DbTestBase {
 
   @Test
   public void testEdgeUniqueConstraint() {
 
     db.createVertexClass("TestVertex");
 
-    YTClass testLabel = db.createEdgeClass("TestLabel");
+    SchemaClass testLabel = db.createEdgeClass("TestLabel");
 
-    YTProperty key = testLabel.createProperty(db, "key", YTType.STRING);
+    Property key = testLabel.createProperty(db, "key", PropertyType.STRING);
 
-    key.createIndex(db, YTClass.INDEX_TYPE.UNIQUE);
+    key.createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE);
 
     db.begin();
     Vertex vertex = db.newVertex("TestVertex");
@@ -44,7 +44,7 @@ public class TestGraphOperations extends DBTestBase {
       db.save(edge);
       db.commit();
       Assert.fail("It should not be inserted  a duplicated edge");
-    } catch (YTRecordDuplicatedException e) {
+    } catch (RecordDuplicatedException e) {
 
     }
 

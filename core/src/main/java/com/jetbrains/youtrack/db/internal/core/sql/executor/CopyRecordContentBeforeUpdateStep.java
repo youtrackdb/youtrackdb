@@ -1,16 +1,16 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.query.live.OLiveQueryHookV2;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHookV2;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 
 /**
  * Reads an upstream result set and returns a new result set that contains copies of the original
- * YTResult instances
+ * Result instances
  *
  * <p>This is mainly used from statements that need to copy of the original data before modifying
  * it, eg. UPDATE ... RETURN BEFORE
@@ -22,32 +22,32 @@ public class CopyRecordContentBeforeUpdateStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
     ExecutionStream lastFetched = prev.start(ctx);
     return lastFetched.map(this::mapResult);
   }
 
-  private YTResult mapResult(YTResult result, CommandContext ctx) {
+  private Result mapResult(Result result, CommandContext ctx) {
     var db = ctx.getDatabase();
-    if (result instanceof YTUpdatableResult) {
-      YTResultInternal prevValue = new YTResultInternal(db);
+    if (result instanceof UpdatableResult) {
+      ResultInternal prevValue = new ResultInternal(db);
       var rec = result.toEntity();
       prevValue.setProperty("@rid", rec.getIdentity());
       prevValue.setProperty("@version", rec.getVersion());
       if (rec instanceof EntityImpl) {
         prevValue.setProperty(
-            "@class", ODocumentInternal.getImmutableSchemaClass(((EntityImpl) rec)).getName());
+            "@class", DocumentInternal.getImmutableSchemaClass(((EntityImpl) rec)).getName());
       }
       if (!result.toEntity().getIdentity().isNew()) {
         for (String propName : result.getPropertyNames()) {
           prevValue.setProperty(
-              propName, OLiveQueryHookV2.unboxRidbags(result.getProperty(propName)));
+              propName, LiveQueryHookV2.unboxRidbags(result.getProperty(propName)));
         }
       }
-      ((YTUpdatableResult) result).previousValue = prevValue;
+      ((UpdatableResult) result).previousValue = prevValue;
     } else {
-      throw new YTCommandExecutionException("Cannot fetch previous value: " + result);
+      throw new CommandExecutionException("Cannot fetch previous value: " + result);
     }
     return result;
   }

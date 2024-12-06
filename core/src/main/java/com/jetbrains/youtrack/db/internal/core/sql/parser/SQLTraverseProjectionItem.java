@@ -3,9 +3,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -25,7 +25,7 @@ public class SQLTraverseProjectionItem extends SimpleNode {
     super(p, id);
   }
 
-  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
+  public Object execute(Result iCurrentRecord, CommandContext ctx) {
     if (isStar()) {
       return handleStar(iCurrentRecord, ctx);
     }
@@ -47,7 +47,7 @@ public class SQLTraverseProjectionItem extends SimpleNode {
     return modifier != null && modifier.refersToParent();
   }
 
-  private Object handleStar(YTResult iCurrentRecord, CommandContext ctx) {
+  private Object handleStar(Result iCurrentRecord, CommandContext ctx) {
     Set<Object> result = new HashSet<>();
     for (String prop : iCurrentRecord.getPropertyNames()) {
       Object val = iCurrentRecord.getProperty(prop);
@@ -65,9 +65,9 @@ public class SQLTraverseProjectionItem extends SimpleNode {
               result.add(sub);
             }
           }
-        } else if (val instanceof YTResultSet) {
-          while (((YTResultSet) val).hasNext()) {
-            result.add(((YTResultSet) val).next());
+        } else if (val instanceof ResultSet) {
+          while (((ResultSet) val).hasNext()) {
+            result.add(((ResultSet) val).next());
           }
         }
       }
@@ -76,14 +76,14 @@ public class SQLTraverseProjectionItem extends SimpleNode {
   }
 
   private boolean isValidIdentifiable(Object val) {
-    if (!(val instanceof YTIdentifiable)) {
+    if (!(val instanceof Identifiable)) {
       return false;
     }
-    return ((YTIdentifiable) val).getIdentity().isPersistent();
+    return ((Identifiable) val).getIdentity().isPersistent();
   }
 
   private boolean isOResult(Object val) {
-    return val instanceof YTResult;
+    return val instanceof Result;
   }
 
   public void toString(Map<Object, Object> params, StringBuilder builder) {

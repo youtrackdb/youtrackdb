@@ -3,12 +3,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexCandidate;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexFinder;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexCandidate;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -30,7 +30,7 @@ public class SQLNotBlock extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
+  public boolean evaluate(Identifiable currentRecord, CommandContext ctx) {
     if (sub == null) {
       return true;
     }
@@ -42,7 +42,7 @@ public class SQLNotBlock extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
+  public boolean evaluate(Result currentRecord, CommandContext ctx) {
     if (sub == null) {
       return true;
     }
@@ -99,7 +99,7 @@ public class SQLNotBlock extends SQLBooleanExpression {
   }
 
   public List<SQLBinaryCondition> getIndexedFunctionConditions(
-      YTClass iSchemaClass, YTDatabaseSessionInternal database) {
+      SchemaClass iSchemaClass, DatabaseSessionInternal database) {
     if (sub == null) {
       return null;
     }
@@ -175,20 +175,21 @@ public class SQLNotBlock extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     return sub.isCacheable(session);
   }
 
   @Override
-  public SQLBooleanExpression rewriteIndexChainsAsSubqueries(CommandContext ctx, YTClass clazz) {
+  public SQLBooleanExpression rewriteIndexChainsAsSubqueries(CommandContext ctx,
+      SchemaClass clazz) {
     if (!negate) {
       sub = sub.rewriteIndexChainsAsSubqueries(ctx, clazz);
     }
     return this;
   }
 
-  public Optional<OIndexCandidate> findIndex(OIndexFinder info, CommandContext ctx) {
-    Optional<OIndexCandidate> found = sub.findIndex(info, ctx);
+  public Optional<IndexCandidate> findIndex(IndexFinder info, CommandContext ctx) {
+    Optional<IndexCandidate> found = sub.findIndex(info, ctx);
     if (negate && found.isPresent()) {
       found = found.get().invert();
     }

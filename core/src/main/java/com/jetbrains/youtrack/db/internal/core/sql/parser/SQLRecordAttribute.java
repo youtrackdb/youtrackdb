@@ -3,18 +3,18 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.Map;
 import java.util.Objects;
 
@@ -72,19 +72,19 @@ public class SQLRecordAttribute extends SimpleNode {
     this.name = name;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("name", name);
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     name = fromResult.getProperty("name");
   }
 
-  public Object evaluate(YTResult iCurrentRecord, CommandContext ctx) {
+  public Object evaluate(Result iCurrentRecord, CommandContext ctx) {
     if (name.equalsIgnoreCase("@rid")) {
-      YTRID identity = iCurrentRecord.getIdentity().orElse(null);
+      RID identity = iCurrentRecord.getIdentity().orElse(null);
       if (identity == null) {
         identity = iCurrentRecord.getProperty(name);
       }
@@ -92,7 +92,7 @@ public class SQLRecordAttribute extends SimpleNode {
     } else if (name.equalsIgnoreCase("@class")) {
       var element = iCurrentRecord.toEntity();
       if (element != null) {
-        return element.getSchemaType().map(YTClass::getName).orElse(null);
+        return element.getSchemaType().map(SchemaClass::getName).orElse(null);
       }
       return null;
     } else if (name.equalsIgnoreCase("@version")) {
@@ -102,7 +102,7 @@ public class SQLRecordAttribute extends SimpleNode {
           .getRecord()
           .map(
               r -> {
-                var recordType = ORecordInternal.getRecordType(r);
+                var recordType = RecordInternal.getRecordType(r);
                 if (recordType == EntityImpl.RECORD_TYPE) {
                   return "document";
                 } else if (recordType == RecordBytes.RECORD_TYPE) {
@@ -133,12 +133,12 @@ public class SQLRecordAttribute extends SimpleNode {
     if (name.equalsIgnoreCase("@rid")) {
       return iCurrentRecord.getIdentity();
     } else if (name.equalsIgnoreCase("@class")) {
-      return iCurrentRecord.getSchemaType().map(YTClass::getName).orElse(null);
+      return iCurrentRecord.getSchemaType().map(SchemaClass::getName).orElse(null);
     } else if (name.equalsIgnoreCase("@version")) {
       try {
         Record record = iCurrentRecord.getRecord();
         return record.getVersion();
-      } catch (YTRecordNotFoundException e) {
+      } catch (RecordNotFoundException e) {
         return null;
       }
     }

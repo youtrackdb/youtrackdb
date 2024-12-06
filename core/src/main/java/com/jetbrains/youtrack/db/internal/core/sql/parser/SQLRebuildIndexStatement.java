@@ -3,10 +3,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
@@ -26,13 +26,13 @@ public class SQLRebuildIndexStatement extends SQLSimpleExecStatement {
 
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    final YTDatabaseSessionInternal database = ctx.getDatabase();
-    YTResultInternal result = new YTResultInternal(database);
+    final DatabaseSessionInternal database = ctx.getDatabase();
+    ResultInternal result = new ResultInternal(database);
     result.setProperty("operation", "rebuild index");
 
     if (all) {
       long totalIndexed = 0;
-      for (OIndex idx : database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
+      for (Index idx : database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
         if (idx.isAutomatic()) {
           totalIndexed += idx.rebuild(database);
         }
@@ -40,14 +40,14 @@ public class SQLRebuildIndexStatement extends SQLSimpleExecStatement {
 
       result.setProperty("totalIndexed", totalIndexed);
     } else {
-      final OIndex idx =
+      final Index idx =
           database.getMetadata().getIndexManagerInternal().getIndex(database, name.getValue());
       if (idx == null) {
-        throw new YTCommandExecutionException("Index '" + name + "' not found");
+        throw new CommandExecutionException("Index '" + name + "' not found");
       }
 
       if (!idx.isAutomatic()) {
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "Cannot rebuild index '"
                 + name
                 + "' because it's manual and there aren't indications of what to index");

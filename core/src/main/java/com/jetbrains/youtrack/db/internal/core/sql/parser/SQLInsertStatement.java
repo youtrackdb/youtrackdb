@@ -4,10 +4,10 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OInsertExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OInsertExecutionPlanner;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InsertExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InsertExecutionPlanner;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -132,8 +132,8 @@ public class SQLInsertStatement extends SQLStatement {
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
+  public ResultSet execute(
+      DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
     BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
@@ -147,38 +147,38 @@ public class SQLInsertStatement extends SQLStatement {
       }
     }
     ctx.setInputParameters(params);
-    OInsertExecutionPlan executionPlan;
+    InsertExecutionPlan executionPlan;
     if (usePlanCache) {
       executionPlan = createExecutionPlan(ctx, false);
     } else {
-      executionPlan = (OInsertExecutionPlan) createExecutionPlanNoCache(ctx, false);
+      executionPlan = (InsertExecutionPlan) createExecutionPlanNoCache(ctx, false);
     }
     executionPlan.executeInternal();
-    return new YTLocalResultSet(executionPlan);
+    return new LocalResultSet(executionPlan);
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
+  public ResultSet execute(
+      DatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
     BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     ctx.setInputParameters(params);
-    OInsertExecutionPlan executionPlan;
+    InsertExecutionPlan executionPlan;
     if (usePlanCache) {
       executionPlan = createExecutionPlan(ctx, false);
     } else {
-      executionPlan = (OInsertExecutionPlan) createExecutionPlanNoCache(ctx, false);
+      executionPlan = (InsertExecutionPlan) createExecutionPlanNoCache(ctx, false);
     }
     executionPlan.executeInternal();
-    return new YTLocalResultSet(executionPlan);
+    return new LocalResultSet(executionPlan);
   }
 
-  public OInsertExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    OInsertExecutionPlanner planner = new OInsertExecutionPlanner(this);
-    OInsertExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling);
+  public InsertExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
+    InsertExecutionPlanner planner = new InsertExecutionPlanner(this);
+    InsertExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling);
     result.setStatement(originalStatement);
     result.setGenericStatement(this.toGenericStatement());
     return result;

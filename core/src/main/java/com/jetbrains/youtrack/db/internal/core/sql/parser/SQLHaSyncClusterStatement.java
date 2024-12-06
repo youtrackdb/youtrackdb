@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 
@@ -23,7 +23,7 @@ public class SQLHaSyncClusterStatement extends SQLSimpleExecStatement {
 
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    throw new YTCommandExecutionException("Cannot execute HA SYNC CLUSTER, not supported anymore");
+    throw new CommandExecutionException("Cannot execute HA SYNC CLUSTER, not supported anymore");
   }
 
   @Override

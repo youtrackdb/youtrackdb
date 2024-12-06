@@ -2,22 +2,22 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.OPropertyIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexCandidate;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexFinder;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.PropertyIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexCandidate;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,14 +44,14 @@ public class SQLWhereClause extends SimpleNode {
     super(p, id);
   }
 
-  public boolean matchesFilters(YTIdentifiable currentRecord, CommandContext ctx) {
+  public boolean matchesFilters(Identifiable currentRecord, CommandContext ctx) {
     if (baseExpression == null) {
       return true;
     }
     return baseExpression.evaluate(currentRecord, ctx);
   }
 
-  public boolean matchesFilters(YTResult currentRecord, CommandContext ctx) {
+  public boolean matchesFilters(Result currentRecord, CommandContext ctx) {
     if (baseExpression == null) {
       return true;
     }
@@ -78,7 +78,7 @@ public class SQLWhereClause extends SimpleNode {
    * @return an estimation of the number of records of this class returned applying this filter, 0
    * if and only if sure that no records are returned
    */
-  public long estimate(YTClass oClass, long threshold, CommandContext ctx) {
+  public long estimate(SchemaClass oClass, long threshold, CommandContext ctx) {
     var database = ctx.getDatabase();
     long count = oClass.count(database);
     if (count > 1) {
@@ -90,7 +90,7 @@ public class SQLWhereClause extends SimpleNode {
 
     long indexesCount = 0L;
     List<SQLAndBlock> flattenedConditions = flatten();
-    Set<OIndex> indexes = oClass.getIndexes(database);
+    Set<Index> indexes = oClass.getIndexes(database);
     for (SQLAndBlock condition : flattenedConditions) {
 
       List<SQLBinaryCondition> indexedFunctConditions =
@@ -111,8 +111,8 @@ public class SQLWhereClause extends SimpleNode {
       } else {
         Map<String, Object> conditions = getEqualityOperations(condition, ctx);
 
-        for (OIndex index : indexes) {
-          if (index.getType().equals(YTClass.INDEX_TYPE.FULLTEXT.name())) {
+        for (Index index : indexes) {
+          if (index.getType().equals(SchemaClass.INDEX_TYPE.FULLTEXT.name())) {
             continue;
           }
           List<String> indexedFields = index.getDefinition().getFields();
@@ -141,33 +141,33 @@ public class SQLWhereClause extends SimpleNode {
   }
 
   private static long estimateFromIndex(
-      YTDatabaseSessionInternal session, OIndex index, Map<String, Object> conditions,
+      DatabaseSessionInternal session, Index index, Map<String, Object> conditions,
       int nMatchingKeys) {
     if (nMatchingKeys < 1) {
       throw new IllegalArgumentException("Cannot estimate from an index with zero keys");
     }
-    OIndexDefinition definition = index.getDefinition();
+    IndexDefinition definition = index.getDefinition();
     List<String> definitionFields = definition.getFields();
     Object key = null;
-    if (definition instanceof OPropertyIndexDefinition) {
+    if (definition instanceof PropertyIndexDefinition) {
       key = convert(session, conditions.get(definitionFields.get(0)), definition.getTypes()[0]);
-    } else if (definition instanceof OCompositeIndexDefinition) {
-      key = new OCompositeKey();
+    } else if (definition instanceof CompositeIndexDefinition) {
+      key = new CompositeKey();
       for (int i = 0; i < nMatchingKeys; i++) {
         Object keyValue =
             convert(session, conditions.get(definitionFields.get(i)), definition.getTypes()[i]);
-        ((OCompositeKey) key).addKey(keyValue);
+        ((CompositeKey) key).addKey(keyValue);
       }
     }
     if (key != null) {
       if (conditions.size() == definitionFields.size()) {
-        try (Stream<YTRID> rids = index.getInternal().getRids(session, key)) {
+        try (Stream<RID> rids = index.getInternal().getRids(session, key)) {
           return rids.count();
         }
       } else if (index.supportsOrderedIterations()) {
-        final Spliterator<ORawPair<Object, YTRID>> spliterator;
+        final Spliterator<RawPair<Object, RID>> spliterator;
 
-        try (Stream<ORawPair<Object, YTRID>> stream =
+        try (Stream<RawPair<Object, RID>> stream =
             index.getInternal().streamEntriesBetween(session, key, true, key, true, true)) {
           spliterator = stream.spliterator();
           return spliterator.estimateSize();
@@ -177,8 +177,8 @@ public class SQLWhereClause extends SimpleNode {
     return Long.MAX_VALUE;
   }
 
-  private static Object convert(YTDatabaseSessionInternal session, Object o, YTType oType) {
-    return YTType.convert(session, o, oType.getDefaultJavaType());
+  private static Object convert(DatabaseSessionInternal session, Object o, PropertyType oType) {
+    return PropertyType.convert(session, o, oType.getDefaultJavaType());
   }
 
   private static Map<String, Object> getEqualityOperations(
@@ -188,7 +188,7 @@ public class SQLWhereClause extends SimpleNode {
       if (expression instanceof SQLBinaryCondition b) {
         if (b.operator instanceof SQLEqualsCompareOperator) {
           if (b.left.isBaseIdentifier() && b.right.isEarlyCalculated(ctx)) {
-            result.put(b.left.toString(), b.right.execute((YTResult) null, ctx));
+            result.put(b.left.toString(), b.right.execute((Result) null, ctx));
           }
         }
       }
@@ -208,7 +208,7 @@ public class SQLWhereClause extends SimpleNode {
   }
 
   public List<SQLBinaryCondition> getIndexedFunctionConditions(
-      YTClass iSchemaClass, YTDatabaseSessionInternal database) {
+      SchemaClass iSchemaClass, DatabaseSessionInternal database) {
     if (baseExpression == null) {
       return null;
     }
@@ -285,8 +285,8 @@ public class SQLWhereClause extends SimpleNode {
     this.flattened = flattened;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     if (baseExpression != null) {
       result.setProperty("baseExpression", baseExpression.serialize(db));
     }
@@ -300,15 +300,15 @@ public class SQLWhereClause extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     if (fromResult.getProperty("baseExpression") != null) {
       baseExpression =
           SQLBooleanExpression.deserializeFromOResult(fromResult.getProperty("baseExpression"));
     }
     if (fromResult.getProperty("flattened") != null) {
-      List<YTResult> ser = fromResult.getProperty("flattened");
+      List<Result> ser = fromResult.getProperty("flattened");
       flattened = new ArrayList<>();
-      for (YTResult r : ser) {
+      for (Result r : ser) {
         SQLAndBlock block = new SQLAndBlock(-1);
         block.deserialize(r);
         flattened.add(block);
@@ -316,11 +316,11 @@ public class SQLWhereClause extends SimpleNode {
     }
   }
 
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     return baseExpression.isCacheable(session);
   }
 
-  public Optional<OIndexCandidate> findIndex(OIndexFinder info, CommandContext ctx) {
+  public Optional<IndexCandidate> findIndex(IndexFinder info, CommandContext ctx) {
     return this.baseExpression.findIndex(info, ctx);
   }
 }

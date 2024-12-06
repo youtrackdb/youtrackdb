@@ -3,11 +3,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +30,7 @@ public class SQLBetweenCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
+  public boolean evaluate(Identifiable currentRecord, CommandContext ctx) {
     Object firstValue = first.execute(currentRecord, ctx);
     if (firstValue == null) {
       return false;
@@ -42,13 +42,13 @@ public class SQLBetweenCondition extends SQLBooleanExpression {
     }
 
     var db = ctx.getDatabase();
-    secondValue = YTType.convert(db, secondValue, firstValue.getClass());
+    secondValue = PropertyType.convert(db, secondValue, firstValue.getClass());
 
     Object thirdValue = third.execute(currentRecord, ctx);
     if (thirdValue == null) {
       return false;
     }
-    thirdValue = YTType.convert(db, thirdValue, firstValue.getClass());
+    thirdValue = PropertyType.convert(db, thirdValue, firstValue.getClass());
 
     final int leftResult = ((Comparable<Object>) firstValue).compareTo(secondValue);
     final int rightResult = ((Comparable<Object>) firstValue).compareTo(thirdValue);
@@ -57,7 +57,7 @@ public class SQLBetweenCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
+  public boolean evaluate(Result currentRecord, CommandContext ctx) {
 
     var db = ctx.getDatabase();
     if (first.isFunctionAny()) {
@@ -75,7 +75,7 @@ public class SQLBetweenCondition extends SQLBooleanExpression {
     return evaluate(db, firstValue, secondValue, thirdValue);
   }
 
-  private static boolean evaluate(YTDatabaseSession session, Object firstValue, Object secondValue,
+  private static boolean evaluate(DatabaseSession session, Object firstValue, Object secondValue,
       Object thirdValue) {
     if (firstValue == null) {
       return false;
@@ -85,12 +85,12 @@ public class SQLBetweenCondition extends SQLBooleanExpression {
       return false;
     }
 
-    secondValue = YTType.convert(session, secondValue, firstValue.getClass());
+    secondValue = PropertyType.convert(session, secondValue, firstValue.getClass());
 
     if (thirdValue == null) {
       return false;
     }
-    thirdValue = YTType.convert(session, thirdValue, firstValue.getClass());
+    thirdValue = PropertyType.convert(session, thirdValue, firstValue.getClass());
 
     final int leftResult = ((Comparable<Object>) firstValue).compareTo(secondValue);
     final int rightResult = ((Comparable<Object>) firstValue).compareTo(thirdValue);
@@ -98,7 +98,7 @@ public class SQLBetweenCondition extends SQLBooleanExpression {
     return leftResult >= 0 && rightResult <= 0;
   }
 
-  private boolean evaluateAny(YTDatabaseSession session, YTResult currentRecord,
+  private boolean evaluateAny(DatabaseSession session, Result currentRecord,
       CommandContext ctx) {
     Object secondValue = second.execute(currentRecord, ctx);
     Object thirdValue = third.execute(currentRecord, ctx);
@@ -112,7 +112,7 @@ public class SQLBetweenCondition extends SQLBooleanExpression {
     return false;
   }
 
-  private boolean evaluateAllFunction(YTResult currentRecord, CommandContext ctx) {
+  private boolean evaluateAllFunction(Result currentRecord, CommandContext ctx) {
     Object secondValue = second.execute(currentRecord, ctx);
     Object thirdValue = third.execute(currentRecord, ctx);
 
@@ -268,7 +268,7 @@ public class SQLBetweenCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     if (first != null && !first.isCacheable(session)) {
       return false;
     }

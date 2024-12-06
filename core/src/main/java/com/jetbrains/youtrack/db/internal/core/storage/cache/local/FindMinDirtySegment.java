@@ -7,13 +7,13 @@ final class FindMinDirtySegment implements Callable<Long> {
   /**
    *
    */
-  private final OWOWCache cache;
+  private final WOWCache cache;
 
   /**
-   * @param owowCache
+   * @param WOWCache
    */
-  FindMinDirtySegment(OWOWCache owowCache) {
-    cache = owowCache;
+  FindMinDirtySegment(WOWCache WOWCache) {
+    cache = WOWCache;
   }
 
   @Override

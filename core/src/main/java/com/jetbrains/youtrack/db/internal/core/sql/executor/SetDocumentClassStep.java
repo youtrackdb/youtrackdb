@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
@@ -20,21 +20,21 @@ public class SetDocumentClassStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
 
     ExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
-  private YTResult mapResult(YTResult result, CommandContext ctx) {
+  private Result mapResult(Result result, CommandContext ctx) {
     if (result.isEntity()) {
       var element = result.toEntity();
       ((EntityImpl) element).setClassName(targetClass);
-      if (!(result instanceof YTResultInternal)) {
-        result = new YTUpdatableResult(ctx.getDatabase(), element);
+      if (!(result instanceof ResultInternal)) {
+        result = new UpdatableResult(ctx.getDatabase(), element);
       } else {
-        ((YTResultInternal) result).setIdentifiable(element);
+        ((ResultInternal) result).setIdentifiable(element);
       }
     }
     return result;

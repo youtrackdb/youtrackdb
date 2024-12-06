@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.spatial;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.orientechnologies.lucene.test.BaseLuceneTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class LuceneSpatialClassCreateTest extends BaseLuceneTest {
   @Test
   public void testClasses() {
 
-    YTSchema schema = db.getMetadata().getSchema();
+    Schema schema = db.getMetadata().getSchema();
 
     Assert.assertNotNull(schema.getClass("OPoint"));
 

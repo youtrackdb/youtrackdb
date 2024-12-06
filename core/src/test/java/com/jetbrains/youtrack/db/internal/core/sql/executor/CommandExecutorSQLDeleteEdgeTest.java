@@ -3,10 +3,10 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,15 +19,15 @@ import org.junit.runners.JUnit4;
  *
  */
 @RunWith(JUnit4.class)
-public class CommandExecutorSQLDeleteEdgeTest extends DBTestBase {
+public class CommandExecutorSQLDeleteEdgeTest extends DbTestBase {
 
-  private static YTRID folderId1;
-  private static YTRID userId1;
-  private List<YTIdentifiable> edges;
+  private static RID folderId1;
+  private static RID userId1;
+  private List<Identifiable> edges;
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    final YTSchema schema = db.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     schema.createClass("User", schema.getClass("V"));
     schema.createClass("Folder", schema.getClass("V"));
     schema.createClass("CanAccess", schema.getClass("E"));
@@ -52,7 +52,7 @@ public class CommandExecutorSQLDeleteEdgeTest extends DBTestBase {
   @Test
   public void testFromSelect() {
     db.begin();
-    YTResultSet res =
+    ResultSet res =
         db.command(
             "delete edge CanAccess from (select from User where username = 'gongolo') to "
                 + folderId1);
@@ -64,7 +64,7 @@ public class CommandExecutorSQLDeleteEdgeTest extends DBTestBase {
   @Test
   public void testFromSelectToSelect() {
     db.begin();
-    YTResultSet res =
+    ResultSet res =
         db.command(
             "delete edge CanAccess from ( select from User where username = 'gongolo' ) to ( select"
                 + " from Folder where keyId = '01234567893' )");
@@ -77,14 +77,14 @@ public class CommandExecutorSQLDeleteEdgeTest extends DBTestBase {
   @Test
   public void testDeleteByRID() {
     db.begin();
-    YTResultSet result = db.command("delete edge [" + edges.get(0).getIdentity() + "]");
+    ResultSet result = db.command("delete edge [" + edges.get(0).getIdentity() + "]");
     db.commit();
     assertEquals((long) result.next().getProperty("count"), 1L);
   }
 
   @Test
   public void testDeleteEdgeWithVertexRid() {
-    YTResultSet vertexes = db.command("select from v limit 1");
+    ResultSet vertexes = db.command("select from v limit 1");
     try {
       db.begin();
       db.command("delete edge [" + vertexes.next().getIdentity().get() + "]").close();
@@ -115,7 +115,7 @@ public class CommandExecutorSQLDeleteEdgeTest extends DBTestBase {
     db.command("delete edge CanAccess batch 5").close();
     db.commit();
 
-    YTResultSet result = db.query("select expand( in('CanAccess') ) from " + folderId1);
+    ResultSet result = db.query("select expand( in('CanAccess') ) from " + folderId1);
     assertEquals(result.stream().count(), 0);
   }
 }

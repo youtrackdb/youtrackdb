@@ -3,10 +3,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class SQLCreateClassStatement extends ODDLStatement {
+public class SQLCreateClassStatement extends DDLStatement {
 
   /**
    * Class name
@@ -51,22 +51,22 @@ public class SQLCreateClassStatement extends ODDLStatement {
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
     var db = ctx.getDatabase();
-    YTSchema schema = db.getMetadata().getSchema();
+    Schema schema = db.getMetadata().getSchema();
     if (schema.existsClass(name.getStringValue())) {
       if (ifNotExists) {
         return ExecutionStream.empty();
       } else {
-        throw new YTCommandExecutionException("Class " + name + " already exists");
+        throw new CommandExecutionException("Class " + name + " already exists");
       }
     }
     checkSuperclasses(schema, ctx);
 
-    YTResultInternal result = new YTResultInternal(db);
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("operation", "create class");
     result.setProperty("className", name.getStringValue());
 
-    YTClass clazz = null;
-    YTClass[] superclasses = getSuperClasses(schema);
+    SchemaClass clazz = null;
+    SchemaClass[] superclasses = getSuperClasses(schema);
     if (abstractClass) {
       clazz = schema.createAbstractClass(name.getStringValue(), superclasses);
       result.setProperty("abstract", abstractClass);
@@ -88,22 +88,22 @@ public class SQLCreateClassStatement extends ODDLStatement {
     return ExecutionStream.singleton(result);
   }
 
-  private YTClass[] getSuperClasses(YTSchema schema) {
+  private SchemaClass[] getSuperClasses(Schema schema) {
     if (superclasses == null) {
-      return new YTClass[]{};
+      return new SchemaClass[]{};
     }
     return superclasses.stream()
         .map(x -> schema.getClass(x.getStringValue()))
         .filter(x -> x != null)
         .collect(Collectors.toList())
-        .toArray(new YTClass[]{});
+        .toArray(new SchemaClass[]{});
   }
 
-  private void checkSuperclasses(YTSchema schema, CommandContext ctx) {
+  private void checkSuperclasses(Schema schema, CommandContext ctx) {
     if (superclasses != null) {
       for (SQLIdentifier superclass : superclasses) {
         if (!schema.existsClass(superclass.getStringValue())) {
-          throw new YTCommandExecutionException("Superclass " + superclass + " not found");
+          throw new CommandExecutionException("Superclass " + superclass + " not found");
         }
       }
     }

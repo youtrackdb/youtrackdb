@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import java.util.Set;
@@ -22,7 +22,7 @@ public class FilterByClustersStep extends AbstractExecutionStep {
     this.clusters = filterClusters;
   }
 
-  private IntOpenHashSet init(YTDatabaseSessionInternal db) {
+  private IntOpenHashSet init(DatabaseSessionInternal db) {
     var clusterIds = new IntOpenHashSet();
     for (var clusterName : clusters) {
       var clusterId = db.getClusterIdByName(clusterName);
@@ -32,7 +32,7 @@ public class FilterByClustersStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     IntOpenHashSet ids = init(ctx.getDatabase());
     if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
@@ -41,7 +41,7 @@ public class FilterByClustersStep extends AbstractExecutionStep {
     return resultSet.filter((value, context) -> this.filterMap(value, ids));
   }
 
-  private YTResult filterMap(YTResult result, IntOpenHashSet clusterIds) {
+  private Result filterMap(Result result, IntOpenHashSet clusterIds) {
     if (result.isEntity()) {
       var rid = result.getRecordId();
       assert rid != null;
@@ -68,8 +68,8 @@ public class FilterByClustersStep extends AbstractExecutionStep {
   }
 
   @Override
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = ExecutionStepInternal.basicSerialize(db, this);
     if (clusters != null) {
       result.setProperty("clusters", clusters);
     }
@@ -78,12 +78,12 @@ public class FilterByClustersStep extends AbstractExecutionStep {
   }
 
   @Override
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     try {
       ExecutionStepInternal.basicDeserialize(fromResult, this);
       clusters = fromResult.getProperty("clusters");
     } catch (Exception e) {
-      throw YTException.wrapException(new YTCommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(""), e);
     }
   }
 }

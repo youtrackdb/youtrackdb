@@ -1,22 +1,22 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.singlevalue.v3;
 
-import com.jetbrains.youtrack.db.internal.common.comparator.ODefaultComparator;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.common.comparator.DefaultComparator;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 import java.util.Comparator;
 import java.util.Objects;
 
 public final class CellBTreeSingleValueEntryV3<K>
     implements Comparable<CellBTreeSingleValueEntryV3<K>> {
 
-  private final Comparator<? super K> comparator = ODefaultComparator.INSTANCE;
+  private final Comparator<? super K> comparator = DefaultComparator.INSTANCE;
 
   private final int leftChild;
   private final int rightChild;
   public final K key;
-  public final YTRID value;
+  public final RID value;
 
   public CellBTreeSingleValueEntryV3(
-      final int leftChild, final int rightChild, final K key, final YTRID value) {
+      final int leftChild, final int rightChild, final K key, final RID value) {
     this.leftChild = leftChild;
     this.rightChild = rightChild;
     this.key = key;

@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.stream.Stream;
 import org.testng.Assert;
@@ -30,9 +30,9 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final YTClass cls = database.getMetadata().getSchema().createClass(CLASS_NAME);
-    cls.createProperty(database, FIELD_NAME, YTType.INTEGER);
-    cls.createIndex(database, INDEX_NAME, YTClass.INDEX_TYPE.NOTUNIQUE, FIELD_NAME);
+    final SchemaClass cls = database.getMetadata().getSchema().createClass(CLASS_NAME);
+    cls.createProperty(database, FIELD_NAME, PropertyType.INTEGER);
+    cls.createIndex(database, INDEX_NAME, SchemaClass.INDEX_TYPE.NOTUNIQUE, FIELD_NAME);
   }
 
   @AfterMethod
@@ -49,7 +49,7 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    final OIndex index =
+    final Index index =
         database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX_NAME);
 
     new EntityImpl(CLASS_NAME).field(FIELD_NAME, 1).save();
@@ -60,10 +60,10 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertNull(database.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertEquals(stream.count(), 2);
     }
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 2)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 2)) {
       Assert.assertEquals(stream.count(), 1);
     }
 
@@ -72,17 +72,17 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
     new EntityImpl(CLASS_NAME).field(FIELD_NAME, 2).save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 2)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 2)) {
       Assert.assertEquals(stream.count(), 2);
     }
 
     database.rollback();
 
     Assert.assertNull(database.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertEquals(stream.count(), 2);
     }
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 2)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 2)) {
       Assert.assertEquals(stream.count(), 1);
     }
   }
@@ -94,7 +94,7 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    final OIndex index =
+    final Index index =
         database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX_NAME);
 
     EntityImpl docOne = new EntityImpl(CLASS_NAME).field(FIELD_NAME, 1);
@@ -107,10 +107,10 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertNull(database.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertEquals(stream.count(), 2);
     }
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 2)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 2)) {
       Assert.assertEquals(stream.count(), 1);
     }
 
@@ -123,20 +123,20 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
     docTwo.delete();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 2)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 2)) {
       Assert.assertEquals(stream.count(), 1);
     }
 
     database.rollback();
 
     Assert.assertNull(database.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertEquals(stream.count(), 2);
     }
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 2)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 2)) {
       Assert.assertEquals(stream.count(), 1);
     }
   }
@@ -148,7 +148,7 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    final OIndex index =
+    final Index index =
         database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX_NAME);
 
     EntityImpl document = new EntityImpl(CLASS_NAME).field(FIELD_NAME, 1);
@@ -159,10 +159,10 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertNull(database.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertEquals(stream.count(), 2);
     }
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 2)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 2)) {
       Assert.assertEquals(stream.count(), 1);
     }
 
@@ -172,20 +172,20 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
     document.delete();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertEquals(stream.count(), 1);
     }
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 2)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 2)) {
       Assert.assertEquals(stream.count(), 1);
     }
 
     database.rollback();
 
     Assert.assertNull(database.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertEquals(stream.count(), 2);
     }
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 2)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 2)) {
       Assert.assertEquals(stream.count(), 1);
     }
   }
@@ -198,12 +198,12 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final OIndex index =
+    final Index index =
         database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX_NAME);
 
     final EntityImpl document = new EntityImpl(CLASS_NAME).field(FIELD_NAME, 1);
     document.save();
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertEquals(stream.count(), 1);
     }
 
@@ -212,12 +212,12 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
     document.save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertEquals(stream.count(), 1);
     }
     database.commit();
 
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertEquals(stream.count(), 1);
     }
   }
@@ -230,13 +230,13 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final OIndex index =
+    final Index index =
         database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX_NAME);
 
     new EntityImpl(CLASS_NAME).field(FIELD_NAME, 1).save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertEquals(stream.count(), 1);
     }
     database.commit();
@@ -245,7 +245,7 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
     new EntityImpl(CLASS_NAME).field(FIELD_NAME, 1).save();
     database.commit();
 
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertEquals(stream.count(), 2);
     }
   }
@@ -258,7 +258,7 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final OIndex index =
+    final Index index =
         database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX_NAME);
 
     final EntityImpl document = new EntityImpl(CLASS_NAME).field(FIELD_NAME, 1);
@@ -266,13 +266,13 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
     document.delete();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX_NAME));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
 
     database.commit();
 
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertEquals(stream.count(), 0);
     }
   }
@@ -285,7 +285,7 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final OIndex index =
+    final Index index =
         database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX_NAME);
 
     final EntityImpl document = new EntityImpl(CLASS_NAME).field(FIELD_NAME, 1);
@@ -294,13 +294,13 @@ public class IndexTxAwareMultiValueGetTest extends DocumentDBBaseTest {
     document.save();
 
     document.field(FIELD_NAME, 1).save();
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertEquals(stream.count(), 1);
     }
 
     database.commit();
 
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertEquals(stream.count(), 1);
     }
   }

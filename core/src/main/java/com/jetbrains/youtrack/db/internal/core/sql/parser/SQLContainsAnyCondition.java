@@ -2,16 +2,16 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OIndexSearchInfo;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexCandidate;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexFinder;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OPath;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.IndexSearchInfo;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexCandidate;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.MetadataPath;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -49,9 +49,9 @@ public class SQLContainsAnyCondition extends SQLBooleanExpression {
           if (((Collection) left).contains(next)) {
             return true;
           }
-          if (next instanceof YTResult
-              && ((YTResult) next).isEntity()
-              && ((Collection) left).contains(((YTResult) next).toEntity())) {
+          if (next instanceof Result
+              && ((Result) next).isEntity()
+              && ((Collection) left).contains(((Result) next).toEntity())) {
             return true;
           }
         }
@@ -76,12 +76,12 @@ public class SQLContainsAnyCondition extends SQLBooleanExpression {
             return true;
           }
           Object leftElem =
-              leftItem instanceof YTResult && ((YTResult) leftItem).isEntity()
-                  ? ((YTResult) leftItem).getEntity().get()
+              leftItem instanceof Result && ((Result) leftItem).isEntity()
+                  ? ((Result) leftItem).getEntity().get()
                   : rightItem;
           Object rightElem =
-              rightItem instanceof YTResult && ((YTResult) rightItem).isEntity()
-                  ? ((YTResult) rightItem).getEntity().get()
+              rightItem instanceof Result && ((Result) rightItem).isEntity()
+                  ? ((Result) rightItem).getEntity().get()
                   : rightItem;
           if (leftElem != null && leftElem.equals(rightElem)) {
             return true;
@@ -93,24 +93,24 @@ public class SQLContainsAnyCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
+  public boolean evaluate(Identifiable currentRecord, CommandContext ctx) {
     Object leftValue = left.execute(currentRecord, ctx);
     if (right != null) {
       Object rightValue = right.execute(currentRecord, ctx);
       return execute(leftValue, rightValue);
     } else {
-      if (!OMultiValue.isMultiValue(leftValue)) {
+      if (!MultiValue.isMultiValue(leftValue)) {
         return false;
       }
-      Iterator<?> iter = OMultiValue.getMultiValueIterator(leftValue);
+      Iterator<?> iter = MultiValue.getMultiValueIterator(leftValue);
       while (iter.hasNext()) {
         Object item = iter.next();
-        if (item instanceof YTIdentifiable) {
-          if (!rightBlock.evaluate((YTIdentifiable) item, ctx)) {
+        if (item instanceof Identifiable) {
+          if (!rightBlock.evaluate((Identifiable) item, ctx)) {
             return false;
           }
-        } else if (item instanceof YTResult) {
-          if (!rightBlock.evaluate((YTResult) item, ctx)) {
+        } else if (item instanceof Result) {
+          if (!rightBlock.evaluate((Result) item, ctx)) {
             return false;
           }
         } else {
@@ -122,24 +122,24 @@ public class SQLContainsAnyCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
+  public boolean evaluate(Result currentRecord, CommandContext ctx) {
     Object leftValue = left.execute(currentRecord, ctx);
     if (right != null) {
       Object rightValue = right.execute(currentRecord, ctx);
       return execute(leftValue, rightValue);
     } else {
-      if (!OMultiValue.isMultiValue(leftValue)) {
+      if (!MultiValue.isMultiValue(leftValue)) {
         return false;
       }
-      Iterator<?> iter = OMultiValue.getMultiValueIterator(leftValue);
+      Iterator<?> iter = MultiValue.getMultiValueIterator(leftValue);
       while (iter.hasNext()) {
         Object item = iter.next();
-        if (item instanceof YTIdentifiable) {
-          if (!rightBlock.evaluate((YTIdentifiable) item, ctx)) {
+        if (item instanceof Identifiable) {
+          if (!rightBlock.evaluate((Identifiable) item, ctx)) {
             return false;
           }
-        } else if (item instanceof YTResult) {
-          if (!rightBlock.evaluate((YTResult) item, ctx)) {
+        } else if (item instanceof Result) {
+          if (!rightBlock.evaluate((Result) item, ctx)) {
             return false;
           }
         } else {
@@ -275,7 +275,8 @@ public class SQLContainsAnyCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public SQLBooleanExpression rewriteIndexChainsAsSubqueries(CommandContext ctx, YTClass clazz) {
+  public SQLBooleanExpression rewriteIndexChainsAsSubqueries(CommandContext ctx,
+      SchemaClass clazz) {
     if (right.isEarlyCalculated(ctx) && left.isIndexChain(ctx, clazz)) {
       SQLContainsAnyCondition result = new SQLContainsAnyCondition(-1);
 
@@ -288,7 +289,7 @@ public class SQLContainsAnyCondition extends SQLBooleanExpression {
       base.setIdentifier(identifier);
       result.left.mathExpression = base;
 
-      YTClass nextClazz =
+      SchemaClass nextClazz =
           clazz
               .getProperty(base.getIdentifier().suffix.getIdentifier().getStringValue())
               .getLinkedClass();
@@ -353,7 +354,7 @@ public class SQLContainsAnyCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     if (left != null && !left.isCacheable(session)) {
       return false;
     }
@@ -366,7 +367,7 @@ public class SQLContainsAnyCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean isIndexAware(OIndexSearchInfo info) {
+  public boolean isIndexAware(IndexSearchInfo info) {
     if (left.isBaseIdentifier()) {
       if (info.getField().equals(left.getDefaultAlias().getStringValue())) {
         return right.isEarlyCalculated(info.getCtx());
@@ -376,11 +377,11 @@ public class SQLContainsAnyCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public Optional<OIndexCandidate> findIndex(OIndexFinder info, CommandContext ctx) {
-    Optional<OPath> path = left.getPath();
+  public Optional<IndexCandidate> findIndex(IndexFinder info, CommandContext ctx) {
+    Optional<MetadataPath> path = left.getPath();
     if (path.isPresent()) {
       if (right.isEarlyCalculated(ctx)) {
-        Object value = right.execute((YTResult) null, ctx);
+        Object value = right.execute((Result) null, ctx);
         return info.findExactIndex(path.get(), value, ctx);
       }
     }

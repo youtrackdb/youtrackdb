@@ -3,10 +3,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.Map;
 import java.util.Objects;
 
@@ -57,10 +57,10 @@ public class SQLSkip extends SimpleNode {
       if (paramValue instanceof Number) {
         return ((Number) paramValue).intValue();
       } else {
-        throw new YTCommandExecutionException("Invalid value for SKIP: " + paramValue);
+        throw new CommandExecutionException("Invalid value for SKIP: " + paramValue);
       }
     }
-    throw new YTCommandExecutionException("No value for SKIP");
+    throw new CommandExecutionException("No value for SKIP");
   }
 
   public SQLSkip copy() {
@@ -94,8 +94,8 @@ public class SQLSkip extends SimpleNode {
     return result;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     if (num != null) {
       result.setProperty("num", num.serialize(db));
     }
@@ -105,7 +105,7 @@ public class SQLSkip extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     if (fromResult.getProperty("num") != null) {
       num = new SQLInteger(-1);
       num.deserialize(fromResult.getProperty("num"));

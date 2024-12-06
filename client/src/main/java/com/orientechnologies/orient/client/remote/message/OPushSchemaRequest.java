@@ -1,16 +1,16 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import static com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol.REQUEST_PUSH_SCHEMA;
+import static com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol.REQUEST_PUSH_SCHEMA;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 
 public class OPushSchemaRequest implements OBinaryPushRequest<OBinaryPushResponse> {
@@ -25,26 +25,26 @@ public class OPushSchemaRequest implements OBinaryPushRequest<OBinaryPushRespons
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel)
+  public void write(DatabaseSessionInternal session, ChannelDataOutput channel)
       throws IOException {
     try {
       schema.setup(session);
-      channel.writeBytes(ORecordSerializerNetworkV37.INSTANCE.toStream(session, schema));
+      channel.writeBytes(RecordSerializerNetworkV37.INSTANCE.toStream(session, schema));
     } catch (IOException e) {
-      throw YTException.wrapException(new YTDatabaseException("Error on sending schema updates"),
+      throw BaseException.wrapException(new DatabaseException("Error on sending schema updates"),
           e);
     }
   }
 
   @Override
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput network) throws IOException {
+  public void read(DatabaseSessionInternal db, ChannelDataInput network) throws IOException {
     byte[] bytes = network.readBytes();
-    this.schema = (EntityImpl) ORecordSerializerNetworkV37Client.INSTANCE.fromStream(db, bytes,
+    this.schema = (EntityImpl) RecordSerializerNetworkV37Client.INSTANCE.fromStream(db, bytes,
         null);
   }
 
   @Override
-  public OBinaryPushResponse execute(YTDatabaseSessionInternal session,
+  public OBinaryPushResponse execute(DatabaseSessionInternal session,
       ORemotePushHandler pushHandler) {
     return pushHandler.executeUpdateSchema(this);
   }

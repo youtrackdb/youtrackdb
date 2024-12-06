@@ -2,10 +2,10 @@ package com.orientechnologies.lucene.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,8 +14,8 @@ public class LucenePhraseQueriesTest extends BaseLuceneTest {
   @Before
   public void setUp() throws Exception {
 
-    YTClass type = db.createVertexClass("Role");
-    type.createProperty(db, "name", YTType.STRING);
+    SchemaClass type = db.createVertexClass("Role");
+    type.createProperty(db, "name", PropertyType.STRING);
 
     db.command(
             "create index Role.name on Role (name) FULLTEXT ENGINE LUCENE "
@@ -63,7 +63,7 @@ public class LucenePhraseQueriesTest extends BaseLuceneTest {
   @Test
   public void testPhraseQueries() throws Exception {
 
-    YTResultSet vertexes = db.query("select from Role where name lucene ' \"Business Owner\" '  ");
+    ResultSet vertexes = db.query("select from Role where name lucene ' \"Business Owner\" '  ");
 
     assertThat(vertexes).hasSize(1);
 
@@ -91,7 +91,7 @@ public class LucenePhraseQueriesTest extends BaseLuceneTest {
   @Test
   public void testComplexPhraseQueries() throws Exception {
 
-    YTResultSet vertexes = db.query("select from Role where name lucene ?", "\"System SME\"~1");
+    ResultSet vertexes = db.query("select from Role where name lucene ?", "\"System SME\"~1");
 
     assertThat(vertexes).allMatch(v -> v.<String>getProperty("name").contains("SME"));
 

@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.client.remote;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 
 /**
@@ -11,10 +11,10 @@ import java.io.IOException;
  */
 public interface OBinaryResponse {
 
-  void write(YTDatabaseSessionInternal session, OChannelDataOutput channel, int protocolVersion,
-      ORecordSerializer serializer)
+  void write(DatabaseSessionInternal session, ChannelDataOutput channel, int protocolVersion,
+      RecordSerializer serializer)
       throws IOException;
 
-  void read(YTDatabaseSessionInternal db, final OChannelDataInput network,
+  void read(DatabaseSessionInternal db, final ChannelDataInput network,
       OStorageRemoteSession session) throws IOException;
 }

@@ -3,15 +3,12 @@ package com.jetbrains.youtrack.db.internal.core.storage.cache.chm;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.jetbrains.youtrack.db.internal.common.directmemory.OByteBufferPool;
-import com.jetbrains.youtrack.db.internal.common.directmemory.ODirectMemoryAllocator;
-import com.jetbrains.youtrack.db.internal.common.directmemory.ODirectMemoryAllocator.Intention;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntryImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCachePointer;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.chm.Admittor;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.chm.PageKey;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.chm.WTinyLFUPolicy;
+import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
+import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator;
+import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator.Intention;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntryImpl;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CachePointer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -25,10 +22,10 @@ public class WTinyLFUPolicyTest {
 
   @Test
   public void testEden() {
-    ODirectMemoryAllocator memoryAllocator = new ODirectMemoryAllocator();
-    OByteBufferPool pool = new OByteBufferPool(1, memoryAllocator, 0);
+    DirectMemoryAllocator memoryAllocator = new DirectMemoryAllocator();
+    ByteBufferPool pool = new ByteBufferPool(1, memoryAllocator, 0);
 
-    ConcurrentHashMap<PageKey, OCacheEntry> data = new ConcurrentHashMap<>();
+    ConcurrentHashMap<PageKey, CacheEntry> data = new ConcurrentHashMap<>();
     Admittor admittor = mock(Admittor.class);
 
     AtomicInteger cacheSize = new AtomicInteger();
@@ -36,8 +33,8 @@ public class WTinyLFUPolicyTest {
     WTinyLFUPolicy wTinyLFU = new WTinyLFUPolicy(data, admittor, cacheSize);
     wTinyLFU.setMaxSize(15);
 
-    final OCacheEntry[] cacheEntries = new OCacheEntry[3];
-    final OCachePointer[] cachePointers = new OCachePointer[3];
+    final CacheEntry[] cacheEntries = new CacheEntry[3];
+    final CachePointer[] cachePointers = new CachePointer[3];
 
     generateEntries(cacheEntries, cachePointers, pool);
 
@@ -54,64 +51,64 @@ public class WTinyLFUPolicyTest {
     Assert.assertEquals(15, wTinyLFU.getMaxSize());
 
     {
-      final Iterator<OCacheEntry> probationIterator = wTinyLFU.probation();
+      final Iterator<CacheEntry> probationIterator = wTinyLFU.probation();
       Assert.assertFalse(probationIterator.hasNext());
     }
 
     {
-      final Iterator<OCacheEntry> protectionIterator = wTinyLFU.protection();
+      final Iterator<CacheEntry> protectionIterator = wTinyLFU.protection();
       Assert.assertFalse(protectionIterator.hasNext());
     }
 
     Assert.assertArrayEquals(
-        new OCacheEntry[]{cacheEntries[2], cacheEntries[1], cacheEntries[0]},
+        new CacheEntry[]{cacheEntries[2], cacheEntries[1], cacheEntries[0]},
         toArray(wTinyLFU.eden()));
 
     wTinyLFU.onAccess(cacheEntries[1]);
 
     {
-      final Iterator<OCacheEntry> probationIterator = wTinyLFU.probation();
+      final Iterator<CacheEntry> probationIterator = wTinyLFU.probation();
       Assert.assertFalse(probationIterator.hasNext());
     }
 
     {
-      final Iterator<OCacheEntry> protectionIterator = wTinyLFU.protection();
+      final Iterator<CacheEntry> protectionIterator = wTinyLFU.protection();
       Assert.assertFalse(protectionIterator.hasNext());
     }
 
     Assert.assertArrayEquals(
-        new OCacheEntry[]{cacheEntries[1], cacheEntries[2], cacheEntries[0]},
+        new CacheEntry[]{cacheEntries[1], cacheEntries[2], cacheEntries[0]},
         toArray(wTinyLFU.eden()));
 
     wTinyLFU.onAccess(cacheEntries[1]);
 
     {
-      final Iterator<OCacheEntry> probationIterator = wTinyLFU.probation();
+      final Iterator<CacheEntry> probationIterator = wTinyLFU.probation();
       Assert.assertFalse(probationIterator.hasNext());
     }
 
     {
-      final Iterator<OCacheEntry> protectionIterator = wTinyLFU.protection();
+      final Iterator<CacheEntry> protectionIterator = wTinyLFU.protection();
       Assert.assertFalse(protectionIterator.hasNext());
     }
     Assert.assertArrayEquals(
-        new OCacheEntry[]{cacheEntries[1], cacheEntries[2], cacheEntries[0]},
+        new CacheEntry[]{cacheEntries[1], cacheEntries[2], cacheEntries[0]},
         toArray(wTinyLFU.eden()));
 
     wTinyLFU.onAccess(cacheEntries[0]);
 
     {
-      final Iterator<OCacheEntry> probationIterator = wTinyLFU.probation();
+      final Iterator<CacheEntry> probationIterator = wTinyLFU.probation();
       Assert.assertFalse(probationIterator.hasNext());
     }
 
     {
-      final Iterator<OCacheEntry> protectionIterator = wTinyLFU.protection();
+      final Iterator<CacheEntry> protectionIterator = wTinyLFU.protection();
       Assert.assertFalse(protectionIterator.hasNext());
     }
 
     Assert.assertArrayEquals(
-        new OCacheEntry[]{cacheEntries[0], cacheEntries[1], cacheEntries[2]},
+        new CacheEntry[]{cacheEntries[0], cacheEntries[1], cacheEntries[2]},
         toArray(wTinyLFU.eden()));
 
     Assert.assertEquals(3, cacheSize.get());
@@ -122,18 +119,18 @@ public class WTinyLFUPolicyTest {
 
   @Test
   public void testGoLastToProtection() {
-    ODirectMemoryAllocator memoryAllocator = new ODirectMemoryAllocator();
-    OByteBufferPool pool = new OByteBufferPool(1, memoryAllocator, 0);
+    DirectMemoryAllocator memoryAllocator = new DirectMemoryAllocator();
+    ByteBufferPool pool = new ByteBufferPool(1, memoryAllocator, 0);
 
-    ConcurrentHashMap<PageKey, OCacheEntry> data = new ConcurrentHashMap<>();
+    ConcurrentHashMap<PageKey, CacheEntry> data = new ConcurrentHashMap<>();
     Admittor admittor = mock(Admittor.class);
 
     AtomicInteger cacheSize = new AtomicInteger();
     WTinyLFUPolicy wTinyLFU = new WTinyLFUPolicy(data, admittor, cacheSize);
     wTinyLFU.setMaxSize(15);
 
-    OCacheEntry[] cacheEntries = new OCacheEntry[4];
-    OCachePointer[] cachePointers = new OCachePointer[4];
+    CacheEntry[] cacheEntries = new CacheEntry[4];
+    CachePointer[] cachePointers = new CachePointer[4];
 
     generateEntries(cacheEntries, cachePointers, pool);
 
@@ -149,10 +146,10 @@ public class WTinyLFUPolicyTest {
     cacheSize.incrementAndGet();
     wTinyLFU.onAdd(cacheEntries[3]);
 
-    Assert.assertArrayEquals(new OCacheEntry[]{cacheEntries[0]}, toArray(wTinyLFU.probation()));
+    Assert.assertArrayEquals(new CacheEntry[]{cacheEntries[0]}, toArray(wTinyLFU.probation()));
     Assert.assertFalse(wTinyLFU.protection().hasNext());
     Assert.assertArrayEquals(
-        new OCacheEntry[]{cacheEntries[3], cacheEntries[2], cacheEntries[1]},
+        new CacheEntry[]{cacheEntries[3], cacheEntries[2], cacheEntries[1]},
         toArray(wTinyLFU.eden()));
 
     Assert.assertEquals(4, cacheSize.get());
@@ -163,18 +160,18 @@ public class WTinyLFUPolicyTest {
 
   @Test
   public void testProbationIsFull() {
-    ODirectMemoryAllocator memoryAllocator = new ODirectMemoryAllocator();
-    OByteBufferPool pool = new OByteBufferPool(1, memoryAllocator, 0);
+    DirectMemoryAllocator memoryAllocator = new DirectMemoryAllocator();
+    ByteBufferPool pool = new ByteBufferPool(1, memoryAllocator, 0);
 
-    ConcurrentHashMap<PageKey, OCacheEntry> data = new ConcurrentHashMap<>();
+    ConcurrentHashMap<PageKey, CacheEntry> data = new ConcurrentHashMap<>();
     Admittor admittor = mock(Admittor.class);
 
     AtomicInteger cacheSize = new AtomicInteger();
     WTinyLFUPolicy wTinyLFU = new WTinyLFUPolicy(data, admittor, cacheSize);
     wTinyLFU.setMaxSize(15);
 
-    OCacheEntry[] cacheEntries = new OCacheEntry[15];
-    OCachePointer[] cachePointers = new OCachePointer[15];
+    CacheEntry[] cacheEntries = new CacheEntry[15];
+    CachePointer[] cachePointers = new CachePointer[15];
 
     generateEntries(cacheEntries, cachePointers, pool);
 
@@ -183,18 +180,18 @@ public class WTinyLFUPolicyTest {
       wTinyLFU.onAdd(cacheEntries[i]);
     }
 
-    Iterator<OCacheEntry> probationIterator = wTinyLFU.probation();
+    Iterator<CacheEntry> probationIterator = wTinyLFU.probation();
 
     for (int i = 11; i >= 0; i--) {
-      final OCacheEntry cacheEntry = probationIterator.next();
+      final CacheEntry cacheEntry = probationIterator.next();
       Assert.assertSame(cacheEntries[i], cacheEntry);
     }
 
     Assert.assertFalse(wTinyLFU.protection().hasNext());
 
-    Iterator<OCacheEntry> edenIterator = wTinyLFU.eden();
+    Iterator<CacheEntry> edenIterator = wTinyLFU.eden();
     for (int i = 14; i >= 12; i--) {
-      final OCacheEntry cacheEntry = edenIterator.next();
+      final CacheEntry cacheEntry = edenIterator.next();
       Assert.assertSame(cacheEntries[i], cacheEntry);
     }
 
@@ -204,18 +201,18 @@ public class WTinyLFUPolicyTest {
 
   @Test
   public void testProbationIsOverflownNoProtectionOne() {
-    ODirectMemoryAllocator memoryAllocator = new ODirectMemoryAllocator();
-    OByteBufferPool pool = new OByteBufferPool(1, memoryAllocator, 0);
+    DirectMemoryAllocator memoryAllocator = new DirectMemoryAllocator();
+    ByteBufferPool pool = new ByteBufferPool(1, memoryAllocator, 0);
 
-    ConcurrentHashMap<PageKey, OCacheEntry> data = new ConcurrentHashMap<>();
+    ConcurrentHashMap<PageKey, CacheEntry> data = new ConcurrentHashMap<>();
     Admittor admittor = mock(Admittor.class);
 
     AtomicInteger cacheSize = new AtomicInteger();
     WTinyLFUPolicy wTinyLFU = new WTinyLFUPolicy(data, admittor, cacheSize);
     wTinyLFU.setMaxSize(15);
 
-    OCacheEntry[] cacheEntries = new OCacheEntry[16];
-    OCachePointer[] cachePointers = new OCachePointer[16];
+    CacheEntry[] cacheEntries = new CacheEntry[16];
+    CachePointer[] cachePointers = new CachePointer[16];
 
     generateEntries(cacheEntries, cachePointers, pool);
 
@@ -235,16 +232,16 @@ public class WTinyLFUPolicyTest {
     Assert.assertEquals(15, memoryAllocator.getMemoryConsumption());
 
     Assert.assertFalse(wTinyLFU.protection().hasNext());
-    Iterator<OCacheEntry> edenIterator = wTinyLFU.eden();
+    Iterator<CacheEntry> edenIterator = wTinyLFU.eden();
 
     for (int i = 15; i >= 13; i--) {
-      final OCacheEntry cacheEntry = edenIterator.next();
+      final CacheEntry cacheEntry = edenIterator.next();
       Assert.assertSame(cacheEntry, cacheEntries[i]);
     }
 
-    Iterator<OCacheEntry> probationIterator = wTinyLFU.probation();
+    Iterator<CacheEntry> probationIterator = wTinyLFU.probation();
     for (int i = 12; i >= 1; i--) {
-      final OCacheEntry cacheEntry = probationIterator.next();
+      final CacheEntry cacheEntry = probationIterator.next();
       Assert.assertSame(cacheEntry, cacheEntries[i]);
     }
 
@@ -253,18 +250,18 @@ public class WTinyLFUPolicyTest {
 
   @Test
   public void testProbationIsOverflownNoProtectionTwo() {
-    ODirectMemoryAllocator memoryAllocator = new ODirectMemoryAllocator();
-    OByteBufferPool pool = new OByteBufferPool(1, memoryAllocator, 0);
+    DirectMemoryAllocator memoryAllocator = new DirectMemoryAllocator();
+    ByteBufferPool pool = new ByteBufferPool(1, memoryAllocator, 0);
 
-    ConcurrentHashMap<PageKey, OCacheEntry> data = new ConcurrentHashMap<>();
+    ConcurrentHashMap<PageKey, CacheEntry> data = new ConcurrentHashMap<>();
     Admittor admittor = mock(Admittor.class);
 
     AtomicInteger cacheSize = new AtomicInteger();
     WTinyLFUPolicy wTinyLFU = new WTinyLFUPolicy(data, admittor, cacheSize);
     wTinyLFU.setMaxSize(15);
 
-    OCacheEntry[] cacheEntries = new OCacheEntry[16];
-    OCachePointer[] cachePointers = new OCachePointer[16];
+    CacheEntry[] cacheEntries = new CacheEntry[16];
+    CachePointer[] cachePointers = new CachePointer[16];
 
     generateEntries(cacheEntries, cachePointers, pool);
 
@@ -284,16 +281,16 @@ public class WTinyLFUPolicyTest {
     Assert.assertEquals(15, memoryAllocator.getMemoryConsumption());
 
     Assert.assertFalse(wTinyLFU.protection().hasNext());
-    Iterator<OCacheEntry> edenIterator = wTinyLFU.eden();
+    Iterator<CacheEntry> edenIterator = wTinyLFU.eden();
 
     for (int i = 15; i >= 13; i--) {
-      final OCacheEntry cacheEntry = edenIterator.next();
+      final CacheEntry cacheEntry = edenIterator.next();
       Assert.assertSame(cacheEntry, cacheEntries[i]);
     }
 
-    Iterator<OCacheEntry> probationIterator = wTinyLFU.probation();
+    Iterator<CacheEntry> probationIterator = wTinyLFU.probation();
     for (int i = 11; i >= 0; i--) {
-      final OCacheEntry cacheEntry = probationIterator.next();
+      final CacheEntry cacheEntry = probationIterator.next();
       Assert.assertSame(cacheEntry, cacheEntries[i]);
     }
 
@@ -302,18 +299,18 @@ public class WTinyLFUPolicyTest {
 
   @Test
   public void testProbationIsOverflownNoProtectionVictimOneIsAcquired() {
-    ODirectMemoryAllocator memoryAllocator = new ODirectMemoryAllocator();
-    OByteBufferPool pool = new OByteBufferPool(1, memoryAllocator, 0);
+    DirectMemoryAllocator memoryAllocator = new DirectMemoryAllocator();
+    ByteBufferPool pool = new ByteBufferPool(1, memoryAllocator, 0);
 
-    ConcurrentHashMap<PageKey, OCacheEntry> data = new ConcurrentHashMap<>();
+    ConcurrentHashMap<PageKey, CacheEntry> data = new ConcurrentHashMap<>();
     Admittor admittor = mock(Admittor.class);
 
     AtomicInteger cacheSize = new AtomicInteger();
     WTinyLFUPolicy wTinyLFU = new WTinyLFUPolicy(data, admittor, cacheSize);
     wTinyLFU.setMaxSize(15);
 
-    OCacheEntry[] cacheEntries = new OCacheEntry[16];
-    OCachePointer[] cachePointers = new OCachePointer[16];
+    CacheEntry[] cacheEntries = new CacheEntry[16];
+    CachePointer[] cachePointers = new CachePointer[16];
 
     generateEntries(cacheEntries, cachePointers, pool);
 
@@ -340,18 +337,18 @@ public class WTinyLFUPolicyTest {
     Assert.assertEquals(15, memoryAllocator.getMemoryConsumption());
 
     Assert.assertFalse(wTinyLFU.protection().hasNext());
-    Iterator<OCacheEntry> edenIterator = wTinyLFU.eden();
+    Iterator<CacheEntry> edenIterator = wTinyLFU.eden();
 
     Assert.assertSame(cacheEntries[0], edenIterator.next());
 
     for (int i = 15; i >= 14; i--) {
-      final OCacheEntry cacheEntry = edenIterator.next();
+      final CacheEntry cacheEntry = edenIterator.next();
       Assert.assertSame(cacheEntry, cacheEntries[i]);
     }
 
-    Iterator<OCacheEntry> probationIterator = wTinyLFU.probation();
+    Iterator<CacheEntry> probationIterator = wTinyLFU.probation();
     for (int i = 13; i >= 2; i--) {
-      final OCacheEntry cacheEntry = probationIterator.next();
+      final CacheEntry cacheEntry = probationIterator.next();
       Assert.assertSame(cacheEntry, cacheEntries[i]);
     }
 
@@ -360,18 +357,18 @@ public class WTinyLFUPolicyTest {
 
   @Test
   public void testProbationIsOverflownNoProtectionTwoIsAcquired() {
-    ODirectMemoryAllocator memoryAllocator = new ODirectMemoryAllocator();
-    OByteBufferPool pool = new OByteBufferPool(1, memoryAllocator, 0);
+    DirectMemoryAllocator memoryAllocator = new DirectMemoryAllocator();
+    ByteBufferPool pool = new ByteBufferPool(1, memoryAllocator, 0);
 
-    ConcurrentHashMap<PageKey, OCacheEntry> data = new ConcurrentHashMap<>();
+    ConcurrentHashMap<PageKey, CacheEntry> data = new ConcurrentHashMap<>();
     Admittor admittor = mock(Admittor.class);
 
     AtomicInteger cacheSize = new AtomicInteger();
     WTinyLFUPolicy wTinyLFU = new WTinyLFUPolicy(data, admittor, cacheSize);
     wTinyLFU.setMaxSize(15);
 
-    OCacheEntry[] cacheEntries = new OCacheEntry[16];
-    OCachePointer[] cachePointers = new OCachePointer[16];
+    CacheEntry[] cacheEntries = new CacheEntry[16];
+    CachePointer[] cachePointers = new CachePointer[16];
 
     generateEntries(cacheEntries, cachePointers, pool);
 
@@ -398,18 +395,18 @@ public class WTinyLFUPolicyTest {
     Assert.assertEquals(15, memoryAllocator.getMemoryConsumption());
 
     Assert.assertFalse(wTinyLFU.protection().hasNext());
-    Iterator<OCacheEntry> edenIterator = wTinyLFU.eden();
+    Iterator<CacheEntry> edenIterator = wTinyLFU.eden();
 
     Assert.assertSame(cacheEntries[12], edenIterator.next());
 
     for (int i = 15; i >= 14; i--) {
-      final OCacheEntry cacheEntry = edenIterator.next();
+      final CacheEntry cacheEntry = edenIterator.next();
       Assert.assertSame(cacheEntry, cacheEntries[i]);
     }
 
-    Iterator<OCacheEntry> probationIterator = wTinyLFU.probation();
+    Iterator<CacheEntry> probationIterator = wTinyLFU.probation();
     for (int i = 11; i >= 0; i--) {
-      final OCacheEntry cacheEntry = probationIterator.next();
+      final CacheEntry cacheEntry = probationIterator.next();
       Assert.assertSame(cacheEntry, cacheEntries[i]);
     }
 
@@ -418,18 +415,18 @@ public class WTinyLFUPolicyTest {
 
   @Test
   public void testProtectedOverflow() {
-    ODirectMemoryAllocator memoryAllocator = new ODirectMemoryAllocator();
-    OByteBufferPool pool = new OByteBufferPool(1, memoryAllocator, 0);
+    DirectMemoryAllocator memoryAllocator = new DirectMemoryAllocator();
+    ByteBufferPool pool = new ByteBufferPool(1, memoryAllocator, 0);
 
-    ConcurrentHashMap<PageKey, OCacheEntry> data = new ConcurrentHashMap<>();
+    ConcurrentHashMap<PageKey, CacheEntry> data = new ConcurrentHashMap<>();
     Admittor admittor = mock(Admittor.class);
 
     AtomicInteger cacheSize = new AtomicInteger();
     WTinyLFUPolicy wTinyLFU = new WTinyLFUPolicy(data, admittor, cacheSize);
     wTinyLFU.setMaxSize(15);
 
-    OCacheEntry[] cacheEntries = new OCacheEntry[15];
-    OCachePointer[] cachePointers = new OCachePointer[15];
+    CacheEntry[] cacheEntries = new CacheEntry[15];
+    CachePointer[] cachePointers = new CachePointer[15];
 
     generateEntries(cacheEntries, cachePointers, pool);
 
@@ -443,15 +440,15 @@ public class WTinyLFUPolicyTest {
       wTinyLFU.onAccess(cacheEntries[i]);
     }
 
-    final Iterator<OCacheEntry> edenIterator = wTinyLFU.eden();
+    final Iterator<CacheEntry> edenIterator = wTinyLFU.eden();
     for (int i = 14; i >= 13; i--) {
-      final OCacheEntry cacheEntry = edenIterator.next();
+      final CacheEntry cacheEntry = edenIterator.next();
       Assert.assertSame(cacheEntries[i], cacheEntry);
     }
 
-    final Iterator<OCacheEntry> protectionIterator = wTinyLFU.protection();
+    final Iterator<CacheEntry> protectionIterator = wTinyLFU.protection();
     for (int i = 10; i >= 1; i--) {
-      final OCacheEntry cacheEntry = protectionIterator.next();
+      final CacheEntry cacheEntry = protectionIterator.next();
       Assert.assertSame(cacheEntry, cacheEntries[i]);
     }
 
@@ -463,18 +460,18 @@ public class WTinyLFUPolicyTest {
 
   @Test
   public void testProtection() {
-    ODirectMemoryAllocator memoryAllocator = new ODirectMemoryAllocator();
-    OByteBufferPool pool = new OByteBufferPool(1, memoryAllocator, 0);
+    DirectMemoryAllocator memoryAllocator = new DirectMemoryAllocator();
+    ByteBufferPool pool = new ByteBufferPool(1, memoryAllocator, 0);
 
-    ConcurrentHashMap<PageKey, OCacheEntry> data = new ConcurrentHashMap<>();
+    ConcurrentHashMap<PageKey, CacheEntry> data = new ConcurrentHashMap<>();
     Admittor admittor = mock(Admittor.class);
 
     AtomicInteger cacheSize = new AtomicInteger();
     WTinyLFUPolicy wTinyLFU = new WTinyLFUPolicy(data, admittor, cacheSize);
     wTinyLFU.setMaxSize(15);
 
-    OCacheEntry[] cacheEntries = new OCacheEntry[6];
-    OCachePointer[] cachePointers = new OCachePointer[6];
+    CacheEntry[] cacheEntries = new CacheEntry[6];
+    CachePointer[] cachePointers = new CachePointer[6];
 
     generateEntries(cacheEntries, cachePointers, pool);
 
@@ -488,18 +485,18 @@ public class WTinyLFUPolicyTest {
       wTinyLFU.onAccess(cacheEntries[i]);
     }
 
-    final Iterator<OCacheEntry> edenIterator = wTinyLFU.eden();
+    final Iterator<CacheEntry> edenIterator = wTinyLFU.eden();
     for (int i = 5; i >= 3; i--) {
-      final OCacheEntry cacheEntry = edenIterator.next();
+      final CacheEntry cacheEntry = edenIterator.next();
       Assert.assertSame(cacheEntries[i], cacheEntry);
     }
 
-    Iterator<OCacheEntry> probationIterator = wTinyLFU.probation();
+    Iterator<CacheEntry> probationIterator = wTinyLFU.probation();
     Assert.assertFalse(probationIterator.hasNext());
 
-    Iterator<OCacheEntry> protectionIterator = wTinyLFU.protection();
+    Iterator<CacheEntry> protectionIterator = wTinyLFU.protection();
     for (int i = 2; i >= 0; i--) {
-      final OCacheEntry cacheEntry = protectionIterator.next();
+      final CacheEntry cacheEntry = protectionIterator.next();
       Assert.assertSame(cacheEntries[i], cacheEntry);
     }
 
@@ -523,18 +520,18 @@ public class WTinyLFUPolicyTest {
 
   @Test
   public void testRemovedEden() {
-    ODirectMemoryAllocator memoryAllocator = new ODirectMemoryAllocator();
-    OByteBufferPool pool = new OByteBufferPool(1, memoryAllocator, 0);
+    DirectMemoryAllocator memoryAllocator = new DirectMemoryAllocator();
+    ByteBufferPool pool = new ByteBufferPool(1, memoryAllocator, 0);
 
-    ConcurrentHashMap<PageKey, OCacheEntry> data = new ConcurrentHashMap<>();
+    ConcurrentHashMap<PageKey, CacheEntry> data = new ConcurrentHashMap<>();
     Admittor admittor = mock(Admittor.class);
 
     AtomicInteger cacheSize = new AtomicInteger();
     WTinyLFUPolicy wTinyLFU = new WTinyLFUPolicy(data, admittor, cacheSize);
     wTinyLFU.setMaxSize(15);
 
-    OCacheEntry[] cacheEntries = new OCacheEntry[1];
-    OCachePointer[] cachePointers = new OCachePointer[1];
+    CacheEntry[] cacheEntries = new CacheEntry[1];
+    CachePointer[] cachePointers = new CachePointer[1];
 
     generateEntries(cacheEntries, cachePointers, pool);
 
@@ -562,18 +559,18 @@ public class WTinyLFUPolicyTest {
 
   @Test
   public void testRemoveProbation() {
-    ODirectMemoryAllocator memoryAllocator = new ODirectMemoryAllocator();
-    OByteBufferPool pool = new OByteBufferPool(1, memoryAllocator, 0);
+    DirectMemoryAllocator memoryAllocator = new DirectMemoryAllocator();
+    ByteBufferPool pool = new ByteBufferPool(1, memoryAllocator, 0);
 
-    ConcurrentHashMap<PageKey, OCacheEntry> data = new ConcurrentHashMap<>();
+    ConcurrentHashMap<PageKey, CacheEntry> data = new ConcurrentHashMap<>();
     Admittor admittor = mock(Admittor.class);
 
     AtomicInteger cacheSize = new AtomicInteger();
     WTinyLFUPolicy wTinyLFU = new WTinyLFUPolicy(data, admittor, cacheSize);
     wTinyLFU.setMaxSize(15);
 
-    OCacheEntry[] cacheEntries = new OCacheEntry[6];
-    OCachePointer[] cachePointers = new OCachePointer[6];
+    CacheEntry[] cacheEntries = new CacheEntry[6];
+    CachePointer[] cachePointers = new CachePointer[6];
 
     generateEntries(cacheEntries, cachePointers, pool);
 
@@ -591,15 +588,15 @@ public class WTinyLFUPolicyTest {
     Assert.assertEquals(5, cacheSize.get());
     Assert.assertFalse(wTinyLFU.protection().hasNext());
 
-    Iterator<OCacheEntry> edenIterator = wTinyLFU.eden();
+    Iterator<CacheEntry> edenIterator = wTinyLFU.eden();
     for (int i = 5; i >= 3; i--) {
-      final OCacheEntry cacheEntry = edenIterator.next();
+      final CacheEntry cacheEntry = edenIterator.next();
       Assert.assertSame(cacheEntries[i], cacheEntry);
     }
 
-    Iterator<OCacheEntry> probationIterator = wTinyLFU.probation();
+    Iterator<CacheEntry> probationIterator = wTinyLFU.probation();
     for (int i = 2; i >= 1; i--) {
-      final OCacheEntry cacheEntry = probationIterator.next();
+      final CacheEntry cacheEntry = probationIterator.next();
       Assert.assertSame(cacheEntries[i], cacheEntry);
     }
 
@@ -614,18 +611,18 @@ public class WTinyLFUPolicyTest {
 
   @Test
   public void testRemoveProtection() {
-    ODirectMemoryAllocator memoryAllocator = new ODirectMemoryAllocator();
-    OByteBufferPool pool = new OByteBufferPool(1, memoryAllocator, 0);
+    DirectMemoryAllocator memoryAllocator = new DirectMemoryAllocator();
+    ByteBufferPool pool = new ByteBufferPool(1, memoryAllocator, 0);
 
-    ConcurrentHashMap<PageKey, OCacheEntry> data = new ConcurrentHashMap<>();
+    ConcurrentHashMap<PageKey, CacheEntry> data = new ConcurrentHashMap<>();
     Admittor admittor = mock(Admittor.class);
 
     AtomicInteger cacheSize = new AtomicInteger();
     WTinyLFUPolicy wTinyLFU = new WTinyLFUPolicy(data, admittor, cacheSize);
     wTinyLFU.setMaxSize(15);
 
-    OCacheEntry[] cacheEntries = new OCacheEntry[6];
-    OCachePointer[] cachePointers = new OCachePointer[6];
+    CacheEntry[] cacheEntries = new CacheEntry[6];
+    CachePointer[] cachePointers = new CachePointer[6];
 
     generateEntries(cacheEntries, cachePointers, pool);
 
@@ -649,15 +646,15 @@ public class WTinyLFUPolicyTest {
 
     Assert.assertFalse(wTinyLFU.probation().hasNext());
 
-    Iterator<OCacheEntry> edenIterator = wTinyLFU.eden();
+    Iterator<CacheEntry> edenIterator = wTinyLFU.eden();
     for (int i = 5; i >= 3; i--) {
-      final OCacheEntry cacheEntry = edenIterator.next();
+      final CacheEntry cacheEntry = edenIterator.next();
       Assert.assertSame(cacheEntries[i], cacheEntry);
     }
 
-    Iterator<OCacheEntry> protactionIterator = wTinyLFU.protection();
+    Iterator<CacheEntry> protactionIterator = wTinyLFU.protection();
     for (int i = 2; i >= 1; i--) {
-      final OCacheEntry cacheEntry = protactionIterator.next();
+      final CacheEntry cacheEntry = protactionIterator.next();
       Assert.assertSame(cacheEntries[i], cacheEntry);
     }
 
@@ -668,22 +665,22 @@ public class WTinyLFUPolicyTest {
     clearPointers(wTinyLFU);
   }
 
-  private static OCacheEntry[] toArray(Iterator<OCacheEntry> iterator) {
-    final List<OCacheEntry> entries = new ArrayList<>();
+  private static CacheEntry[] toArray(Iterator<CacheEntry> iterator) {
+    final List<CacheEntry> entries = new ArrayList<>();
     while (iterator.hasNext()) {
-      final OCacheEntry cacheEntry = iterator.next();
+      final CacheEntry cacheEntry = iterator.next();
       entries.add(cacheEntry);
     }
 
-    return entries.toArray(new OCacheEntry[0]);
+    return entries.toArray(new CacheEntry[0]);
   }
 
   private static void generateEntries(
-      OCacheEntry[] cacheEntries, OCachePointer[] cachePointers, OByteBufferPool pool) {
+      CacheEntry[] cacheEntries, CachePointer[] cachePointers, ByteBufferPool pool) {
     for (int i = 0; i < cacheEntries.length; i++) {
-      final OCachePointer cachePointer =
-          new OCachePointer(pool.acquireDirect(true, Intention.TEST), pool, 1, i);
-      final OCacheEntry cacheEntry = new OCacheEntryImpl(1, i, cachePointer, false, null);
+      final CachePointer cachePointer =
+          new CachePointer(pool.acquireDirect(true, Intention.TEST), pool, 1, i);
+      final CacheEntry cacheEntry = new CacheEntryImpl(1, i, cachePointer, false, null);
 
       cachePointer.incrementReadersReferrer();
       cacheEntries[i] = cacheEntry;
@@ -697,9 +694,9 @@ public class WTinyLFUPolicyTest {
     clearQueue(policy.protection());
   }
 
-  private static void clearQueue(final Iterator<OCacheEntry> iterator) {
+  private static void clearQueue(final Iterator<CacheEntry> iterator) {
     while (iterator.hasNext()) {
-      final OCacheEntry cacheEntry = iterator.next();
+      final CacheEntry cacheEntry = iterator.next();
       cacheEntry.getCachePointer().decrementReadersReferrer();
     }
   }

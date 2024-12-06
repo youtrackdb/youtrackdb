@@ -14,7 +14,7 @@
 package com.orientechnologies.spatial;
 
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Assert;
@@ -59,7 +59,7 @@ public class LuceneSpatialGeometryCollectionTest extends BaseSpatialLuceneTest {
     test1.save();
     db.commit();
 
-    YTResultSet execute =
+    ResultSet execute =
         db.command(
             "SELECT from test where ST_Contains(geometry, ST_GeomFromText('POINT(1 1)')) = true");
 
@@ -91,7 +91,7 @@ public class LuceneSpatialGeometryCollectionTest extends BaseSpatialLuceneTest {
 
     db.commit();
 
-    YTResultSet execute =
+    ResultSet execute =
         db.command(
             "SELECT from test where ST_Contains(geometry, ST_GeomFromText('POINT(1 1)')) = true");
 

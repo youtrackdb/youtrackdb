@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.config;
 
-import com.jetbrains.youtrack.db.internal.core.hook.YTRecordHook;
+import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElementRef;
 import jakarta.xml.bind.annotation.XmlElementWrapper;
@@ -34,7 +34,7 @@ public class OServerHookConfiguration {
   public String clazz;
 
   @XmlAttribute(name = "position")
-  public String position = YTRecordHook.HOOK_POSITION.REGULAR.name();
+  public String position = RecordHook.HOOK_POSITION.REGULAR.name();
 
   @XmlElementWrapper
   @XmlElementRef(type = OServerParameterConfiguration.class)

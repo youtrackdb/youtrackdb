@@ -1,15 +1,15 @@
 package com.orientechnologies.orient.server.token;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.OJwtPayload;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.OTokenMetaInfo;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.JwtPayload;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.TokenMetaInfo;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
  *
  */
-public class OrientJwtPayload implements OJwtPayload {
+public class OrientJwtPayload implements JwtPayload {
 
   public String iss;
   public String sub;
@@ -18,7 +18,7 @@ public class OrientJwtPayload implements OJwtPayload {
   public long exp;
   public long iat;
   public long nbf;
-  public YTRID userRid;
+  public RID userRid;
   public String database;
   public String databaseType;
 
@@ -92,11 +92,11 @@ public class OrientJwtPayload implements OJwtPayload {
     this.jti = jti;
   }
 
-  public YTRID getUserRid() {
+  public RID getUserRid() {
     return userRid;
   }
 
-  public void setUserRid(YTRID userRid) {
+  public void setUserRid(RID userRid) {
     this.userRid = userRid;
   }
 
@@ -124,7 +124,7 @@ public class OrientJwtPayload implements OJwtPayload {
   }
 
   @Override
-  public void serialize(DataOutputStream output, OTokenMetaInfo serializer) throws IOException {
+  public void serialize(DataOutputStream output, TokenMetaInfo serializer) throws IOException {
     throw new UnsupportedOperationException();
   }
 }

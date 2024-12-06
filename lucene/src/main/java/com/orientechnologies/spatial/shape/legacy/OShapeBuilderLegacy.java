@@ -13,8 +13,8 @@
  */
 package com.orientechnologies.spatial.shape.legacy;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.shape.Shape;
 
@@ -23,7 +23,7 @@ import org.locationtech.spatial4j.shape.Shape;
  */
 public interface OShapeBuilderLegacy<T extends Shape> {
 
-  T makeShape(YTDatabaseSessionInternal session, OCompositeKey key, SpatialContext ctx);
+  T makeShape(DatabaseSessionInternal session, CompositeKey key, SpatialContext ctx);
 
-  boolean canHandle(OCompositeKey key);
+  boolean canHandle(CompositeKey key);
 }

@@ -20,16 +20,16 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.singlevalue.v3;
 
-import com.jetbrains.youtrack.db.internal.common.comparator.ODefaultComparator;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OByteSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OLongSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OShortSerializer;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurablePage;
+import com.jetbrains.youtrack.db.internal.common.comparator.DefaultComparator;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -37,24 +37,24 @@ import java.util.List;
 /**
  * @since 8/7/13
  */
-public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
+public final class CellBTreeSingleValueBucketV3<K> extends DurablePage {
 
-  private static final int RID_SIZE = OShortSerializer.SHORT_SIZE + OLongSerializer.LONG_SIZE;
+  private static final int RID_SIZE = ShortSerializer.SHORT_SIZE + LongSerializer.LONG_SIZE;
 
   private static final int FREE_POINTER_OFFSET = NEXT_FREE_POSITION;
-  private static final int SIZE_OFFSET = FREE_POINTER_OFFSET + OIntegerSerializer.INT_SIZE;
-  private static final int IS_LEAF_OFFSET = SIZE_OFFSET + OIntegerSerializer.INT_SIZE;
-  private static final int LEFT_SIBLING_OFFSET = IS_LEAF_OFFSET + OByteSerializer.BYTE_SIZE;
-  private static final int RIGHT_SIBLING_OFFSET = LEFT_SIBLING_OFFSET + OLongSerializer.LONG_SIZE;
+  private static final int SIZE_OFFSET = FREE_POINTER_OFFSET + IntegerSerializer.INT_SIZE;
+  private static final int IS_LEAF_OFFSET = SIZE_OFFSET + IntegerSerializer.INT_SIZE;
+  private static final int LEFT_SIBLING_OFFSET = IS_LEAF_OFFSET + ByteSerializer.BYTE_SIZE;
+  private static final int RIGHT_SIBLING_OFFSET = LEFT_SIBLING_OFFSET + LongSerializer.LONG_SIZE;
 
   private static final int NEXT_FREE_LIST_PAGE_OFFSET = NEXT_FREE_POSITION;
 
   private static final int POSITIONS_ARRAY_OFFSET =
-      RIGHT_SIBLING_OFFSET + OLongSerializer.LONG_SIZE;
+      RIGHT_SIBLING_OFFSET + LongSerializer.LONG_SIZE;
 
-  private final Comparator<? super K> comparator = ODefaultComparator.INSTANCE;
+  private final Comparator<? super K> comparator = DefaultComparator.INSTANCE;
 
-  public CellBTreeSingleValueBucketV3(final OCacheEntry cacheEntry) {
+  public CellBTreeSingleValueBucketV3(final CacheEntry cacheEntry) {
     super(cacheEntry);
   }
 
@@ -85,7 +85,7 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
     return size() == 0;
   }
 
-  public int find(final K key, final OBinarySerializer<K> keySerializer) {
+  public int find(final K key, final BinarySerializer<K> keySerializer) {
     int low = 0;
     int high = size() - 1;
 
@@ -153,15 +153,15 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
   public int removeNonLeafEntry(
       final int entryIndex,
       boolean removeLeftChildPointer,
-      final OBinarySerializer<K> keySerializer) {
+      final BinarySerializer<K> keySerializer) {
     if (isLeaf()) {
       throw new IllegalStateException("Remove is applied to non-leaf buckets only");
     }
 
     final int entryPosition = getPointer(entryIndex);
     final int keySize =
-        getObjectSizeInDirectMemory(keySerializer, entryPosition + 2 * OIntegerSerializer.INT_SIZE);
-    final byte[] key = getBinaryValue(entryPosition + 2 * OIntegerSerializer.INT_SIZE, keySize);
+        getObjectSizeInDirectMemory(keySerializer, entryPosition + 2 * IntegerSerializer.INT_SIZE);
+    final byte[] key = getBinaryValue(entryPosition + 2 * IntegerSerializer.INT_SIZE, keySize);
 
     return removeNonLeafEntry(entryIndex, key, removeLeftChildPointer);
   }
@@ -173,10 +173,10 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
     }
 
     final int entryPosition = getPointer(entryIndex);
-    final int entrySize = key.length + 2 * OIntegerSerializer.INT_SIZE;
+    final int entrySize = key.length + 2 * IntegerSerializer.INT_SIZE;
 
     final int leftChild = getIntValue(entryPosition);
-    final int rightChild = getIntValue(entryPosition + OIntegerSerializer.INT_SIZE);
+    final int rightChild = getIntValue(entryPosition + IntegerSerializer.INT_SIZE);
 
     int[] pointers = getPointers();
     int size = pointers.length;
@@ -210,7 +210,7 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
 
       if (entryIndex > 0) {
         final int prevEntryPosition = getPointer(entryIndex - 1);
-        setIntValue(prevEntryPosition + OIntegerSerializer.INT_SIZE, childPointer);
+        setIntValue(prevEntryPosition + IntegerSerializer.INT_SIZE, childPointer);
       }
       if (entryIndex < size) {
         final int nextEntryPosition = getPointer(entryIndex);
@@ -228,7 +228,7 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
 
   public void setPointersOffset(int position, int[] pointers, int pointersOffset) {
     setIntArray(
-        POSITIONS_ARRAY_OFFSET + position * OIntegerSerializer.INT_SIZE, pointers, pointersOffset);
+        POSITIONS_ARRAY_OFFSET + position * IntegerSerializer.INT_SIZE, pointers, pointersOffset);
   }
 
   public int size() {
@@ -236,7 +236,7 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
   }
 
   public CellBTreeSingleValueEntryV3<K> getEntry(
-      final int entryIndex, final OBinarySerializer<K> keySerializer) {
+      final int entryIndex, final BinarySerializer<K> keySerializer) {
     int entryPosition = getPointer(entryIndex);
 
     if (isLeaf()) {
@@ -247,16 +247,16 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
       entryPosition += getObjectSizeInDirectMemory(keySerializer, entryPosition);
 
       final int clusterId = getShortValue(entryPosition);
-      final long clusterPosition = getLongValue(entryPosition + OShortSerializer.SHORT_SIZE);
+      final long clusterPosition = getLongValue(entryPosition + ShortSerializer.SHORT_SIZE);
 
       return new CellBTreeSingleValueEntryV3<>(
-          -1, -1, key, new YTRecordId(clusterId, clusterPosition));
+          -1, -1, key, new RecordId(clusterId, clusterPosition));
     } else {
       final int leftChild = getIntValue(entryPosition);
-      entryPosition += OIntegerSerializer.INT_SIZE;
+      entryPosition += IntegerSerializer.INT_SIZE;
 
       final int rightChild = getIntValue(entryPosition);
-      entryPosition += OIntegerSerializer.INT_SIZE;
+      entryPosition += IntegerSerializer.INT_SIZE;
 
       final K key = deserializeFromDirectMemory(keySerializer, entryPosition);
 
@@ -277,10 +277,10 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
 
     final int entryPosition = getPointer(entryIndex);
 
-    return getIntValue(entryPosition + OIntegerSerializer.INT_SIZE);
+    return getIntValue(entryPosition + IntegerSerializer.INT_SIZE);
   }
 
-  public byte[] getRawEntry(final int entryIndex, final OBinarySerializer<K> keySerializer) {
+  public byte[] getRawEntry(final int entryIndex, final BinarySerializer<K> keySerializer) {
     int entryPosition = getPointer(entryIndex);
     final int startEntryPosition = entryPosition;
 
@@ -289,11 +289,11 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
 
       return getBinaryValue(startEntryPosition, keySize + RID_SIZE);
     } else {
-      entryPosition += 2 * OIntegerSerializer.INT_SIZE;
+      entryPosition += 2 * IntegerSerializer.INT_SIZE;
 
       final int keySize = getObjectSizeInDirectMemory(keySerializer, entryPosition);
 
-      return getBinaryValue(startEntryPosition, keySize + 2 * OIntegerSerializer.INT_SIZE);
+      return getBinaryValue(startEntryPosition, keySize + 2 * IntegerSerializer.INT_SIZE);
     }
   }
 
@@ -303,7 +303,7 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
    * @param entryIndex the value entry index.
    * @return the obtained value.
    */
-  public YTRID getValue(final int entryIndex, final OBinarySerializer<K> keySerializer) {
+  public RID getValue(final int entryIndex, final BinarySerializer<K> keySerializer) {
     assert isLeaf();
 
     int entryPosition = getPointer(entryIndex);
@@ -312,12 +312,12 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
     entryPosition += getObjectSizeInDirectMemory(keySerializer, entryPosition);
 
     final int clusterId = getShortValue(entryPosition);
-    final long clusterPosition = getLongValue(entryPosition + OShortSerializer.SHORT_SIZE);
+    final long clusterPosition = getLongValue(entryPosition + ShortSerializer.SHORT_SIZE);
 
-    return new YTRecordId(clusterId, clusterPosition);
+    return new RecordId(clusterId, clusterPosition);
   }
 
-  byte[] getRawValue(final int entryIndex, final OBinarySerializer<K> keySerializer) {
+  byte[] getRawValue(final int entryIndex, final BinarySerializer<K> keySerializer) {
     assert isLeaf();
     assert entryIndex < getSize();
 
@@ -329,26 +329,26 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
     return getBinaryValue(entryPosition, RID_SIZE);
   }
 
-  public K getKey(final int index, final OBinarySerializer<K> keySerializer) {
+  public K getKey(final int index, final BinarySerializer<K> keySerializer) {
     assert index < getSize();
     int entryPosition = getPointer(index);
 
     if (!isLeaf()) {
-      entryPosition += 2 * OIntegerSerializer.INT_SIZE;
+      entryPosition += 2 * IntegerSerializer.INT_SIZE;
     }
 
     return deserializeFromDirectMemory(keySerializer, entryPosition);
   }
 
   private int getPointer(final int index) {
-    return getIntValue(index * OIntegerSerializer.INT_SIZE + POSITIONS_ARRAY_OFFSET);
+    return getIntValue(index * IntegerSerializer.INT_SIZE + POSITIONS_ARRAY_OFFSET);
   }
 
-  public byte[] getRawKey(final int index, final OBinarySerializer<K> keySerializer) {
+  public byte[] getRawKey(final int index, final BinarySerializer<K> keySerializer) {
     int entryPosition = getPointer(index);
 
     if (!isLeaf()) {
-      entryPosition += 2 * OIntegerSerializer.INT_SIZE;
+      entryPosition += 2 * IntegerSerializer.INT_SIZE;
     }
 
     final int keyLen = getObjectSizeInDirectMemory(keySerializer, entryPosition);
@@ -359,7 +359,7 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
     return getByteValue(IS_LEAF_OFFSET) > 0;
   }
 
-  public void addAll(final List<byte[]> rawEntries, final OBinarySerializer<K> keySerializer) {
+  public void addAll(final List<byte[]> rawEntries, final BinarySerializer<K> keySerializer) {
     final int currentSize = size();
     for (int i = 0; i < rawEntries.size(); i++) {
       appendRawEntry(i + currentSize, rawEntries.get(i));
@@ -368,7 +368,7 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
     setSize(rawEntries.size() + currentSize);
   }
 
-  public void shrink(final int newSize, final OBinarySerializer<K> keySerializer) {
+  public void shrink(final int newSize, final BinarySerializer<K> keySerializer) {
     final int currentSize = size();
     final List<byte[]> rawEntries = new ArrayList<>(newSize);
     final List<byte[]> removedEntries = new ArrayList<>(currentSize - newSize);
@@ -424,13 +424,13 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
 
   private void shiftPointers(final int index, final int indexTo, final int count) {
     moveData(
-        POSITIONS_ARRAY_OFFSET + index * OIntegerSerializer.INT_SIZE,
-        POSITIONS_ARRAY_OFFSET + indexTo * OIntegerSerializer.INT_SIZE,
-        count * OIntegerSerializer.INT_SIZE);
+        POSITIONS_ARRAY_OFFSET + index * IntegerSerializer.INT_SIZE,
+        POSITIONS_ARRAY_OFFSET + indexTo * IntegerSerializer.INT_SIZE,
+        count * IntegerSerializer.INT_SIZE);
   }
 
   private int setPointer(final int index, int pointer) {
-    return setIntValue(POSITIONS_ARRAY_OFFSET + index * OIntegerSerializer.INT_SIZE, pointer);
+    return setIntValue(POSITIONS_ARRAY_OFFSET + index * IntegerSerializer.INT_SIZE, pointer);
   }
 
   private int setFreePointer(int freePointer) {
@@ -457,7 +457,7 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
 
     final int keySize = key.length;
 
-    final int entrySize = keySize + 2 * OIntegerSerializer.INT_SIZE;
+    final int entrySize = keySize + 2 * IntegerSerializer.INT_SIZE;
 
     int size = size();
     int freePointer = getFreePointer();
@@ -494,17 +494,17 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
 
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   public boolean updateKey(
-      final int entryIndex, final byte[] key, final OBinarySerializer<K> keySerializer) {
+      final int entryIndex, final byte[] key, final BinarySerializer<K> keySerializer) {
     if (isLeaf()) {
       throw new IllegalStateException("Update key is applied to non-leaf buckets only");
     }
 
     final int entryPosition = getPointer(entryIndex);
     final int keySize =
-        getObjectSizeInDirectMemory(keySerializer, entryPosition + 2 * OIntegerSerializer.INT_SIZE);
+        getObjectSizeInDirectMemory(keySerializer, entryPosition + 2 * IntegerSerializer.INT_SIZE);
     assert entryPosition + keySize < MAX_PAGE_SIZE_BYTES;
     if (key.length == keySize) {
-      setBinaryValue(entryPosition + 2 * OIntegerSerializer.INT_SIZE, key);
+      setBinaryValue(entryPosition + 2 * IntegerSerializer.INT_SIZE, key);
       return true;
     }
 
@@ -515,10 +515,10 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
       return false;
     }
 
-    final int entrySize = keySize + 2 * OIntegerSerializer.INT_SIZE;
+    final int entrySize = keySize + 2 * IntegerSerializer.INT_SIZE;
 
     final int leftChildIndex = getIntValue(entryPosition);
-    final int rightChildIndex = getIntValue(entryPosition + OIntegerSerializer.INT_SIZE);
+    final int rightChildIndex = getIntValue(entryPosition + IntegerSerializer.INT_SIZE);
 
     if (size > 0 && entryPosition > freePointer) {
       moveData(freePointer, freePointer + entrySize, entryPosition - freePointer);
@@ -541,7 +541,7 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
   public void updateValue(final int index, final byte[] value, int keyLenght) {
     int entryPosition = getPointer(index);
     if (!isLeaf()) {
-      entryPosition += 2 * OIntegerSerializer.INT_SIZE;
+      entryPosition += 2 * IntegerSerializer.INT_SIZE;
     }
     setBinaryValue(entryPosition + keyLenght, value);
   }
@@ -586,6 +586,6 @@ public final class CellBTreeSingleValueBucketV3<K> extends ODurablePage {
     int size = getSize();
     int freePointer = getFreePointer();
     return freePointer - requiredDataSpace
-        < (size + requirePointerSpace) * OIntegerSerializer.INT_SIZE + POSITIONS_ARRAY_OFFSET;
+        < (size + requirePointerSpace) * IntegerSerializer.INT_SIZE + POSITIONS_ARRAY_OFFSET;
   }
 }

@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.common.comparator;
 
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import java.util.Comparator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -11,12 +11,12 @@ import org.junit.Test;
  */
 public class DefaultComparatorTest {
 
-  private final ODefaultComparator comparator = ODefaultComparator.INSTANCE;
+  private final DefaultComparator comparator = DefaultComparator.INSTANCE;
 
   @Test
   public void testCompareStrings() {
-    final OCompositeKey keyOne = new OCompositeKey("name4", YTType.STRING);
-    final OCompositeKey keyTwo = new OCompositeKey("name5", YTType.STRING);
+    final CompositeKey keyOne = new CompositeKey("name4", PropertyType.STRING);
+    final CompositeKey keyTwo = new CompositeKey("name5", PropertyType.STRING);
 
     assertCompareTwoKeys(comparator, keyOne, keyTwo);
   }

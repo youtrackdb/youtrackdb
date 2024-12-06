@@ -1,14 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestLinkedDocumentInMap extends DBTestBase {
+public class TestLinkedDocumentInMap extends DbTestBase {
 
   @Test
   public void testLinkedValue() {
@@ -32,12 +32,12 @@ public class TestLinkedDocumentInMap extends DBTestBase {
     db.commit();
 
     tyrionDoc = db.bindToSession(tyrionDoc);
-    List<Map<String, YTIdentifiable>> res = tyrionDoc.field("emergency_contact");
-    Map<String, YTIdentifiable> doc = res.get(0);
+    List<Map<String, Identifiable>> res = tyrionDoc.field("emergency_contact");
+    Map<String, Identifiable> doc = res.get(0);
     Assert.assertTrue(doc.get("contact").getIdentity().isValid());
 
     reOpen("admin", "adminpwd");
-    try (YTResultSet result = db.query("select from " + tyrionDoc.getIdentity())) {
+    try (ResultSet result = db.query("select from " + tyrionDoc.getIdentity())) {
       res = result.next().getProperty("emergency_contact");
       doc = res.get(0);
       Assert.assertTrue(doc.get("contact").getIdentity().isValid());

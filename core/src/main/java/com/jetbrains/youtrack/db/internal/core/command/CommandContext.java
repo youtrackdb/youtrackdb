@@ -19,8 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStep;
 import java.util.Map;
 
@@ -69,7 +69,7 @@ public interface CommandContext {
    * Check if timeout is elapsed, if defined.
    *
    * @return false if it the timeout is elapsed and strategy is "return"
-   * @throws YTTimeoutException if the strategy is "exception" (default)
+   * @throws TimeoutException if the strategy is "exception" (default)
    */
   boolean checkTimeout();
 
@@ -89,9 +89,9 @@ public interface CommandContext {
    */
   void merge(CommandContext iContext);
 
-  YTDatabaseSessionInternal getDatabase();
+  DatabaseSessionInternal getDatabase();
 
-  void setDatabase(YTDatabaseSessionInternal database);
+  void setDatabase(DatabaseSessionInternal database);
 
   void declareScriptVariable(String varName);
 

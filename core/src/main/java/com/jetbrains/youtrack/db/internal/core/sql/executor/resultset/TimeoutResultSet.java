@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.resultset;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.concurrent.atomic.AtomicLong;
 
 public final class TimeoutResultSet implements ExecutionStream {
@@ -39,11 +39,11 @@ public final class TimeoutResultSet implements ExecutionStream {
   }
 
   @Override
-  public YTResult next(CommandContext ctx) {
+  public Result next(CommandContext ctx) {
     if (totalTime.get() / 1_000_000 > timeoutMillis) {
       fail();
       if (timedOut) {
-        return new YTResultInternal(ctx.getDatabase());
+        return new ResultInternal(ctx.getDatabase());
       }
     }
     long begin = System.nanoTime();

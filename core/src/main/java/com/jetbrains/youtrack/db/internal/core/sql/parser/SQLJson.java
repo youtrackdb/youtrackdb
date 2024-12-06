@@ -3,16 +3,16 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentHelper;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.OFieldTypesString;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTUpdatableResult;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.FieldTypesString;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.UpdatableResult;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,7 +62,7 @@ public class SQLJson extends SimpleNode {
     builder.append("}");
   }
 
-  public EntityImpl toDocument(YTIdentifiable source, CommandContext ctx) {
+  public EntityImpl toDocument(Identifiable source, CommandContext ctx) {
     String className = getClassNameForDocument(ctx);
     EntityImpl doc;
     if (className != null) {
@@ -87,18 +87,18 @@ public class SQLJson extends SimpleNode {
     return doc;
   }
 
-  private EntityImpl toDocument(YTResult source, CommandContext ctx, String className) {
+  private EntityImpl toDocument(Result source, CommandContext ctx, String className) {
     EntityImpl retDoc = new EntityImpl(className);
     Map<String, Character> types = null;
     for (SQLJsonItem item : items) {
       String name = item.getLeftValue();
       if (name == null
-          || ODocumentHelper.getReservedAttributes().contains(name.toLowerCase(Locale.ENGLISH))) {
-        if (name.equals(OFieldTypesString.ATTRIBUTE_FIELD_TYPES)) {
+          || DocumentHelper.getReservedAttributes().contains(name.toLowerCase(Locale.ENGLISH))) {
+        if (name.equals(FieldTypesString.ATTRIBUTE_FIELD_TYPES)) {
           Object value = item.right.execute(source, ctx);
-          types = OFieldTypesString.loadFieldTypes(value.toString());
+          types = FieldTypesString.loadFieldTypes(value.toString());
           for (Map.Entry<String, Character> entry : types.entrySet()) {
-            YTType t = OFieldTypesString.getOTypeFromChar(entry.getValue());
+            PropertyType t = FieldTypesString.getOTypeFromChar(entry.getValue());
             retDoc.setFieldType(entry.getKey(), t);
           }
         }
@@ -112,7 +112,7 @@ public class SQLJson extends SimpleNode {
         charType = null;
       }
       if (charType != null) {
-        YTType t = OFieldTypesString.getOTypeFromChar(charType);
+        PropertyType t = FieldTypesString.getOTypeFromChar(charType);
         retDoc.setProperty(name, value, t);
       } else {
         retDoc.setPropertyInternal(name, value);
@@ -128,7 +128,7 @@ public class SQLJson extends SimpleNode {
    * @param ctx
    * @return
    */
-  public Object toObjectDetermineType(YTResult source, CommandContext ctx) {
+  public Object toObjectDetermineType(Result source, CommandContext ctx) {
     String className = getClassNameForDocument(ctx);
     String type = getTypeForDocument(ctx);
     if (className != null || ("d".equalsIgnoreCase(type))) {
@@ -138,18 +138,18 @@ public class SQLJson extends SimpleNode {
     }
   }
 
-  public Object toObjectDetermineType(YTIdentifiable source, CommandContext ctx) {
+  public Object toObjectDetermineType(Identifiable source, CommandContext ctx) {
     var db = ctx.getDatabase();
     String className = getClassNameForDocument(ctx);
     String type = getTypeForDocument(ctx);
     if (className != null || ("d".equalsIgnoreCase(type))) {
-      YTUpdatableResult element = null;
+      UpdatableResult element = null;
       if (source != null) {
         var identity = source.getIdentity();
         if (identity.isPersistent()) {
-          element = new YTUpdatableResult(db, db.load(source.getIdentity()));
+          element = new UpdatableResult(db, db.load(source.getIdentity()));
         } else if (identity instanceof Entity el) {
-          element = new YTUpdatableResult(db, el);
+          element = new UpdatableResult(db, el);
         }
       }
       return toDocument(element, ctx, className);
@@ -158,7 +158,7 @@ public class SQLJson extends SimpleNode {
     }
   }
 
-  public Map<String, Object> toMap(YTIdentifiable source, CommandContext ctx) {
+  public Map<String, Object> toMap(Identifiable source, CommandContext ctx) {
     Map<String, Object> doc = new LinkedHashMap<String, Object>();
     for (SQLJsonItem item : items) {
       String name = item.getLeftValue();
@@ -172,7 +172,7 @@ public class SQLJson extends SimpleNode {
     return doc;
   }
 
-  public Map<String, Object> toMap(YTResult source, CommandContext ctx) {
+  public Map<String, Object> toMap(Result source, CommandContext ctx) {
     Map<String, Object> doc = new LinkedHashMap<String, Object>();
     for (SQLJsonItem item : items) {
       String name = item.getLeftValue();
@@ -190,7 +190,7 @@ public class SQLJson extends SimpleNode {
     for (SQLJsonItem item : items) {
       String left = item.getLeftValue();
       if (left != null && left.toLowerCase(Locale.ENGLISH).equals("@class")) {
-        return "" + item.right.execute((YTResult) null, ctx);
+        return "" + item.right.execute((Result) null, ctx);
       }
     }
     return null;
@@ -200,7 +200,7 @@ public class SQLJson extends SimpleNode {
     for (SQLJsonItem item : items) {
       String left = item.getLeftValue();
       if (left != null && left.toLowerCase(Locale.ENGLISH).equals("@type")) {
-        return "" + item.right.execute((YTResult) null, ctx);
+        return "" + item.right.execute((Result) null, ctx);
       }
     }
     return null;
@@ -215,7 +215,7 @@ public class SQLJson extends SimpleNode {
     return false;
   }
 
-  public boolean isAggregate(YTDatabaseSessionInternal session) {
+  public boolean isAggregate(DatabaseSessionInternal session) {
     for (SQLJsonItem item : items) {
       if (item.isAggregate(session)) {
         return true;
@@ -276,8 +276,8 @@ public class SQLJson extends SimpleNode {
     return false;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     if (items != null) {
       result.setProperty(
           "items",
@@ -286,12 +286,12 @@ public class SQLJson extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
 
     if (fromResult.getProperty("items") != null) {
-      List<YTResult> ser = fromResult.getProperty("items");
+      List<Result> ser = fromResult.getProperty("items");
       items = new ArrayList<>();
-      for (YTResult r : ser) {
+      for (Result r : ser) {
         SQLJsonItem exp = new SQLJsonItem();
         exp.deserialize(r);
         items.add(exp);

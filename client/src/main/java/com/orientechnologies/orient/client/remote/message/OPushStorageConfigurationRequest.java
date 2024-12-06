@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import static com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol.REQUEST_PUSH_STORAGE_CONFIG;
+import static com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol.REQUEST_PUSH_STORAGE_CONFIG;
 
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
 import com.orientechnologies.orient.client.remote.message.push.OStorageConfigurationPayload;
-import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 
 public class OPushStorageConfigurationRequest implements OBinaryPushRequest<OBinaryPushResponse> {
@@ -18,23 +18,23 @@ public class OPushStorageConfigurationRequest implements OBinaryPushRequest<OBin
     payload = new OStorageConfigurationPayload();
   }
 
-  public OPushStorageConfigurationRequest(OStorageConfiguration configuration) {
+  public OPushStorageConfigurationRequest(StorageConfiguration configuration) {
     payload = new OStorageConfigurationPayload(configuration);
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel)
+  public void write(DatabaseSessionInternal session, ChannelDataOutput channel)
       throws IOException {
     payload.write(channel);
   }
 
   @Override
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput network) throws IOException {
+  public void read(DatabaseSessionInternal db, ChannelDataInput network) throws IOException {
     payload.read(network);
   }
 
   @Override
-  public OBinaryPushResponse execute(YTDatabaseSessionInternal session,
+  public OBinaryPushResponse execute(DatabaseSessionInternal session,
       ORemotePushHandler pushHandler) {
     return pushHandler.executeUpdateStorageConfig(this);
   }

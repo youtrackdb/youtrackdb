@@ -2,8 +2,7 @@ package com.jetbrains.youtrack.db.internal.core;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.shutdown.OShutdownHandler;
+import com.jetbrains.youtrack.db.internal.core.shutdown.ShutdownHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +29,7 @@ public class YouTrackShutDownTest {
 
     YouTrackDBManager.instance()
         .addShutdownHandler(
-            new OShutdownHandler() {
+            new ShutdownHandler() {
               @Override
               public int getPriority() {
                 return 0;

@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.client.remote.message.push;
 
-import com.orientechnologies.orient.client.remote.OStorageClusterConfigurationRemote;
-import com.jetbrains.youtrack.db.internal.core.config.OStorageClusterConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.OStorageEntryConfiguration;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.orientechnologies.orient.client.remote.StorageClusterConfigurationRemote;
+import com.jetbrains.youtrack.db.internal.core.config.StorageClusterConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.StorageEntryConfiguration;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,9 +19,9 @@ public class OStorageConfigurationPayload {
   private String name;
   private int version;
   private String directory;
-  private List<OStorageEntryConfiguration> properties;
-  private YTRecordId schemaRecordId;
-  private YTRecordId indexMgrRecordId;
+  private List<StorageEntryConfiguration> properties;
+  private RecordId schemaRecordId;
+  private RecordId indexMgrRecordId;
   private String clusterSelection;
   private String conflictStrategy;
   private boolean validationEnabled;
@@ -34,17 +34,17 @@ public class OStorageConfigurationPayload {
   private String recordSerializer;
   private int recordSerializerVersion;
   private int binaryFormatVersion;
-  private List<OStorageClusterConfiguration> clusters;
+  private List<StorageClusterConfiguration> clusters;
 
-  public OStorageConfigurationPayload(OStorageConfiguration configuration) {
+  public OStorageConfigurationPayload(StorageConfiguration configuration) {
     this.dateFormat = configuration.getDateFormat();
     this.dateTimeFormat = configuration.getDateTimeFormat();
     this.name = configuration.getName();
     this.version = configuration.getVersion();
     this.directory = configuration.getDirectory();
     this.properties = configuration.getProperties();
-    this.schemaRecordId = new YTRecordId(configuration.getSchemaRecordId());
-    this.indexMgrRecordId = new YTRecordId(configuration.getIndexMgrRecordId());
+    this.schemaRecordId = new RecordId(configuration.getSchemaRecordId());
+    this.indexMgrRecordId = new RecordId(configuration.getIndexMgrRecordId());
     this.clusterSelection = configuration.getClusterSelection();
     this.conflictStrategy = configuration.getConflictStrategy();
     this.validationEnabled = configuration.isValidationEnabled();
@@ -58,7 +58,7 @@ public class OStorageConfigurationPayload {
     this.recordSerializerVersion = configuration.getRecordSerializerVersion();
     this.binaryFormatVersion = configuration.getBinaryFormatVersion();
     this.clusters = new ArrayList<>();
-    for (OStorageClusterConfiguration conf : configuration.getClusters()) {
+    for (StorageClusterConfiguration conf : configuration.getClusters()) {
       if (conf != null) {
         this.clusters.add(conf);
       }
@@ -68,14 +68,14 @@ public class OStorageConfigurationPayload {
   public OStorageConfigurationPayload() {
   }
 
-  public void write(OChannelDataOutput channel) throws IOException {
+  public void write(ChannelDataOutput channel) throws IOException {
     channel.writeString(this.dateFormat);
     channel.writeString(this.dateTimeFormat);
     channel.writeString(this.name);
     channel.writeInt(this.version);
     channel.writeString(this.directory);
     channel.writeInt(properties.size());
-    for (OStorageEntryConfiguration property : properties) {
+    for (StorageEntryConfiguration property : properties) {
       channel.writeString(property.name);
       channel.writeString(property.value);
     }
@@ -94,13 +94,13 @@ public class OStorageConfigurationPayload {
     channel.writeInt(this.recordSerializerVersion);
     channel.writeInt(this.binaryFormatVersion);
     channel.writeInt(clusters.size());
-    for (OStorageClusterConfiguration cluster : clusters) {
+    for (StorageClusterConfiguration cluster : clusters) {
       channel.writeInt(cluster.getId());
       channel.writeString(cluster.getName());
     }
   }
 
-  public void read(OChannelDataInput network) throws IOException {
+  public void read(ChannelDataInput network) throws IOException {
     this.dateFormat = network.readString();
     this.dateTimeFormat = network.readString();
     this.name = network.readString();
@@ -111,7 +111,7 @@ public class OStorageConfigurationPayload {
     while (propSize-- > 0) {
       String name = network.readString();
       String value = network.readString();
-      properties.add(new OStorageEntryConfiguration(name, value));
+      properties.add(new StorageEntryConfiguration(name, value));
     }
     this.schemaRecordId = network.readRID();
     this.indexMgrRecordId = network.readRID();
@@ -132,7 +132,7 @@ public class OStorageConfigurationPayload {
     while (clustersSize-- > 0) {
       int clusterId = network.readInt();
       String clusterName = network.readString();
-      clusters.add(new OStorageClusterConfigurationRemote(clusterId, clusterName));
+      clusters.add(new StorageClusterConfigurationRemote(clusterId, clusterName));
     }
   }
 
@@ -156,15 +156,15 @@ public class OStorageConfigurationPayload {
     return directory;
   }
 
-  public List<OStorageEntryConfiguration> getProperties() {
+  public List<StorageEntryConfiguration> getProperties() {
     return properties;
   }
 
-  public YTRecordId getSchemaRecordId() {
+  public RecordId getSchemaRecordId() {
     return schemaRecordId;
   }
 
-  public YTRecordId getIndexMgrRecordId() {
+  public RecordId getIndexMgrRecordId() {
     return indexMgrRecordId;
   }
 
@@ -216,7 +216,7 @@ public class OStorageConfigurationPayload {
     return binaryFormatVersion;
   }
 
-  public List<OStorageClusterConfiguration> getClusters() {
+  public List<StorageClusterConfiguration> getClusters() {
     return clusters;
   }
 }

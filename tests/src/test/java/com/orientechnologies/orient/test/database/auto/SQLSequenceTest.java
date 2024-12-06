@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSequenceException;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.OSequenceLibrary;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.YTSequence;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.SequenceException;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibrary;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import org.testng.Assert;
@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 @Test(groups = "SqlSequence")
 public class SQLSequenceTest extends DocumentDBBaseTest {
 
-  private static final long FIRST_START = YTSequence.DEFAULT_START;
+  private static final long FIRST_START = Sequence.DEFAULT_START;
   private static final long SECOND_START = 31;
 
   @Parameters(value = "remote")
@@ -28,18 +28,18 @@ public class SQLSequenceTest extends DocumentDBBaseTest {
 
   @Test
   public void trivialTest() {
-    testSequence("seqSQL1", YTSequence.SEQUENCE_TYPE.ORDERED);
-    testSequence("seqSQL2", YTSequence.SEQUENCE_TYPE.CACHED);
+    testSequence("seqSQL1", Sequence.SEQUENCE_TYPE.ORDERED);
+    testSequence("seqSQL2", Sequence.SEQUENCE_TYPE.CACHED);
   }
 
-  private void testSequence(String sequenceName, YTSequence.SEQUENCE_TYPE sequenceType) {
+  private void testSequence(String sequenceName, Sequence.SEQUENCE_TYPE sequenceType) {
 
     database.command("CREATE SEQUENCE " + sequenceName + " TYPE " + sequenceType).close();
 
-    YTCommandExecutionException err = null;
+    CommandExecutionException err = null;
     try {
       database.command("CREATE SEQUENCE " + sequenceName + " TYPE " + sequenceType).close();
-    } catch (YTCommandExecutionException se) {
+    } catch (CommandExecutionException se) {
       err = se;
     }
     Assert.assertTrue(
@@ -74,7 +74,7 @@ public class SQLSequenceTest extends DocumentDBBaseTest {
   }
 
   private long sequenceSql(String sequenceName, String cmd) {
-    try (YTResultSet ret =
+    try (ResultSet ret =
         database.command("SELECT sequence('" + sequenceName + "')." + cmd + " as value")) {
       return ret.next().getProperty("value");
     }
@@ -82,21 +82,21 @@ public class SQLSequenceTest extends DocumentDBBaseTest {
 
   @Test
   public void testFree() throws ExecutionException, InterruptedException {
-    OSequenceLibrary sequenceManager = database.getMetadata().getSequenceLibrary();
+    SequenceLibrary sequenceManager = database.getMetadata().getSequenceLibrary();
 
-    YTSequence seq = null;
+    Sequence seq = null;
     try {
-      seq = sequenceManager.createSequence("seqSQLOrdered", YTSequence.SEQUENCE_TYPE.ORDERED, null);
-    } catch (YTDatabaseException exc) {
+      seq = sequenceManager.createSequence("seqSQLOrdered", Sequence.SEQUENCE_TYPE.ORDERED, null);
+    } catch (DatabaseException exc) {
       Assert.fail("Unable to create sequence");
     }
 
-    YTSequenceException err = null;
+    SequenceException err = null;
     try {
-      sequenceManager.createSequence("seqSQLOrdered", YTSequence.SEQUENCE_TYPE.ORDERED, null);
-    } catch (YTSequenceException se) {
+      sequenceManager.createSequence("seqSQLOrdered", Sequence.SEQUENCE_TYPE.ORDERED, null);
+    } catch (SequenceException se) {
       err = se;
-    } catch (YTDatabaseException exc) {
+    } catch (DatabaseException exc) {
       Assert.fail("Unable to create sequence");
     }
 
@@ -104,7 +104,7 @@ public class SQLSequenceTest extends DocumentDBBaseTest {
         err == null || err.getMessage().toLowerCase(Locale.ENGLISH).contains("already exists"),
         "Creating two ordered sequences with same name doesn't throw an exception");
 
-    YTSequence seqSame = sequenceManager.getSequence("seqSQLOrdered");
+    Sequence seqSame = sequenceManager.getSequence("seqSQLOrdered");
     Assert.assertEquals(seqSame, seq);
 
     testUsage(seq, FIRST_START);
@@ -112,15 +112,15 @@ public class SQLSequenceTest extends DocumentDBBaseTest {
     //
     try {
       database.begin();
-      seq.updateParams(new YTSequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
+      seq.updateParams(new Sequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
       database.commit();
-    } catch (YTDatabaseException exc) {
+    } catch (DatabaseException exc) {
       Assert.fail("Unable to update paramas");
     }
     testUsage(seq, SECOND_START);
   }
 
-  private void testUsage(YTSequence seq, long reset)
+  private void testUsage(Sequence seq, long reset)
       throws ExecutionException, InterruptedException {
     for (int i = 0; i < 2; ++i) {
       Assert.assertEquals(seq.reset(), reset);

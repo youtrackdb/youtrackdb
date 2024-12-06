@@ -19,12 +19,12 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.OSimpleMultiValueTracker;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -38,7 +38,7 @@ import java.util.Map;
  */
 @SuppressWarnings("serial")
 public class TrackedMap<T> extends LinkedHashMap<Object, T>
-    implements RecordElement, OTrackedMultiValue<Object, T>, Serializable {
+    implements RecordElement, TrackedMultiValue<Object, T>, Serializable {
 
   protected final RecordElement sourceRecord;
   protected Class<?> genericClass;
@@ -46,7 +46,7 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
   private boolean dirty = false;
   private boolean transactionDirty = false;
 
-  private final OSimpleMultiValueTracker<Object, T> tracker = new OSimpleMultiValueTracker<>(this);
+  private final SimpleMultiValueTracker<Object, T> tracker = new SimpleMultiValueTracker<>(this);
 
   public TrackedMap(
       final RecordElement iRecord, final Map<Object, T> iOrigin, final Class<?> cls) {
@@ -85,7 +85,7 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
     }
 
     if (oldValue instanceof EntityImpl) {
-      ODocumentInternal.removeOwner((EntityImpl) oldValue, this);
+      DocumentInternal.removeOwner((EntityImpl) oldValue, this);
     }
 
     addOwnerToEmbeddedDoc(value);
@@ -116,10 +116,10 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
   private void addOwnerToEmbeddedDoc(T e) {
     if (embeddedCollection && e instanceof EntityImpl && !((EntityImpl) e).getIdentity()
         .isValid()) {
-      ODocumentInternal.addOwner((EntityImpl) e, this);
+      DocumentInternal.addOwner((EntityImpl) e, this);
     }
     if (e instanceof EntityImpl) {
-      ORecordInternal.track(sourceRecord, (EntityImpl) e);
+      RecordInternal.track(sourceRecord, (EntityImpl) e);
     }
   }
 
@@ -171,15 +171,15 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
   }
 
   public Map<Object, T> returnOriginalState(
-      YTDatabaseSessionInternal session,
-      final List<OMultiValueChangeEvent<Object, T>> multiValueChangeEvents) {
+      DatabaseSessionInternal session,
+      final List<MultiValueChangeEvent<Object, T>> multiValueChangeEvents) {
     final Map<Object, T> reverted = new HashMap<Object, T>(this);
 
-    final ListIterator<OMultiValueChangeEvent<Object, T>> listIterator =
+    final ListIterator<MultiValueChangeEvent<Object, T>> listIterator =
         multiValueChangeEvents.listIterator(multiValueChangeEvents.size());
 
     while (listIterator.hasPrevious()) {
-      final OMultiValueChangeEvent<Object, T> event = listIterator.previous();
+      final MultiValueChangeEvent<Object, T> event = listIterator.previous();
       switch (event.getChangeType()) {
         case ADD:
           reverted.remove(event.getKey());
@@ -207,7 +207,7 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
   }
 
   @Override
-  public void replace(OMultiValueChangeEvent<Object, Object> event, Object newValue) {
+  public void replace(MultiValueChangeEvent<Object, Object> event, Object newValue) {
     super.put(event.getKey(), (T) newValue);
   }
 
@@ -223,7 +223,7 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
 
   private void updateEvent(Object key, T oldValue, T newValue) {
     if (oldValue instanceof EntityImpl) {
-      ODocumentInternal.removeOwner((EntityImpl) oldValue, this);
+      DocumentInternal.removeOwner((EntityImpl) oldValue, this);
     }
 
     addOwnerToEmbeddedDoc(newValue);
@@ -237,7 +237,7 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
 
   private void removeEvent(Object iKey, T removed) {
     if (removed instanceof EntityImpl) {
-      ODocumentInternal.removeOwner((EntityImpl) removed, this);
+      DocumentInternal.removeOwner((EntityImpl) removed, this);
     }
     if (tracker.isEnabled()) {
       tracker.remove(iKey, removed);
@@ -249,14 +249,14 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
   public void enableTracking(RecordElement parent) {
     if (!tracker.isEnabled()) {
       tracker.enable();
-      OTrackedMultiValue.nestedEnabled(this.values().iterator(), this);
+      TrackedMultiValue.nestedEnabled(this.values().iterator(), this);
     }
   }
 
   public void disableTracking(RecordElement document) {
     if (tracker.isEnabled()) {
       this.tracker.disable();
-      OTrackedMultiValue.nestedDisable(this.values().iterator(), this);
+      TrackedMultiValue.nestedDisable(this.values().iterator(), this);
     }
     this.dirty = false;
   }
@@ -264,7 +264,7 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
   @Override
   public void transactionClear() {
     tracker.transactionClear();
-    OTrackedMultiValue.nestedTransactionClear(this.values().iterator());
+    TrackedMultiValue.nestedTransactionClear(this.values().iterator());
     this.transactionDirty = false;
   }
 
@@ -279,11 +279,11 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
   }
 
   @Override
-  public OMultiValueChangeTimeLine<Object, Object> getTimeLine() {
+  public MultiValueChangeTimeLine<Object, Object> getTimeLine() {
     return tracker.getTimeLine();
   }
 
-  public OMultiValueChangeTimeLine<Object, T> getTransactionTimeLine() {
+  public MultiValueChangeTimeLine<Object, T> getTransactionTimeLine() {
     return tracker.getTransactionTimeLine();
   }
 }

@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -12,8 +12,8 @@ public class SQLDropClassTest {
 
   @Test
   public void testSimpleDrop() {
-    YTDatabaseSessionInternal db =
-        new YTDatabaseDocumentTx("memory:" + SQLDropClassTest.class.getName());
+    DatabaseSessionInternal db =
+        new DatabaseDocumentTx("memory:" + SQLDropClassTest.class.getName());
     db.create();
     try {
       Assert.assertFalse(db.getMetadata().getSchema().existsClass("testSimpleDrop"));
@@ -28,8 +28,8 @@ public class SQLDropClassTest {
 
   @Test
   public void testIfExists() {
-    YTDatabaseSessionInternal db =
-        new YTDatabaseDocumentTx("memory:" + SQLDropClassTest.class.getName() + "_ifNotExists");
+    DatabaseSessionInternal db =
+        new DatabaseDocumentTx("memory:" + SQLDropClassTest.class.getName() + "_ifNotExists");
     db.create();
     try {
       Assert.assertFalse(db.getMetadata().getSchema().existsClass("testIfExists"));

@@ -2,15 +2,15 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
+import com.jetbrains.youtrack.db.internal.core.collate.Collate;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.AggregationContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,11 +26,11 @@ public class SQLValueExpression extends SQLExpression {
     this.value = val;
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
+  public Object execute(Identifiable iCurrentRecord, CommandContext ctx) {
     return value;
   }
 
-  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
+  public Object execute(Result iCurrentRecord, CommandContext ctx) {
     return value;
   }
 
@@ -54,7 +54,7 @@ public class SQLValueExpression extends SQLExpression {
     return true;
   }
 
-  public boolean isIndexedFunctionCal(YTDatabaseSessionInternal session) {
+  public boolean isIndexedFunctionCal(DatabaseSessionInternal session) {
     return false;
   }
 
@@ -88,7 +88,7 @@ public class SQLValueExpression extends SQLExpression {
     return false;
   }
 
-  public boolean isAggregate(YTDatabaseSessionInternal session) {
+  public boolean isAggregate(DatabaseSessionInternal session) {
     return false;
   }
 
@@ -97,7 +97,7 @@ public class SQLValueExpression extends SQLExpression {
   }
 
   public AggregationContext getAggregationContext(CommandContext ctx) {
-    throw new YTCommandExecutionException("Cannot aggregate on " + this);
+    throw new CommandExecutionException("Cannot aggregate on " + this);
   }
 
   public SQLValueExpression copy() {
@@ -140,25 +140,25 @@ public class SQLValueExpression extends SQLExpression {
     return null;
   }
 
-  public void applyRemove(YTResultInternal result, CommandContext ctx) {
-    throw new YTCommandExecutionException("Cannot apply REMOVE " + this);
+  public void applyRemove(ResultInternal result, CommandContext ctx) {
+    throw new CommandExecutionException("Cannot apply REMOVE " + this);
   }
 
   public boolean isCount() {
     return false;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
+  public Result serialize(DatabaseSessionInternal db) {
     throw new UnsupportedOperationException(
         "Cannot serialize value expression (not supported yet)");
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     throw new UnsupportedOperationException(
         "Cannot deserialize value expression (not supported yet)");
   }
 
-  public boolean isDefinedFor(YTResult currentRecord) {
+  public boolean isDefinedFor(Result currentRecord) {
     return true;
   }
 
@@ -166,11 +166,11 @@ public class SQLValueExpression extends SQLExpression {
     return true;
   }
 
-  public OCollate getCollate(YTResult currentRecord, CommandContext ctx) {
+  public Collate getCollate(Result currentRecord, CommandContext ctx) {
     return null;
   }
 
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     return true;
   }
 }

@@ -3,14 +3,14 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseSessionAbstract;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseSessionAbstract;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
 
-public class SQLTruncateClusterStatement extends ODDLStatement {
+public class SQLTruncateClusterStatement extends DDLStatement {
 
   public SQLIdentifier clusterName;
   public SQLInteger clusterNumber;
@@ -26,7 +26,7 @@ public class SQLTruncateClusterStatement extends ODDLStatement {
 
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
-    YTDatabaseSessionAbstract database = (YTDatabaseSessionAbstract) ctx.getDatabase();
+    DatabaseSessionAbstract database = (DatabaseSessionAbstract) ctx.getDatabase();
 
     Integer clusterId = null;
     if (clusterNumber != null) {
@@ -36,13 +36,13 @@ public class SQLTruncateClusterStatement extends ODDLStatement {
     }
 
     if (clusterId < 0) {
-      throw new YTDatabaseException("Cluster with name " + clusterName + " does not exist");
+      throw new DatabaseException("Cluster with name " + clusterName + " does not exist");
     }
 
     String name = database.getClusterNameById(clusterId);
     long count = database.truncateClusterInternal(name);
 
-    YTResultInternal result = new YTResultInternal(database);
+    ResultInternal result = new ResultInternal(database);
     result.setProperty("operation", "truncate cluster");
     result.setProperty("clusterName", name);
     result.setProperty("clusterId", clusterId);

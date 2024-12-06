@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OByteSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 
 public class DiffChange implements Change {
 
@@ -60,8 +60,8 @@ public class DiffChange implements Change {
 
   @Override
   public int serialize(byte[] stream, int offset) {
-    OByteSerializer.INSTANCE.serializeLiteral(TYPE, stream, offset);
-    OIntegerSerializer.INSTANCE.serializeLiteral(delta, stream, offset + OByteSerializer.BYTE_SIZE);
-    return OByteSerializer.BYTE_SIZE + OIntegerSerializer.INT_SIZE;
+    ByteSerializer.INSTANCE.serializeLiteral(TYPE, stream, offset);
+    IntegerSerializer.INSTANCE.serializeLiteral(delta, stream, offset + ByteSerializer.BYTE_SIZE);
+    return ByteSerializer.BYTE_SIZE + IntegerSerializer.INT_SIZE;
   }
 }

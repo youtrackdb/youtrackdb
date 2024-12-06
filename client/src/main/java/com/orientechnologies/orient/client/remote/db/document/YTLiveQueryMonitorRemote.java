@@ -1,16 +1,16 @@
 package com.orientechnologies.orient.client.remote.db.document;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryMonitor;
+import com.jetbrains.youtrack.db.internal.core.db.LiveQueryMonitor;
 
 /**
  *
  */
-public class YTLiveQueryMonitorRemote implements YTLiveQueryMonitor {
+public class YTLiveQueryMonitorRemote implements LiveQueryMonitor {
 
-  private final YTDatabaseSessionRemote database;
+  private final DatabaseSessionRemote database;
   private final int monitorId;
 
-  public YTLiveQueryMonitorRemote(YTDatabaseSessionRemote database, int monitorId) {
+  public YTLiveQueryMonitorRemote(DatabaseSessionRemote database, int monitorId) {
     this.database = database;
     this.monitorId = monitorId;
   }

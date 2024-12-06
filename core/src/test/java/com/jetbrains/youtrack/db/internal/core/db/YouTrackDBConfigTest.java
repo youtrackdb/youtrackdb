@@ -22,7 +22,7 @@ package com.jetbrains.youtrack.db.internal.core.db;
 import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;

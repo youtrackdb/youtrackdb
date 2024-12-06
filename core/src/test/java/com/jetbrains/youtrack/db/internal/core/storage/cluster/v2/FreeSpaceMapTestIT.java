@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.storage.cluster.v2;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OWriteCache;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurablePage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperationsManager;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -27,7 +27,7 @@ public class FreeSpaceMapTestIT {
   protected static YouTrackDB youTrackDB;
   protected static String dbName;
   protected static AbstractPaginatedStorage storage;
-  private static OAtomicOperationsManager atomicOperationsManager;
+  private static AtomicOperationsManager atomicOperationsManager;
 
   @BeforeClass
   public static void beforeClass() throws IOException {
@@ -45,8 +45,8 @@ public class FreeSpaceMapTestIT {
     youTrackDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
-    final YTDatabaseSessionInternal databaseDocumentTx =
-        (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
+    final DatabaseSessionInternal databaseDocumentTx =
+        (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
     storage = (AbstractPaginatedStorage) databaseDocumentTx.getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
@@ -133,7 +133,7 @@ public class FreeSpaceMapTestIT {
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
           operation -> {
-            final int freeSpace = random.nextInt(ODurablePage.MAX_PAGE_SIZE_BYTES);
+            final int freeSpace = random.nextInt(DurablePage.MAX_PAGE_SIZE_BYTES);
             final int freeSpaceIndex =
                 (freeSpace - FreeSpaceMap.NORMALIZATION_INTERVAL + 1)
                     / FreeSpaceMap.NORMALIZATION_INTERVAL;
@@ -147,7 +147,7 @@ public class FreeSpaceMapTestIT {
     }
 
     for (int i = 0; i < checks; i++) {
-      final int freeSpace = random.nextInt(ODurablePage.MAX_PAGE_SIZE_BYTES);
+      final int freeSpace = random.nextInt(DurablePage.MAX_PAGE_SIZE_BYTES);
       final int pageIndex = freeSpaceMap.findFreePage(freeSpace);
       final int freeSpaceIndex = freeSpace / FreeSpaceMap.NORMALIZATION_INTERVAL;
       if (freeSpaceIndex <= maxFreeSpaceIndex[0]) {
@@ -177,7 +177,7 @@ public class FreeSpaceMapTestIT {
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
           operation -> {
-            final int freeSpace = random.nextInt(ODurablePage.MAX_PAGE_SIZE_BYTES);
+            final int freeSpace = random.nextInt(DurablePage.MAX_PAGE_SIZE_BYTES);
             pageSpaceMap.put(pageIndex, freeSpace);
             sizeMap.compute(
                 freeSpace,
@@ -199,7 +199,7 @@ public class FreeSpaceMapTestIT {
       atomicOperationsManager.executeInsideAtomicOperation(
           null,
           operation -> {
-            final int freeSpace = random.nextInt(ODurablePage.MAX_PAGE_SIZE_BYTES);
+            final int freeSpace = random.nextInt(DurablePage.MAX_PAGE_SIZE_BYTES);
             final int oldFreeSpace = pageSpaceMap.get(pageIndex);
 
             pageSpaceMap.put(pageIndex, freeSpace);
@@ -233,7 +233,7 @@ public class FreeSpaceMapTestIT {
             / FreeSpaceMap.NORMALIZATION_INTERVAL;
 
     for (int i = 0; i < checks; i++) {
-      final int freeSpace = random.nextInt(ODurablePage.MAX_PAGE_SIZE_BYTES);
+      final int freeSpace = random.nextInt(DurablePage.MAX_PAGE_SIZE_BYTES);
       final int pageIndex = freeSpaceMap.findFreePage(freeSpace);
       final int freeSpaceIndex = freeSpace / FreeSpaceMap.NORMALIZATION_INTERVAL;
 
@@ -247,7 +247,7 @@ public class FreeSpaceMapTestIT {
 
   @After
   public void after() throws IOException {
-    final OWriteCache writeCache = storage.getWriteCache();
+    final WriteCache writeCache = storage.getWriteCache();
 
     final long fileId = writeCache.fileIdByName(freeSpaceMap.getFullName());
     storage.getReadCache().deleteFile(fileId, writeCache);

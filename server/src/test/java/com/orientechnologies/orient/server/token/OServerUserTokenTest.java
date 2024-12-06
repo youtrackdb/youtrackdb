@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.server.token;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
 import com.orientechnologies.orient.server.OServer;
 import org.junit.After;
 import org.junit.Assert;
@@ -20,7 +20,7 @@ public class OServerUserTokenTest {
   @Test
   public void testToken() throws Exception {
 
-    YTSecurityUser root = server.authenticateUser("root", "root", "*");
+    SecurityUser root = server.authenticateUser("root", "root", "*");
 
     byte[] signedWebTokenServerUser = server.getTokenHandler().getSignedWebTokenServerUser(root);
 

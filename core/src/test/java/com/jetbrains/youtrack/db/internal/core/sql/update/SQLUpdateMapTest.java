@@ -2,13 +2,13 @@ package com.jetbrains.youtrack.db.internal.core.sql.update;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.Map;
 import org.junit.Test;
 
-public class SQLUpdateMapTest extends DBTestBase {
+public class SQLUpdateMapTest extends DbTestBase {
 
   @Test
   public void testMapPut() {
@@ -19,11 +19,11 @@ public class SQLUpdateMapTest extends DBTestBase {
     db.command("create property vRecord.attrs EMBEDDEDMAP ").close();
 
     db.begin();
-    try (YTResultSet rs = db.command("insert into vRecord (title) values('first record')")) {
+    try (ResultSet rs = db.command("insert into vRecord (title) values('first record')")) {
       ret = (EntityImpl) rs.next().getRecord().get();
     }
 
-    try (YTResultSet rs = db.command("insert into vRecord (title) values('second record')")) {
+    try (ResultSet rs = db.command("insert into vRecord (title) values('second record')")) {
       ret1 = (EntityImpl) rs.next().getRecord().get();
     }
     db.commit();

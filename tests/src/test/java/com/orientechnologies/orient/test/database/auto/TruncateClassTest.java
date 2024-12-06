@@ -15,15 +15,15 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -48,10 +48,10 @@ public class TruncateClassTest extends DocumentDBBaseTest {
   public void testTruncateClass() {
     checkEmbeddedDB();
 
-    YTSchema schema = database.getMetadata().getSchema();
-    YTClass testClass = getOrCreateClass(schema);
+    Schema schema = database.getMetadata().getSchema();
+    SchemaClass testClass = getOrCreateClass(schema);
 
-    final OIndex index = getOrCreateIndex(testClass);
+    final Index index = getOrCreateIndex(testClass);
 
     database.command("truncate class test_class").close();
 
@@ -71,23 +71,23 @@ public class TruncateClassTest extends DocumentDBBaseTest {
         new EntityImpl(testClass).field("name", "y").field("data", Arrays.asList(8, 9, -1)));
     database.commit();
 
-    List<YTResult> result =
+    List<Result> result =
         database.query("select from test_class").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
     Set<Integer> set = new HashSet<Integer>();
-    for (YTResult document : result) {
+    for (Result document : result) {
       set.addAll(document.getProperty("data"));
     }
     Assert.assertTrue(set.containsAll(Arrays.asList(5, 6, 7, 8, 9, -1)));
 
     Assert.assertEquals(index.getInternal().size(database), 6);
 
-    Iterator<ORawPair<Object, YTRID>> indexIterator;
-    try (Stream<ORawPair<Object, YTRID>> stream = index.getInternal().stream(database)) {
+    Iterator<RawPair<Object, RID>> indexIterator;
+    try (Stream<RawPair<Object, RID>> stream = index.getInternal().stream(database)) {
       indexIterator = stream.iterator();
 
       while (indexIterator.hasNext()) {
-        ORawPair<Object, YTRID> entry = indexIterator.next();
+        RawPair<Object, RID> entry = indexIterator.next();
         Assert.assertTrue(set.contains((Integer) entry.first));
       }
     }
@@ -107,7 +107,7 @@ public class TruncateClassTest extends DocumentDBBaseTest {
       Assert.fail();
     } catch (Exception e) {
     }
-    YTResultSet result = database.query("select from TestTruncateVertexClass");
+    ResultSet result = database.query("select from TestTruncateVertexClass");
     Assert.assertEquals(result.stream().count(), 1);
 
     database.command("truncate class TestTruncateVertexClass unsafe").close();
@@ -130,7 +130,7 @@ public class TruncateClassTest extends DocumentDBBaseTest {
     database.command("insert into TestTruncateVertexClassSubclass set name = 'bar'").close();
     database.commit();
 
-    YTResultSet result = database.query("select from TestTruncateVertexClassSuperclass");
+    ResultSet result = database.query("select from TestTruncateVertexClassSuperclass");
     Assert.assertEquals(result.stream().count(), 2);
 
     database.command("truncate class TestTruncateVertexClassSuperclass ").close();
@@ -171,7 +171,7 @@ public class TruncateClassTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    final OIndex index = getIndex("TestTruncateVertexClassSuperclassWithIndex_index");
+    final Index index = getIndex("TestTruncateVertexClassSuperclassWithIndex_index");
     Assert.assertEquals(index.getInternal().size(database), 2);
 
     database.command("truncate class TestTruncateVertexClassSubclassWithIndex").close();
@@ -183,19 +183,19 @@ public class TruncateClassTest extends DocumentDBBaseTest {
     Assert.assertEquals(index.getInternal().size(database), 0);
   }
 
-  private OIndex getOrCreateIndex(YTClass testClass) {
-    OIndex index =
+  private Index getOrCreateIndex(SchemaClass testClass) {
+    Index index =
         database.getMetadata().getIndexManagerInternal().getIndex(database, "test_class_by_data");
     if (index == null) {
-      testClass.createProperty(database, "data", YTType.EMBEDDEDLIST, YTType.INTEGER);
-      index = testClass.createIndex(database, "test_class_by_data", YTClass.INDEX_TYPE.UNIQUE,
+      testClass.createProperty(database, "data", PropertyType.EMBEDDEDLIST, PropertyType.INTEGER);
+      index = testClass.createIndex(database, "test_class_by_data", SchemaClass.INDEX_TYPE.UNIQUE,
           "data");
     }
     return index;
   }
 
-  private YTClass getOrCreateClass(YTSchema schema) {
-    YTClass testClass;
+  private SchemaClass getOrCreateClass(Schema schema) {
+    SchemaClass testClass;
     if (schema.existsClass("test_class")) {
       testClass = schema.getClass("test_class");
     } else {
@@ -208,8 +208,8 @@ public class TruncateClassTest extends DocumentDBBaseTest {
   @Test
   public void testTruncateClassWithCommandCache() {
 
-    YTSchema schema = database.getMetadata().getSchema();
-    YTClass testClass = getOrCreateClass(schema);
+    Schema schema = database.getMetadata().getSchema();
+    SchemaClass testClass = getOrCreateClass(schema);
 
     database.command("truncate class test_class").close();
 
@@ -220,7 +220,7 @@ public class TruncateClassTest extends DocumentDBBaseTest {
         new EntityImpl(testClass).field("name", "y").field("data", Arrays.asList(3, 0)));
     database.commit();
 
-    YTResultSet result = database.query("select from test_class");
+    ResultSet result = database.query("select from test_class");
     Assert.assertEquals(result.stream().count(), 2);
 
     database.command("truncate class test_class").close();

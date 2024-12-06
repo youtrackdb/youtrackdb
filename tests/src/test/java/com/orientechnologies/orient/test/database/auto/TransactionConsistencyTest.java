@@ -16,16 +16,16 @@
 
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConcurrentModificationException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentModificationException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -40,8 +40,8 @@ import org.testng.annotations.Test;
 @Test
 public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
-  protected YTDatabaseSessionInternal database1;
-  protected YTDatabaseSessionInternal database2;
+  protected DatabaseSessionInternal database1;
+  protected DatabaseSessionInternal database2;
 
   public static final String NAME = "name";
 
@@ -69,8 +69,8 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database1.commit();
 
     // Keep the IDs.
-    YTRID vDocA_Rid = vDocA_db1.getIdentity().copy();
-    YTRID vDocB_Rid = vDocB_db1.getIdentity().copy();
+    RID vDocA_Rid = vDocA_db1.getIdentity().copy();
+    RID vDocB_Rid = vDocB_db1.getIdentity().copy();
 
     int vDocA_version = -1;
     int vDocB_version = -1;
@@ -83,7 +83,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       vDocA_db2.field(NAME, "docA_v2");
       database2.save(vDocA_db2);
 
-      // Concurrent update docA via database1 -> will throw YTConcurrentModificationException at
+      // Concurrent update docA via database1 -> will throw ConcurrentModificationException at
       // database2.commit().
       database1.activateOnCurrentThread();
       database1.begin();
@@ -94,7 +94,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
         database1.save(vDocA_db1);
 
         database1.commit();
-      } catch (YTConcurrentModificationException e) {
+      } catch (ConcurrentModificationException e) {
         Assert.fail("Should not failed here...");
       }
       vDocA_db1 = database1.bindToSession(vDocA_db1);
@@ -112,10 +112,10 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       vDocB_db2.field(NAME, "docB_UpdatedInTranscationThatWillBeRollbacked");
       database2.save(vDocB_db2);
 
-      // Will throw YTConcurrentModificationException
+      // Will throw ConcurrentModificationException
       database2.commit();
-      Assert.fail("Should throw YTConcurrentModificationException");
-    } catch (YTConcurrentModificationException e) {
+      Assert.fail("Should throw ConcurrentModificationException");
+    } catch (ConcurrentModificationException e) {
       database2.rollback();
     }
 
@@ -150,7 +150,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database1.commit();
 
     // Keep the IDs.
-    YTRID vDocA_Rid = vDocA_db1.getIdentity().copy();
+    RID vDocA_Rid = vDocA_db1.getIdentity().copy();
 
     database2 = acquireSession();
     database2.begin();
@@ -167,17 +167,17 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
         vDocA_db1.field(NAME, "docA_v3");
         database1.save(vDocA_db1);
         database1.commit();
-      } catch (YTConcurrentModificationException e) {
+      } catch (ConcurrentModificationException e) {
         Assert.fail("Should not failed here...");
       }
       vDocA_db1 = database1.bindToSession(vDocA_db1);
       Assert.assertEquals(vDocA_db1.field(NAME), "docA_v3");
 
-      // Will throw YTConcurrentModificationException
+      // Will throw ConcurrentModificationException
       database2.activateOnCurrentThread();
       database2.commit();
-      Assert.fail("Should throw YTConcurrentModificationException");
-    } catch (YTConcurrentModificationException e) {
+      Assert.fail("Should throw ConcurrentModificationException");
+    } catch (ConcurrentModificationException e) {
       database2.rollback();
     }
 
@@ -212,7 +212,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database1.commit();
 
     // Keep the IDs.
-    YTRID vDocA_Rid = vDocA_db1.getIdentity().copy();
+    RID vDocA_Rid = vDocA_db1.getIdentity().copy();
 
     database2 = acquireSession();
     database2.begin();
@@ -229,18 +229,18 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
         vDocA_db1.field(NAME, "docA_v3");
         database1.save(vDocA_db1);
         database1.commit();
-      } catch (YTConcurrentModificationException e) {
+      } catch (ConcurrentModificationException e) {
         Assert.fail("Should not failed here...");
       }
 
       vDocA_db1 = database1.bindToSession(vDocA_db1);
       Assert.assertEquals(vDocA_db1.field(NAME), "docA_v3");
 
-      // Will throw YTConcurrentModificationException
+      // Will throw ConcurrentModificationException
       database2.activateOnCurrentThread();
       database2.commit();
-      Assert.fail("Should throw YTConcurrentModificationException");
-    } catch (YTConcurrentModificationException e) {
+      Assert.fail("Should throw ConcurrentModificationException");
+    } catch (ConcurrentModificationException e) {
       database2.rollback();
     }
 
@@ -274,7 +274,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database1.commit();
 
     // Keep the ID.
-    YTRID vDocA_Rid = vDocA_db1.getIdentity().copy();
+    RID vDocA_Rid = vDocA_db1.getIdentity().copy();
 
     // Update docA in db2
     database2 = acquireSession();
@@ -349,19 +349,19 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   public void createLinkInTx() {
     database = createSessionInstance();
 
-    YTClass profile = database.getMetadata().getSchema().createClass("MyProfile", 1);
-    YTClass edge = database.getMetadata().getSchema().createClass("MyEdge", 1);
+    SchemaClass profile = database.getMetadata().getSchema().createClass("MyProfile", 1);
+    SchemaClass edge = database.getMetadata().getSchema().createClass("MyEdge", 1);
     profile
-        .createProperty(database, "name", YTType.STRING)
+        .createProperty(database, "name", PropertyType.STRING)
         .setMin(database, "3")
         .setMax(database, "30")
-        .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
-    profile.createProperty(database, "surname", YTType.STRING).setMin(database, "3")
+        .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+    profile.createProperty(database, "surname", PropertyType.STRING).setMin(database, "3")
         .setMax(database, "30");
-    profile.createProperty(database, "in", YTType.LINKSET, edge);
-    profile.createProperty(database, "out", YTType.LINKSET, edge);
-    edge.createProperty(database, "in", YTType.LINK, profile);
-    edge.createProperty(database, "out", YTType.LINK, profile);
+    profile.createProperty(database, "in", PropertyType.LINKSET, edge);
+    profile.createProperty(database, "out", PropertyType.LINKSET, edge);
+    edge.createProperty(database, "in", PropertyType.LINK, profile);
+    edge.createProperty(database, "out", PropertyType.LINK, profile);
 
     database.begin();
 
@@ -373,15 +373,15 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
     EntityImpl myedge = new EntityImpl("MyEdge").field("in", kim).field("out", jack);
     myedge.save();
-    ((HashSet<EntityImpl>) kim.field("out", new HashSet<YTRID>()).field("out")).add(myedge);
-    ((HashSet<EntityImpl>) jack.field("in", new HashSet<YTRID>()).field("in")).add(myedge);
+    ((HashSet<EntityImpl>) kim.field("out", new HashSet<RID>()).field("out")).add(myedge);
+    ((HashSet<EntityImpl>) jack.field("in", new HashSet<RID>()).field("in")).add(myedge);
 
     jack.save();
     kim.save();
     teri.save();
     database.commit();
 
-    YTResultSet result = database.command("select from MyProfile ");
+    ResultSet result = database.command("select from MyProfile ");
 
     Assert.assertTrue(result.stream().findAny().isPresent());
   }
@@ -438,29 +438,29 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   @Test
   public void testTransactionPopulateDelete() {
     if (!database.getMetadata().getSchema().existsClass("MyFruit")) {
-      YTClass fruitClass = database.getMetadata().getSchema().createClass("MyFruit");
-      fruitClass.createProperty(database, "name", YTType.STRING);
-      fruitClass.createProperty(database, "color", YTType.STRING);
-      fruitClass.createProperty(database, "flavor", YTType.STRING);
+      SchemaClass fruitClass = database.getMetadata().getSchema().createClass("MyFruit");
+      fruitClass.createProperty(database, "name", PropertyType.STRING);
+      fruitClass.createProperty(database, "color", PropertyType.STRING);
+      fruitClass.createProperty(database, "flavor", PropertyType.STRING);
 
       database
           .getMetadata()
           .getSchema()
           .getClass("MyFruit")
           .getProperty("name")
-          .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
+          .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
       database
           .getMetadata()
           .getSchema()
           .getClass("MyFruit")
           .getProperty("color")
-          .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
+          .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
       database
           .getMetadata()
           .getSchema()
           .getClass("MyFruit")
           .getProperty("flavor")
-          .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
+          .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
     }
 
     int chunkSize = 10;
@@ -607,19 +607,20 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   }
 
   public void transactionRollbackConstistencyTest() {
-    YTClass vertexClass = database.getMetadata().getSchema().createClass("TRVertex");
-    YTClass edgeClass = database.getMetadata().getSchema().createClass("TREdge");
-    vertexClass.createProperty(database, "in", YTType.LINKSET, edgeClass);
-    vertexClass.createProperty(database, "out", YTType.LINKSET, edgeClass);
-    edgeClass.createProperty(database, "in", YTType.LINK, vertexClass);
-    edgeClass.createProperty(database, "out", YTType.LINK, vertexClass);
+    SchemaClass vertexClass = database.getMetadata().getSchema().createClass("TRVertex");
+    SchemaClass edgeClass = database.getMetadata().getSchema().createClass("TREdge");
+    vertexClass.createProperty(database, "in", PropertyType.LINKSET, edgeClass);
+    vertexClass.createProperty(database, "out", PropertyType.LINKSET, edgeClass);
+    edgeClass.createProperty(database, "in", PropertyType.LINK, vertexClass);
+    edgeClass.createProperty(database, "out", PropertyType.LINK, vertexClass);
 
-    YTClass personClass = database.getMetadata().getSchema().createClass("TRPerson", vertexClass);
-    personClass.createProperty(database, "name", YTType.STRING)
-        .createIndex(database, YTClass.INDEX_TYPE.UNIQUE);
-    personClass.createProperty(database, "surname", YTType.STRING)
-        .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
-    personClass.createProperty(database, "version", YTType.INTEGER);
+    SchemaClass personClass = database.getMetadata().getSchema()
+        .createClass("TRPerson", vertexClass);
+    personClass.createProperty(database, "name", PropertyType.STRING)
+        .createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE);
+    personClass.createProperty(database, "surname", PropertyType.STRING)
+        .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
+    personClass.createProperty(database, "version", PropertyType.INTEGER);
 
     database.close();
 
@@ -651,7 +652,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     }
     database.commit();
 
-    final YTResultSet result1 = database.command("select from TRPerson");
+    final ResultSet result1 = database.command("select from TRPerson");
     Assert.assertEquals(result1.stream().count(), cnt);
 
     try {
@@ -698,7 +699,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
       Assert.assertTrue(true);
     }
 
-    final YTResultSet result2 = database.command("select from TRPerson");
+    final ResultSet result2 = database.command("select from TRPerson");
     Assert.assertNotNull(result2);
     Assert.assertEquals(result2.stream().count(), cnt);
   }
@@ -764,24 +765,24 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database.begin();
     account = database.bindToSession(account);
     String originalName = account.getProperty("name");
-    Assert.assertEquals(account.<List<YTIdentifiable>>getProperty("addresses").size(), 2);
+    Assert.assertEquals(account.<List<Identifiable>>getProperty("addresses").size(), 2);
     account
-        .<List<YTIdentifiable>>getProperty("addresses")
+        .<List<Identifiable>>getProperty("addresses")
         .remove(1); // delete one of the objects in the Books collection to see how rollback behaves
-    Assert.assertEquals(account.<List<YTIdentifiable>>getProperty("addresses").size(), 1);
+    Assert.assertEquals(account.<List<Identifiable>>getProperty("addresses").size(), 1);
     account.setProperty(
         "name", "New Name"); // change an attribute to see if the change is rolled back
     account = database.save(account);
 
     Assert.assertEquals(
-        account.<List<YTIdentifiable>>getProperty("addresses").size(),
+        account.<List<Identifiable>>getProperty("addresses").size(),
         1); // before rollback this is fine because one of the books was removed
 
     database.rollback(); // rollback the transaction
 
     account = database.bindToSession(account);
     Assert.assertEquals(
-        account.<List<YTIdentifiable>>getProperty("addresses").size(),
+        account.<List<Identifiable>>getProperty("addresses").size(),
         2); // this is fine, author still linked to 2 books
     Assert.assertEquals(account.getProperty("name"), originalName); // name is restored
 
@@ -798,16 +799,16 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
 
   public void testTransactionsCache() {
     Assert.assertFalse(database.getTransaction().isActive());
-    YTSchema schema = database.getMetadata().getSchema();
-    YTClass classA = schema.createClass("TransA");
-    classA.createProperty(database, "name", YTType.STRING);
+    Schema schema = database.getMetadata().getSchema();
+    SchemaClass classA = schema.createClass("TransA");
+    classA.createProperty(database, "name", PropertyType.STRING);
     EntityImpl doc = new EntityImpl(classA);
     doc.field("name", "test1");
 
     database.begin();
     doc.save();
     database.commit();
-    YTRID orid = doc.getIdentity();
+    RID orid = doc.getIdentity();
     database.begin();
     Assert.assertTrue(database.getTransaction().isActive());
     doc = orid.getRecord();

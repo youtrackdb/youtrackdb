@@ -3,16 +3,16 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunction;
-import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionFiltered;
-import com.jetbrains.youtrack.db.internal.core.sql.method.OSQLMethod;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunction;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionFiltered;
+import com.jetbrains.youtrack.db.internal.core.sql.method.SQLMethod;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -37,8 +37,8 @@ public class SQLMethodCall extends SimpleNode {
   protected List<SQLExpression> params = new ArrayList<SQLExpression>();
   private boolean resolved = false;
   private boolean isGraph = false;
-  private OSQLFunction graphFunction = null;
-  private OSQLMethod method = null;
+  private SQLFunction graphFunction = null;
+  private SQLMethod method = null;
 
   public SQLMethodCall(int id) {
     super(id);
@@ -87,11 +87,11 @@ public class SQLMethodCall extends SimpleNode {
   }
 
   public Object execute(
-      Object targetObjects, Iterable<YTIdentifiable> iPossibleResults, CommandContext ctx) {
+      Object targetObjects, Iterable<Identifiable> iPossibleResults, CommandContext ctx) {
     return execute(targetObjects, ctx, methodName.getStringValue(), params, iPossibleResults);
   }
 
-  private void resolveMethod(YTDatabaseSessionInternal session) {
+  private void resolveMethod(DatabaseSessionInternal session) {
     if (!resolved) {
       String name = methodName.getStringValue();
       for (String graphMethod : graphMethods) {
@@ -101,17 +101,17 @@ public class SQLMethodCall extends SimpleNode {
         }
       }
       if (this.isGraph) {
-        this.graphFunction = OSQLEngine.getInstance().getFunction(session, name);
+        this.graphFunction = SQLEngine.getInstance().getFunction(session, name);
 
       } else {
-        this.method = OSQLEngine.getMethod(name);
+        this.method = SQLEngine.getMethod(name);
       }
 
       resolved = true;
     }
   }
 
-  private boolean resolveIsGraphFunction(YTDatabaseSessionInternal session) {
+  private boolean resolveIsGraphFunction(DatabaseSessionInternal session) {
     resolveMethod(session);
     return isGraph;
   }
@@ -121,7 +121,7 @@ public class SQLMethodCall extends SimpleNode {
       CommandContext ctx,
       String name,
       List<SQLExpression> iParams,
-      Iterable<YTIdentifiable> iPossibleResults) {
+      Iterable<Identifiable> iPossibleResults) {
     Object val = ctx.getVariable("$current");
     if (val == null && targetObjects == null) {
       return null;
@@ -139,46 +139,46 @@ public class SQLMethodCall extends SimpleNode {
   }
 
   private static Object invokeMethod(
-      OSQLMethod method,
+      SQLMethod method,
       Object targetObjects,
       CommandContext ctx,
       Object val,
       List<Object> paramValues) {
-    if (val instanceof YTResult) {
-      val = ((YTResult) val).getEntity().orElse(null);
+    if (val instanceof Result) {
+      val = ((Result) val).getEntity().orElse(null);
     }
     return method.execute(
-        targetObjects, (YTIdentifiable) val, ctx, targetObjects, paramValues.toArray());
+        targetObjects, (Identifiable) val, ctx, targetObjects, paramValues.toArray());
   }
 
   private static Object invokeGraphFunction(
-      OSQLFunction graphFunction,
+      SQLFunction graphFunction,
       Object targetObjects,
       CommandContext ctx,
-      Iterable<YTIdentifiable> iPossibleResults,
+      Iterable<Identifiable> iPossibleResults,
       List<Object> paramValues) {
-    if (graphFunction instanceof OSQLFunctionFiltered) {
+    if (graphFunction instanceof SQLFunctionFiltered) {
       Object current = ctx.getVariable("$current");
-      if (current instanceof YTResult) {
-        current = ((YTResult) current).getEntity().orElse(null);
+      if (current instanceof Result) {
+        current = ((Result) current).getEntity().orElse(null);
       }
-      return ((OSQLFunctionFiltered) graphFunction)
+      return ((SQLFunctionFiltered) graphFunction)
           .execute(
               targetObjects,
-              (YTIdentifiable) current,
+              (Identifiable) current,
               null,
               paramValues.toArray(),
               iPossibleResults,
               ctx);
     } else {
       Object current = ctx.getVariable("$current");
-      if (current instanceof YTIdentifiable) {
+      if (current instanceof Identifiable) {
         return graphFunction.execute(
-            targetObjects, (YTIdentifiable) current, null, paramValues.toArray(), ctx);
-      } else if (current instanceof YTResult) {
+            targetObjects, (Identifiable) current, null, paramValues.toArray(), ctx);
+      } else if (current instanceof Result) {
         return graphFunction.execute(
             targetObjects,
-            ((YTResult) current).getEntity().orElse(null),
+            ((Result) current).getEntity().orElse(null),
             null,
             paramValues.toArray(),
             ctx);
@@ -193,13 +193,13 @@ public class SQLMethodCall extends SimpleNode {
       CommandContext ctx,
       String name,
       List<SQLExpression> iParams,
-      Iterable<YTIdentifiable> iPossibleResults) {
+      Iterable<Identifiable> iPossibleResults) {
     Object val = ctx.getVariable("$current");
     if (val == null && targetObjects == null) {
       return null;
     }
     List<Object> paramValues = resolveParams(targetObjects, ctx, iParams, val);
-    OSQLFunction function = OSQLEngine.getInstance().getFunction(ctx.getDatabase(), name);
+    SQLFunction function = SQLEngine.getInstance().getFunction(ctx.getDatabase(), name);
     return invokeGraphFunction(function, targetObjects, ctx, iPossibleResults, paramValues);
   }
 
@@ -207,16 +207,16 @@ public class SQLMethodCall extends SimpleNode {
       Object targetObjects, CommandContext ctx, List<SQLExpression> iParams, Object val) {
     List<Object> paramValues = new ArrayList<Object>();
     for (SQLExpression expr : iParams) {
-      if (val instanceof YTIdentifiable) {
-        paramValues.add(expr.execute((YTIdentifiable) val, ctx));
-      } else if (val instanceof YTResult) {
-        paramValues.add(expr.execute((YTResult) val, ctx));
-      } else if (targetObjects instanceof YTIdentifiable) {
-        paramValues.add(expr.execute((YTIdentifiable) targetObjects, ctx));
-      } else if (targetObjects instanceof YTResult) {
-        paramValues.add(expr.execute((YTResult) targetObjects, ctx));
+      if (val instanceof Identifiable) {
+        paramValues.add(expr.execute((Identifiable) val, ctx));
+      } else if (val instanceof Result) {
+        paramValues.add(expr.execute((Result) val, ctx));
+      } else if (targetObjects instanceof Identifiable) {
+        paramValues.add(expr.execute((Identifiable) targetObjects, ctx));
+      } else if (targetObjects instanceof Result) {
+        paramValues.add(expr.execute((Result) targetObjects, ctx));
       } else {
-        throw new YTCommandExecutionException("Invalild value for $current: " + val);
+        throw new CommandExecutionException("Invalild value for $current: " + val);
       }
     }
     return paramValues;
@@ -266,8 +266,8 @@ public class SQLMethodCall extends SimpleNode {
     throw new UnsupportedOperationException("Invalid reverse traversal: " + methodName);
   }
 
-  public static YTDatabaseSessionInternal getDatabase() {
-    return ODatabaseRecordThreadLocal.instance().get();
+  public static DatabaseSessionInternal getDatabase() {
+    return DatabaseRecordThreadLocal.instance().get();
   }
 
   public boolean needsAliases(Set<String> aliases) {
@@ -329,8 +329,8 @@ public class SQLMethodCall extends SimpleNode {
     return false;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     if (methodName != null) {
       result.setProperty("methodName", methodName.serialize(db));
     }
@@ -342,14 +342,14 @@ public class SQLMethodCall extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     if (fromResult.getProperty("methodName") != null) {
       methodName = SQLIdentifier.deserialize(fromResult.getProperty("methodName"));
     }
     if (fromResult.getProperty("params") != null) {
-      List<YTResult> ser = fromResult.getProperty("params");
+      List<Result> ser = fromResult.getProperty("params");
       params = new ArrayList<>();
-      for (YTResult r : ser) {
+      for (Result r : ser) {
         SQLExpression exp = new SQLExpression(-1);
         exp.deserialize(r);
         params.add(exp);
@@ -357,7 +357,7 @@ public class SQLMethodCall extends SimpleNode {
     }
   }
 
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     return resolveIsGraphFunction(session); // TODO
   }
 

@@ -15,28 +15,28 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexManagerAbstract;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.INDEX_TYPE;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStep;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.FetchFromIndexStep;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
-import com.jetbrains.youtrack.db.internal.core.storage.YTRecordDuplicatedException;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OWriteCache;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.storage.RecordDuplicatedException;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -91,7 +91,7 @@ public class IndexTest extends DocumentDBBaseTest {
       // IT SHOULD GIVE ERROR ON DUPLICATED KEY
       Assert.fail();
 
-    } catch (YTRecordDuplicatedException e) {
+    } catch (RecordDuplicatedException e) {
       Assert.assertTrue(true);
     }
   }
@@ -100,11 +100,11 @@ public class IndexTest extends DocumentDBBaseTest {
   public void testIndexInUniqueIndex() {
     checkEmbeddedDB();
 
-    final YTProperty nickProperty =
+    final Property nickProperty =
         database.getMetadata().getSchema().getClass("Profile").getProperty("nick");
     Assert.assertEquals(
         nickProperty.getIndexes(database).iterator().next().getType(),
-        YTClass.INDEX_TYPE.UNIQUE.toString());
+        SchemaClass.INDEX_TYPE.UNIQUE.toString());
 
     try (var resultSet =
         database.query(
@@ -144,7 +144,7 @@ public class IndexTest extends DocumentDBBaseTest {
 
     List<EntityImpl> result = executeQuery("select * from Profile where nick is not null");
 
-    OIndex idx =
+    Index idx =
         database.getMetadata().getIndexManagerInternal().getIndex(database, "Profile.nick");
 
     Assert.assertEquals(idx.getInternal().size(database), result.size());
@@ -176,7 +176,7 @@ public class IndexTest extends DocumentDBBaseTest {
       database.commit();
 
       profileSize++;
-      try (Stream<YTRID> stream =
+      try (Stream<RID> stream =
           database
               .getMetadata()
               .getIndexManagerInternal()
@@ -224,7 +224,7 @@ public class IndexTest extends DocumentDBBaseTest {
           .getProperty("nick")
           .createIndex(database, INDEX_TYPE.UNIQUE);
       Assert.fail();
-    } catch (YTRecordDuplicatedException e) {
+    } catch (RecordDuplicatedException e) {
       Assert.assertTrue(true);
     }
   }
@@ -429,14 +429,14 @@ public class IndexTest extends DocumentDBBaseTest {
 
     List<EntityImpl> result =
         database
-            .command(new OSQLSynchQuery<EntityImpl>("SELECT FROM Profile WHERE nick = 'Jay'"))
+            .command(new SQLSynchQuery<EntityImpl>("SELECT FROM Profile WHERE nick = 'Jay'"))
             .execute(database);
     Assert.assertEquals(result.size(), 2);
 
     result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "SELECT FROM Profile WHERE nick = 'Jay' AND name = 'Jay'"))
             .execute(database);
     Assert.assertEquals(result.size(), 1);
@@ -444,7 +444,7 @@ public class IndexTest extends DocumentDBBaseTest {
     result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "SELECT FROM Profile WHERE nick = 'Jay' AND name = 'Nick'"))
             .execute(database);
     Assert.assertEquals(result.size(), 1);
@@ -462,11 +462,11 @@ public class IndexTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = {"createNotUniqueIndexOnNick", "populateIndexDocuments"})
   public void testIndexInNotUniqueIndex() {
-    final YTProperty nickProperty =
+    final Property nickProperty =
         database.getMetadata().getSchema().getClass("Profile").getProperty("nick");
     Assert.assertEquals(
         nickProperty.getIndexes(database).iterator().next().getType(),
-        YTClass.INDEX_TYPE.NOTUNIQUE.toString());
+        SchemaClass.INDEX_TYPE.NOTUNIQUE.toString());
 
     try (var resultSet =
         database.query(
@@ -497,7 +497,7 @@ public class IndexTest extends DocumentDBBaseTest {
         .createIndex(database, INDEX_TYPE.NOTUNIQUE);
 
     final List<EntityImpl> result = executeQuery("select * from Account limit 1");
-    final OIndex idx =
+    final Index idx =
         database.getMetadata().getIndexManagerInternal().getIndex(database, "Whiz.account");
 
     for (int i = 0; i < 5; i++) {
@@ -539,18 +539,19 @@ public class IndexTest extends DocumentDBBaseTest {
   }
 
   public void linkedIndexedProperty() {
-    try (YTDatabaseSessionInternal db = acquireSession()) {
+    try (DatabaseSessionInternal db = acquireSession()) {
       if (!db.getMetadata().getSchema().existsClass("TestClass")) {
-        YTClass testClass =
-            db.getMetadata().getSchema().createClass("TestClass", 1, (YTClass[]) null);
-        YTClass testLinkClass =
-            db.getMetadata().getSchema().createClass("TestLinkClass", 1, (YTClass[]) null);
+        SchemaClass testClass =
+            db.getMetadata().getSchema().createClass("TestClass", 1, (SchemaClass[]) null);
+        SchemaClass testLinkClass =
+            db.getMetadata().getSchema().createClass("TestLinkClass", 1, (SchemaClass[]) null);
         testClass
-            .createProperty(db, "testLink", YTType.LINK, testLinkClass)
+            .createProperty(db, "testLink", PropertyType.LINK, testLinkClass)
             .createIndex(db, INDEX_TYPE.NOTUNIQUE);
-        testClass.createProperty(db, "name", YTType.STRING).createIndex(db, INDEX_TYPE.UNIQUE);
-        testLinkClass.createProperty(db, "testBoolean", YTType.BOOLEAN);
-        testLinkClass.createProperty(db, "testString", YTType.STRING);
+        testClass.createProperty(db, "name", PropertyType.STRING)
+            .createIndex(db, INDEX_TYPE.UNIQUE);
+        testLinkClass.createProperty(db, "testBoolean", PropertyType.BOOLEAN);
+        testLinkClass.createProperty(db, "testString", PropertyType.STRING);
       }
       EntityImpl testClassDocument = db.newInstance("TestClass");
       db.begin();
@@ -562,19 +563,19 @@ public class IndexTest extends DocumentDBBaseTest {
       testClassDocument.save();
       db.commit();
       // THIS WILL THROW A java.lang.ClassCastException:
-      // com.orientechnologies.core.id.YTRecordId cannot be cast to
+      // com.orientechnologies.core.id.RecordId cannot be cast to
       // java.lang.Boolean
       List<EntityImpl> result =
           db.query(
-              new OSQLSynchQuery<EntityImpl>(
+              new SQLSynchQuery<EntityImpl>(
                   "select from TestClass where testLink.testBoolean = true"));
       Assert.assertEquals(result.size(), 1);
       // THIS WILL THROW A java.lang.ClassCastException:
-      // com.orientechnologies.core.id.YTRecordId cannot be cast to
+      // com.orientechnologies.core.id.RecordId cannot be cast to
       // java.lang.String
       result =
           db.query(
-              new OSQLSynchQuery<EntityImpl>(
+              new SQLSynchQuery<EntityImpl>(
                   "select from TestClass where testLink.testString = 'Test Link Class 1'"));
       Assert.assertEquals(result.size(), 1);
     }
@@ -582,7 +583,7 @@ public class IndexTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "linkedIndexedProperty")
   public void testLinkedIndexedPropertyInTx() {
-    try (YTDatabaseSessionInternal db = acquireSession()) {
+    try (DatabaseSessionInternal db = acquireSession()) {
       db.begin();
       EntityImpl testClassDocument = db.newInstance("TestClass");
       testClassDocument.field("name", "Test Class 2");
@@ -594,19 +595,19 @@ public class IndexTest extends DocumentDBBaseTest {
       db.commit();
 
       // THIS WILL THROW A java.lang.ClassCastException:
-      // com.orientechnologies.core.id.YTRecordId cannot be cast to
+      // com.orientechnologies.core.id.RecordId cannot be cast to
       // java.lang.Boolean
       List<EntityImpl> result =
           db.query(
-              new OSQLSynchQuery<EntityImpl>(
+              new SQLSynchQuery<EntityImpl>(
                   "select from TestClass where testLink.testBoolean = true"));
       Assert.assertEquals(result.size(), 2);
       // THIS WILL THROW A java.lang.ClassCastException:
-      // com.orientechnologies.core.id.YTRecordId cannot be cast to
+      // com.orientechnologies.core.id.RecordId cannot be cast to
       // java.lang.String
       result =
           db.query(
-              new OSQLSynchQuery<EntityImpl>(
+              new SQLSynchQuery<EntityImpl>(
                   "select from TestClass where testLink.testString = 'Test Link Class 2'"));
       Assert.assertEquals(result.size(), 1);
     }
@@ -615,12 +616,12 @@ public class IndexTest extends DocumentDBBaseTest {
   public void testConcurrentRemoveDelete() {
     checkEmbeddedDB();
 
-    try (YTDatabaseSessionInternal db = acquireSession()) {
+    try (DatabaseSessionInternal db = acquireSession()) {
       if (!db.getMetadata().getSchema().existsClass("MyFruit")) {
-        YTClass fruitClass = db.getMetadata().getSchema()
-            .createClass("MyFruit", 1, (YTClass[]) null);
-        fruitClass.createProperty(db, "name", YTType.STRING);
-        fruitClass.createProperty(db, "color", YTType.STRING);
+        SchemaClass fruitClass = db.getMetadata().getSchema()
+            .createClass("MyFruit", 1, (SchemaClass[]) null);
+        fruitClass.createProperty(db, "name", PropertyType.STRING);
+        fruitClass.createProperty(db, "color", PropertyType.STRING);
 
         db.getMetadata()
             .getSchema()
@@ -689,12 +690,12 @@ public class IndexTest extends DocumentDBBaseTest {
     checkEmbeddedDB();
 
     final EntityImpl doc;
-    final YTRecordId result;
-    try (YTDatabaseSessionInternal db = acquireSession()) {
+    final RecordId result;
+    try (DatabaseSessionInternal db = acquireSession()) {
       if (!db.getMetadata().getSchema().existsClass("IndexTestTerm")) {
-        final YTClass termClass =
-            db.getMetadata().getSchema().createClass("IndexTestTerm", 1, (YTClass[]) null);
-        termClass.createProperty(db, "label", YTType.STRING);
+        final SchemaClass termClass =
+            db.getMetadata().getSchema().createClass("IndexTestTerm", 1, (SchemaClass[]) null);
+        termClass.createProperty(db, "label", PropertyType.STRING);
         termClass.createIndex(db,
             "idxTerm",
             INDEX_TYPE.UNIQUE.toString(),
@@ -708,13 +709,13 @@ public class IndexTest extends DocumentDBBaseTest {
       doc.save();
       db.commit();
 
-      try (Stream<YTRID> stream =
+      try (Stream<RID> stream =
           db.getMetadata()
               .getIndexManagerInternal()
               .getIndex(db, "idxTerm")
               .getInternal()
               .getRids(db, "42")) {
-        result = (YTRecordId) stream.findAny().orElse(null);
+        result = (RecordId) stream.findAny().orElse(null);
       }
     }
     Assert.assertNotNull(result);
@@ -724,13 +725,13 @@ public class IndexTest extends DocumentDBBaseTest {
   public void testTransactionUniqueIndexTestOne() {
     checkEmbeddedDB();
 
-    YTDatabaseSessionInternal db = acquireSession();
+    DatabaseSessionInternal db = acquireSession();
     if (!db.getMetadata().getSchema().existsClass("TransactionUniqueIndexTest")) {
-      final YTClass termClass =
+      final SchemaClass termClass =
           db.getMetadata()
               .getSchema()
-              .createClass("TransactionUniqueIndexTest", 1, (YTClass[]) null);
-      termClass.createProperty(db, "label", YTType.STRING);
+              .createClass("TransactionUniqueIndexTest", 1, (SchemaClass[]) null);
+      termClass.createProperty(db, "label", PropertyType.STRING);
       termClass.createIndex(db,
           "idxTransactionUniqueIndexTest",
           INDEX_TYPE.UNIQUE.toString(),
@@ -744,7 +745,7 @@ public class IndexTest extends DocumentDBBaseTest {
     docOne.save();
     db.commit();
 
-    final OIndex index =
+    final Index index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, "idxTransactionUniqueIndexTest");
     Assert.assertEquals(index.getInternal().size(database), 1);
 
@@ -756,7 +757,7 @@ public class IndexTest extends DocumentDBBaseTest {
 
       db.commit();
       Assert.fail();
-    } catch (YTRecordDuplicatedException ignored) {
+    } catch (RecordDuplicatedException ignored) {
     }
 
     Assert.assertEquals(index.getInternal().size(database), 1);
@@ -766,13 +767,13 @@ public class IndexTest extends DocumentDBBaseTest {
   public void testTransactionUniqueIndexTestTwo() {
     checkEmbeddedDB();
 
-    YTDatabaseSessionInternal db = acquireSession();
+    DatabaseSessionInternal db = acquireSession();
     if (!db.getMetadata().getSchema().existsClass("TransactionUniqueIndexTest")) {
-      final YTClass termClass =
+      final SchemaClass termClass =
           db.getMetadata()
               .getSchema()
-              .createClass("TransactionUniqueIndexTest", 1, (YTClass[]) null);
-      termClass.createProperty(db, "label", YTType.STRING);
+              .createClass("TransactionUniqueIndexTest", 1, (SchemaClass[]) null);
+      termClass.createProperty(db, "label", PropertyType.STRING);
       termClass.createIndex(db,
           "idxTransactionUniqueIndexTest",
           INDEX_TYPE.UNIQUE.toString(),
@@ -780,7 +781,7 @@ public class IndexTest extends DocumentDBBaseTest {
           new EntityImpl().fields("ignoreNullValues", true), new String[]{"label"});
     }
 
-    final OIndex index =
+    final Index index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, "idxTransactionUniqueIndexTest");
     Assert.assertEquals(index.getInternal().size(database), 1);
 
@@ -797,7 +798,7 @@ public class IndexTest extends DocumentDBBaseTest {
 
       db.commit();
       Assert.fail();
-    } catch (YTRecordDuplicatedException oie) {
+    } catch (RecordDuplicatedException oie) {
       db.rollback();
     }
 
@@ -807,13 +808,13 @@ public class IndexTest extends DocumentDBBaseTest {
   public void testTransactionUniqueIndexTestWithDotNameOne() {
     checkEmbeddedDB();
 
-    YTDatabaseSessionInternal db = acquireSession();
+    DatabaseSessionInternal db = acquireSession();
     if (!db.getMetadata().getSchema().existsClass("TransactionUniqueIndexWithDotTest")) {
-      final YTClass termClass =
+      final SchemaClass termClass =
           db.getMetadata()
               .getSchema()
-              .createClass("TransactionUniqueIndexWithDotTest", 1, (YTClass[]) null);
-      termClass.createProperty(db, "label", YTType.STRING).createIndex(db, INDEX_TYPE.UNIQUE);
+              .createClass("TransactionUniqueIndexWithDotTest", 1, (SchemaClass[]) null);
+      termClass.createProperty(db, "label", PropertyType.STRING).createIndex(db, INDEX_TYPE.UNIQUE);
     }
 
     db.begin();
@@ -822,7 +823,7 @@ public class IndexTest extends DocumentDBBaseTest {
     docOne.save();
     db.commit();
 
-    final OIndex index =
+    final Index index =
         db.getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "TransactionUniqueIndexWithDotTest.label");
@@ -837,7 +838,7 @@ public class IndexTest extends DocumentDBBaseTest {
 
       db.commit();
       Assert.fail();
-    } catch (YTRecordDuplicatedException ignored) {
+    } catch (RecordDuplicatedException ignored) {
     }
 
     Assert.assertEquals(
@@ -854,16 +855,17 @@ public class IndexTest extends DocumentDBBaseTest {
   public void testTransactionUniqueIndexTestWithDotNameTwo() {
     checkEmbeddedDB();
 
-    YTDatabaseSessionInternal db = acquireSession();
+    DatabaseSessionInternal db = acquireSession();
     if (!db.getMetadata().getSchema().existsClass("TransactionUniqueIndexWithDotTest")) {
-      final YTClass termClass =
+      final SchemaClass termClass =
           db.getMetadata()
               .getSchema()
-              .createClass("TransactionUniqueIndexWithDotTest", 1, (YTClass[]) null);
-      termClass.createProperty(db, "label", YTType.STRING).createIndex(database, INDEX_TYPE.UNIQUE);
+              .createClass("TransactionUniqueIndexWithDotTest", 1, (SchemaClass[]) null);
+      termClass.createProperty(db, "label", PropertyType.STRING)
+          .createIndex(database, INDEX_TYPE.UNIQUE);
     }
 
-    final OIndex index =
+    final Index index =
         db.getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "TransactionUniqueIndexWithDotTest.label");
@@ -881,7 +883,7 @@ public class IndexTest extends DocumentDBBaseTest {
 
       db.commit();
       Assert.fail();
-    } catch (YTRecordDuplicatedException oie) {
+    } catch (RecordDuplicatedException oie) {
       db.rollback();
     }
 
@@ -892,15 +894,15 @@ public class IndexTest extends DocumentDBBaseTest {
   public void testIndexRemoval() {
     checkEmbeddedDB();
 
-    final OIndex index = getIndex("Profile.nick");
+    final Index index = getIndex("Profile.nick");
 
-    Iterator<ORawPair<Object, YTRID>> streamIterator;
+    Iterator<RawPair<Object, RID>> streamIterator;
     Object key;
-    try (Stream<ORawPair<Object, YTRID>> stream = index.getInternal().stream(database)) {
+    try (Stream<RawPair<Object, RID>> stream = index.getInternal().stream(database)) {
       streamIterator = stream.iterator();
       Assert.assertTrue(streamIterator.hasNext());
 
-      ORawPair<Object, YTRID> pair = streamIterator.next();
+      RawPair<Object, RID> pair = streamIterator.next();
       key = pair.first;
 
       database.begin();
@@ -908,20 +910,21 @@ public class IndexTest extends DocumentDBBaseTest {
       database.commit();
     }
 
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, key)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, key)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
   }
 
   public void createInheritanceIndex() {
-    try (YTDatabaseSessionInternal db = acquireSession()) {
+    try (DatabaseSessionInternal db = acquireSession()) {
       if (!db.getMetadata().getSchema().existsClass("BaseTestClass")) {
-        YTClass baseClass =
-            db.getMetadata().getSchema().createClass("BaseTestClass", 1, (YTClass[]) null);
-        YTClass childClass =
-            db.getMetadata().getSchema().createClass("ChildTestClass", 1, (YTClass[]) null);
-        YTClass anotherChildClass =
-            db.getMetadata().getSchema().createClass("AnotherChildTestClass", 1, (YTClass[]) null);
+        SchemaClass baseClass =
+            db.getMetadata().getSchema().createClass("BaseTestClass", 1, (SchemaClass[]) null);
+        SchemaClass childClass =
+            db.getMetadata().getSchema().createClass("ChildTestClass", 1, (SchemaClass[]) null);
+        SchemaClass anotherChildClass =
+            db.getMetadata().getSchema()
+                .createClass("AnotherChildTestClass", 1, (SchemaClass[]) null);
 
         if (!baseClass.isSuperClassOf(childClass)) {
           childClass.setSuperClass(db, baseClass);
@@ -931,7 +934,7 @@ public class IndexTest extends DocumentDBBaseTest {
         }
 
         baseClass
-            .createProperty(db, "testParentProperty", YTType.LONG)
+            .createProperty(db, "testParentProperty", PropertyType.LONG)
             .createIndex(db, INDEX_TYPE.NOTUNIQUE);
       }
 
@@ -946,23 +949,23 @@ public class IndexTest extends DocumentDBBaseTest {
       db.commit();
 
       Assert.assertNotEquals(
-          childClassDocument.getIdentity(), new YTRecordId(-1, YTRID.CLUSTER_POS_INVALID));
+          childClassDocument.getIdentity(), new RecordId(-1, RID.CLUSTER_POS_INVALID));
       Assert.assertNotEquals(
-          anotherChildClassDocument.getIdentity(), new YTRecordId(-1, YTRID.CLUSTER_POS_INVALID));
+          anotherChildClassDocument.getIdentity(), new RecordId(-1, RID.CLUSTER_POS_INVALID));
     }
   }
 
   @Test(dependsOnMethods = "createInheritanceIndex")
   public void testIndexReturnOnlySpecifiedClass() {
 
-    try (YTResultSet result =
+    try (ResultSet result =
         database.command("select * from ChildTestClass where testParentProperty = 10")) {
 
       Assert.assertEquals(10L, result.next().<Object>getProperty("testParentProperty"));
       Assert.assertFalse(result.hasNext());
     }
 
-    try (YTResultSet result =
+    try (ResultSet result =
         database.command("select * from AnotherChildTestClass where testParentProperty = 11")) {
       Assert.assertEquals(11L, result.next().<Object>getProperty("testParentProperty"));
       Assert.assertFalse(result.hasNext());
@@ -972,14 +975,14 @@ public class IndexTest extends DocumentDBBaseTest {
   public void testNotUniqueIndexKeySize() {
     checkEmbeddedDB();
 
-    final YTSchema schema = database.getMetadata().getSchema();
-    YTClass cls = schema.createClass("IndexNotUniqueIndexKeySize");
-    cls.createProperty(database, "value", YTType.INTEGER);
+    final Schema schema = database.getMetadata().getSchema();
+    SchemaClass cls = schema.createClass("IndexNotUniqueIndexKeySize");
+    cls.createProperty(database, "value", PropertyType.INTEGER);
     cls.createIndex(database, "IndexNotUniqueIndexKeySizeIndex", INDEX_TYPE.NOTUNIQUE, "value");
 
-    OIndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
+    IndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
 
-    final OIndex idx = idxManager.getIndex(database, "IndexNotUniqueIndexKeySizeIndex");
+    final Index idx = idxManager.getIndex(database, "IndexNotUniqueIndexKeySizeIndex");
 
     final Set<Integer> keys = new HashSet<>();
     for (int i = 1; i < 100; i++) {
@@ -994,7 +997,7 @@ public class IndexTest extends DocumentDBBaseTest {
       keys.add(key);
     }
 
-    try (Stream<ORawPair<Object, YTRID>> stream = idx.getInternal().stream(database)) {
+    try (Stream<RawPair<Object, RID>> stream = idx.getInternal().stream(database)) {
       Assert.assertEquals(stream.map((pair) -> pair.first).distinct().count(), keys.size());
     }
   }
@@ -1002,13 +1005,13 @@ public class IndexTest extends DocumentDBBaseTest {
   public void testNotUniqueIndexSize() {
     checkEmbeddedDB();
 
-    final YTSchema schema = database.getMetadata().getSchema();
-    YTClass cls = schema.createClass("IndexNotUniqueIndexSize");
-    cls.createProperty(database, "value", YTType.INTEGER);
+    final Schema schema = database.getMetadata().getSchema();
+    SchemaClass cls = schema.createClass("IndexNotUniqueIndexSize");
+    cls.createProperty(database, "value", PropertyType.INTEGER);
     cls.createIndex(database, "IndexNotUniqueIndexSizeIndex", INDEX_TYPE.NOTUNIQUE, "value");
 
-    OIndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
-    final OIndex idx = idxManager.getIndex(database, "IndexNotUniqueIndexSizeIndex");
+    IndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
+    final Index idx = idxManager.getIndex(database, "IndexNotUniqueIndexSizeIndex");
 
     for (int i = 1; i < 100; i++) {
       final Integer key = (int) Math.log(i);
@@ -1035,10 +1038,10 @@ public class IndexTest extends DocumentDBBaseTest {
     profile = database.save(profile);
     database.commit();
 
-    OIndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
-    OIndex nickIndex = idxManager.getIndex(database, "Profile.nick");
+    IndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
+    Index nickIndex = idxManager.getIndex(database, "Profile.nick");
 
-    try (Stream<YTRID> stream = nickIndex.getInternal()
+    try (Stream<RID> stream = nickIndex.getInternal()
         .getRids(database, "NonProxiedObjectToDelete")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
@@ -1048,7 +1051,7 @@ public class IndexTest extends DocumentDBBaseTest {
     database.delete(loadedProfile);
     database.commit();
 
-    try (Stream<YTRID> stream = nickIndex.getInternal()
+    try (Stream<RID> stream = nickIndex.getInternal()
         .getRids(database, "NonProxiedObjectToDelete")) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
@@ -1066,10 +1069,10 @@ public class IndexTest extends DocumentDBBaseTest {
     profile = database.save(profile);
     database.commit();
 
-    OIndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
-    OIndex nickIndex = idxManager.getIndex(database, "Profile.nick");
+    IndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
+    Index nickIndex = idxManager.getIndex(database, "Profile.nick");
 
-    try (Stream<YTRID> stream = nickIndex.getInternal()
+    try (Stream<RID> stream = nickIndex.getInternal()
         .getRids(database, "NonProxiedObjectToDelete")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
@@ -1079,7 +1082,7 @@ public class IndexTest extends DocumentDBBaseTest {
     database.delete(database.bindToSession(loadedProfile));
     database.commit();
 
-    try (Stream<YTRID> stream = nickIndex.getInternal()
+    try (Stream<RID> stream = nickIndex.getInternal()
         .getRids(database, "NonProxiedObjectToDelete")) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
@@ -1098,14 +1101,14 @@ public class IndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testIndexInCompositeQuery() {
-    YTClass classOne =
+    SchemaClass classOne =
         database.getMetadata().getSchema()
-            .createClass("CompoundSQLIndexTest1", 1, (YTClass[]) null);
-    YTClass classTwo =
+            .createClass("CompoundSQLIndexTest1", 1, (SchemaClass[]) null);
+    SchemaClass classTwo =
         database.getMetadata().getSchema()
-            .createClass("CompoundSQLIndexTest2", 1, (YTClass[]) null);
+            .createClass("CompoundSQLIndexTest2", 1, (SchemaClass[]) null);
 
-    classTwo.createProperty(database, "address", YTType.LINK, classOne);
+    classTwo.createProperty(database, "address", PropertyType.LINK, classOne);
 
     classTwo.createIndex(database, "CompoundSQLIndexTestIndex", INDEX_TYPE.UNIQUE, "address");
 
@@ -1130,11 +1133,11 @@ public class IndexTest extends DocumentDBBaseTest {
   }
 
   public void testIndexWithLimitAndOffset() {
-    final YTSchema schema = database.getSchema();
-    final YTClass indexWithLimitAndOffset =
-        schema.createClass("IndexWithLimitAndOffsetClass", 1, (YTClass[]) null);
-    indexWithLimitAndOffset.createProperty(database, "val", YTType.INTEGER);
-    indexWithLimitAndOffset.createProperty(database, "index", YTType.INTEGER);
+    final Schema schema = database.getSchema();
+    final SchemaClass indexWithLimitAndOffset =
+        schema.createClass("IndexWithLimitAndOffsetClass", 1, (SchemaClass[]) null);
+    indexWithLimitAndOffset.createProperty(database, "val", PropertyType.INTEGER);
+    indexWithLimitAndOffset.createProperty(database, "index", PropertyType.INTEGER);
 
     database
         .command(
@@ -1162,9 +1165,9 @@ public class IndexTest extends DocumentDBBaseTest {
   }
 
   public void testNullIndexKeysSupport() {
-    final YTSchema schema = database.getSchema();
-    final YTClass clazz = schema.createClass("NullIndexKeysSupport", 1, (YTClass[]) null);
-    clazz.createProperty(database, "nullField", YTType.STRING);
+    final Schema schema = database.getSchema();
+    final SchemaClass clazz = schema.createClass("NullIndexKeysSupport", 1, (SchemaClass[]) null);
+    clazz.createProperty(database, "nullField", PropertyType.STRING);
 
     EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
@@ -1209,9 +1212,10 @@ public class IndexTest extends DocumentDBBaseTest {
   }
 
   public void testNullHashIndexKeysSupport() {
-    final YTSchema schema = database.getSchema();
-    final YTClass clazz = schema.createClass("NullHashIndexKeysSupport", 1, (YTClass[]) null);
-    clazz.createProperty(database, "nullField", YTType.STRING);
+    final Schema schema = database.getSchema();
+    final SchemaClass clazz = schema.createClass("NullHashIndexKeysSupport", 1,
+        (SchemaClass[]) null);
+    clazz.createProperty(database, "nullField", PropertyType.STRING);
 
     EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
@@ -1237,7 +1241,7 @@ public class IndexTest extends DocumentDBBaseTest {
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from NullHashIndexKeysSupport where nullField = 'val3'"));
     Assert.assertEquals(result.size(), 1);
 
@@ -1246,7 +1250,7 @@ public class IndexTest extends DocumentDBBaseTest {
     final String query = "select from NullHashIndexKeysSupport where nullField is null";
     result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from NullHashIndexKeysSupport where nullField is null"));
 
     Assert.assertEquals(result.size(), 4);
@@ -1261,9 +1265,10 @@ public class IndexTest extends DocumentDBBaseTest {
   }
 
   public void testNullIndexKeysSupportInTx() {
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass clazz = schema.createClass("NullIndexKeysSupportInTx", 1, (YTClass[]) null);
-    clazz.createProperty(database, "nullField", YTType.STRING);
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass clazz = schema.createClass("NullIndexKeysSupportInTx", 1,
+        (SchemaClass[]) null);
+    clazz.createProperty(database, "nullField", PropertyType.STRING);
 
     EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
@@ -1292,7 +1297,7 @@ public class IndexTest extends DocumentDBBaseTest {
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from NullIndexKeysSupportInTx where nullField = 'val3'"));
     Assert.assertEquals(result.size(), 1);
 
@@ -1301,7 +1306,7 @@ public class IndexTest extends DocumentDBBaseTest {
     final String query = "select from NullIndexKeysSupportInTx where nullField is null";
     result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from NullIndexKeysSupportInTx where nullField is null"));
 
     Assert.assertEquals(result.size(), 4);
@@ -1320,9 +1325,10 @@ public class IndexTest extends DocumentDBBaseTest {
       return;
     }
 
-    final YTSchema schema = database.getSchema();
-    final YTClass clazz = schema.createClass("NullIndexKeysSupportInMiddleTx", 1, (YTClass[]) null);
-    clazz.createProperty(database, "nullField", YTType.STRING);
+    final Schema schema = database.getSchema();
+    final SchemaClass clazz = schema.createClass("NullIndexKeysSupportInMiddleTx", 1,
+        (SchemaClass[]) null);
+    clazz.createProperty(database, "nullField", PropertyType.STRING);
 
     EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
@@ -1349,7 +1355,7 @@ public class IndexTest extends DocumentDBBaseTest {
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from NullIndexKeysSupportInMiddleTx where nullField = 'val3'"));
     Assert.assertEquals(result.size(), 1);
 
@@ -1358,7 +1364,7 @@ public class IndexTest extends DocumentDBBaseTest {
     final String query = "select from NullIndexKeysSupportInMiddleTx where nullField is null";
     result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from NullIndexKeysSupportInMiddleTx where nullField is null"));
 
     Assert.assertEquals(result.size(), 4);
@@ -1377,11 +1383,11 @@ public class IndexTest extends DocumentDBBaseTest {
   }
 
   public void testCreateIndexAbstractClass() {
-    final YTSchema schema = database.getSchema();
+    final Schema schema = database.getSchema();
 
-    YTClass abstractClass = schema.createAbstractClass("TestCreateIndexAbstractClass");
+    SchemaClass abstractClass = schema.createAbstractClass("TestCreateIndexAbstractClass");
     abstractClass
-        .createProperty(database, "value", YTType.STRING)
+        .createProperty(database, "value", PropertyType.STRING)
         .setMandatory(database, true)
         .createIndex(database, INDEX_TYPE.UNIQUE);
 
@@ -1431,10 +1437,11 @@ public class IndexTest extends DocumentDBBaseTest {
       return;
     }
 
-    final YTSchema schema = database.getMetadata().getSchema();
-    YTClass clazz =
-        schema.createClass("ValuesContainerIsRemovedIfIndexIsRemovedClass", 1, (YTClass[]) null);
-    clazz.createProperty(database, "val", YTType.STRING);
+    final Schema schema = database.getMetadata().getSchema();
+    SchemaClass clazz =
+        schema.createClass("ValuesContainerIsRemovedIfIndexIsRemovedClass", 1,
+            (SchemaClass[]) null);
+    clazz.createProperty(database, "val", PropertyType.STRING);
 
     database
         .command(
@@ -1454,9 +1461,9 @@ public class IndexTest extends DocumentDBBaseTest {
 
     final AbstractPaginatedStorage storageLocalAbstract =
         (AbstractPaginatedStorage)
-            ((YTDatabaseSessionInternal) database.getUnderlying()).getStorage();
+            ((DatabaseSessionInternal) database.getUnderlying()).getStorage();
 
-    final OWriteCache writeCache = storageLocalAbstract.getWriteCache();
+    final WriteCache writeCache = storageLocalAbstract.getWriteCache();
     Assert.assertTrue(writeCache.exists("ValuesContainerIsRemovedIfIndexIsRemovedIndex.irs"));
     database.command("drop index ValuesContainerIsRemovedIfIndexIsRemovedIndex").close();
     Assert.assertFalse(writeCache.exists("ValuesContainerIsRemovedIfIndexIsRemovedIndex.irs"));
@@ -1470,11 +1477,11 @@ public class IndexTest extends DocumentDBBaseTest {
     if (!database.getMetadata().getSchema().existsClass("PreservingIdentityInIndexTxEdge")) {
       database.createEdgeClass("PreservingIdentityInIndexTxEdge");
     }
-    YTClass fieldClass = database.getClass("PreservingIdentityInIndexTxChild");
+    SchemaClass fieldClass = database.getClass("PreservingIdentityInIndexTxChild");
     if (fieldClass == null) {
       fieldClass = database.createVertexClass("PreservingIdentityInIndexTxChild");
-      fieldClass.createProperty(database, "name", YTType.STRING);
-      fieldClass.createProperty(database, "in_field", YTType.LINK);
+      fieldClass.createProperty(database, "name", PropertyType.STRING);
+      fieldClass.createProperty(database, "in_field", PropertyType.LINK);
       fieldClass.createIndex(database, "nameParentIndex", INDEX_TYPE.NOTUNIQUE, "in_field", "name");
     }
 
@@ -1498,28 +1505,28 @@ public class IndexTest extends DocumentDBBaseTest {
 
     {
       fieldClass = database.getClass("PreservingIdentityInIndexTxChild");
-      OIndex index = fieldClass.getClassIndex(database, "nameParentIndex");
-      OCompositeKey key = new OCompositeKey(parent.getIdentity(), "pokus");
+      Index index = fieldClass.getClassIndex(database, "nameParentIndex");
+      CompositeKey key = new CompositeKey(parent.getIdentity(), "pokus");
 
-      Collection<YTRID> h;
-      try (Stream<YTRID> stream = index.getInternal().getRids(database, key)) {
+      Collection<RID> h;
+      try (Stream<RID> stream = index.getInternal().getRids(database, key)) {
         h = stream.toList();
       }
-      for (YTRID o : h) {
+      for (RID o : h) {
         Assert.assertNotNull(database.load(o));
       }
     }
 
     {
       fieldClass = database.getClass("PreservingIdentityInIndexTxChild");
-      OIndex index = fieldClass.getClassIndex(database, "nameParentIndex");
-      OCompositeKey key = new OCompositeKey(parent2.getIdentity(), "pokus2");
+      Index index = fieldClass.getClassIndex(database, "nameParentIndex");
+      CompositeKey key = new CompositeKey(parent2.getIdentity(), "pokus2");
 
-      Collection<YTRID> h;
-      try (Stream<YTRID> stream = index.getInternal().getRids(database, key)) {
+      Collection<RID> h;
+      try (Stream<RID> stream = index.getInternal().getRids(database, key)) {
         h = stream.toList();
       }
-      for (YTRID o : h) {
+      for (RID o : h) {
         Assert.assertNotNull(database.load(o));
       }
     }
@@ -1536,14 +1543,14 @@ public class IndexTest extends DocumentDBBaseTest {
   public void testEmptyNotUniqueIndex() {
     checkEmbeddedDB();
 
-    YTClass emptyNotUniqueIndexClazz =
+    SchemaClass emptyNotUniqueIndexClazz =
         database
             .getMetadata()
             .getSchema()
-            .createClass("EmptyNotUniqueIndexTest", 1, (YTClass[]) null);
-    emptyNotUniqueIndexClazz.createProperty(database, "prop", YTType.STRING);
+            .createClass("EmptyNotUniqueIndexTest", 1, (SchemaClass[]) null);
+    emptyNotUniqueIndexClazz.createProperty(database, "prop", PropertyType.STRING);
 
-    final OIndex notUniqueIndex =
+    final Index notUniqueIndex =
         emptyNotUniqueIndexClazz.createIndex(database,
             "EmptyNotUniqueIndexTestIndex", INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "prop");
 
@@ -1557,27 +1564,27 @@ public class IndexTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
-    try (Stream<YTRID> stream = notUniqueIndex.getInternal().getRids(database, "RandomKeyOne")) {
+    try (Stream<RID> stream = notUniqueIndex.getInternal().getRids(database, "RandomKeyOne")) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
-    try (Stream<YTRID> stream = notUniqueIndex.getInternal().getRids(database, "keyOne")) {
+    try (Stream<RID> stream = notUniqueIndex.getInternal().getRids(database, "keyOne")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
-    try (Stream<YTRID> stream = notUniqueIndex.getInternal().getRids(database, "RandomKeyTwo")) {
+    try (Stream<RID> stream = notUniqueIndex.getInternal().getRids(database, "RandomKeyTwo")) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
-    try (Stream<YTRID> stream = notUniqueIndex.getInternal().getRids(database, "keyTwo")) {
+    try (Stream<RID> stream = notUniqueIndex.getInternal().getRids(database, "keyTwo")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
 
   public void testNullIteration() {
-    YTClass v = database.getSchema().getClass("V");
-    YTClass testNullIteration =
+    SchemaClass v = database.getSchema().getClass("V");
+    SchemaClass testNullIteration =
         database.getMetadata().getSchema().createClass("NullIterationTest", v);
-    testNullIteration.createProperty(database, "name", YTType.STRING);
-    testNullIteration.createProperty(database, "birth", YTType.DATETIME);
+    testNullIteration.createProperty(database, "name", PropertyType.STRING);
+    testNullIteration.createProperty(database, "birth", PropertyType.DATETIME);
 
     database.begin();
     database
@@ -1598,7 +1605,7 @@ public class IndexTest extends DocumentDBBaseTest {
         null,
         metadata, new String[]{"birth"});
 
-    YTResultSet result = database.query("SELECT FROM NullIterationTest ORDER BY birth ASC");
+    ResultSet result = database.query("SELECT FROM NullIterationTest ORDER BY birth ASC");
     Assert.assertEquals(result.stream().count(), 3);
 
     result = database.query("SELECT FROM NullIterationTest ORDER BY birth DESC");
@@ -1623,18 +1630,18 @@ public class IndexTest extends DocumentDBBaseTest {
     doc4.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final YTRID rid1 = doc1.getIdentity();
-    final YTRID rid2 = doc2.getIdentity();
-    final YTRID rid3 = doc3.getIdentity();
-    final YTRID rid4 = doc4.getIdentity();
-    final YTSchema schema = database.getMetadata().getSchema();
-    YTClass clazz = schema.createClass("TestMultikeyWithoutField");
+    final RID rid1 = doc1.getIdentity();
+    final RID rid2 = doc2.getIdentity();
+    final RID rid3 = doc3.getIdentity();
+    final RID rid4 = doc4.getIdentity();
+    final Schema schema = database.getMetadata().getSchema();
+    SchemaClass clazz = schema.createClass("TestMultikeyWithoutField");
 
-    clazz.createProperty(database, "state", YTType.BYTE);
-    clazz.createProperty(database, "users", YTType.LINKSET);
-    clazz.createProperty(database, "time", YTType.LONG);
-    clazz.createProperty(database, "reg", YTType.LONG);
-    clazz.createProperty(database, "no", YTType.INTEGER);
+    clazz.createProperty(database, "state", PropertyType.BYTE);
+    clazz.createProperty(database, "users", PropertyType.LINKSET);
+    clazz.createProperty(database, "time", PropertyType.LONG);
+    clazz.createProperty(database, "reg", PropertyType.LONG);
+    clazz.createProperty(database, "no", PropertyType.INTEGER);
 
     final EntityImpl mt = new EntityImpl().field("ignoreNullValues", false);
     clazz.createIndex(database,
@@ -1647,7 +1654,7 @@ public class IndexTest extends DocumentDBBaseTest {
     EntityImpl document = new EntityImpl("TestMultikeyWithoutField");
     document.field("state", (byte) 1);
 
-    Set<YTRID> users = new HashSet<>();
+    Set<RID> users = new HashSet<>();
     users.add(rid1);
     users.add(rid2);
 
@@ -1659,7 +1666,7 @@ public class IndexTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
-    OIndex index =
+    Index index =
         database
             .getMetadata()
             .getIndexManagerInternal()
@@ -1672,24 +1679,24 @@ public class IndexTest extends DocumentDBBaseTest {
       try (Stream<Object> keyStream = index.getInternal().keyStream()) {
         if (rid1.compareTo(rid2) < 0) {
           Assert.assertEquals(
-              keyStream.iterator().next(), new OCompositeKey((byte) 1, rid1, 12L, 14L, 12));
+              keyStream.iterator().next(), new CompositeKey((byte) 1, rid1, 12L, 14L, 12));
         } else {
           Assert.assertEquals(
-              keyStream.iterator().next(), new OCompositeKey((byte) 1, rid2, 12L, 14L, 12));
+              keyStream.iterator().next(), new CompositeKey((byte) 1, rid2, 12L, 14L, 12));
         }
       }
-      try (Stream<ORawPair<Object, YTRID>> descStream = index.getInternal().descStream(database)) {
+      try (Stream<RawPair<Object, RID>> descStream = index.getInternal().descStream(database)) {
         if (rid1.compareTo(rid2) < 0) {
           Assert.assertEquals(
-              descStream.iterator().next().first, new OCompositeKey((byte) 1, rid2, 12L, 14L, 12));
+              descStream.iterator().next().first, new CompositeKey((byte) 1, rid2, 12L, 14L, 12));
         } else {
           Assert.assertEquals(
-              descStream.iterator().next().first, new OCompositeKey((byte) 1, rid1, 12L, 14L, 12));
+              descStream.iterator().next().first, new CompositeKey((byte) 1, rid1, 12L, 14L, 12));
         }
       }
     }
 
-    final YTRID rid = document.getIdentity();
+    final RID rid = document.getIdentity();
 
     database.close();
     database = acquireSession();
@@ -1711,7 +1718,7 @@ public class IndexTest extends DocumentDBBaseTest {
     if (!(database.isRemote())) {
       try (Stream<Object> keyStream = index.getInternal().keyStream()) {
         Assert.assertEquals(
-            keyStream.iterator().next(), new OCompositeKey((byte) 1, rid2, 12L, 14L, 12));
+            keyStream.iterator().next(), new CompositeKey((byte) 1, rid2, 12L, 14L, 12));
       }
     }
 
@@ -1738,7 +1745,7 @@ public class IndexTest extends DocumentDBBaseTest {
     if (!(database.isRemote())) {
       try (Stream<Object> keyStreamAsc = index.getInternal().keyStream()) {
         Assert.assertEquals(
-            keyStreamAsc.iterator().next(), new OCompositeKey((byte) 1, null, 12L, 14L, 12));
+            keyStreamAsc.iterator().next(), new CompositeKey((byte) 1, null, 12L, 14L, 12));
       }
     }
 
@@ -1762,7 +1769,7 @@ public class IndexTest extends DocumentDBBaseTest {
     if (!(database.isRemote())) {
       try (Stream<Object> keyStream = index.getInternal().keyStream()) {
         Assert.assertEquals(
-            keyStream.iterator().next(), new OCompositeKey((byte) 1, rid3, 12L, 14L, 12));
+            keyStream.iterator().next(), new CompositeKey((byte) 1, rid3, 12L, 14L, 12));
       }
     }
 
@@ -1787,19 +1794,19 @@ public class IndexTest extends DocumentDBBaseTest {
       try (Stream<Object> keyStream = index.getInternal().keyStream()) {
         if (rid3.compareTo(rid4) < 0) {
           Assert.assertEquals(
-              keyStream.iterator().next(), new OCompositeKey((byte) 1, rid3, 12L, 14L, 12));
+              keyStream.iterator().next(), new CompositeKey((byte) 1, rid3, 12L, 14L, 12));
         } else {
           Assert.assertEquals(
-              keyStream.iterator().next(), new OCompositeKey((byte) 1, rid4, 12L, 14L, 12));
+              keyStream.iterator().next(), new CompositeKey((byte) 1, rid4, 12L, 14L, 12));
         }
       }
-      try (Stream<ORawPair<Object, YTRID>> descStream = index.getInternal().descStream(database)) {
+      try (Stream<RawPair<Object, RID>> descStream = index.getInternal().descStream(database)) {
         if (rid3.compareTo(rid4) < 0) {
           Assert.assertEquals(
-              descStream.iterator().next().first, new OCompositeKey((byte) 1, rid4, 12L, 14L, 12));
+              descStream.iterator().next().first, new CompositeKey((byte) 1, rid4, 12L, 14L, 12));
         } else {
           Assert.assertEquals(
-              descStream.iterator().next().first, new OCompositeKey((byte) 1, rid3, 12L, 14L, 12));
+              descStream.iterator().next().first, new CompositeKey((byte) 1, rid3, 12L, 14L, 12));
         }
       }
     }
@@ -1823,7 +1830,7 @@ public class IndexTest extends DocumentDBBaseTest {
     if (!(database.isRemote())) {
       try (Stream<Object> keyStream = index.getInternal().keyStream()) {
         Assert.assertEquals(
-            keyStream.iterator().next(), new OCompositeKey((byte) 1, null, 12L, 14L, 12));
+            keyStream.iterator().next(), new CompositeKey((byte) 1, null, 12L, 14L, 12));
       }
     }
   }
@@ -1843,19 +1850,19 @@ public class IndexTest extends DocumentDBBaseTest {
     doc4.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final YTRID rid1 = doc1.getIdentity();
-    final YTRID rid2 = doc2.getIdentity();
-    final YTRID rid3 = doc3.getIdentity();
-    final YTRID rid4 = doc4.getIdentity();
+    final RID rid1 = doc1.getIdentity();
+    final RID rid2 = doc2.getIdentity();
+    final RID rid3 = doc3.getIdentity();
+    final RID rid4 = doc4.getIdentity();
 
-    final YTSchema schema = database.getMetadata().getSchema();
-    YTClass clazz = schema.createClass("TestMultikeyWithoutFieldNoNullSupport");
+    final Schema schema = database.getMetadata().getSchema();
+    SchemaClass clazz = schema.createClass("TestMultikeyWithoutFieldNoNullSupport");
 
-    clazz.createProperty(database, "state", YTType.BYTE);
-    clazz.createProperty(database, "users", YTType.LINKSET);
-    clazz.createProperty(database, "time", YTType.LONG);
-    clazz.createProperty(database, "reg", YTType.LONG);
-    clazz.createProperty(database, "no", YTType.INTEGER);
+    clazz.createProperty(database, "state", PropertyType.BYTE);
+    clazz.createProperty(database, "users", PropertyType.LINKSET);
+    clazz.createProperty(database, "time", PropertyType.LONG);
+    clazz.createProperty(database, "reg", PropertyType.LONG);
+    clazz.createProperty(database, "no", PropertyType.INTEGER);
 
     clazz.createIndex(database,
         "MultikeyWithoutFieldIndexNoNullSupport",
@@ -1867,7 +1874,7 @@ public class IndexTest extends DocumentDBBaseTest {
     EntityImpl document = new EntityImpl("TestMultikeyWithoutFieldNoNullSupport");
     document.field("state", (byte) 1);
 
-    Set<YTRID> users = new HashSet<>();
+    Set<RID> users = new HashSet<>();
     users.add(rid1);
     users.add(rid2);
 
@@ -1880,7 +1887,7 @@ public class IndexTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
-    OIndex index =
+    Index index =
         database
             .getMetadata()
             .getIndexManagerInternal()
@@ -1892,24 +1899,24 @@ public class IndexTest extends DocumentDBBaseTest {
       try (Stream<Object> keyStream = index.getInternal().keyStream()) {
         if (rid1.compareTo(rid2) < 0) {
           Assert.assertEquals(
-              keyStream.iterator().next(), new OCompositeKey((byte) 1, rid1, 12L, 14L, 12));
+              keyStream.iterator().next(), new CompositeKey((byte) 1, rid1, 12L, 14L, 12));
         } else {
           Assert.assertEquals(
-              keyStream.iterator().next(), new OCompositeKey((byte) 1, rid2, 12L, 14L, 12));
+              keyStream.iterator().next(), new CompositeKey((byte) 1, rid2, 12L, 14L, 12));
         }
       }
-      try (Stream<ORawPair<Object, YTRID>> descStream = index.getInternal().descStream(database)) {
+      try (Stream<RawPair<Object, RID>> descStream = index.getInternal().descStream(database)) {
         if (rid1.compareTo(rid2) < 0) {
           Assert.assertEquals(
-              descStream.iterator().next().first, new OCompositeKey((byte) 1, rid2, 12L, 14L, 12));
+              descStream.iterator().next().first, new CompositeKey((byte) 1, rid2, 12L, 14L, 12));
         } else {
           Assert.assertEquals(
-              descStream.iterator().next().first, new OCompositeKey((byte) 1, rid1, 12L, 14L, 12));
+              descStream.iterator().next().first, new CompositeKey((byte) 1, rid1, 12L, 14L, 12));
         }
       }
     }
 
-    final YTRID rid = document.getIdentity();
+    final RID rid = document.getIdentity();
 
     database.close();
     database = acquireSession();
@@ -1931,7 +1938,7 @@ public class IndexTest extends DocumentDBBaseTest {
     if (!(database.isRemote())) {
       try (Stream<Object> keyStream = index.getInternal().keyStream()) {
         Assert.assertEquals(
-            keyStream.iterator().next(), new OCompositeKey((byte) 1, rid2, 12L, 14L, 12));
+            keyStream.iterator().next(), new CompositeKey((byte) 1, rid2, 12L, 14L, 12));
       }
     }
 
@@ -1976,7 +1983,7 @@ public class IndexTest extends DocumentDBBaseTest {
     if (!(database.isRemote())) {
       try (Stream<Object> keyStream = index.getInternal().keyStream()) {
         Assert.assertEquals(
-            keyStream.iterator().next(), new OCompositeKey((byte) 1, rid3, 12L, 14L, 12));
+            keyStream.iterator().next(), new CompositeKey((byte) 1, rid3, 12L, 14L, 12));
       }
     }
 
@@ -2003,19 +2010,19 @@ public class IndexTest extends DocumentDBBaseTest {
       try (Stream<Object> keyStream = index.getInternal().keyStream()) {
         if (rid3.compareTo(rid4) < 0) {
           Assert.assertEquals(
-              keyStream.iterator().next(), new OCompositeKey((byte) 1, rid3, 12L, 14L, 12));
+              keyStream.iterator().next(), new CompositeKey((byte) 1, rid3, 12L, 14L, 12));
         } else {
           Assert.assertEquals(
-              keyStream.iterator().next(), new OCompositeKey((byte) 1, rid4, 12L, 14L, 12));
+              keyStream.iterator().next(), new CompositeKey((byte) 1, rid4, 12L, 14L, 12));
         }
       }
-      try (Stream<ORawPair<Object, YTRID>> descStream = index.getInternal().descStream(database)) {
+      try (Stream<RawPair<Object, RID>> descStream = index.getInternal().descStream(database)) {
         if (rid3.compareTo(rid4) < 0) {
           Assert.assertEquals(
-              descStream.iterator().next().first, new OCompositeKey((byte) 1, rid4, 12L, 14L, 12));
+              descStream.iterator().next().first, new CompositeKey((byte) 1, rid4, 12L, 14L, 12));
         } else {
           Assert.assertEquals(
-              descStream.iterator().next().first, new OCompositeKey((byte) 1, rid3, 12L, 14L, 12));
+              descStream.iterator().next().first, new CompositeKey((byte) 1, rid3, 12L, 14L, 12));
         }
       }
     }
@@ -2041,8 +2048,8 @@ public class IndexTest extends DocumentDBBaseTest {
   public void testNullValuesCountSBTreeUnique() {
     checkEmbeddedDB();
 
-    YTClass nullSBTreeClass = database.getSchema().createClass("NullValuesCountSBTreeUnique");
-    nullSBTreeClass.createProperty(database, "field", YTType.INTEGER);
+    SchemaClass nullSBTreeClass = database.getSchema().createClass("NullValuesCountSBTreeUnique");
+    nullSBTreeClass.createProperty(database, "field", PropertyType.INTEGER);
     nullSBTreeClass.createIndex(database, "NullValuesCountSBTreeUniqueIndex", INDEX_TYPE.UNIQUE,
         "field");
 
@@ -2056,14 +2063,14 @@ public class IndexTest extends DocumentDBBaseTest {
     docTwo.save();
     database.commit();
 
-    OIndex index =
+    Index index =
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "NullValuesCountSBTreeUniqueIndex");
     Assert.assertEquals(index.getInternal().size(database), 2);
-    try (Stream<ORawPair<Object, YTRID>> stream = index.getInternal().stream(database)) {
-      try (Stream<YTRID> nullStream = index.getInternal().getRids(database, null)) {
+    try (Stream<RawPair<Object, RID>> stream = index.getInternal().stream(database)) {
+      try (Stream<RID> nullStream = index.getInternal().getRids(database, null)) {
         Assert.assertEquals(
             stream.map((pair) -> pair.first).distinct().count() + nullStream.count(), 2);
       }
@@ -2073,9 +2080,9 @@ public class IndexTest extends DocumentDBBaseTest {
   public void testNullValuesCountSBTreeNotUniqueOne() {
     checkEmbeddedDB();
 
-    YTClass nullSBTreeClass =
+    SchemaClass nullSBTreeClass =
         database.getMetadata().getSchema().createClass("NullValuesCountSBTreeNotUniqueOne");
-    nullSBTreeClass.createProperty(database, "field", YTType.INTEGER);
+    nullSBTreeClass.createProperty(database, "field", PropertyType.INTEGER);
     nullSBTreeClass.createIndex(database,
         "NullValuesCountSBTreeNotUniqueOneIndex", INDEX_TYPE.NOTUNIQUE, "field");
 
@@ -2089,14 +2096,14 @@ public class IndexTest extends DocumentDBBaseTest {
     docTwo.save();
     database.commit();
 
-    OIndex index =
+    Index index =
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "NullValuesCountSBTreeNotUniqueOneIndex");
     Assert.assertEquals(index.getInternal().size(database), 2);
-    try (Stream<ORawPair<Object, YTRID>> stream = index.getInternal().stream(database)) {
-      try (Stream<YTRID> nullStream = index.getInternal().getRids(database, null)) {
+    try (Stream<RawPair<Object, RID>> stream = index.getInternal().stream(database)) {
+      try (Stream<RID> nullStream = index.getInternal().getRids(database, null)) {
         Assert.assertEquals(
             stream.map((pair) -> pair.first).distinct().count() + nullStream.count(), 2);
       }
@@ -2106,9 +2113,9 @@ public class IndexTest extends DocumentDBBaseTest {
   public void testNullValuesCountSBTreeNotUniqueTwo() {
     checkEmbeddedDB();
 
-    YTClass nullSBTreeClass =
+    SchemaClass nullSBTreeClass =
         database.getMetadata().getSchema().createClass("NullValuesCountSBTreeNotUniqueTwo");
-    nullSBTreeClass.createProperty(database, "field", YTType.INTEGER);
+    nullSBTreeClass.createProperty(database, "field", PropertyType.INTEGER);
     nullSBTreeClass.createIndex(database,
         "NullValuesCountSBTreeNotUniqueTwoIndex", INDEX_TYPE.NOTUNIQUE, "field");
 
@@ -2122,13 +2129,13 @@ public class IndexTest extends DocumentDBBaseTest {
     docTwo.save();
     database.commit();
 
-    OIndex index =
+    Index index =
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "NullValuesCountSBTreeNotUniqueTwoIndex");
-    try (Stream<ORawPair<Object, YTRID>> stream = index.getInternal().stream(database)) {
-      try (Stream<YTRID> nullStream = index.getInternal().getRids(database, null)) {
+    try (Stream<RawPair<Object, RID>> stream = index.getInternal().stream(database)) {
+      try (Stream<RID> nullStream = index.getInternal().getRids(database, null)) {
         Assert.assertEquals(
             stream.map((pair) -> pair.first).distinct().count()
                 + nullStream.findAny().map(v -> 1).orElse(0),
@@ -2140,8 +2147,8 @@ public class IndexTest extends DocumentDBBaseTest {
 
   public void testNullValuesCountHashUnique() {
     checkEmbeddedDB();
-    YTClass nullSBTreeClass = database.getSchema().createClass("NullValuesCountHashUnique");
-    nullSBTreeClass.createProperty(database, "field", YTType.INTEGER);
+    SchemaClass nullSBTreeClass = database.getSchema().createClass("NullValuesCountHashUnique");
+    nullSBTreeClass.createProperty(database, "field", PropertyType.INTEGER);
     nullSBTreeClass.createIndex(database,
         "NullValuesCountHashUniqueIndex", INDEX_TYPE.UNIQUE_HASH_INDEX, "field");
 
@@ -2155,14 +2162,14 @@ public class IndexTest extends DocumentDBBaseTest {
     docTwo.save();
     database.commit();
 
-    OIndex index =
+    Index index =
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "NullValuesCountHashUniqueIndex");
     Assert.assertEquals(index.getInternal().size(database), 2);
-    try (Stream<ORawPair<Object, YTRID>> stream = index.getInternal().stream(database)) {
-      try (Stream<YTRID> nullStream = index.getInternal().getRids(database, null)) {
+    try (Stream<RawPair<Object, RID>> stream = index.getInternal().stream(database)) {
+      try (Stream<RID> nullStream = index.getInternal().getRids(database, null)) {
         Assert.assertEquals(
             stream.map((pair) -> pair.first).distinct().count() + nullStream.count(), 2);
       }
@@ -2172,8 +2179,9 @@ public class IndexTest extends DocumentDBBaseTest {
   public void testNullValuesCountHashNotUniqueOne() {
     checkEmbeddedDB();
 
-    YTClass nullSBTreeClass = database.getSchema().createClass("NullValuesCountHashNotUniqueOne");
-    nullSBTreeClass.createProperty(database, "field", YTType.INTEGER);
+    SchemaClass nullSBTreeClass = database.getSchema()
+        .createClass("NullValuesCountHashNotUniqueOne");
+    nullSBTreeClass.createProperty(database, "field", PropertyType.INTEGER);
     nullSBTreeClass.createIndex(database,
         "NullValuesCountHashNotUniqueOneIndex", INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "field");
 
@@ -2187,14 +2195,14 @@ public class IndexTest extends DocumentDBBaseTest {
     docTwo.save();
     database.commit();
 
-    OIndex index =
+    Index index =
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "NullValuesCountHashNotUniqueOneIndex");
     Assert.assertEquals(index.getInternal().size(database), 2);
-    try (Stream<ORawPair<Object, YTRID>> stream = index.getInternal().stream(database)) {
-      try (Stream<YTRID> nullStream = index.getInternal().getRids(database, null)) {
+    try (Stream<RawPair<Object, RID>> stream = index.getInternal().stream(database)) {
+      try (Stream<RID> nullStream = index.getInternal().getRids(database, null)) {
         Assert.assertEquals(
             stream.map((pair) -> pair.first).distinct().count() + nullStream.count(), 2);
       }
@@ -2204,9 +2212,9 @@ public class IndexTest extends DocumentDBBaseTest {
   public void testNullValuesCountHashNotUniqueTwo() {
     checkEmbeddedDB();
 
-    YTClass nullSBTreeClass =
+    SchemaClass nullSBTreeClass =
         database.getMetadata().getSchema().createClass("NullValuesCountHashNotUniqueTwo");
-    nullSBTreeClass.createProperty(database, "field", YTType.INTEGER);
+    nullSBTreeClass.createProperty(database, "field", PropertyType.INTEGER);
     nullSBTreeClass.createIndex(database,
         "NullValuesCountHashNotUniqueTwoIndex", INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "field");
 
@@ -2220,13 +2228,13 @@ public class IndexTest extends DocumentDBBaseTest {
     docTwo.save();
     database.commit();
 
-    OIndex index =
+    Index index =
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "NullValuesCountHashNotUniqueTwoIndex");
-    try (Stream<ORawPair<Object, YTRID>> stream = index.getInternal().stream(database)) {
-      try (Stream<YTRID> nullStream = index.getInternal().getRids(database, null)) {
+    try (Stream<RawPair<Object, RID>> stream = index.getInternal().stream(database)) {
+      try (Stream<RID> nullStream = index.getInternal().getRids(database, null)) {
         Assert.assertEquals(
             stream.map(pair -> pair.first).distinct().count()
                 + nullStream.findAny().map(v -> 1).orElse(0),
@@ -2258,7 +2266,7 @@ public class IndexTest extends DocumentDBBaseTest {
     Assert.assertEquals(results.size(), 1);
   }
 
-  private void assertIndexUsage(YTResultSet resultSet) {
+  private void assertIndexUsage(ResultSet resultSet) {
     var executionPlan = resultSet.getExecutionPlan().orElseThrow();
     for (var step : executionPlan.getSteps()) {
       if (assertIndexUsage(step, "Profile.nick")) {

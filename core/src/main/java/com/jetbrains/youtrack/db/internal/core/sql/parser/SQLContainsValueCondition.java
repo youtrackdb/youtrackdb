@@ -3,13 +3,13 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OIndexSearchInfo;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexCandidate;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexFinder;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OPath;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.IndexSearchInfo;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexCandidate;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.MetadataPath;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,7 +34,7 @@ public class SQLContainsValueCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
+  public boolean evaluate(Identifiable currentRecord, CommandContext ctx) {
     Object leftValue = left.execute(currentRecord, ctx);
     if (leftValue instanceof Map map) {
       if (condition != null) {
@@ -53,7 +53,7 @@ public class SQLContainsValueCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
+  public boolean evaluate(Result currentRecord, CommandContext ctx) {
     if (left.isFunctionAny()) {
       return evaluateAny(currentRecord, ctx);
     }
@@ -79,7 +79,7 @@ public class SQLContainsValueCondition extends SQLBooleanExpression {
     return false;
   }
 
-  private boolean evaluateAllFunction(YTResult currentRecord, CommandContext ctx) {
+  private boolean evaluateAllFunction(Result currentRecord, CommandContext ctx) {
     for (String propertyName : currentRecord.getPropertyNames()) {
       Object leftValue = currentRecord.getProperty(propertyName);
       if (leftValue instanceof Map map) {
@@ -107,7 +107,7 @@ public class SQLContainsValueCondition extends SQLBooleanExpression {
     return true;
   }
 
-  private boolean evaluateAny(YTResult currentRecord, CommandContext ctx) {
+  private boolean evaluateAny(Result currentRecord, CommandContext ctx) {
     for (String propertyName : currentRecord.getPropertyNames()) {
       Object leftValue = currentRecord.getProperty(propertyName);
       if (leftValue instanceof Map map) {
@@ -272,7 +272,7 @@ public class SQLContainsValueCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     if (left != null && !left.isCacheable(session)) {
       return false;
     }
@@ -294,11 +294,11 @@ public class SQLContainsValueCondition extends SQLBooleanExpression {
     return operator;
   }
 
-  public Optional<OIndexCandidate> findIndex(OIndexFinder info, CommandContext ctx) {
-    Optional<OPath> path = left.getPath();
+  public Optional<IndexCandidate> findIndex(IndexFinder info, CommandContext ctx) {
+    Optional<MetadataPath> path = left.getPath();
     if (path.isPresent()) {
       if (expression != null && expression.isEarlyCalculated(ctx)) {
-        Object value = expression.execute((YTResult) null, ctx);
+        Object value = expression.execute((Result) null, ctx);
         return info.findByValueIndex(path.get(), value, ctx);
       }
     }
@@ -306,7 +306,7 @@ public class SQLContainsValueCondition extends SQLBooleanExpression {
     return Optional.empty();
   }
 
-  public boolean isIndexAware(OIndexSearchInfo info) {
+  public boolean isIndexAware(IndexSearchInfo info) {
     if (left.isBaseIdentifier()) {
       if (info.getField().equals(left.getDefaultAlias().getStringValue())) {
         return expression != null

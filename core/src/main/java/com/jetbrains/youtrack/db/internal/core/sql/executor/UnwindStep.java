@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
@@ -31,9 +31,9 @@ public class UnwindStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev == null) {
-      throw new YTCommandExecutionException("Cannot expand without a target");
+      throw new CommandExecutionException("Cannot expand without a target");
     }
 
     ExecutionStream resultSet = prev.start(ctx);
@@ -41,13 +41,13 @@ public class UnwindStep extends AbstractExecutionStep {
     return resultSet.flatMap((res, res2) -> fetchNextResults(db, res));
   }
 
-  private ExecutionStream fetchNextResults(YTDatabaseSessionInternal db, YTResult res) {
+  private ExecutionStream fetchNextResults(DatabaseSessionInternal db, Result res) {
     return ExecutionStream.resultIterator(unwind(db, res, unwindFields).iterator());
   }
 
-  private static Collection<YTResult> unwind(YTDatabaseSessionInternal db, final YTResult doc,
+  private static Collection<Result> unwind(DatabaseSessionInternal db, final Result doc,
       final List<String> unwindFields) {
-    final List<YTResult> result = new ArrayList<>();
+    final List<Result> result = new ArrayList<>();
 
     if (unwindFields.isEmpty()) {
       result.add(doc);
@@ -68,12 +68,12 @@ public class UnwindStep extends AbstractExecutionStep {
 
       Iterator<?> iterator;
       if (fieldValue.getClass().isArray()) {
-        iterator = OMultiValue.getMultiValueIterator(fieldValue);
+        iterator = MultiValue.getMultiValueIterator(fieldValue);
       } else {
         iterator = ((Iterable<?>) fieldValue).iterator();
       }
       if (!iterator.hasNext()) {
-        YTResultInternal unwindedDoc = new YTResultInternal(db);
+        ResultInternal unwindedDoc = new ResultInternal(db);
         copy(doc, unwindedDoc);
 
         unwindedDoc.setProperty(firstField, null);
@@ -81,7 +81,7 @@ public class UnwindStep extends AbstractExecutionStep {
       } else {
         do {
           Object o = iterator.next();
-          YTResultInternal unwindedDoc = new YTResultInternal(db);
+          ResultInternal unwindedDoc = new ResultInternal(db);
           copy(doc, unwindedDoc);
           unwindedDoc.setProperty(firstField, o);
           result.addAll(unwind(db, unwindedDoc, nextFields));
@@ -92,7 +92,7 @@ public class UnwindStep extends AbstractExecutionStep {
     return result;
   }
 
-  private static void copy(YTResult from, YTResultInternal to) {
+  private static void copy(Result from, ResultInternal to) {
     for (String prop : from.getPropertyNames()) {
       to.setProperty(prop, from.getProperty(prop));
     }

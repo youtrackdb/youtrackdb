@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.security.OParsedToken;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.security.ParsedToken;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
 import com.orientechnologies.orient.server.network.protocol.http.multipart.OHttpMultipartBaseInputStream;
 import java.io.InputStream;
@@ -23,13 +23,13 @@ public class OHttpRequestImpl extends OHttpRequestAbstract {
   private boolean keepAlive = true;
   private Map<String, String> headers;
   private String bearerTokenRaw;
-  private OParsedToken bearerToken;
+  private ParsedToken bearerToken;
 
   public OHttpRequestImpl(
-      ONetworkProtocolHttpAbstract iExecutor,
+      NetworkProtocolHttpAbstract iExecutor,
       InputStream iInStream,
       ONetworkProtocolData iData,
-      YTContextConfiguration iConfiguration) {
+      ContextConfiguration iConfiguration) {
     super(iExecutor, iInStream, iData, iConfiguration);
   }
 
@@ -164,12 +164,12 @@ public class OHttpRequestImpl extends OHttpRequestAbstract {
   }
 
   @Override
-  public OParsedToken getBearerToken() {
+  public ParsedToken getBearerToken() {
     return bearerToken;
   }
 
   @Override
-  public void setBearerToken(OParsedToken bearerToken) {
+  public void setBearerToken(ParsedToken bearerToken) {
     this.bearerToken = bearerToken;
   }
 

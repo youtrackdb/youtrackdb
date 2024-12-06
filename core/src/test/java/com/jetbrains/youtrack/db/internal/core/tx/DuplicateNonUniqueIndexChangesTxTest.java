@@ -19,12 +19,12 @@
 
 package com.jetbrains.youtrack.db.internal.core.tx;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -37,17 +37,17 @@ import org.junit.Test;
 /**
  *
  */
-public class DuplicateNonUniqueIndexChangesTxTest extends DBTestBase {
+public class DuplicateNonUniqueIndexChangesTxTest extends DbTestBase {
 
-  private OIndex index;
+  private Index index;
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    final YTClass class_ = db.getMetadata().getSchema().createClass("Person");
+    final SchemaClass class_ = db.getMetadata().getSchema().createClass("Person");
     index =
         class_
-            .createProperty(db, "name", YTType.STRING)
-            .createIndex(db, YTClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX);
+            .createProperty(db, "name", PropertyType.STRING)
+            .createIndex(db, SchemaClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX);
   }
 
   @Test
@@ -302,7 +302,7 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DBTestBase {
     final Set<Integer> unseen = new HashSet<Integer>();
 
     db.begin();
-    for (int i = 0; i < OTransactionIndexChangesPerKey.SET_ADD_THRESHOLD * 2; ++i) {
+    for (int i = 0; i < FrontendTransactionIndexChangesPerKey.SET_ADD_THRESHOLD * 2; ++i) {
       EntityImpl pers = db.newInstance("Person");
       pers.field("name", "Name");
       pers.field("serial", i);
@@ -312,7 +312,7 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DBTestBase {
     db.commit();
 
     // verify index state
-    try (Stream<YTRID> stream = index.getInternal().getRids(db, "Name")) {
+    try (Stream<RID> stream = index.getInternal().getRids(db, "Name")) {
       stream.forEach(
           (rid) -> {
             final EntityImpl document = db.load(rid);
@@ -323,9 +323,9 @@ public class DuplicateNonUniqueIndexChangesTxTest extends DBTestBase {
   }
 
   @SuppressWarnings("unchecked")
-  private void assertRids(String indexKey, YTIdentifiable... rids) {
-    final Set<YTRID> actualRids;
-    try (Stream<YTRID> stream = index.getInternal().getRids(db, indexKey)) {
+  private void assertRids(String indexKey, Identifiable... rids) {
+    final Set<RID> actualRids;
+    try (Stream<RID> stream = index.getInternal().getRids(db, indexKey)) {
       actualRids = stream.collect(Collectors.toSet());
     }
     Assert.assertEquals(actualRids, new HashSet<Object>(Arrays.asList(rids)));

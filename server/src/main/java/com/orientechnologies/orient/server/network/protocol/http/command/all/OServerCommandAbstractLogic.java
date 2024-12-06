@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.all;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.command.script.YTCommandScriptException;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.function.OFunction;
+import com.jetbrains.youtrack.db.internal.core.command.script.CommandScriptException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequestWrapper;
@@ -39,12 +39,12 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
   public boolean execute(final OHttpRequest iRequest, final OHttpResponse iResponse)
       throws Exception {
     final String[] parts = init(iRequest, iResponse);
-    YTDatabaseSessionInternal db = null;
+    DatabaseSessionInternal db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);
 
-      final OFunction f = db.getMetadata().getFunctionLibrary().getFunction(parts[2]);
+      final Function f = db.getMetadata().getFunctionLibrary().getFunction(parts[2]);
       if (f == null) {
         throw new IllegalArgumentException("Function '" + parts[2] + "' is not configured");
       }
@@ -80,8 +80,8 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
           params.fromJSON(iRequest.getContent());
           functionResult = f.executeInContext(context, params.toMap());
         } catch (Exception e) {
-          throw YTException.wrapException(
-              new YTCommandScriptException("Error on parsing parameters from request body"), e);
+          throw BaseException.wrapException(
+              new CommandScriptException("Error on parsing parameters from request body"), e);
         }
       } else {
         functionResult = f.executeInContext(context, args);
@@ -89,7 +89,7 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
 
       handleResult(iRequest, iResponse, functionResult, db);
 
-    } catch (YTCommandScriptException e) {
+    } catch (CommandScriptException e) {
       // EXCEPTION
       final StringBuilder msg = new StringBuilder(256);
       for (Exception currentException = e;
@@ -133,6 +133,6 @@ public abstract class OServerCommandAbstractLogic extends OServerCommandAuthenti
       OHttpRequest iRequest,
       OHttpResponse iResponse,
       Object iResult,
-      YTDatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException;
 }

@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.server.query;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryResultListener;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.LiveQueryResultListener;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -29,9 +29,9 @@ public class RemoteGraphLiveQueryTest extends BaseServerMemoryDatabase {
     db.commit();
 
     db.begin();
-    try (YTResultSet resultSet =
+    try (ResultSet resultSet =
         db.command("create edge TestEdge  from (select from FirstV) to (select from SecondV)")) {
-      YTResult result = resultSet.stream().iterator().next();
+      Result result = resultSet.stream().iterator().next();
 
       Assert.assertTrue(result.isEdge());
     }
@@ -41,27 +41,27 @@ public class RemoteGraphLiveQueryTest extends BaseServerMemoryDatabase {
 
     db.live(
         "select from SecondV",
-        new YTLiveQueryResultListener() {
+        new LiveQueryResultListener() {
 
           @Override
-          public void onUpdate(YTDatabaseSession database, YTResult before, YTResult after) {
+          public void onUpdate(DatabaseSession database, Result before, Result after) {
             l.incrementAndGet();
           }
 
           @Override
-          public void onError(YTDatabaseSession database, YTException exception) {
+          public void onError(DatabaseSession database, BaseException exception) {
           }
 
           @Override
-          public void onEnd(YTDatabaseSession database) {
+          public void onEnd(DatabaseSession database) {
           }
 
           @Override
-          public void onDelete(YTDatabaseSession database, YTResult data) {
+          public void onDelete(DatabaseSession database, Result data) {
           }
 
           @Override
-          public void onCreate(YTDatabaseSession database, YTResult data) {
+          public void onCreate(DatabaseSession database, Result data) {
           }
         },
         new HashMap<String, String>());

@@ -33,8 +33,8 @@ public class SQLFunctionSymmetricDifferenceTest {
 
   @Test
   public void testOperator() {
-    final OSQLFunctionSymmetricDifference differenceFunction =
-        new OSQLFunctionSymmetricDifference() {
+    final SQLFunctionSymmetricDifference differenceFunction =
+        new SQLFunctionSymmetricDifference() {
           @Override
           protected boolean returnDistributedResult() {
             return false;
@@ -55,19 +55,19 @@ public class SQLFunctionSymmetricDifferenceTest {
 
   @Test
   public void testOperatorMerge() {
-    final OSQLFunctionSymmetricDifference merger =
-        new OSQLFunctionSymmetricDifference() {
+    final SQLFunctionSymmetricDifference merger =
+        new SQLFunctionSymmetricDifference() {
           @Override
           protected boolean returnDistributedResult() {
             return true;
           }
         };
 
-    final List<OSQLFunctionSymmetricDifference> differences =
-        new ArrayList<OSQLFunctionSymmetricDifference>(3);
+    final List<SQLFunctionSymmetricDifference> differences =
+        new ArrayList<SQLFunctionSymmetricDifference>(3);
     for (int i = 0; i < 3; i++) {
       differences.add(
-          new OSQLFunctionSymmetricDifference() {
+          new SQLFunctionSymmetricDifference() {
             @Override
             protected boolean returnDistributedResult() {
               return true;
@@ -102,7 +102,7 @@ public class SQLFunctionSymmetricDifferenceTest {
 
   @Test
   public void testExecute() {
-    final OSQLFunctionSymmetricDifference function = new OSQLFunctionSymmetricDifference();
+    final SQLFunctionSymmetricDifference function = new SQLFunctionSymmetricDifference();
 
     final List<List<Object>> incomes =
         Arrays.asList(

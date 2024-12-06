@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OJSONWriter;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
@@ -40,7 +40,7 @@ public class OServerInfo {
 
   public static String getServerInfo(final OServer server) throws IOException {
     final StringWriter jsonBuffer = new StringWriter();
-    final OJSONWriter json = new OJSONWriter(jsonBuffer);
+    final JSONWriter json = new JSONWriter(jsonBuffer);
     json.beginObject();
 
     getConnections(server, json, null);
@@ -55,7 +55,7 @@ public class OServerInfo {
   }
 
   public static void getConnections(
-      final OServer server, final OJSONWriter json, final String databaseName) throws IOException {
+      final OServer server, final JSONWriter json, final String databaseName) throws IOException {
     final DateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     json.beginCollection(1, true, "connections");
@@ -127,7 +127,7 @@ public class OServerInfo {
     json.endCollection(1, false);
   }
 
-  public static void getGlobalProperties(final OServer server, final OJSONWriter json)
+  public static void getGlobalProperties(final OServer server, final JSONWriter json)
       throws IOException {
     json.beginCollection(2, true, "globalProperties");
 
@@ -144,7 +144,7 @@ public class OServerInfo {
     json.endCollection(2, true);
   }
 
-  public static void getProperties(final OServer server, final OJSONWriter json)
+  public static void getProperties(final OServer server, final JSONWriter json)
       throws IOException {
     json.beginCollection(2, true, "properties");
 
@@ -160,7 +160,7 @@ public class OServerInfo {
     json.endCollection(2, true);
   }
 
-  public static void getStorages(final OServer server, final OJSONWriter json) throws IOException {
+  public static void getStorages(final OServer server, final JSONWriter json) throws IOException {
     json.beginCollection(1, true, "storages");
     Collection<Storage> storages = server.getDatabases().getStorages();
     for (Storage s : storages) {
@@ -180,7 +180,7 @@ public class OServerInfo {
     json.endCollection(1, false);
   }
 
-  public static void getDatabases(final OServer server, final OJSONWriter json) throws IOException {
+  public static void getDatabases(final OServer server, final JSONWriter json) throws IOException {
     json.beginCollection(1, true, "dbs");
     // TODO:get this info from somewhere else
     //    if (!server.getDatabasePoolFactory().isClosed()) {
@@ -196,7 +196,7 @@ public class OServerInfo {
   }
 
   private static void writeField(
-      final OJSONWriter json,
+      final JSONWriter json,
       final int iLevel,
       final String iAttributeName,
       final Object iAttributeValue)

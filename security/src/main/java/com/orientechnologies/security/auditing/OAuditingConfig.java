@@ -13,17 +13,17 @@
  */
 package com.orientechnologies.security.auditing;
 
-import com.jetbrains.youtrack.db.internal.common.parser.OVariableParser;
-import com.jetbrains.youtrack.db.internal.common.parser.OVariableParserListener;
-import com.jetbrains.youtrack.db.internal.core.security.OAuditingOperation;
+import com.jetbrains.youtrack.db.internal.common.parser.VariableParser;
+import com.jetbrains.youtrack.db.internal.common.parser.VariableParserListener;
+import com.jetbrains.youtrack.db.internal.core.security.AuditingOperation;
 
 public abstract class OAuditingConfig {
 
-  public boolean isEnabled(OAuditingOperation operation) {
+  public boolean isEnabled(AuditingOperation operation) {
     return false;
   }
 
-  public String formatMessage(final OAuditingOperation op, final String subject) {
+  public String formatMessage(final AuditingOperation op, final String subject) {
     return subject;
   }
 
@@ -34,11 +34,11 @@ public abstract class OAuditingConfig {
   // Returns: "The node Node1 has joined"
   protected String resolveMessage(final String message, final String varName, final String value) {
     return (String)
-        OVariableParser.resolveVariables(
+        VariableParser.resolveVariables(
             message,
             "${",
             "}",
-            new OVariableParserListener() {
+            new VariableParserListener() {
               @Override
               public Object resolve(final String iVariable) {
                 if (iVariable.equalsIgnoreCase(varName)) {

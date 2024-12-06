@@ -1,8 +1,8 @@
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.io.InputStream;
 import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
@@ -21,9 +21,9 @@ public class LuceneIssuesTest extends BaseLuceneTest {
       db.execute("sql", getScriptFromStream(stream)).close();
     }
 
-    final OIndex index =
+    final Index index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, "class_7382_multi");
-    try (Stream<YTRID> rids =
+    try (Stream<RID> rids =
         index
             .getInternal()
             .getRids(db, "server:206012226875414 AND date:[201703120000 TO  201703120001]")) {
@@ -56,8 +56,8 @@ public class LuceneIssuesTest extends BaseLuceneTest {
       db.execute("sql", getScriptFromStream(stream)).close();
     }
 
-    OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Item.content");
-    try (Stream<YTRID> rids = index.getInternal().getRids(db, "'Харько~0.2")) {
+    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Item.content");
+    try (Stream<RID> rids = index.getInternal().getRids(db, "'Харько~0.2")) {
       Assertions.assertThat(rids.count() >= 3).isTrue();
     }
   }
@@ -68,7 +68,7 @@ public class LuceneIssuesTest extends BaseLuceneTest {
       db.execute("sql", getScriptFromStream(stream)).close();
     }
 
-    YTResultSet documents;
+    ResultSet documents;
 
     documents = db.query("select from Test where [a] lucene 'lion'");
 
@@ -90,7 +90,7 @@ public class LuceneIssuesTest extends BaseLuceneTest {
       db.execute("sql", getScriptFromStream(stream)).close();
     }
 
-    YTResultSet documents;
+    ResultSet documents;
 
     documents = db.query("select from Test where a lucene 'lion'");
 

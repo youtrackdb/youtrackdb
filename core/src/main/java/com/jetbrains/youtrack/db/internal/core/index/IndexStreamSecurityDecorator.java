@@ -1,18 +1,18 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityShared;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
 import java.util.stream.Stream;
 
 public class IndexStreamSecurityDecorator {
 
-  public static Stream<ORawPair<Object, YTRID>> decorateStream(
-      OIndex originalIndex, Stream<ORawPair<Object, YTRID>> stream) {
-    YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+  public static Stream<RawPair<Object, RID>> decorateStream(
+      Index originalIndex, Stream<RawPair<Object, RID>> stream) {
+    DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
     if (db == null) {
       return stream;
     }
@@ -21,18 +21,18 @@ public class IndexStreamSecurityDecorator {
     if (indexClass == null) {
       return stream;
     }
-    OSecurityInternal security = db.getSharedContext().getSecurity();
-    if (security instanceof OSecurityShared
-        && !((OSecurityShared) security).couldHaveActivePredicateSecurityRoles(db, indexClass)) {
+    SecurityInternal security = db.getSharedContext().getSecurity();
+    if (security instanceof SecurityShared
+        && !((SecurityShared) security).couldHaveActivePredicateSecurityRoles(db, indexClass)) {
       return stream;
     }
 
     return stream.filter(
-        (pair) -> OIndexInternal.securityFilterOnRead(originalIndex, pair.second) != null);
+        (pair) -> IndexInternal.securityFilterOnRead(originalIndex, pair.second) != null);
   }
 
-  public static Stream<YTRID> decorateRidStream(OIndex originalIndex, Stream<YTRID> stream) {
-    YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+  public static Stream<RID> decorateRidStream(Index originalIndex, Stream<RID> stream) {
+    DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
     if (db == null) {
       return stream;
     }
@@ -41,12 +41,12 @@ public class IndexStreamSecurityDecorator {
     if (indexClass == null) {
       return stream;
     }
-    OSecurityInternal security = db.getSharedContext().getSecurity();
-    if (security instanceof OSecurityShared
-        && !((OSecurityShared) security).couldHaveActivePredicateSecurityRoles(db, indexClass)) {
+    SecurityInternal security = db.getSharedContext().getSecurity();
+    if (security instanceof SecurityShared
+        && !((SecurityShared) security).couldHaveActivePredicateSecurityRoles(db, indexClass)) {
       return stream;
     }
 
-    return stream.filter((rid) -> OIndexInternal.securityFilterOnRead(originalIndex, rid) != null);
+    return stream.filter((rid) -> IndexInternal.securityFilterOnRead(originalIndex, rid) != null);
   }
 }

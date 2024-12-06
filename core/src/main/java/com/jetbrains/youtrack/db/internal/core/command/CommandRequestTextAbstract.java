@@ -19,16 +19,16 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command;
 
-import com.jetbrains.youtrack.db.internal.core.db.OExecutionThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSerializationException;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
+import com.jetbrains.youtrack.db.internal.core.db.ExecutionThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.OMemoryStream;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index.OCompositeKeySerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.ORecordSerializerStringAbstract;
+import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index.CompositeKeySerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerStringAbstract;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,11 +59,11 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
    * Delegates the execution to the configured command executor.
    */
   @SuppressWarnings("unchecked")
-  public <RET> RET execute(@Nonnull YTDatabaseSessionInternal querySession, final Object... iArgs) {
+  public <RET> RET execute(@Nonnull DatabaseSessionInternal querySession, final Object... iArgs) {
     setParameters(iArgs);
 
-    OExecutionThreadLocal.INSTANCE.get().onAsyncReplicationOk = onAsyncReplicationOk;
-    OExecutionThreadLocal.INSTANCE.get().onAsyncReplicationError = onAsyncReplicationError;
+    ExecutionThreadLocal.INSTANCE.get().onAsyncReplicationOk = onAsyncReplicationOk;
+    ExecutionThreadLocal.INSTANCE.get().onAsyncReplicationError = onAsyncReplicationError;
 
     if (context == null) {
       context = new BasicCommandContext();
@@ -83,16 +83,16 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
     return this;
   }
 
-  public CommandRequestText fromStream(YTDatabaseSessionInternal db, final byte[] iStream,
-      ORecordSerializer serializer)
-      throws YTSerializationException {
-    final OMemoryStream buffer = new OMemoryStream(iStream);
+  public CommandRequestText fromStream(DatabaseSessionInternal db, final byte[] iStream,
+      RecordSerializer serializer)
+      throws SerializationException {
+    final MemoryStream buffer = new MemoryStream(iStream);
     fromStream(db, buffer, serializer);
     return this;
   }
 
-  public byte[] toStream() throws YTSerializationException {
-    final OMemoryStream buffer = new OMemoryStream();
+  public byte[] toStream() throws SerializationException {
+    final MemoryStream buffer = new MemoryStream();
     return toStream(buffer);
   }
 
@@ -101,7 +101,7 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
     return "?." + text;
   }
 
-  protected byte[] toStream(final OMemoryStream buffer) {
+  protected byte[] toStream(final MemoryStream buffer) {
     buffer.setUtf8(text);
 
     if (parameters == null || parameters.size() == 0) {
@@ -114,7 +114,7 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
       final Map<Object, List<Object>> compositeKeyParams = new HashMap<Object, List<Object>>();
 
       for (final Entry<Object, Object> paramEntry : parameters.entrySet()) {
-        if (paramEntry.getValue() instanceof OCompositeKey compositeKey) {
+        if (paramEntry.getValue() instanceof CompositeKey compositeKey) {
           compositeKeyParams.put(paramEntry.getKey(), compositeKey.getKeys());
         } else {
           params.put(paramEntry.getKey(), paramEntry.getValue());
@@ -139,8 +139,8 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
     return buffer.toByteArray();
   }
 
-  protected void fromStream(YTDatabaseSessionInternal db, final OMemoryStream buffer,
-      ORecordSerializer serializer) {
+  protected void fromStream(DatabaseSessionInternal db, final MemoryStream buffer,
+      RecordSerializer serializer) {
     text = buffer.getAsString();
 
     parameters = null;
@@ -161,7 +161,7 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
         for (Entry<Object, Object> p : params.entrySet()) {
           final Object value;
           if (p.getValue() instanceof String) {
-            value = ORecordSerializerStringAbstract.getTypeValue(db, (String) p.getValue());
+            value = RecordSerializerStringAbstract.getTypeValue(db, (String) p.getValue());
           } else {
             value = p.getValue();
           }
@@ -202,7 +202,7 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
 
       for (final Entry<Object, Object> p : compositeKeyParams.entrySet()) {
         if (p.getValue() instanceof List) {
-          final OCompositeKey compositeKey = new OCompositeKey((List<?>) p.getValue());
+          final CompositeKey compositeKey = new CompositeKey((List<?>) p.getValue());
           if (p.getKey() instanceof String && Character.isDigit(((String) p.getKey()).charAt(0))) {
             parameters.put(Integer.parseInt((String) p.getKey()), compositeKey);
           } else {
@@ -211,8 +211,8 @@ public abstract class CommandRequestTextAbstract extends CommandRequestAbstract
 
         } else {
           final Object value =
-              OCompositeKeySerializer.INSTANCE.deserialize(
-                  OStringSerializerHelper.getBinaryContent(p.getValue()), 0);
+              CompositeKeySerializer.INSTANCE.deserialize(
+                  StringSerializerHelper.getBinaryContent(p.getValue()), 0);
 
           if (p.getKey() instanceof String && Character.isDigit(((String) p.getKey()).charAt(0))) {
             parameters.put(Integer.parseInt((String) p.getKey()), value);

@@ -3,12 +3,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityPolicyImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityPolicyImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,20 +49,20 @@ public class SQLAlterRoleStatement extends SQLSimpleExecStatement {
 
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    List<YTResult> rs = new ArrayList<>();
+    List<Result> rs = new ArrayList<>();
     var db = ctx.getDatabase();
-    OSecurityInternal security = db.getSharedContext().getSecurity();
-    ORole role = db.getMetadata().getSecurity().getRole(name.getStringValue());
+    SecurityInternal security = db.getSharedContext().getSecurity();
+    Role role = db.getMetadata().getSecurity().getRole(name.getStringValue());
     if (role == null) {
-      throw new YTCommandExecutionException("role not found: " + name.getStringValue());
+      throw new CommandExecutionException("role not found: " + name.getStringValue());
     }
     for (Op op : operations) {
-      YTResultInternal result = new YTResultInternal(db);
+      ResultInternal result = new ResultInternal(db);
       result.setProperty("operation", "alter role");
       result.setProperty("name", name.getStringValue());
       result.setProperty("resource", op.resource.toString());
       if (op.type == Op.TYPE_ADD) {
-        OSecurityPolicyImpl policy = security.getSecurityPolicy(db, op.policyName.getStringValue());
+        SecurityPolicyImpl policy = security.getSecurityPolicy(db, op.policyName.getStringValue());
         result.setProperty("operation", "ADD POLICY");
         result.setProperty("policyName", op.policyName.getStringValue());
         try {

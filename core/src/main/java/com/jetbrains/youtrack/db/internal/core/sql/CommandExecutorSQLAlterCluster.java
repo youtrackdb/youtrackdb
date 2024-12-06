@@ -19,16 +19,16 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTClusterDoesNotExistException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.storage.OCluster;
-import com.jetbrains.youtrack.db.internal.core.storage.OCluster.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.ClusterDoesNotExistException;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
+import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.Arrays;
@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
  */
 @SuppressWarnings("unchecked")
 public class CommandExecutorSQLAlterCluster extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String KEYWORD_ALTER = "ALTER";
   public static final String KEYWORD_CLUSTER = "CLUSTER";
@@ -68,21 +68,21 @@ public class CommandExecutorSQLAlterCluster extends CommandExecutorSQLAbstract
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_ALTER)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_ALTER + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CLUSTER)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_CLUSTER + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Expected <cluster-name>. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -98,21 +98,22 @@ public class CommandExecutorSQLAlterCluster extends CommandExecutorSQLAbstract
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Missing cluster attribute to change. Use " + getSyntax(), parserText, oldPos);
       }
 
       final String attributeAsString = word.toString();
 
       try {
-        attribute = OCluster.ATTRIBUTES.valueOf(attributeAsString.toUpperCase(Locale.ENGLISH));
+        attribute = StorageCluster.ATTRIBUTES.valueOf(
+            attributeAsString.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
-        throw YTException.wrapException(
-            new YTCommandSQLParsingException(
+        throw BaseException.wrapException(
+            new CommandSQLParsingException(
                 "Unknown class attribute '"
                     + attributeAsString
                     + "'. Supported attributes are: "
-                    + Arrays.toString(OCluster.ATTRIBUTES.values()),
+                    + Arrays.toString(StorageCluster.ATTRIBUTES.values()),
                 parserText,
                 oldPos),
             e);
@@ -127,7 +128,7 @@ public class CommandExecutorSQLAlterCluster extends CommandExecutorSQLAbstract
       }
 
       if (value.length() == 0) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Missing property value to change for attribute '"
                 + attribute
                 + "'. Use "
@@ -149,27 +150,27 @@ public class CommandExecutorSQLAlterCluster extends CommandExecutorSQLAbstract
   /**
    * Execute the ALTER CLASS.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (attribute == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
     final IntArrayList clusters = getClusters();
 
     if (clusters.isEmpty()) {
-      throw new YTCommandExecutionException("Cluster '" + clusterName + "' not found");
+      throw new CommandExecutionException("Cluster '" + clusterName + "' not found");
     }
 
     Object result = null;
 
-    final YTDatabaseSessionInternal database = getDatabase();
+    final DatabaseSessionInternal database = getDatabase();
 
     for (final int clusterId : getClusters()) {
       if (this.clusterId > -1 && clusterName.equals(String.valueOf(this.clusterId))) {
         clusterName = database.getClusterNameById(clusterId);
         if (clusterName == null) {
-          throw new YTClusterDoesNotExistException(
+          throw new ClusterDoesNotExistException(
               "Cluster with id "
                   + clusterId
                   + " does not exist inside of storage "
@@ -193,7 +194,7 @@ public class CommandExecutorSQLAlterCluster extends CommandExecutorSQLAbstract
   }
 
   protected IntArrayList getClusters() {
-    final YTDatabaseSessionInternal database = getDatabase();
+    final DatabaseSessionInternal database = getDatabase();
 
     final IntArrayList result = new IntArrayList();
 

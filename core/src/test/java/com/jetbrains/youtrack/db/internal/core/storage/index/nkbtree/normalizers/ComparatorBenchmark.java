@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.nkbtree.normalizers;
 
-import com.jetbrains.youtrack.db.internal.common.comparator.OByteArrayComparator;
-import com.jetbrains.youtrack.db.internal.common.comparator.OUnsafeByteArrayComparator;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.common.comparator.ByteArrayComparator;
+import com.jetbrains.youtrack.db.internal.common.comparator.UnsafeByteArrayComparator;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import java.text.Collator;
 import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
@@ -47,8 +47,8 @@ public class ComparatorBenchmark {
     new Runner(opt).run();
   }
 
-  final OByteArrayComparator arrayComparator = new OByteArrayComparator();
-  final OUnsafeByteArrayComparator byteArrayComparator = new OUnsafeByteArrayComparator();
+  final ByteArrayComparator arrayComparator = new ByteArrayComparator();
+  final UnsafeByteArrayComparator byteArrayComparator = new UnsafeByteArrayComparator();
 
   byte[] negative;
   byte[] zero;
@@ -58,9 +58,9 @@ public class ComparatorBenchmark {
   public void setup() {
     keyNormalizer = new KeyNormalizer();
 
-    negative = getNormalizedKeySingle(-62, YTType.INTEGER);
-    zero = getNormalizedKeySingle(0, YTType.INTEGER);
-    positive = getNormalizedKeySingle(5, YTType.INTEGER);
+    negative = getNormalizedKeySingle(-62, PropertyType.INTEGER);
+    zero = getNormalizedKeySingle(0, PropertyType.INTEGER);
+    positive = getNormalizedKeySingle(5, PropertyType.INTEGER);
   }
 
   @Benchmark
@@ -93,12 +93,12 @@ public class ComparatorBenchmark {
     arrayComparator.compare(zero, zero);
   }
 
-  private byte[] getNormalizedKeySingle(final int keyValue, final YTType type) {
-    final OCompositeKey compositeKey = new OCompositeKey();
+  private byte[] getNormalizedKeySingle(final int keyValue, final PropertyType type) {
+    final CompositeKey compositeKey = new CompositeKey();
     compositeKey.addKey(keyValue);
     Assert.assertEquals(1, compositeKey.getKeys().size());
 
-    final YTType[] types = new YTType[1];
+    final PropertyType[] types = new PropertyType[1];
     types[0] = type;
 
     return keyNormalizer.normalize(compositeKey, types, Collator.NO_DECOMPOSITION);

@@ -19,15 +19,15 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +42,7 @@ public class CommandExecutorSQLFindReferences extends CommandExecutorSQLEarlyRes
   public static final String KEYWORD_FIND = "FIND";
   public static final String KEYWORD_REFERENCES = "REFERENCES";
 
-  private final Set<YTRID> recordIds = new HashSet<YTRID>();
+  private final Set<RID> recordIds = new HashSet<RID>();
   private String classList;
   private StringBuilder subQuery;
 
@@ -63,19 +63,19 @@ public class CommandExecutorSQLFindReferences extends CommandExecutorSQLEarlyRes
       if (target.charAt(0) == '(') {
         subQuery = new StringBuilder();
         parserSetCurrentPosition(
-            OStringSerializerHelper.getEmbedded(
+            StringSerializerHelper.getEmbedded(
                 parserText, parserGetPreviousPosition(), -1, subQuery));
       } else {
         try {
-          final YTRecordId rid = new YTRecordId(target);
+          final RecordId rid = new RecordId(target);
           if (!rid.isValid()) {
             throwParsingException("Record ID " + target + " is not valid");
           }
           recordIds.add(rid);
 
         } catch (IllegalArgumentException iae) {
-          throw YTException.wrapException(
-              new YTCommandSQLParsingException(
+          throw BaseException.wrapException(
+              new CommandSQLParsingException(
                   "Error reading record Id", parserText, parserGetPreviousPosition()),
               iae);
         }
@@ -102,21 +102,21 @@ public class CommandExecutorSQLFindReferences extends CommandExecutorSQLEarlyRes
   /**
    * Execute the FIND REFERENCES.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (recordIds.isEmpty() && subQuery == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
     if (subQuery != null) {
-      final List<YTIdentifiable> result = new CommandSQL(subQuery.toString()).execute(
+      final List<Identifiable> result = new CommandSQL(subQuery.toString()).execute(
           querySession);
-      for (YTIdentifiable id : result) {
+      for (Identifiable id : result) {
         recordIds.add(id.getIdentity());
       }
     }
 
-    return OFindReferenceHelper.findReferences(recordIds, classList);
+    return FindReferenceHelper.findReferences(recordIds, classList);
   }
 
   @Override

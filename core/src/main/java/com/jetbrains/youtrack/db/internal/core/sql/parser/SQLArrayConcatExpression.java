@@ -2,14 +2,14 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.AggregationContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -50,7 +50,7 @@ public class SQLArrayConcatExpression extends SimpleNode {
     }
 
     if (right == null) {
-      if (OMultiValue.isMultiValue(left)) {
+      if (MultiValue.isMultiValue(left)) {
         return left;
       } else {
         return Collections.singletonList(left);
@@ -58,7 +58,7 @@ public class SQLArrayConcatExpression extends SimpleNode {
     }
 
     if (left == null) {
-      if (OMultiValue.isMultiValue(right)) {
+      if (MultiValue.isMultiValue(right)) {
         return right;
       } else {
         return Collections.singletonList(right);
@@ -66,8 +66,8 @@ public class SQLArrayConcatExpression extends SimpleNode {
     }
 
     List<Object> result = new ArrayList<>();
-    if (OMultiValue.isMultiValue(left)) {
-      Iterator<?> leftIter = OMultiValue.getMultiValueIterator(left);
+    if (MultiValue.isMultiValue(left)) {
+      Iterator<?> leftIter = MultiValue.getMultiValueIterator(left);
       while (leftIter.hasNext()) {
         result.add(leftIter.next());
       }
@@ -75,8 +75,8 @@ public class SQLArrayConcatExpression extends SimpleNode {
       result.add(left);
     }
 
-    if (OMultiValue.isMultiValue(right)) {
-      Iterator<?> rigthIter = OMultiValue.getMultiValueIterator(right);
+    if (MultiValue.isMultiValue(right)) {
+      Iterator<?> rigthIter = MultiValue.getMultiValueIterator(right);
       while (rigthIter.hasNext()) {
         result.add(rigthIter.next());
       }
@@ -87,7 +87,7 @@ public class SQLArrayConcatExpression extends SimpleNode {
     return result;
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
+  public Object execute(Identifiable iCurrentRecord, CommandContext ctx) {
     Object result = childExpressions.get(0).execute(iCurrentRecord, ctx);
     for (int i = 1; i < childExpressions.size(); i++) {
       result = apply(result, childExpressions.get(i).execute(iCurrentRecord, ctx));
@@ -95,7 +95,7 @@ public class SQLArrayConcatExpression extends SimpleNode {
     return result;
   }
 
-  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
+  public Object execute(Result iCurrentRecord, CommandContext ctx) {
     Object result = childExpressions.get(0).execute(iCurrentRecord, ctx);
     for (int i = 1; i < childExpressions.size(); i++) {
       result = apply(result, childExpressions.get(i).execute(iCurrentRecord, ctx));
@@ -130,7 +130,7 @@ public class SQLArrayConcatExpression extends SimpleNode {
     return false;
   }
 
-  public boolean isAggregate(YTDatabaseSessionInternal session) {
+  public boolean isAggregate(DatabaseSessionInternal session) {
     for (SQLArrayConcatExpressionElement expr : this.childExpressions) {
       if (expr.isAggregate(session)) {
         return true;
@@ -139,10 +139,10 @@ public class SQLArrayConcatExpression extends SimpleNode {
     return false;
   }
 
-  public SimpleNode splitForAggregation(YTDatabaseSessionInternal session,
+  public SimpleNode splitForAggregation(DatabaseSessionInternal session,
       AggregateProjectionSplit aggregateProj) {
     if (isAggregate(session)) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot use aggregate functions in array concatenation");
     } else {
       return this;
@@ -227,8 +227,8 @@ public class SQLArrayConcatExpression extends SimpleNode {
     return childExpressions != null ? childExpressions.hashCode() : 0;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     if (childExpressions != null) {
       result.setProperty(
           "childExpressions",
@@ -237,12 +237,12 @@ public class SQLArrayConcatExpression extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
 
     if (fromResult.getProperty("childExpressions") != null) {
-      List<YTResult> ser = fromResult.getProperty("childExpressions");
+      List<Result> ser = fromResult.getProperty("childExpressions");
       childExpressions = new ArrayList<>();
-      for (YTResult r : ser) {
+      for (Result r : ser) {
         SQLArrayConcatExpressionElement exp = new SQLArrayConcatExpressionElement(-1);
         exp.deserialize(r);
         childExpressions.add(exp);
@@ -250,7 +250,7 @@ public class SQLArrayConcatExpression extends SimpleNode {
     }
   }
 
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     for (SQLArrayConcatExpressionElement exp : childExpressions) {
       if (!exp.isCacheable(session)) {
         return false;

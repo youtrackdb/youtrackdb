@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.cache.local.doublewritelog;
 
-import com.jetbrains.youtrack.db.internal.common.directmemory.OByteBufferPool;
-import com.jetbrains.youtrack.db.internal.common.directmemory.OPointer;
+import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
+import com.jetbrains.youtrack.db.internal.common.directmemory.Pointer;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.io.File;
@@ -44,14 +44,14 @@ public class DoubleWriteLogGLTestIT {
   public void testWriteSinglePage() throws Exception {
     final int pageSize = 256;
 
-    final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
+    final ByteBufferPool bufferPool = new ByteBufferPool(pageSize);
 
     try {
       final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024, 512);
 
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
       try {
-        OPointer pointer;
+        Pointer pointer;
 
         final ByteBuffer buffer = ByteBuffer.allocate(pageSize).order(ByteOrder.nativeOrder());
         ThreadLocalRandom random = ThreadLocalRandom.current();
@@ -98,7 +98,7 @@ public class DoubleWriteLogGLTestIT {
   public void testWriteSinglePageTwoTimes() throws Exception {
     final int pageSize = 256;
 
-    final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
+    final ByteBufferPool bufferPool = new ByteBufferPool(pageSize);
 
     try {
       final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024, 512);
@@ -128,7 +128,7 @@ public class DoubleWriteLogGLTestIT {
             IntArrayList.of(24));
         doubleWriteLog.truncate();
 
-        OPointer pointer = doubleWriteLog.loadPage(12, 24, bufferPool);
+        Pointer pointer = doubleWriteLog.loadPage(12, 24, bufferPool);
         Assert.assertNull(pointer);
 
         doubleWriteLog.restoreModeOn();
@@ -158,7 +158,7 @@ public class DoubleWriteLogGLTestIT {
   public void testWriteTwoPagesSameFile() throws Exception {
     final int pageSize = 256;
 
-    final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
+    final ByteBufferPool bufferPool = new ByteBufferPool(pageSize);
     try {
       final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024, 512);
 
@@ -184,7 +184,7 @@ public class DoubleWriteLogGLTestIT {
             IntArrayList.of(12),
             IntArrayList.of(24));
 
-        OPointer pointer = doubleWriteLog.loadPage(12, 24, bufferPool);
+        Pointer pointer = doubleWriteLog.loadPage(12, 24, bufferPool);
         Assert.assertNull(pointer);
 
         pointer = doubleWriteLog.loadPage(12, 25, bufferPool);
@@ -224,7 +224,7 @@ public class DoubleWriteLogGLTestIT {
   public void testWriteTenPagesSameFile() throws Exception {
     final int pageSize = 256;
 
-    final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
+    final ByteBufferPool bufferPool = new ByteBufferPool(pageSize);
     try {
       final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024, 512);
 
@@ -250,7 +250,7 @@ public class DoubleWriteLogGLTestIT {
             IntArrayList.of(12),
             IntArrayList.of(24));
 
-        OPointer pointer = doubleWriteLog.loadPage(12, 24, bufferPool);
+        Pointer pointer = doubleWriteLog.loadPage(12, 24, bufferPool);
         Assert.assertNull(pointer);
 
         pointer = doubleWriteLog.loadPage(12, 25, bufferPool);
@@ -282,7 +282,7 @@ public class DoubleWriteLogGLTestIT {
   public void testWriteTenDifferentSinglePages() throws Exception {
     final int pageSize = 256;
 
-    final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
+    final ByteBufferPool bufferPool = new ByteBufferPool(pageSize);
     try {
       final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024, 512);
 
@@ -307,7 +307,7 @@ public class DoubleWriteLogGLTestIT {
             IntArrayList.of(12),
             IntArrayList.of(24));
 
-        OPointer pointer = doubleWriteLog.loadPage(12, 24, bufferPool);
+        Pointer pointer = doubleWriteLog.loadPage(12, 24, bufferPool);
         Assert.assertNull(pointer);
 
         pointer = doubleWriteLog.loadPage(12, 25, bufferPool);
@@ -339,7 +339,7 @@ public class DoubleWriteLogGLTestIT {
   public void testWriteTenDifferentPagesTenTimes() throws Exception {
     final int pageSize = 256;
 
-    final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
+    final ByteBufferPool bufferPool = new ByteBufferPool(pageSize);
     try {
       final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024, 512);
 
@@ -371,7 +371,7 @@ public class DoubleWriteLogGLTestIT {
 
         for (int i = 0; i < 10; i++) {
           for (int j = 0; j < 10; j++) {
-            final OPointer pointer = doubleWriteLog.loadPage(12 + i, 24 + j, bufferPool);
+            final Pointer pointer = doubleWriteLog.loadPage(12 + i, 24 + j, bufferPool);
 
             ByteBuffer loadedBuffer = pointer.getNativeByteBuffer();
 
@@ -404,7 +404,7 @@ public class DoubleWriteLogGLTestIT {
 
       final int pageSize = 256;
 
-      final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
+      final ByteBufferPool bufferPool = new ByteBufferPool(pageSize);
       try {
         final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024, 512);
 
@@ -442,7 +442,7 @@ public class DoubleWriteLogGLTestIT {
           doubleWriteLog.restoreModeOn();
 
           for (int i = 0; i < pagesToWrite; i++) {
-            final OPointer pointer = doubleWriteLog.loadPage(12, 24 + i, bufferPool);
+            final Pointer pointer = doubleWriteLog.loadPage(12, 24 + i, bufferPool);
 
             ByteBuffer loadedBuffer = pointer.getNativeByteBuffer();
 
@@ -475,7 +475,7 @@ public class DoubleWriteLogGLTestIT {
     for (int n = 0; n < 10; n++) {
       System.out.println("Iteration - " + n);
 
-      final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
+      final ByteBufferPool bufferPool = new ByteBufferPool(pageSize);
       try {
         final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024, 512);
         doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
@@ -534,7 +534,7 @@ public class DoubleWriteLogGLTestIT {
           doubleWriteLog.restoreModeOn();
 
           for (final int pageIndex : pageMap.keySet()) {
-            final OPointer pointer = doubleWriteLog.loadPage(12, pageIndex, bufferPool);
+            final Pointer pointer = doubleWriteLog.loadPage(12, pageIndex, bufferPool);
 
             final ByteBuffer loadedBuffer = pointer.getNativeByteBuffer();
 
@@ -575,7 +575,7 @@ public class DoubleWriteLogGLTestIT {
 
       final int pageSize = 256;
 
-      final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
+      final ByteBufferPool bufferPool = new ByteBufferPool(pageSize);
       try {
         final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(4 * 4 * 1024, 512);
 
@@ -616,7 +616,7 @@ public class DoubleWriteLogGLTestIT {
           doubleWriteLogRestore.restoreModeOn();
 
           for (int i = 0; i < pagesToWrite; i++) {
-            final OPointer pointer = doubleWriteLogRestore.loadPage(12, 24 + i, bufferPool);
+            final Pointer pointer = doubleWriteLogRestore.loadPage(12, 24 + i, bufferPool);
 
             ByteBuffer loadedBuffer = pointer.getNativeByteBuffer();
 
@@ -650,7 +650,7 @@ public class DoubleWriteLogGLTestIT {
     for (int n = 0; n < 10; n++) {
       System.out.println("Iteration - " + n);
 
-      final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
+      final ByteBufferPool bufferPool = new ByteBufferPool(pageSize);
       try {
         final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(2 * 4 * 1024, 512);
         doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
@@ -710,7 +710,7 @@ public class DoubleWriteLogGLTestIT {
           doubleWriteLogRestore.restoreModeOn();
 
           for (final int pageIndex : pageMap.keySet()) {
-            final OPointer pointer = doubleWriteLogRestore.loadPage(12, pageIndex, bufferPool);
+            final Pointer pointer = doubleWriteLogRestore.loadPage(12, pageIndex, bufferPool);
 
             final ByteBuffer loadedBuffer = pointer.getNativeByteBuffer();
 
@@ -743,7 +743,7 @@ public class DoubleWriteLogGLTestIT {
   @Test
   public void testTruncate() throws IOException {
     final int pageSize = 256;
-    final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
+    final ByteBufferPool bufferPool = new ByteBufferPool(pageSize);
     try {
       final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(512, 512);
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
@@ -819,7 +819,7 @@ public class DoubleWriteLogGLTestIT {
     final int pageSize = 256;
     final int maxLogSize = 512; // single block for each segment
 
-    final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
+    final ByteBufferPool bufferPool = new ByteBufferPool(pageSize);
     try {
       final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(maxLogSize, 512);
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
@@ -864,7 +864,7 @@ public class DoubleWriteLogGLTestIT {
     final int pageSize = 256;
     final int maxLogSize = 512; // single block for each segment
 
-    final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
+    final ByteBufferPool bufferPool = new ByteBufferPool(pageSize);
     try {
       final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(maxLogSize, 512);
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);
@@ -919,7 +919,7 @@ public class DoubleWriteLogGLTestIT {
     final int pageSize = 256;
     final int maxLogSize = 512; // single block for each segment
 
-    final OByteBufferPool bufferPool = new OByteBufferPool(pageSize);
+    final ByteBufferPool bufferPool = new ByteBufferPool(pageSize);
     try {
       final DoubleWriteLogGL doubleWriteLog = new DoubleWriteLogGL(maxLogSize, 512);
       doubleWriteLog.open("test", Paths.get(buildDirectory), pageSize);

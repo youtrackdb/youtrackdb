@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -45,7 +45,7 @@ public class OServerCommandGetCluster extends OServerCommandAuthenticatedDbAbstr
     iRequest.getData().commandInfo = "Browse cluster";
     iRequest.getData().commandDetail = urlParts[2];
 
-    YTDatabaseSessionInternal db = null;
+    DatabaseSessionInternal db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);
@@ -53,7 +53,7 @@ public class OServerCommandGetCluster extends OServerCommandAuthenticatedDbAbstr
       if (db.getClusterIdByName(urlParts[2]) > -1) {
         final int limit = urlParts.length > 3 ? Integer.parseInt(urlParts[3]) : 20;
 
-        final List<YTIdentifiable> response = new ArrayList<YTIdentifiable>();
+        final List<Identifiable> response = new ArrayList<Identifiable>();
         for (Record rec : db.browseCluster(urlParts[2])) {
           if (limit > 0 && response.size() >= limit) {
             break;

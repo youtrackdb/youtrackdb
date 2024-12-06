@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 
@@ -19,7 +19,7 @@ public class CountStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
 
     ExecutionStream prevResult = prev.start(ctx);
@@ -29,7 +29,7 @@ public class CountStep extends AbstractExecutionStep {
       prevResult.next(ctx);
     }
     prevResult.close(ctx);
-    YTResultInternal resultRecord = new YTResultInternal(ctx.getDatabase());
+    ResultInternal resultRecord = new ResultInternal(ctx.getDatabase());
     resultRecord.setProperty("count", count);
     return ExecutionStream.singleton(resultRecord);
   }

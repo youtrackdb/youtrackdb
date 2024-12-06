@@ -35,10 +35,10 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 import java.io.InputStream;
 import java.util.List;
 import java.util.ArrayList;
-import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTQueryParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 
-/** Orient Database Sql grammar. */
+/** YouTrackDB Sql grammar. */
 public class YouTrackDBSql {
 
     private int inputParamCount = 0;
@@ -3665,7 +3665,7 @@ SQLMatchPathItem MultiMatchPathItemArrows():
                 nextItem = BothPathItemOpt()  { jjtThis.addItem(nextItem); }
             ){
                 if(prevItem !=null && prevItem.filter == null){
-                    throw new YTQueryParsingException("MATCH sub-pattern with no square brackets");
+                    throw new QueryParsingException("MATCH sub-pattern with no square brackets");
                 }
                 prevItem = nextItem;
             }
@@ -4009,12 +4009,12 @@ SQLAlterClassStatement AlterClassStatement():
 	(
 
 		(
-			<NAME> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.ATTRIBUTES.NAME; }
+			<NAME> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.NAME; }
 			jjtThis.identifierValue = Identifier()
 		)
 		|
 		(
-			<SHORTNAME> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.ATTRIBUTES.SHORTNAME; }
+			<SHORTNAME> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.SHORTNAME; }
 			(
 				jjtThis.identifierValue = Identifier()
 				|
@@ -4023,7 +4023,7 @@ SQLAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<SUPERCLASS> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.ATTRIBUTES.SUPERCLASS; }
+			<SUPERCLASS> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.SUPERCLASS; }
 			[
 				(
 					<PLUS> {jjtThis.add = true;}
@@ -4042,7 +4042,7 @@ SQLAlterClassStatement AlterClassStatement():
 		|
 		(
 			<SUPERCLASSES> {
-				jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.ATTRIBUTES.SUPERCLASSES;
+				jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.SUPERCLASSES;
 				jjtThis.identifierListValue = new ArrayList<SQLIdentifier>();
 			}
 			(
@@ -4059,12 +4059,12 @@ SQLAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<OVERSIZE> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.ATTRIBUTES.OVERSIZE; }
+			<OVERSIZE> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.OVERSIZE; }
 			jjtThis.numberValue = Number()
 		)
 		|
 		(
-			<STRICTMODE> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.ATTRIBUTES.STRICTMODE; }
+			<STRICTMODE> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.STRICTMODE; }
 			(
 				(
 					<TRUE> { jjtThis.booleanValue = true; }
@@ -4077,7 +4077,7 @@ SQLAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<ADDCLUSTER> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.ATTRIBUTES.ADDCLUSTER; }
+			<ADDCLUSTER> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.ADDCLUSTER; }
 			(
 				jjtThis.identifierValue = Identifier()
 				|
@@ -4086,7 +4086,7 @@ SQLAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<REMOVECLUSTER> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.ATTRIBUTES.REMOVECLUSTER; }
+			<REMOVECLUSTER> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.REMOVECLUSTER; }
 			(
 				jjtThis.identifierValue = Identifier()
 				|
@@ -4095,14 +4095,14 @@ SQLAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<CUSTOM> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.ATTRIBUTES.CUSTOM; }
+			<CUSTOM> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.CUSTOM; }
 			jjtThis.customKey = Identifier()
 			<EQ>
 			jjtThis.customValue = Expression()
 		)
 		|
 		(
-			<ABSTRACT> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.ATTRIBUTES.ABSTRACT; }
+			<ABSTRACT> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.ABSTRACT; }
 			(
 				(
 					<TRUE> { jjtThis.booleanValue = true; }
@@ -4115,7 +4115,7 @@ SQLAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<CLUSTERSELECTION> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.ATTRIBUTES.CLUSTERSELECTION; }
+			<CLUSTERSELECTION> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.CLUSTERSELECTION; }
 			(
 				jjtThis.identifierValue = Identifier()
 				|
@@ -4126,7 +4126,7 @@ SQLAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<DESCRIPTION> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.ATTRIBUTES.DESCRIPTION; }
+			<DESCRIPTION> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.DESCRIPTION; }
 			(
 				jjtThis.identifierValue = Identifier()
 				|
@@ -4135,7 +4135,7 @@ SQLAlterClassStatement AlterClassStatement():
 		)
 		|
 		(
-			<ENCRYPTION> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.ATTRIBUTES.ENCRYPTION; }
+			<ENCRYPTION> { jjtThis.property = com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.ATTRIBUTES.ENCRYPTION; }
 			(
 				jjtThis.identifierValue = Identifier()
 				|

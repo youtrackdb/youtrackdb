@@ -20,16 +20,16 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.memory;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.engine.memory.OEngineMemory;
+import com.jetbrains.youtrack.db.internal.core.engine.memory.EngineMemory;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OMemoryWriteAheadLog;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWriteAheadLog;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.LogSequenceNumber;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.MemoryWriteAheadLog;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WriteAheadLog;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -52,13 +52,13 @@ public class DirectMemoryStorage extends AbstractPaginatedStorage {
   }
 
   @Override
-  protected void initWalAndDiskCache(final YTContextConfiguration contextConfiguration) {
+  protected void initWalAndDiskCache(final ContextConfiguration contextConfiguration) {
     if (writeAheadLog == null) {
-      writeAheadLog = new OMemoryWriteAheadLog();
+      writeAheadLog = new MemoryWriteAheadLog();
     }
 
-    final ODirectMemoryOnlyDiskCache diskCache =
-        new ODirectMemoryOnlyDiskCache(
+    final DirectMemoryOnlyDiskCache diskCache =
+        new DirectMemoryOnlyDiskCache(
             contextConfiguration.getValueAsInteger(GlobalConfiguration.DISK_CACHE_PAGE_SIZE)
                 * ONE_KB,
             1);
@@ -92,12 +92,12 @@ public class DirectMemoryStorage extends AbstractPaginatedStorage {
 
   @Override
   public String getType() {
-    return OEngineMemory.NAME;
+    return EngineMemory.NAME;
   }
 
   @Override
   public String getURL() {
-    return OEngineMemory.NAME + ":" + url;
+    return EngineMemory.NAME + ":" + url;
   }
 
   @Override
@@ -122,7 +122,7 @@ public class DirectMemoryStorage extends AbstractPaginatedStorage {
       final OutputStream out,
       final Map<String, Object> options,
       final Callable<Object> callable,
-      final OCommandOutputListener iListener,
+      final CommandOutputListener iListener,
       final int compressionLevel,
       final int bufferSize) {
     try {
@@ -141,7 +141,7 @@ public class DirectMemoryStorage extends AbstractPaginatedStorage {
       final InputStream in,
       final Map<String, Object> options,
       final Callable<Object> callable,
-      final OCommandOutputListener iListener) {
+      final CommandOutputListener iListener) {
     try {
       throw new UnsupportedOperationException();
     } catch (final RuntimeException e) {
@@ -154,7 +154,7 @@ public class DirectMemoryStorage extends AbstractPaginatedStorage {
   }
 
   @Override
-  protected OLogSequenceNumber copyWALToIncrementalBackup(
+  protected LogSequenceNumber copyWALToIncrementalBackup(
       final ZipOutputStream zipOutputStream, final long startSegment) {
     return null;
   }
@@ -170,9 +170,9 @@ public class DirectMemoryStorage extends AbstractPaginatedStorage {
   }
 
   @Override
-  protected OWriteAheadLog createWalFromIBUFiles(
+  protected WriteAheadLog createWalFromIBUFiles(
       final File directory,
-      final YTContextConfiguration contextConfiguration,
+      final ContextConfiguration contextConfiguration,
       final Locale locale,
       byte[] iv) {
     return null;

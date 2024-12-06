@@ -1,15 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v2;
 
-import com.jetbrains.youtrack.db.internal.common.directmemory.OByteBufferPool;
-import com.jetbrains.youtrack.db.internal.common.directmemory.ODirectMemoryAllocator.Intention;
-import com.jetbrains.youtrack.db.internal.common.directmemory.OPointer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OLongSerializer;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.OLinkSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntryImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCachePointer;
-import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v2.OSBTreeBucketV2;
+import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
+import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator.Intention;
+import com.jetbrains.youtrack.db.internal.common.directmemory.Pointer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntryImpl;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CachePointer;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -25,21 +24,21 @@ public class SBTreeNonLeafBucketV2Test {
 
   @Test
   public void testInitialization() {
-    final OByteBufferPool bufferPool = OByteBufferPool.instance(null);
-    final OPointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    final ByteBufferPool bufferPool = ByteBufferPool.instance(null);
+    final Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    OCachePointer cachePointer = new OCachePointer(pointer, bufferPool, 0, 0);
-    OCacheEntry cacheEntry = new OCacheEntryImpl(0, 0, cachePointer, false, null);
+    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     cachePointer.incrementReferrer();
 
-    OSBTreeBucketV2<Long, YTIdentifiable> treeBucket = new OSBTreeBucketV2<>(cacheEntry);
+    SBTreeBucketV2<Long, Identifiable> treeBucket = new SBTreeBucketV2<>(cacheEntry);
     treeBucket.init(false);
 
     Assert.assertEquals(treeBucket.size(), 0);
     Assert.assertFalse(treeBucket.isLeaf());
 
-    treeBucket = new OSBTreeBucketV2<>(cacheEntry);
+    treeBucket = new SBTreeBucketV2<>(cacheEntry);
     Assert.assertEquals(treeBucket.size(), 0);
     Assert.assertFalse(treeBucket.isLeaf());
     Assert.assertEquals(treeBucket.getLeftSibling(), -1);
@@ -57,19 +56,19 @@ public class SBTreeNonLeafBucketV2Test {
     TreeSet<Long> keys = new TreeSet<>();
     Random random = new Random(seed);
 
-    while (keys.size() < 2 * OSBTreeBucketV2.MAX_PAGE_SIZE_BYTES / OLongSerializer.LONG_SIZE) {
+    while (keys.size() < 2 * SBTreeBucketV2.MAX_PAGE_SIZE_BYTES / LongSerializer.LONG_SIZE) {
       keys.add(random.nextLong());
     }
 
-    final OByteBufferPool bufferPool = OByteBufferPool.instance(null);
-    final OPointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    final ByteBufferPool bufferPool = ByteBufferPool.instance(null);
+    final Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    OCachePointer cachePointer = new OCachePointer(pointer, bufferPool, 0, 0);
-    OCacheEntry cacheEntry = new OCacheEntryImpl(0, 0, cachePointer, false, null);
+    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     cachePointer.incrementReferrer();
 
-    OSBTreeBucketV2<Long, YTIdentifiable> treeBucket = new OSBTreeBucketV2<>(cacheEntry);
+    SBTreeBucketV2<Long, Identifiable> treeBucket = new SBTreeBucketV2<>(cacheEntry);
     treeBucket.init(false);
 
     int index = 0;
@@ -77,7 +76,7 @@ public class SBTreeNonLeafBucketV2Test {
     for (Long key : keys) {
       if (!treeBucket.addNonLeafEntry(
           index,
-          OLongSerializer.INSTANCE.serializeNativeAsWhole(key),
+          LongSerializer.INSTANCE.serializeNativeAsWhole(key),
           random.nextInt(Integer.MAX_VALUE),
           random.nextInt(Integer.MAX_VALUE),
           true)) {
@@ -91,14 +90,14 @@ public class SBTreeNonLeafBucketV2Test {
     Assert.assertEquals(treeBucket.size(), keyIndexMap.size());
 
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
-      int bucketIndex = treeBucket.find(keyIndexEntry.getKey(), OLongSerializer.INSTANCE);
+      int bucketIndex = treeBucket.find(keyIndexEntry.getKey(), LongSerializer.INSTANCE);
       Assert.assertEquals(bucketIndex, (int) keyIndexEntry.getValue());
     }
 
     long prevRight = -1;
     for (int i = 0; i < treeBucket.size(); i++) {
-      OSBTreeBucketV2.SBTreeEntry<Long, YTIdentifiable> entry =
-          treeBucket.getEntry(i, OLongSerializer.INSTANCE, OLinkSerializer.INSTANCE);
+      SBTreeBucketV2.SBTreeEntry<Long, Identifiable> entry =
+          treeBucket.getEntry(i, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
       if (prevRight > 0) {
         Assert.assertEquals(entry.leftChild, prevRight);
       }
@@ -108,8 +107,8 @@ public class SBTreeNonLeafBucketV2Test {
 
     long prevLeft = -1;
     for (int i = treeBucket.size() - 1; i >= 0; i--) {
-      OSBTreeBucketV2.SBTreeEntry<Long, YTIdentifiable> entry =
-          treeBucket.getEntry(i, OLongSerializer.INSTANCE, OLinkSerializer.INSTANCE);
+      SBTreeBucketV2.SBTreeEntry<Long, Identifiable> entry =
+          treeBucket.getEntry(i, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
 
       if (prevLeft > 0) {
         Assert.assertEquals(entry.rightChild, prevLeft);
@@ -130,26 +129,26 @@ public class SBTreeNonLeafBucketV2Test {
     TreeSet<Long> keys = new TreeSet<>();
     Random random = new Random(seed);
 
-    while (keys.size() < 2 * OSBTreeBucketV2.MAX_PAGE_SIZE_BYTES / OLongSerializer.LONG_SIZE) {
+    while (keys.size() < 2 * SBTreeBucketV2.MAX_PAGE_SIZE_BYTES / LongSerializer.LONG_SIZE) {
       keys.add(random.nextLong());
     }
 
-    final OByteBufferPool bufferPool = OByteBufferPool.instance(null);
-    final OPointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    final ByteBufferPool bufferPool = ByteBufferPool.instance(null);
+    final Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    OCachePointer cachePointer = new OCachePointer(pointer, bufferPool, 0, 0);
-    OCacheEntry cacheEntry = new OCacheEntryImpl(0, 0, cachePointer, false, null);
+    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
+    CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
 
     cachePointer.incrementReferrer();
 
-    OSBTreeBucketV2<Long, YTIdentifiable> treeBucket = new OSBTreeBucketV2<>(cacheEntry);
+    SBTreeBucketV2<Long, Identifiable> treeBucket = new SBTreeBucketV2<>(cacheEntry);
     treeBucket.init(false);
 
     int index = 0;
     for (Long key : keys) {
       if (!treeBucket.addNonLeafEntry(
-          index, OLongSerializer.INSTANCE.serializeNativeAsWhole(key), index, index + 1, true)) {
+          index, LongSerializer.INSTANCE.serializeNativeAsWhole(key), index, index + 1, true)) {
         break;
       }
 
@@ -158,7 +157,7 @@ public class SBTreeNonLeafBucketV2Test {
 
     int originalSize = treeBucket.size();
 
-    treeBucket.shrink(treeBucket.size() / 2, OLongSerializer.INSTANCE, OLinkSerializer.INSTANCE);
+    treeBucket.shrink(treeBucket.size() / 2, LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
     Assert.assertEquals(treeBucket.size(), index / 2);
 
     index = 0;
@@ -172,18 +171,18 @@ public class SBTreeNonLeafBucketV2Test {
     }
 
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
-      int bucketIndex = treeBucket.find(keyIndexEntry.getKey(), OLongSerializer.INSTANCE);
+      int bucketIndex = treeBucket.find(keyIndexEntry.getKey(), LongSerializer.INSTANCE);
       Assert.assertEquals(bucketIndex, (int) keyIndexEntry.getValue());
     }
 
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
-      OSBTreeBucketV2.SBTreeEntry<Long, YTIdentifiable> entry =
+      SBTreeBucketV2.SBTreeEntry<Long, Identifiable> entry =
           treeBucket.getEntry(
-              keyIndexEntry.getValue(), OLongSerializer.INSTANCE, OLinkSerializer.INSTANCE);
+              keyIndexEntry.getValue(), LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
 
       Assert.assertEquals(
           entry,
-          new OSBTreeBucketV2.SBTreeEntry<Long, YTIdentifiable>(
+          new SBTreeBucketV2.SBTreeEntry<Long, Identifiable>(
               keyIndexEntry.getValue(),
               keyIndexEntry.getValue() + 1,
               keyIndexEntry.getKey(),
@@ -196,7 +195,7 @@ public class SBTreeNonLeafBucketV2Test {
       Long key = keysIterator.next();
 
       if (!treeBucket.addNonLeafEntry(
-          index, OLongSerializer.INSTANCE.serializeNativeAsWhole(key), index, index + 1, true)) {
+          index, LongSerializer.INSTANCE.serializeNativeAsWhole(key), index, index + 1, true)) {
         break;
       }
 
@@ -206,13 +205,13 @@ public class SBTreeNonLeafBucketV2Test {
     }
 
     for (Map.Entry<Long, Integer> keyIndexEntry : keyIndexMap.entrySet()) {
-      OSBTreeBucketV2.SBTreeEntry<Long, YTIdentifiable> entry =
+      SBTreeBucketV2.SBTreeEntry<Long, Identifiable> entry =
           treeBucket.getEntry(
-              keyIndexEntry.getValue(), OLongSerializer.INSTANCE, OLinkSerializer.INSTANCE);
+              keyIndexEntry.getValue(), LongSerializer.INSTANCE, LinkSerializer.INSTANCE);
 
       Assert.assertEquals(
           entry,
-          new OSBTreeBucketV2.SBTreeEntry<Long, YTIdentifiable>(
+          new SBTreeBucketV2.SBTreeEntry<Long, Identifiable>(
               keyIndexEntry.getValue(),
               keyIndexEntry.getValue() + 1,
               keyIndexEntry.getKey(),

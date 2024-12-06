@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.stream.Stream;
 import org.testng.Assert;
@@ -27,20 +27,20 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final YTClass byteArrayKeyTest =
+    final SchemaClass byteArrayKeyTest =
         database.getMetadata().getSchema().createClass("ByteArrayKeyTest");
-    byteArrayKeyTest.createProperty(database, "byteArrayKey", YTType.BINARY);
+    byteArrayKeyTest.createProperty(database, "byteArrayKey", PropertyType.BINARY);
 
-    byteArrayKeyTest.createIndex(database, "byteArrayKeyIndex", YTClass.INDEX_TYPE.UNIQUE,
+    byteArrayKeyTest.createIndex(database, "byteArrayKeyIndex", SchemaClass.INDEX_TYPE.UNIQUE,
         "byteArrayKey");
 
-    final YTClass compositeByteArrayKeyTest =
+    final SchemaClass compositeByteArrayKeyTest =
         database.getMetadata().getSchema().createClass("CompositeByteArrayKeyTest");
-    compositeByteArrayKeyTest.createProperty(database, "byteArrayKey", YTType.BINARY);
-    compositeByteArrayKeyTest.createProperty(database, "intKey", YTType.INTEGER);
+    compositeByteArrayKeyTest.createProperty(database, "byteArrayKey", PropertyType.BINARY);
+    compositeByteArrayKeyTest.createProperty(database, "intKey", PropertyType.INTEGER);
 
     compositeByteArrayKeyTest.createIndex(database,
-        "compositeByteArrayKey", YTClass.INDEX_TYPE.UNIQUE, "byteArrayKey", "intKey");
+        "compositeByteArrayKey", SchemaClass.INDEX_TYPE.UNIQUE, "byteArrayKey", "intKey");
   }
 
   public void testAutomaticUsage() {
@@ -69,13 +69,13 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
     doc2.save();
     database.commit();
 
-    OIndex index =
+    Index index =
         database.getMetadata().getIndexManagerInternal().getIndex(database, "byteArrayKeyIndex");
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, key1)) {
-      Assert.assertEquals(stream.findAny().map(YTRID::getRecord).orElse(null), doc1);
+    try (Stream<RID> stream = index.getInternal().getRids(database, key1)) {
+      Assert.assertEquals(stream.findAny().map(RID::getRecord).orElse(null), doc1);
     }
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, key2)) {
-      Assert.assertEquals(stream.findAny().map(YTRID::getRecord).orElse(null), doc2);
+    try (Stream<RID> stream = index.getInternal().getRids(database, key2)) {
+      Assert.assertEquals(stream.findAny().map(RID::getRecord).orElse(null), doc2);
     }
   }
 
@@ -97,16 +97,16 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
     doc2.save();
     database.commit();
 
-    OIndex index =
+    Index index =
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "compositeByteArrayKey");
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, new OCompositeKey(key1, 1))) {
-      Assert.assertEquals(stream.findAny().map(YTRID::getRecord).orElse(null), doc1);
+    try (Stream<RID> stream = index.getInternal().getRids(database, new CompositeKey(key1, 1))) {
+      Assert.assertEquals(stream.findAny().map(RID::getRecord).orElse(null), doc1);
     }
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, new OCompositeKey(key2, 2))) {
-      Assert.assertEquals(stream.findAny().map(YTRID::getRecord).orElse(null), doc2);
+    try (Stream<RID> stream = index.getInternal().getRids(database, new CompositeKey(key2, 2))) {
+      Assert.assertEquals(stream.findAny().map(RID::getRecord).orElse(null), doc2);
     }
   }
 
@@ -128,16 +128,16 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
     doc2.save();
     database.commit();
 
-    OIndex index =
+    Index index =
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getIndex(database, "compositeByteArrayKey");
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, new OCompositeKey(key1, 1))) {
-      Assert.assertEquals(stream.findAny().map(YTRID::getRecord).orElse(null), doc1);
+    try (Stream<RID> stream = index.getInternal().getRids(database, new CompositeKey(key1, 1))) {
+      Assert.assertEquals(stream.findAny().map(RID::getRecord).orElse(null), doc1);
     }
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, new OCompositeKey(key2, 2))) {
-      Assert.assertEquals(stream.findAny().map(YTRID::getRecord).orElse(null), doc2);
+    try (Stream<RID> stream = index.getInternal().getRids(database, new CompositeKey(key2, 2))) {
+      Assert.assertEquals(stream.findAny().map(RID::getRecord).orElse(null), doc2);
     }
   }
 
@@ -156,12 +156,12 @@ public class ByteArrayKeyTest extends DocumentDBBaseTest {
             0, 2
         };
 
-    OIndex autoIndex =
+    Index autoIndex =
         database.getMetadata().getIndexManagerInternal().getIndex(database, "byteArrayKeyIndex");
-    try (Stream<YTRID> stream = autoIndex.getInternal().getRids(database, key1)) {
+    try (Stream<RID> stream = autoIndex.getInternal().getRids(database, key1)) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
-    try (Stream<YTRID> stream = autoIndex.getInternal().getRids(database, key2)) {
+    try (Stream<RID> stream = autoIndex.getInternal().getRids(database, key2)) {
       Assert.assertTrue(stream.findFirst().isPresent());
     }
   }

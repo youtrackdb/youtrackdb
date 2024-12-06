@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,18 +30,18 @@ public class IndexTxTest extends DocumentDBBaseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass cls = schema.createClass("IndexTxTestClass");
-    cls.createProperty(database, "name", YTType.STRING);
-    cls.createIndex(database, "IndexTxTestIndex", YTClass.INDEX_TYPE.UNIQUE, "name");
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass cls = schema.createClass("IndexTxTestClass");
+    cls.createProperty(database, "name", PropertyType.STRING);
+    cls.createIndex(database, "IndexTxTestIndex", SchemaClass.INDEX_TYPE.UNIQUE, "name");
   }
 
   @BeforeMethod
   public void beforeMethod() throws Exception {
     super.beforeMethod();
 
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass cls = schema.getClass("IndexTxTestClass");
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass cls = schema.getClass("IndexTxTestClass");
     if (cls != null) {
       cls.truncate(database);
     }
@@ -69,11 +69,11 @@ public class IndexTxTest extends DocumentDBBaseTest {
 
     database.commit();
 
-    Map<String, YTRID> expectedResult = new HashMap<>();
+    Map<String, RID> expectedResult = new HashMap<>();
     expectedResult.put("doc1", doc1.getIdentity());
     expectedResult.put("doc2", doc2.getIdentity());
 
-    OIndex index = getIndex("IndexTxTestIndex");
+    Index index = getIndex("IndexTxTestIndex");
     Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
       keyIterator = keyStream.iterator();
@@ -81,9 +81,9 @@ public class IndexTxTest extends DocumentDBBaseTest {
       while (keyIterator.hasNext()) {
         String key = (String) keyIterator.next();
 
-        final YTRID expectedValue = expectedResult.get(key);
-        final YTRID value;
-        try (Stream<YTRID> stream = index.getInternal().getRids(database, key)) {
+        final RID expectedValue = expectedResult.get(key);
+        final RID value;
+        try (Stream<RID> stream = index.getInternal().getRids(database, key)) {
           value = stream.findAny().orElse(null);
         }
 

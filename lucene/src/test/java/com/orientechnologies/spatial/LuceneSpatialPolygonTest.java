@@ -13,13 +13,13 @@
  */
 package com.orientechnologies.spatial;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -37,12 +37,12 @@ public class LuceneSpatialPolygonTest extends BaseSpatialLuceneTest {
   public void init() {
 
     db.set(ATTRIBUTES.CUSTOM, "strictSql=false");
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass v = schema.getClass("V");
-    YTClass oClass = schema.createClass("Place");
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass v = schema.getClass("V");
+    SchemaClass oClass = schema.createClass("Place");
     oClass.setSuperClass(db, v);
-    oClass.createProperty(db, "location", YTType.EMBEDDED, schema.getClass("OPolygon"));
-    oClass.createProperty(db, "name", YTType.STRING);
+    oClass.createProperty(db, "location", PropertyType.EMBEDDED, schema.getClass("OPolygon"));
+    oClass.createProperty(db, "name", PropertyType.STRING);
 
     db.command("CREATE INDEX Place.location ON Place(location) SPATIAL ENGINE LUCENE").close();
   }
@@ -57,12 +57,12 @@ public class LuceneSpatialPolygonTest extends BaseSpatialLuceneTest {
   protected void queryPolygon() {
 
     String query = "select * from Place where location && 'POINT(13.383333 52.516667)'";
-    List<EntityImpl> docs = db.query(new OSQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> docs = db.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(docs.size(), 1);
 
     query = "select * from Place where location && 'POINT(12.5 41.9)'";
-    docs = db.query(new OSQLSynchQuery<EntityImpl>(query));
+    docs = db.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(docs.size(), 0);
   }
@@ -87,7 +87,7 @@ public class LuceneSpatialPolygonTest extends BaseSpatialLuceneTest {
     db.save(germany);
     db.commit();
 
-    OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
+    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
 
     db.begin();
     Assert.assertEquals(1, index.getInternal().size(db));

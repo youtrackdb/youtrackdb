@@ -18,10 +18,10 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,8 +33,8 @@ public class LuceneGraphTXTest extends BaseLuceneTest {
 
   @Before
   public void init() {
-    YTClass type = db.createVertexClass("City");
-    type.createProperty(db, "name", YTType.STRING);
+    SchemaClass type = db.createVertexClass("City");
+    type.createProperty(db, "name", PropertyType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
@@ -50,7 +50,7 @@ public class LuceneGraphTXTest extends BaseLuceneTest {
     db.commit();
 
     db.begin();
-    YTResultSet results = db.command("select from City where name lucene 'London'");
+    ResultSet results = db.command("select from City where name lucene 'London'");
     Assert.assertEquals(results.stream().count(), 1);
 
     v = db.bindToSession(v);

@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.global.btree;
 
-import com.jetbrains.youtrack.db.internal.common.util.ORawPairObjectInteger;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
+import com.jetbrains.youtrack.db.internal.common.util.RawPairObjectInteger;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.LogSequenceNumber;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-public final class SpliteratorBackward implements Spliterator<ORawPairObjectInteger<EdgeKey>> {
+public final class SpliteratorBackward implements Spliterator<RawPairObjectInteger<EdgeKey>> {
 
   /**
    *
@@ -25,10 +25,10 @@ public final class SpliteratorBackward implements Spliterator<ORawPairObjectInte
   private int pageIndex = -1;
   private int itemIndex = -1;
 
-  private OLogSequenceNumber lastLSN = null;
+  private LogSequenceNumber lastLSN = null;
 
-  private final List<ORawPairObjectInteger<EdgeKey>> dataCache = new ArrayList<>();
-  private Iterator<ORawPairObjectInteger<EdgeKey>> cacheIterator = Collections.emptyIterator();
+  private final List<RawPairObjectInteger<EdgeKey>> dataCache = new ArrayList<>();
+  private Iterator<RawPairObjectInteger<EdgeKey>> cacheIterator = Collections.emptyIterator();
 
   SpliteratorBackward(
       BTree bTree,
@@ -44,7 +44,7 @@ public final class SpliteratorBackward implements Spliterator<ORawPairObjectInte
   }
 
   @Override
-  public boolean tryAdvance(Consumer<? super ORawPairObjectInteger<EdgeKey>> action) {
+  public boolean tryAdvance(Consumer<? super RawPairObjectInteger<EdgeKey>> action) {
     if (cacheIterator == null) {
       return false;
     }
@@ -74,7 +74,7 @@ public final class SpliteratorBackward implements Spliterator<ORawPairObjectInte
   }
 
   @Override
-  public Spliterator<ORawPairObjectInteger<EdgeKey>> trySplit() {
+  public Spliterator<RawPairObjectInteger<EdgeKey>> trySplit() {
     return null;
   }
 
@@ -89,11 +89,11 @@ public final class SpliteratorBackward implements Spliterator<ORawPairObjectInte
   }
 
   @Override
-  public Comparator<? super ORawPairObjectInteger<EdgeKey>> getComparator() {
+  public Comparator<? super RawPairObjectInteger<EdgeKey>> getComparator() {
     return (pairOne, pairTwo) -> -pairOne.first.compareTo(pairTwo.first);
   }
 
-  public List<ORawPairObjectInteger<EdgeKey>> getDataCache() {
+  public List<RawPairObjectInteger<EdgeKey>> getDataCache() {
     return dataCache;
   }
 
@@ -133,11 +133,11 @@ public final class SpliteratorBackward implements Spliterator<ORawPairObjectInte
     this.itemIndex--;
   }
 
-  OLogSequenceNumber getLastLSN() {
+  LogSequenceNumber getLastLSN() {
     return lastLSN;
   }
 
-  void setLastLSN(OLogSequenceNumber lastLSN) {
+  void setLastLSN(LogSequenceNumber lastLSN) {
     this.lastLSN = lastLSN;
   }
 }

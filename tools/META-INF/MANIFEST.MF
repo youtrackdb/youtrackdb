@@ -72,5 +72,5 @@ Import-Package: com.orientechnologies.common.console,com.orientechnolo
  nologies.orient.core.tx,com.orientechnologies.orient.core.type,com.or
  ientechnologies.orient.enterprise.command
 Specification-Version: 1.0-SNAPSHOT
-Main-Class: com.orientechnologies.orient.console.OConsoleDatabaseApp
+Main-Class: com.orientechnologies.orient.console.ConsoleDatabaseApp
 

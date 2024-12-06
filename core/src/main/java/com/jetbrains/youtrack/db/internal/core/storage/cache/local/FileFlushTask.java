@@ -9,12 +9,12 @@ final class FileFlushTask implements Callable<Void> {
   /**
    *
    */
-  private final OWOWCache cache;
+  private final WOWCache cache;
 
   private final IntOpenHashSet fileIdSet;
 
-  FileFlushTask(OWOWCache owowCache, final Collection<Integer> fileIds) {
-    cache = owowCache;
+  FileFlushTask(WOWCache WOWCache, final Collection<Integer> fileIds) {
+    cache = WOWCache;
     this.fileIdSet = new IntOpenHashSet(fileIds);
   }
 

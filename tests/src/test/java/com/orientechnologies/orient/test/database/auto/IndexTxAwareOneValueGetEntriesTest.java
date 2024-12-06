@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -36,9 +36,9 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    YTClass cls = database.getMetadata().getSchema().createClass(CLASS_NAME);
-    cls.createProperty(database, PROPERTY_NAME, YTType.INTEGER);
-    cls.createIndex(database, INDEX, YTClass.INDEX_TYPE.UNIQUE, PROPERTY_NAME);
+    SchemaClass cls = database.getMetadata().getSchema().createClass(CLASS_NAME);
+    cls.createProperty(database, PROPERTY_NAME, PropertyType.INTEGER);
+    cls.createIndex(database, INDEX, SchemaClass.INDEX_TYPE.UNIQUE, PROPERTY_NAME);
   }
 
   @AfterMethod
@@ -55,7 +55,7 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
+    final Index index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
     new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
     new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
@@ -63,8 +63,8 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertNull(database.getTransaction().getIndexChanges(INDEX));
-    Set<YTIdentifiable> resultOne = new HashSet<>();
-    Stream<ORawPair<Object, YTRID>> stream =
+    Set<Identifiable> resultOne = new HashSet<>();
+    Stream<RawPair<Object, RID>> stream =
         index.getInternal().streamEntries(database, Arrays.asList(1, 2), true);
     streamToSet(stream, resultOne);
     Assert.assertEquals(resultOne.size(), 2);
@@ -74,7 +74,7 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
     new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 3).save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
-    Set<YTIdentifiable> resultTwo = new HashSet<>();
+    Set<Identifiable> resultTwo = new HashSet<>();
     stream = index.getInternal().streamEntries(database, Arrays.asList(1, 2, 3), true);
     streamToSet(stream, resultTwo);
     Assert.assertEquals(resultTwo.size(), 3);
@@ -82,7 +82,7 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
     database.rollback();
 
     Assert.assertNull(database.getTransaction().getIndexChanges(INDEX));
-    Set<YTIdentifiable> resultThree = new HashSet<>();
+    Set<Identifiable> resultThree = new HashSet<>();
     stream = index.getInternal().streamEntries(database, Arrays.asList(1, 2), true);
     streamToSet(stream, resultThree);
 
@@ -96,7 +96,7 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
+    final Index index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
     EntityImpl document = new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
@@ -105,8 +105,8 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertNull(database.getTransaction().getIndexChanges(INDEX));
-    Set<YTIdentifiable> resultOne = new HashSet<>();
-    Stream<ORawPair<Object, YTRID>> stream =
+    Set<Identifiable> resultOne = new HashSet<>();
+    Stream<RawPair<Object, RID>> stream =
         index.getInternal().streamEntries(database, Arrays.asList(1, 2), true);
     streamToSet(stream, resultOne);
     Assert.assertEquals(resultOne.size(), 2);
@@ -117,7 +117,7 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
     document.delete();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
-    Set<YTIdentifiable> resultTwo = new HashSet<>();
+    Set<Identifiable> resultTwo = new HashSet<>();
     stream = index.getInternal().streamEntries(database, Arrays.asList(1, 2), true);
     streamToSet(stream, resultTwo);
     Assert.assertEquals(resultTwo.size(), 1);
@@ -125,7 +125,7 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
     database.rollback();
 
     Assert.assertNull(database.getTransaction().getIndexChanges(INDEX));
-    Set<YTIdentifiable> resultThree = new HashSet<>();
+    Set<Identifiable> resultThree = new HashSet<>();
     stream = index.getInternal().streamEntries(database, Arrays.asList(1, 2), true);
     streamToSet(stream, resultThree);
     Assert.assertEquals(resultThree.size(), 2);
@@ -138,7 +138,7 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
+    final Index index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
     EntityImpl document = new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
@@ -147,8 +147,8 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertNull(database.getTransaction().getIndexChanges(INDEX));
-    Set<YTIdentifiable> resultOne = new HashSet<>();
-    Stream<ORawPair<Object, YTRID>> stream =
+    Set<Identifiable> resultOne = new HashSet<>();
+    Stream<RawPair<Object, RID>> stream =
         index.getInternal().streamEntries(database, Arrays.asList(1, 2), true);
     streamToSet(stream, resultOne);
     Assert.assertEquals(resultOne.size(), 2);
@@ -162,7 +162,7 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
     document.field(PROPERTY_NAME, 1).save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
-    Set<YTIdentifiable> resultTwo = new HashSet<>();
+    Set<Identifiable> resultTwo = new HashSet<>();
     stream = index.getInternal().streamEntries(database, Arrays.asList(1, 2), true);
     streamToSet(stream, resultTwo);
     Assert.assertEquals(resultTwo.size(), 2);
@@ -178,7 +178,7 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
+    final Index index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
     EntityImpl document = new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
@@ -189,8 +189,8 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
     new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
-    Set<YTIdentifiable> result = new HashSet<>();
-    Stream<ORawPair<Object, YTRID>> stream =
+    Set<Identifiable> result = new HashSet<>();
+    Stream<RawPair<Object, RID>> stream =
         index.getInternal().streamEntries(database, Arrays.asList(1, 2), true);
     streamToSet(stream, result);
 
@@ -211,14 +211,14 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
+    final Index index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
     new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
     new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
-    Set<YTIdentifiable> result = new HashSet<>();
-    Stream<ORawPair<Object, YTRID>> stream =
+    Set<Identifiable> result = new HashSet<>();
+    Stream<RawPair<Object, RID>> stream =
         index.getInternal().streamEntries(database, Arrays.asList(1, 2), true);
     streamToSet(stream, result);
 
@@ -242,7 +242,7 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
+    final Index index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
     final EntityImpl document = new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
@@ -251,8 +251,8 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
     document.delete();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
-    Set<YTIdentifiable> result = new HashSet<>();
-    Stream<ORawPair<Object, YTRID>> stream =
+    Set<Identifiable> result = new HashSet<>();
+    Stream<RawPair<Object, RID>> stream =
         index.getInternal().streamEntries(database, Arrays.asList(1, 2), true);
     streamToSet(stream, result);
     Assert.assertEquals(result.size(), 1);
@@ -272,7 +272,7 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
+    final Index index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
     EntityImpl document = new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
@@ -284,8 +284,8 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
     document.field(PROPERTY_NAME, 1).save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
-    Set<YTIdentifiable> result = new HashSet<>();
-    Stream<ORawPair<Object, YTRID>> stream =
+    Set<Identifiable> result = new HashSet<>();
+    Stream<RawPair<Object, RID>> stream =
         index.getInternal().streamEntries(database, Arrays.asList(1, 2), true);
     streamToSet(stream, result);
 
@@ -299,7 +299,7 @@ public class IndexTxAwareOneValueGetEntriesTest extends DocumentDBBaseTest {
   }
 
   private static void streamToSet(
-      Stream<ORawPair<Object, YTRID>> stream, Set<YTIdentifiable> result) {
+      Stream<RawPair<Object, RID>> stream, Set<Identifiable> result) {
     result.clear();
     result.addAll(stream.map((entry) -> entry.second).collect(Collectors.toSet()));
   }

@@ -3,15 +3,15 @@ package com.jetbrains.youtrack.db.internal.core.tx;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.OCreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
+import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConcurrentCreateException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
+import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentCreateException;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
@@ -30,16 +30,16 @@ import org.junit.Test;
 public class TransactionRidAllocationTest {
 
   private YouTrackDB youTrackDB;
-  private YTDatabaseSessionInternal db;
+  private DatabaseSessionInternal db;
 
   @Before
   public void before() {
     youTrackDB =
-        OCreateDatabaseUtil.createDatabase("test", DBTestBase.embeddedDBUrl(getClass()),
-            OCreateDatabaseUtil.TYPE_MEMORY);
+        CreateDatabaseUtil.createDatabase("test", DbTestBase.embeddedDBUrl(getClass()),
+            CreateDatabaseUtil.TYPE_MEMORY);
     db =
-        (YTDatabaseSessionInternal)
-            youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        (DatabaseSessionInternal)
+            youTrackDB.open("test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @Test
@@ -49,16 +49,16 @@ public class TransactionRidAllocationTest {
     db.save(v);
 
     ((AbstractPaginatedStorage) db.getStorage())
-        .preallocateRids((OTransactionInternal) db.getTransaction());
-    YTRID generated = v.getIdentity();
+        .preallocateRids((TransactionInternal) db.getTransaction());
+    RID generated = v.getIdentity();
     assertTrue(generated.isValid());
 
-    var db1 = youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db1 = youTrackDB.open("test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     try {
       db1.load(generated);
       Assert.fail();
-    } catch (YTRecordNotFoundException e) {
+    } catch (RecordNotFoundException e) {
       // ignore
     }
 
@@ -72,12 +72,12 @@ public class TransactionRidAllocationTest {
     db.save(v);
 
     ((AbstractPaginatedStorage) db.getStorage())
-        .preallocateRids((OTransactionOptimistic) db.getTransaction());
-    YTRID generated = v.getIdentity();
+        .preallocateRids((TransactionOptimistic) db.getTransaction());
+    RID generated = v.getIdentity();
     ((AbstractPaginatedStorage) db.getStorage())
-        .commitPreAllocated((OTransactionOptimistic) db.getTransaction());
+        .commitPreAllocated((TransactionOptimistic) db.getTransaction());
 
-    var db1 = youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db1 = youTrackDB.open("test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     assertNotNull(db1.load(generated));
     db1.close();
@@ -85,18 +85,18 @@ public class TransactionRidAllocationTest {
 
   @Test
   public void testMultipleDbAllocationAndCommit() {
-    YTDatabaseSessionInternal second;
+    DatabaseSessionInternal second;
     youTrackDB.execute(
         "create database "
             + "secondTest"
             + " "
             + "memory"
             + " users ( admin identified by '"
-            + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
+            + CreateDatabaseUtil.NEW_ADMIN_PASSWORD
             + "' role admin)");
     second =
-        (YTDatabaseSessionInternal)
-            youTrackDB.open("secondTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        (DatabaseSessionInternal)
+            youTrackDB.open("secondTest", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     db.activateOnCurrentThread();
     db.begin();
@@ -104,18 +104,18 @@ public class TransactionRidAllocationTest {
     db.save(v);
 
     ((AbstractPaginatedStorage) db.getStorage())
-        .preallocateRids((OTransactionInternal) db.getTransaction());
-    YTRID generated = v.getIdentity();
-    OTransaction transaction = db.getTransaction();
-    List<ORawPair<RecordAbstract, Byte>> recordOperations = new ArrayList<>();
-    for (ORecordOperation operation : transaction.getRecordOperations()) {
+        .preallocateRids((TransactionInternal) db.getTransaction());
+    RID generated = v.getIdentity();
+    FrontendTransaction transaction = db.getTransaction();
+    List<RawPair<RecordAbstract, Byte>> recordOperations = new ArrayList<>();
+    for (RecordOperation operation : transaction.getRecordOperations()) {
       var record = operation.record;
-      recordOperations.add(new ORawPair<>(record.copy(), operation.type));
+      recordOperations.add(new RawPair<>(record.copy(), operation.type));
     }
 
     second.activateOnCurrentThread();
     second.begin();
-    OTransactionOptimistic transactionOptimistic = (OTransactionOptimistic) second.getTransaction();
+    TransactionOptimistic transactionOptimistic = (TransactionOptimistic) second.getTransaction();
     for (var recordOperation : recordOperations) {
       var record = recordOperation.first;
       record.setup(second);
@@ -125,35 +125,35 @@ public class TransactionRidAllocationTest {
     ((AbstractPaginatedStorage) second.getStorage()).preallocateRids(transactionOptimistic);
     db.activateOnCurrentThread();
     ((AbstractPaginatedStorage) db.getStorage())
-        .commitPreAllocated((OTransactionOptimistic) db.getTransaction());
+        .commitPreAllocated((TransactionOptimistic) db.getTransaction());
 
-    var db1 = youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db1 = youTrackDB.open("test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     assertNotNull(db1.load(generated));
 
     db1.close();
     second.activateOnCurrentThread();
     ((AbstractPaginatedStorage) second.getStorage())
-        .commitPreAllocated((OTransactionOptimistic) second.getTransaction());
+        .commitPreAllocated((TransactionOptimistic) second.getTransaction());
     second.close();
-    var db2 = youTrackDB.open("secondTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db2 = youTrackDB.open("secondTest", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     assertNotNull(db2.load(generated));
     db2.close();
   }
 
-  @Test(expected = YTConcurrentCreateException.class)
+  @Test(expected = ConcurrentCreateException.class)
   public void testMultipleDbAllocationNotAlignedFailure() {
-    YTDatabaseSessionInternal second;
+    DatabaseSessionInternal second;
     youTrackDB.execute(
         "create database "
             + "secondTest"
             + " "
             + "memory"
             + " users ( admin identified by '"
-            + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
+            + CreateDatabaseUtil.NEW_ADMIN_PASSWORD
             + "' role admin)");
     second =
-        (YTDatabaseSessionInternal)
-            youTrackDB.open("secondTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        (DatabaseSessionInternal)
+            youTrackDB.open("secondTest", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     // THIS OFFSET FIRST DB FROM THE SECOND
     for (int i = 0; i < 20; i++) {
       second.begin();
@@ -167,17 +167,17 @@ public class TransactionRidAllocationTest {
     db.save(v);
 
     ((AbstractPaginatedStorage) db.getStorage())
-        .preallocateRids((OTransactionOptimistic) db.getTransaction());
-    OTransaction transaction = db.getTransaction();
-    List<ORawPair<RecordAbstract, Byte>> recordOperations = new ArrayList<>();
-    for (ORecordOperation operation : transaction.getRecordOperations()) {
+        .preallocateRids((TransactionOptimistic) db.getTransaction());
+    FrontendTransaction transaction = db.getTransaction();
+    List<RawPair<RecordAbstract, Byte>> recordOperations = new ArrayList<>();
+    for (RecordOperation operation : transaction.getRecordOperations()) {
       var record = operation.record;
-      recordOperations.add(new ORawPair<>(record.copy(), operation.type));
+      recordOperations.add(new RawPair<>(record.copy(), operation.type));
     }
 
     second.activateOnCurrentThread();
     second.begin();
-    OTransactionOptimistic transactionOptimistic = (OTransactionOptimistic) second.getTransaction();
+    TransactionOptimistic transactionOptimistic = (TransactionOptimistic) second.getTransaction();
     for (var recordOperation : recordOperations) {
       var record = recordOperation.first;
       record.setup(second);
@@ -201,16 +201,16 @@ public class TransactionRidAllocationTest {
     }
 
     ((AbstractPaginatedStorage) db.getStorage())
-        .preallocateRids((OTransactionInternal) db.getTransaction());
-    List<YTRID> allocated = new ArrayList<>();
+        .preallocateRids((TransactionInternal) db.getTransaction());
+    List<RID> allocated = new ArrayList<>();
     for (Record rec : orecords) {
       allocated.add(rec.getIdentity());
     }
     ((AbstractPaginatedStorage) db.getStorage())
-        .commitPreAllocated((OTransactionOptimistic) db.getTransaction());
+        .commitPreAllocated((TransactionOptimistic) db.getTransaction());
 
-    var db1 = youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    for (final YTRID id : allocated) {
+    var db1 = youTrackDB.open("test", "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    for (final RID id : allocated) {
       assertNotNull(db1.load(id));
     }
     db1.close();

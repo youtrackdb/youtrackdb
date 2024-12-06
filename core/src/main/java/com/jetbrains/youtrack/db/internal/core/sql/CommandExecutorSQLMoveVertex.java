@@ -19,22 +19,22 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.types.OModifiableBoolean;
-import com.jetbrains.youtrack.db.internal.common.util.OPair;
+import com.jetbrains.youtrack.db.internal.common.types.ModifiableBoolean;
+import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionRuntime;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionRuntime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +44,7 @@ import java.util.Set;
  * SQL MOVE VERTEX command.
  */
 public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String NAME = "MOVE VERTEX";
   private static final String KEYWORD_MERGE = "MERGE";
@@ -52,8 +52,8 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
   private String source = null;
   private String clusterName;
   private String className;
-  private YTClass clazz;
-  private List<OPair<String, Object>> fields;
+  private SchemaClass clazz;
+  private List<Pair<String, Object>> fields;
   private EntityImpl merge;
   private int batch = 100;
 
@@ -68,7 +68,7 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
 
     source = parserRequiredWord(false, "Syntax error", " =><,\r\n");
     if (source == null) {
-      throw new YTCommandSQLParsingException("Cannot find source");
+      throw new CommandSQLParsingException("Cannot find source");
     }
 
     parserRequiredKeyword("TO");
@@ -78,18 +78,18 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
     while (temp != null) {
       if (temp.startsWith("CLUSTER:")) {
         if (className != null) {
-          throw new YTCommandSQLParsingException(
+          throw new CommandSQLParsingException(
               "Cannot define multiple sources. Found both cluster and class.");
         }
 
         clusterName = temp.substring("CLUSTER:".length());
         if (database.getClusterIdByName(clusterName) == -1) {
-          throw new YTCommandSQLParsingException("Cluster '" + clusterName + "' was not found");
+          throw new CommandSQLParsingException("Cluster '" + clusterName + "' was not found");
         }
 
       } else if (temp.startsWith("CLASS:")) {
         if (clusterName != null) {
-          throw new YTCommandSQLParsingException(
+          throw new CommandSQLParsingException(
               "Cannot define multiple sources. Found both cluster and class.");
         }
 
@@ -98,11 +98,11 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
         clazz = database.getMetadata().getSchema().getClass(className);
 
         if (clazz == null) {
-          throw new YTCommandSQLParsingException("Class '" + className + "' was not found");
+          throw new CommandSQLParsingException("Class '" + className + "' was not found");
         }
 
       } else if (temp.equals(KEYWORD_SET)) {
-        fields = new ArrayList<OPair<String, Object>>();
+        fields = new ArrayList<Pair<String, Object>>();
         parseSetFields(clazz, fields);
 
       } else if (temp.equals(KEYWORD_MERGE)) {
@@ -127,48 +127,48 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
   /**
    * Executes the command and return the EntityImpl object created.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
 
-    YTDatabaseSessionInternal db = getDatabase();
+    DatabaseSessionInternal db = getDatabase();
 
     db.begin();
 
     if (className == null && clusterName == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    OModifiableBoolean shutdownGraph = new OModifiableBoolean();
+    ModifiableBoolean shutdownGraph = new ModifiableBoolean();
     final boolean txAlreadyBegun = getDatabase().getTransaction().isActive();
 
-    final Set<YTIdentifiable> sourceRIDs =
-        OSQLEngine.getInstance().parseRIDTarget(db, source, context, iArgs);
+    final Set<Identifiable> sourceRIDs =
+        SQLEngine.getInstance().parseRIDTarget(db, source, context, iArgs);
 
     // CREATE EDGES
     final List<EntityImpl> result = new ArrayList<EntityImpl>(sourceRIDs.size());
 
-    for (YTIdentifiable from : sourceRIDs) {
+    for (Identifiable from : sourceRIDs) {
       final Vertex fromVertex = toVertex(from);
       if (fromVertex == null) {
         continue;
       }
 
-      final YTRID oldVertex = fromVertex.getIdentity().copy();
-      final YTRID newVertex = fromVertex.moveTo(className, clusterName);
+      final RID oldVertex = fromVertex.getIdentity().copy();
+      final RID newVertex = fromVertex.moveTo(className, clusterName);
 
       final EntityImpl newVertexDoc = newVertex.getRecord();
 
       if (fields != null) {
         // EVALUATE FIELDS
-        for (final OPair<String, Object> f : fields) {
-          if (f.getValue() instanceof OSQLFunctionRuntime) {
+        for (final Pair<String, Object> f : fields) {
+          if (f.getValue() instanceof SQLFunctionRuntime) {
             f.setValue(
-                ((OSQLFunctionRuntime) f.getValue())
+                ((SQLFunctionRuntime) f.getValue())
                     .getValue(newVertex.getRecord(), null, context));
           }
         }
 
-        OSQLHelper.bindParameters(newVertexDoc, fields, new OCommandParameters(iArgs), context);
+        SQLHelper.bindParameters(newVertexDoc, fields, new CommandParameters(iArgs), context);
       }
 
       if (merge != null) {
@@ -182,8 +182,8 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
       result.add(
           new EntityImpl()
               .setTrackingChanges(false)
-              .field("old", oldVertex, YTType.LINK)
-              .field("new", newVertex, YTType.LINK));
+              .field("old", oldVertex, PropertyType.LINK)
+              .field("new", newVertex, PropertyType.LINK));
 
       if (batch > 0 && result.size() % batch == 0) {
         db.commit();
@@ -207,13 +207,13 @@ public class CommandExecutorSQLMoveVertex extends CommandExecutorSQLSetAware
         + " [BATCH <batch-size>]";
   }
 
-  private static Vertex toVertex(YTIdentifiable item) {
+  private static Vertex toVertex(Identifiable item) {
     if (item instanceof Entity) {
       return ((Entity) item).asVertex().orElse(null);
     } else {
       try {
         item = getDatabase().load(item.getIdentity());
-      } catch (YTRecordNotFoundException rnf) {
+      } catch (RecordNotFoundException rnf) {
         return null;
       }
       if (item instanceof Entity) {

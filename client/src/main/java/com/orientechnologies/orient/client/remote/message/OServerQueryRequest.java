@@ -20,16 +20,16 @@
 package com.orientechnologies.orient.client.remote.message;
 
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.StorageRemote;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 import java.util.Map;
 
@@ -40,7 +40,7 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
   public static byte EXECUTE = 2;
 
   private int recordsPerPage = Integer.MAX_VALUE;
-  private ORecordSerializer serializer;
+  private RecordSerializer serializer;
   private String language;
   private String statement;
   private byte operationType;
@@ -53,7 +53,7 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
       String iCommand,
       Object[] positionalParams,
       byte operationType,
-      ORecordSerializer serializer,
+      RecordSerializer serializer,
       int recordsPerPage) {
     this.language = language;
     this.statement = iCommand;
@@ -71,7 +71,7 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
       String iCommand,
       Map<String, Object> namedParams,
       byte operationType,
-      ORecordSerializer serializer,
+      RecordSerializer serializer,
       int recordsPerPage) {
     this.language = language;
     this.statement = iCommand;
@@ -93,7 +93,7 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     network.writeString(language);
     network.writeString(statement);
@@ -107,8 +107,8 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
     network.writeBoolean(namedParams);
   }
 
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
-      ORecordSerializer serializer)
+  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+      RecordSerializer serializer)
       throws IOException {
     this.language = channel.readString();
     this.statement = channel.readString();
@@ -124,7 +124,7 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
 
   @Override
   public byte getCommand() {
-    return OChannelBinaryProtocol.REQUEST_SERVER_QUERY;
+    return ChannelBinaryProtocol.REQUEST_SERVER_QUERY;
   }
 
   @Override
@@ -188,7 +188,7 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
     return recordsPerPage;
   }
 
-  public ORecordSerializer getSerializer() {
+  public RecordSerializer getSerializer() {
     return serializer;
   }
 

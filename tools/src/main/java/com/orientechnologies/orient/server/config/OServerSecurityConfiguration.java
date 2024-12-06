@@ -31,8 +31,8 @@ public class OServerSecurityConfiguration {
 
   @XmlElementWrapper
   @XmlAnyElement
-  @XmlElementRef(type = OServerUserConfiguration.class)
-  public List<OServerUserConfiguration> users;
+  @XmlElementRef(type = ServerUserConfiguration.class)
+  public List<ServerUserConfiguration> users;
 
   @XmlElementWrapper
   @XmlAnyElement
@@ -43,7 +43,7 @@ public class OServerSecurityConfiguration {
   }
 
   public OServerSecurityConfiguration(Object iObject) {
-    users = new ArrayList<OServerUserConfiguration>();
+    users = new ArrayList<ServerUserConfiguration>();
     resources = new ArrayList<OServerResourceConfiguration>();
   }
 }

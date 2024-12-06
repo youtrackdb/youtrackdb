@@ -3,11 +3,11 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 import com.jetbrains.youtrack.db.internal.core.command.BasicServerCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.ServerCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OInternalExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OSingleOpServerExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.SingleOpServerExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.YTExecutionResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionResultSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +27,7 @@ public abstract class SQLSimpleExecServerStatement extends SQLServerStatement {
 
   public abstract ExecutionStream executeSimple(ServerCommandContext ctx);
 
-  public YTResultSet execute(
+  public ResultSet execute(
       YouTrackDBInternal db,
       Object[] args,
       ServerCommandContext parentContext,
@@ -44,12 +44,12 @@ public abstract class SQLSimpleExecServerStatement extends SQLServerStatement {
       }
     }
     ctx.setInputParameters(params);
-    OSingleOpServerExecutionPlan executionPlan =
-        (OSingleOpServerExecutionPlan) createExecutionPlan(ctx, false);
-    return new YTExecutionResultSet(executionPlan.executeInternal(), ctx, executionPlan);
+    SingleOpServerExecutionPlan executionPlan =
+        (SingleOpServerExecutionPlan) createExecutionPlan(ctx, false);
+    return new ExecutionResultSet(executionPlan.executeInternal(), ctx, executionPlan);
   }
 
-  public YTResultSet execute(
+  public ResultSet execute(
       YouTrackDBInternal db, Map params, ServerCommandContext parentContext,
       boolean usePlanCache) {
     BasicServerCommandContext ctx = new BasicServerCommandContext();
@@ -58,13 +58,13 @@ public abstract class SQLSimpleExecServerStatement extends SQLServerStatement {
     }
     ctx.setServer(db);
     ctx.setInputParameters(params);
-    OSingleOpServerExecutionPlan executionPlan =
-        (OSingleOpServerExecutionPlan) createExecutionPlan(ctx, false);
-    return new YTExecutionResultSet(executionPlan.executeInternal(), ctx, executionPlan);
+    SingleOpServerExecutionPlan executionPlan =
+        (SingleOpServerExecutionPlan) createExecutionPlan(ctx, false);
+    return new ExecutionResultSet(executionPlan.executeInternal(), ctx, executionPlan);
   }
 
-  public OInternalExecutionPlan createExecutionPlan(
+  public InternalExecutionPlan createExecutionPlan(
       ServerCommandContext ctx, boolean enableProfiling) {
-    return new OSingleOpServerExecutionPlan(ctx, this);
+    return new SingleOpServerExecutionPlan(ctx, this);
   }
 }

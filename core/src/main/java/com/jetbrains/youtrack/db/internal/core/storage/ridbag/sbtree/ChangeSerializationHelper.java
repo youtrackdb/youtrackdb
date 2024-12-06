@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OByteSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.OLinkSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,29 +30,29 @@ public class ChangeSerializationHelper {
 
   public Change deserializeChange(final byte[] stream, final int offset) {
     int value =
-        OIntegerSerializer.INSTANCE.deserializeLiteral(stream, offset + OByteSerializer.BYTE_SIZE);
-    return createChangeInstance(OByteSerializer.INSTANCE.deserializeLiteral(stream, offset), value);
+        IntegerSerializer.INSTANCE.deserializeLiteral(stream, offset + ByteSerializer.BYTE_SIZE);
+    return createChangeInstance(ByteSerializer.INSTANCE.deserializeLiteral(stream, offset), value);
   }
 
-  public Map<YTIdentifiable, Change> deserializeChanges(final byte[] stream, int offset) {
-    final int count = OIntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
-    offset += OIntegerSerializer.INT_SIZE;
+  public Map<Identifiable, Change> deserializeChanges(final byte[] stream, int offset) {
+    final int count = IntegerSerializer.INSTANCE.deserializeLiteral(stream, offset);
+    offset += IntegerSerializer.INT_SIZE;
 
-    final HashMap<YTIdentifiable, Change> res = new HashMap<>();
+    final HashMap<Identifiable, Change> res = new HashMap<>();
     for (int i = 0; i < count; i++) {
-      YTRecordId rid = OLinkSerializer.INSTANCE.deserialize(stream, offset);
-      offset += OLinkSerializer.RID_SIZE;
+      RecordId rid = LinkSerializer.INSTANCE.deserialize(stream, offset);
+      offset += LinkSerializer.RID_SIZE;
       Change change = ChangeSerializationHelper.INSTANCE.deserializeChange(stream, offset);
       offset += Change.SIZE;
 
-      YTIdentifiable identifiable;
+      Identifiable identifiable;
       try {
         if (rid.isTemporary()) {
           identifiable = rid.getRecord();
         } else {
           identifiable = rid;
         }
-      } catch (YTRecordNotFoundException rnf) {
+      } catch (RecordNotFoundException rnf) {
         identifiable = rid;
       }
 
@@ -62,10 +62,10 @@ public class ChangeSerializationHelper {
     return res;
   }
 
-  public <K extends YTIdentifiable> void serializeChanges(
-      Map<K, Change> changes, OBinarySerializer<K> keySerializer, byte[] stream, int offset) {
-    OIntegerSerializer.INSTANCE.serializeLiteral(changes.size(), stream, offset);
-    offset += OIntegerSerializer.INT_SIZE;
+  public <K extends Identifiable> void serializeChanges(
+      Map<K, Change> changes, BinarySerializer<K> keySerializer, byte[] stream, int offset) {
+    IntegerSerializer.INSTANCE.serializeLiteral(changes.size(), stream, offset);
+    offset += IntegerSerializer.INT_SIZE;
 
     for (Map.Entry<K, Change> entry : changes.entrySet()) {
       K key = entry.getKey();
@@ -84,6 +84,6 @@ public class ChangeSerializationHelper {
   }
 
   public int getChangesSerializedSize(int changesCount) {
-    return changesCount * (OLinkSerializer.RID_SIZE + Change.SIZE);
+    return changesCount * (LinkSerializer.RID_SIZE + Change.SIZE);
   }
 }

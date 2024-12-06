@@ -3,18 +3,18 @@ package com.orientechnologies.orient.server.network;
 import static org.junit.Assert.assertEquals;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseSessionAbstract;
+import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerBinary;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerSchemaAware2CSV;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseSessionAbstract;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializerFactory;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerBinary;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.io.IOException;
@@ -33,16 +33,16 @@ public class TestNetworkSerializerIndipendency {
     server.activate();
   }
 
-  @Test(expected = YTStorageException.class)
+  @Test(expected = StorageException.class)
   public void createCsvDatabaseConnectBinary() throws IOException {
-    ORecordSerializer prev = YTDatabaseSessionAbstract.getDefaultSerializer();
-    YTDatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
+    RecordSerializer prev = DatabaseSessionAbstract.getDefaultSerializer();
+    DatabaseSessionAbstract.setDefaultSerializer(RecordSerializerSchemaAware2CSV.INSTANCE);
     createDatabase();
 
-    YTDatabaseSessionInternal dbTx = null;
+    DatabaseSessionInternal dbTx = null;
     try {
-      YTDatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerBinary.INSTANCE);
-      dbTx = new YTDatabaseDocumentTx("remote:localhost/test");
+      DatabaseSessionAbstract.setDefaultSerializer(RecordSerializerBinary.INSTANCE);
+      dbTx = new DatabaseDocumentTx("remote:localhost/test");
       dbTx.open("admin", "admin");
       EntityImpl document = new EntityImpl();
       document.field("name", "something");
@@ -60,7 +60,7 @@ public class TestNetworkSerializerIndipendency {
       }
 
       dropDatabase();
-      YTDatabaseSessionAbstract.setDefaultSerializer(prev);
+      DatabaseSessionAbstract.setDefaultSerializer(prev);
     }
   }
 
@@ -78,14 +78,14 @@ public class TestNetworkSerializerIndipendency {
 
   @Test
   public void createBinaryDatabaseConnectCsv() throws IOException {
-    ORecordSerializer prev = YTDatabaseSessionAbstract.getDefaultSerializer();
-    YTDatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerBinary.INSTANCE);
+    RecordSerializer prev = DatabaseSessionAbstract.getDefaultSerializer();
+    DatabaseSessionAbstract.setDefaultSerializer(RecordSerializerBinary.INSTANCE);
     createDatabase();
 
-    YTDatabaseSessionInternal dbTx = null;
+    DatabaseSessionInternal dbTx = null;
     try {
-      YTDatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
-      dbTx = new YTDatabaseDocumentTx("remote:localhost/test");
+      DatabaseSessionAbstract.setDefaultSerializer(RecordSerializerSchemaAware2CSV.INSTANCE);
+      dbTx = new DatabaseDocumentTx("remote:localhost/test");
       dbTx.open("admin", "admin");
       dbTx.begin();
       EntityImpl document = new EntityImpl();
@@ -107,7 +107,7 @@ public class TestNetworkSerializerIndipendency {
       }
 
       dropDatabase();
-      YTDatabaseSessionAbstract.setDefaultSerializer(prev);
+      DatabaseSessionAbstract.setDefaultSerializer(prev);
     }
   }
 
@@ -118,8 +118,8 @@ public class TestNetworkSerializerIndipendency {
     YouTrackDBManager.instance().shutdown();
     File directory = new File(server.getDatabaseDirectory());
     FileUtils.deleteRecursively(directory);
-    YTDatabaseSessionAbstract.setDefaultSerializer(
-        ORecordSerializerFactory.instance().getFormat(ORecordSerializerBinary.NAME));
+    DatabaseSessionAbstract.setDefaultSerializer(
+        RecordSerializerFactory.instance().getFormat(RecordSerializerBinary.NAME));
     YouTrackDBManager.instance().startup();
   }
 
@@ -129,7 +129,7 @@ public class TestNetworkSerializerIndipendency {
         if (f.isDirectory()) {
           deleteDirectory(f);
         } else if (!f.delete()) {
-          throw new YTConfigurationException("Cannot delete the file: " + f);
+          throw new ConfigurationException("Cannot delete the file: " + f);
         }
       }
     }

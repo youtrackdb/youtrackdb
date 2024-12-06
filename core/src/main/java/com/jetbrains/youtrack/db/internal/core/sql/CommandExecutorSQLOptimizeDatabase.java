@@ -22,11 +22,11 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Iterator;
 import java.util.Map;
@@ -36,7 +36,7 @@ import java.util.Map;
  */
 @SuppressWarnings("unchecked")
 public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String KEYWORD_OPTIMIZE = "OPTIMIZE";
   public static final String KEYWORD_DATABASE = "DATABASE";
@@ -62,14 +62,14 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_OPTIMIZE)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_OPTIMIZE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_DATABASE)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_DATABASE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -92,7 +92,7 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
   /**
    * Execute the ALTER DATABASE.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     final StringBuilder result = new StringBuilder();
 
     if (optimizeEdges) {
@@ -103,7 +103,7 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
   }
 
   private String optimizeEdges() {
-    final YTDatabaseSessionInternal db = getDatabase();
+    final DatabaseSessionInternal db = getDatabase();
 
     long transformed = 0;
     if (db.getTransaction().isActive()) {
@@ -128,7 +128,7 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
 
         if (doc != null) {
           if (doc.fields() == 2) {
-            final YTRID edgeIdentity = doc.getIdentity();
+            final RID edgeIdentity = doc.getIdentity();
 
             final EntityImpl outV = doc.field("out");
             final EntityImpl inV = doc.field("in");
@@ -136,9 +136,9 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
             // OUTGOING
             final Object outField = outV.field("out_" + doc.getClassName());
             if (outField instanceof RidBag) {
-              final Iterator<YTIdentifiable> it = ((RidBag) outField).iterator();
+              final Iterator<Identifiable> it = ((RidBag) outField).iterator();
               while (it.hasNext()) {
-                YTIdentifiable v = it.next();
+                Identifiable v = it.next();
                 if (edgeIdentity.equals(v)) {
                   // REPLACE EDGE RID WITH IN-VERTEX RID
                   it.remove();
@@ -153,9 +153,9 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
             // INCOMING
             final Object inField = inV.field("in_" + doc.getClassName());
             if (outField instanceof RidBag) {
-              final Iterator<YTIdentifiable> it = ((RidBag) inField).iterator();
+              final Iterator<Identifiable> it = ((RidBag) inField).iterator();
               while (it.hasNext()) {
-                YTIdentifiable v = it.next();
+                Identifiable v = it.next();
                 if (edgeIdentity.equals(v)) {
                   // REPLACE EDGE RID WITH IN-VERTEX RID
                   it.remove();

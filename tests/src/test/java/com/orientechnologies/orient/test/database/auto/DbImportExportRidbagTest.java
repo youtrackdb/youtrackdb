@@ -16,13 +16,13 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseCompare;
-import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseExport;
-import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseImport;
-import com.jetbrains.youtrack.db.internal.core.hook.YTRecordHook;
+import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
+import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseExport;
+import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImport;
+import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 @Test(groups = {"db", "import-export"})
-public class DbImportExportRidbagTest extends DocumentDBBaseTest implements OCommandOutputListener {
+public class DbImportExportRidbagTest extends DocumentDBBaseTest implements CommandOutputListener {
 
   public static final String EXPORT_FILE_PATH = "target/db.export-ridbag.gz";
   public static final String NEW_DB_PATH = "target/test-import-ridbag";
@@ -51,7 +51,7 @@ public class DbImportExportRidbagTest extends DocumentDBBaseTest implements OCom
 
   @Test
   public void testDbExport() throws IOException {
-    YTDatabaseSessionInternal database = acquireSession();
+    DatabaseSessionInternal database = acquireSession();
 
     database.command("insert into V set name ='a'");
     for (int i = 0; i < 100; i++) {
@@ -64,7 +64,7 @@ public class DbImportExportRidbagTest extends DocumentDBBaseTest implements OCom
     // ADD A CUSTOM TO THE CLASS
     database.command("alter class V custom onBeforeCreate=onBeforeCreateItem").close();
 
-    ODatabaseExport export = new ODatabaseExport(database, testPath + "/" + exportFilePath, this);
+    DatabaseExport export = new DatabaseExport(database, testPath + "/" + exportFilePath, this);
     export.exportDatabase();
     export.close();
 
@@ -82,15 +82,15 @@ public class DbImportExportRidbagTest extends DocumentDBBaseTest implements OCom
       importDir.mkdir();
     }
 
-    YTDatabaseSessionInternal database =
-        new YTDatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
+    DatabaseSessionInternal database =
+        new DatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
     database.create();
 
-    ODatabaseImport dbImport = new ODatabaseImport(database, testPath + "/" + exportFilePath, this);
+    DatabaseImport dbImport = new DatabaseImport(database, testPath + "/" + exportFilePath, this);
     dbImport.setMaxRidbagStringSizeBeforeLazyImport(50);
 
     // UNREGISTER ALL THE HOOKS
-    for (YTRecordHook hook : new ArrayList<YTRecordHook>(database.getHooks().keySet())) {
+    for (RecordHook hook : new ArrayList<RecordHook>(database.getHooks().keySet())) {
       database.unregisterHook(hook);
     }
 
@@ -112,12 +112,12 @@ public class DbImportExportRidbagTest extends DocumentDBBaseTest implements OCom
       // EXECUTES ONLY IF NOT REMOTE ON CI/RELEASE TEST ENV
     }
 
-    YTDatabaseSessionInternal first = acquireSession();
-    YTDatabaseSessionInternal second =
-        new YTDatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
+    DatabaseSessionInternal first = acquireSession();
+    DatabaseSessionInternal second =
+        new DatabaseDocumentTx(getStorageType() + ":" + testPath + "/" + NEW_DB_URL);
     second.open("admin", "admin");
 
-    final ODatabaseCompare databaseCompare = new ODatabaseCompare(first, second, this);
+    final DatabaseCompare databaseCompare = new DatabaseCompare(first, second, this);
     databaseCompare.setCompareEntriesForAutomaticIndexes(true);
     databaseCompare.setCompareIndexMetadata(true);
     Assert.assertTrue(databaseCompare.compare());

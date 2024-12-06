@@ -19,14 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.function.OFunction;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +59,7 @@ public class CommandExecutorSQLCreateFunction extends CommandExecutorSQLAbstract
       parserRequiredKeyword("FUNCTION");
 
       name = parserNextWord(false);
-      code = OIOUtils.getStringContent(parserNextWord(false));
+      code = IOUtils.getStringContent(parserNextWord(false));
 
       String temp = parseOptionalWord(true);
       while (temp != null) {
@@ -72,9 +72,9 @@ public class CommandExecutorSQLCreateFunction extends CommandExecutorSQLAbstract
         } else if (temp.equals("PARAMETERS")) {
           parserNextWord(false);
           parameters = new ArrayList<String>();
-          OStringSerializerHelper.getCollection(parserGetLastWord(), 0, parameters);
+          StringSerializerHelper.getCollection(parserGetLastWord(), 0, parameters);
           if (parameters.size() == 0) {
-            throw new YTCommandExecutionException(
+            throw new CommandExecutionException(
                 "Syntax Error. Missing function parameter(s): " + getSyntax());
           }
         }
@@ -101,22 +101,22 @@ public class CommandExecutorSQLCreateFunction extends CommandExecutorSQLAbstract
   /**
    * Execute the command and return the EntityImpl object created.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (name == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
     if (name.isEmpty()) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Syntax Error. You must specify a function name: " + getSyntax());
     }
     if (code == null || code.isEmpty()) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Syntax Error. You must specify the function code: " + getSyntax());
     }
 
     var database = getDatabase();
-    final OFunction f = database.getMetadata().getFunctionLibrary().createFunction(name);
+    final Function f = database.getMetadata().getFunctionLibrary().createFunction(name);
     f.setCode(database, code);
     f.setIdempotent(database, idempotent);
     if (parameters != null) {

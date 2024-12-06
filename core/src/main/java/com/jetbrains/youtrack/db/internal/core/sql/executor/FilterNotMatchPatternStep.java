@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.List;
@@ -16,7 +16,7 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev == null) {
       throw new IllegalStateException("filter step requires a previous step");
     }
@@ -24,15 +24,15 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
     return resultSet.filter(this::filterMap);
   }
 
-  private YTResult filterMap(YTResult result, CommandContext ctx) {
+  private Result filterMap(Result result, CommandContext ctx) {
     if (!matchesPattern(result, ctx)) {
       return result;
     }
     return null;
   }
 
-  private boolean matchesPattern(YTResult nextItem, CommandContext ctx) {
-    OSelectExecutionPlan plan = createExecutionPlan(nextItem, ctx);
+  private boolean matchesPattern(Result nextItem, CommandContext ctx) {
+    SelectExecutionPlan plan = createExecutionPlan(nextItem, ctx);
     ExecutionStream rs = plan.start();
     try {
       return rs.hasNext(ctx);
@@ -41,19 +41,19 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
     }
   }
 
-  private OSelectExecutionPlan createExecutionPlan(YTResult nextItem, CommandContext ctx) {
-    OSelectExecutionPlan plan = new OSelectExecutionPlan(ctx);
+  private SelectExecutionPlan createExecutionPlan(Result nextItem, CommandContext ctx) {
+    SelectExecutionPlan plan = new SelectExecutionPlan(ctx);
     var db = ctx.getDatabase();
     plan.chain(
         new AbstractExecutionStep(ctx, profilingEnabled) {
 
           @Override
-          public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+          public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
             return ExecutionStream.singleton(copy(nextItem));
           }
 
-          private YTResult copy(YTResult nextItem) {
-            YTResultInternal result = new YTResultInternal(db);
+          private Result copy(Result nextItem) {
+            ResultInternal result = new ResultInternal(db);
             for (String prop : nextItem.getPropertyNames()) {
               result.setProperty(prop, nextItem.getProperty(prop));
             }

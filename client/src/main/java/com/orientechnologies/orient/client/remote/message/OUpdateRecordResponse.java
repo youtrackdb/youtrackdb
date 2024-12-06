@@ -19,13 +19,13 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
@@ -33,9 +33,9 @@ import java.util.UUID;
 public class OUpdateRecordResponse implements OBinaryResponse {
 
   private int version;
-  private Map<UUID, OBonsaiCollectionPointer> changes;
+  private Map<UUID, BonsaiCollectionPointer> changes;
 
-  public OUpdateRecordResponse(int version, Map<UUID, OBonsaiCollectionPointer> changes) {
+  public OUpdateRecordResponse(int version, Map<UUID, BonsaiCollectionPointer> changes) {
     this.version = version;
     this.changes = changes;
   }
@@ -43,8 +43,8 @@ public class OUpdateRecordResponse implements OBinaryResponse {
   public OUpdateRecordResponse() {
   }
 
-  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel,
-      int protocolVersion, ORecordSerializer serializer)
+  public void write(DatabaseSessionInternal session, ChannelDataOutput channel,
+      int protocolVersion, RecordSerializer serializer)
       throws IOException {
     channel.writeVersion(version);
     if (protocolVersion >= 20) {
@@ -53,7 +53,7 @@ public class OUpdateRecordResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
+  public void read(DatabaseSessionInternal db, ChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
     version = network.readVersion();
     changes = OMessageHelper.readCollectionChanges(network);
@@ -63,7 +63,7 @@ public class OUpdateRecordResponse implements OBinaryResponse {
     return version;
   }
 
-  public Map<UUID, OBonsaiCollectionPointer> getChanges() {
+  public Map<UUID, BonsaiCollectionPointer> getChanges() {
     return changes;
   }
 }

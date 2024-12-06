@@ -21,9 +21,9 @@ package com.jetbrains.youtrack.db.internal.core.command.traverse;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
@@ -37,11 +37,11 @@ import java.util.Set;
 public class TraverseContext extends BasicCommandContext {
 
   private Memory memory = new StackMemory();
-  private final Set<YTRID> history = new HashSet<YTRID>();
+  private final Set<RID> history = new HashSet<RID>();
 
-  private OTraverseAbstractProcess<?> currentProcess;
+  private TraverseAbstractProcess<?> currentProcess;
 
-  public void push(final OTraverseAbstractProcess<?> iProcess) {
+  public void push(final TraverseAbstractProcess<?> iProcess) {
     memory.add(iProcess);
   }
 
@@ -61,19 +61,19 @@ public class TraverseContext extends BasicCommandContext {
     if ("DEPTH".startsWith(name)) {
       return getDepth();
     } else if (name.startsWith("PATH")) {
-      return ODocumentHelper.getFieldValue(getDatabase(), getPath(),
+      return DocumentHelper.getFieldValue(getDatabase(), getPath(),
           iName.substring("PATH".length()));
     } else if (name.startsWith("STACK")) {
 
       Object result =
-          ODocumentHelper.getFieldValue(getDatabase(), memory.getUnderlying(),
+          DocumentHelper.getFieldValue(getDatabase(), memory.getUnderlying(),
               iName.substring("STACK".length()));
       if (result instanceof ArrayDeque) {
         result = ((ArrayDeque) result).clone();
       }
       return result;
     } else if (name.startsWith("HISTORY")) {
-      return ODocumentHelper.getFieldValue(getDatabase(), history,
+      return DocumentHelper.getFieldValue(getDatabase(), history,
           iName.substring("HISTORY".length()));
     } else
     // DELEGATE
@@ -82,9 +82,9 @@ public class TraverseContext extends BasicCommandContext {
     }
   }
 
-  public void pop(final YTIdentifiable currentRecord) {
+  public void pop(final Identifiable currentRecord) {
     if (currentRecord != null) {
-      final YTRID rid = currentRecord.getIdentity();
+      final RID rid = currentRecord.getIdentity();
       if (!history.remove(rid)) {
         LogManager.instance().warn(this, "Element '" + rid + "' not found in traverse history");
       }
@@ -97,7 +97,7 @@ public class TraverseContext extends BasicCommandContext {
     }
   }
 
-  public OTraverseAbstractProcess<?> next() {
+  public TraverseAbstractProcess<?> next() {
     currentProcess = memory.next();
     return currentProcess;
   }
@@ -110,7 +110,7 @@ public class TraverseContext extends BasicCommandContext {
     memory.clear();
   }
 
-  public boolean isAlreadyTraversed(final YTIdentifiable identity, final int iLevel) {
+  public boolean isAlreadyTraversed(final Identifiable identity, final int iLevel) {
     return history.contains(identity.getIdentity());
 
     // final int[] l = history.get(identity.getIdentity());
@@ -122,7 +122,7 @@ public class TraverseContext extends BasicCommandContext {
     // return true;
   }
 
-  public void addTraversed(final YTIdentifiable identity, final int iLevel) {
+  public void addTraversed(final Identifiable identity, final int iLevel) {
     history.add(identity.getIdentity());
 
     // final int[] l = history.get(identity.getIdentity());
@@ -157,8 +157,8 @@ public class TraverseContext extends BasicCommandContext {
     return currentProcess == null ? 0 : currentProcess.getPath().getDepth();
   }
 
-  public void setStrategy(final OTraverse.STRATEGY strategy) {
-    if (strategy == OTraverse.STRATEGY.BREADTH_FIRST) {
+  public void setStrategy(final Traverse.STRATEGY strategy) {
+    if (strategy == Traverse.STRATEGY.BREADTH_FIRST) {
       memory = new QueueMemory(memory);
     } else {
       memory = new StackMemory(memory);
@@ -167,33 +167,33 @@ public class TraverseContext extends BasicCommandContext {
 
   private interface Memory {
 
-    void add(OTraverseAbstractProcess<?> iProcess);
+    void add(TraverseAbstractProcess<?> iProcess);
 
-    OTraverseAbstractProcess<?> next();
+    TraverseAbstractProcess<?> next();
 
     void dropFrame();
 
     void clear();
 
-    Collection<OTraverseAbstractProcess<?>> getUnderlying();
+    Collection<TraverseAbstractProcess<?>> getUnderlying();
 
     boolean isEmpty();
   }
 
   private abstract static class AbstractMemory implements Memory {
 
-    protected final Deque<OTraverseAbstractProcess<?>> deque;
+    protected final Deque<TraverseAbstractProcess<?>> deque;
 
     public AbstractMemory() {
-      deque = new ArrayDeque<OTraverseAbstractProcess<?>>();
+      deque = new ArrayDeque<TraverseAbstractProcess<?>>();
     }
 
     public AbstractMemory(final Memory memory) {
-      deque = new ArrayDeque<OTraverseAbstractProcess<?>>(memory.getUnderlying());
+      deque = new ArrayDeque<TraverseAbstractProcess<?>>(memory.getUnderlying());
     }
 
     @Override
-    public OTraverseAbstractProcess<?> next() {
+    public TraverseAbstractProcess<?> next() {
       return deque.peek();
     }
 
@@ -213,7 +213,7 @@ public class TraverseContext extends BasicCommandContext {
     }
 
     @Override
-    public Collection<OTraverseAbstractProcess<?>> getUnderlying() {
+    public Collection<TraverseAbstractProcess<?>> getUnderlying() {
       return deque;
     }
   }
@@ -229,7 +229,7 @@ public class TraverseContext extends BasicCommandContext {
     }
 
     @Override
-    public void add(final OTraverseAbstractProcess<?> iProcess) {
+    public void add(final TraverseAbstractProcess<?> iProcess) {
       deque.push(iProcess);
     }
   }
@@ -241,7 +241,7 @@ public class TraverseContext extends BasicCommandContext {
     }
 
     @Override
-    public void add(final OTraverseAbstractProcess<?> iProcess) {
+    public void add(final TraverseAbstractProcess<?> iProcess) {
       deque.addLast(iProcess);
     }
   }

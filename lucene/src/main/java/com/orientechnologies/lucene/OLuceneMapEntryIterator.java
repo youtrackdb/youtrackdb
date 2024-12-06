@@ -17,9 +17,9 @@
 package com.orientechnologies.lucene;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
-import com.orientechnologies.lucene.engine.OLuceneIndexEngineAbstract;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.orientechnologies.lucene.engine.LuceneIndexEngineAbstract;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
@@ -28,12 +28,12 @@ import org.apache.lucene.index.IndexReader;
 
 public class OLuceneMapEntryIterator<K, V> implements Iterator<Map.Entry<K, V>> {
 
-  private final OIndexDefinition definition;
+  private final IndexDefinition definition;
   private final IndexReader reader;
 
   private int currentIdx;
 
-  public OLuceneMapEntryIterator(IndexReader reader, OIndexDefinition definition) {
+  public OLuceneMapEntryIterator(IndexReader reader, IndexDefinition definition) {
 
     this.reader = reader;
     this.definition = definition;
@@ -55,10 +55,10 @@ public class OLuceneMapEntryIterator<K, V> implements Iterator<Map.Entry<K, V>> 
           val += doc.get(field);
         }
       } else {
-        val = doc.get(OLuceneIndexEngineAbstract.KEY);
+        val = doc.get(LuceneIndexEngineAbstract.KEY);
       }
       final String finalVal = val;
-      final YTRecordId id = new YTRecordId(doc.get(OLuceneIndexEngineAbstract.RID));
+      final RecordId id = new RecordId(doc.get(LuceneIndexEngineAbstract.RID));
       currentIdx++;
       return new Map.Entry<K, V>() {
         @Override

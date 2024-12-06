@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.client.remote.message;
 
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 
 public class OPushFunctionsRequest implements OBinaryPushRequest<OBinaryPushResponse> {
@@ -13,16 +13,16 @@ public class OPushFunctionsRequest implements OBinaryPushRequest<OBinaryPushResp
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel)
+  public void write(DatabaseSessionInternal session, ChannelDataOutput channel)
       throws IOException {
   }
 
   @Override
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput network) throws IOException {
+  public void read(DatabaseSessionInternal db, ChannelDataInput network) throws IOException {
   }
 
   @Override
-  public OBinaryPushResponse execute(YTDatabaseSessionInternal session,
+  public OBinaryPushResponse execute(DatabaseSessionInternal session,
       ORemotePushHandler pushHandler) {
     return pushHandler.executeUpdateFunction(this);
   }
@@ -34,6 +34,6 @@ public class OPushFunctionsRequest implements OBinaryPushRequest<OBinaryPushResp
 
   @Override
   public byte getPushCommand() {
-    return OChannelBinaryProtocol.REQUEST_PUSH_FUNCTIONS;
+    return ChannelBinaryProtocol.REQUEST_PUSH_FUNCTIONS;
   }
 }

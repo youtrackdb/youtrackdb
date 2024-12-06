@@ -19,26 +19,26 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.util.OCallable;
+import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORestrictedAccessHook;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORestrictedOperation;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityInternal;
-import com.jetbrains.youtrack.db.internal.core.query.live.OLiveQueryHook;
-import com.jetbrains.youtrack.db.internal.core.query.live.OLiveQueryListener;
+import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
+import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.RestrictedAccessHook;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.RestrictedOperation;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
+import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHook;
+import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryListener;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OLegacyResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OLiveResultListener;
+import com.jetbrains.youtrack.db.internal.core.sql.query.LegacyResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.query.LiveResultListener;
 import java.util.Map;
 import java.util.Random;
 
@@ -46,21 +46,21 @@ import java.util.Random;
  *
  */
 public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
-    implements OLiveQueryListener {
+    implements LiveQueryListener {
 
   public static final String KEYWORD_LIVE_SELECT = "LIVE SELECT";
-  private YTDatabaseSessionInternal execDb;
+  private DatabaseSessionInternal execDb;
   private int token;
   private static final Random random = new Random();
 
   public CommandExecutorSQLLiveSelect() {
   }
 
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     try {
-      final YTDatabaseSessionInternal db = getDatabase();
+      final DatabaseSessionInternal db = getDatabase();
       execInSeparateDatabase(
-          new OCallable() {
+          new CallableFunction() {
             @Override
             public Object call(Object iArgument) {
               return execDb = db.copy();
@@ -88,7 +88,7 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
       EntityImpl result = new EntityImpl();
       result.field("token", token); // TODO change this name...?
 
-      ((OLegacyResultSet) getResult(querySession)).add(result);
+      ((LegacyResultSet) getResult(querySession)).add(result);
       return getResult(querySession);
     } finally {
       if (request != null && request.getResultListener() != null) {
@@ -97,17 +97,17 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
     }
   }
 
-  private void subscribeToLiveQuery(Integer token, YTDatabaseSessionInternal db) {
-    OLiveQueryHook.subscribe(token, this, db);
+  private void subscribeToLiveQuery(Integer token, DatabaseSessionInternal db) {
+    LiveQueryHook.subscribe(token, this, db);
   }
 
-  public void onLiveResult(final ORecordOperation iOp) {
+  public void onLiveResult(final RecordOperation iOp) {
 
-    YTDatabaseSessionInternal oldThreadLocal = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    DatabaseSessionInternal oldThreadLocal = DatabaseRecordThreadLocal.instance().getIfDefined();
     execDb.activateOnCurrentThread();
 
     try {
-      final YTIdentifiable value = iOp.record;
+      final Identifiable value = iOp.record;
 
       if (!matchesTarget(value)) {
         return;
@@ -120,56 +120,56 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
       }
     } finally {
       if (oldThreadLocal == null) {
-        ODatabaseRecordThreadLocal.instance().remove();
+        DatabaseRecordThreadLocal.instance().remove();
       } else {
-        ODatabaseRecordThreadLocal.instance().set(oldThreadLocal);
+        DatabaseRecordThreadLocal.instance().set(oldThreadLocal);
       }
     }
-    final OCommandResultListener listener = request.getResultListener();
-    if (listener instanceof OLiveResultListener) {
+    final CommandResultListener listener = request.getResultListener();
+    if (listener instanceof LiveResultListener) {
       execInSeparateDatabase(
-          new OCallable() {
+          new CallableFunction() {
             @Override
             public Object call(Object iArgument) {
               execDb.activateOnCurrentThread();
-              ((OLiveResultListener) listener).onLiveResult(token, iOp);
+              ((LiveResultListener) listener).onLiveResult(token, iOp);
               return null;
             }
           });
     }
   }
 
-  protected void execInSeparateDatabase(final OCallable iCallback) {
-    final YTDatabaseSessionInternal prevDb = ODatabaseRecordThreadLocal.instance().getIfDefined();
+  protected void execInSeparateDatabase(final CallableFunction iCallback) {
+    final DatabaseSessionInternal prevDb = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       iCallback.call(null);
     } finally {
       if (prevDb != null) {
-        ODatabaseRecordThreadLocal.instance().set(prevDb);
+        DatabaseRecordThreadLocal.instance().set(prevDb);
       } else {
-        ODatabaseRecordThreadLocal.instance().remove();
+        DatabaseRecordThreadLocal.instance().remove();
       }
     }
   }
 
-  private boolean checkSecurity(YTIdentifiable value) {
+  private boolean checkSecurity(Identifiable value) {
     try {
       // TODO check this!
       execDb.checkSecurity(
-          ORule.ResourceGeneric.CLASS,
-          ORole.PERMISSION_READ,
+          Rule.ResourceGeneric.CLASS,
+          Role.PERMISSION_READ,
           ((EntityImpl) value.getRecord()).getClassName());
-    } catch (YTSecurityException ignore) {
+    } catch (SecurityException ignore) {
       return false;
     }
-    OSecurityInternal security = execDb.getSharedContext().getSecurity();
+    SecurityInternal security = execDb.getSharedContext().getSecurity();
     boolean allowedByPolicy = security.canRead(execDb, value.getRecord());
     return allowedByPolicy
-        && ORestrictedAccessHook.isAllowed(
-        execDb, value.getRecord(), ORestrictedOperation.ALLOW_READ, false);
+        && RestrictedAccessHook.isAllowed(
+        execDb, value.getRecord(), RestrictedOperation.ALLOW_READ, false);
   }
 
-  private boolean matchesFilters(YTIdentifiable value) {
+  private boolean matchesFilters(Identifiable value) {
     if (this.compiledFilter == null || this.compiledFilter.getRootCondition() == null) {
       return true;
     }
@@ -180,7 +180,7 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
         compiledFilter.evaluate(value, (EntityImpl) value, getContext())));
   }
 
-  private boolean matchesTarget(YTIdentifiable value) {
+  private boolean matchesTarget(Identifiable value) {
     if (!(value instanceof EntityImpl)) {
       return false;
     }
@@ -188,7 +188,7 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
     if (className == null) {
       return false;
     }
-    final YTClass docClass = execDb.getMetadata().getSchema().getClass(className);
+    final SchemaClass docClass = execDb.getMetadata().getSchema().getClass(className);
     if (docClass == null) {
       return false;
     }
@@ -201,7 +201,7 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
       }
     }
     if (this.parsedTarget.getTargetRecords() != null) {
-      for (YTIdentifiable r : parsedTarget.getTargetRecords()) {
+      for (Identifiable r : parsedTarget.getTargetRecords()) {
         if (r.getIdentity().equals(value.getIdentity())) {
           return true;
         }
@@ -221,18 +221,18 @@ public class CommandExecutorSQLLiveSelect extends CommandExecutorSQLSelect
   }
 
   public void onLiveResultEnd() {
-    if (request.getResultListener() instanceof OLiveResultListener) {
-      ((OLiveResultListener) request.getResultListener()).onUnsubscribe(token);
+    if (request.getResultListener() instanceof LiveResultListener) {
+      ((LiveResultListener) request.getResultListener()).onUnsubscribe(token);
     }
 
     if (execDb != null) {
-      YTDatabaseSessionInternal oldThreadDB = ODatabaseRecordThreadLocal.instance().getIfDefined();
+      DatabaseSessionInternal oldThreadDB = DatabaseRecordThreadLocal.instance().getIfDefined();
       execDb.activateOnCurrentThread();
       execDb.close();
       if (oldThreadDB == null) {
-        ODatabaseRecordThreadLocal.instance().remove();
+        DatabaseRecordThreadLocal.instance().remove();
       } else {
-        ODatabaseRecordThreadLocal.instance().set(oldThreadDB);
+        DatabaseRecordThreadLocal.instance().set(oldThreadDB);
       }
     }
   }

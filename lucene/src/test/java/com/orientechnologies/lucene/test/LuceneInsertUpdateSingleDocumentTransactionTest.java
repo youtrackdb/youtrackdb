@@ -18,11 +18,11 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -42,10 +42,10 @@ public class LuceneInsertUpdateSingleDocumentTransactionTest extends BaseLuceneT
 
   @Before
   public void init() {
-    YTSchema schema = db.getMetadata().getSchema();
+    Schema schema = db.getMetadata().getSchema();
 
-    YTClass oClass = schema.createClass("City");
-    oClass.createProperty(db, "name", YTType.STRING);
+    SchemaClass oClass = schema.createClass("City");
+    oClass.createProperty(db, "name", PropertyType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
 
@@ -54,7 +54,7 @@ public class LuceneInsertUpdateSingleDocumentTransactionTest extends BaseLuceneT
 
     db.close();
     db = openDatabase();
-    YTSchema schema = db.getMetadata().getSchema();
+    Schema schema = db.getMetadata().getSchema();
     db.begin();
     EntityImpl doc = new EntityImpl("City");
     doc.field("name", "");
@@ -72,9 +72,9 @@ public class LuceneInsertUpdateSingleDocumentTransactionTest extends BaseLuceneT
     db.save(doc);
     db.save(doc1);
     db.commit();
-    OIndex idx = schema.getClass("City").getClassIndex(db, "City.name");
+    Index idx = schema.getClass("City").getClassIndex(db, "City.name");
     Collection<?> coll;
-    try (Stream<YTRID> stream = idx.getInternal().getRids(db, "Rome")) {
+    try (Stream<RID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
 

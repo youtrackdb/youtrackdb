@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.server.distributed;
 
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.orientechnologies.orient.server.distributed.task.ORemoteTask;
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -38,11 +38,11 @@ public class ODistributedRequest {
 
   private final ODistributedServerManager manager;
 
-  private ODistributedRequestId id;
+  private DistributedRequestId id;
   private String databaseName;
   private long senderThreadId;
   private ORemoteTask task;
-  private YTRecordId
+  private RecordId
       userRID; // KEEP ALSO THE RID TO AVOID SECURITY PROBLEM ON DELETE & RECREATE USERS
 
   public ODistributedRequest(final ODistributedServerManager manager) {
@@ -56,13 +56,13 @@ public class ODistributedRequest {
       final String databaseName,
       final ORemoteTask payload) {
     this.manager = manager;
-    this.id = new ODistributedRequestId(senderNodeId, msgSequence);
+    this.id = new DistributedRequestId(senderNodeId, msgSequence);
     this.databaseName = databaseName;
     this.senderThreadId = Thread.currentThread().getId();
     this.task = payload;
   }
 
-  public ODistributedRequestId getId() {
+  public DistributedRequestId getId() {
     return id;
   }
 
@@ -91,7 +91,7 @@ public class ODistributedRequest {
   }
 
   public void fromStream(final DataInput in) throws IOException {
-    id = new ODistributedRequestId();
+    id = new DistributedRequestId();
     id.fromStream(in);
     senderThreadId = in.readLong();
     databaseName = in.readUTF();

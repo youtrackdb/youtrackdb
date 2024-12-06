@@ -1,15 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTImmutableClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurity;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInputParameter;
@@ -37,14 +37,14 @@ public class UpdateContentStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     assert prev != null;
     ExecutionStream upstream = prev.start(ctx);
     return upstream.map(this::mapResult);
   }
 
-  private YTResult mapResult(YTResult result, CommandContext ctx) {
-    if (result instanceof YTResultInternal) {
+  private Result mapResult(Result result, CommandContext ctx) {
+    if (result instanceof ResultInternal) {
       var elem = result.toEntity();
       assert elem != null;
       handleContent((EntityInternal) elem, ctx);
@@ -56,22 +56,22 @@ public class UpdateContentStep extends AbstractExecutionStep {
     // REPLACE ALL THE CONTENT
     EntityImpl fieldsToPreserve = null;
 
-    YTClass clazz = record.getSchemaType().orElse(null);
-    if (clazz != null && ((YTImmutableClass) clazz).isRestricted()) {
+    SchemaClass clazz = record.getSchemaType().orElse(null);
+    if (clazz != null && ((SchemaImmutableClass) clazz).isRestricted()) {
       fieldsToPreserve = new EntityImpl();
 
-      final YTClass restricted =
+      final SchemaClass restricted =
           ctx.getDatabase()
               .getMetadata()
               .getImmutableSchemaSnapshot()
-              .getClass(OSecurity.RESTRICTED_CLASSNAME);
-      for (YTProperty prop : restricted.properties(ctx.getDatabase())) {
+              .getClass(Security.RESTRICTED_CLASSNAME);
+      for (Property prop : restricted.properties(ctx.getDatabase())) {
         fieldsToPreserve.field(prop.getName(), record.<Object>getProperty(prop.getName()));
       }
     }
     Map<String, Object> preDefaultValues = null;
     if (clazz != null) {
-      for (YTProperty prop : clazz.properties(ctx.getDatabase())) {
+      for (Property prop : clazz.properties(ctx.getDatabase())) {
         if (prop.getDefaultValue() != null) {
           if (preDefaultValues == null) {
             preDefaultValues = new HashMap<>();
@@ -81,8 +81,8 @@ public class UpdateContentStep extends AbstractExecutionStep {
       }
     }
 
-    YTClass recordClass =
-        ODocumentInternal.getImmutableSchemaClass(ctx.getDatabase(), record.getRecord());
+    SchemaClass recordClass =
+        DocumentInternal.getImmutableSchemaClass(ctx.getDatabase(), record.getRecord());
     if (recordClass != null && recordClass.isSubClassOf("V")) {
       for (String fieldName : record.getPropertyNamesInternal()) {
         if (fieldName.startsWith("in_") || fieldName.startsWith("out_")) {
@@ -115,7 +115,7 @@ public class UpdateContentStep extends AbstractExecutionStep {
         mapDoc.fromMap((Map<String, ?>) map);
         doc.merge(mapDoc, false, false);
       } else {
-        throw new YTCommandExecutionException("Invalid value for UPDATE CONTENT: " + val);
+        throw new CommandExecutionException("Invalid value for UPDATE CONTENT: " + val);
       }
     }
     if (fieldsToPreserve != null) {

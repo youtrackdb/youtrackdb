@@ -4,11 +4,11 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OInternalExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OTraverseExecutionPlanner;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.TraverseExecutionPlanner;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,12 +45,12 @@ public class SQLTraverseStatement extends SQLStatement {
     super(p, id);
   }
 
-  public void validate() throws YTCommandSQLParsingException {
+  public void validate() throws CommandSQLParsingException {
     //    for(SQLTraverseProjectionItem projection:projections) {
     //
     //        projection. validate();
     //        if (projection.isExpand() && groupBy != null) {
-    //          throw new YTCommandSQLParsingException("expand() cannot be used together with GROUP
+    //          throw new CommandSQLParsingException("expand() cannot be used together with GROUP
     // BY");
     //        }
     //
@@ -61,8 +61,8 @@ public class SQLTraverseStatement extends SQLStatement {
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
+  public ResultSet execute(
+      DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
     BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
@@ -76,38 +76,38 @@ public class SQLTraverseStatement extends SQLStatement {
       }
     }
     ctx.setInputParameters(params);
-    OInternalExecutionPlan executionPlan;
+    InternalExecutionPlan executionPlan;
     if (usePlanCache) {
       executionPlan = createExecutionPlan(ctx, false);
     } else {
       executionPlan = createExecutionPlanNoCache(ctx, false);
     }
 
-    return new YTLocalResultSet(executionPlan);
+    return new LocalResultSet(executionPlan);
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
+  public ResultSet execute(
+      DatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
     BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     ctx.setInputParameters(params);
-    OInternalExecutionPlan executionPlan;
+    InternalExecutionPlan executionPlan;
     if (usePlanCache) {
       executionPlan = createExecutionPlan(ctx, false);
     } else {
       executionPlan = createExecutionPlanNoCache(ctx, false);
     }
 
-    return new YTLocalResultSet(executionPlan);
+    return new LocalResultSet(executionPlan);
   }
 
-  public OInternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    OTraverseExecutionPlanner planner = new OTraverseExecutionPlanner(this);
-    OInternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling);
+  public InternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
+    TraverseExecutionPlanner planner = new TraverseExecutionPlanner(this);
+    InternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling);
     result.setStatement(originalStatement);
     result.setGenericStatement(this.toGenericStatement());
     return result;

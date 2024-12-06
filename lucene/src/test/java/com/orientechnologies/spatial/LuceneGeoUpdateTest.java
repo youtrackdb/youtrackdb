@@ -13,7 +13,7 @@
  */
 package com.orientechnologies.spatial;
 
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,7 +37,7 @@ public class LuceneGeoUpdateTest extends BaseSpatialLuceneTest {
         .close();
     db.commit();
 
-    OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
+    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
 
     db.begin();
     db.command(

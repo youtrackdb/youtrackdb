@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInteger;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLTraverseProjectionItem;
@@ -32,55 +32,55 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
 
   @Override
   protected void fetchNextEntryPoints(
-      ExecutionStream nextN, CommandContext ctx, List<YTResult> entryPoints,
-      Set<YTRID> traversed) {
+      ExecutionStream nextN, CommandContext ctx, List<Result> entryPoints,
+      Set<RID> traversed) {
     // Doing max batch of 100 entry points for now
     while (nextN.hasNext(ctx) && entryPoints.size() < 100) {
-      YTResult item = toTraverseResult(ctx.getDatabase(), nextN.next(ctx));
+      Result item = toTraverseResult(ctx.getDatabase(), nextN.next(ctx));
       if (item == null) {
         continue;
       }
-      ((YTResultInternal) item).setMetadata("$depth", 0);
+      ((ResultInternal) item).setMetadata("$depth", 0);
 
       List stack = new ArrayList();
       item.getIdentity().ifPresent(x -> stack.add(x));
-      ((YTResultInternal) item).setMetadata("$stack", stack);
+      ((ResultInternal) item).setMetadata("$stack", stack);
 
-      List<YTIdentifiable> path = new ArrayList<>();
+      List<Identifiable> path = new ArrayList<>();
       if (item.getIdentity().isPresent()) {
         path.add(item.getIdentity().get());
       } else if (item.getProperty("@rid") != null) {
         path.add(item.getProperty("@rid"));
       }
-      ((YTResultInternal) item).setMetadata("$path", path);
+      ((ResultInternal) item).setMetadata("$path", path);
 
       if (item.isEntity() && !traversed.contains(item.getEntity().get().getIdentity())) {
         tryAddEntryPointAtTheEnd(item, ctx, entryPoints, traversed);
         traversed.add(item.getEntity().get().getIdentity());
       } else if (item.getProperty("@rid") != null
-          && item.getProperty("@rid") instanceof YTIdentifiable) {
+          && item.getProperty("@rid") instanceof Identifiable) {
         tryAddEntryPointAtTheEnd(item, ctx, entryPoints, traversed);
-        traversed.add(((YTIdentifiable) item.getProperty("@rid")).getIdentity());
+        traversed.add(((Identifiable) item.getProperty("@rid")).getIdentity());
       }
     }
   }
 
-  private YTResult toTraverseResult(YTDatabaseSessionInternal db, YTResult item) {
-    YTTraverseResult res = null;
-    if (item instanceof YTTraverseResult) {
-      res = (YTTraverseResult) item;
+  private Result toTraverseResult(DatabaseSessionInternal db, Result item) {
+    TraverseResult res = null;
+    if (item instanceof TraverseResult) {
+      res = (TraverseResult) item;
     } else if (item.isEntity() && item.getEntity().get().getIdentity().isValid()) {
-      res = new YTTraverseResult(db, item.getEntity().get());
+      res = new TraverseResult(db, item.getEntity().get());
       res.depth = 0;
     } else if (item.getPropertyNames().size() == 1) {
       Object val = item.getProperty(item.getPropertyNames().iterator().next());
-      if (val instanceof YTIdentifiable) {
-        res = new YTTraverseResult(db, (YTIdentifiable) val);
+      if (val instanceof Identifiable) {
+        res = new TraverseResult(db, (Identifiable) val);
         res.depth = 0;
         res.setMetadata("$depth", 0);
       }
     } else {
-      res = new YTTraverseResult(db);
+      res = new TraverseResult(db);
       for (String key : item.getPropertyNames()) {
         res.setProperty(key, convert(item.getProperty(key)));
       }
@@ -103,10 +103,10 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
 
   @Override
   protected void fetchNextResults(
-      CommandContext ctx, List<YTResult> results, List<YTResult> entryPoints,
-      Set<YTRID> traversed) {
+      CommandContext ctx, List<Result> results, List<Result> entryPoints,
+      Set<RID> traversed) {
     if (!entryPoints.isEmpty()) {
-      YTTraverseResult item = (YTTraverseResult) entryPoints.remove(0);
+      TraverseResult item = (TraverseResult) entryPoints.remove(0);
       results.add(item);
       for (SQLTraverseProjectionItem proj : projections) {
         Object nextStep = proj.execute(item, ctx);
@@ -128,54 +128,54 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
   private void addNextEntryPoints(
       Object nextStep,
       int depth,
-      List<YTIdentifiable> path,
-      List<YTIdentifiable> stack,
+      List<Identifiable> path,
+      List<Identifiable> stack,
       CommandContext ctx,
-      List<YTResult> entryPoints,
-      Set<YTRID> traversed) {
-    if (nextStep instanceof YTIdentifiable) {
+      List<Result> entryPoints,
+      Set<RID> traversed) {
+    if (nextStep instanceof Identifiable) {
       addNextEntryPoint(
-          ((YTIdentifiable) nextStep), depth, path, stack, ctx, entryPoints, traversed);
+          ((Identifiable) nextStep), depth, path, stack, ctx, entryPoints, traversed);
     } else if (nextStep instanceof Iterable) {
       addNextEntryPoints(
           ((Iterable) nextStep).iterator(), depth, path, stack, ctx, entryPoints, traversed);
     } else if (nextStep instanceof Map) {
       addNextEntryPoints(
           ((Map) nextStep).values().iterator(), depth, path, stack, ctx, entryPoints, traversed);
-    } else if (nextStep instanceof YTResult) {
-      addNextEntryPoint(((YTResult) nextStep), depth, path, stack, ctx, entryPoints, traversed);
+    } else if (nextStep instanceof Result) {
+      addNextEntryPoint(((Result) nextStep), depth, path, stack, ctx, entryPoints, traversed);
     }
   }
 
   private void addNextEntryPoints(
       Iterator nextStep,
       int depth,
-      List<YTIdentifiable> path,
-      List<YTIdentifiable> stack,
+      List<Identifiable> path,
+      List<Identifiable> stack,
       CommandContext ctx,
-      List<YTResult> entryPoints,
-      Set<YTRID> traversed) {
+      List<Result> entryPoints,
+      Set<RID> traversed) {
     while (nextStep.hasNext()) {
       addNextEntryPoints(nextStep.next(), depth, path, stack, ctx, entryPoints, traversed);
     }
   }
 
   private void addNextEntryPoint(
-      YTIdentifiable nextStep,
+      Identifiable nextStep,
       int depth,
-      List<YTIdentifiable> path,
-      List<YTIdentifiable> stack,
+      List<Identifiable> path,
+      List<Identifiable> stack,
       CommandContext ctx,
-      List<YTResult> entryPoints,
-      Set<YTRID> traversed) {
+      List<Result> entryPoints,
+      Set<RID> traversed) {
     if (traversed.contains(nextStep.getIdentity())) {
       return;
     }
-    YTTraverseResult res = new YTTraverseResult(ctx.getDatabase(), nextStep);
+    TraverseResult res = new TraverseResult(ctx.getDatabase(), nextStep);
     res.depth = depth;
     res.setMetadata("$depth", depth);
 
-    List<YTIdentifiable> newPath = new ArrayList<>(path);
+    List<Identifiable> newPath = new ArrayList<>(path);
     newPath.add(res.getIdentity().get());
     res.setMetadata("$path", newPath);
 
@@ -191,57 +191,57 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
   }
 
   private void addNextEntryPoint(
-      YTResult nextStep,
+      Result nextStep,
       int depth,
-      List<YTIdentifiable> path,
-      List<YTIdentifiable> stack,
+      List<Identifiable> path,
+      List<Identifiable> stack,
       CommandContext ctx,
-      List<YTResult> entryPoints,
-      Set<YTRID> traversed) {
+      List<Result> entryPoints,
+      Set<RID> traversed) {
     if (!nextStep.isEntity()) {
       return;
     }
     if (traversed.contains(nextStep.getEntity().get().getIdentity())) {
       return;
     }
-    if (nextStep instanceof YTTraverseResult) {
-      ((YTTraverseResult) nextStep).depth = depth;
-      ((YTTraverseResult) nextStep).setMetadata("$depth", depth);
-      List<YTIdentifiable> newPath = new ArrayList<>();
+    if (nextStep instanceof TraverseResult) {
+      ((TraverseResult) nextStep).depth = depth;
+      ((TraverseResult) nextStep).setMetadata("$depth", depth);
+      List<Identifiable> newPath = new ArrayList<>();
       newPath.addAll(path);
       nextStep.getIdentity().ifPresent(x -> newPath.add(x.getIdentity()));
-      ((YTTraverseResult) nextStep).setMetadata("$path", newPath);
+      ((TraverseResult) nextStep).setMetadata("$path", newPath);
 
       List reverseStack = new ArrayList();
       reverseStack.addAll(newPath);
       Collections.reverse(reverseStack);
       List newStack = new ArrayList();
       newStack.addAll(reverseStack);
-      ((YTTraverseResult) nextStep).setMetadata("$stack", newStack);
+      ((TraverseResult) nextStep).setMetadata("$stack", newStack);
 
       tryAddEntryPoint(nextStep, ctx, entryPoints, traversed);
     } else {
-      YTTraverseResult res = new YTTraverseResult(ctx.getDatabase(), nextStep.getEntity().get());
+      TraverseResult res = new TraverseResult(ctx.getDatabase(), nextStep.getEntity().get());
       res.depth = depth;
       res.setMetadata("$depth", depth);
-      List<YTIdentifiable> newPath = new ArrayList<>();
+      List<Identifiable> newPath = new ArrayList<>();
       newPath.addAll(path);
       nextStep.getIdentity().ifPresent(x -> newPath.add(x.getIdentity()));
-      ((YTTraverseResult) nextStep).setMetadata("$path", newPath);
+      ((TraverseResult) nextStep).setMetadata("$path", newPath);
 
       List reverseStack = new ArrayList();
       reverseStack.addAll(newPath);
       Collections.reverse(reverseStack);
       List newStack = new ArrayList();
       newStack.addAll(reverseStack);
-      ((YTTraverseResult) nextStep).setMetadata("$stack", newStack);
+      ((TraverseResult) nextStep).setMetadata("$stack", newStack);
 
       tryAddEntryPoint(res, ctx, entryPoints, traversed);
     }
   }
 
   private void tryAddEntryPoint(
-      YTResult res, CommandContext ctx, List<YTResult> entryPoints, Set<YTRID> traversed) {
+      Result res, CommandContext ctx, List<Result> entryPoints, Set<RID> traversed) {
     if (whileClause == null || whileClause.matchesFilters(res, ctx)) {
       entryPoints.add(0, res);
     }
@@ -249,13 +249,13 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
     if (res.isEntity()) {
       traversed.add(res.getEntity().get().getIdentity());
     } else if (res.getProperty("@rid") != null
-        && res.getProperty("@rid") instanceof YTIdentifiable) {
-      traversed.add(((YTIdentifiable) res.getProperty("@rid")).getIdentity());
+        && res.getProperty("@rid") instanceof Identifiable) {
+      traversed.add(((Identifiable) res.getProperty("@rid")).getIdentity());
     }
   }
 
   private void tryAddEntryPointAtTheEnd(
-      YTResult res, CommandContext ctx, List<YTResult> entryPoints, Set<YTRID> traversed) {
+      Result res, CommandContext ctx, List<Result> entryPoints, Set<RID> traversed) {
     if (whileClause == null || whileClause.matchesFilters(res, ctx)) {
       entryPoints.add(res);
     }
@@ -263,8 +263,8 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
     if (res.isEntity()) {
       traversed.add(res.getEntity().get().getIdentity());
     } else if (res.getProperty("@rid") != null
-        && res.getProperty("@rid") instanceof YTIdentifiable) {
-      traversed.add(((YTIdentifiable) res.getProperty("@rid")).getIdentity());
+        && res.getProperty("@rid") instanceof Identifiable) {
+      traversed.add(((Identifiable) res.getProperty("@rid")).getIdentity());
     }
   }
 

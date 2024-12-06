@@ -3,8 +3,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexFinder.Operation;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder.Operation;
 import java.util.Map;
 
 public class SQLLeOperator extends SimpleNode implements SQLBinaryCompareOperator {
@@ -28,12 +28,12 @@ public class SQLLeOperator extends SimpleNode implements SQLBinaryCompareOperato
     if (iLeft.getClass() != iRight.getClass()
         && iLeft instanceof Number
         && iRight instanceof Number) {
-      Number[] couple = YTType.castComparableNumber((Number) iLeft, (Number) iRight);
+      Number[] couple = PropertyType.castComparableNumber((Number) iLeft, (Number) iRight);
       iLeft = couple[0];
       iRight = couple[1];
     } else {
       try {
-        iRight = YTType.convert(null, iRight, iLeft.getClass());
+        iRight = PropertyType.convert(null, iRight, iLeft.getClass());
       } catch (RuntimeException e) {
         iRight = null;
         // Can't convert to the target value do nothing will return false

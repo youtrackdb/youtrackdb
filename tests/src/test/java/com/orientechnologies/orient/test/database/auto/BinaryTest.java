@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 
 public class BinaryTest extends DocumentDBBaseTest {
 
-  private YTRID rid;
+  private RID rid;
 
   @Parameters(value = "remote")
   public BinaryTest(@Optional Boolean remote) {
@@ -46,7 +46,8 @@ public class BinaryTest extends DocumentDBBaseTest {
 
     database.begin();
     doc = database.bindToSession(doc);
-    Assert.assertEquals(new String((byte[]) doc.field("binary", YTType.BINARY)), "Binary data");
+    Assert.assertEquals(new String((byte[]) doc.field("binary", PropertyType.BINARY)),
+        "Binary data");
     database.rollback();
   }
 

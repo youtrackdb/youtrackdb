@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +29,7 @@ import java.util.List;
  */
 public interface ExecutionStepInternal extends ExecutionStep {
 
-  ExecutionStream start(CommandContext ctx) throws YTTimeoutException;
+  ExecutionStream start(CommandContext ctx) throws TimeoutException;
 
   void sendTimeout();
 
@@ -74,7 +74,7 @@ public interface ExecutionStepInternal extends ExecutionStep {
     return Collections.EMPTY_LIST;
   }
 
-  default List<OExecutionPlan> getSubExecutionPlans() {
+  default List<ExecutionPlan> getSubExecutionPlans() {
     return Collections.EMPTY_LIST;
   }
 
@@ -82,20 +82,20 @@ public interface ExecutionStepInternal extends ExecutionStep {
     // do nothing
   }
 
-  default YTResult serialize(YTDatabaseSessionInternal db) {
+  default Result serialize(DatabaseSessionInternal db) {
     throw new UnsupportedOperationException();
   }
 
-  default void deserialize(YTResult fromResult) {
+  default void deserialize(Result fromResult) {
     throw new UnsupportedOperationException();
   }
 
-  static YTResultInternal basicSerialize(YTDatabaseSessionInternal db,
+  static ResultInternal basicSerialize(DatabaseSessionInternal db,
       ExecutionStepInternal step) {
-    YTResultInternal result = new YTResultInternal(db);
-    result.setProperty(OInternalExecutionPlan.JAVA_TYPE, step.getClass().getName());
+    ResultInternal result = new ResultInternal(db);
+    result.setProperty(InternalExecutionPlan.JAVA_TYPE, step.getClass().getName());
     if (step.getSubSteps() != null && !step.getSubSteps().isEmpty()) {
-      List<YTResult> serializedSubsteps = new ArrayList<>();
+      List<Result> serializedSubsteps = new ArrayList<>();
       for (ExecutionStep substep : step.getSubSteps()) {
         serializedSubsteps.add(((ExecutionStepInternal) substep).serialize(db));
       }
@@ -103,21 +103,21 @@ public interface ExecutionStepInternal extends ExecutionStep {
     }
 
     if (step.getSubExecutionPlans() != null && !step.getSubExecutionPlans().isEmpty()) {
-      List<YTResult> serializedSubPlans = new ArrayList<>();
-      for (OExecutionPlan substep : step.getSubExecutionPlans()) {
-        serializedSubPlans.add(((OInternalExecutionPlan) substep).serialize(db));
+      List<Result> serializedSubPlans = new ArrayList<>();
+      for (ExecutionPlan substep : step.getSubExecutionPlans()) {
+        serializedSubPlans.add(((InternalExecutionPlan) substep).serialize(db));
       }
       result.setProperty("subExecutionPlans", serializedSubPlans);
     }
     return result;
   }
 
-  static void basicDeserialize(YTResult serialized, ExecutionStepInternal step)
+  static void basicDeserialize(Result serialized, ExecutionStepInternal step)
       throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-    List<YTResult> serializedSubsteps = serialized.getProperty("subSteps");
+    List<Result> serializedSubsteps = serialized.getProperty("subSteps");
     if (serializedSubsteps != null) {
-      for (YTResult serializedSub : serializedSubsteps) {
-        String className = serializedSub.getProperty(OInternalExecutionPlan.JAVA_TYPE);
+      for (Result serializedSub : serializedSubsteps) {
+        String className = serializedSub.getProperty(InternalExecutionPlan.JAVA_TYPE);
         ExecutionStepInternal subStep =
             (ExecutionStepInternal) Class.forName(className).newInstance();
         subStep.deserialize(serializedSub);
@@ -125,12 +125,12 @@ public interface ExecutionStepInternal extends ExecutionStep {
       }
     }
 
-    List<YTResult> serializedPlans = serialized.getProperty("subExecutionPlans");
+    List<Result> serializedPlans = serialized.getProperty("subExecutionPlans");
     if (serializedSubsteps != null) {
-      for (YTResult serializedSub : serializedPlans) {
-        String className = serializedSub.getProperty(OInternalExecutionPlan.JAVA_TYPE);
-        OInternalExecutionPlan subStep =
-            (OInternalExecutionPlan) Class.forName(className).newInstance();
+      for (Result serializedSub : serializedPlans) {
+        String className = serializedSub.getProperty(InternalExecutionPlan.JAVA_TYPE);
+        InternalExecutionPlan subStep =
+            (InternalExecutionPlan) Class.forName(className).newInstance();
         subStep.deserialize(serializedSub);
         step.getSubExecutionPlans().add(subStep);
       }

@@ -2,7 +2,7 @@ package com.orientechnologies.lucene.sandbox;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
 import java.io.IOException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -78,6 +78,6 @@ public class VertexIndexTest {
 
   @After
   public void deInit() {
-    YTDatabaseDocumentTx.closeAll();
+    DatabaseDocumentTx.closeAll();
   }
 }

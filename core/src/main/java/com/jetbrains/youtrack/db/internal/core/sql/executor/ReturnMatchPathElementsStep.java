@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,17 +16,17 @@ public class ReturnMatchPathElementsStep extends AbstractUnrollStep {
   }
 
   @Override
-  protected Collection<YTResult> unroll(YTResult doc, CommandContext iContext) {
-    List<YTResult> result = new ArrayList<>();
+  protected Collection<Result> unroll(Result doc, CommandContext iContext) {
+    List<Result> result = new ArrayList<>();
     for (String s : doc.getPropertyNames()) {
       Object elem = doc.getProperty(s);
-      if (elem instanceof YTIdentifiable) {
-        YTResultInternal newelem = new YTResultInternal(iContext.getDatabase(),
-            (YTIdentifiable) elem);
+      if (elem instanceof Identifiable) {
+        ResultInternal newelem = new ResultInternal(iContext.getDatabase(),
+            (Identifiable) elem);
         elem = newelem;
       }
-      if (elem instanceof YTResult) {
-        result.add((YTResult) elem);
+      if (elem instanceof Result) {
+        result.add((Result) elem);
       }
       // else...? TODO
     }

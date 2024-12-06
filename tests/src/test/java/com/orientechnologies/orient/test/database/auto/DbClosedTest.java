@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -29,10 +29,10 @@ public class DbClosedTest extends DocumentDBBaseTest {
   }
 
   public void testDoubleDb() {
-    YTDatabaseSession db = acquireSession();
+    DatabaseSession db = acquireSession();
 
     // now I am getting another db instance
-    YTDatabaseSession dbAnother = acquireSession();
+    DatabaseSession dbAnother = acquireSession();
     dbAnother.close();
 
     db.activateOnCurrentThread();
@@ -40,10 +40,10 @@ public class DbClosedTest extends DocumentDBBaseTest {
   }
 
   public void testDoubleDbWindowsPath() {
-    YTDatabaseSession db = acquireSession();
+    DatabaseSession db = acquireSession();
 
     // now I am getting another db instance
-    YTDatabaseSession dbAnother = acquireSession();
+    DatabaseSession dbAnother = acquireSession();
     dbAnother.close();
 
     db.activateOnCurrentThread();
@@ -58,7 +58,7 @@ public class DbClosedTest extends DocumentDBBaseTest {
 
     final int max = GlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.getValueAsInteger();
     for (int i = 0; i < max * 2; ++i) {
-      final YTDatabaseSession db = acquireSession();
+      final DatabaseSession db = acquireSession();
       db.close();
     }
   }

@@ -1,18 +1,18 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.cas;
 
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.LogSequenceNumber;
 
 public final class WrittenUpTo {
 
-  private final OLogSequenceNumber lsn;
+  private final LogSequenceNumber lsn;
   private final long position;
 
-  public WrittenUpTo(final OLogSequenceNumber lsn, final long position) {
+  public WrittenUpTo(final LogSequenceNumber lsn, final long position) {
     this.lsn = lsn;
     this.position = position;
   }
 
-  public OLogSequenceNumber getLsn() {
+  public LogSequenceNumber getLsn() {
     return lsn;
   }
 

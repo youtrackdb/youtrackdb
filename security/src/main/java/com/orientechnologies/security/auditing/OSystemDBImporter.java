@@ -15,13 +15,13 @@ package com.orientechnologies.security.auditing;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.List;
 
 public class OSystemDBImporter extends Thread {
@@ -89,12 +89,12 @@ public class OSystemDBImporter extends Thread {
   }
 
   private void importDB(final String dbName) {
-    YTDatabaseSessionInternal db = null;
-    YTDatabaseSessionInternal sysdb = null;
+    DatabaseSessionInternal db = null;
+    DatabaseSessionInternal sysdb = null;
 
     try {
       db = context.openNoAuthorization(dbName);
-      db.setProperty(ODefaultAuditing.IMPORTER_FLAG, true);
+      db.setProperty(DefaultAuditing.IMPORTER_FLAG, true);
 
       if (db == null) {
         LogManager.instance()
@@ -116,41 +116,41 @@ public class OSystemDBImporter extends Thread {
       while (isRunning) {
         db.activateOnCurrentThread();
         // Retrieve the auditing log records from the local database.
-        YTResultSet result = db.query(sql, limit);
+        ResultSet result = db.query(sql, limit);
 
         int count = 0;
 
         String lastRID = null;
 
         while (result.hasNext()) {
-          YTResult doc = result.next();
+          Result doc = result.next();
           try {
             Entity copy = new EntityImpl();
 
             if (doc.hasProperty("date")) {
-              copy.setProperty("date", doc.getProperty("date"), YTType.DATETIME);
+              copy.setProperty("date", doc.getProperty("date"), PropertyType.DATETIME);
             }
 
             if (doc.hasProperty("operation")) {
-              copy.setProperty("operation", doc.getProperty("operation"), YTType.BYTE);
+              copy.setProperty("operation", doc.getProperty("operation"), PropertyType.BYTE);
             }
 
             if (doc.hasProperty("record")) {
-              copy.setProperty("record", doc.getProperty("record"), YTType.LINK);
+              copy.setProperty("record", doc.getProperty("record"), PropertyType.LINK);
             }
 
             if (doc.hasProperty("changes")) {
-              copy.setProperty("changes", doc.getProperty("changes"), YTType.EMBEDDED);
+              copy.setProperty("changes", doc.getProperty("changes"), PropertyType.EMBEDDED);
             }
 
             if (doc.hasProperty("note")) {
-              copy.setProperty("note", doc.getProperty("note"), YTType.STRING);
+              copy.setProperty("note", doc.getProperty("note"), PropertyType.STRING);
             }
 
             try {
               // Convert user RID to username.
               if (doc.hasProperty("user")) {
-                // doc.field("user") will throw an exception if the user's YTRID is not found.
+                // doc.field("user") will throw an exception if the user's RID is not found.
                 EntityImpl userDoc = doc.getProperty("user");
                 final String username = userDoc.field("name");
 
@@ -165,7 +165,7 @@ public class OSystemDBImporter extends Thread {
             copy.setProperty("database", dbName);
 
             sysdb.activateOnCurrentThread();
-            sysdb.save(copy, ODefaultAuditing.getClusterName(dbName));
+            sysdb.save(copy, DefaultAuditing.getClusterName(dbName));
 
             lastRID = doc.getIdentity().toString();
 

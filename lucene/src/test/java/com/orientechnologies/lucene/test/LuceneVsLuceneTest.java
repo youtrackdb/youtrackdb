@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.lucene.analyzer.OLucenePerFieldAnalyzerWrapper;
 import java.io.File;
 import java.io.IOException;
@@ -110,7 +110,7 @@ public class LuceneVsLuceneTest extends BaseLuceneTest {
       final TopDocs docs = searcher.search(query, Integer.MAX_VALUE);
       ScoreDoc[] hits = docs.scoreDocs;
 
-      YTResultSet oDocs =
+      ResultSet oDocs =
           db.query(
               "select *,$score from Song where title LUCENE \"down the\" order by $score desc");
 

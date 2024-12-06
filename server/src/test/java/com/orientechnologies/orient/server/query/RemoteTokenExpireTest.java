@@ -4,14 +4,14 @@ import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.DatabasePool;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.TokenSecurityException;
 import com.orientechnologies.orient.client.remote.StorageRemote;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabasePool;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTTokenSecurityException;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.token.OTokenHandlerImpl;
 import java.io.File;
@@ -28,7 +28,7 @@ public class RemoteTokenExpireTest {
   private static final String SERVER_DIRECTORY = "./target/token";
   private OServer server;
   private YouTrackDB youTrackDB;
-  private YTDatabaseSession session;
+  private DatabaseSession session;
   private int oldPageSize;
 
   private final long expireTimeout = 500;
@@ -89,11 +89,11 @@ public class RemoteTokenExpireTest {
 
     session.activateOnCurrentThread();
 
-    try (YTResultSet res = session.query("select from Some")) {
+    try (ResultSet res = session.query("select from Some")) {
 
       Assert.assertEquals(0, res.stream().count());
 
-    } catch (YTTokenSecurityException e) {
+    } catch (TokenSecurityException e) {
 
       Assert.fail("It should not get the exception");
     }
@@ -107,12 +107,12 @@ public class RemoteTokenExpireTest {
     session.activateOnCurrentThread();
 
     session.begin();
-    try (YTResultSet res = session.command("insert into V set name = 'foo'")) {
+    try (ResultSet res = session.command("insert into V set name = 'foo'")) {
       session.commit();
 
       Assert.assertEquals(1, res.stream().count());
 
-    } catch (YTTokenSecurityException e) {
+    } catch (TokenSecurityException e) {
 
       Assert.fail("It should not get the exception");
     }
@@ -125,11 +125,11 @@ public class RemoteTokenExpireTest {
 
     session.activateOnCurrentThread();
 
-    try (YTResultSet res = session.execute("sql", "begin;insert into V set name = 'foo';commit;")) {
+    try (ResultSet res = session.execute("sql", "begin;insert into V set name = 'foo';commit;")) {
 
       Assert.assertEquals(1, res.stream().count());
 
-    } catch (YTTokenSecurityException e) {
+    } catch (TokenSecurityException e) {
 
       Assert.fail("It should not get the exception");
     }
@@ -140,13 +140,13 @@ public class RemoteTokenExpireTest {
 
     QUERY_REMOTE_RESULTSET_PAGE_SIZE.setValue(1);
 
-    try (YTResultSet res = session.query("select from ORole")) {
+    try (ResultSet res = session.query("select from ORole")) {
 
       waitAndClean();
       session.activateOnCurrentThread();
       Assert.assertEquals(3, res.stream().count());
 
-    } catch (YTTokenSecurityException e) {
+    } catch (TokenSecurityException e) {
       return;
     } finally {
       QUERY_REMOTE_RESULTSET_PAGE_SIZE.setValue(10);
@@ -165,9 +165,9 @@ public class RemoteTokenExpireTest {
 
     session.save(session.newEntity("Some"));
 
-    try (YTResultSet res = session.query("select from Some")) {
+    try (ResultSet res = session.query("select from Some")) {
       Assert.assertEquals(1, res.stream().count());
-    } catch (YTTokenSecurityException e) {
+    } catch (TokenSecurityException e) {
       Assert.fail("It should not get the expire exception");
     } finally {
       session.rollback();
@@ -181,7 +181,7 @@ public class RemoteTokenExpireTest {
 
     session.save(session.newEntity("Some"));
 
-    try (YTResultSet resultSet = session.query("select from Some")) {
+    try (ResultSet resultSet = session.query("select from Some")) {
       Assert.assertEquals(1, resultSet.stream().count());
     }
     waitAndClean();
@@ -190,7 +190,7 @@ public class RemoteTokenExpireTest {
 
     try {
       session.query("select from Some");
-    } catch (YTTokenSecurityException e) {
+    } catch (TokenSecurityException e) {
       session.rollback();
       return;
     }
@@ -200,8 +200,8 @@ public class RemoteTokenExpireTest {
   @Test
   public void itShouldNotFailWithRoundRobin() {
 
-    ODatabasePool pool =
-        new ODatabasePool(
+    DatabasePool pool =
+        new DatabasePool(
             youTrackDB,
             RemoteTokenExpireTest.class.getSimpleName(),
             "admin",
@@ -212,9 +212,9 @@ public class RemoteTokenExpireTest {
                     StorageRemote.CONNECTION_STRATEGY.ROUND_ROBIN_CONNECT)
                 .build());
 
-    YTDatabaseSession session = pool.acquire();
+    DatabaseSession session = pool.acquire();
 
-    try (YTResultSet resultSet = session.query("select from Some")) {
+    try (ResultSet resultSet = session.query("select from Some")) {
       Assert.assertEquals(0, resultSet.stream().count());
     }
 
@@ -223,10 +223,10 @@ public class RemoteTokenExpireTest {
     session.activateOnCurrentThread();
 
     try {
-      try (YTResultSet resultSet = session.query("select from Some")) {
+      try (ResultSet resultSet = session.query("select from Some")) {
         Assert.assertEquals(0, resultSet.stream().count());
       }
-    } catch (YTTokenSecurityException e) {
+    } catch (TokenSecurityException e) {
       Assert.fail("It should  get the expire exception");
     }
     pool.close();

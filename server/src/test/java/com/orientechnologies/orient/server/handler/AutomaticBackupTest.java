@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.server.handler;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.common.parser.OSystemVariableResolver;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseImport;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
+import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImport;
+import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -40,7 +40,7 @@ public class AutomaticBackupTest {
   private static String URL;
   private static String URL2;
   private final String tempDirectory;
-  private YTDatabaseSession database;
+  private DatabaseSession database;
   private final OServer server;
 
   public AutomaticBackupTest() throws IllegalArgumentException, SecurityException {
@@ -90,7 +90,7 @@ public class AutomaticBackupTest {
       NoSuchMethodException {
     final File f =
         new File(
-            OSystemVariableResolver.resolveSystemVariables(
+            SystemVariableResolver.resolveSystemVariables(
                 "${YOU_TRACK_DB_HOME}/config/automatic-backup.json"));
     if (f.exists()) {
       f.delete();
@@ -129,7 +129,7 @@ public class AutomaticBackupTest {
     Assert.assertFalse(new File(tempDirectory + "/config/automatic-backup.json").exists());
 
     String jsonConfig =
-        OIOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
+        IOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
 
     EntityImpl doc = new EntityImpl();
     doc.fromJSON(jsonConfig);
@@ -143,9 +143,9 @@ public class AutomaticBackupTest {
         "firstTime",
         new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis() + 5000)));
 
-    OIOUtils.writeFile(new File(tempDirectory + "/config/automatic-backup.json"), doc.toJSON());
+    IOUtils.writeFile(new File(tempDirectory + "/config/automatic-backup.json"), doc.toJSON());
 
-    final OAutomaticBackup aBackup = new OAutomaticBackup();
+    final AutomaticBackup aBackup = new AutomaticBackup();
 
     final OServerParameterConfiguration[] config = new OServerParameterConfiguration[]{};
 
@@ -161,7 +161,7 @@ public class AutomaticBackupTest {
         .getContext()
         .execute(
             "create database ? plocal users (admin identified by 'admin' role admin)", DBNAME2);
-    YTDatabaseSessionInternal database2 = server.getDatabases().openNoAuthorization(DBNAME2);
+    DatabaseSessionInternal database2 = server.getDatabases().openNoAuthorization(DBNAME2);
 
     // database2.restore(new FileInputStream(BACKUPDIR + "/testautobackup.zip"), null, null, null);
 
@@ -178,7 +178,7 @@ public class AutomaticBackupTest {
     Assert.assertFalse(new File(tempDirectory + "/config/automatic-backup.json").exists());
 
     String jsonConfig =
-        OIOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
+        IOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
 
     EntityImpl doc = new EntityImpl();
     doc.fromJSON(jsonConfig);
@@ -192,9 +192,9 @@ public class AutomaticBackupTest {
         "firstTime",
         new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis() + 2000)));
 
-    OIOUtils.writeFile(new File(tempDirectory + "/config/automatic-backup.json"), doc.toJSON());
+    IOUtils.writeFile(new File(tempDirectory + "/config/automatic-backup.json"), doc.toJSON());
 
-    final OAutomaticBackup aBackup = new OAutomaticBackup();
+    final AutomaticBackup aBackup = new AutomaticBackup();
 
     final OServerParameterConfiguration[] config = new OServerParameterConfiguration[]{};
 
@@ -217,7 +217,7 @@ public class AutomaticBackupTest {
       new File(BACKUPDIR + "/fullBackup.zip").delete();
     }
 
-    final OAutomaticBackup aBackup = new OAutomaticBackup();
+    final AutomaticBackup aBackup = new AutomaticBackup();
 
     final OServerParameterConfiguration[] config =
         new OServerParameterConfiguration[]{
@@ -238,9 +238,9 @@ public class AutomaticBackupTest {
 
     aBackup.sendShutdown();
 
-    final YTDatabaseSessionInternal database2 = new YTDatabaseDocumentTx(URL2);
+    final DatabaseSessionInternal database2 = new DatabaseDocumentTx(URL2);
     if (database2.exists()) {
-      ((YTDatabaseSessionInternal) database2.open("admin", "admin")).drop();
+      ((DatabaseSessionInternal) database2.open("admin", "admin")).drop();
     }
     database2.create();
 
@@ -261,7 +261,7 @@ public class AutomaticBackupTest {
       MBeanRegistrationException {
 
     String jsonConfig =
-        OIOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
+        IOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
 
     EntityImpl doc = new EntityImpl();
     doc.fromJSON(jsonConfig);
@@ -275,16 +275,16 @@ public class AutomaticBackupTest {
         "firstTime",
         new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis() + 2000)));
 
-    OIOUtils.writeFile(new File(tempDirectory + "/config/automatic-backup.json"), doc.toJSON());
+    IOUtils.writeFile(new File(tempDirectory + "/config/automatic-backup.json"), doc.toJSON());
 
-    final OAutomaticBackup aBackup = new OAutomaticBackup();
+    final AutomaticBackup aBackup = new AutomaticBackup();
 
     final OServerParameterConfiguration[] config = new OServerParameterConfiguration[]{};
 
     try {
       aBackup.config(server, config);
 
-    } catch (YTConfigurationException e) {
+    } catch (ConfigurationException e) {
       Assert.fail("It should not get an configuration exception when disabled");
     }
   }
@@ -297,7 +297,7 @@ public class AutomaticBackupTest {
   // if (new File(BACKUPDIR + "/" + DBNAME).exists())
   // FileUtils.deleteRecursively(new File(BACKUPDIR + "/" + DBNAME));
   //
-  // final OAutomaticBackup aBackup = new OAutomaticBackup();
+  // final AutomaticBackup aBackup = new AutomaticBackup();
   //
   // final OServerParameterConfiguration[] config = new OServerParameterConfiguration[] {
   // new OServerParameterConfiguration("firstTime",
@@ -310,13 +310,13 @@ public class AutomaticBackupTest {
   //
   // try {
   // Thread.sleep(5000);
-  // } catch (InterruptedException e) {
+  // } catch (ThreadInterruptedException e) {
   // e.printStackTrace();
   // }
   //
   // aBackup.sendShutdown();
   //
-  // final YTDatabaseDocumentTx database2 = new YTDatabaseDocumentTx(URL2);
+  // final DatabaseDocumentTx database2 = new DatabaseDocumentTx(URL2);
   // if (database2.exists())
   // database2.open("admin", "admin").drop();
   // database2.create(BACKUPDIR + "/" + DBNAME);
@@ -330,7 +330,7 @@ public class AutomaticBackupTest {
       new File(BACKUPDIR + "/fullExport.json.gz").delete();
     }
 
-    final OAutomaticBackup aBackup = new OAutomaticBackup();
+    final AutomaticBackup aBackup = new AutomaticBackup();
 
     final OServerParameterConfiguration[] config =
         new OServerParameterConfiguration[]{
@@ -359,9 +359,9 @@ public class AutomaticBackupTest {
         .execute(
             "create database ? plocal users (admin identified by 'admin' role admin)", DBNAME3);
 
-    YTDatabaseSessionInternal database2 = server.getDatabases().openNoAuthorization(DBNAME3);
+    DatabaseSessionInternal database2 = server.getDatabases().openNoAuthorization(DBNAME3);
 
-    new ODatabaseImport(database2, BACKUPDIR + "/fullExport.json.gz", null).importDatabase();
+    new DatabaseImport(database2, BACKUPDIR + "/fullExport.json.gz", null).importDatabase();
 
     Assert.assertEquals(database2.countClass("TestBackup"), 1);
 

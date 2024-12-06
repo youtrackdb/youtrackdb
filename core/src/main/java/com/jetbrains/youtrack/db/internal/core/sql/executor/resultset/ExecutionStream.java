@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.resultset;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStep;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.function.Consumer;
@@ -14,7 +14,7 @@ public interface ExecutionStream {
 
   boolean hasNext(CommandContext ctx);
 
-  YTResult next(CommandContext ctx);
+  Result next(CommandContext ctx);
 
   void close(CommandContext ctx);
 
@@ -42,7 +42,7 @@ public interface ExecutionStream {
     return new IteratorExecutionStream(iterator);
   }
 
-  static ExecutionStream resultIterator(Iterator<YTResult> iterator) {
+  static ExecutionStream resultIterator(Iterator<Result> iterator) {
     return new ResultIteratorExecutionStream(iterator);
   }
 
@@ -50,7 +50,7 @@ public interface ExecutionStream {
     return new CostMeasureExecutionStream(this, step);
   }
 
-  static ExecutionStream loadIterator(Iterator<? extends YTIdentifiable> iterator) {
+  static ExecutionStream loadIterator(Iterator<? extends Identifiable> iterator) {
     return new LoaderExecutionStream(iterator);
   }
 
@@ -58,7 +58,7 @@ public interface ExecutionStream {
     return EmptyExecutionStream.EMPTY;
   }
 
-  static ExecutionStream singleton(YTResult result) {
+  static ExecutionStream singleton(Result result) {
     return new SingletonExecutionStream(result);
   }
 
@@ -71,12 +71,12 @@ public interface ExecutionStream {
     return new OnCloseExecutionStream(this, onClose);
   }
 
-  default Stream<YTResult> stream(CommandContext ctx) {
+  default Stream<Result> stream(CommandContext ctx) {
     return StreamSupport.stream(
-            new Spliterator<YTResult>() {
+            new Spliterator<Result>() {
 
               @Override
-              public boolean tryAdvance(Consumer<? super YTResult> action) {
+              public boolean tryAdvance(Consumer<? super Result> action) {
                 if (hasNext(ctx)) {
                   action.accept(next(ctx));
                   return true;
@@ -85,7 +85,7 @@ public interface ExecutionStream {
               }
 
               @Override
-              public Spliterator<YTResult> trySplit() {
+              public Spliterator<Result> trySplit() {
                 return null;
               }
 

@@ -1,31 +1,31 @@
 package com.jetbrains.youtrack.db.internal.core.query.live;
 
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryMonitor;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.LiveQueryMonitor;
 
 /**
  *
  */
-public class YTLiveQueryMonitorEmbedded implements YTLiveQueryMonitor {
+public class YTLiveQueryMonitorEmbedded implements LiveQueryMonitor {
 
   private final int token;
-  private final YTDatabaseSessionInternal db;
+  private final DatabaseSessionInternal db;
 
-  public YTLiveQueryMonitorEmbedded(int token, YTDatabaseSessionInternal dbCopy) {
+  public YTLiveQueryMonitorEmbedded(int token, DatabaseSessionInternal dbCopy) {
     this.token = token;
     this.db = dbCopy;
   }
 
   @Override
   public void unSubscribe() {
-    YTDatabaseSessionInternal prev = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    DatabaseSessionInternal prev = DatabaseRecordThreadLocal.instance().getIfDefined();
     db.activateOnCurrentThread();
-    OLiveQueryHookV2.unsubscribe(token, db);
+    LiveQueryHookV2.unsubscribe(token, db);
     if (prev != null) {
-      ODatabaseRecordThreadLocal.instance().set(prev);
+      DatabaseRecordThreadLocal.instance().set(prev);
     } else {
-      ODatabaseRecordThreadLocal.instance().remove();
+      DatabaseRecordThreadLocal.instance().remove();
     }
   }
 

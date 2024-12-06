@@ -15,18 +15,18 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.config.OStorageConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSerializationException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OJSONWriter;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerSchemaAware2CSV;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -67,7 +67,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     final EntityImpl documentTarget = new EntityImpl();
     documentTarget.fromStream(documentSource.toStream());
 
-    final TrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
+    final TrackedList<Object> list = documentTarget.field("list", PropertyType.EMBEDDEDLIST);
     Assert.assertEquals(list.get(0), "string");
     Assert.assertNull(list.get(1));
   }
@@ -81,7 +81,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     final EntityImpl documentTarget = new EntityImpl();
     documentTarget.fromStream(documentSource.toStream());
 
-    final TrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
+    final TrackedList<Object> list = documentTarget.field("list", PropertyType.EMBEDDEDLIST);
     Assert.assertEquals(list.get(0), true);
     Assert.assertEquals(list.get(1), false);
   }
@@ -95,7 +95,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     final EntityImpl documentTarget = new EntityImpl();
     documentTarget.fromStream(documentSource.toStream());
 
-    final TrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
+    final TrackedList<Object> list = documentTarget.field("list", PropertyType.EMBEDDEDLIST);
     Assert.assertEquals(list.get(0), 17);
     Assert.assertEquals(list.get(1), 42);
   }
@@ -110,7 +110,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     final EntityImpl documentTarget = new EntityImpl();
     documentTarget.fromStream(documentSource.toStream());
 
-    final TrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
+    final TrackedList<Object> list = documentTarget.field("list", PropertyType.EMBEDDEDLIST);
     Assert.assertEquals(list.get(0), 100000000000L);
     Assert.assertEquals(list.get(1), 100000000001L);
   }
@@ -124,7 +124,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     final EntityImpl documentTarget = new EntityImpl();
     documentTarget.fromStream(documentSource.toStream());
 
-    final TrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
+    final TrackedList<Object> list = documentTarget.field("list", PropertyType.EMBEDDEDLIST);
     Assert.assertEquals(list.get(0), 17.3);
     Assert.assertEquals(list.get(1), 42.7);
   }
@@ -149,7 +149,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   public void testEmbeddedList() throws IOException {
     final EntityImpl doc = new EntityImpl();
     final List<EntityImpl> list = new ArrayList<EntityImpl>();
-    doc.field("embeddedList", list, YTType.EMBEDDEDLIST);
+    doc.field("embeddedList", list, PropertyType.EMBEDDEDLIST);
     list.add(new EntityImpl().field("name", "Luca"));
     list.add(new EntityImpl().field("name", "Marcus"));
 
@@ -212,7 +212,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     list.add(first);
     list.add(second);
 
-    final String jsonResult = OJSONWriter.listToJSON(list, null);
+    final String jsonResult = JSONWriter.listToJSON(list, null);
     final EntityImpl doc = new EntityImpl();
     final String docString = "{\"result\": " + jsonResult + "}";
     doc.fromJSON(new ByteArrayInputStream(docString.getBytes(StandardCharsets.UTF_8)));
@@ -230,7 +230,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     final EntityImpl doc = new EntityImpl();
 
     final Map<String, EntityImpl> map = new HashMap<String, EntityImpl>();
-    doc.field("embeddedMap", map, YTType.EMBEDDEDMAP);
+    doc.field("embeddedMap", map, PropertyType.EMBEDDEDMAP);
 
     final String json = doc.toJSON();
     final EntityImpl loadedDoc =
@@ -250,7 +250,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     final String oldDataTimeFormat =
         database.get(ATTRIBUTES.DATETIMEFORMAT).toString();
     database.set(
-        ATTRIBUTES.DATETIMEFORMAT, OStorageConfiguration.DEFAULT_DATETIME_FORMAT);
+        ATTRIBUTES.DATETIMEFORMAT, StorageConfiguration.DEFAULT_DATETIME_FORMAT);
     try {
       final EntityImpl doc = new EntityImpl();
       doc.field("long", 100000000000L);
@@ -341,7 +341,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     final EntityImpl newDoc = new EntityImpl();
 
     final Map<String, HashMap<?, ?>> map1 = new HashMap<>();
-    newDoc.field("map1", map1, YTType.EMBEDDEDMAP);
+    newDoc.field("map1", map1, PropertyType.EMBEDDEDMAP);
 
     final Map<String, HashMap<?, ?>> map2 = new HashMap<>();
     map1.put("map2", (HashMap<?, ?>) map2);
@@ -377,7 +377,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from Profile where name = 'Barack' and surname = 'Obama'"))
             .execute(database);
 
@@ -462,7 +462,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
         new EntityImpl()
             .fromJSON(new ByteArrayInputStream(doc1Json.getBytes(StandardCharsets.UTF_8)));
     final String doc1String = new String(
-        ORecordSerializerSchemaAware2CSV.INSTANCE.toStream(database, doc1));
+        RecordSerializerSchemaAware2CSV.INSTANCE.toStream(database, doc1));
     Assert.assertEquals(doc1Json, "{" + doc1String + "}");
 
     final String doc2Json =
@@ -471,7 +471,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
         new EntityImpl()
             .fromJSON(new ByteArrayInputStream(doc2Json.getBytes(StandardCharsets.UTF_8)));
     final String doc2String = new String(
-        ORecordSerializerSchemaAware2CSV.INSTANCE.toStream(database, doc2));
+        RecordSerializerSchemaAware2CSV.INSTANCE.toStream(database, doc2));
     Assert.assertEquals(doc2Json, "{" + doc2String + "}");
   }
 
@@ -792,31 +792,31 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     try {
       doc.fromJSON(new ByteArrayInputStream("{".getBytes(StandardCharsets.UTF_8)));
       Assert.fail();
-    } catch (YTSerializationException | IOException e) {
+    } catch (SerializationException | IOException e) {
     }
 
     try {
       doc.fromJSON(new ByteArrayInputStream("{\"foo\":{}".getBytes(StandardCharsets.UTF_8)));
       Assert.fail();
-    } catch (YTSerializationException | IOException e) {
+    } catch (SerializationException | IOException e) {
     }
 
     try {
       doc.fromJSON(new ByteArrayInputStream("{{}".getBytes(StandardCharsets.UTF_8)));
       Assert.fail();
-    } catch (YTSerializationException | IOException e) {
+    } catch (SerializationException | IOException e) {
     }
 
     try {
       doc.fromJSON(new ByteArrayInputStream("{}}".getBytes(StandardCharsets.UTF_8)));
       Assert.fail();
-    } catch (YTSerializationException | IOException e) {
+    } catch (SerializationException | IOException e) {
     }
 
     try {
       doc.fromJSON(new ByteArrayInputStream("}".getBytes(StandardCharsets.UTF_8)));
       Assert.fail();
-    } catch (YTSerializationException | IOException e) {
+    } catch (SerializationException | IOException e) {
     }
   }
 
@@ -848,7 +848,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     final EntityImpl documentTarget = new EntityImpl();
     documentTarget.fromStream(documentSource.toStream());
 
-    final TrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
+    final TrackedList<Object> list = documentTarget.field("list", PropertyType.EMBEDDEDLIST);
     Assert.assertEquals(list.get(0), "string");
     Assert.assertEquals(list.get(1), 42);
   }
@@ -862,7 +862,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
                 .getBytes(StandardCharsets.UTF_8)));
     final RidBag bag = documentSource.field("in_EHasGoodStudents");
     Assert.assertEquals(bag.size(), 1);
-    final YTIdentifiable rid = bag.iterator().next();
+    final Identifiable rid = bag.iterator().next();
     Assert.assertEquals(rid.getIdentity().getClusterId(), 57);
     Assert.assertEquals(rid.getIdentity().getClusterPosition(), 0);
   }
@@ -896,7 +896,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     tyrionDoc.save();
     database.commit();
 
-    final Map<YTRID, EntityImpl> contentMap = new HashMap<YTRID, EntityImpl>();
+    final Map<RID, EntityImpl> contentMap = new HashMap<RID, EntityImpl>();
 
     EntityImpl jaime = new EntityImpl("NestedLinkCreation");
     jaime.field("name", "jaime");
@@ -918,18 +918,18 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
     contentMap.put(tyrionDoc.getIdentity(), tyrion);
 
-    final Map<YTRID, List<YTRID>> traverseMap = new HashMap<YTRID, List<YTRID>>();
-    List<YTRID> jaimeTraverse = new ArrayList<YTRID>();
+    final Map<RID, List<RID>> traverseMap = new HashMap<RID, List<RID>>();
+    List<RID> jaimeTraverse = new ArrayList<RID>();
     jaimeTraverse.add(jaimeDoc.getIdentity());
     traverseMap.put(jaimeDoc.getIdentity(), jaimeTraverse);
 
-    List<YTRID> cerseiTraverse = new ArrayList<YTRID>();
+    List<RID> cerseiTraverse = new ArrayList<RID>();
     cerseiTraverse.add(cerseiDoc.getIdentity());
     cerseiTraverse.add(jaimeDoc.getIdentity());
 
     traverseMap.put(cerseiDoc.getIdentity(), cerseiTraverse);
 
-    List<YTRID> tyrionTraverse = new ArrayList<YTRID>();
+    List<RID> tyrionTraverse = new ArrayList<RID>();
     tyrionTraverse.add(tyrionDoc.getIdentity());
     tyrionTraverse.add(jaimeDoc.getIdentity());
     traverseMap.put(tyrionDoc.getIdentity(), tyrionTraverse);
@@ -938,9 +938,9 @@ public class JSONStreamTest extends DocumentDBBaseTest {
       EntityImpl content = contentMap.get(o.getIdentity());
       Assert.assertTrue(content.hasSameContentOf(o));
 
-      List<YTRID> traverse = traverseMap.remove(o.getIdentity());
-      for (YTIdentifiable id :
-          new OSQLSynchQuery<EntityImpl>("traverse * from " + o.getIdentity().toString())) {
+      List<RID> traverse = traverseMap.remove(o.getIdentity());
+      for (Identifiable id :
+          new SQLSynchQuery<EntityImpl>("traverse * from " + o.getIdentity().toString())) {
         Assert.assertTrue(traverse.remove(id.getIdentity()));
       }
 
@@ -973,7 +973,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     tyrionDoc.fromJSON(new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8)));
     tyrionDoc.save();
 
-    final Map<YTRID, EntityImpl> contentMap = new HashMap<YTRID, EntityImpl>();
+    final Map<RID, EntityImpl> contentMap = new HashMap<RID, EntityImpl>();
 
     EntityImpl jaime = new EntityImpl("NestedLinkCreationFieldTypes");
     jaime.field("name", "jaime");
@@ -995,18 +995,18 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
     contentMap.put(tyrionDoc.getIdentity(), tyrion);
 
-    final Map<YTRID, List<YTRID>> traverseMap = new HashMap<YTRID, List<YTRID>>();
-    List<YTRID> jaimeTraverse = new ArrayList<YTRID>();
+    final Map<RID, List<RID>> traverseMap = new HashMap<RID, List<RID>>();
+    List<RID> jaimeTraverse = new ArrayList<RID>();
     jaimeTraverse.add(jaimeDoc.getIdentity());
     traverseMap.put(jaimeDoc.getIdentity(), jaimeTraverse);
 
-    List<YTRID> cerseiTraverse = new ArrayList<YTRID>();
+    List<RID> cerseiTraverse = new ArrayList<RID>();
     cerseiTraverse.add(cerseiDoc.getIdentity());
     cerseiTraverse.add(jaimeDoc.getIdentity());
 
     traverseMap.put(cerseiDoc.getIdentity(), cerseiTraverse);
 
-    List<YTRID> tyrionTraverse = new ArrayList<YTRID>();
+    List<RID> tyrionTraverse = new ArrayList<RID>();
     tyrionTraverse.add(tyrionDoc.getIdentity());
     tyrionTraverse.add(jaimeDoc.getIdentity());
     traverseMap.put(tyrionDoc.getIdentity(), tyrionTraverse);
@@ -1015,9 +1015,9 @@ public class JSONStreamTest extends DocumentDBBaseTest {
       EntityImpl content = contentMap.get(o.getIdentity());
       Assert.assertTrue(content.hasSameContentOf(o));
 
-      List<YTRID> traverse = traverseMap.remove(o.getIdentity());
-      for (YTIdentifiable id :
-          new OSQLSynchQuery<EntityImpl>("traverse * from " + o.getIdentity().toString())) {
+      List<RID> traverse = traverseMap.remove(o.getIdentity());
+      for (Identifiable id :
+          new SQLSynchQuery<EntityImpl>("traverse * from " + o.getIdentity().toString())) {
         Assert.assertTrue(traverse.remove(id.getIdentity()));
       }
       Assert.assertTrue(traverse.isEmpty());
@@ -1043,7 +1043,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     eveDoc.save();
     database.commit();
 
-    Map<YTRID, EntityImpl> contentMap = new HashMap<YTRID, EntityImpl>();
+    Map<RID, EntityImpl> contentMap = new HashMap<RID, EntityImpl>();
     EntityImpl adam = new EntityImpl("InnerDocCreation");
     adam.field("name", "adam");
 
@@ -1052,19 +1052,19 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     EntityImpl eve = new EntityImpl("InnerDocCreation");
     eve.field("name", "eve");
 
-    List<YTRID> friends = new ArrayList<YTRID>();
+    List<RID> friends = new ArrayList<RID>();
     friends.add(adamDoc.getIdentity());
     eve.field("friends", friends);
 
     contentMap.put(eveDoc.getIdentity(), eve);
 
-    Map<YTRID, List<YTRID>> traverseMap = new HashMap<YTRID, List<YTRID>>();
+    Map<RID, List<RID>> traverseMap = new HashMap<RID, List<RID>>();
 
-    List<YTRID> adamTraverse = new ArrayList<YTRID>();
+    List<RID> adamTraverse = new ArrayList<RID>();
     adamTraverse.add(adamDoc.getIdentity());
     traverseMap.put(adamDoc.getIdentity(), adamTraverse);
 
-    List<YTRID> eveTraverse = new ArrayList<YTRID>();
+    List<RID> eveTraverse = new ArrayList<RID>();
     eveTraverse.add(eveDoc.getIdentity());
     eveTraverse.add(adamDoc.getIdentity());
 
@@ -1076,9 +1076,9 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     }
 
     for (final EntityImpl o : database.browseClass("InnerDocCreation")) {
-      final List<YTRID> traverse = traverseMap.remove(o.getIdentity());
-      for (final YTIdentifiable id :
-          new OSQLSynchQuery<EntityImpl>("traverse * from " + o.getIdentity().toString())) {
+      final List<RID> traverse = traverseMap.remove(o.getIdentity());
+      for (final Identifiable id :
+          new SQLSynchQuery<EntityImpl>("traverse * from " + o.getIdentity().toString())) {
         Assert.assertTrue(traverse.remove(id.getIdentity()));
       }
       Assert.assertTrue(traverse.isEmpty());
@@ -1100,7 +1100,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     eveDoc.fromJSON(new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8)));
     eveDoc.save();
 
-    Map<YTRID, EntityImpl> contentMap = new HashMap<YTRID, EntityImpl>();
+    Map<RID, EntityImpl> contentMap = new HashMap<RID, EntityImpl>();
     EntityImpl adam = new EntityImpl("InnerDocCreationFieldTypes");
     adam.field("name", "adam");
 
@@ -1109,19 +1109,19 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     EntityImpl eve = new EntityImpl("InnerDocCreationFieldTypes");
     eve.field("name", "eve");
 
-    List<YTRID> friends = new ArrayList<YTRID>();
+    List<RID> friends = new ArrayList<RID>();
     friends.add(adamDoc.getIdentity());
     eve.field("friends", friends);
 
     contentMap.put(eveDoc.getIdentity(), eve);
 
-    Map<YTRID, List<YTRID>> traverseMap = new HashMap<YTRID, List<YTRID>>();
+    Map<RID, List<RID>> traverseMap = new HashMap<RID, List<RID>>();
 
-    List<YTRID> adamTraverse = new ArrayList<YTRID>();
+    List<RID> adamTraverse = new ArrayList<RID>();
     adamTraverse.add(adamDoc.getIdentity());
     traverseMap.put(adamDoc.getIdentity(), adamTraverse);
 
-    List<YTRID> eveTraverse = new ArrayList<YTRID>();
+    List<RID> eveTraverse = new ArrayList<RID>();
     eveTraverse.add(eveDoc.getIdentity());
     eveTraverse.add(adamDoc.getIdentity());
 
@@ -1133,9 +1133,9 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     }
 
     for (EntityImpl o : database.browseClass("InnerDocCreationFieldTypes")) {
-      List<YTRID> traverse = traverseMap.remove(o.getIdentity());
-      for (YTIdentifiable id :
-          new OSQLSynchQuery<EntityImpl>("traverse * from " + o.getIdentity().toString())) {
+      List<RID> traverse = traverseMap.remove(o.getIdentity());
+      for (Identifiable id :
+          new SQLSynchQuery<EntityImpl>("traverse * from " + o.getIdentity().toString())) {
         Assert.assertTrue(traverse.remove(id.getIdentity()));
       }
 
@@ -1166,7 +1166,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     database.commit();
     Assert.assertEquals(database.countClass(classNameOne), 1);
 
-    final Map<YTRID, EntityImpl> contentMap = new HashMap<>();
+    final Map<RID, EntityImpl> contentMap = new HashMap<>();
 
     final EntityImpl eve = new EntityImpl(classNameOne);
     eve.field("name", "eve");
@@ -1210,7 +1210,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     database.commit();
     Assert.assertEquals(database.countClass("JSONTxDocOne"), 2);
 
-    final Map<YTRID, EntityImpl> contentMap = new HashMap<>();
+    final Map<RID, EntityImpl> contentMap = new HashMap<>();
     final EntityImpl adam = new EntityImpl("JSONTxDocOne");
     adam.field("name", "adam");
     contentMap.put(adamDoc.getIdentity(), adam);
@@ -1257,7 +1257,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     final EntityImpl documentTarget = new EntityImpl();
     documentTarget.fromStream(documentSource.toStream());
 
-    final TrackedList<Object> list = documentTarget.field("list", YTType.EMBEDDEDLIST);
+    final TrackedList<Object> list = documentTarget.field("list", PropertyType.EMBEDDEDLIST);
     Assert.assertEquals(list.get(0), -9.27415E-31);
     Assert.assertEquals(list.get(1), 741800E+290);
   }

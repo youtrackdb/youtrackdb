@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQL;
@@ -24,18 +24,18 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
   }
 
   public void testPointQuery() {
-    final YTSchema schema = database.getMetadata().getSchema();
-    YTClass clazz = schema.createClass("compositeIndexNullPointQueryClass");
-    clazz.createProperty(database, "prop1", YTType.INTEGER);
-    clazz.createProperty(database, "prop2", YTType.INTEGER);
-    clazz.createProperty(database, "prop3", YTType.INTEGER);
+    final Schema schema = database.getMetadata().getSchema();
+    SchemaClass clazz = schema.createClass("compositeIndexNullPointQueryClass");
+    clazz.createProperty(database, "prop1", PropertyType.INTEGER);
+    clazz.createProperty(database, "prop2", PropertyType.INTEGER);
+    clazz.createProperty(database, "prop3", PropertyType.INTEGER);
 
     final EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
         "compositeIndexNullPointQueryIndex",
-        YTClass.INDEX_TYPE.NOTUNIQUE.toString(),
+        SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata, new String[]{"prop1", "prop2", "prop3"});
 
@@ -87,18 +87,18 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
   }
 
   public void testPointQueryInTx() {
-    final YTSchema schema = database.getMetadata().getSchema();
-    YTClass clazz = schema.createClass("compositeIndexNullPointQueryInTxClass");
-    clazz.createProperty(database, "prop1", YTType.INTEGER);
-    clazz.createProperty(database, "prop2", YTType.INTEGER);
-    clazz.createProperty(database, "prop3", YTType.INTEGER);
+    final Schema schema = database.getMetadata().getSchema();
+    SchemaClass clazz = schema.createClass("compositeIndexNullPointQueryInTxClass");
+    clazz.createProperty(database, "prop1", PropertyType.INTEGER);
+    clazz.createProperty(database, "prop2", PropertyType.INTEGER);
+    clazz.createProperty(database, "prop3", PropertyType.INTEGER);
 
     final EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
         "compositeIndexNullPointQueryInTxIndex",
-        YTClass.INDEX_TYPE.NOTUNIQUE.toString(),
+        SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata, new String[]{"prop1", "prop2", "prop3"});
 
@@ -157,18 +157,18 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       return;
     }
 
-    final YTSchema schema = database.getMetadata().getSchema();
-    YTClass clazz = schema.createClass("compositeIndexNullPointQueryInMiddleTxClass");
-    clazz.createProperty(database, "prop1", YTType.INTEGER);
-    clazz.createProperty(database, "prop2", YTType.INTEGER);
-    clazz.createProperty(database, "prop3", YTType.INTEGER);
+    final Schema schema = database.getMetadata().getSchema();
+    SchemaClass clazz = schema.createClass("compositeIndexNullPointQueryInMiddleTxClass");
+    clazz.createProperty(database, "prop1", PropertyType.INTEGER);
+    clazz.createProperty(database, "prop2", PropertyType.INTEGER);
+    clazz.createProperty(database, "prop3", PropertyType.INTEGER);
 
     final EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
         "compositeIndexNullPointQueryInMiddleTxIndex",
-        YTClass.INDEX_TYPE.NOTUNIQUE.toString(),
+        SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata, new String[]{"prop1", "prop2", "prop3"});
 
@@ -224,18 +224,18 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
   }
 
   public void testRangeQuery() {
-    final YTSchema schema = database.getMetadata().getSchema();
-    YTClass clazz = schema.createClass("compositeIndexNullRangeQueryClass");
-    clazz.createProperty(database, "prop1", YTType.INTEGER);
-    clazz.createProperty(database, "prop2", YTType.INTEGER);
-    clazz.createProperty(database, "prop3", YTType.INTEGER);
+    final Schema schema = database.getMetadata().getSchema();
+    SchemaClass clazz = schema.createClass("compositeIndexNullRangeQueryClass");
+    clazz.createProperty(database, "prop1", PropertyType.INTEGER);
+    clazz.createProperty(database, "prop2", PropertyType.INTEGER);
+    clazz.createProperty(database, "prop3", PropertyType.INTEGER);
 
     final EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
         "compositeIndexNullRangeQueryIndex",
-        YTClass.INDEX_TYPE.NOTUNIQUE.toString(),
+        SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata,
         null, new String[]{"prop1", "prop2", "prop3"});
@@ -286,18 +286,18 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       return;
     }
 
-    final YTSchema schema = database.getMetadata().getSchema();
-    YTClass clazz = schema.createClass("compositeIndexNullRangeQueryInMiddleTxClass");
-    clazz.createProperty(database, "prop1", YTType.INTEGER);
-    clazz.createProperty(database, "prop2", YTType.INTEGER);
-    clazz.createProperty(database, "prop3", YTType.INTEGER);
+    final Schema schema = database.getMetadata().getSchema();
+    SchemaClass clazz = schema.createClass("compositeIndexNullRangeQueryInMiddleTxClass");
+    clazz.createProperty(database, "prop1", PropertyType.INTEGER);
+    clazz.createProperty(database, "prop2", PropertyType.INTEGER);
+    clazz.createProperty(database, "prop3", PropertyType.INTEGER);
 
     final EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
         "compositeIndexNullRangeQueryInMiddleTxIndex",
-        YTClass.INDEX_TYPE.NOTUNIQUE.toString(),
+        SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata,
         null, new String[]{"prop1", "prop2", "prop3"});
@@ -346,18 +346,18 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
   }
 
   public void testPointQueryNullInTheMiddle() {
-    final YTSchema schema = database.getMetadata().getSchema();
-    YTClass clazz = schema.createClass("compositeIndexNullPointQueryNullInTheMiddleClass");
-    clazz.createProperty(database, "prop1", YTType.INTEGER);
-    clazz.createProperty(database, "prop2", YTType.INTEGER);
-    clazz.createProperty(database, "prop3", YTType.INTEGER);
+    final Schema schema = database.getMetadata().getSchema();
+    SchemaClass clazz = schema.createClass("compositeIndexNullPointQueryNullInTheMiddleClass");
+    clazz.createProperty(database, "prop1", PropertyType.INTEGER);
+    clazz.createProperty(database, "prop2", PropertyType.INTEGER);
+    clazz.createProperty(database, "prop3", PropertyType.INTEGER);
 
     final EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
         "compositeIndexNullPointQueryNullInTheMiddleIndex",
-        YTClass.INDEX_TYPE.NOTUNIQUE.toString(),
+        SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata,
         null, new String[]{"prop1", "prop2", "prop3"});
@@ -428,19 +428,19 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       return;
     }
 
-    final YTSchema schema = database.getMetadata().getSchema();
-    YTClass clazz = schema.createClass(
+    final Schema schema = database.getMetadata().getSchema();
+    SchemaClass clazz = schema.createClass(
         "compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass");
-    clazz.createProperty(database, "prop1", YTType.INTEGER);
-    clazz.createProperty(database, "prop2", YTType.INTEGER);
-    clazz.createProperty(database, "prop3", YTType.INTEGER);
+    clazz.createProperty(database, "prop1", PropertyType.INTEGER);
+    clazz.createProperty(database, "prop2", PropertyType.INTEGER);
+    clazz.createProperty(database, "prop3", PropertyType.INTEGER);
 
     final EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
         "compositeIndexNullPointQueryNullInTheMiddleInMiddleTxIndex",
-        YTClass.INDEX_TYPE.NOTUNIQUE.toString(),
+        SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata,
         null, new String[]{"prop1", "prop2", "prop3"});
@@ -511,18 +511,18 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
   }
 
   public void testRangeQueryNullInTheMiddle() {
-    final YTSchema schema = database.getMetadata().getSchema();
-    YTClass clazz = schema.createClass("compositeIndexNullRangeQueryNullInTheMiddleClass");
-    clazz.createProperty(database, "prop1", YTType.INTEGER);
-    clazz.createProperty(database, "prop2", YTType.INTEGER);
-    clazz.createProperty(database, "prop3", YTType.INTEGER);
+    final Schema schema = database.getMetadata().getSchema();
+    SchemaClass clazz = schema.createClass("compositeIndexNullRangeQueryNullInTheMiddleClass");
+    clazz.createProperty(database, "prop1", PropertyType.INTEGER);
+    clazz.createProperty(database, "prop2", PropertyType.INTEGER);
+    clazz.createProperty(database, "prop3", PropertyType.INTEGER);
 
     final EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
         "compositeIndexNullRangeQueryNullInTheMiddleIndex",
-        YTClass.INDEX_TYPE.NOTUNIQUE.toString(),
+        SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata, new String[]{"prop1", "prop2", "prop3"});
 
@@ -563,19 +563,19 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       return;
     }
 
-    final YTSchema schema = database.getMetadata().getSchema();
-    YTClass clazz = schema.createClass(
+    final Schema schema = database.getMetadata().getSchema();
+    SchemaClass clazz = schema.createClass(
         "compositeIndexNullRangeQueryNullInTheMiddleInMiddleTxClass");
-    clazz.createProperty(database, "prop1", YTType.INTEGER);
-    clazz.createProperty(database, "prop2", YTType.INTEGER);
-    clazz.createProperty(database, "prop3", YTType.INTEGER);
+    clazz.createProperty(database, "prop1", PropertyType.INTEGER);
+    clazz.createProperty(database, "prop2", PropertyType.INTEGER);
+    clazz.createProperty(database, "prop3", PropertyType.INTEGER);
 
     final EntityImpl metadata = new EntityImpl();
     metadata.field("ignoreNullValues", false);
 
     clazz.createIndex(database,
         "compositeIndexNullRangeQueryNullInTheMiddleInMiddleTxIndex",
-        YTClass.INDEX_TYPE.NOTUNIQUE.toString(),
+        SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata, new String[]{"prop1", "prop2", "prop3"});
 

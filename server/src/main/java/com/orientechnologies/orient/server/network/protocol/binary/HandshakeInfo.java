@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server.network.protocol.binary;
 
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkFactory;
 
 /**
  *
@@ -13,7 +13,7 @@ public class HandshakeInfo {
   private String driverVersion;
   private final byte encoding;
   private final byte errorEncoding;
-  private final ORecordSerializer serializer;
+  private final RecordSerializer serializer;
 
   public HandshakeInfo(
       short protocolVersion,
@@ -26,7 +26,7 @@ public class HandshakeInfo {
     this.driverVersion = driverVersion;
     this.encoding = encoding;
     this.errorEncoding = errorEncoding;
-    this.serializer = ORecordSerializerNetworkFactory.INSTANCE.forProtocol(protocolVersion);
+    this.serializer = RecordSerializerNetworkFactory.INSTANCE.forProtocol(protocolVersion);
   }
 
   public short getProtocolVersion() {
@@ -53,7 +53,7 @@ public class HandshakeInfo {
     this.driverVersion = driverVersion;
   }
 
-  public ORecordSerializer getSerializer() {
+  public RecordSerializer getSerializer() {
     return serializer;
   }
 

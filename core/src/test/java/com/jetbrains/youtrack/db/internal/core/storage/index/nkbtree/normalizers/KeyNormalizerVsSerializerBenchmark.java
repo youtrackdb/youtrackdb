@@ -1,20 +1,20 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.nkbtree.normalizers;
 
-import static com.jetbrains.youtrack.db.internal.common.serialization.types.OLongSerializer.LONG_SIZE;
+import static com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer.LONG_SIZE;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinaryTypeSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OBooleanSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OByteSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.ODateSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.ODateTimeSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.ODecimalSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.ODoubleSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OFloatSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OLongSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OShortSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OStringSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OUTF8Serializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.DateSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.DateTimeSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.DecimalSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.BinaryTypeSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.BooleanSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.DoubleSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.FloatSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.ShortSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.StringSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.UTF8Serializer;
 import com.jetbrains.youtrack.db.internal.core.storage.index.nkbtree.normalizers.benchmark.Plotter;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -170,7 +170,7 @@ public class KeyNormalizerVsSerializerBenchmark {
 
   @Benchmark
   public void booleanSerializer() {
-    final OBooleanSerializer serializer = new OBooleanSerializer();
+    final BooleanSerializer serializer = new BooleanSerializer();
     serializer.serialize(true, new byte[1], 0);
   }
 
@@ -182,7 +182,7 @@ public class KeyNormalizerVsSerializerBenchmark {
 
   @Benchmark
   public void byteSerializer() {
-    final OByteSerializer serializer = new OByteSerializer();
+    final ByteSerializer serializer = new ByteSerializer();
     serializer.serialize((byte) 3, new byte[1], 0);
   }
 
@@ -194,7 +194,7 @@ public class KeyNormalizerVsSerializerBenchmark {
 
   @Benchmark
   public void integerSerializer() {
-    final OIntegerSerializer serializer = new OIntegerSerializer();
+    final IntegerSerializer serializer = new IntegerSerializer();
     serializer.serialize(5, new byte[4], 0);
   }
 
@@ -206,7 +206,7 @@ public class KeyNormalizerVsSerializerBenchmark {
 
   @Benchmark
   public void floatSerializer() {
-    final OFloatSerializer serializer = new OFloatSerializer();
+    final FloatSerializer serializer = new FloatSerializer();
     serializer.serialize(1.5f, new byte[4], 0);
   }
 
@@ -218,7 +218,7 @@ public class KeyNormalizerVsSerializerBenchmark {
 
   @Benchmark
   public void doubleSerializer() {
-    final ODoubleSerializer serializer = new ODoubleSerializer();
+    final DoubleSerializer serializer = new DoubleSerializer();
     serializer.serialize(1.5d, new byte[8], 0);
   }
 
@@ -230,7 +230,7 @@ public class KeyNormalizerVsSerializerBenchmark {
 
   @Benchmark
   public void shortSerializer() {
-    final OShortSerializer serializer = new OShortSerializer();
+    final ShortSerializer serializer = new ShortSerializer();
     serializer.serialize((short) 3, new byte[2], 0);
   }
 
@@ -242,7 +242,7 @@ public class KeyNormalizerVsSerializerBenchmark {
 
   @Benchmark
   public void longSerializer() {
-    final OLongSerializer serializer = new OLongSerializer();
+    final LongSerializer serializer = new LongSerializer();
     serializer.serialize(5L, new byte[LONG_SIZE], 0);
   }
 
@@ -254,13 +254,13 @@ public class KeyNormalizerVsSerializerBenchmark {
 
   @Benchmark
   public void stringSerializer() {
-    final OStringSerializer serializer = new OStringSerializer();
+    final StringSerializer serializer = new StringSerializer();
     serializer.serialize("abcd", new byte[16], 0);
   }
 
   @Benchmark
   public void stringUtf8Serializer() {
-    final OUTF8Serializer serializer = new OUTF8Serializer();
+    final UTF8Serializer serializer = new UTF8Serializer();
     serializer.serialize("abcd", new byte[16], 0);
   }
 
@@ -272,9 +272,9 @@ public class KeyNormalizerVsSerializerBenchmark {
 
   @Benchmark
   public void binarySerializer() {
-    final OBinaryTypeSerializer serializer = new OBinaryTypeSerializer();
+    final BinaryTypeSerializer serializer = new BinaryTypeSerializer();
     final byte[] binary = new byte[]{1, 2, 3, 4, 5, 6};
-    serializer.serialize(binary, new byte[binary.length + OIntegerSerializer.INT_SIZE], 0);
+    serializer.serialize(binary, new byte[binary.length + IntegerSerializer.INT_SIZE], 0);
   }
 
   @Benchmark
@@ -286,7 +286,7 @@ public class KeyNormalizerVsSerializerBenchmark {
 
   @Benchmark
   public void dateSerializer() {
-    final ODateSerializer serializer = new ODateSerializer();
+    final DateSerializer serializer = new DateSerializer();
     final Date date = new GregorianCalendar(2013, Calendar.NOVEMBER, 5).getTime();
     serializer.serialize(date, new byte[LONG_SIZE], 0);
   }
@@ -300,7 +300,7 @@ public class KeyNormalizerVsSerializerBenchmark {
 
   @Benchmark
   public void dateTimeSerializer() {
-    final ODateTimeSerializer serializer = new ODateTimeSerializer();
+    final DateTimeSerializer serializer = new DateTimeSerializer();
     final LocalDateTime ldt = LocalDateTime.of(2013, 11, 5, 3, 3, 3);
     final Date date = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
     serializer.serialize(date, new byte[LONG_SIZE], 0);
@@ -316,7 +316,7 @@ public class KeyNormalizerVsSerializerBenchmark {
 
   @Benchmark
   public void decimalSerializer() {
-    final ODecimalSerializer serializer = new ODecimalSerializer();
+    final DecimalSerializer serializer = new DecimalSerializer();
     serializer.serialize(new BigDecimal(new BigInteger("20"), 2), new byte[9], 0);
   }
 

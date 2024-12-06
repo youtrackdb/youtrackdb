@@ -19,14 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Locale;
@@ -37,12 +37,12 @@ import java.util.Map;
  * class relies on.
  */
 public class CommandExecutorSQLTruncateClass extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String KEYWORD_TRUNCATE = "TRUNCATE";
   public static final String KEYWORD_CLASS = "CLASS";
   public static final String KEYWORD_POLYMORPHIC = "POLYMORPHIC";
-  private YTClass schemaClass;
+  private SchemaClass schemaClass;
   private boolean unsafe = false;
   private boolean deep = false;
 
@@ -65,21 +65,21 @@ public class CommandExecutorSQLTruncateClass extends CommandExecutorSQLAbstract
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_TRUNCATE)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_TRUNCATE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CLASS)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_CLASS + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserText, oldPos, word, true);
       if (pos == -1) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Expected class name. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -87,7 +87,7 @@ public class CommandExecutorSQLTruncateClass extends CommandExecutorSQLAbstract
       schemaClass = database.getMetadata().getSchema().getClass(className);
 
       if (schemaClass == null) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Class '" + className + "' not found", parserText, oldPos);
       }
 
@@ -114,9 +114,9 @@ public class CommandExecutorSQLTruncateClass extends CommandExecutorSQLAbstract
   /**
    * Execute the command.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (schemaClass == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -124,28 +124,28 @@ public class CommandExecutorSQLTruncateClass extends CommandExecutorSQLAbstract
     final long recs = schemaClass.count(database, deep);
     if (recs > 0 && !unsafe) {
       if (schemaClass.isSubClassOf("V")) {
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "'TRUNCATE CLASS' command cannot be used on not empty vertex classes. Apply the"
                 + " 'UNSAFE' keyword to force it (at your own risk)");
       } else if (schemaClass.isSubClassOf("E")) {
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "'TRUNCATE CLASS' command cannot be used on not empty edge classes. Apply the 'UNSAFE'"
                 + " keyword to force it (at your own risk)");
       }
     }
 
-    Collection<YTClass> subclasses = schemaClass.getAllSubclasses();
+    Collection<SchemaClass> subclasses = schemaClass.getAllSubclasses();
     if (deep && !unsafe) { // for multiple inheritance
-      for (YTClass subclass : subclasses) {
+      for (SchemaClass subclass : subclasses) {
         long subclassRecs = schemaClass.count(database);
         if (subclassRecs > 0) {
           if (subclass.isSubClassOf("V")) {
-            throw new YTCommandExecutionException(
+            throw new CommandExecutionException(
                 "'TRUNCATE CLASS' command cannot be used on not empty vertex classes ("
                     + subclass.getName()
                     + "). Apply the 'UNSAFE' keyword to force it (at your own risk)");
           } else if (subclass.isSubClassOf("E")) {
-            throw new YTCommandExecutionException(
+            throw new CommandExecutionException(
                 "'TRUNCATE CLASS' command cannot be used on not empty edge classes ("
                     + subclass.getName()
                     + "). Apply the 'UNSAFE' keyword to force it (at your own risk)");
@@ -157,13 +157,13 @@ public class CommandExecutorSQLTruncateClass extends CommandExecutorSQLAbstract
     try {
       schemaClass.truncate(database);
       if (deep) {
-        for (YTClass subclass : subclasses) {
+        for (SchemaClass subclass : subclasses) {
           subclass.truncate(database);
         }
       }
     } catch (IOException e) {
-      throw YTException.wrapException(
-          new YTCommandExecutionException("Error on executing command"), e);
+      throw BaseException.wrapException(
+          new CommandExecutionException("Error on executing command"), e);
     }
 
     return recs;

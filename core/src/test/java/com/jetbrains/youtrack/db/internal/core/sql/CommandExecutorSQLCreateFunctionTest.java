@@ -1,14 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  *
  */
-public class CommandExecutorSQLCreateFunctionTest extends DBTestBase {
+public class CommandExecutorSQLCreateFunctionTest extends DbTestBase {
 
   @Test
   public void testCreateFunction() {
@@ -19,7 +19,7 @@ public class CommandExecutorSQLCreateFunctionTest extends DBTestBase {
         .close();
     db.commit();
 
-    YTResultSet result = db.command("select testCreateFunction('world') as name");
+    ResultSet result = db.command("select testCreateFunction('world') as name");
     Assert.assertEquals(result.next().getProperty("name"), "hello world");
     Assert.assertFalse(result.hasNext());
   }

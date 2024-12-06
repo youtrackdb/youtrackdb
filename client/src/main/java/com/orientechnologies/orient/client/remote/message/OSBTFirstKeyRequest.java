@@ -19,24 +19,24 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OCollectionNetworkSerializer;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 
 public class OSBTFirstKeyRequest implements OBinaryRequest<OSBTFirstKeyResponse> {
 
-  private OBonsaiCollectionPointer collectionPointer;
+  private BonsaiCollectionPointer collectionPointer;
 
-  public OSBTFirstKeyRequest(OBonsaiCollectionPointer collectionPointer) {
+  public OSBTFirstKeyRequest(BonsaiCollectionPointer collectionPointer) {
     this.collectionPointer = collectionPointer;
   }
 
@@ -44,20 +44,20 @@ public class OSBTFirstKeyRequest implements OBinaryRequest<OSBTFirstKeyResponse>
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     OCollectionNetworkSerializer.INSTANCE.writeCollectionPointer(network, collectionPointer);
   }
 
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
-      ORecordSerializer serializer)
+  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+      RecordSerializer serializer)
       throws IOException {
     collectionPointer = OCollectionNetworkSerializer.INSTANCE.readCollectionPointer(channel);
   }
 
   @Override
   public byte getCommand() {
-    return OChannelBinaryProtocol.REQUEST_SBTREE_BONSAI_FIRST_KEY;
+    return ChannelBinaryProtocol.REQUEST_SBTREE_BONSAI_FIRST_KEY;
   }
 
   @Override
@@ -65,7 +65,7 @@ public class OSBTFirstKeyRequest implements OBinaryRequest<OSBTFirstKeyResponse>
     return "SB-Tree bonsai get first key";
   }
 
-  public OBonsaiCollectionPointer getCollectionPointer() {
+  public BonsaiCollectionPointer getCollectionPointer() {
     return collectionPointer;
   }
 

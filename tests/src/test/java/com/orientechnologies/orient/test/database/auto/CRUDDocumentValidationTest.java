@@ -15,15 +15,15 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.common.util.OPair;
+import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTValidationException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.ValidationException;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentComparator;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentComparator;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -54,7 +54,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.commit();
   }
 
-  @Test(dependsOnMethods = "openDb", expectedExceptions = YTValidationException.class)
+  @Test(dependsOnMethods = "openDb", expectedExceptions = ValidationException.class)
   public void validationMandatory() {
     database.begin();
     record = database.newInstance("Whiz");
@@ -63,7 +63,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.commit();
   }
 
-  @Test(dependsOnMethods = "validationMandatory", expectedExceptions = YTValidationException.class)
+  @Test(dependsOnMethods = "validationMandatory", expectedExceptions = ValidationException.class)
   public void validationMinString() {
     database.begin();
     record = database.newInstance("Whiz");
@@ -77,7 +77,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = "validationMinString",
-      expectedExceptions = YTValidationException.class,
+      expectedExceptions = ValidationException.class,
       expectedExceptionsMessageRegExp = "(?s).*more.*than.*")
   public void validationMaxString() {
     database.begin();
@@ -95,7 +95,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = "validationMaxString",
-      expectedExceptions = YTValidationException.class,
+      expectedExceptions = ValidationException.class,
       expectedExceptionsMessageRegExp = "(?s).*precedes.*")
   public void validationMinDate() throws ParseException {
     database.begin();
@@ -108,7 +108,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.commit();
   }
 
-  @Test(dependsOnMethods = "validationMinDate", expectedExceptions = YTDatabaseException.class)
+  @Test(dependsOnMethods = "validationMinDate", expectedExceptions = DatabaseException.class)
   public void validationEmbeddedType() throws ParseException {
     database.begin();
     record = database.newInstance("Whiz");
@@ -119,7 +119,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = "validationEmbeddedType",
-      expectedExceptions = YTValidationException.class)
+      expectedExceptions = ValidationException.class)
   public void validationStrictClass() throws ParseException {
     database.begin();
     EntityImpl doc = new EntityImpl("StrictTest");
@@ -162,10 +162,10 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.getMetadata().reload();
     database.close();
     database = acquireSession();
-    List<YTResult> result =
+    List<Result> result =
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream().toList();
     Assert.assertEquals(result.size(), 1);
-    YTResult doc = result.get(0);
+    Result doc = result.get(0);
     Assert.assertTrue(doc.hasProperty("keyField"));
     Assert.assertTrue(doc.hasProperty("dateTimeField"));
     Assert.assertTrue(doc.hasProperty("stringField"));
@@ -173,7 +173,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "createSchemaForMandatoryNullableTest")
   public void testUpdateDocDefined() {
-    List<YTResult> result =
+    List<Result> result =
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream().toList();
     database.begin();
     Assert.assertEquals(result.size(), 1);
@@ -197,7 +197,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.close();
     database = acquireSession();
 
-    List<YTResult> result =
+    List<Result> result =
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K2").stream().toList();
     database.begin();
     Assert.assertEquals(result.size(), 1);
@@ -220,7 +220,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    List<YTResult> result =
+    List<Result> result =
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K3").stream().toList();
     Assert.assertEquals(result.size(), 1);
     Entity readDoc = result.get(0).toEntity();
@@ -239,7 +239,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
       doc.save();
       database.commit();
       Assert.fail();
-    } catch (YTValidationException ignored) {
+    } catch (ValidationException ignored) {
     }
 
     database
@@ -276,9 +276,9 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     EntityImpl doc1 = new EntityImpl().field("testField", (Object) null);
     EntityImpl doc2 = new EntityImpl().field("testField", (Object) null);
 
-    ODocumentComparator comparator =
-        new ODocumentComparator(
-            Collections.singletonList(new OPair<String, String>("testField", "asc")),
+    DocumentComparator comparator =
+        new DocumentComparator(
+            Collections.singletonList(new Pair<String, String>("testField", "asc")),
             new BasicCommandContext());
 
     Assert.assertEquals(comparator.compare(doc1, doc2), 0);

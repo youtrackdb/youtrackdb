@@ -15,8 +15,8 @@ package com.orientechnologies.spatial;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.lucene.test.BaseLuceneTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -50,7 +50,7 @@ public class LuceneSpatialQueryIntegrationTest extends BaseLuceneTest {
     db.command("CREATE INDEX POI.location ON POI(location) SPATIAL ENGINE LUCENE");
     db.command("CREATE INDEX Country.geometry ON Country(geometry) SPATIAL ENGINE LUCENE;");
 
-    try (YTResultSet resultSet =
+    try (ResultSet resultSet =
         db.query(
             "select name from Country let locations = (select from Poi) where ST_Contains(geometry,"
                 + " $locations[0].location) = true")) {
@@ -58,7 +58,7 @@ public class LuceneSpatialQueryIntegrationTest extends BaseLuceneTest {
       assertThat(resultSet.stream().count()).isEqualTo(1);
     }
 
-    try (YTResultSet resultSet =
+    try (ResultSet resultSet =
         db.query(
             "select name from Country where ST_Contains(geometry, (select location from POI)) ="
                 + " true;")) {
@@ -66,7 +66,7 @@ public class LuceneSpatialQueryIntegrationTest extends BaseLuceneTest {
       assertThat(resultSet.stream().count()).isEqualTo(1);
     }
 
-    try (YTResultSet resultSet =
+    try (ResultSet resultSet =
         db.query(
             "select name from Country where ST_Contains(geometry, (select name,location from POI))"
                 + " = true;")) {
@@ -81,21 +81,21 @@ public class LuceneSpatialQueryIntegrationTest extends BaseLuceneTest {
         .close();
     db.commit();
 
-    try (YTResultSet resultSet =
+    try (ResultSet resultSet =
         db.query(
             "select name from Country where ST_Contains(geometry, (select location from POI)) ="
                 + " true;")) {
 
       Assert.fail("It should throw an exception");
     } catch (Exception e) {
-      Assert.assertTrue(e instanceof YTCommandExecutionException);
+      Assert.assertTrue(e instanceof CommandExecutionException);
     }
 
     db.begin();
     db.command("delete vertex Poi").close();
     db.commit();
 
-    try (YTResultSet resultSet =
+    try (ResultSet resultSet =
         db.query(
             "select name from Country where ST_Contains(geometry, (select location from POI)) ="
                 + " true;")) {

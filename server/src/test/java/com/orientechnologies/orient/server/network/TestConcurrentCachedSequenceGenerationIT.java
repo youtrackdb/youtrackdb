@@ -4,8 +4,8 @@ import static org.junit.Assert.assertNotNull;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabasePool;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabasePool;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
@@ -36,7 +36,7 @@ public class TestConcurrentCachedSequenceGenerationIT {
     youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         TestConcurrentCachedSequenceGenerationIT.class.getSimpleName());
-    YTDatabaseSession databaseSession =
+    DatabaseSession databaseSession =
         youTrackDB.open(
             TestConcurrentCachedSequenceGenerationIT.class.getSimpleName(), "admin", "admin");
     databaseSession.execute(
@@ -55,8 +55,8 @@ public class TestConcurrentCachedSequenceGenerationIT {
   @Test
   public void test() throws InterruptedException {
     AtomicLong failures = new AtomicLong(0);
-    ODatabasePool pool =
-        new ODatabasePool(
+    DatabasePool pool =
+        new DatabasePool(
             youTrackDB,
             TestConcurrentCachedSequenceGenerationIT.class.getSimpleName(),
             "admin",
@@ -67,7 +67,7 @@ public class TestConcurrentCachedSequenceGenerationIT {
           new Thread() {
             @Override
             public void run() {
-              try (YTDatabaseSession db = pool.acquire()) {
+              try (DatabaseSession db = pool.acquire()) {
                 for (int j = 0; j < RECORDS; j++) {
                   db.begin();
                   Vertex vert = db.newVertex("TestSequence");

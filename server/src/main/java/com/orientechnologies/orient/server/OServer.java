@@ -15,35 +15,35 @@
  */
 package com.orientechnologies.orient.server;
 
-import com.jetbrains.youtrack.db.internal.common.console.OConsoleReader;
-import com.jetbrains.youtrack.db.internal.common.console.ODefaultConsoleReader;
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.console.ConsoleReader;
+import com.jetbrains.youtrack.db.internal.common.console.DefaultConsoleReader;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.log.OAnsiCode;
-import com.jetbrains.youtrack.db.internal.common.parser.OSystemVariableResolver;
+import com.jetbrains.youtrack.db.internal.common.log.AnsiCode;
+import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
 import com.jetbrains.youtrack.db.internal.common.profiler.AbstractProfiler.ProfilerHookValue;
-import com.jetbrains.youtrack.db.internal.common.profiler.OProfiler.METRIC_TYPE;
-import com.jetbrains.youtrack.db.internal.core.OConstants;
+import com.jetbrains.youtrack.db.internal.common.profiler.Profiler.METRIC_TYPE;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.OSystemDatabase;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.SystemDatabase;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.ODatabaseDocumentTxInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.OTokenAuthInfo;
-import com.jetbrains.youtrack.db.internal.core.security.OParsedToken;
-import com.jetbrains.youtrack.db.internal.core.security.OSecuritySystem;
-import com.jetbrains.youtrack.db.internal.core.security.YTInvalidPasswordException;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTxInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.TokenAuthInfo;
+import com.jetbrains.youtrack.db.internal.core.security.InvalidPasswordException;
+import com.jetbrains.youtrack.db.internal.core.security.ParsedToken;
+import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.config.OServerConfigurationManager;
 import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
@@ -53,19 +53,19 @@ import com.orientechnologies.orient.server.config.OServerNetworkProtocolConfigur
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.config.OServerSocketFactoryConfiguration;
 import com.orientechnologies.orient.server.config.OServerStorageConfiguration;
-import com.orientechnologies.orient.server.config.OServerUserConfiguration;
+import com.orientechnologies.orient.server.config.ServerUserConfiguration;
 import com.orientechnologies.orient.server.distributed.ODistributedServerManager;
 import com.orientechnologies.orient.server.distributed.config.ODistributedConfig;
-import com.orientechnologies.orient.server.handler.OConfigurableHooksManager;
+import com.orientechnologies.orient.server.handler.ConfigurableHooksManager;
 import com.orientechnologies.orient.server.network.OServerNetworkListener;
 import com.orientechnologies.orient.server.network.OServerSocketFactory;
-import com.orientechnologies.orient.server.network.protocol.ONetworkProtocol;
+import com.orientechnologies.orient.server.network.protocol.NetworkProtocol;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
 import com.orientechnologies.orient.server.network.protocol.http.HttpSessionManager;
-import com.orientechnologies.orient.server.network.protocol.http.ONetworkProtocolHttpDb;
-import com.orientechnologies.orient.server.plugin.OServerPlugin;
+import com.orientechnologies.orient.server.network.protocol.http.NetworkProtocolHttpDb;
+import com.orientechnologies.orient.server.plugin.ServerPlugin;
 import com.orientechnologies.orient.server.plugin.OServerPluginInfo;
-import com.orientechnologies.orient.server.plugin.OServerPluginManager;
+import com.orientechnologies.orient.server.plugin.ServerPluginManager;
 import com.orientechnologies.orient.server.token.OTokenHandlerImpl;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -96,24 +96,24 @@ public class OServer {
   protected volatile boolean running = false;
   protected volatile boolean rejectRequests = true;
   protected OServerConfigurationManager serverCfg;
-  protected YTContextConfiguration contextConfiguration;
+  protected ContextConfiguration contextConfiguration;
   protected OServerShutdownHook shutdownHook;
-  protected Map<String, Class<? extends ONetworkProtocol>> networkProtocols =
-      new HashMap<String, Class<? extends ONetworkProtocol>>();
+  protected Map<String, Class<? extends NetworkProtocol>> networkProtocols =
+      new HashMap<String, Class<? extends NetworkProtocol>>();
   protected Map<String, OServerSocketFactory> networkSocketFactories =
       new HashMap<String, OServerSocketFactory>();
   protected List<OServerNetworkListener> networkListeners = new ArrayList<OServerNetworkListener>();
   protected List<OServerLifecycleListener> lifecycleListeners =
       new ArrayList<OServerLifecycleListener>();
-  protected OServerPluginManager pluginManager;
-  protected OConfigurableHooksManager hookManager;
+  protected ServerPluginManager pluginManager;
+  protected ConfigurableHooksManager hookManager;
   protected ODistributedServerManager distributedManager;
   private final Map<String, Object> variables = new HashMap<String, Object>();
   private String serverRootDirectory;
   private String databaseDirectory;
   private OClientConnectionManager clientConnectionManager;
   private HttpSessionManager httpSessionManager;
-  private OPushManager pushManager;
+  private PushManager pushManager;
   private ClassLoader extensionClassLoader;
   private OTokenHandler tokenHandler;
   private YouTrackDB context;
@@ -138,7 +138,7 @@ public class OServer {
     this.shutdownEngineOnExit = shutdownEngineOnExit;
 
     serverRootDirectory =
-        OSystemVariableResolver.resolveSystemVariables(
+        SystemVariableResolver.resolveSystemVariables(
             "${" + YouTrackDBManager.YOU_TRACK_DB_HOME + "}", ".");
 
     LogManager.instance().installCustomFormatter();
@@ -225,7 +225,7 @@ public class OServer {
     return extensionClassLoader;
   }
 
-  public OSecuritySystem getSecurity() {
+  public SecuritySystem getSecurity() {
     return databases.getSecuritySystem();
   }
 
@@ -241,7 +241,7 @@ public class OServer {
     return httpSessionManager;
   }
 
-  public OPushManager getPushManager() {
+  public PushManager getPushManager() {
     return pushManager;
   }
 
@@ -265,7 +265,7 @@ public class OServer {
     }
   }
 
-  public OSystemDatabase getSystemDatabase() {
+  public SystemDatabase getSystemDatabase() {
     return databases.getSystemDatabase();
   }
 
@@ -305,7 +305,7 @@ public class OServer {
     return null;
   }
 
-  public OServer startup() throws YTConfigurationException {
+  public OServer startup() throws ConfigurationException {
     String config = OServerConfiguration.DEFAULT_CONFIG_FILE;
     if (System.getProperty(OServerConfiguration.PROPERTY_CONFIG_FILE) != null) {
       config = System.getProperty(OServerConfiguration.PROPERTY_CONFIG_FILE);
@@ -313,12 +313,12 @@ public class OServer {
 
     YouTrackDBManager.instance().startup();
 
-    startup(new File(OSystemVariableResolver.resolveSystemVariables(config)));
+    startup(new File(SystemVariableResolver.resolveSystemVariables(config)));
 
     return this;
   }
 
-  public OServer startup(final File iConfigurationFile) throws YTConfigurationException {
+  public OServer startup(final File iConfigurationFile) throws ConfigurationException {
     // Startup function split to allow pre-activation changes
     try {
       serverCfg = new OServerConfigurationManager(iConfigurationFile);
@@ -328,7 +328,7 @@ public class OServer {
       final String message =
           "Error on reading server configuration from file: " + iConfigurationFile;
       LogManager.instance().error(this, message, e);
-      throw YTException.wrapException(new YTConfigurationException(message), e);
+      throw BaseException.wrapException(new ConfigurationException(message), e);
     }
   }
 
@@ -338,7 +338,7 @@ public class OServer {
 
   public OServer startup(final InputStream iInputStream) throws IOException {
     if (iInputStream == null) {
-      throw new YTConfigurationException("Configuration file is null");
+      throw new ConfigurationException("Configuration file is null");
     }
 
     serverCfg = new OServerConfigurationManager(iInputStream);
@@ -355,7 +355,8 @@ public class OServer {
 
   public OServer startupFromConfiguration() throws IOException {
     LogManager.instance()
-        .info(this, "YouTrackDB Server v" + OConstants.getVersion() + " is starting up...");
+        .info(this,
+            "YouTrackDB Server v" + YouTrackDBConstants.getVersion() + " is starting up...");
 
     YouTrackDBManager.instance();
 
@@ -370,7 +371,7 @@ public class OServer {
 
     clientConnectionManager = new OClientConnectionManager(this);
     httpSessionManager = new HttpSessionManager(this);
-    pushManager = new OPushManager();
+    pushManager = new PushManager();
     rejectRequests = false;
 
     if (contextConfiguration.getValueAsBoolean(
@@ -382,7 +383,7 @@ public class OServer {
     databaseDirectory =
         contextConfiguration.getValue("server.database.path", serverRootDirectory + "/databases/");
     databaseDirectory =
-        FileUtils.getPath(OSystemVariableResolver.resolveSystemVariables(databaseDirectory));
+        FileUtils.getPath(SystemVariableResolver.resolveSystemVariables(databaseDirectory));
     databaseDirectory = databaseDirectory.replace("//", "/");
 
     // CONVERT IT TO ABSOLUTE PATH
@@ -394,20 +395,20 @@ public class OServer {
     }
 
     YouTrackDBConfigBuilder builder = YouTrackDBConfig.builder();
-    for (OServerUserConfiguration user : serverCfg.getUsers()) {
+    for (ServerUserConfiguration user : serverCfg.getUsers()) {
       builder.addGlobalUser(user.getName(), user.getPassword(), user.getResources());
     }
     YouTrackDBConfig config =
         builder
             .fromContext(contextConfiguration)
-            .setSecurityConfig(new OServerSecurityConfig(this, this.serverCfg))
+            .setSecurityConfig(new ServerSecurityConfig(this, this.serverCfg))
             .build();
 
     if (contextConfiguration.getValueAsBoolean(
         GlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY)) {
 
       databases =
-          ODatabaseDocumentTxInternal.getOrCreateEmbeddedFactory(this.databaseDirectory, config);
+          DatabaseDocumentTxInternal.getOrCreateEmbeddedFactory(this.databaseDirectory, config);
     } else {
       OServerConfiguration configuration = getConfiguration();
 
@@ -417,13 +418,13 @@ public class OServer {
               ODistributedConfig.buildConfig(
                   contextConfiguration, ODistributedConfig.fromEnv(configuration.distributed));
           databases = YouTrackDBInternal.distributed(this.databaseDirectory, youTrackDBConfig);
-        } catch (YTDatabaseException ex) {
+        } catch (DatabaseException ex) {
           databases = YouTrackDBInternal.embedded(this.databaseDirectory, config);
         }
       } else {
         try {
           databases = YouTrackDBInternal.distributed(this.databaseDirectory, config);
-        } catch (YTDatabaseException ex) {
+        } catch (DatabaseException ex) {
           databases = YouTrackDBInternal.embedded(this.databaseDirectory, config);
         }
       }
@@ -490,7 +491,7 @@ public class OServer {
             try {
               factory.config(f.name, f.parameters);
               networkSocketFactories.put(f.name, factory);
-            } catch (YTConfigurationException e) {
+            } catch (ConfigurationException e) {
               LogManager.instance().error(this, "Error creating socket factory", e);
             }
           }
@@ -499,7 +500,7 @@ public class OServer {
         // REGISTER PROTOCOLS
         for (OServerNetworkProtocolConfiguration p : configuration.network.protocols) {
           networkProtocols.put(
-              p.name, (Class<? extends ONetworkProtocol>) loadClass(p.implementation));
+              p.name, (Class<? extends NetworkProtocol>) loadClass(p.implementation));
         }
 
         // STARTUP LISTENERS
@@ -528,7 +529,7 @@ public class OServer {
         final String message = "Error on reading server configuration";
         LogManager.instance().error(this, message, e);
 
-        throw YTException.wrapException(new YTConfigurationException(message), e);
+        throw BaseException.wrapException(new ConfigurationException(message), e);
       }
 
       registerPlugins();
@@ -542,7 +543,7 @@ public class OServer {
       String httpAddress = "localhost:2480";
       boolean ssl = false;
       for (OServerNetworkListener listener : networkListeners) {
-        if (listener.getProtocolType().getName().equals(ONetworkProtocolHttpDb.class.getName())) {
+        if (listener.getProtocolType().getName().equals(NetworkProtocolHttpDb.class.getName())) {
           httpAddress = listener.getListeningAddress(true);
           ssl = listener.getSocketFactory().isEncrypted();
         }
@@ -563,7 +564,8 @@ public class OServer {
       LogManager.instance()
           .info(
               this,
-              "$ANSI{green:italic YouTrackDB Server is active} v" + OConstants.getVersion() + ".");
+              "$ANSI{green:italic YouTrackDB Server is active} v" + YouTrackDBConstants.getVersion()
+                  + ".");
     } catch (ClassNotFoundException
              | InstantiationException
              | IllegalAccessException
@@ -736,34 +738,34 @@ public class OServer {
     System.out.println();
     System.out.println();
     System.out.println(
-        OAnsiCode.format(
+        AnsiCode.format(
             "$ANSI{yellow"
                 + " +--------------------------------------------------------------------------+}"));
     System.out.println(
-        OAnsiCode.format(
+        AnsiCode.format(
             String.format(
                 "$ANSI{yellow | INSERT THE KEY FOR THE ENCRYPTED DATABASE %-31s|}",
                 "'" + iDatabaseName + "'")));
     System.out.println(
-        OAnsiCode.format(
+        AnsiCode.format(
             "$ANSI{yellow"
                 + " +--------------------------------------------------------------------------+}"));
     System.out.println(
-        OAnsiCode.format(
+        AnsiCode.format(
             "$ANSI{yellow | To avoid this message set the environment variable or JVM setting      "
                 + "  |}"));
     System.out.println(
-        OAnsiCode.format(
+        AnsiCode.format(
             "$ANSI{yellow | 'storage.encryptionKey' to the key to use.                             "
                 + "  |}"));
     System.out.println(
-        OAnsiCode.format(
+        AnsiCode.format(
             "$ANSI{yellow"
                 + " +--------------------------------------------------------------------------+}"));
     System.out.print(
-        OAnsiCode.format("\n$ANSI{yellow Database encryption key [BLANK=to skip opening]: }"));
+        AnsiCode.format("\n$ANSI{yellow Database encryption key [BLANK=to skip opening]: }"));
 
-    final OConsoleReader reader = new ODefaultConsoleReader();
+    final ConsoleReader reader = new DefaultConsoleReader();
     try {
       String key = reader.readPassword();
       if (key != null) {
@@ -800,8 +802,8 @@ public class OServer {
   }
 
   // Returns null if the user cannot be authenticated. Otherwise returns the
-  // OServerUserConfiguration user.
-  public YTSecurityUser authenticateUser(
+  // ServerUserConfiguration user.
+  public SecurityUser authenticateUser(
       final String iUserName, final String iPassword, final String iResourceToCheck) {
     return databases
         .getSecuritySystem()
@@ -816,7 +818,7 @@ public class OServer {
     return serverCfg.getConfiguration();
   }
 
-  public Map<String, Class<? extends ONetworkProtocol>> getNetworkProtocols() {
+  public Map<String, Class<? extends NetworkProtocol>> getNetworkProtocols() {
     return networkProtocols;
   }
 
@@ -826,7 +828,7 @@ public class OServer {
 
   @SuppressWarnings("unchecked")
   public <RET extends OServerNetworkListener> RET getListenerByProtocol(
-      final Class<? extends ONetworkProtocol> iProtocolClass) {
+      final Class<? extends NetworkProtocol> iProtocolClass) {
     for (OServerNetworkListener l : networkListeners) {
       if (iProtocolClass.isAssignableFrom(l.getProtocolType())) {
         return (RET) l;
@@ -840,14 +842,14 @@ public class OServer {
     return pluginManager != null ? pluginManager.getPlugins() : null;
   }
 
-  public YTContextConfiguration getContextConfiguration() {
+  public ContextConfiguration getContextConfiguration() {
     return contextConfiguration;
   }
 
   @SuppressWarnings("unchecked")
-  public <RET extends OServerPlugin> RET getPluginByClass(final Class<RET> iPluginClass) {
+  public <RET extends ServerPlugin> RET getPluginByClass(final Class<RET> iPluginClass) {
     if (startupLatch == null) {
-      throw new YTDatabaseException("Error on plugin lookup: the server did not start correctly");
+      throw new DatabaseException("Error on plugin lookup: the server did not start correctly");
     }
 
     try {
@@ -856,7 +858,7 @@ public class OServer {
       Thread.currentThread().interrupt();
     }
     if (!running) {
-      throw new YTDatabaseException("Error on plugin lookup the server did not start correctly.");
+      throw new DatabaseException("Error on plugin lookup the server did not start correctly.");
     }
 
     for (OServerPluginInfo h : getPlugins()) {
@@ -869,9 +871,9 @@ public class OServer {
   }
 
   @SuppressWarnings("unchecked")
-  public <RET extends OServerPlugin> RET getPlugin(final String iName) {
+  public <RET extends ServerPlugin> RET getPlugin(final String iName) {
     if (startupLatch == null) {
-      throw new YTDatabaseException("Error on plugin lookup: the server did not start correctly");
+      throw new DatabaseException("Error on plugin lookup: the server did not start correctly");
     }
 
     try {
@@ -880,7 +882,7 @@ public class OServer {
       Thread.currentThread().interrupt();
     }
     if (!running) {
-      throw new YTDatabaseException("Error on plugin lookup: the server did not start correctly");
+      throw new DatabaseException("Error on plugin lookup: the server did not start correctly");
     }
 
     final OServerPluginInfo p = pluginManager.getPluginByName(iName);
@@ -918,21 +920,21 @@ public class OServer {
     return this;
   }
 
-  public YTDatabaseSessionInternal openDatabase(final String iDbUrl, final OParsedToken iToken) {
-    return databases.open(new OTokenAuthInfo(iToken), YouTrackDBConfig.defaultConfig());
+  public DatabaseSessionInternal openDatabase(final String iDbUrl, final ParsedToken iToken) {
+    return databases.open(new TokenAuthInfo(iToken), YouTrackDBConfig.defaultConfig());
   }
 
-  public YTDatabaseSessionInternal openDatabase(
+  public DatabaseSessionInternal openDatabase(
       final String iDbUrl, final String user, final String password) {
     return openDatabase(iDbUrl, user, password, null);
   }
 
-  public YTDatabaseSessionInternal openDatabase(
+  public DatabaseSessionInternal openDatabase(
       final String iDbUrl, final String user, final String password, ONetworkProtocolData data) {
-    final YTDatabaseSessionInternal database;
+    final DatabaseSessionInternal database;
     boolean serverAuth = false;
     database = databases.open(iDbUrl, user, password);
-    if (YTSecurityUser.SERVER_USER_TYPE.equals(database.getUser().getUserType())) {
+    if (SecurityUser.SERVER_USER_TYPE.equals(database.getUser().getUserType())) {
       serverAuth = true;
     }
     if (serverAuth && data != null) {
@@ -945,7 +947,7 @@ public class OServer {
     return database;
   }
 
-  public YTDatabaseSessionInternal openDatabase(String database) {
+  public DatabaseSessionInternal openDatabase(String database) {
     return databases.openNoAuthorization(database);
   }
 
@@ -961,7 +963,7 @@ public class OServer {
     final OServerConfiguration cfg = serverCfg.getConfiguration();
 
     // FILL THE CONTEXT CONFIGURATION WITH SERVER'S PARAMETERS
-    contextConfiguration = new YTContextConfiguration();
+    contextConfiguration = new ContextConfiguration();
 
     if (cfg.properties != null) {
       for (OServerEntryConfiguration prop : cfg.properties) {
@@ -969,10 +971,10 @@ public class OServer {
       }
     }
 
-    hookManager = new OConfigurableHooksManager(cfg);
+    hookManager = new ConfigurableHooksManager(cfg);
   }
 
-  public OConfigurableHooksManager getHookManager() {
+  public ConfigurableHooksManager getHookManager() {
     return hookManager;
   }
 
@@ -1007,7 +1009,7 @@ public class OServer {
 
         int typeIndex = url.indexOf(':');
         if (typeIndex <= 0) {
-          throw new YTConfigurationException(
+          throw new ConfigurationException(
               "Error in database URL: the engine was not specified. Syntax is: "
                   + YouTrackDBManager.URL_SYNTAX
                   + ". URL was: "
@@ -1035,7 +1037,7 @@ public class OServer {
     }
 
     // YOU_TRACK_DB_ROOT_PASSWORD ENV OR JVM SETTING
-    String rootPassword = OSystemVariableResolver.resolveVariable(ROOT_PASSWORD_VAR);
+    String rootPassword = SystemVariableResolver.resolveVariable(ROOT_PASSWORD_VAR);
 
     if (rootPassword != null) {
       rootPassword = rootPassword.trim();
@@ -1057,42 +1059,42 @@ public class OServer {
       System.out.println();
       System.out.println();
       System.out.println(
-          OAnsiCode.format(
+          AnsiCode.format(
               "$ANSI{yellow +---------------------------------------------------------------+}"));
       System.out.println(
-          OAnsiCode.format(
+          AnsiCode.format(
               "$ANSI{yellow |                WARNING: FIRST RUN CONFIGURATION               |}"));
       System.out.println(
-          OAnsiCode.format(
+          AnsiCode.format(
               "$ANSI{yellow +---------------------------------------------------------------+}"));
       System.out.println(
-          OAnsiCode.format(
+          AnsiCode.format(
               "$ANSI{yellow | This is the first time the server is running. Please type a   |}"));
       System.out.println(
-          OAnsiCode.format(
+          AnsiCode.format(
               "$ANSI{yellow | password of your choice for the 'root' user or leave it blank |}"));
       System.out.println(
-          OAnsiCode.format(
+          AnsiCode.format(
               "$ANSI{yellow | to auto-generate it.                                          |}"));
       System.out.println(
-          OAnsiCode.format(
+          AnsiCode.format(
               "$ANSI{yellow |                                                               |}"));
       System.out.println(
-          OAnsiCode.format(
+          AnsiCode.format(
               "$ANSI{yellow | To avoid this message set the environment variable or JVM     |}"));
       System.out.println(
-          OAnsiCode.format(
+          AnsiCode.format(
               "$ANSI{yellow | setting YOU_TRACK_DB_ROOT_PASSWORD to the root password to use.   |}"));
       System.out.println(
-          OAnsiCode.format(
+          AnsiCode.format(
               "$ANSI{yellow +---------------------------------------------------------------+}"));
 
-      final OConsoleReader console = new ODefaultConsoleReader();
+      final ConsoleReader console = new DefaultConsoleReader();
 
       // ASK FOR PASSWORD + CONFIRM
       do {
         System.out.print(
-            OAnsiCode.format("\n$ANSI{yellow Root password [BLANK=auto generate it]: }"));
+            AnsiCode.format("\n$ANSI{yellow Root password [BLANK=auto generate it]: }"));
         rootPassword = console.readPassword();
 
         if (rootPassword != null) {
@@ -1103,7 +1105,7 @@ public class OServer {
         }
 
         if (rootPassword != null) {
-          System.out.print(OAnsiCode.format("$ANSI{yellow Please confirm the root password: }"));
+          System.out.print(AnsiCode.format("$ANSI{yellow Please confirm the root password: }"));
 
           String rootConfirmPassword = console.readPassword();
           if (rootConfirmPassword != null) {
@@ -1115,7 +1117,7 @@ public class OServer {
 
           if (!rootPassword.equals(rootConfirmPassword)) {
             System.out.println(
-                OAnsiCode.format(
+                AnsiCode.format(
                     "$ANSI{red ERROR: Passwords don't match, please reinsert both of them, or press"
                         + " ENTER to auto generate it}"));
           } else
@@ -1128,9 +1130,9 @@ public class OServer {
               }
               // PASSWORD IS STRONG ENOUGH
               break;
-            } catch (YTInvalidPasswordException ex) {
+            } catch (InvalidPasswordException ex) {
               System.out.println(
-                  OAnsiCode.format(
+                  AnsiCode.format(
                       "$ANSI{red ERROR: Root password does not match the password policies}"));
               if (ex.getMessage() != null) {
                 System.out.println(ex.getMessage());
@@ -1169,13 +1171,13 @@ public class OServer {
         context.execute("EXISTS SYSTEM USER ?", user).next().getProperty("exists"));
   }
 
-  public OServerPluginManager getPluginManager() {
+  public ServerPluginManager getPluginManager() {
     return pluginManager;
   }
 
   protected void registerPlugins()
       throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-    pluginManager = new OServerPluginManager();
+    pluginManager = new ServerPluginManager();
     pluginManager.config(this);
     pluginManager.startup();
 
@@ -1184,7 +1186,7 @@ public class OServer {
 
     if (configuration.handlers != null) {
       // ACTIVATE PLUGINS
-      final List<OServerPlugin> plugins = new ArrayList<OServerPlugin>();
+      final List<ServerPlugin> plugins = new ArrayList<ServerPlugin>();
 
       for (OServerHandlerConfiguration h : configuration.handlers) {
         if (h.parameters != null) {
@@ -1195,7 +1197,7 @@ public class OServer {
             if (p.name.equals("enabled")) {
               enabled = false;
 
-              String value = OSystemVariableResolver.resolveSystemVariables(p.value);
+              String value = SystemVariableResolver.resolveSystemVariables(p.value);
               if (value != null) {
                 value = value.trim();
 
@@ -1214,7 +1216,7 @@ public class OServer {
           }
         }
 
-        final OServerPlugin plugin = (OServerPlugin) loadClass(h.clazz).newInstance();
+        final ServerPlugin plugin = (ServerPlugin) loadClass(h.clazz).newInstance();
 
         if (plugin instanceof ODistributedServerManager) {
           distributedManager = (ODistributedServerManager) plugin;
@@ -1231,7 +1233,7 @@ public class OServer {
       }
 
       // START ALL THE CONFIGURED PLUGINS
-      for (OServerPlugin plugin : plugins) {
+      for (ServerPlugin plugin : plugins) {
         pluginManager.callListenerBeforeStartup(plugin);
         plugin.startup();
         pluginManager.callListenerAfterStartup(plugin);
@@ -1266,7 +1268,7 @@ public class OServer {
     if (databases.exists(databaseName, null, null)) {
       databases.drop(databaseName, null, null);
     } else {
-      throw new YTStorageException("Database with name '" + databaseName + "' does not exist");
+      throw new StorageException("Database with name '" + databaseName + "' does not exist");
     }
   }
 
@@ -1274,13 +1276,13 @@ public class OServer {
     return databases.exists(databaseName, null, null);
   }
 
-  public void createDatabase(String databaseName, ODatabaseType type, YouTrackDBConfig config) {
+  public void createDatabase(String databaseName, DatabaseType type, YouTrackDBConfig config) {
     databases.create(databaseName, null, null, type, config);
   }
 
   public Set<String> listDatabases() {
     Set<String> dbs = databases.listDatabases(null, null);
-    dbs.remove(OSystemDatabase.SYSTEM_DB_NAME);
+    dbs.remove(SystemDatabase.SYSTEM_DB_NAME);
     return dbs;
   }
 

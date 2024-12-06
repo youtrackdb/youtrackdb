@@ -21,11 +21,11 @@ package com.jetbrains.youtrack.db.internal.core.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,11 +39,11 @@ public class ResourceDerivedTest {
 
   @Before
   public void before() {
-    youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+    youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database test memory users (admin identified by 'admin' role admin)");
-    YTDatabaseSession db = youTrackDB.open("test", "admin", "admin");
+    DatabaseSession db = youTrackDB.open("test", "admin", "admin");
 
     db.begin();
     db.command(
@@ -126,7 +126,7 @@ public class ResourceDerivedTest {
     db.close();
   }
 
-  private YTResultSet query(YTDatabaseSession db, String sql, Object... params) {
+  private ResultSet query(DatabaseSession db, String sql, Object... params) {
     return db.query(sql, params);
   }
 
@@ -139,10 +139,10 @@ public class ResourceDerivedTest {
   // This tests for a result size of three.  The "Customer_u2" record should not be included.
   public void shouldTestFiltering() {
 
-    YTDatabaseSession db = youTrackDB.open("test", "tenant1", "password");
+    DatabaseSession db = youTrackDB.open("test", "tenant1", "password");
 
     try {
-      YTResultSet result = query(db, "SELECT FROM Customer");
+      ResultSet result = query(db, "SELECT FROM Customer");
 
       assertThat(result).hasSize(3);
     } finally {
@@ -154,10 +154,10 @@ public class ResourceDerivedTest {
   // This should return the record in "Customer_t2" but filter out the "Customer_u2" record.
   public void shouldTestCustomer_t2() {
 
-    YTDatabaseSession db = youTrackDB.open("test", "tenant1", "password");
+    DatabaseSession db = youTrackDB.open("test", "tenant1", "password");
 
     try {
-      YTResultSet result = query(db, "SELECT FROM Customer_t2");
+      ResultSet result = query(db, "SELECT FROM Customer_t2");
 
       assertThat(result).hasSize(1);
     } finally {
@@ -167,10 +167,10 @@ public class ResourceDerivedTest {
 
   public void shouldTestAccess2() {
 
-    YTDatabaseSession db = youTrackDB.open("test", "tenant1", "password");
+    DatabaseSession db = youTrackDB.open("test", "tenant1", "password");
 
     try {
-      YTResultSet result = query(db, "SELECT FROM Customer_u2");
+      ResultSet result = query(db, "SELECT FROM Customer_u2");
       assertThat(result).hasSize(0);
     } finally {
       db.close();
@@ -179,10 +179,10 @@ public class ResourceDerivedTest {
 
   public void shouldTestCustomer() {
 
-    YTDatabaseSession db = youTrackDB.open("test", "tenant2", "password");
+    DatabaseSession db = youTrackDB.open("test", "tenant2", "password");
 
     try {
-      YTResultSet result = query(db, "SELECT FROM Customer");
+      ResultSet result = query(db, "SELECT FROM Customer");
       assertThat(result).hasSize(0);
     } finally {
       db.close();
@@ -194,10 +194,10 @@ public class ResourceDerivedTest {
   // included.
   public void shouldTestCustomer_t2Tenant2() {
 
-    YTDatabaseSession db = youTrackDB.open("test", "tenant2", "password");
+    DatabaseSession db = youTrackDB.open("test", "tenant2", "password");
 
     try {
-      YTResultSet result = query(db, "SELECT FROM Customer_t2");
+      ResultSet result = query(db, "SELECT FROM Customer_t2");
 
       assertThat(result).hasSize(2);
     } finally {

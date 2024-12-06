@@ -19,35 +19,35 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.util.OPair;
-import com.jetbrains.youtrack.db.internal.common.util.OTriple;
+import com.jetbrains.youtrack.db.internal.common.util.Pair;
+import com.jetbrains.youtrack.db.internal.common.util.Triple;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConcurrentModificationException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurity;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentModificationException;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
 import com.jetbrains.youtrack.db.internal.core.query.Query;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItem;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItem;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilter;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLUpdateStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLAsynchQuery;
-import com.jetbrains.youtrack.db.internal.core.storage.YTRecordDuplicatedException;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
+import com.jetbrains.youtrack.db.internal.core.storage.RecordDuplicatedException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -59,7 +59,7 @@ import java.util.Map;
  * SQL UPDATE command.
  */
 public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
-    implements OCommandDistributedReplicateRequest, OCommandResultListener {
+    implements CommandDistributedReplicateRequest, CommandResultListener {
 
   public static final String KEYWORD_UPDATE = "UPDATE";
   private static final String KEYWORD_ADD = "ADD";
@@ -70,23 +70,23 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   private static final String KEYWORD_UPSERT = "UPSERT";
   private static final String KEYWORD_EDGE = "EDGE";
   private static final Object EMPTY_VALUE = new Object();
-  private final List<OPair<String, Object>> setEntries = new ArrayList<OPair<String, Object>>();
-  private final List<OPair<String, Object>> addEntries = new ArrayList<OPair<String, Object>>();
-  private final List<OTriple<String, String, Object>> putEntries =
-      new ArrayList<OTriple<String, String, Object>>();
-  private final List<OPair<String, Object>> removeEntries = new ArrayList<OPair<String, Object>>();
-  private final List<OPair<String, Object>> incrementEntries =
-      new ArrayList<OPair<String, Object>>();
+  private final List<Pair<String, Object>> setEntries = new ArrayList<Pair<String, Object>>();
+  private final List<Pair<String, Object>> addEntries = new ArrayList<Pair<String, Object>>();
+  private final List<Triple<String, String, Object>> putEntries =
+      new ArrayList<Triple<String, String, Object>>();
+  private final List<Pair<String, Object>> removeEntries = new ArrayList<Pair<String, Object>>();
+  private final List<Pair<String, Object>> incrementEntries =
+      new ArrayList<Pair<String, Object>>();
   private EntityImpl merge = null;
-  private OReturnHandler returnHandler = new ORecordCountHandler();
+  private ReturnHandler returnHandler = new RecordCountHandler();
   private Query<?> query;
   private SQLFilter compiledFilter;
   private String subjectName;
-  private OCommandParameters parameters;
+  private CommandParameters parameters;
   private boolean upsertMode = false;
   private boolean isUpsertAllowed = false;
   private boolean updated = false;
-  private YTClass clazz = null;
+  private SchemaClass clazz = null;
   private DISTRIBUTED_EXECUTION_MODE distributedMode;
 
   private boolean updateEdge = false;
@@ -209,14 +209,14 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         subjectName = subjectName.trim();
         query =
             database.command(
-                new OSQLAsynchQuery<EntityImpl>(
+                new SQLAsynchQuery<EntityImpl>(
                     subjectName.substring(1, subjectName.length() - 1), this)
                     .setContext(context));
 
         if (additionalStatement.equals(CommandExecutorSQLAbstract.KEYWORD_WHERE)
             || additionalStatement.equals(CommandExecutorSQLAbstract.KEYWORD_LIMIT)) {
           compiledFilter =
-              OSQLEngine
+              SQLEngine
                   .parseCondition(
                       parserText.substring(parserGetCurrentPosition()),
                       getContext(),
@@ -245,10 +245,10 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
             updateStm.timeout.toString(params, selectString);
           }
 
-          query = new OSQLAsynchQuery<EntityImpl>(selectString.toString(), this);
+          query = new SQLAsynchQuery<EntityImpl>(selectString.toString(), this);
         } else {
           query =
-              new OSQLAsynchQuery<EntityImpl>(
+              new SQLAsynchQuery<EntityImpl>(
                   "select from "
                       + getSelectTarget()
                       + " "
@@ -264,7 +264,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       } else if (!additionalStatement.isEmpty()) {
         throwSyntaxErrorException("Invalid keyword " + additionalStatement);
       } else {
-        query = new OSQLAsynchQuery<EntityImpl>("select from " + getSelectTarget(), this);
+        query = new SQLAsynchQuery<EntityImpl>("select from " + getSelectTarget(), this);
       }
 
       if (upsertMode && !isUpsertAllowed) {
@@ -295,13 +295,13 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     return ((SQLUpdateStatement) preParsedStatement).target.toString();
   }
 
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (subjectName == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    parameters = new OCommandParameters(iArgs);
+    parameters = new CommandParameters(iArgs);
     Map<Object, Object> queryArgs;
     if (parameters.size() > 0 && parameters.getByName(0) != null) {
       queryArgs = new HashMap<Object, Object>();
@@ -328,7 +328,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       // locks by result(doc)
       try {
         result(querySession, doc);
-      } catch (YTRecordDuplicatedException e) {
+      } catch (RecordDuplicatedException e) {
         if (upsertMode)
         // UPDATE THE NEW RECORD
         {
@@ -336,7 +336,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         } else {
           throw e;
         }
-      } catch (YTRecordNotFoundException e) {
+      } catch (RecordNotFoundException e) {
         if (upsertMode)
         // UPDATE THE NEW RECORD
         {
@@ -344,7 +344,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         } else {
           throw e;
         }
-      } catch (YTConcurrentModificationException e) {
+      } catch (ConcurrentModificationException e) {
         if (upsertMode)
         // UPDATE THE NEW RECORD
         {
@@ -362,11 +362,11 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
    * Update current record.
    */
   @SuppressWarnings("unchecked")
-  public boolean result(YTDatabaseSessionInternal querySession, final Object iRecord) {
-    final EntityImpl record = ((YTIdentifiable) iRecord).getRecord();
+  public boolean result(DatabaseSessionInternal querySession, final Object iRecord) {
+    final EntityImpl record = ((Identifiable) iRecord).getRecord();
 
     if (updateEdge && !isRecordInstanceOf(iRecord, "E")) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Using UPDATE EDGE on a record that is not an instance of E");
     }
     if (compiledFilter != null) {
@@ -400,7 +400,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   }
 
   /**
-   * checks if an object is an YTIdentifiable and an instance of a particular (schema) class
+   * checks if an object is an Identifiable and an instance of a particular (schema) class
    *
    * @param iRecord     The record object
    * @param orientClass The schema class
@@ -410,14 +410,14 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     if (iRecord == null) {
       return false;
     }
-    if (!(iRecord instanceof YTIdentifiable)) {
+    if (!(iRecord instanceof Identifiable)) {
       return false;
     }
-    EntityImpl record = ((YTIdentifiable) iRecord).getRecord();
+    EntityImpl record = ((Identifiable) iRecord).getRecord();
     if (iRecord == null) {
       return false;
     }
-    return (ODocumentInternal.getImmutableSchemaClass(record).isSubClassOf(orientClass));
+    return (DocumentInternal.getImmutableSchemaClass(record).isSubClassOf(orientClass));
   }
 
   /**
@@ -426,7 +426,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
    * @param db
    * @param record the edge record
    */
-  private void handleUpdateEdge(YTDatabaseSessionInternal db, EntityImpl record) {
+  private void handleUpdateEdge(DatabaseSessionInternal db, EntityImpl record) {
     if (!updateEdge) {
       return;
     }
@@ -438,8 +438,8 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
     validateOutInForEdge(record, currentOut, currentIn);
 
-    changeVertexEdgePointer(db, record, (YTIdentifiable) prevIn, (YTIdentifiable) currentIn, "in");
-    changeVertexEdgePointer(db, record, (YTIdentifiable) prevOut, (YTIdentifiable) currentOut,
+    changeVertexEdgePointer(db, record, (Identifiable) prevIn, (Identifiable) currentIn, "in");
+    changeVertexEdgePointer(db, record, (Identifiable) prevOut, (Identifiable) currentOut,
         "out");
   }
 
@@ -453,8 +453,8 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
    * @param direction     the direction ("out" or "in")
    */
   private void changeVertexEdgePointer(
-      YTDatabaseSessionInternal db, EntityImpl edge, YTIdentifiable prevVertex,
-      YTIdentifiable currentVertex, String direction) {
+      DatabaseSessionInternal db, EntityImpl edge, Identifiable prevVertex,
+      Identifiable currentVertex, String direction) {
     if (prevVertex != null && !prevVertex.equals(currentVertex)) {
       String edgeClassName = edge.getClassName();
       if (edgeClassName.equalsIgnoreCase("E")) {
@@ -480,11 +480,11 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
   private void validateOutInForEdge(EntityImpl record, Object currentOut, Object currentIn) {
     if (!isRecordInstanceOf(currentOut, "V")) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Error updating edge: 'out' is not a vertex - " + currentOut);
     }
     if (!isRecordInstanceOf(currentIn, "V")) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Error updating edge: 'in' is not a vertex - " + currentIn);
     }
   }
@@ -497,7 +497,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   }
 
   @Override
-  public OCommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
+  public CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
   getDistributedExecutionMode() {
     return DISTRIBUTED_EXECUTION_MODE.LOCAL;
     // ALWAYS EXECUTE THE COMMAND LOCALLY BECAUSE THERE IS NO A DISTRIBUTED UNDO WITH SHARDING
@@ -521,7 +521,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
   @Override
   public int getSecurityOperationType() {
-    return ORole.PERMISSION_UPDATE;
+    return Role.PERMISSION_UPDATE;
   }
 
   protected void parseMerge() {
@@ -551,18 +551,18 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       parserSkipWhiteSpaces();
       final StringBuilder buffer = new StringBuilder();
       parserSetCurrentPosition(
-          OStringSerializerHelper.parse(
+          StringSerializerHelper.parse(
               parserText,
               buffer,
               parserGetCurrentPosition(),
               -1,
-              OStringSerializerHelper.DEFAULT_FIELD_SEPARATOR,
+              StringSerializerHelper.DEFAULT_FIELD_SEPARATOR,
               true,
               true,
               false,
               -1,
               false,
-              OStringSerializerHelper.DEFAULT_IGNORE_CHARS));
+              StringSerializerHelper.DEFAULT_IGNORE_CHARS));
       fieldValue = buffer.toString();
     }
     return fieldValue;
@@ -571,12 +571,12 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   /**
    * Parses the returning keyword if found.
    */
-  protected void parseReturn() throws YTCommandSQLParsingException {
+  protected void parseReturn() throws CommandSQLParsingException {
     parserNextWord(false, " ");
     String mode = parserGetLastWord().trim();
 
     if (mode.equalsIgnoreCase("COUNT")) {
-      returnHandler = new ORecordCountHandler();
+      returnHandler = new RecordCountHandler();
     } else if (mode.equalsIgnoreCase("BEFORE") || mode.equalsIgnoreCase("AFTER")) {
 
       parserNextWord(false, " ");
@@ -592,7 +592,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         if (returning.startsWith("$") || returning.startsWith("@")) {
           returnExpression =
               (returning.length() > 0)
-                  ? OSQLHelper.parseValue(this, returning, this.getContext())
+                  ? SQLHelper.parseValue(this, returning, this.getContext())
                   : null;
         } else {
           throwSyntaxErrorException(
@@ -601,9 +601,9 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       }
 
       if (mode.equalsIgnoreCase("BEFORE")) {
-        returnHandler = new OOriginalRecordsReturnHandler(returnExpression, getContext());
+        returnHandler = new OriginalRecordsReturnHandler(returnExpression, getContext());
       } else {
-        returnHandler = new OUpdatedRecordsReturnHandler(returnExpression, getContext());
+        returnHandler = new UpdatedRecordsReturnHandler(returnExpression, getContext());
       }
 
     } else {
@@ -617,20 +617,20 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       // REPLACE ALL THE CONTENT
       final EntityImpl fieldsToPreserve = new EntityImpl();
 
-      final YTClass restricted =
+      final SchemaClass restricted =
           getDatabase()
               .getMetadata()
               .getImmutableSchemaSnapshot()
-              .getClass(OSecurity.RESTRICTED_CLASSNAME);
+              .getClass(Security.RESTRICTED_CLASSNAME);
 
       if (restricted != null
-          && restricted.isSuperClassOf(ODocumentInternal.getImmutableSchemaClass(record))) {
-        for (YTProperty prop : restricted.properties(getDatabase())) {
+          && restricted.isSuperClassOf(DocumentInternal.getImmutableSchemaClass(record))) {
+        for (Property prop : restricted.properties(getDatabase())) {
           fieldsToPreserve.field(prop.getName(), record.<Object>field(prop.getName()));
         }
       }
 
-      YTClass recordClass = ODocumentInternal.getImmutableSchemaClass(record);
+      SchemaClass recordClass = DocumentInternal.getImmutableSchemaClass(record);
       if (recordClass != null && recordClass.isSubClassOf("V")) {
         for (String fieldName : record.fieldNames()) {
           if (fieldName.startsWith("in_") || fieldName.startsWith("out_")) {
@@ -666,7 +666,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     boolean updated = false;
     // BIND VALUES TO UPDATE
     if (!setEntries.isEmpty()) {
-      OSQLHelper.bindParameters(record, setEntries, parameters, context);
+      SQLHelper.bindParameters(record, setEntries, parameters, context);
       updated = true;
     }
     return updated;
@@ -676,16 +676,16 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     boolean updated = false;
     // BIND VALUES TO INCREMENT
     if (!incrementEntries.isEmpty()) {
-      for (OPair<String, Object> entry : incrementEntries) {
+      for (Pair<String, Object> entry : incrementEntries) {
         final Number prevValue = record.field(entry.getKey());
 
         Number current;
-        if (entry.getValue() instanceof OSQLFilterItem) {
-          current = (Number) ((OSQLFilterItem) entry.getValue()).getValue(record, null, context);
+        if (entry.getValue() instanceof SQLFilterItem) {
+          current = (Number) ((SQLFilterItem) entry.getValue()).getValue(record, null, context);
         } else if (entry.getValue() instanceof Number) {
           current = (Number) entry.getValue();
         } else {
-          throw new YTCommandExecutionException(
+          throw new CommandExecutionException(
               "Increment value is not a number (" + entry.getValue() + ")");
         }
 
@@ -696,7 +696,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         } else
         // COMPUTING INCREMENT
         {
-          record.field(entry.getKey(), YTType.increment(prevValue, current));
+          record.field(entry.getKey(), PropertyType.increment(prevValue, current));
         }
       }
       updated = true;
@@ -704,24 +704,24 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     return updated;
   }
 
-  private boolean handleAddEntries(YTDatabaseSessionInternal querySession, EntityImpl record) {
+  private boolean handleAddEntries(DatabaseSessionInternal querySession, EntityImpl record) {
     boolean updated = false;
     // BIND VALUES TO ADD
     Object fieldValue;
-    for (OPair<String, Object> entry : addEntries) {
+    for (Pair<String, Object> entry : addEntries) {
       Collection<Object> coll = null;
       RidBag bag = null;
       if (!record.containsField(entry.getKey())) {
         // GET THE TYPE IF ANY
-        if (ODocumentInternal.getImmutableSchemaClass(record) != null) {
-          YTProperty prop =
-              ODocumentInternal.getImmutableSchemaClass(record).getProperty(entry.getKey());
-          if (prop != null && prop.getType() == YTType.LINKSET)
+        if (DocumentInternal.getImmutableSchemaClass(record) != null) {
+          Property prop =
+              DocumentInternal.getImmutableSchemaClass(record).getProperty(entry.getKey());
+          if (prop != null && prop.getType() == PropertyType.LINKSET)
           // SET TYPE
           {
             coll = new HashSet<Object>();
           }
-          if (prop != null && prop.getType() == YTType.LINKBAG) {
+          if (prop != null && prop.getType() == PropertyType.LINKBAG) {
             // there is no ridbag value already but property type is defined as LINKBAG
             bag = new RidBag(querySession);
             bag.setOwner(record);
@@ -759,17 +759,17 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       final Object value = extractValue(querySession, record, entry);
 
       if (coll != null) {
-        if (value instanceof YTIdentifiable) {
+        if (value instanceof Identifiable) {
           coll.add(value);
         } else {
-          OMultiValue.add(coll, value);
+          MultiValue.add(coll, value);
         }
       } else {
-        if (!(value instanceof YTIdentifiable)) {
-          throw new YTCommandExecutionException("Only links or records can be added to LINKBAG");
+        if (!(value instanceof Identifiable)) {
+          throw new CommandExecutionException("Only links or records can be added to LINKBAG");
         }
 
-        bag.add((YTIdentifiable) value);
+        bag.add((Identifiable) value);
       }
       updated = true;
     }
@@ -777,22 +777,22 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private boolean handlePutEntries(YTDatabaseSessionInternal querySession, EntityImpl record) {
+  private boolean handlePutEntries(DatabaseSessionInternal querySession, EntityImpl record) {
     boolean updated = false;
     if (!putEntries.isEmpty()) {
       // BIND VALUES TO PUT (AS MAP)
-      for (OTriple<String, String, Object> entry : putEntries) {
+      for (Triple<String, String, Object> entry : putEntries) {
         Object fieldValue = record.field(entry.getKey());
 
         if (fieldValue == null) {
-          if (ODocumentInternal.getImmutableSchemaClass(record) != null) {
-            final YTProperty property =
-                ODocumentInternal.getImmutableSchemaClass(record).getProperty(entry.getKey());
+          if (DocumentInternal.getImmutableSchemaClass(record) != null) {
+            final Property property =
+                DocumentInternal.getImmutableSchemaClass(record).getProperty(entry.getKey());
             if (property != null
                 && (property.getType() != null
-                && (!property.getType().equals(YTType.EMBEDDEDMAP)
-                && !property.getType().equals(YTType.LINKMAP)))) {
-              throw new YTCommandExecutionException(
+                && (!property.getType().equals(PropertyType.EMBEDDEDMAP)
+                && !property.getType().equals(PropertyType.LINKMAP)))) {
+              throw new CommandExecutionException(
                   "field " + entry.getKey() + " is not defined as a map");
             }
           }
@@ -803,24 +803,24 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         if (fieldValue instanceof Map<?, ?>) {
           Map<String, Object> map = (Map<String, Object>) fieldValue;
 
-          OPair<String, Object> pair = entry.getValue();
+          Pair<String, Object> pair = entry.getValue();
 
           Object value = extractValue(querySession, record, pair);
 
-          if (ODocumentInternal.getImmutableSchemaClass(record) != null) {
-            final YTProperty property =
-                ODocumentInternal.getImmutableSchemaClass(record).getProperty(entry.getKey());
+          if (DocumentInternal.getImmutableSchemaClass(record) != null) {
+            final Property property =
+                DocumentInternal.getImmutableSchemaClass(record).getProperty(entry.getKey());
             if (property != null
-                && property.getType().equals(YTType.LINKMAP)
-                && !(value instanceof YTIdentifiable)) {
-              throw new YTCommandExecutionException(
+                && property.getType().equals(PropertyType.LINKMAP)
+                && !(value instanceof Identifiable)) {
+              throw new CommandExecutionException(
                   "field " + entry.getKey() + " defined of type LINKMAP accept only link values");
             }
           }
-          if (YTType.LINKMAP.equals(YTType.getTypeByValue(fieldValue))
-              && !(value instanceof YTIdentifiable)) {
+          if (PropertyType.LINKMAP.equals(PropertyType.getTypeByValue(fieldValue))
+              && !(value instanceof Identifiable)) {
             map = new TrackedMap(record, map, Object.class);
-            record.field(entry.getKey(), map, YTType.EMBEDDEDMAP);
+            record.field(entry.getKey(), map, PropertyType.EMBEDDEDMAP);
           }
           map.put(pair.getKey(), value);
           updated = true;
@@ -830,11 +830,11 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     return updated;
   }
 
-  private boolean handleRemoveEntries(YTDatabaseSessionInternal querySession, EntityImpl record) {
+  private boolean handleRemoveEntries(DatabaseSessionInternal querySession, EntityImpl record) {
     boolean updated = false;
     if (!removeEntries.isEmpty()) {
       // REMOVE FIELD IF ANY
-      for (OPair<String, Object> entry : removeEntries) {
+      for (Pair<String, Object> entry : removeEntries) {
         Object value = extractValue(querySession, record, entry);
 
         if (value == EMPTY_VALUE) {
@@ -888,28 +888,28 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
   }
 
   private boolean removeSingleValueFromBag(RidBag bag, Object value, EntityImpl record) {
-    if (!(value instanceof YTIdentifiable)) {
-      throw new YTCommandExecutionException("Only links or records can be removed from LINKBAG");
+    if (!(value instanceof Identifiable)) {
+      throw new CommandExecutionException("Only links or records can be removed from LINKBAG");
     }
 
-    bag.remove((YTIdentifiable) value);
+    bag.remove((Identifiable) value);
     return record.isDirty();
   }
 
-  private Object extractValue(YTDatabaseSessionInternal requestSession, EntityImpl record,
-      OPair<String, Object> entry) {
+  private Object extractValue(DatabaseSessionInternal requestSession, EntityImpl record,
+      Pair<String, Object> entry) {
     Object value = entry.getValue();
 
-    if (value instanceof OSQLFilterItem) {
-      value = ((OSQLFilterItem) value).getValue(record, null, context);
+    if (value instanceof SQLFilterItem) {
+      value = ((SQLFilterItem) value).getValue(record, null, context);
     } else if (value instanceof CommandRequest) {
       value = ((CommandRequest) value).execute(requestSession, record, null, context);
     }
 
-    if (value instanceof YTIdentifiable && ((YTIdentifiable) value).getIdentity().isPersistent())
+    if (value instanceof Identifiable && ((Identifiable) value).getIdentity().isPersistent())
     // USE ONLY THE RID TO AVOID CONCURRENCY PROBLEM WITH OLD VERSIONS
     {
-      value = ((YTIdentifiable) value).getIdentity();
+      value = ((Identifiable) value).getIdentity();
     }
     return value;
   }
@@ -930,7 +930,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       final Object v = convertValue(clazz, fieldName, getFieldValueCountingParameters(fieldValue));
 
       // INSERT TRANSFORMED FIELD VALUE
-      addEntries.add(new OPair<String, Object>(fieldName, v));
+      addEntries.add(new Pair<String, Object>(fieldName, v));
       parserSkipWhiteSpaces();
 
       firstLap = false;
@@ -959,7 +959,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
       // INSERT TRANSFORMED FIELD VALUE
       putEntries.add(
-          new OTriple<>(
+          new Triple<>(
               fieldName,
               (String) getFieldValueCountingParameters(fieldKey),
               getFieldValueCountingParameters(fieldValue)));
@@ -999,7 +999,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       }
 
       // INSERT FIELD NAME TO BE REMOVED
-      removeEntries.add(new OPair<String, Object>(fieldName, value));
+      removeEntries.add(new Pair<String, Object>(fieldName, value));
       parserSkipWhiteSpaces();
 
       firstLap = false;
@@ -1024,7 +1024,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       fieldValue = getBlock(parserRequiredWord(false, "Value expected"));
 
       // INSERT TRANSFORMED FIELD VALUE
-      incrementEntries.add(new OPair(fieldName, getFieldValueCountingParameters(fieldValue)));
+      incrementEntries.add(new Pair(fieldName, getFieldValueCountingParameters(fieldValue)));
       parserSkipWhiteSpaces();
 
       firstLap = false;

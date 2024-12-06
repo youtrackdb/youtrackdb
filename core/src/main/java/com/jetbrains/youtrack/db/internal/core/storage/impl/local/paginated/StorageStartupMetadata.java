@@ -20,10 +20,10 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated;
 
-import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
+import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -135,11 +135,11 @@ public class StorageStartupMetadata {
             StandardOpenOption.CREATE_NEW,
             StandardOpenOption.WRITE,
             StandardOpenOption.SYNC)) {
-      OIOUtils.writeByteBuffer(buffer, backupChannel, 0);
+      IOUtils.writeByteBuffer(buffer, backupChannel, 0);
     }
 
     channel.truncate(0);
-    OIOUtils.writeByteBuffer(buffer, channel, 0);
+    IOUtils.writeByteBuffer(buffer, channel, 0);
 
     Files.deleteIfExists(backupPath);
   }
@@ -152,7 +152,7 @@ public class StorageStartupMetadata {
     }
 
     if (fileLock == null) {
-      throw new YTStorageException(
+      throw new StorageException(
           "Database is locked by another process, please shutdown process and try again");
     }
   }
@@ -197,20 +197,20 @@ public class StorageStartupMetadata {
 
         if (size < 9) {
           ByteBuffer buffer = ByteBuffer.allocate(1);
-          OIOUtils.readByteBuffer(buffer, channel, 0, true);
+          IOUtils.readByteBuffer(buffer, channel, 0, true);
 
           buffer.position(0);
           dirtyFlag = buffer.get() > 0;
         } else if (size == 9) {
           ByteBuffer buffer = ByteBuffer.allocate(8 + 1);
-          OIOUtils.readByteBuffer(buffer, channel, 0, true);
+          IOUtils.readByteBuffer(buffer, channel, 0, true);
 
           buffer.position(0);
           dirtyFlag = buffer.get() > 0;
           lastTxId = buffer.getLong();
         } else {
           final ByteBuffer buffer = ByteBuffer.allocate((int) size);
-          OIOUtils.readByteBuffer(buffer, channel);
+          IOUtils.readByteBuffer(buffer, channel);
 
           buffer.rewind();
 

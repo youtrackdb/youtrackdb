@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -12,7 +12,7 @@ public interface EntityInternal extends Entity {
 
   void setPropertyInternal(String name, Object value);
 
-  void setPropertyInternal(String name, Object value, YTType... type);
+  void setPropertyInternal(String name, Object value, PropertyType... type);
 
   <RET> RET removePropertyInternal(String name);
 
@@ -21,5 +21,5 @@ public interface EntityInternal extends Entity {
   <RET> RET getPropertyInternal(String name, boolean lazyLoading);
 
   @Nullable
-  YTIdentifiable getLinkPropertyInternal(String name);
+  Identifiable getLinkPropertyInternal(String name);
 }

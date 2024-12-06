@@ -19,15 +19,15 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConcurrentCreateException;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentCreateException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.distributed.ODistributedServerLog.DIRECTION;
-import com.orientechnologies.orient.server.distributed.task.YTDistributedOperationException;
-import com.orientechnologies.orient.server.distributed.task.YTDistributedRecordLockedException;
+import com.orientechnologies.orient.server.distributed.task.DistributedOperationException;
+import com.orientechnologies.orient.server.distributed.task.DistributedRecordLockedException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -183,7 +183,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
               {
                 foundBucket = true;
               } else if (rgPayload instanceof Collection && responsePayload instanceof Collection) {
-                if (OMultiValue.equals((Collection) rgPayload, (Collection) responsePayload))
+                if (MultiValue.equals((Collection) rgPayload, (Collection) responsePayload))
                 // COLLECTIONS WITH THE SAME VALUES
                 {
                   foundBucket = true;
@@ -226,7 +226,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
     return completed;
   }
 
-  public ODistributedRequestId getMessageId() {
+  public DistributedRequestId getMessageId() {
     return request.getId();
   }
 
@@ -291,7 +291,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
         // WAIT FOR THE RESPONSES
         if (synchronousResponsesArrived.await(currentTimeout, TimeUnit.MILLISECONDS)) {
           if (canceled.get()) {
-            throw new YTDistributedOperationException("Request has been canceled");
+            throw new DistributedOperationException("Request has been canceled");
           }
           // COMPLETED
           return true;
@@ -386,7 +386,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
       }
 
       if (canceled.get()) {
-        throw new YTDistributedOperationException("Request has been canceled");
+        throw new DistributedOperationException("Request has been canceled");
       }
 
       return isMinimumQuorumReached(reachedTimeout);
@@ -425,7 +425,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
 
       if (receivedResponses == 0) {
         if (quorum > 0 && !request.getTask().isIdempotent()) {
-          throw new YTDistributedException(
+          throw new DistributedException(
               "No response received from any of nodes "
                   + getExpectedNodes()
                   + " for request "
@@ -619,14 +619,14 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
               final Object payload = r.getPayload();
 
               if (payload instanceof Throwable) {
-                if (payload instanceof YTDistributedRecordLockedException)
-                // JUST ONE YTDistributedRecordLockedException IS ENOUGH TO FAIL THE OPERATION
+                if (payload instanceof DistributedRecordLockedException)
+                // JUST ONE DistributedRecordLockedException IS ENOUGH TO FAIL THE OPERATION
                 // BECAUSE RESOURCES CANNOT BE LOCKED
                 {
                   break;
                 }
-                if (payload instanceof YTConcurrentCreateException)
-                // JUST ONE YTConcurrentCreateException IS ENOUGH TO FAIL THE OPERATION BECAUSE RID
+                if (payload instanceof ConcurrentCreateException)
+                // JUST ONE ConcurrentCreateException IS ENOUGH TO FAIL THE OPERATION BECAUSE RID
                 // ARE DIFFERENT
                 {
                   break;
@@ -678,7 +678,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
   protected RuntimeException manageConflicts() {
     if (!groupResponsesByResult
         || request.getTask().getQuorumType()
-        == OCommandDistributedReplicateRequest.QUORUM_TYPE.NONE)
+        == CommandDistributedReplicateRequest.QUORUM_TYPE.NONE)
     // NO QUORUM
     {
       return null;
@@ -712,14 +712,14 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
       }
     }
 
-    // CHECK IF THERE IS AT LEAST ONE YTDistributedRecordLockedException or
-    // YTConcurrentCreateException
+    // CHECK IF THERE IS AT LEAST ONE DistributedRecordLockedException or
+    // ConcurrentCreateException
     for (Object r : responses.values()) {
-      if (r instanceof YTDistributedRecordLockedException) {
-        throw (YTDistributedRecordLockedException) r;
+      if (r instanceof DistributedRecordLockedException) {
+        throw (DistributedRecordLockedException) r;
       }
-      if (r instanceof YTConcurrentCreateException) {
-        throw (YTConcurrentCreateException) r;
+      if (r instanceof ConcurrentCreateException) {
+        throw (ConcurrentCreateException) r;
       }
     }
 
@@ -730,8 +730,8 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
     {
       return (RuntimeException) goodResponsePayload;
     } else if (goodResponsePayload instanceof Throwable) {
-      return YTException.wrapException(
-          new YTDistributedOperationException(composeConflictMessage()),
+      return BaseException.wrapException(
+          new DistributedOperationException(composeConflictMessage()),
           (Throwable) goodResponsePayload);
     } else {
       if (responseGroups.size() <= 2) {
@@ -747,7 +747,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
         }
       }
 
-      return new YTDistributedOperationException(composeConflictMessage());
+      return new DistributedOperationException(composeConflictMessage());
     }
   }
 

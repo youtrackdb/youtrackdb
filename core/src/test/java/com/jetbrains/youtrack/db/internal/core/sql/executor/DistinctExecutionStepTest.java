@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
@@ -13,7 +13,7 @@ import org.junit.Test;
 /**
  *
  */
-public class DistinctExecutionStepTest extends DBTestBase {
+public class DistinctExecutionStepTest extends DbTestBase {
 
   @Test
   public void test() {
@@ -27,11 +27,11 @@ public class DistinctExecutionStepTest extends DBTestBase {
           boolean done = false;
 
           @Override
-          public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
-            List<YTResult> result = new ArrayList<>();
+          public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
+            List<Result> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
-                YTResultInternal item = new YTResultInternal(ctx.getDatabase());
+                ResultInternal item = new ResultInternal(ctx.getDatabase());
                 item.setProperty("name", i % 2 == 0 ? "foo" : "bar");
                 result.add(item);
               }

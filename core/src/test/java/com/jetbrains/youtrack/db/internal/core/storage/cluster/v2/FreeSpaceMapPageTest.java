@@ -3,12 +3,12 @@ package com.jetbrains.youtrack.db.internal.core.storage.cluster.v2;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.common.directmemory.OByteBufferPool;
-import com.jetbrains.youtrack.db.internal.common.directmemory.ODirectMemoryAllocator.Intention;
-import com.jetbrains.youtrack.db.internal.common.directmemory.OPointer;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntryImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCachePointer;
+import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
+import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator.Intention;
+import com.jetbrains.youtrack.db.internal.common.directmemory.Pointer;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntryImpl;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CachePointer;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.TreeMap;
@@ -18,13 +18,13 @@ public class FreeSpaceMapPageTest {
 
   @Test
   public void findSinglePageSameSpaceEvenIndex() {
-    OByteBufferPool bufferPool = OByteBufferPool.instance(null);
-    OPointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
+    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    OCachePointer cachePointer = new OCachePointer(pointer, bufferPool, 0, 0);
+    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
-    OCacheEntry cacheEntry = new OCacheEntryImpl(0, 0, cachePointer, false, null);
+    CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
       final FreeSpaceMapPage page = new FreeSpaceMapPage(cacheEntry);
@@ -38,13 +38,13 @@ public class FreeSpaceMapPageTest {
 
   @Test
   public void findSinglePageSameSpaceOddIndex() {
-    OByteBufferPool bufferPool = OByteBufferPool.instance(null);
-    OPointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
+    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    OCachePointer cachePointer = new OCachePointer(pointer, bufferPool, 0, 0);
+    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
-    OCacheEntry cacheEntry = new OCacheEntryImpl(0, 0, cachePointer, false, null);
+    CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
       final FreeSpaceMapPage page = new FreeSpaceMapPage(cacheEntry);
@@ -58,13 +58,13 @@ public class FreeSpaceMapPageTest {
 
   @Test
   public void findSinglePageLessSpaceEvenIndex() {
-    OByteBufferPool bufferPool = OByteBufferPool.instance(null);
-    OPointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
+    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    OCachePointer cachePointer = new OCachePointer(pointer, bufferPool, 0, 0);
+    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
-    OCacheEntry cacheEntry = new OCacheEntryImpl(0, 0, cachePointer, false, null);
+    CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
       final FreeSpaceMapPage page = new FreeSpaceMapPage(cacheEntry);
@@ -78,13 +78,13 @@ public class FreeSpaceMapPageTest {
 
   @Test
   public void findSinglePageLessSpaceOddIndex() {
-    OByteBufferPool bufferPool = OByteBufferPool.instance(null);
-    OPointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
+    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    OCachePointer cachePointer = new OCachePointer(pointer, bufferPool, 0, 0);
+    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
-    OCacheEntry cacheEntry = new OCacheEntryImpl(0, 0, cachePointer, false, null);
+    CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
       final FreeSpaceMapPage page = new FreeSpaceMapPage(cacheEntry);
@@ -98,13 +98,13 @@ public class FreeSpaceMapPageTest {
 
   @Test
   public void findCouplePagesSameSpaceOne() {
-    OByteBufferPool bufferPool = OByteBufferPool.instance(null);
-    OPointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
+    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    OCachePointer cachePointer = new OCachePointer(pointer, bufferPool, 0, 0);
+    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
-    OCacheEntry cacheEntry = new OCacheEntryImpl(0, 0, cachePointer, false, null);
+    CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
       final FreeSpaceMapPage page = new FreeSpaceMapPage(cacheEntry);
@@ -119,13 +119,13 @@ public class FreeSpaceMapPageTest {
 
   @Test
   public void findCouplePagesSameSpaceTwo() {
-    OByteBufferPool bufferPool = OByteBufferPool.instance(null);
-    OPointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
+    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    OCachePointer cachePointer = new OCachePointer(pointer, bufferPool, 0, 0);
+    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
-    OCacheEntry cacheEntry = new OCacheEntryImpl(0, 0, cachePointer, false, null);
+    CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
       final FreeSpaceMapPage page = new FreeSpaceMapPage(cacheEntry);
@@ -140,13 +140,13 @@ public class FreeSpaceMapPageTest {
 
   @Test
   public void findCouplePagesSmallerSpaceOne() {
-    OByteBufferPool bufferPool = OByteBufferPool.instance(null);
-    OPointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
+    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    OCachePointer cachePointer = new OCachePointer(pointer, bufferPool, 0, 0);
+    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
-    OCacheEntry cacheEntry = new OCacheEntryImpl(0, 0, cachePointer, false, null);
+    CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
       final FreeSpaceMapPage page = new FreeSpaceMapPage(cacheEntry);
@@ -161,13 +161,13 @@ public class FreeSpaceMapPageTest {
 
   @Test
   public void findCouplePagesSmallerSpaceTwo() {
-    OByteBufferPool bufferPool = OByteBufferPool.instance(null);
-    OPointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
+    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    OCachePointer cachePointer = new OCachePointer(pointer, bufferPool, 0, 0);
+    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
-    OCacheEntry cacheEntry = new OCacheEntryImpl(0, 0, cachePointer, false, null);
+    CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
       final FreeSpaceMapPage page = new FreeSpaceMapPage(cacheEntry);
@@ -182,13 +182,13 @@ public class FreeSpaceMapPageTest {
 
   @Test
   public void bigSpaceOne() {
-    OByteBufferPool bufferPool = OByteBufferPool.instance(null);
-    OPointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
+    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    OCachePointer cachePointer = new OCachePointer(pointer, bufferPool, 0, 0);
+    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
-    OCacheEntry cacheEntry = new OCacheEntryImpl(0, 0, cachePointer, false, null);
+    CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
       final FreeSpaceMapPage page = new FreeSpaceMapPage(cacheEntry);
@@ -206,13 +206,13 @@ public class FreeSpaceMapPageTest {
 
   @Test
   public void bigSpaceTwo() {
-    OByteBufferPool bufferPool = OByteBufferPool.instance(null);
-    OPointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
+    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    OCachePointer cachePointer = new OCachePointer(pointer, bufferPool, 0, 0);
+    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
-    OCacheEntry cacheEntry = new OCacheEntryImpl(0, 0, cachePointer, false, null);
+    CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
       final FreeSpaceMapPage page = new FreeSpaceMapPage(cacheEntry);
@@ -233,10 +233,10 @@ public class FreeSpaceMapPageTest {
     final int pages = 1_000;
     final int checks = 1_000;
 
-    OByteBufferPool bufferPool = OByteBufferPool.instance(null);
-    OPointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
+    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    OCachePointer cachePointer = new OCachePointer(pointer, bufferPool, 0, 0);
+    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     final long seed = System.nanoTime();
@@ -245,7 +245,7 @@ public class FreeSpaceMapPageTest {
     final HashMap<Integer, Integer> spacePageMap = new HashMap<>();
     int maxFreeSpace = -1;
 
-    OCacheEntry cacheEntry = new OCacheEntryImpl(0, 0, cachePointer, false, null);
+    CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
       final FreeSpaceMapPage page = new FreeSpaceMapPage(cacheEntry);
@@ -284,10 +284,10 @@ public class FreeSpaceMapPageTest {
     final int pages = 1_000;
     final int checks = 1_000;
 
-    OByteBufferPool bufferPool = OByteBufferPool.instance(null);
-    OPointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
+    ByteBufferPool bufferPool = ByteBufferPool.instance(null);
+    Pointer pointer = bufferPool.acquireDirect(true, Intention.TEST);
 
-    OCachePointer cachePointer = new OCachePointer(pointer, bufferPool, 0, 0);
+    CachePointer cachePointer = new CachePointer(pointer, bufferPool, 0, 0);
     cachePointer.incrementReferrer();
 
     final long seed = System.nanoTime();
@@ -295,7 +295,7 @@ public class FreeSpaceMapPageTest {
 
     final Random random = new Random(seed);
 
-    OCacheEntry cacheEntry = new OCacheEntryImpl(0, 0, cachePointer, false, null);
+    CacheEntry cacheEntry = new CacheEntryImpl(0, 0, cachePointer, false, null);
     cacheEntry.acquireExclusiveLock();
     try {
       final FreeSpaceMapPage page = new FreeSpaceMapPage(cacheEntry);

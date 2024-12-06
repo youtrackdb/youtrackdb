@@ -2,18 +2,18 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OInternalExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLAsynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
 import java.util.Map;
 
 public class SQLStatement extends SimpleNode {
@@ -40,7 +40,7 @@ public class SQLStatement extends SimpleNode {
     builder.append(originalStatement);
   }
 
-  public void validate() throws YTCommandSQLParsingException {
+  public void validate() throws CommandSQLParsingException {
   }
 
   @Override
@@ -51,48 +51,48 @@ public class SQLStatement extends SimpleNode {
   }
 
   public Object execute(
-      OSQLAsynchQuery<EntityImpl> request,
+      SQLAsynchQuery<EntityImpl> request,
       CommandContext context,
-      OProgressListener progressListener) {
+      ProgressListener progressListener) {
     throw new UnsupportedOperationException("Unsupported command: " + getClass().getSimpleName());
   }
 
-  public YTResultSet execute(YTDatabaseSessionInternal db, Object[] args) {
+  public ResultSet execute(DatabaseSessionInternal db, Object[] args) {
     return execute(db, args, true);
   }
 
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Object[] args, CommandContext parentContext) {
+  public ResultSet execute(
+      DatabaseSessionInternal db, Object[] args, CommandContext parentContext) {
     return execute(db, args, parentContext, true);
   }
 
-  public YTResultSet execute(YTDatabaseSessionInternal db, Map args) {
+  public ResultSet execute(DatabaseSessionInternal db, Map args) {
     return execute(db, args, true);
   }
 
-  public YTResultSet execute(YTDatabaseSessionInternal db, Map args,
+  public ResultSet execute(DatabaseSessionInternal db, Map args,
       CommandContext parentContext) {
     return execute(db, args, parentContext, true);
   }
 
-  public YTResultSet execute(YTDatabaseSessionInternal db, Object[] args, boolean usePlanCache) {
+  public ResultSet execute(DatabaseSessionInternal db, Object[] args, boolean usePlanCache) {
     return execute(db, args, null, usePlanCache);
   }
 
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db,
+  public ResultSet execute(
+      DatabaseSessionInternal db,
       Object[] args,
       CommandContext parentContext,
       boolean usePlanCache) {
     throw new UnsupportedOperationException();
   }
 
-  public YTResultSet execute(YTDatabaseSessionInternal db, Map args, boolean usePlanCache) {
+  public ResultSet execute(DatabaseSessionInternal db, Map args, boolean usePlanCache) {
     return execute(db, args, null, usePlanCache);
   }
 
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Map args, CommandContext parentContext, boolean usePlanCache) {
+  public ResultSet execute(
+      DatabaseSessionInternal db, Map args, CommandContext parentContext, boolean usePlanCache) {
     throw new UnsupportedOperationException();
   }
 
@@ -102,7 +102,7 @@ public class SQLStatement extends SimpleNode {
    * @param ctx the context that will be used to execute the statement
    * @return an execution plan
    */
-  public OInternalExecutionPlan createExecutionPlan(CommandContext ctx) {
+  public InternalExecutionPlan createExecutionPlan(CommandContext ctx) {
     return createExecutionPlan(ctx, false);
   }
 
@@ -113,11 +113,11 @@ public class SQLStatement extends SimpleNode {
    * @param profile true to enable profiling, false to disable it
    * @return an execution plan
    */
-  public OInternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean profile) {
+  public InternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean profile) {
     throw new UnsupportedOperationException();
   }
 
-  public OInternalExecutionPlan createExecutionPlanNoCache(CommandContext ctx, boolean profile) {
+  public InternalExecutionPlan createExecutionPlanNoCache(CommandContext ctx, boolean profile) {
     return createExecutionPlan(ctx, profile);
   }
 
@@ -134,7 +134,7 @@ public class SQLStatement extends SimpleNode {
     return false;
   }
 
-  public static SQLStatement deserializeFromOResult(YTResult doc) {
+  public static SQLStatement deserializeFromOResult(Result doc) {
     try {
       SQLStatement result =
           (SQLStatement)
@@ -143,22 +143,22 @@ public class SQLStatement extends SimpleNode {
                   .newInstance(-1);
       result.deserialize(doc);
     } catch (Exception e) {
-      throw YTException.wrapException(new YTCommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(""), e);
     }
     return null;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("__class", getClass().getName());
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     throw new UnsupportedOperationException();
   }
 
-  public boolean executinPlanCanBeCached(YTDatabaseSessionInternal session) {
+  public boolean executinPlanCanBeCached(DatabaseSessionInternal session) {
     return false;
   }
 

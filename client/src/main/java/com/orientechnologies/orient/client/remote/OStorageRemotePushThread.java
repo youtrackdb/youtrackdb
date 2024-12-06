@@ -1,15 +1,15 @@
 package com.orientechnologies.orient.client.remote;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.io.OIOException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.common.io.YTIOException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinary;
+import com.orientechnologies.orient.client.binary.SocketChannelBinaryAsynchClient;
 import com.orientechnologies.orient.client.remote.message.OBinaryPushRequest;
 import com.orientechnologies.orient.client.remote.message.OBinaryPushResponse;
 import com.orientechnologies.orient.client.remote.message.OSubscribeRequest;
 import com.orientechnologies.orient.client.remote.message.OSubscribeResponse;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinary;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
@@ -24,7 +24,7 @@ public class OStorageRemotePushThread extends Thread {
   private final String host;
   private final int retryDelay;
   private final long requestTimeout;
-  private OChannelBinary network;
+  private SocketChannelBinary network;
   private final BlockingQueue<Object> blockingQueue = new SynchronousQueue<>();
   private volatile OBinaryRequest currentRequest;
   private volatile boolean shutDown;
@@ -53,19 +53,19 @@ public class OStorageRemotePushThread extends Thread {
       try {
         network.setWaitResponseTimeout();
         byte res = network.readByte();
-        if (res == OChannelBinaryProtocol.RESPONSE_STATUS_OK) {
+        if (res == ChannelBinaryProtocol.RESPONSE_STATUS_OK) {
           int currentSessionId = network.readInt();
           byte[] token = network.readBytes();
           byte messageId = network.readByte();
           OBinaryResponse response = currentRequest.createResponse();
           response.read(null, network, null);
           blockingQueue.put(response);
-        } else if (res == OChannelBinaryProtocol.RESPONSE_STATUS_ERROR) {
+        } else if (res == ChannelBinaryProtocol.RESPONSE_STATUS_ERROR) {
           int currentSessionId = network.readInt();
           byte[] token = network.readBytes();
           byte messageId = network.readByte();
           // TODO move handle status somewhere else
-          ((OChannelBinaryAsynchClient) network)
+          ((SocketChannelBinaryAsynchClient) network)
               .handleStatus(null, res, currentSessionId, this::handleException);
         } else {
           byte push = network.readByte();
@@ -75,7 +75,7 @@ public class OStorageRemotePushThread extends Thread {
             OBinaryPushResponse response = request.execute(null, pushHandler);
             if (response != null) {
               synchronized (this) {
-                network.writeByte(OChannelBinaryProtocol.REQUEST_OK_PUSH);
+                network.writeByte(ChannelBinaryProtocol.REQUEST_OK_PUSH);
                 // session
                 network.writeInt(-1);
                 response.write(network);
@@ -85,7 +85,7 @@ public class OStorageRemotePushThread extends Thread {
             LogManager.instance().error(this, "Error executing push request", e);
           }
         }
-      } catch (IOException | YTException e) {
+      } catch (IOException | BaseException e) {
         pushHandler.onPushDisconnect(this.network, e);
         while (!currentThread().isInterrupted()) {
           try {
@@ -100,7 +100,7 @@ public class OStorageRemotePushThread extends Thread {
               }
               pushHandler.onPushReconnect(this.host);
               break;
-            } catch (OIOException ex) {
+            } catch (YTIOException ex) {
               // Noting it just retry
             }
           }
@@ -118,8 +118,8 @@ public class OStorageRemotePushThread extends Thread {
       long timeout;
       synchronized (this) {
         this.currentRequest = new OSubscribeRequest(request);
-        ((OChannelBinaryAsynchClient) network)
-            .beginRequest(OChannelBinaryProtocol.SUBSCRIBE_PUSH, session);
+        ((SocketChannelBinaryAsynchClient) network)
+            .beginRequest(ChannelBinaryProtocol.SUBSCRIBE_PUSH, session);
         this.currentRequest.write(null, network, null);
         network.flush();
       }

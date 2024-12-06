@@ -21,14 +21,14 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.iterator.ORecordIteratorCluster;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLTruncateClusterStatement;
@@ -38,7 +38,7 @@ import java.util.Map;
  * SQL TRUNCATE CLUSTER command: Truncates an entire record cluster.
  */
 public class CommandExecutorSQLTruncateCluster extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String KEYWORD_TRUNCATE = "TRUNCATE";
   public static final String KEYWORD_CLUSTER = "CLUSTER";
@@ -61,21 +61,21 @@ public class CommandExecutorSQLTruncateCluster extends CommandExecutorSQLAbstrac
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_TRUNCATE)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_TRUNCATE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CLUSTER)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_CLUSTER + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserText, oldPos, word, true);
       if (pos == -1) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Expected cluster name. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -91,7 +91,7 @@ public class CommandExecutorSQLTruncateCluster extends CommandExecutorSQLAbstrac
 
       final var database = getDatabase();
       if (database.getClusterIdByName(clusterName) == -1) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Cluster '" + clusterName + "' not found", parserText, oldPos);
       }
     } finally {
@@ -107,27 +107,27 @@ public class CommandExecutorSQLTruncateCluster extends CommandExecutorSQLAbstrac
   /**
    * Execute the command.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (clusterName == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final YTDatabaseSessionInternal database = getDatabase();
+    final DatabaseSessionInternal database = getDatabase();
 
     final int clusterId = database.getClusterIdByName(clusterName);
     if (clusterId < 0) {
-      throw new YTDatabaseException("Cluster with name " + clusterName + " does not exist");
+      throw new DatabaseException("Cluster with name " + clusterName + " does not exist");
     }
 
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass clazz = schema.getClassByClusterId(clusterId);
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass clazz = schema.getClassByClusterId(clusterId);
     if (clazz == null) {
       database.checkForClusterPermissions(clusterName);
 
-      final ORecordIteratorCluster<Record> iteratorCluster = database.browseCluster(clusterName);
+      final RecordIteratorCluster<Record> iteratorCluster = database.browseCluster(clusterName);
       if (iteratorCluster == null) {
-        throw new YTDatabaseException("Cluster with name " + clusterName + " does not exist");
+        throw new DatabaseException("Cluster with name " + clusterName + " does not exist");
       }
       while (iteratorCluster.hasNext()) {
         final Record record = iteratorCluster.next();

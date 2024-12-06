@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrderBy;
 import java.util.ArrayList;
@@ -40,8 +40,8 @@ public class OrderByStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
-    List<YTResult> results;
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
+    List<Result> results;
 
     if (prev != null) {
       results = init(prev, ctx);
@@ -52,9 +52,9 @@ public class OrderByStep extends AbstractExecutionStep {
     return ExecutionStream.resultIterator(results.iterator());
   }
 
-  private List<YTResult> init(ExecutionStepInternal p, CommandContext ctx) {
+  private List<Result> init(ExecutionStepInternal p, CommandContext ctx) {
     long timeoutBegin = System.currentTimeMillis();
-    List<YTResult> cachedResult = new ArrayList<>();
+    List<Result> cachedResult = new ArrayList<>();
     final long maxElementsAllowed =
         GlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.getValueAsLong();
     boolean sorted = true;
@@ -64,10 +64,10 @@ public class OrderByStep extends AbstractExecutionStep {
         sendTimeout();
       }
 
-      YTResult item = lastBatch.next(ctx);
+      Result item = lastBatch.next(ctx);
       cachedResult.add(item);
       if (maxElementsAllowed >= 0 && maxElementsAllowed < cachedResult.size()) {
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "Limit of allowed elements for in-heap ORDER BY in a single query exceeded ("
                 + maxElementsAllowed
                 + ") . You can set "

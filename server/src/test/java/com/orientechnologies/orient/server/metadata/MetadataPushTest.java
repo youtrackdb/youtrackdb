@@ -4,12 +4,12 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.server.OServer;
@@ -27,10 +27,10 @@ public class MetadataPushTest {
   private static final String SERVER_DIRECTORY = "./target/metadata-push";
   private OServer server;
   private YouTrackDB youTrackDB;
-  private YTDatabaseSession database;
+  private DatabaseSession database;
 
   private YouTrackDB secondYouTrackDB;
-  private YTDatabaseSessionInternal secondDatabase;
+  private DatabaseSessionInternal secondDatabase;
 
   @Before
   public void before() throws Exception {
@@ -48,7 +48,7 @@ public class MetadataPushTest {
 
     secondYouTrackDB = new YouTrackDB("remote:localhost", YouTrackDBConfig.defaultConfig());
     secondDatabase =
-        (YTDatabaseSessionInternal)
+        (DatabaseSessionInternal)
             youTrackDB.open(MetadataPushTest.class.getSimpleName(), "admin", "admin");
   }
 
@@ -73,7 +73,7 @@ public class MetadataPushTest {
     database.command(" ALTER DATABASE LOCALELANGUAGE  ?", Locale.GERMANY.getLanguage());
     // Push done in background for now, do not guarantee update before command return.
     secondDatabase.activateOnCurrentThread();
-    DBTestBase.assertWithTimeout(
+    DbTestBase.assertWithTimeout(
         secondDatabase,
         () -> {
           secondDatabase.activateOnCurrentThread();
@@ -90,7 +90,7 @@ public class MetadataPushTest {
 
     // Push done in background for now, do not guarantee update before command return.
     secondDatabase.activateOnCurrentThread();
-    DBTestBase.assertWithTimeout(
+    DbTestBase.assertWithTimeout(
         secondDatabase,
         () -> {
           secondDatabase.activateOnCurrentThread();
@@ -106,7 +106,7 @@ public class MetadataPushTest {
     database.command(" create index X.y on X(y) NOTUNIQUE");
     // Push done in background for now, do not guarantee update before command return.
     secondDatabase.activateOnCurrentThread();
-    DBTestBase.assertWithTimeout(
+    DbTestBase.assertWithTimeout(
         secondDatabase,
         () ->
             assertTrue(secondDatabase.getMetadata().getIndexManagerInternal().existsIndex("X.y")));
@@ -121,7 +121,7 @@ public class MetadataPushTest {
 
     // Push done in background for now, do not guarantee update before command return.
     secondDatabase.activateOnCurrentThread();
-    DBTestBase.assertWithTimeout(
+    DbTestBase.assertWithTimeout(
         secondDatabase,
         () -> {
           secondDatabase.activateOnCurrentThread();
@@ -137,7 +137,7 @@ public class MetadataPushTest {
     database.commit();
     // Push done in background for now, do not guarantee update before command return.
     secondDatabase.activateOnCurrentThread();
-    DBTestBase.assertWithTimeout(
+    DbTestBase.assertWithTimeout(
         secondDatabase,
         () -> {
           secondDatabase.activateOnCurrentThread();

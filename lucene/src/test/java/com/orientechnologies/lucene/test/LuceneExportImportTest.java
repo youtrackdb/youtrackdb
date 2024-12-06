@@ -18,19 +18,19 @@
 
 package com.orientechnologies.lucene.test;
 
-import static com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.INDEX_TYPE.FULLTEXT;
+import static com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.INDEX_TYPE.FULLTEXT;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
-import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseExport;
-import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseImport;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseExport;
+import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImport;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.orientechnologies.lucene.OLuceneIndexFactory;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.orientechnologies.lucene.LuceneIndexFactory;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.zip.GZIPInputStream;
@@ -46,10 +46,10 @@ public class LuceneExportImportTest extends BaseLuceneTest {
   @Before
   public void init() {
 
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass oClass = schema.createClass("City");
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass oClass = schema.createClass("City");
 
-    oClass.createProperty(db, "name", YTType.STRING);
+    oClass.createProperty(db, "name", PropertyType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
 
     EntityImpl doc = new EntityImpl("City");
@@ -65,17 +65,17 @@ public class LuceneExportImportTest extends BaseLuceneTest {
 
     String file = "./target/exportTest.json";
 
-    YTResultSet query = db.query("select from City where name lucene 'Rome'");
+    ResultSet query = db.query("select from City where name lucene 'Rome'");
 
     Assert.assertEquals(query.stream().count(), 1);
 
     try {
 
       // export
-      new ODatabaseExport(
+      new DatabaseExport(
           db,
           file,
-          new OCommandOutputListener() {
+          new CommandOutputListener() {
             @Override
             public void onMessage(String s) {
             }
@@ -89,10 +89,10 @@ public class LuceneExportImportTest extends BaseLuceneTest {
       db = openDatabase();
 
       GZIPInputStream stream = new GZIPInputStream(new FileInputStream(file + ".gz"));
-      new ODatabaseImport(
+      new DatabaseImport(
           db,
           stream,
-          new OCommandOutputListener() {
+          new CommandOutputListener() {
             @Override
             public void onMessage(String s) {
             }
@@ -103,11 +103,11 @@ public class LuceneExportImportTest extends BaseLuceneTest {
     }
 
     assertThat(db.countClass("City")).isEqualTo(1);
-    OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.name");
+    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.name");
 
     assertThat(index.getType()).isEqualTo(FULLTEXT.toString());
 
-    assertThat(index.getAlgorithm()).isEqualTo(OLuceneIndexFactory.LUCENE_ALGORITHM);
+    assertThat(index.getAlgorithm()).isEqualTo(LuceneIndexFactory.LUCENE_ALGORITHM);
 
     // redo the query
     query = db.query("select from City where name lucene 'Rome'");

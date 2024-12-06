@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.common.profiler.OProfiler;
+import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
 public abstract class AbstractIndexReuseTest extends DocumentDBBaseTest {
 
-  protected OProfiler profiler;
+  protected Profiler profiler;
 
   public AbstractIndexReuseTest(boolean remote) {
     super(remote);
@@ -30,7 +30,7 @@ public abstract class AbstractIndexReuseTest extends DocumentDBBaseTest {
     super.afterClass();
   }
 
-  private OProfiler getProfilerInstance() throws Exception {
+  private Profiler getProfilerInstance() throws Exception {
     return YouTrackDBManager.instance().getProfiler();
   }
 }

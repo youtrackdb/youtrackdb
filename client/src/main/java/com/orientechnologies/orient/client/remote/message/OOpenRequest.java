@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.core.OConstants;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetwork;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetwork;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
@@ -17,10 +17,10 @@ import java.io.IOException;
 public class OOpenRequest implements OBinaryRequest<OOpenResponse> {
 
   private String driverName = StorageRemote.DRIVER_NAME;
-  private String driverVersion = OConstants.getRawVersion();
-  private short protocolVersion = OChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION;
+  private String driverVersion = YouTrackDBConstants.getRawVersion();
+  private short protocolVersion = ChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION;
   private String clientId = null;
-  private String recordFormat = ORecordSerializerNetwork.NAME;
+  private String recordFormat = RecordSerializerNetwork.NAME;
   private boolean useToken = true;
   private boolean supportsPush = true;
   private boolean collectStats = true;
@@ -39,7 +39,7 @@ public class OOpenRequest implements OBinaryRequest<OOpenResponse> {
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     network.writeString(driverName);
     network.writeString(driverVersion);
@@ -55,8 +55,8 @@ public class OOpenRequest implements OBinaryRequest<OOpenResponse> {
   }
 
   @Override
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
-      ORecordSerializer serializer)
+  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+      RecordSerializer serializer)
       throws IOException {
 
     driverName = channel.readString();
@@ -65,12 +65,12 @@ public class OOpenRequest implements OBinaryRequest<OOpenResponse> {
     clientId = channel.readString();
     this.recordFormat = channel.readString();
 
-    if (this.protocolVersion > OChannelBinaryProtocol.PROTOCOL_VERSION_26) {
+    if (this.protocolVersion > ChannelBinaryProtocol.PROTOCOL_VERSION_26) {
       useToken = channel.readBoolean();
     } else {
       useToken = false;
     }
-    if (this.protocolVersion > OChannelBinaryProtocol.PROTOCOL_VERSION_33) {
+    if (this.protocolVersion > ChannelBinaryProtocol.PROTOCOL_VERSION_33) {
       supportsPush = channel.readBoolean();
       collectStats = channel.readBoolean();
     } else {
@@ -78,7 +78,7 @@ public class OOpenRequest implements OBinaryRequest<OOpenResponse> {
       collectStats = true;
     }
     databaseName = channel.readString();
-    if (this.protocolVersion <= OChannelBinaryProtocol.PROTOCOL_VERSION_32) {
+    if (this.protocolVersion <= ChannelBinaryProtocol.PROTOCOL_VERSION_32) {
       dbType = channel.readString();
     }
     userName = channel.readString();
@@ -87,7 +87,7 @@ public class OOpenRequest implements OBinaryRequest<OOpenResponse> {
 
   @Override
   public byte getCommand() {
-    return OChannelBinaryProtocol.REQUEST_DB_OPEN;
+    return ChannelBinaryProtocol.REQUEST_DB_OPEN;
   }
 
   @Override

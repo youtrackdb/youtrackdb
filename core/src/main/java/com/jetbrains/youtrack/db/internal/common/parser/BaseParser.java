@@ -53,7 +53,7 @@ public abstract class BaseParser {
       final String iSeparatorChars) {
     ioWord.setLength(0);
 
-    ioCurrentPosition = OStringParser.jumpWhiteSpaces(iText, ioCurrentPosition, -1);
+    ioCurrentPosition = StringParser.jumpWhiteSpaces(iText, ioCurrentPosition, -1);
     if (ioCurrentPosition < 0) {
       return -1;
     }
@@ -481,7 +481,7 @@ public abstract class BaseParser {
       return false;
     }
 
-    parserCurrentPos = OStringParser.jumpWhiteSpaces(parserText, parserCurrentPos, -1);
+    parserCurrentPos = StringParser.jumpWhiteSpaces(parserText, parserCurrentPos, -1);
     return parserCurrentPos > -1;
   }
 
@@ -595,7 +595,7 @@ public abstract class BaseParser {
 
               if (nextChar == 'u') {
                 parserCurrentPos =
-                    OStringParser.readUnicode(text2Use, parserCurrentPos + 2, parserLastWord);
+                    StringParser.readUnicode(text2Use, parserCurrentPos + 2, parserLastWord);
                 parserEscapeSequenceCount += 5;
               } else {
                 if (nextChar == 'n') {

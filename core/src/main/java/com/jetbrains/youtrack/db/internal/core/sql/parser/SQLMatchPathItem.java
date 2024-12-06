@@ -3,12 +3,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -82,16 +82,16 @@ public class SQLMatchPathItem extends SimpleNode {
     }
   }
 
-  public Iterable<YTIdentifiable> executeTraversal(
+  public Iterable<Identifiable> executeTraversal(
       SQLMatchStatement.MatchContext matchContext,
       CommandContext iCommandContext,
-      YTIdentifiable startingPoint,
+      Identifiable startingPoint,
       int depth) {
 
     SQLWhereClause filter = null;
     SQLWhereClause whileCondition = null;
     Integer maxDepth = null;
-    YTClass oClass = null;
+    SchemaClass oClass = null;
     if (this.filter != null) {
       filter = this.filter.getFilter();
       whileCondition = this.filter.getWhileCondition();
@@ -101,20 +101,20 @@ public class SQLMatchPathItem extends SimpleNode {
           .getClass(className);
     }
 
-    Set<YTIdentifiable> result = new HashSet<YTIdentifiable>();
+    Set<Identifiable> result = new HashSet<Identifiable>();
 
     if (whileCondition == null
         && maxDepth
         == null) { // in this case starting point is not returned and only one level depth is
       // evaluated
-      Iterable<YTIdentifiable> queryResult =
+      Iterable<Identifiable> queryResult =
           traversePatternEdge(matchContext, startingPoint, iCommandContext);
 
       if (this.filter == null || this.filter.getFilter() == null) {
         return queryResult;
       }
 
-      for (YTIdentifiable origin : queryResult) {
+      for (Identifiable origin : queryResult) {
         Object previousMatch = iCommandContext.getVariable("$currentMatch");
         iCommandContext.setVariable("$currentMatch", origin);
         if ((oClass == null || matchesClass(origin, oClass))
@@ -137,17 +137,17 @@ public class SQLMatchPathItem extends SimpleNode {
           && (whileCondition == null
           || whileCondition.matchesFilters(startingPoint, iCommandContext))) {
 
-        Iterable<YTIdentifiable> queryResult =
+        Iterable<Identifiable> queryResult =
             traversePatternEdge(matchContext, startingPoint, iCommandContext);
 
-        for (YTIdentifiable origin : queryResult) {
+        for (Identifiable origin : queryResult) {
           // TODO consider break strategies (eg. re-traverse nodes)
-          Iterable<YTIdentifiable> subResult =
+          Iterable<Identifiable> subResult =
               executeTraversal(matchContext, iCommandContext, origin, depth + 1);
           if (subResult instanceof Collection) {
-            result.addAll((Collection<? extends YTIdentifiable>) subResult);
+            result.addAll((Collection<? extends Identifiable>) subResult);
           } else {
-            for (YTIdentifiable i : subResult) {
+            for (Identifiable i : subResult) {
               result.add(i);
             }
           }
@@ -158,30 +158,30 @@ public class SQLMatchPathItem extends SimpleNode {
     return result;
   }
 
-  private boolean matchesClass(YTIdentifiable identifiable, YTClass oClass) {
+  private boolean matchesClass(Identifiable identifiable, SchemaClass oClass) {
     if (identifiable == null) {
       return false;
     }
     try {
       Record record = identifiable.getRecord();
       if (record instanceof EntityImpl) {
-        return ODocumentInternal.getImmutableSchemaClass(((EntityImpl) record))
+        return DocumentInternal.getImmutableSchemaClass(((EntityImpl) record))
             .isSubClassOf(oClass);
       }
-    } catch (YTRecordNotFoundException rnf) {
+    } catch (RecordNotFoundException rnf) {
       return false;
     }
     return false;
   }
 
-  protected Iterable<YTIdentifiable> traversePatternEdge(
+  protected Iterable<Identifiable> traversePatternEdge(
       SQLMatchStatement.MatchContext matchContext,
-      YTIdentifiable startingPoint,
+      Identifiable startingPoint,
       CommandContext iCommandContext) {
 
     Iterable possibleResults = null;
     if (filter != null) {
-      YTIdentifiable matchedNode = matchContext.matched.get(filter.getAlias());
+      Identifiable matchedNode = matchContext.matched.get(filter.getAlias());
       if (matchedNode != null) {
         possibleResults = Collections.singleton(matchedNode);
       } else if (matchContext.matched.containsKey(filter.getAlias())) {
@@ -196,7 +196,7 @@ public class SQLMatchPathItem extends SimpleNode {
     Object qR = this.method.execute(startingPoint, possibleResults, iCommandContext);
     return (qR instanceof Iterable && !(qR instanceof EntityImpl))
         ? (Iterable) qR
-        : Collections.singleton((YTIdentifiable) qR);
+        : Collections.singleton((Identifiable) qR);
   }
 
   @Override

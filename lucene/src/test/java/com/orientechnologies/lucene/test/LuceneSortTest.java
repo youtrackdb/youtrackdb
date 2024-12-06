@@ -1,8 +1,8 @@
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
 import org.junit.Before;
@@ -553,12 +553,12 @@ public class LuceneSortTest extends BaseLuceneTest {
 
   @Before
   public void setUp() throws Exception {
-    YTSchema schema = db.getMetadata().getSchema();
+    Schema schema = db.getMetadata().getSchema();
 
-    YTClass cls = schema.createClass("Person");
-    cls.createProperty(db, "name", YTType.STRING);
-    cls.createProperty(db, "surname", YTType.STRING);
-    cls.createProperty(db, "description", YTType.STRING);
+    SchemaClass cls = schema.createClass("Person");
+    cls.createProperty(db, "name", PropertyType.STRING);
+    cls.createProperty(db, "surname", PropertyType.STRING);
+    cls.createProperty(db, "description", PropertyType.STRING);
   }
 
   @Test

@@ -19,8 +19,8 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.jetbrains.youtrack.db.internal.common.util.OCallable;
-import com.jetbrains.youtrack.db.internal.common.util.OPair;
+import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
+import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.orientechnologies.orient.server.distributed.task.ORemoteTask;
 import java.util.Collection;
 import java.util.Set;
@@ -35,9 +35,9 @@ public class OAsynchDistributedOperation {
   private final Collection<String> nodes;
   private final ORemoteTask task;
   private final long messageId;
-  private final OCallable<Object, OPair<ODistributedRequestId, Object>> callback;
+  private final CallableFunction<Object, Pair<DistributedRequestId, Object>> callback;
   private final Object localResult;
-  private final OCallable<Void, ODistributedRequestId> afterRequestCallback;
+  private final CallableFunction<Void, DistributedRequestId> afterRequestCallback;
 
   public OAsynchDistributedOperation(
       final String iDatabaseName,
@@ -46,8 +46,8 @@ public class OAsynchDistributedOperation {
       final ORemoteTask iTask,
       final long iMessageId,
       final Object iLocalResult,
-      final OCallable<Void, ODistributedRequestId> iAfterRequestCallback,
-      final OCallable<Object, OPair<ODistributedRequestId, Object>> iCallback) {
+      final CallableFunction<Void, DistributedRequestId> iAfterRequestCallback,
+      final CallableFunction<Object, Pair<DistributedRequestId, Object>> iCallback) {
     databaseName = iDatabaseName;
     clusterNames = iClusterNames;
     nodes = iNodes;
@@ -74,7 +74,7 @@ public class OAsynchDistributedOperation {
     return databaseName;
   }
 
-  public OCallable<Object, OPair<ODistributedRequestId, Object>> getCallback() {
+  public CallableFunction<Object, Pair<DistributedRequestId, Object>> getCallback() {
     return callback;
   }
 
@@ -82,7 +82,7 @@ public class OAsynchDistributedOperation {
     return localResult;
   }
 
-  public OCallable<Void, ODistributedRequestId> getAfterSendCallback() {
+  public CallableFunction<Void, DistributedRequestId> getAfterSendCallback() {
     return afterRequestCallback;
   }
 

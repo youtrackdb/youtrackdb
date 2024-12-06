@@ -8,7 +8,7 @@ import org.junit.Assert;
  */
 public abstract class AbstractConverterTest {
 
-  protected OBinaryConverter converter;
+  protected BinaryConverter converter;
 
   public void testPutIntBigEndian() {
     int value = 0xFE23A067;

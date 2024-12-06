@@ -15,13 +15,13 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
-import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.query.LiveQuery;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OLegacyResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OLiveResultListener;
+import com.jetbrains.youtrack.db.internal.core.sql.query.LegacyResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.query.LiveResultListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,18 +35,18 @@ import org.testng.annotations.Test;
  * only for remote usage (it requires registered LiveQuery plugin)
  */
 @Test(groups = "Query")
-public class LiveQueryTest extends DocumentDBBaseTest implements OCommandOutputListener {
+public class LiveQueryTest extends DocumentDBBaseTest implements CommandOutputListener {
 
   private final CountDownLatch latch = new CountDownLatch(2);
   private final CountDownLatch unLatch = new CountDownLatch(1);
 
-  class MyLiveQueryListener implements OLiveResultListener {
+  class MyLiveQueryListener implements LiveResultListener {
 
-    public List<ORecordOperation> ops = new ArrayList<ORecordOperation>();
+    public List<RecordOperation> ops = new ArrayList<RecordOperation>();
     public int unsubscribe;
 
     @Override
-    public void onLiveResult(int iLiveToken, ORecordOperation iOp) throws YTException {
+    public void onLiveResult(int iLiveToken, RecordOperation iOp) throws BaseException {
       ops.add(iOp);
       latch.countDown();
     }
@@ -76,7 +76,7 @@ public class LiveQueryTest extends DocumentDBBaseTest implements OCommandOutputL
 
     MyLiveQueryListener listener = new MyLiveQueryListener();
 
-    OLegacyResultSet<EntityImpl> tokens =
+    LegacyResultSet<EntityImpl> tokens =
         database.query(new LiveQuery<EntityImpl>("live select from " + className1, listener));
     Assert.assertEquals(tokens.size(), 1);
     EntityImpl tokenDoc = tokens.get(0);
@@ -92,8 +92,8 @@ public class LiveQueryTest extends DocumentDBBaseTest implements OCommandOutputL
     database.command("live unsubscribe " + token).close();
     database.command("insert into " + className1 + " set name = 'foo', surname = 'bax'").close();
     Assert.assertEquals(listener.ops.size(), 2);
-    for (ORecordOperation doc : listener.ops) {
-      Assert.assertEquals(doc.type, ORecordOperation.CREATED);
+    for (RecordOperation doc : listener.ops) {
+      Assert.assertEquals(doc.type, RecordOperation.CREATED);
       Assert.assertEquals(((EntityImpl) doc.record).field("name"), "foo");
     }
     unLatch.await(1, TimeUnit.MINUTES);

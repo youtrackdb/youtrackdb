@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.jetbrains.youtrack.db.internal.common.util.OCallable;
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.orientechnologies.orient.server.OClientConnection;
 import java.io.IOException;
@@ -30,14 +30,14 @@ public interface OHttpResponse {
 
   void writeContent(String iContent) throws IOException;
 
-  void writeResult(Object result, YTDatabaseSessionInternal databaseDocumentInternal)
+  void writeResult(Object result, DatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException;
 
   void writeResult(
       Object iResult,
       String iFormat,
       String iAccept,
-      YTDatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException;
 
   void writeResult(
@@ -45,7 +45,7 @@ public interface OHttpResponse {
       String iFormat,
       String iAccept,
       Map<String, Object> iAdditionalProperties,
-      YTDatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException;
 
   void writeResult(
@@ -54,14 +54,14 @@ public interface OHttpResponse {
       String iAccept,
       Map<String, Object> iAdditionalProperties,
       String mode,
-      YTDatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException;
 
-  void writeRecords(Object iRecords, YTDatabaseSessionInternal databaseDocumentInternal)
+  void writeRecords(Object iRecords, DatabaseSessionInternal databaseDocumentInternal)
       throws IOException;
 
   void writeRecords(
-      Object iRecords, String iFetchPlan, YTDatabaseSessionInternal databaseDocumentInternal)
+      Object iRecords, String iFetchPlan, DatabaseSessionInternal databaseDocumentInternal)
       throws IOException;
 
   void writeRecords(
@@ -69,7 +69,7 @@ public interface OHttpResponse {
       String iFetchPlan,
       String iFormat,
       String accept,
-      YTDatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal databaseDocumentInternal)
       throws IOException;
 
   void writeRecords(
@@ -78,7 +78,7 @@ public interface OHttpResponse {
       String iFormat,
       String accept,
       Map<String, Object> iAdditionalProperties,
-      YTDatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal databaseDocumentInternal)
       throws IOException;
 
   void writeRecords(
@@ -88,14 +88,14 @@ public interface OHttpResponse {
       String accept,
       Map<String, Object> iAdditionalProperties,
       String mode,
-      YTDatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal databaseDocumentInternal)
       throws IOException;
 
   void formatMultiValue(
       Iterator<?> iIterator,
       Writer buffer,
       String format,
-      YTDatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal databaseDocumentInternal)
       throws IOException;
 
   void writeRecord(Record iRecord) throws IOException;
@@ -129,7 +129,7 @@ public interface OHttpResponse {
       String iReason,
       String iContentType,
       String iFileName,
-      OCallable<Void, OChunkedResponse> iWriter)
+      CallableFunction<Void, OChunkedResponse> iWriter)
       throws IOException;
 
   // Compress content string
@@ -216,7 +216,7 @@ public interface OHttpResponse {
 
   boolean isSameSiteCookie();
 
-  YTContextConfiguration getContextConfiguration();
+  ContextConfiguration getContextConfiguration();
 
   void addHeader(String name, String value);
 

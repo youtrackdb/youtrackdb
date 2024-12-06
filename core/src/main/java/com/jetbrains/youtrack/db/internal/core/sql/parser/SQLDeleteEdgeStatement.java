@@ -4,11 +4,11 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ODeleteEdgeExecutionPlanner;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ODeleteExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OInternalExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.DeleteEdgeExecutionPlanner;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.DeleteExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,27 +43,27 @@ public class SQLDeleteEdgeStatement extends SQLStatement {
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
+  public ResultSet execute(
+      DatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
     BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     ctx.setInputParameters(params);
-    ODeleteExecutionPlan executionPlan;
+    DeleteExecutionPlan executionPlan;
     if (usePlanCache) {
-      executionPlan = (ODeleteExecutionPlan) createExecutionPlan(ctx, false);
+      executionPlan = (DeleteExecutionPlan) createExecutionPlan(ctx, false);
     } else {
-      executionPlan = (ODeleteExecutionPlan) createExecutionPlanNoCache(ctx, false);
+      executionPlan = (DeleteExecutionPlan) createExecutionPlanNoCache(ctx, false);
     }
     executionPlan.executeInternal();
-    return new YTLocalResultSet(executionPlan);
+    return new LocalResultSet(executionPlan);
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
+  public ResultSet execute(
+      DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
     Map<Object, Object> params = new HashMap<>();
     if (args != null) {
@@ -74,18 +74,18 @@ public class SQLDeleteEdgeStatement extends SQLStatement {
     return execute(db, params, parentCtx, usePlanCache);
   }
 
-  public OInternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    ODeleteEdgeExecutionPlanner planner = new ODeleteEdgeExecutionPlanner(this);
-    OInternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling, true);
+  public InternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
+    DeleteEdgeExecutionPlanner planner = new DeleteEdgeExecutionPlanner(this);
+    InternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling, true);
     result.setStatement(this.originalStatement);
     result.setGenericStatement(this.toGenericStatement());
     return result;
   }
 
-  public OInternalExecutionPlan createExecutionPlanNoCache(
+  public InternalExecutionPlan createExecutionPlanNoCache(
       CommandContext ctx, boolean enableProfiling) {
-    ODeleteEdgeExecutionPlanner planner = new ODeleteEdgeExecutionPlanner(this);
-    OInternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling, false);
+    DeleteEdgeExecutionPlanner planner = new DeleteEdgeExecutionPlanner(this);
+    InternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling, false);
     result.setStatement(this.originalStatement);
     result.setGenericStatement(this.toGenericStatement());
     return result;
@@ -213,7 +213,7 @@ public class SQLDeleteEdgeStatement extends SQLStatement {
   }
 
   @Override
-  public boolean executinPlanCanBeCached(YTDatabaseSessionInternal session) {
+  public boolean executinPlanCanBeCached(DatabaseSessionInternal session) {
     if (leftExpression != null && !leftExpression.isCacheable(session)) {
       return false;
     }

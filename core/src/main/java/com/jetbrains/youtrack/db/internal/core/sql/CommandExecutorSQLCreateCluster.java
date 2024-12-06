@@ -21,10 +21,10 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import java.util.Map;
 
 /**
@@ -32,7 +32,7 @@ import java.util.Map;
  */
 @SuppressWarnings("unchecked")
 public class CommandExecutorSQLCreateCluster extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String KEYWORD_CREATE = "CREATE";
   public static final String KEYWORD_BLOB = "BLOB";
@@ -52,7 +52,7 @@ public class CommandExecutorSQLCreateCluster extends CommandExecutorSQLAbstract
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
-      final YTDatabaseSessionInternal database = getDatabase();
+      final DatabaseSessionInternal database = getDatabase();
 
       init((CommandRequestText) iRequest);
 
@@ -62,7 +62,7 @@ public class CommandExecutorSQLCreateCluster extends CommandExecutorSQLAbstract
         parserRequiredKeyword(KEYWORD_CLUSTER);
         blob = true;
       } else if (!nextWord.equals(KEYWORD_CLUSTER)) {
-        throw new YTCommandSQLParsingException("Invalid Syntax: " + queryText);
+        throw new CommandSQLParsingException("Invalid Syntax: " + queryText);
       }
 
       clusterName = parserRequiredWord(false);
@@ -106,9 +106,9 @@ public class CommandExecutorSQLCreateCluster extends CommandExecutorSQLAbstract
   /**
    * Execute the CREATE CLUSTER.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (clusterName == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -116,14 +116,14 @@ public class CommandExecutorSQLCreateCluster extends CommandExecutorSQLAbstract
 
     final int clusterId = database.getClusterIdByName(clusterName);
     if (clusterId > -1) {
-      throw new YTCommandSQLParsingException("Cluster '" + clusterName + "' already exists");
+      throw new CommandSQLParsingException("Cluster '" + clusterName + "' already exists");
     }
 
     if (blob) {
       if (requestedId == -1) {
         return database.addBlobCluster(clusterName);
       } else {
-        throw new YTCommandExecutionException("Request id not supported by blob cluster creation.");
+        throw new CommandExecutionException("Request id not supported by blob cluster creation.");
       }
     } else {
       if (requestedId == -1) {

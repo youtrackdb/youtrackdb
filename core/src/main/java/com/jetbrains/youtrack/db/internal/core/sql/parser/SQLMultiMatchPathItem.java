@@ -3,7 +3,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -51,22 +51,22 @@ public class SQLMultiMatchPathItem extends SQLMatchPathItem {
     }
   }
 
-  protected Iterable<YTIdentifiable> traversePatternEdge(
+  protected Iterable<Identifiable> traversePatternEdge(
       SQLMatchStatement.MatchContext matchContext,
-      YTIdentifiable startingPoint,
+      Identifiable startingPoint,
       CommandContext iCommandContext) {
-    Set<YTIdentifiable> result = new HashSet<YTIdentifiable>();
+    Set<Identifiable> result = new HashSet<Identifiable>();
     result.add(startingPoint);
     for (SQLMatchPathItem subItem : items) {
-      Set<YTIdentifiable> startingPoints = result;
-      result = new HashSet<YTIdentifiable>();
-      for (YTIdentifiable sp : startingPoints) {
-        Iterable<YTIdentifiable> subResult =
+      Set<Identifiable> startingPoints = result;
+      result = new HashSet<Identifiable>();
+      for (Identifiable sp : startingPoints) {
+        Iterable<Identifiable> subResult =
             subItem.executeTraversal(matchContext, iCommandContext, sp, 0);
         if (subResult instanceof Collection) {
           result.addAll((Collection) subResult);
         } else {
-          for (YTIdentifiable id : subResult) {
+          for (Identifiable id : subResult) {
             result.add(id);
           }
         }

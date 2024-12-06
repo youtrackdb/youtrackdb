@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.resultset;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 
 public final class FlatMapExecutionStream implements ExecutionStream {
 
@@ -29,7 +29,7 @@ public final class FlatMapExecutionStream implements ExecutionStream {
   }
 
   @Override
-  public YTResult next(CommandContext ctx) {
+  public Result next(CommandContext ctx) {
     if (!hasNext(ctx)) {
       throw new IllegalStateException();
     }

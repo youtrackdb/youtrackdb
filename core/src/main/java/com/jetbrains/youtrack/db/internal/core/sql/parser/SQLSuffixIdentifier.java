@@ -2,22 +2,22 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.util.OResettable;
-import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.common.util.Resettable;
+import com.jetbrains.youtrack.db.internal.core.collate.Collate;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.YTContextualRecordId;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.ContextualRecordId;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.AggregationContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -67,7 +67,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
     }
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
+  public Object execute(Identifiable iCurrentRecord, CommandContext ctx) {
     if (star) {
       return iCurrentRecord;
     }
@@ -81,8 +81,8 @@ public class SQLSuffixIdentifier extends SimpleNode {
       }
 
       if (iCurrentRecord != null) {
-        if (iCurrentRecord instanceof YTContextualRecordId) {
-          Map<String, Object> meta = ((YTContextualRecordId) iCurrentRecord).getContext();
+        if (iCurrentRecord instanceof ContextualRecordId) {
+          Map<String, Object> meta = ((ContextualRecordId) iCurrentRecord).getContext();
           if (meta != null && meta.containsKey(varName)) {
             return meta.get(varName);
           }
@@ -98,7 +98,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
             result = ctx.getVariable(varName);
           }
           return result;
-        } catch (YTCommandExecutionException rnf) {
+        } catch (CommandExecutionException rnf) {
           return null;
         }
       }
@@ -111,7 +111,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
                 ? (Entity) iCurrentRecord
                 : iCurrentRecord.getRecord();
         return recordAttribute.evaluate(rec, ctx);
-      } catch (YTRecordNotFoundException rnf) {
+      } catch (RecordNotFoundException rnf) {
         return null;
       }
     }
@@ -119,7 +119,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
     return null;
   }
 
-  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
+  public Object execute(Result iCurrentRecord, CommandContext ctx) {
     if (star) {
       return iCurrentRecord;
     }
@@ -130,8 +130,8 @@ public class SQLSuffixIdentifier extends SimpleNode {
       }
       if (ctx != null && varName.startsWith("$") && ctx.getVariable(varName) != null) {
         Object result = ctx.getVariable(varName);
-        if (result instanceof OResettable) {
-          ((OResettable) result).reset();
+        if (result instanceof Resettable) {
+          ((Resettable) result).reset();
         }
         return result;
       }
@@ -142,9 +142,9 @@ public class SQLSuffixIdentifier extends SimpleNode {
         if (iCurrentRecord.getMetadataKeys().contains(varName)) {
           return iCurrentRecord.getMetadata(varName);
         }
-        if (iCurrentRecord instanceof YTResultInternal
-            && ((YTResultInternal) iCurrentRecord).getTemporaryProperties().contains(varName)) {
-          return ((YTResultInternal) iCurrentRecord).getTemporaryProperty(varName);
+        if (iCurrentRecord instanceof ResultInternal
+            && ((ResultInternal) iCurrentRecord).getTemporaryProperties().contains(varName)) {
+          return ((ResultInternal) iCurrentRecord).getTemporaryProperty(varName);
         }
       }
       return null;
@@ -159,7 +159,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
 
   public Object execute(Map iCurrentRecord, CommandContext ctx) {
     if (star) {
-      YTResultInternal result = new YTResultInternal(ctx.getDatabase());
+      ResultInternal result = new ResultInternal(ctx.getDatabase());
       if (iCurrentRecord != null) {
         for (Map.Entry<Object, Object> x : ((Map<Object, Object>) iCurrentRecord).entrySet()) {
           result.setProperty("" + x.getKey(), x.getValue());
@@ -206,9 +206,9 @@ public class SQLSuffixIdentifier extends SimpleNode {
     while (iterator.hasNext()) {
       result.add(execute(iterator.next(), ctx));
     }
-    if (iterator instanceof YTResultSet) {
+    if (iterator instanceof ResultSet) {
       try {
-        ((YTResultSet) iterator).reset();
+        ((ResultSet) iterator).reset();
       } catch (Exception ignore) {
       }
     }
@@ -233,11 +233,11 @@ public class SQLSuffixIdentifier extends SimpleNode {
   }
 
   public Object execute(Object currentValue, CommandContext ctx) {
-    if (currentValue instanceof YTResult) {
-      return execute((YTResult) currentValue, ctx);
+    if (currentValue instanceof Result) {
+      return execute((Result) currentValue, ctx);
     }
-    if (currentValue instanceof YTIdentifiable) {
-      return execute((YTIdentifiable) currentValue, ctx);
+    if (currentValue instanceof Identifiable) {
+      return execute((Identifiable) currentValue, ctx);
     }
     if (currentValue instanceof Map) {
       return execute((Map) currentValue, ctx);
@@ -252,7 +252,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
       return execute((Iterator) currentValue, ctx);
     }
     if (currentValue == null) {
-      return execute((YTResult) null, ctx);
+      return execute((Result) null, ctx);
     }
 
     return null;
@@ -347,16 +347,16 @@ public class SQLSuffixIdentifier extends SimpleNode {
   }
 
   public void setValue(Object target, Object value, CommandContext ctx) {
-    if (target instanceof YTResult) {
-      setValue((YTResult) target, value, ctx);
-    } else if (target instanceof YTIdentifiable) {
-      setValue((YTIdentifiable) target, value, ctx);
+    if (target instanceof Result) {
+      setValue((Result) target, value, ctx);
+    } else if (target instanceof Identifiable) {
+      setValue((Identifiable) target, value, ctx);
     } else if (target instanceof Map) {
       setValue((Map) target, value, ctx);
     }
   }
 
-  public void setValue(YTIdentifiable target, Object value, CommandContext ctx) {
+  public void setValue(Identifiable target, Object value, CommandContext ctx) {
     if (target == null) {
       return;
     }
@@ -369,9 +369,9 @@ public class SQLSuffixIdentifier extends SimpleNode {
         if (rec instanceof Entity) {
           doc = (Entity) rec;
         }
-      } catch (YTRecordNotFoundException rnf) {
-        throw YTException.wrapException(
-            new YTCommandExecutionException(
+      } catch (RecordNotFoundException rnf) {
+        throw BaseException.wrapException(
+            new CommandExecutionException(
                 "Cannot set record attribute " + recordAttribute + " on existing document"),
             rnf);
       }
@@ -379,7 +379,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
     if (doc != null) {
       doc.setProperty(identifier.getStringValue(), value);
     } else {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot set record attribute " + recordAttribute + " on existing document");
     }
   }
@@ -395,18 +395,18 @@ public class SQLSuffixIdentifier extends SimpleNode {
     }
   }
 
-  public void setValue(YTResult target, Object value, CommandContext ctx) {
+  public void setValue(Result target, Object value, CommandContext ctx) {
     if (target == null) {
       return;
     }
-    if (target instanceof YTResultInternal intTarget) {
+    if (target instanceof ResultInternal intTarget) {
       if (identifier != null) {
         intTarget.setProperty(identifier.getStringValue(), value);
       } else if (recordAttribute != null) {
         intTarget.setProperty(recordAttribute.getName(), value);
       }
     } else {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot set property on unmodifiable target: " + target);
     }
   }
@@ -416,8 +416,8 @@ public class SQLSuffixIdentifier extends SimpleNode {
       return;
     }
     if (identifier != null) {
-      if (currentValue instanceof YTResultInternal) {
-        ((YTResultInternal) currentValue).removeProperty(identifier.getStringValue());
+      if (currentValue instanceof ResultInternal) {
+        ((ResultInternal) currentValue).removeProperty(identifier.getStringValue());
       } else if (currentValue instanceof Entity) {
         ((Entity) currentValue).removeProperty(identifier.getStringValue());
       } else if (currentValue instanceof Map) {
@@ -426,8 +426,8 @@ public class SQLSuffixIdentifier extends SimpleNode {
     }
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     if (identifier != null) {
       result.setProperty("identifier", identifier.serialize(db));
     }
@@ -438,7 +438,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     if (fromResult.getProperty("identifier") != null) {
       identifier = SQLIdentifier.deserialize(fromResult.getProperty("identifier"));
     }
@@ -449,7 +449,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
     star = fromResult.getProperty("star");
   }
 
-  public boolean isDefinedFor(YTResult currentRecord) {
+  public boolean isDefinedFor(Result currentRecord) {
     if (identifier != null) {
       return currentRecord.hasProperty(identifier.getStringValue());
     }
@@ -463,7 +463,7 @@ public class SQLSuffixIdentifier extends SimpleNode {
     return true;
   }
 
-  public OCollate getCollate(YTResult currentRecord, CommandContext ctx) {
+  public Collate getCollate(Result currentRecord, CommandContext ctx) {
     if (identifier != null && currentRecord != null) {
       return currentRecord
           .getRecord()

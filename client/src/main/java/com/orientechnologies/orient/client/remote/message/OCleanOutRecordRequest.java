@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryAsyncRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
@@ -34,20 +34,20 @@ import java.io.IOException;
 public class OCleanOutRecordRequest implements OBinaryAsyncRequest<OCleanOutRecordResponse> {
 
   private int recordVersion;
-  private YTRecordId recordId;
+  private RecordId recordId;
   private byte mode;
 
   public OCleanOutRecordRequest() {
   }
 
-  public OCleanOutRecordRequest(int recordVersion, YTRecordId recordId) {
+  public OCleanOutRecordRequest(int recordVersion, RecordId recordId) {
     this.recordVersion = recordVersion;
     this.recordId = recordId;
   }
 
   @Override
   public byte getCommand() {
-    return OChannelBinaryProtocol.REQUEST_RECORD_CLEAN_OUT;
+    return ChannelBinaryProtocol.REQUEST_RECORD_CLEAN_OUT;
   }
 
   @Override
@@ -55,8 +55,8 @@ public class OCleanOutRecordRequest implements OBinaryAsyncRequest<OCleanOutReco
     return "Clean out record";
   }
 
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
-      ORecordSerializer serializer)
+  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+      RecordSerializer serializer)
       throws IOException {
     recordId = channel.readRID();
     recordVersion = channel.readVersion();
@@ -64,7 +64,7 @@ public class OCleanOutRecordRequest implements OBinaryAsyncRequest<OCleanOutReco
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     network.writeRID(recordId);
     network.writeVersion(recordVersion);
@@ -75,7 +75,7 @@ public class OCleanOutRecordRequest implements OBinaryAsyncRequest<OCleanOutReco
     return mode;
   }
 
-  public YTRecordId getRecordId() {
+  public RecordId getRecordId() {
     return recordId;
   }
 

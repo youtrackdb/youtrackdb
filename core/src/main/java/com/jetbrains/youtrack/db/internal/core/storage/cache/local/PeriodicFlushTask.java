@@ -3,16 +3,16 @@ package com.jetbrains.youtrack.db.internal.core.storage.cache.local;
 public final class PeriodicFlushTask implements Runnable {
 
   /**
-   * @param owowCache
+   * @param WOWCache
    */
-  private final OWOWCache owowCache;
+  private final WOWCache WOWCache;
 
-  public PeriodicFlushTask(OWOWCache owowCache) {
-    this.owowCache = owowCache;
+  public PeriodicFlushTask(WOWCache WOWCache) {
+    this.WOWCache = WOWCache;
   }
 
   @Override
   public void run() {
-    this.owowCache.executePeriodicFlush(this);
+    this.WOWCache.executePeriodicFlush(this);
   }
 }

@@ -3,17 +3,17 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -138,9 +138,9 @@ public class SQLUpdateItem extends SimpleNode {
     return result;
   }
 
-  public void applyUpdate(YTResultInternal doc, CommandContext ctx) {
+  public void applyUpdate(ResultInternal doc, CommandContext ctx) {
     Object rightValue = right.execute(doc, ctx);
-    YTClass linkedType = calculateLinkedTypeForThisItem(doc, ctx);
+    SchemaClass linkedType = calculateLinkedTypeForThisItem(doc, ctx);
     if (leftModifier == null) {
       applyOperation(doc, left, rightValue, ctx);
     } else {
@@ -154,12 +154,12 @@ public class SQLUpdateItem extends SimpleNode {
     }
   }
 
-  private Object initSchemafullCollections(YTResultInternal doc, String propName) {
-    YTClass oClass = doc.getEntity().flatMap(x -> x.getSchemaType()).orElse(null);
+  private Object initSchemafullCollections(ResultInternal doc, String propName) {
+    SchemaClass oClass = doc.getEntity().flatMap(x -> x.getSchemaType()).orElse(null);
     if (oClass == null) {
       return null;
     }
-    YTProperty prop = oClass.getProperty(propName);
+    Property prop = oClass.getProperty(propName);
 
     Object result = null;
     if (prop == null) {
@@ -168,13 +168,15 @@ public class SQLUpdateItem extends SimpleNode {
         doc.setProperty(propName, result);
       }
     } else {
-      if (prop.getType() == YTType.EMBEDDEDMAP || prop.getType() == YTType.LINKMAP) {
+      if (prop.getType() == PropertyType.EMBEDDEDMAP || prop.getType() == PropertyType.LINKMAP) {
         result = new HashMap<>();
         doc.setProperty(propName, result);
-      } else if (prop.getType() == YTType.EMBEDDEDLIST || prop.getType() == YTType.LINKLIST) {
+      } else if (prop.getType() == PropertyType.EMBEDDEDLIST
+          || prop.getType() == PropertyType.LINKLIST) {
         result = new ArrayList<>();
         doc.setProperty(propName, result);
-      } else if (prop.getType() == YTType.EMBEDDEDSET || prop.getType() == YTType.LINKSET) {
+      } else if (prop.getType() == PropertyType.EMBEDDEDSET
+          || prop.getType() == PropertyType.LINKSET) {
         result = new HashSet<>();
         doc.setProperty(propName, result);
       }
@@ -182,7 +184,7 @@ public class SQLUpdateItem extends SimpleNode {
     return result;
   }
 
-  private YTClass calculateLinkedTypeForThisItem(YTResultInternal doc, CommandContext ctx) {
+  private SchemaClass calculateLinkedTypeForThisItem(ResultInternal doc, CommandContext ctx) {
     if (doc.isEntity()) {
       var elem = doc.toEntity();
 
@@ -190,24 +192,24 @@ public class SQLUpdateItem extends SimpleNode {
     return null;
   }
 
-  private YTType calculateTypeForThisItem(YTResultInternal doc, String propertyName,
+  private PropertyType calculateTypeForThisItem(ResultInternal doc, String propertyName,
       CommandContext ctx) {
     Entity elem = doc.toEntity();
-    YTClass clazz = elem.getSchemaType().orElse(null);
+    SchemaClass clazz = elem.getSchemaType().orElse(null);
     if (clazz == null) {
       return null;
     }
     return calculateTypeForThisItem(clazz, left.getStringValue(), leftModifier, ctx);
   }
 
-  private YTType calculateTypeForThisItem(
-      YTClass clazz, String propName, SQLModifier modifier, CommandContext ctx) {
-    YTProperty prop = clazz.getProperty(propName);
+  private PropertyType calculateTypeForThisItem(
+      SchemaClass clazz, String propName, SQLModifier modifier, CommandContext ctx) {
+    Property prop = clazz.getProperty(propName);
     if (prop == null) {
       return null;
     }
-    YTType type = prop.getType();
-    if (type == YTType.LINKMAP && modifier != null) {
+    PropertyType type = prop.getType();
+    if (type == PropertyType.LINKMAP && modifier != null) {
       if (prop.getLinkedClass() != null && modifier.next != null) {
         if (modifier.suffix == null) {
           return null;
@@ -215,14 +217,14 @@ public class SQLUpdateItem extends SimpleNode {
         return calculateTypeForThisItem(
             prop.getLinkedClass(), modifier.suffix.toString(), modifier.next, ctx);
       }
-      return YTType.LINK;
+      return PropertyType.LINK;
     }
     // TODO specialize more
     return null;
   }
 
   public void applyOperation(
-      YTResultInternal doc, SQLIdentifier attrName, Object rightValue, CommandContext ctx) {
+      ResultInternal doc, SQLIdentifier attrName, Object rightValue, CommandContext ctx) {
 
     switch (operator) {
       case OPERATOR_EQ:
@@ -266,69 +268,69 @@ public class SQLUpdateItem extends SimpleNode {
   }
 
   public static Object convertToPropertyType(
-      YTResultInternal res, SQLIdentifier attrName, Object newValue, CommandContext ctx) {
+      ResultInternal res, SQLIdentifier attrName, Object newValue, CommandContext ctx) {
     Entity doc = res.toEntity();
-    Optional<YTClass> optSchema = doc.getSchemaType();
+    Optional<SchemaClass> optSchema = doc.getSchemaType();
     if (!optSchema.isPresent()) {
       return newValue;
     }
-    YTProperty prop = optSchema.get().getProperty(attrName.getStringValue());
+    Property prop = optSchema.get().getProperty(attrName.getStringValue());
     if (prop == null) {
       return newValue;
     }
 
-    YTType type = prop.getType();
-    YTClass linkedClass = prop.getLinkedClass();
+    PropertyType type = prop.getType();
+    SchemaClass linkedClass = prop.getLinkedClass();
     return convertToType(newValue, type, linkedClass, ctx);
   }
 
   @SuppressWarnings("unchecked")
   private static Object convertToType(
-      Object value, YTType type, YTClass linkedClass, CommandContext ctx) {
+      Object value, PropertyType type, SchemaClass linkedClass, CommandContext ctx) {
     if (type == null) {
       return value;
     }
     if (value instanceof Collection) {
-      if (type == YTType.LINK) {
+      if (type == PropertyType.LINK) {
         if (((Collection<?>) value).isEmpty()) {
           value = null;
         } else if (((Collection<?>) value).size() == 1) {
           value = ((Collection<?>) value).iterator().next();
         } else {
-          throw new YTCommandExecutionException("Cannot assign a collection to a LINK property");
+          throw new CommandExecutionException("Cannot assign a collection to a LINK property");
         }
       } else {
-        if (type == YTType.EMBEDDEDLIST && linkedClass != null) {
+        if (type == PropertyType.EMBEDDEDLIST && linkedClass != null) {
           return ((Collection<?>) value)
               .stream()
               .map(item -> convertToType(item, linkedClass, ctx))
               .collect(Collectors.toList());
 
-        } else if (type == YTType.EMBEDDEDSET && linkedClass != null) {
+        } else if (type == PropertyType.EMBEDDEDSET && linkedClass != null) {
           return ((Collection<?>) value)
               .stream()
               .map(item -> convertToType(item, linkedClass, ctx))
               .collect(Collectors.toSet());
         }
-        if (type == YTType.LINKSET && !(value instanceof LinkSet)) {
+        if (type == PropertyType.LINKSET && !(value instanceof LinkSet)) {
           var db = ctx.getDatabase();
           return ((Collection<?>) value)
               .stream()
-              .map(item -> YTType.convert(db, item, YTIdentifiable.class))
+              .map(item -> PropertyType.convert(db, item, Identifiable.class))
               .collect(Collectors.toSet());
-        } else if (type == YTType.LINKLIST && !(value instanceof LinkList)) {
+        } else if (type == PropertyType.LINKLIST && !(value instanceof LinkList)) {
           var db = ctx.getDatabase();
           return ((Collection<?>) value)
               .stream()
-              .map(item -> YTType.convert(db, item, YTIdentifiable.class))
+              .map(item -> PropertyType.convert(db, item, Identifiable.class))
               .collect(Collectors.toList());
-        } else if (type == YTType.LINKBAG && !(value instanceof RidBag)) {
+        } else if (type == PropertyType.LINKBAG && !(value instanceof RidBag)) {
           var db = ctx.getDatabase();
           var bag = new RidBag(db);
 
           ((Collection<?>) value)
               .stream()
-              .map(item -> (YTIdentifiable) YTType.convert(db, item, YTIdentifiable.class))
+              .map(item -> (Identifiable) PropertyType.convert(db, item, Identifiable.class))
               .forEach(bag::add);
 
         }
@@ -337,9 +339,9 @@ public class SQLUpdateItem extends SimpleNode {
     return value;
   }
 
-  private static Object convertToType(Object item, YTClass linkedClass, CommandContext ctx) {
+  private static Object convertToType(Object item, SchemaClass linkedClass, CommandContext ctx) {
     if (item instanceof Entity) {
-      YTClass currentType = ((Entity) item).getSchemaType().orElse(null);
+      SchemaClass currentType = ((Entity) item).getSchemaType().orElse(null);
       if (currentType == null || !currentType.isSubClassOf(linkedClass)) {
         Entity result = ctx.getDatabase().newEntity(linkedClass.getName());
         for (String prop : ((Entity) item).getPropertyNames()) {
@@ -359,10 +361,10 @@ public class SQLUpdateItem extends SimpleNode {
   }
 
   public static Object convertResultToDocument(Object value) {
-    if (value instanceof YTResult) {
-      return ((YTResult) value).toEntity();
+    if (value instanceof Result) {
+      return ((Result) value).toEntity();
     }
-    if (value instanceof YTIdentifiable) {
+    if (value instanceof Identifiable) {
       return value;
     }
     if (value instanceof List && containsOResult((Collection) value)) {
@@ -377,11 +379,11 @@ public class SQLUpdateItem extends SimpleNode {
   }
 
   public static boolean containsOResult(Collection value) {
-    return value.stream().anyMatch(x -> x instanceof YTResult);
+    return value.stream().anyMatch(x -> x instanceof Result);
   }
 
   private Object calculateNewValue(
-      YTResultInternal doc, CommandContext ctx, SQLMathExpression.Operator explicitOperator) {
+      ResultInternal doc, CommandContext ctx, SQLMathExpression.Operator explicitOperator) {
     SQLExpression leftEx = new SQLExpression(left.copy());
     if (leftModifier != null) {
       ((SQLBaseExpression) leftEx.mathExpression).modifier = leftModifier.copy();

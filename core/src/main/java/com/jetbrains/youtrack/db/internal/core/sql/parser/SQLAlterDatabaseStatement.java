@@ -3,21 +3,21 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.config.OStorageEntryConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.config.StorageEntryConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-public class SQLAlterDatabaseStatement extends ODDLStatement {
+public class SQLAlterDatabaseStatement extends DDLStatement {
 
   SQLIdentifier customPropertyName;
   SQLExpression customPropertyValue;
@@ -43,25 +43,25 @@ public class SQLAlterDatabaseStatement extends ODDLStatement {
     }
   }
 
-  private YTResult executeCustomAlter(
+  private Result executeCustomAlter(
       SQLIdentifier customPropertyName, SQLExpression customPropertyValue, CommandContext ctx) {
-    YTDatabaseSessionInternal db = ctx.getDatabase();
-    db.checkSecurity(ORule.ResourceGeneric.DATABASE, ORole.PERMISSION_UPDATE);
-    List<OStorageEntryConfiguration> oldValues =
-        (List<OStorageEntryConfiguration>) db.get(ATTRIBUTES.CUSTOM);
+    DatabaseSessionInternal db = ctx.getDatabase();
+    db.checkSecurity(Rule.ResourceGeneric.DATABASE, Role.PERMISSION_UPDATE);
+    List<StorageEntryConfiguration> oldValues =
+        (List<StorageEntryConfiguration>) db.get(ATTRIBUTES.CUSTOM);
     String oldValue = null;
     if (oldValues != null) {
-      for (OStorageEntryConfiguration entry : oldValues) {
+      for (StorageEntryConfiguration entry : oldValues) {
         if (entry.name.equals(customPropertyName.getStringValue())) {
           oldValue = entry.value;
           break;
         }
       }
     }
-    Object finalValue = customPropertyValue.execute((YTIdentifiable) null, ctx);
+    Object finalValue = customPropertyValue.execute((Identifiable) null, ctx);
     db.setCustom(customPropertyName.getStringValue(), finalValue);
 
-    YTResultInternal result = new YTResultInternal(db);
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("operation", "alter database");
     result.setProperty("customAttribute", customPropertyName.getStringValue());
     result.setProperty("oldValue", oldValue);
@@ -69,18 +69,18 @@ public class SQLAlterDatabaseStatement extends ODDLStatement {
     return result;
   }
 
-  private YTResult executeSimpleAlter(
+  private Result executeSimpleAlter(
       SQLIdentifier settingName, SQLExpression settingValue, CommandContext ctx) {
     ATTRIBUTES attribute =
         ATTRIBUTES.valueOf(
             settingName.getStringValue().toUpperCase(Locale.ENGLISH));
-    YTDatabaseSessionInternal db = ctx.getDatabase();
-    db.checkSecurity(ORule.ResourceGeneric.DATABASE, ORole.PERMISSION_UPDATE);
+    DatabaseSessionInternal db = ctx.getDatabase();
+    db.checkSecurity(Rule.ResourceGeneric.DATABASE, Role.PERMISSION_UPDATE);
     Object oldValue = db.get(attribute);
-    Object finalValue = settingValue.execute((YTIdentifiable) null, ctx);
+    Object finalValue = settingValue.execute((Identifiable) null, ctx);
     db.setInternal(attribute, finalValue);
 
-    YTResultInternal result = new YTResultInternal(db);
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("operation", "alter database");
     result.setProperty("attribute", settingName.getStringValue());
     result.setProperty("oldValue", oldValue);

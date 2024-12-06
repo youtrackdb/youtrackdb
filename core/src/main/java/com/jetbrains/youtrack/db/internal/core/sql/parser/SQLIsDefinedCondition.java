@@ -3,11 +3,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +15,7 @@ import java.util.Objects;
 import java.util.Set;
 
 public class SQLIsDefinedCondition extends SQLBooleanExpression implements
-    OSimpleBooleanExpression {
+    SimpleBooleanExpression {
 
   protected SQLExpression expression;
 
@@ -28,11 +28,11 @@ public class SQLIsDefinedCondition extends SQLBooleanExpression implements
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
+  public boolean evaluate(Identifiable currentRecord, CommandContext ctx) {
     Object elem;
     try {
       elem = currentRecord.getRecord();
-    } catch (YTRecordNotFoundException rnf) {
+    } catch (RecordNotFoundException rnf) {
       return false;
     }
 
@@ -44,7 +44,7 @@ public class SQLIsDefinedCondition extends SQLBooleanExpression implements
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
+  public boolean evaluate(Result currentRecord, CommandContext ctx) {
     if (expression.isFunctionAny()) {
       return !currentRecord.getPropertyNames().isEmpty();
     }
@@ -126,7 +126,7 @@ public class SQLIsDefinedCondition extends SQLBooleanExpression implements
   }
 
   @Override
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     return expression.isCacheable(session);
   }
 }

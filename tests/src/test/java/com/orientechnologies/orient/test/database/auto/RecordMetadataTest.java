@@ -2,9 +2,9 @@ package com.orientechnologies.orient.test.database.auto;
 
 import static org.testng.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.ORecordMetadata;
+import com.jetbrains.youtrack.db.internal.core.storage.RecordMetadata;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -20,7 +20,7 @@ public class RecordMetadataTest extends DocumentDBBaseTest {
     super(remote != null && remote);
   }
 
-  private static void assetORIDEquals(YTRID actual, YTRID expected) {
+  private static void assetORIDEquals(RID actual, RID expected) {
     assertEquals(actual.getClusterId(), expected.getClusterId());
     assertEquals(actual.getClusterPosition(), expected.getClusterPosition());
   }
@@ -38,7 +38,7 @@ public class RecordMetadataTest extends DocumentDBBaseTest {
       database.save(doc, database.getClusterNameById(database.getDefaultClusterId()));
       database.commit();
 
-      final ORecordMetadata metadata = database.getRecordMetadata(doc.getIdentity());
+      final RecordMetadata metadata = database.getRecordMetadata(doc.getIdentity());
       assetORIDEquals(doc.getIdentity(), metadata.getRecordId());
       assertEquals(database.bindToSession(doc).getVersion(), metadata.getVersion());
     }

@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.Collection;
 import org.junit.Assert;
 import org.junit.Test;
@@ -9,19 +9,19 @@ import org.junit.Test;
 /**
  *
  */
-public class SaveLinkedTypeAnyTest extends DBTestBase {
+public class SaveLinkedTypeAnyTest extends DbTestBase {
 
   @Test
   public void testRemoveLinkedType() {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass classA = schema.createClass("TestRemoveLinkedType");
-    classA.createProperty(db, "prop", YTType.EMBEDDEDLIST, YTType.ANY);
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass classA = schema.createClass("TestRemoveLinkedType");
+    classA.createProperty(db, "prop", PropertyType.EMBEDDEDLIST, PropertyType.ANY);
 
     db.begin();
     db.command("insert into TestRemoveLinkedType set prop = [4]").close();
     db.commit();
 
-    try (YTResultSet result = db.query("select from TestRemoveLinkedType")) {
+    try (ResultSet result = db.query("select from TestRemoveLinkedType")) {
       Assert.assertTrue(result.hasNext());
       Collection coll = result.next().getProperty("prop");
       Assert.assertFalse(result.hasNext());
@@ -32,9 +32,9 @@ public class SaveLinkedTypeAnyTest extends DBTestBase {
 
   @Test
   public void testAlterRemoveLinkedType() {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass classA = schema.createClass("TestRemoveLinkedType");
-    classA.createProperty(db, "prop", YTType.EMBEDDEDLIST, YTType.ANY);
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass classA = schema.createClass("TestRemoveLinkedType");
+    classA.createProperty(db, "prop", PropertyType.EMBEDDEDLIST, PropertyType.ANY);
 
     db.command("alter property TestRemoveLinkedType.prop linkedtype null").close();
 
@@ -42,7 +42,7 @@ public class SaveLinkedTypeAnyTest extends DBTestBase {
     db.command("insert into TestRemoveLinkedType set prop = [4]").close();
     db.commit();
 
-    try (YTResultSet result = db.query("select from TestRemoveLinkedType")) {
+    try (ResultSet result = db.query("select from TestRemoveLinkedType")) {
       Assert.assertTrue(result.hasNext());
       Collection coll = result.next().getProperty("prop");
       Assert.assertFalse(result.hasNext());

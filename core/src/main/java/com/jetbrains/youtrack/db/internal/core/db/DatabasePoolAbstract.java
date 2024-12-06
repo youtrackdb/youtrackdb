@@ -19,11 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.common.concur.lock.OAdaptiveLock;
-import com.jetbrains.youtrack.db.internal.common.concur.lock.YTLockException;
-import com.jetbrains.youtrack.db.internal.common.concur.resource.OResourcePoolListener;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.AdaptiveLock;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.LockException;
+import com.jetbrains.youtrack.db.internal.common.concur.resource.ResourcePoolListener;
 import com.jetbrains.youtrack.db.internal.common.concur.resource.ReentrantResourcePool;
-import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBListener;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
@@ -41,10 +41,10 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public abstract class DatabasePoolAbstract extends OAdaptiveLock
-    implements OResourcePoolListener<String, YTDatabaseSession>, YouTrackDBListener {
+public abstract class DatabasePoolAbstract extends AdaptiveLock
+    implements ResourcePoolListener<String, DatabaseSession>, YouTrackDBListener {
 
-  private final HashMap<String, ReentrantResourcePool<String, YTDatabaseSession>> pools =
+  private final HashMap<String, ReentrantResourcePool<String, DatabaseSession>> pools =
       new HashMap<>();
   protected Object owner;
   private final int maxSize;
@@ -57,7 +57,7 @@ public abstract class DatabasePoolAbstract extends OAdaptiveLock
    */
   class Evictor extends TimerTask {
 
-    private final HashMap<String, Object2LongOpenHashMap<YTDatabaseSessionInternal>> evictionMap =
+    private final HashMap<String, Object2LongOpenHashMap<DatabaseSessionInternal>> evictionMap =
         new HashMap<>();
     private final long minIdleTime;
 
@@ -73,21 +73,21 @@ public abstract class DatabasePoolAbstract extends OAdaptiveLock
       LogManager.instance().debug(this, "Running Connection Pool Evictor Service...");
       lock();
       try {
-        for (Entry<String, Object2LongOpenHashMap<YTDatabaseSessionInternal>> pool :
+        for (Entry<String, Object2LongOpenHashMap<DatabaseSessionInternal>> pool :
             this.evictionMap.entrySet()) {
-          Object2LongOpenHashMap<YTDatabaseSessionInternal> poolDbs = pool.getValue();
-          Iterator<Object2LongMap.Entry<YTDatabaseSessionInternal>> iterator =
+          Object2LongOpenHashMap<DatabaseSessionInternal> poolDbs = pool.getValue();
+          Iterator<Object2LongMap.Entry<DatabaseSessionInternal>> iterator =
               poolDbs.object2LongEntrySet().iterator();
           while (iterator.hasNext()) {
-            Entry<YTDatabaseSessionInternal, Long> db = iterator.next();
+            Entry<DatabaseSessionInternal, Long> db = iterator.next();
             if (System.currentTimeMillis() - db.getValue() >= this.minIdleTime) {
 
-              ReentrantResourcePool<String, YTDatabaseSession> oResourcePool =
+              ReentrantResourcePool<String, DatabaseSession> oResourcePool =
                   pools.get(pool.getKey());
               if (oResourcePool != null) {
                 LogManager.instance()
                     .debug(this, "Closing idle pooled database '%s'...", db.getKey().getName());
-                ((ODatabasePooled) db.getKey()).forceClose();
+                ((DatabasePooled) db.getKey()).forceClose();
                 oResourcePool.remove(db.getKey());
                 iterator.remove();
               }
@@ -99,8 +99,8 @@ public abstract class DatabasePoolAbstract extends OAdaptiveLock
       }
     }
 
-    public void updateIdleTime(final String poolName, final YTDatabaseSessionInternal iDatabase) {
-      Object2LongOpenHashMap<YTDatabaseSessionInternal> pool = this.evictionMap.get(poolName);
+    public void updateIdleTime(final String poolName, final DatabaseSessionInternal iDatabase) {
+      Object2LongOpenHashMap<DatabaseSessionInternal> pool = this.evictionMap.get(poolName);
       if (pool == null) {
         pool = new Object2LongOpenHashMap<>();
         pool.defaultReturnValue(-1);
@@ -149,27 +149,27 @@ public abstract class DatabasePoolAbstract extends OAdaptiveLock
     }
   }
 
-  public YTDatabaseSession acquire(
+  public DatabaseSession acquire(
       final String iURL, final String iUserName, final String iUserPassword)
-      throws YTLockException {
+      throws LockException {
     return acquire(iURL, iUserName, iUserPassword, null);
   }
 
-  public YTDatabaseSession acquire(
+  public DatabaseSession acquire(
       final String iURL,
       final String iUserName,
       final String iUserPassword,
       final Map<String, Object> iOptionalParams)
-      throws YTLockException {
-    final String dbPooledName = OIOUtils.getUnixFileName(iUserName + "@" + iURL);
-    ReentrantResourcePool<String, YTDatabaseSession> pool;
+      throws LockException {
+    final String dbPooledName = IOUtils.getUnixFileName(iUserName + "@" + iURL);
+    ReentrantResourcePool<String, DatabaseSession> pool;
     lock();
     try {
       pool = pools.get(dbPooledName);
       if (pool == null)
       // CREATE A NEW ONE
       {
-        pool = new ReentrantResourcePool<String, YTDatabaseSession>(maxSize, this);
+        pool = new ReentrantResourcePool<String, DatabaseSession>(maxSize, this);
       }
 
       // PUT IN THE POOL MAP ONLY IF AUTHENTICATION SUCCEED
@@ -182,8 +182,8 @@ public abstract class DatabasePoolAbstract extends OAdaptiveLock
   }
 
   public int getMaxConnections(final String url, final String userName) {
-    final String dbPooledName = OIOUtils.getUnixFileName(userName + "@" + url);
-    final ReentrantResourcePool<String, YTDatabaseSession> pool;
+    final String dbPooledName = IOUtils.getUnixFileName(userName + "@" + url);
+    final ReentrantResourcePool<String, DatabaseSession> pool;
     lock();
     try {
       pool = pools.get(dbPooledName);
@@ -198,10 +198,10 @@ public abstract class DatabasePoolAbstract extends OAdaptiveLock
   }
 
   public int getCreatedInstances(String url, String userName) {
-    final String dbPooledName = OIOUtils.getUnixFileName(userName + "@" + url);
+    final String dbPooledName = IOUtils.getUnixFileName(userName + "@" + url);
     lock();
     try {
-      final ReentrantResourcePool<String, YTDatabaseSession> pool = pools.get(dbPooledName);
+      final ReentrantResourcePool<String, DatabaseSession> pool = pools.get(dbPooledName);
       if (pool == null) {
         return 0;
       }
@@ -213,8 +213,8 @@ public abstract class DatabasePoolAbstract extends OAdaptiveLock
   }
 
   public int getAvailableConnections(final String url, final String userName) {
-    final String dbPooledName = OIOUtils.getUnixFileName(userName + "@" + url);
-    final ReentrantResourcePool<String, YTDatabaseSession> pool;
+    final String dbPooledName = IOUtils.getUnixFileName(userName + "@" + url);
+    final ReentrantResourcePool<String, DatabaseSession> pool;
     lock();
     try {
       pool = pools.get(dbPooledName);
@@ -229,8 +229,8 @@ public abstract class DatabasePoolAbstract extends OAdaptiveLock
   }
 
   public int getConnectionsInCurrentThread(final String url, final String userName) {
-    final String dbPooledName = OIOUtils.getUnixFileName(userName + "@" + url);
-    final ReentrantResourcePool<String, YTDatabaseSession> pool;
+    final String dbPooledName = IOUtils.getUnixFileName(userName + "@" + url);
+    final ReentrantResourcePool<String, DatabaseSession> pool;
     lock();
     try {
       pool = pools.get(dbPooledName);
@@ -244,9 +244,9 @@ public abstract class DatabasePoolAbstract extends OAdaptiveLock
     return pool.getConnectionsInCurrentThread(url);
   }
 
-  public void release(final YTDatabaseSessionInternal iDatabase) {
+  public void release(final DatabaseSessionInternal iDatabase) {
     final String dbPooledName = iDatabase.getUser().getName(iDatabase) + "@" + iDatabase.getURL();
-    final ReentrantResourcePool<String, YTDatabaseSession> pool;
+    final ReentrantResourcePool<String, DatabaseSession> pool;
     lock();
     try {
 
@@ -256,7 +256,7 @@ public abstract class DatabasePoolAbstract extends OAdaptiveLock
       unlock();
     }
     if (pool == null) {
-      throw new YTLockException(
+      throw new LockException(
           "Cannot release a database URL not acquired before. URL: " + iDatabase.getName());
     }
 
@@ -265,7 +265,7 @@ public abstract class DatabasePoolAbstract extends OAdaptiveLock
     }
   }
 
-  public Map<String, ReentrantResourcePool<String, YTDatabaseSession>> getPools() {
+  public Map<String, ReentrantResourcePool<String, DatabaseSession>> getPools() {
     lock();
     try {
 
@@ -287,13 +287,13 @@ public abstract class DatabasePoolAbstract extends OAdaptiveLock
         this.evictionTask.cancel();
       }
 
-      for (Entry<String, ReentrantResourcePool<String, YTDatabaseSession>> pool :
+      for (Entry<String, ReentrantResourcePool<String, DatabaseSession>> pool :
           pools.entrySet()) {
-        for (YTDatabaseSession db : pool.getValue().getResources()) {
+        for (DatabaseSession db : pool.getValue().getResources()) {
           pool.getValue().close();
           try {
             LogManager.instance().debug(this, "Closing pooled database '%s'...", db.getName());
-            ((ODatabasePooled) db).forceClose();
+            ((DatabasePooled) db).forceClose();
             LogManager.instance().debug(this, "OK", db.getName());
           } catch (Exception e) {
             LogManager.instance().debug(this, "Error: %d", e.toString());
@@ -314,16 +314,16 @@ public abstract class DatabasePoolAbstract extends OAdaptiveLock
     lock();
     try {
 
-      final ReentrantResourcePool<String, YTDatabaseSession> pool = pools.remove(iPoolName);
+      final ReentrantResourcePool<String, DatabaseSession> pool = pools.remove(iPoolName);
 
       if (pool != null) {
-        for (YTDatabaseSession db : pool.getResources()) {
-          final Storage stg = ((YTDatabaseSessionInternal) db).getStorage();
+        for (DatabaseSession db : pool.getResources()) {
+          final Storage stg = ((DatabaseSessionInternal) db).getStorage();
           if (stg != null && stg.getStatus() == Storage.STATUS.OPEN) {
             try {
               LogManager.instance().debug(this, "Closing pooled database '%s'...", db.getName());
               db.activateOnCurrentThread();
-              ((ODatabasePooled) db).forceClose();
+              ((DatabasePooled) db).forceClose();
               LogManager.instance().debug(this, "OK", db.getName());
             } catch (Exception e) {
               LogManager.instance().debug(this, "Error: %d", e.toString());
@@ -356,7 +356,7 @@ public abstract class DatabasePoolAbstract extends OAdaptiveLock
     try {
       Set<String> poolToClose = null;
 
-      for (Entry<String, ReentrantResourcePool<String, YTDatabaseSession>> e : pools.entrySet()) {
+      for (Entry<String, ReentrantResourcePool<String, DatabaseSession>> e : pools.entrySet()) {
         final int pos = e.getKey().indexOf('@');
         final String dbName = e.getKey().substring(pos + 1);
         if (storageURL.equals(dbName)) {
@@ -384,7 +384,7 @@ public abstract class DatabasePoolAbstract extends OAdaptiveLock
     close();
   }
 
-  private void notifyEvictor(final String poolName, final YTDatabaseSessionInternal iDatabase) {
+  private void notifyEvictor(final String poolName, final DatabaseSessionInternal iDatabase) {
     if (this.evictor != null) {
       this.evictor.updateIdleTime(poolName, iDatabase);
     }

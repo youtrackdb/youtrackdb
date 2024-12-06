@@ -1,34 +1,34 @@
 package com.jetbrains.youtrack.db.internal.core.index.iterator;
 
-import com.jetbrains.youtrack.db.internal.common.comparator.ODefaultComparator;
-import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexOneValue;
+import com.jetbrains.youtrack.db.internal.common.comparator.DefaultComparator;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.IndexOneValue;
 import com.jetbrains.youtrack.db.internal.core.index.comparator.AscComparator;
-import com.jetbrains.youtrack.db.internal.core.tx.OTransactionIndexChanges;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;
 import java.util.Comparator;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-public class PureTxBetweenIndexForwardSpliterator implements Spliterator<ORawPair<Object, YTRID>> {
+public class PureTxBetweenIndexForwardSpliterator implements Spliterator<RawPair<Object, RID>> {
 
   /**
    *
    */
-  private final OIndexOneValue oIndexTxAwareOneValue;
+  private final IndexOneValue oIndexTxAwareOneValue;
 
-  private final OTransactionIndexChanges indexChanges;
+  private final FrontendTransactionIndexChanges indexChanges;
   private Object lastKey;
 
   private Object nextKey;
 
   public PureTxBetweenIndexForwardSpliterator(
-      OIndexOneValue oIndexTxAwareOneValue,
+      IndexOneValue oIndexTxAwareOneValue,
       Object fromKey,
       boolean fromInclusive,
       Object toKey,
       boolean toInclusive,
-      OTransactionIndexChanges indexChanges) {
+      FrontendTransactionIndexChanges indexChanges) {
     this.oIndexTxAwareOneValue = oIndexTxAwareOneValue;
     this.indexChanges = indexChanges;
 
@@ -52,18 +52,18 @@ public class PureTxBetweenIndexForwardSpliterator implements Spliterator<ORawPai
   }
 
   @Override
-  public boolean tryAdvance(Consumer<? super ORawPair<Object, YTRID>> action) {
+  public boolean tryAdvance(Consumer<? super RawPair<Object, RID>> action) {
     if (nextKey == null) {
       return false;
     }
 
-    ORawPair<Object, YTRID> result;
+    RawPair<Object, RID> result;
 
     do {
       result = this.oIndexTxAwareOneValue.calculateTxIndexEntry(nextKey, null, indexChanges);
       nextKey = indexChanges.getHigherKey(nextKey);
 
-      if (nextKey != null && ODefaultComparator.INSTANCE.compare(nextKey, lastKey) > 0) {
+      if (nextKey != null && DefaultComparator.INSTANCE.compare(nextKey, lastKey) > 0) {
         nextKey = null;
       }
 
@@ -78,7 +78,7 @@ public class PureTxBetweenIndexForwardSpliterator implements Spliterator<ORawPai
   }
 
   @Override
-  public Spliterator<ORawPair<Object, YTRID>> trySplit() {
+  public Spliterator<RawPair<Object, RID>> trySplit() {
     return null;
   }
 
@@ -93,7 +93,7 @@ public class PureTxBetweenIndexForwardSpliterator implements Spliterator<ORawPai
   }
 
   @Override
-  public Comparator<? super ORawPair<Object, YTRID>> getComparator() {
+  public Comparator<? super RawPair<Object, RID>> getComparator() {
     return AscComparator.INSTANCE;
   }
 }

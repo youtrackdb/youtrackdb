@@ -2,13 +2,13 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -79,11 +79,11 @@ public class SQLArrayRangeSelector extends SimpleNode {
     }
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, Object result, CommandContext ctx) {
+  public Object execute(Identifiable iCurrentRecord, Object result, CommandContext ctx) {
     if (result == null) {
       return null;
     }
-    if (!OMultiValue.isMultiValue(result)) {
+    if (!MultiValue.isMultiValue(result)) {
       return null;
     }
     Integer lFrom = from;
@@ -103,7 +103,7 @@ public class SQLArrayRangeSelector extends SimpleNode {
     if (lFrom > lTo) {
       return null;
     }
-    Object[] arrayResult = OMultiValue.array(result);
+    Object[] arrayResult = MultiValue.array(result);
 
     if (arrayResult == null || arrayResult.length == 0) {
       return arrayResult;
@@ -119,11 +119,11 @@ public class SQLArrayRangeSelector extends SimpleNode {
     return Arrays.asList(Arrays.copyOfRange(arrayResult, lFrom, lTo));
   }
 
-  public Object execute(YTResult iCurrentRecord, Object result, CommandContext ctx) {
+  public Object execute(Result iCurrentRecord, Object result, CommandContext ctx) {
     if (result == null) {
       return null;
     }
-    if (!OMultiValue.isMultiValue(result)) {
+    if (!MultiValue.isMultiValue(result)) {
       return null;
     }
     Integer lFrom = from;
@@ -143,7 +143,7 @@ public class SQLArrayRangeSelector extends SimpleNode {
     if (lFrom > lTo) {
       return null;
     }
-    Object[] arrayResult = OMultiValue.array(result);
+    Object[] arrayResult = MultiValue.array(result);
 
     if (arrayResult == null || arrayResult.length == 0) {
       return arrayResult;
@@ -249,7 +249,7 @@ public class SQLArrayRangeSelector extends SimpleNode {
       setArrayValue(target, value, ctx);
     } else if (target instanceof List) {
       setValue((List) target, value, ctx);
-    } else if (OMultiValue.isMultiValue(value)) {
+    } else if (MultiValue.isMultiValue(value)) {
       // TODO
     }
     // TODO
@@ -346,7 +346,7 @@ public class SQLArrayRangeSelector extends SimpleNode {
   }
 
   public void applyRemove(
-      Object currentValue, YTResultInternal originalRecord, CommandContext ctx) {
+      Object currentValue, ResultInternal originalRecord, CommandContext ctx) {
     if (currentValue == null) {
       return;
     }
@@ -359,7 +359,7 @@ public class SQLArrayRangeSelector extends SimpleNode {
       to = toSelector.getValue(originalRecord, null, ctx);
     }
     if (from == null || to == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Invalid range expression: " + this + " one of the elements is null");
     }
     if (included) {
@@ -395,7 +395,7 @@ public class SQLArrayRangeSelector extends SimpleNode {
         count++;
       }
     } else {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Trying to remove elements from "
               + currentValue
               + " ("
@@ -404,8 +404,8 @@ public class SQLArrayRangeSelector extends SimpleNode {
     }
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("from", from);
     result.setProperty("to", to);
     result.setProperty("newRange", newRange);
@@ -422,7 +422,7 @@ public class SQLArrayRangeSelector extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     from = fromResult.getProperty("from");
     to = fromResult.getProperty("to");
     newRange = fromResult.getProperty("newRange");

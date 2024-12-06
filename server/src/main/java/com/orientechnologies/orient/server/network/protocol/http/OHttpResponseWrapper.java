@@ -161,8 +161,8 @@ public class OHttpResponseWrapper {
    * @param iReason      Response's reason
    * @param iContentType Response's content type
    * @param iContent     Content to send. Content can be a string for plain text, binary data to
-   *                     return directly binary information, YTIdentifiable for a single record and
-   *                     Collection<YTIdentifiable> for a collection of records
+   *                     return directly binary information, Identifiable for a single record and
+   *                     Collection<Identifiable> for a collection of records
    * @return The object itself for fluent chained calls
    */
   public OHttpResponseWrapper send(
@@ -179,8 +179,8 @@ public class OHttpResponseWrapper {
    * @param iReason      Response's reason
    * @param iContentType Response's content type
    * @param iContent     Content to send. Content can be a string for plain text, binary data to
-   *                     return directly binary information, YTIdentifiable for a single record and
-   *                     Collection<YTIdentifiable> for a collection of records
+   *                     return directly binary information, Identifiable for a single record and
+   *                     Collection<Identifiable> for a collection of records
    * @param iHeaders     Response's additional headers
    * @return The object itself for fluent chained calls
    */

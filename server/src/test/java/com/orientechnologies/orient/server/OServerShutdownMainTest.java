@@ -9,8 +9,8 @@ import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.config.OServerNetworkConfiguration;
 import com.orientechnologies.orient.server.config.OServerNetworkListenerConfiguration;
 import com.orientechnologies.orient.server.config.OServerNetworkProtocolConfiguration;
-import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
-import com.orientechnologies.orient.server.network.protocol.http.ONetworkProtocolHttpDb;
+import com.orientechnologies.orient.server.network.protocol.binary.NetworkProtocolBinary;
+import com.orientechnologies.orient.server.network.protocol.http.NetworkProtocolHttpDb;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -40,9 +40,9 @@ public class OServerShutdownMainTest {
 
     conf.network.protocols = new ArrayList<OServerNetworkProtocolConfiguration>();
     conf.network.protocols.add(
-        new OServerNetworkProtocolConfiguration("binary", ONetworkProtocolBinary.class.getName()));
+        new OServerNetworkProtocolConfiguration("binary", NetworkProtocolBinary.class.getName()));
     conf.network.protocols.add(
-        new OServerNetworkProtocolConfiguration("http", ONetworkProtocolHttpDb.class.getName()));
+        new OServerNetworkProtocolConfiguration("http", NetworkProtocolHttpDb.class.getName()));
 
     conf.network.listeners = new ArrayList<OServerNetworkListenerConfiguration>();
     conf.network.listeners.add(new OServerNetworkListenerConfiguration());

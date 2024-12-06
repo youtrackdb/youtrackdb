@@ -2,28 +2,28 @@ package com.jetbrains.youtrack.db.internal.core.db.hook;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.exception.YTValidationException;
-import com.jetbrains.youtrack.db.internal.core.hook.YTDocumentHookAbstract;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.exception.ValidationException;
+import com.jetbrains.youtrack.db.internal.core.hook.DocumentHookAbstract;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class HookChangeValidationTest extends DBTestBase {
+public class HookChangeValidationTest extends DbTestBase {
 
   @Test
   public void testHookCreateChangeTx() {
 
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass classA = schema.createClass("TestClass");
-    classA.createProperty(db, "property1", YTType.STRING).setNotNull(db, true);
-    classA.createProperty(db, "property2", YTType.STRING).setReadonly(db, true);
-    classA.createProperty(db, "property3", YTType.STRING).setMandatory(db, true);
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass classA = schema.createClass("TestClass");
+    classA.createProperty(db, "property1", PropertyType.STRING).setNotNull(db, true);
+    classA.createProperty(db, "property2", PropertyType.STRING).setReadonly(db, true);
+    classA.createProperty(db, "property3", PropertyType.STRING).setMandatory(db, true);
     db.registerHook(
-        new YTDocumentHookAbstract() {
+        new DocumentHookAbstract() {
           @Override
           public RESULT onRecordBeforeCreate(EntityImpl doc) {
             doc.removeField("property1");
@@ -51,7 +51,7 @@ public class HookChangeValidationTest extends DBTestBase {
       doc.save();
       db.commit();
       Assert.fail("The document save should fail for validation exception");
-    } catch (YTValidationException ex) {
+    } catch (ValidationException ex) {
 
     }
   }
@@ -59,13 +59,13 @@ public class HookChangeValidationTest extends DBTestBase {
   @Test
   public void testHookUpdateChangeTx() {
 
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass classA = schema.createClass("TestClass");
-    classA.createProperty(db, "property1", YTType.STRING).setNotNull(db, true);
-    classA.createProperty(db, "property2", YTType.STRING).setReadonly(db, true);
-    classA.createProperty(db, "property3", YTType.STRING).setMandatory(db, true);
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass classA = schema.createClass("TestClass");
+    classA.createProperty(db, "property1", PropertyType.STRING).setNotNull(db, true);
+    classA.createProperty(db, "property2", PropertyType.STRING).setReadonly(db, true);
+    classA.createProperty(db, "property3", PropertyType.STRING).setMandatory(db, true);
     db.registerHook(
-        new YTDocumentHookAbstract() {
+        new DocumentHookAbstract() {
           @Override
           public RESULT onRecordBeforeCreate(EntityImpl doc) {
             return RESULT.RECORD_NOT_CHANGED;
@@ -105,7 +105,7 @@ public class HookChangeValidationTest extends DBTestBase {
       doc.save();
       db.commit();
       Assert.fail("The document save should fail for validation exception");
-    } catch (YTValidationException ex) {
+    } catch (ValidationException ex) {
 
     }
   }

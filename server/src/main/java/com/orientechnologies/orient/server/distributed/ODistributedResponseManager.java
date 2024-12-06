@@ -21,7 +21,7 @@ public interface ODistributedResponseManager {
 
   List<String> getRespondingNodes();
 
-  ODistributedRequestId getMessageId();
+  DistributedRequestId getMessageId();
 
   int getQuorum();
 

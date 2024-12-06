@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.cache.local.doublewritelog;
 
-import com.jetbrains.youtrack.db.internal.common.directmemory.OByteBufferPool;
-import com.jetbrains.youtrack.db.internal.common.directmemory.OPointer;
+import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
+import com.jetbrains.youtrack.db.internal.common.directmemory.Pointer;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -27,7 +27,7 @@ public class DoubleWriteLogNoOP implements DoubleWriteLog {
   }
 
   @Override
-  public OPointer loadPage(int fileId, int pageIndex, OByteBufferPool bufferPool) {
+  public Pointer loadPage(int fileId, int pageIndex, ByteBufferPool bufferPool) {
     return null;
   }
 

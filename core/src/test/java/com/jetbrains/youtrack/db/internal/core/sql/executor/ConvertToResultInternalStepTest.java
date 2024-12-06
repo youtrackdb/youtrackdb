@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -31,15 +31,15 @@ public class ConvertToResultInternalStepTest extends TestUtilsFixture {
           boolean done = false;
 
           @Override
-          public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
-            List<YTResult> result = new ArrayList<>();
+          public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
+            List<Result> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
                 EntityImpl document = new EntityImpl();
                 document.setProperty(STRING_PROPERTY, RandomStringUtils.randomAlphanumeric(10));
                 document.setProperty(INTEGER_PROPERTY, new Random().nextInt());
                 documents.add(document);
-                YTUpdatableResult item = new YTUpdatableResult(db, document);
+                UpdatableResult item = new UpdatableResult(db, document);
                 result.add(item);
               }
               done = true;
@@ -53,23 +53,23 @@ public class ConvertToResultInternalStepTest extends TestUtilsFixture {
 
     int counter = 0;
     while (result.hasNext(context)) {
-      YTResult currentItem = result.next(context);
-      if (!(currentItem.getClass().equals(YTResultInternal.class))) {
-        Assert.fail("There is an item in result set that is not an instance of YTResultInternal");
+      Result currentItem = result.next(context);
+      if (!(currentItem.getClass().equals(ResultInternal.class))) {
+        Assert.fail("There is an item in result set that is not an instance of ResultInternal");
       }
       if (!currentItem
           .getEntity()
           .get()
           .getProperty(STRING_PROPERTY)
           .equals(documents.get(counter).getProperty(STRING_PROPERTY))) {
-        Assert.fail("String EntityImpl property inside YTResult instance is not preserved");
+        Assert.fail("String EntityImpl property inside Result instance is not preserved");
       }
       if (!currentItem
           .getEntity()
           .get()
           .getProperty(INTEGER_PROPERTY)
           .equals(documents.get(counter).getProperty(INTEGER_PROPERTY))) {
-        Assert.fail("Integer EntityImpl property inside YTResult instance is not preserved");
+        Assert.fail("Integer EntityImpl property inside Result instance is not preserved");
       }
       counter++;
     }

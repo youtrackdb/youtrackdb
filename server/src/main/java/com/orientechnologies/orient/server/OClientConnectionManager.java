@@ -19,18 +19,18 @@
  */
 package com.orientechnologies.orient.server;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.profiler.AbstractProfiler.ProfilerHookValue;
-import com.jetbrains.youtrack.db.internal.common.profiler.OProfiler.METRIC_TYPE;
+import com.jetbrains.youtrack.db.internal.common.profiler.Profiler.METRIC_TYPE;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.security.OParsedToken;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTTokenSecurityException;
-import com.orientechnologies.orient.server.network.protocol.ONetworkProtocol;
-import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
+import com.jetbrains.youtrack.db.internal.core.security.ParsedToken;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.TokenSecurityException;
+import com.orientechnologies.orient.server.network.protocol.NetworkProtocol;
+import com.orientechnologies.orient.server.network.protocol.binary.NetworkProtocolBinary;
 import com.orientechnologies.orient.server.plugin.OServerPluginHelper;
 import java.io.IOException;
 import java.net.Socket;
@@ -149,7 +149,7 @@ public class OClientConnectionManager {
    * @param iProtocol protocol which will be used by connection
    * @return new connection
    */
-  public OClientConnection connect(final ONetworkProtocol iProtocol) {
+  public OClientConnection connect(final NetworkProtocol iProtocol) {
 
     final OClientConnection connection;
 
@@ -168,18 +168,18 @@ public class OClientConnectionManager {
    * @return new connection
    */
   public OClientConnection connect(
-      final ONetworkProtocol iProtocol,
+      final NetworkProtocol iProtocol,
       final OClientConnection connection,
       final byte[] tokenBytes) {
 
-    OParsedToken parsedToken;
+    ParsedToken parsedToken;
     try {
       parsedToken = server.getTokenHandler().parseOnlyBinary(tokenBytes);
     } catch (Exception e) {
-      throw YTException.wrapException(new YTTokenSecurityException("Error on token parsing"), e);
+      throw BaseException.wrapException(new TokenSecurityException("Error on token parsing"), e);
     }
     if (!server.getTokenHandler().validateBinaryToken(parsedToken)) {
-      throw new YTTokenSecurityException("The token provided is expired");
+      throw new TokenSecurityException("The token provided is expired");
     }
     OClientSessions session;
     synchronized (sessions) {
@@ -193,18 +193,18 @@ public class OClientConnectionManager {
     return connection;
   }
 
-  public OClientConnection reConnect(final ONetworkProtocol iProtocol, final byte[] tokenBytes) {
+  public OClientConnection reConnect(final NetworkProtocol iProtocol, final byte[] tokenBytes) {
     final OClientConnection connection;
     connection = new OClientConnection(connectionSerial.incrementAndGet(), iProtocol);
     connections.put(connection.getId(), connection);
-    OParsedToken parsedToken;
+    ParsedToken parsedToken;
     try {
       parsedToken = server.getTokenHandler().parseOnlyBinary(tokenBytes);
     } catch (Exception e) {
-      throw YTException.wrapException(new YTTokenSecurityException("Error on token parsing"), e);
+      throw BaseException.wrapException(new TokenSecurityException("Error on token parsing"), e);
     }
     if (!server.getTokenHandler().validateBinaryToken(parsedToken)) {
-      throw new YTTokenSecurityException("The token provided is expired");
+      throw new TokenSecurityException("The token provided is expired");
     }
 
     OHashToken key = new OHashToken(tokenBytes);
@@ -229,7 +229,7 @@ public class OClientConnectionManager {
    * @param iChannelId id of connection
    * @return The connection if any, otherwise null
    */
-  public OClientConnection getConnection(final int iChannelId, ONetworkProtocol protocol) {
+  public OClientConnection getConnection(final int iChannelId, NetworkProtocol protocol) {
     // SEARCH THE CONNECTION BY ID
     OClientConnection connection = connections.get(iChannelId);
     if (connection != null) {
@@ -270,7 +270,7 @@ public class OClientConnectionManager {
    */
   public void kill(final OClientConnection connection) {
     if (connection != null) {
-      final ONetworkProtocol protocol = connection.getProtocol();
+      final NetworkProtocol protocol = connection.getProtocol();
 
       try {
         // INTERRUPT THE NEWTORK MANAGER TOO
@@ -298,7 +298,7 @@ public class OClientConnectionManager {
   public void interrupt(final int iChannelId) {
     final OClientConnection connection = connections.get(iChannelId);
     if (connection != null) {
-      final ONetworkProtocol protocol = connection.getProtocol();
+      final NetworkProtocol protocol = connection.getProtocol();
       if (protocol != null)
       // INTERRUPT THE NEWTORK MANAGER
       {
@@ -346,7 +346,7 @@ public class OClientConnectionManager {
   }
 
   private void removeConnectionFromSession(OClientConnection connection) {
-    if (connection.getProtocol() instanceof ONetworkProtocolBinary) {
+    if (connection.getProtocol() instanceof NetworkProtocolBinary) {
       byte[] tokenBytes = connection.getTokenBytes();
       OHashToken hashToken = new OHashToken(tokenBytes);
       synchronized (sessions) {
@@ -392,10 +392,10 @@ public class OClientConnectionManager {
   public void shutdown() {
     timerTask.cancel();
 
-    List<ONetworkProtocol> toWait = new ArrayList<ONetworkProtocol>();
+    List<NetworkProtocol> toWait = new ArrayList<NetworkProtocol>();
 
     for (Entry<Integer, OClientConnection> entry : connections.entrySet()) {
-      final ONetworkProtocol protocol = entry.getValue().getProtocol();
+      final NetworkProtocol protocol = entry.getValue().getProtocol();
 
       if (protocol != null) {
         protocol.sendShutdown();
@@ -407,9 +407,9 @@ public class OClientConnectionManager {
       if (command != null && command.isIdempotent()) {
         protocol.interrupt();
       } else {
-        if (protocol instanceof ONetworkProtocolBinary
-            && ((ONetworkProtocolBinary) protocol).getRequestType()
-            == OChannelBinaryProtocol.REQUEST_SHUTDOWN) {
+        if (protocol instanceof NetworkProtocolBinary
+            && ((NetworkProtocolBinary) protocol).getRequestType()
+            == ChannelBinaryProtocol.REQUEST_SHUTDOWN) {
           continue;
         }
 
@@ -438,8 +438,8 @@ public class OClientConnectionManager {
           }
         }
         if (protocol.isAlive()) {
-          if (protocol instanceof ONetworkProtocolBinary
-              && ((ONetworkProtocolBinary) protocol).getRequestType() == -1) {
+          if (protocol instanceof NetworkProtocolBinary
+              && ((NetworkProtocolBinary) protocol).getRequestType() == -1) {
             try {
               LogManager.instance().debug(this, "Closing socket of thread %s", protocol);
               protocol.getChannel().close();
@@ -454,7 +454,7 @@ public class OClientConnectionManager {
       }
     }
 
-    for (ONetworkProtocol protocol : toWait) {
+    for (NetworkProtocol protocol : toWait) {
       try {
         protocol.join(
             server
@@ -473,7 +473,7 @@ public class OClientConnectionManager {
   public void killAllChannels() {
     for (Map.Entry<Integer, OClientConnection> entry : connections.entrySet()) {
       try {
-        ONetworkProtocol protocol = entry.getValue().getProtocol();
+        NetworkProtocol protocol = entry.getValue().getProtocol();
 
         protocol.getChannel().close();
 

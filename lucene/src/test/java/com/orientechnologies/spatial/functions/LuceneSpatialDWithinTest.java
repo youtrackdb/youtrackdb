@@ -13,8 +13,8 @@
  */
 package com.orientechnologies.spatial.functions;
 
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.spatial.BaseSpatialLuceneTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,12 +27,12 @@ public class LuceneSpatialDWithinTest extends BaseSpatialLuceneTest {
   @Test
   public void testDWithinNoIndex() {
 
-    YTResultSet execute =
+    ResultSet execute =
         db.query(
             "SELECT ST_DWithin(ST_GeomFromText('POLYGON((0 0, 10 0, 10 5, 0 5, 0 0))'),"
                 + " ST_GeomFromText('POLYGON((12 0, 14 0, 14 6, 12 6, 12 0))'), 2.0d) as distance");
 
-    YTResult next = execute.next();
+    Result next = execute.next();
 
     Assert.assertEquals(true, next.getProperty("distance"));
     Assert.assertFalse(execute.hasNext());
@@ -55,14 +55,14 @@ public class LuceneSpatialDWithinTest extends BaseSpatialLuceneTest {
 
     db.command("create index Polygon.g on Polygon (geometry) SPATIAL engine lucene").close();
 
-    YTResultSet execute =
+    ResultSet execute =
         db.query(
             "SELECT from Polygon where ST_DWithin(geometry, ST_GeomFromText('POLYGON((12 0, 14 0,"
                 + " 14 6, 12 6, 12 0))'), 2.0) = true");
 
     Assert.assertEquals(1, execute.stream().count());
 
-    YTResultSet resultSet =
+    ResultSet resultSet =
         db.query(
             "SELECT from Polygon where ST_DWithin(geometry, ST_GeomFromText('POLYGON((12 0, 14 0,"
                 + " 14 6, 12 6, 12 0))'), 2.0) = true");

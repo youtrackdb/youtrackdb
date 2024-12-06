@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.jetbrains.youtrack.db.internal.core.serialization.OStreamableHelper;
+import com.jetbrains.youtrack.db.internal.core.serialization.StreamableHelper;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.util.Arrays;
 public class ODistributedResponse {
 
   private ODistributedResponseManager distributedResponseManager;
-  private ODistributedRequestId requestId;
+  private DistributedRequestId requestId;
   private String executorNodeName;
   private String senderNodeName;
   private Object payload;
@@ -44,7 +44,7 @@ public class ODistributedResponse {
 
   public ODistributedResponse(
       final ODistributedResponseManager msg,
-      final ODistributedRequestId iRequestId,
+      final DistributedRequestId iRequestId,
       final String executorNodeName,
       final String senderNodeName,
       final Object payload) {
@@ -55,7 +55,7 @@ public class ODistributedResponse {
     this.payload = payload;
   }
 
-  public ODistributedRequestId getRequestId() {
+  public DistributedRequestId getRequestId() {
     return requestId;
   }
 
@@ -94,15 +94,15 @@ public class ODistributedResponse {
     requestId.toStream(out);
     out.writeUTF(executorNodeName);
     out.writeUTF(senderNodeName);
-    OStreamableHelper.toStream(out, payload);
+    StreamableHelper.toStream(out, payload);
   }
 
   public void fromStream(final DataInput in) throws IOException {
-    requestId = new ODistributedRequestId();
+    requestId = new DistributedRequestId();
     requestId.fromStream(in);
     executorNodeName = in.readUTF();
     senderNodeName = in.readUTF();
-    payload = OStreamableHelper.fromStream(in);
+    payload = StreamableHelper.fromStream(in);
   }
 
   public ODistributedResponseManager getDistributedResponseManager() {

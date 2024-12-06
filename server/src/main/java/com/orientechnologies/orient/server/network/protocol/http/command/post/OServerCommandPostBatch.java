@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandDocumentAbstract;
@@ -87,7 +87,7 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
 
     EntityImpl batch = null;
     Object lastResult = null;
-    try (YTDatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
+    try (DatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
 
       if (db.getTransaction().isActive()) {
         // TEMPORARY PATCH TO UNDERSTAND WHY UNDER HIGH LOAD TX IS NOT COMMITTED AFTER BATCH. MAYBE
@@ -164,8 +164,8 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
 
           String commandAsString = null;
           if (command != null) {
-            if (OMultiValue.isMultiValue(command)) {
-              for (Object c : OMultiValue.getMultiValueIterable(command)) {
+            if (MultiValue.isMultiValue(command)) {
+              for (Object c : MultiValue.getMultiValueIterable(command)) {
                 if (commandAsString == null) {
                   commandAsString = c.toString();
                 } else {
@@ -177,7 +177,7 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
             }
           }
 
-          YTResultSet result;
+          ResultSet result;
           if (params == null) {
             result = db.execute(language, commandAsString);
           } else {
@@ -198,10 +198,10 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
           }
 
           StringBuilder text = new StringBuilder(1024);
-          if (OMultiValue.isMultiValue(script)) {
+          if (MultiValue.isMultiValue(script)) {
             // ENSEMBLE ALL THE SCRIPT LINES IN JUST ONE SEPARATED BY LINEFEED
             int i = 0;
-            for (Object o : OMultiValue.getMultiValueIterable(script)) {
+            for (Object o : MultiValue.getMultiValueIterable(script)) {
               if (o != null) {
                 if (i++ > 0) {
                   if (!text.toString().trim().endsWith(";")) {
@@ -221,7 +221,7 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
             params = ((Collection) params).toArray();
           }
 
-          YTResultSet result;
+          ResultSet result;
           if (params == null) {
             result = db.execute(language, text.toString());
           } else {

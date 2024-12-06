@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.versionmap;
 
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurablePage;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
 
-final class MapEntryPoint extends ODurablePage {
+final class MapEntryPoint extends DurablePage {
 
   private static final int FILE_SIZE_OFFSET = NEXT_FREE_POSITION;
 
-  MapEntryPoint(final OCacheEntry cacheEntry) {
+  MapEntryPoint(final CacheEntry cacheEntry) {
     super(cacheEntry);
   }
 

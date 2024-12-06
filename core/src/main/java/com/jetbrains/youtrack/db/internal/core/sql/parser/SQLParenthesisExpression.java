@@ -3,13 +3,13 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OInsertExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OInternalExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InsertExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +35,7 @@ public class SQLParenthesisExpression extends SQLMathExpression {
   }
 
   @Override
-  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
+  public Object execute(Identifiable iCurrentRecord, CommandContext ctx) {
     if (expression != null) {
       return expression.execute(iCurrentRecord, ctx);
     }
@@ -47,12 +47,12 @@ public class SQLParenthesisExpression extends SQLMathExpression {
   }
 
   @Override
-  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
+  public Object execute(Result iCurrentRecord, CommandContext ctx) {
     if (expression != null) {
       return expression.execute(iCurrentRecord, ctx);
     }
     if (statement != null) {
-      OInternalExecutionPlan execPlan;
+      InternalExecutionPlan execPlan;
       if (statement.originalStatement == null || statement.originalStatement.contains("?")) {
         // cannot cache statements with positional params, especially when it's in a
         // subquery/expression.
@@ -60,15 +60,15 @@ public class SQLParenthesisExpression extends SQLMathExpression {
       } else {
         execPlan = statement.createExecutionPlan(ctx, false);
       }
-      if (execPlan instanceof OInsertExecutionPlan) {
-        ((OInsertExecutionPlan) execPlan).executeInternal();
+      if (execPlan instanceof InsertExecutionPlan) {
+        ((InsertExecutionPlan) execPlan).executeInternal();
       }
-      YTLocalResultSet rs = new YTLocalResultSet(execPlan);
-      List<YTResult> result = new ArrayList<>();
+      LocalResultSet rs = new LocalResultSet(execPlan);
+      List<Result> result = new ArrayList<>();
       while (rs.hasNext()) {
         result.add(rs.next());
       }
-      //      List<YTResult> result = rs.stream().collect(Collectors.toList());//TODO streamed...
+      //      List<Result> result = rs.stream().collect(Collectors.toList());//TODO streamed...
       rs.close();
       return result;
     }
@@ -120,7 +120,7 @@ public class SQLParenthesisExpression extends SQLMathExpression {
     return false;
   }
 
-  public boolean isAggregate(YTDatabaseSessionInternal session) {
+  public boolean isAggregate(DatabaseSessionInternal session) {
     if (expression != null) {
       return expression.isAggregate(session);
     }
@@ -217,16 +217,16 @@ public class SQLParenthesisExpression extends SQLMathExpression {
   }
 
   @Override
-  public void applyRemove(YTResultInternal result, CommandContext ctx) {
+  public void applyRemove(ResultInternal result, CommandContext ctx) {
     if (expression != null) {
       expression.applyRemove(result, ctx);
     } else {
-      throw new YTCommandExecutionException("Cannot apply REMOVE " + this);
+      throw new CommandExecutionException("Cannot apply REMOVE " + this);
     }
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = (YTResultInternal) super.serialize(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = (ResultInternal) super.serialize(db);
     if (expression != null) {
       result.setProperty("expression", expression.serialize(db));
     }
@@ -236,7 +236,7 @@ public class SQLParenthesisExpression extends SQLMathExpression {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     super.deserialize(fromResult);
     if (fromResult.getProperty("expression") != null) {
       expression = new SQLExpression(-1);
@@ -248,7 +248,7 @@ public class SQLParenthesisExpression extends SQLMathExpression {
   }
 
   @Override
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     if (expression != null) {
       return expression.isCacheable(session);
     }

@@ -13,13 +13,13 @@
  */
 package com.orientechnologies.orient.jdbc;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTQueryParsingException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTInternalResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.orientechnologies.orient.jdbc.OrientJdbcParameterMetadata.ParameterDefinition;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +34,6 @@ import java.sql.NClob;
 import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Ref;
-import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.RowId;
 import java.sql.SQLException;
@@ -56,16 +55,17 @@ public class OrientJdbcPreparedStatement extends OrientJdbcStatement implements 
   public OrientJdbcPreparedStatement(OrientJdbcConnection iConnection, String sql) {
     this(
         iConnection,
-        ResultSet.TYPE_FORWARD_ONLY,
-        ResultSet.CONCUR_READ_ONLY,
-        ResultSet.HOLD_CURSORS_OVER_COMMIT,
+        java.sql.ResultSet.TYPE_FORWARD_ONLY,
+        java.sql.ResultSet.CONCUR_READ_ONLY,
+        java.sql.ResultSet.HOLD_CURSORS_OVER_COMMIT,
         sql);
   }
 
   public OrientJdbcPreparedStatement(
       OrientJdbcConnection iConnection, int resultSetType, int resultSetConcurrency, String sql)
       throws SQLException {
-    this(iConnection, resultSetType, resultSetConcurrency, ResultSet.HOLD_CURSORS_OVER_COMMIT, sql);
+    this(iConnection, resultSetType, resultSetConcurrency,
+        java.sql.ResultSet.HOLD_CURSORS_OVER_COMMIT, sql);
   }
 
   public OrientJdbcPreparedStatement(
@@ -80,26 +80,26 @@ public class OrientJdbcPreparedStatement extends OrientJdbcStatement implements 
   }
 
   @SuppressWarnings("unchecked")
-  public ResultSet executeQuery() throws SQLException {
+  public java.sql.ResultSet executeQuery() throws SQLException {
 
     //    return super.executeQuery(sql);
     sql = mayCleanForSpark(sql);
 
     if (sql.equalsIgnoreCase("select 1")) {
       // OPTIMIZATION
-      YTResultInternal element = new YTResultInternal(database);
+      ResultInternal element = new ResultInternal(database);
       element.setProperty("1", 1);
-      YTInternalResultSet rs = new YTInternalResultSet();
+      InternalResultSet rs = new InternalResultSet();
       rs.add(element);
       oResultSet = rs;
     } else {
       try {
-        //        sql = new OSQLSynchQuery<EntityImpl>(mayCleanForSpark(sql));
+        //        sql = new SQLSynchQuery<EntityImpl>(mayCleanForSpark(sql));
         oResultSet = database.query(sql, params.values().toArray());
 
-      } catch (YTQueryParsingException e) {
+      } catch (QueryParsingException e) {
         throw new SQLSyntaxErrorException("Error while parsing query", e);
-      } catch (YTException e) {
+      } catch (BaseException e) {
         throw new SQLException("Error while executing query", e);
       }
     }
@@ -116,12 +116,12 @@ public class OrientJdbcPreparedStatement extends OrientJdbcStatement implements 
   }
 
   @Override
-  protected YTResultSet executeCommand(String query) throws SQLException {
+  protected ResultSet executeCommand(String query) throws SQLException {
 
     try {
       database.activateOnCurrentThread();
       return database.command(query, params.values().toArray());
-    } catch (YTException e) {
+    } catch (BaseException e) {
       throw new SQLException("Error while executing command", e);
     }
   }
@@ -345,12 +345,12 @@ public class OrientJdbcPreparedStatement extends OrientJdbcStatement implements 
       try {
         record.fromInputStream(x);
       } catch (IOException e) {
-        throw YTDatabaseException.wrapException(
-            new YTDatabaseException("Error during creation of BLOB"), e);
+        throw DatabaseException.wrapException(
+            new DatabaseException("Error during creation of BLOB"), e);
       }
       record.save();
       params.put(parameterIndex, record);
-    } catch (YTDatabaseException e) {
+    } catch (DatabaseException e) {
       throw new SQLException("unable to store inputStream", e);
     }
   }

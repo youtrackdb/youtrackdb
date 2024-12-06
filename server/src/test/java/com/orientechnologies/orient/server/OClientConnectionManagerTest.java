@@ -6,9 +6,9 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OToken;
-import com.jetbrains.youtrack.db.internal.core.security.OParsedToken;
-import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
+import com.jetbrains.youtrack.db.internal.core.security.ParsedToken;
+import com.orientechnologies.orient.server.network.protocol.binary.NetworkProtocolBinary;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -22,10 +22,10 @@ import org.mockito.MockitoAnnotations;
 public class OClientConnectionManagerTest {
 
   @Mock
-  private ONetworkProtocolBinary protocol;
+  private NetworkProtocolBinary protocol;
 
   @Mock
-  private OToken token;
+  private Token token;
 
   @Mock
   private OTokenHandler handler;
@@ -37,8 +37,8 @@ public class OClientConnectionManagerTest {
   public void before() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
     MockitoAnnotations.initMocks(this);
     Mockito.when(handler.parseBinaryToken(Mockito.any(byte[].class))).thenReturn(token);
-    Mockito.when(handler.validateBinaryToken(Mockito.any(OToken.class))).thenReturn(true);
-    Mockito.when(handler.validateBinaryToken(Mockito.any(OParsedToken.class))).thenReturn(true);
+    Mockito.when(handler.validateBinaryToken(Mockito.any(Token.class))).thenReturn(true);
+    Mockito.when(handler.validateBinaryToken(Mockito.any(ParsedToken.class))).thenReturn(true);
     Mockito.when(protocol.getServer()).thenReturn(server);
     Mockito.when(server.getTokenHandler()).thenReturn(handler);
   }

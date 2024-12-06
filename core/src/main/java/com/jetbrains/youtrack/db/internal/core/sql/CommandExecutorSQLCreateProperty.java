@@ -21,15 +21,15 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClassEmbedded;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTPropertyImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassEmbedded;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
  */
 @SuppressWarnings("unchecked")
 public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String KEYWORD_CREATE = "CREATE";
   public static final String KEYWORD_PROPERTY = "PROPERTY";
@@ -59,7 +59,7 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
 
   private boolean ifNotExists = false;
 
-  private YTType type;
+  private PropertyType type;
   private String linked;
 
   private boolean readonly = false;
@@ -89,56 +89,56 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CREATE)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_CREATE + " not found", parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_PROPERTY)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_PROPERTY + " not found", parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new YTCommandSQLParsingException("Expected <class>.<property>", parserText, oldPos);
+        throw new CommandSQLParsingException("Expected <class>.<property>", parserText, oldPos);
       }
 
       String[] parts = split(word);
       if (parts.length != 2) {
-        throw new YTCommandSQLParsingException("Expected <class>.<property>", parserText, oldPos);
+        throw new CommandSQLParsingException("Expected <class>.<property>", parserText, oldPos);
       }
 
       className = decodeClassName(parts[0]);
       if (className == null) {
-        throw new YTCommandSQLParsingException("Class not found", parserText, oldPos);
+        throw new CommandSQLParsingException("Class not found", parserText, oldPos);
       }
       fieldName = decodeClassName(parts[1]);
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1) {
-        throw new YTCommandSQLParsingException("Missed property type", parserText, oldPos);
+        throw new CommandSQLParsingException("Missed property type", parserText, oldPos);
       }
       if ("IF".equalsIgnoreCase(word.toString())) {
         oldPos = pos;
         pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
         if (pos == -1) {
-          throw new YTCommandSQLParsingException("Missed property type", parserText, oldPos);
+          throw new CommandSQLParsingException("Missed property type", parserText, oldPos);
         }
         if (!"NOT".equalsIgnoreCase(word.toString())) {
-          throw new YTCommandSQLParsingException("Expected NOT EXISTS after IF", parserText,
+          throw new CommandSQLParsingException("Expected NOT EXISTS after IF", parserText,
               oldPos);
         }
         oldPos = pos;
         pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
         if (pos == -1) {
-          throw new YTCommandSQLParsingException("Missed property type", parserText, oldPos);
+          throw new CommandSQLParsingException("Missed property type", parserText, oldPos);
         }
         if (!"EXISTS".equalsIgnoreCase(word.toString())) {
-          throw new YTCommandSQLParsingException("Expected EXISTS after IF NOT", parserText,
+          throw new CommandSQLParsingException("Expected EXISTS after IF NOT", parserText,
               oldPos);
         }
         this.ifNotExists = true;
@@ -147,7 +147,7 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
         pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       }
 
-      type = YTType.valueOf(word.toString());
+      type = PropertyType.valueOf(word.toString());
 
       // Use a REGEX for the rest because we know exactly what we are looking for.
       // If we are in strict mode, the parser took care of strict matching.
@@ -218,7 +218,7 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
   }
 
   private void onInvalidAttributeDefinition(String attDef) {
-    throw new YTCommandSQLParsingException("Invalid attribute definition: '" + attDef + "'");
+    throw new CommandSQLParsingException("Invalid attribute definition: '" + attDef + "'");
   }
 
   private boolean getOptionalBoolean(String[] parts) {
@@ -289,26 +289,26 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
   /**
    * Execute the CREATE PROPERTY.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (type == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
     final var database = getDatabase();
-    final YTClassEmbedded sourceClass =
-        (YTClassEmbedded) database.getMetadata().getSchema().getClass(className);
+    final SchemaClassEmbedded sourceClass =
+        (SchemaClassEmbedded) database.getMetadata().getSchema().getClass(className);
     if (sourceClass == null) {
-      throw new YTCommandExecutionException("Source class '" + className + "' not found");
+      throw new CommandExecutionException("Source class '" + className + "' not found");
     }
 
-    YTPropertyImpl prop = (YTPropertyImpl) sourceClass.getProperty(fieldName);
+    PropertyImpl prop = (PropertyImpl) sourceClass.getProperty(fieldName);
 
     if (prop != null) {
       if (ifNotExists) {
         return sourceClass.properties(database).size();
       }
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Property '"
               + className
               + "."
@@ -317,8 +317,8 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
     }
 
     // CREATE THE PROPERTY
-    YTClass linkedClass = null;
-    YTType linkedType = null;
+    SchemaClass linkedClass = null;
+    PropertyType linkedType = null;
     if (linked != null) {
       // FIRST SEARCH BETWEEN CLASSES
       linkedClass = database.getMetadata().getSchema().getClass(linked);
@@ -326,12 +326,12 @@ public class CommandExecutorSQLCreateProperty extends CommandExecutorSQLAbstract
       if (linkedClass == null)
       // NOT FOUND: SEARCH BETWEEN TYPES
       {
-        linkedType = YTType.valueOf(linked.toUpperCase(Locale.ENGLISH));
+        linkedType = PropertyType.valueOf(linked.toUpperCase(Locale.ENGLISH));
       }
     }
 
     // CREATE IT LOCALLY
-    YTProperty internalProp =
+    Property internalProp =
         sourceClass.addProperty(database, fieldName, type, linkedType, linkedClass, unsafe);
     if (readonly) {
       internalProp.setReadonly(database, true);

@@ -19,9 +19,9 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -30,17 +30,17 @@ import java.util.Map;
  */
 @SuppressWarnings("unchecked")
 public class CommandExecutorSQLResultsetDelegate extends CommandExecutorSQLDelegate
-    implements OIterableRecordSource, Iterable<YTIdentifiable> {
+    implements IterableRecordSource, Iterable<Identifiable> {
 
   @Override
-  public Iterator<YTIdentifiable> iterator() {
-    return ((OIterableRecordSource) delegate).iterator(ODatabaseRecordThreadLocal.instance().get(),
+  public Iterator<Identifiable> iterator() {
+    return ((IterableRecordSource) delegate).iterator(DatabaseRecordThreadLocal.instance().get(),
         null);
   }
 
   @Override
-  public Iterator<YTIdentifiable> iterator(YTDatabaseSessionInternal querySession,
+  public Iterator<Identifiable> iterator(DatabaseSessionInternal querySession,
       final Map<Object, Object> iArgs) {
-    return ((OIterableRecordSource) delegate).iterator(querySession, iArgs);
+    return ((IterableRecordSource) delegate).iterator(querySession, iArgs);
   }
 }

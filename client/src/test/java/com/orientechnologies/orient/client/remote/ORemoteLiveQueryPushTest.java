@@ -3,13 +3,13 @@ package com.orientechnologies.orient.client.remote;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryResultListener;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.LiveQueryResultListener;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
 import java.io.IOException;
@@ -25,7 +25,7 @@ import org.mockito.MockitoAnnotations;
  */
 public class ORemoteLiveQueryPushTest {
 
-  private static class MockLiveListener implements YTLiveQueryResultListener {
+  private static class MockLiveListener implements LiveQueryResultListener {
 
     public int countCreate = 0;
     public int countUpdate = 0;
@@ -33,26 +33,26 @@ public class ORemoteLiveQueryPushTest {
     public boolean end;
 
     @Override
-    public void onCreate(YTDatabaseSession database, YTResult data) {
+    public void onCreate(DatabaseSession database, Result data) {
       countCreate++;
     }
 
     @Override
-    public void onUpdate(YTDatabaseSession database, YTResult before, YTResult after) {
+    public void onUpdate(DatabaseSession database, Result before, Result after) {
       countUpdate++;
     }
 
     @Override
-    public void onDelete(YTDatabaseSession database, YTResult data) {
+    public void onDelete(DatabaseSession database, Result data) {
       countDelete++;
     }
 
     @Override
-    public void onError(YTDatabaseSession database, YTException exception) {
+    public void onError(DatabaseSession database, BaseException exception) {
     }
 
     @Override
-    public void onEnd(YTDatabaseSession database) {
+    public void onEnd(DatabaseSession database) {
       assertFalse(end);
       end = true;
     }
@@ -64,14 +64,14 @@ public class ORemoteLiveQueryPushTest {
   private ORemoteConnectionManager connectionManager;
 
   @Mock
-  private YTDatabaseSessionInternal database;
+  private DatabaseSessionInternal database;
 
   @Before
   public void before() throws IOException {
     MockitoAnnotations.initMocks(this);
     storage =
         new StorageRemote(
-            new ORemoteURLs(new String[]{}, new YTContextConfiguration()),
+            new ORemoteURLs(new String[]{}, new ContextConfiguration()),
             "none",
             null,
             "",
@@ -85,13 +85,13 @@ public class ORemoteLiveQueryPushTest {
     storage.registerLiveListener(10, new OLiveQueryClientListener(database, mock));
     List<OLiveQueryResult> events = new ArrayList<>();
     events.add(
-        new OLiveQueryResult(OLiveQueryResult.CREATE_EVENT, new YTResultInternal(database), null));
+        new OLiveQueryResult(OLiveQueryResult.CREATE_EVENT, new ResultInternal(database), null));
     events.add(
         new OLiveQueryResult(
-            OLiveQueryResult.UPDATE_EVENT, new YTResultInternal(database),
-            new YTResultInternal(database)));
+            OLiveQueryResult.UPDATE_EVENT, new ResultInternal(database),
+            new ResultInternal(database)));
     events.add(
-        new OLiveQueryResult(OLiveQueryResult.DELETE_EVENT, new YTResultInternal(database), null));
+        new OLiveQueryResult(OLiveQueryResult.DELETE_EVENT, new ResultInternal(database), null));
 
     OLiveQueryPushRequest request =
         new OLiveQueryPushRequest(10, OLiveQueryPushRequest.END, events);

@@ -18,12 +18,12 @@
 
 package com.orientechnologies.lucene.tx;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.orientechnologies.lucene.builder.OLuceneIndexType;
-import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
-import com.orientechnologies.lucene.exception.YTLuceneIndexException;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.orientechnologies.lucene.engine.LuceneIndexEngine;
+import com.orientechnologies.lucene.exception.LuceneIndexException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -41,11 +41,11 @@ public class OLuceneTxChangesSingleRid extends OLuceneTxChangesAbstract {
   private final Set<Document> deletedDocs = new HashSet<Document>();
 
   public OLuceneTxChangesSingleRid(
-      final OLuceneIndexEngine engine, final IndexWriter writer, final IndexWriter deletedIdx) {
+      final LuceneIndexEngine engine, final IndexWriter writer, final IndexWriter deletedIdx) {
     super(engine, writer, deletedIdx);
   }
 
-  public void put(final Object key, final YTIdentifiable value, final Document doc) {
+  public void put(final Object key, final Identifiable value, final Document doc) {
     if (deleted.remove(value.getIdentity().toString())) {
       doc.add(OLuceneIndexType.createField(TMP, value.getIdentity().toString(), Field.Store.YES));
       updated.add(value.getIdentity().toString());
@@ -53,13 +53,13 @@ public class OLuceneTxChangesSingleRid extends OLuceneTxChangesAbstract {
     try {
       writer.addDocument(doc);
     } catch (IOException e) {
-      throw YTException.wrapException(
-          new YTLuceneIndexException("unable to add document to changes index"), e);
+      throw BaseException.wrapException(
+          new LuceneIndexException("unable to add document to changes index"), e);
     }
   }
 
-  public void remove(YTDatabaseSessionInternal session, final Object key,
-      final YTIdentifiable value) {
+  public void remove(DatabaseSessionInternal session, final Object key,
+      final Identifiable value) {
     try {
       if (value == null) {
         writer.deleteDocuments(engine.deleteQuery(key, value));
@@ -72,8 +72,8 @@ public class OLuceneTxChangesSingleRid extends OLuceneTxChangesAbstract {
         deletedIdx.addDocument(doc);
       }
     } catch (final IOException e) {
-      throw YTException.wrapException(
-          new YTLuceneIndexException(
+      throw BaseException.wrapException(
+          new LuceneIndexException(
               "Error while deleting documents in transaction from lucene index"),
           e);
     }
@@ -87,11 +87,11 @@ public class OLuceneTxChangesSingleRid extends OLuceneTxChangesAbstract {
     return deletedDocs;
   }
 
-  public boolean isDeleted(Document document, Object key, YTIdentifiable value) {
+  public boolean isDeleted(Document document, Object key, Identifiable value) {
     return deleted.contains(value.getIdentity().toString());
   }
 
-  public boolean isUpdated(Document document, Object key, YTIdentifiable value) {
+  public boolean isUpdated(Document document, Object key, Identifiable value) {
     return updated.contains(value.getIdentity().toString());
   }
 }

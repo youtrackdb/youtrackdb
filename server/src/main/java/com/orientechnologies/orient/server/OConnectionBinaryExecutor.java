@@ -1,64 +1,64 @@
 package com.orientechnologies.orient.server;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OByteSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.ONullSerializer;
-import com.jetbrains.youtrack.db.internal.common.util.OCommonConst;
-import com.jetbrains.youtrack.db.internal.core.OConstants;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.NullSerializer;
+import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandResultListener;
+import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryMonitor;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.LiveQueryMonitor;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseImport;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityAccessException;
-import com.jetbrains.youtrack.db.internal.core.fetch.OFetchContext;
-import com.jetbrains.youtrack.db.internal.core.fetch.OFetchHelper;
-import com.jetbrains.youtrack.db.internal.core.fetch.OFetchListener;
-import com.jetbrains.youtrack.db.internal.core.fetch.OFetchPlan;
-import com.jetbrains.youtrack.db.internal.core.fetch.remote.ORemoteFetchContext;
-import com.jetbrains.youtrack.db.internal.core.fetch.remote.ORemoteFetchListener;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
-import com.jetbrains.youtrack.db.internal.core.query.live.OLiveQueryHookV2;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImport;
+import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.exception.SecurityAccessException;
+import com.jetbrains.youtrack.db.internal.core.fetch.FetchContext;
+import com.jetbrains.youtrack.db.internal.core.fetch.FetchHelper;
+import com.jetbrains.youtrack.db.internal.core.fetch.FetchListener;
+import com.jetbrains.youtrack.db.internal.core.fetch.FetchPlan;
+import com.jetbrains.youtrack.db.internal.core.fetch.remote.RemoteFetchContext;
+import com.jetbrains.youtrack.db.internal.core.fetch.remote.RemoteFetchListener;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
+import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHookV2;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializerFactory;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.YTLocalResultSetLifecycleDecorator;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLAsynchQuery;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
-import com.jetbrains.youtrack.db.internal.core.storage.OPhysicalPosition;
-import com.jetbrains.youtrack.db.internal.core.storage.ORecordMetadata;
-import com.jetbrains.youtrack.db.internal.core.storage.cluster.YTOfflineClusterException;
-import com.jetbrains.youtrack.db.internal.core.storage.config.OClusterBasedStorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.LocalResultSetLifecycleDecorator;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
+import com.jetbrains.youtrack.db.internal.core.storage.RecordMetadata;
+import com.jetbrains.youtrack.db.internal.core.storage.cluster.OfflineClusterException;
+import com.jetbrains.youtrack.db.internal.core.storage.config.ClusterBasedStorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
-import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.OTreeInternal;
-import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.OSBTreeBonsai;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
-import com.jetbrains.youtrack.db.internal.core.tx.OTransactionOptimistic;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperationsManager;
+import com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.TreeInternal;
+import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.SBTreeBonsai;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.message.OAddClusterRequest;
@@ -198,13 +198,13 @@ import com.orientechnologies.orient.server.distributed.ODistributedConfiguration
 import com.orientechnologies.orient.server.distributed.ODistributedServerManager;
 import com.orientechnologies.orient.server.distributed.ORemoteServerController;
 import com.orientechnologies.orient.server.network.protocol.binary.HandshakeInfo;
-import com.orientechnologies.orient.server.network.protocol.binary.OAbstractCommandResultListener;
-import com.orientechnologies.orient.server.network.protocol.binary.OAsyncCommandResultListener;
-import com.orientechnologies.orient.server.network.protocol.binary.OLiveCommandResultListener;
-import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
-import com.orientechnologies.orient.server.network.protocol.binary.OSyncCommandResultListener;
-import com.orientechnologies.orient.server.plugin.OServerPlugin;
-import com.orientechnologies.orient.server.tx.OTransactionOptimisticServer;
+import com.orientechnologies.orient.server.network.protocol.binary.AbstractCommandResultListener;
+import com.orientechnologies.orient.server.network.protocol.binary.AsyncCommandResultListener;
+import com.orientechnologies.orient.server.network.protocol.binary.LiveCommandResultListener;
+import com.orientechnologies.orient.server.network.protocol.binary.NetworkProtocolBinary;
+import com.orientechnologies.orient.server.network.protocol.binary.SyncCommandResultListener;
+import com.orientechnologies.orient.server.plugin.ServerPlugin;
+import com.orientechnologies.orient.server.tx.TransactionOptimisticServer;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -246,7 +246,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     Set<String> dbs = server.listDatabases();
     String listener =
-        server.getListenerByProtocol(ONetworkProtocolBinary.class).getInboundAddr().toString();
+        server.getListenerByProtocol(NetworkProtocolBinary.class).getInboundAddr().toString();
     Map<String, String> toSend = new HashMap<>();
     for (String dbName : dbs) {
       toSend.put(dbName, "remote:" + listener + "/" + dbName);
@@ -265,7 +265,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeDBReload(OReloadRequest request) {
-    final YTDatabaseSessionInternal db = connection.getDatabase();
+    final DatabaseSessionInternal db = connection.getDatabase();
     final Collection<String> clusters = db.getClusterNames();
 
     String[] clusterNames = new String[clusters.size()];
@@ -298,7 +298,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeCreateDatabase(OCreateDatabaseRequest request) {
 
     if (server.existsDatabase(request.getDatabaseName())) {
-      throw new YTDatabaseException(
+      throw new DatabaseException(
           "Database named '" + request.getDatabaseName() + "' already exists");
     }
     if (request.getBackupPath() != null && !"".equals(request.getBackupPath().trim())) {
@@ -306,7 +306,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     } else {
       server.createDatabase(
           request.getDatabaseName(),
-          ODatabaseType.valueOf(request.getStorageMode().toUpperCase(Locale.ENGLISH)),
+          DatabaseType.valueOf(request.getStorageMode().toUpperCase(Locale.ENGLISH)),
           null);
     }
     LogManager.instance()
@@ -370,7 +370,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     }
 
     if (operation.equals("status")) {
-      final OServerPlugin plugin = server.getPlugin("cluster");
+      final ServerPlugin plugin = server.getPlugin("cluster");
       if (plugin != null && plugin instanceof ODistributedServerManager) {
         clusterConfig = ((ODistributedServerManager) plugin).getClusterConfiguration();
       }
@@ -425,18 +425,18 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeGetRecordMetadata(OGetRecordMetadataRequest request) {
-    final ORecordMetadata metadata = connection.getDatabase().getRecordMetadata(request.getRid());
+    final RecordMetadata metadata = connection.getDatabase().getRecordMetadata(request.getRid());
     if (metadata != null) {
       return new OGetRecordMetadataResponse(metadata);
     } else {
-      throw new YTDatabaseException(
+      throw new DatabaseException(
           String.format("Record metadata for RID: %s, Not found", request.getRid()));
     }
   }
 
   @Override
   public OBinaryResponse executeReadRecord(OReadRecordRequest request) {
-    final YTRecordId rid = request.getRid();
+    final RecordId rid = request.getRid();
     final String fetchPlanString = request.getFetchPlan();
     boolean ignoreCache = false;
     ignoreCache = request.isIgnoreCache();
@@ -447,10 +447,10 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     if (rid.getClusterId() == 0 && rid.getClusterPosition() == 0) {
       // @COMPATIBILITY 0.9.25
       // SEND THE DB CONFIGURATION INSTEAD SINCE IT WAS ON RECORD 0:0
-      OFetchHelper.checkFetchPlanValid(fetchPlanString);
+      FetchHelper.checkFetchPlanValid(fetchPlanString);
 
       final byte[] record =
-          ((OClusterBasedStorageConfiguration)
+          ((ClusterBasedStorageConfiguration)
               connection.getDatabase().getStorageInfo().getConfiguration())
               .toStream(connection.getData().protocolVersion, StandardCharsets.UTF_8);
 
@@ -466,23 +466,23 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
           // BUILD THE SERVER SIDE RECORD TO ACCES TO THE FETCH
           // PLAN
           if (record instanceof EntityImpl doc) {
-            final OFetchPlan fetchPlan = OFetchHelper.buildFetchPlan(fetchPlanString);
+            final FetchPlan fetchPlan = FetchHelper.buildFetchPlan(fetchPlanString);
 
-            final OFetchListener listener =
-                new ORemoteFetchListener() {
+            final FetchListener listener =
+                new RemoteFetchListener() {
                   @Override
                   protected void sendRecord(RecordAbstract iLinked) {
                     recordsToSend.add(iLinked);
                   }
                 };
-            final OFetchContext context = new ORemoteFetchContext();
-            OFetchHelper.fetch(doc, doc, fetchPlan, listener, context, "");
+            final FetchContext context = new RemoteFetchContext();
+            FetchHelper.fetch(doc, doc, fetchPlan, listener, context, "");
           }
         }
         response =
             new OReadRecordResponse(
-                ORecordInternal.getRecordType(record), record.getVersion(), bytes, recordsToSend);
-      } catch (YTRecordNotFoundException e) {
+                RecordInternal.getRecordType(record), record.getVersion(), bytes, recordsToSend);
+      } catch (RecordNotFoundException e) {
         response = new OReadRecordResponse((byte) 0, 0, null, null);
       }
     }
@@ -491,7 +491,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeRecordExists(ORecordExistsRequest request) {
-    final YTRID rid = request.getRecordId();
+    final RID rid = request.getRecordId();
     final boolean recordExists = connection.getDatabase().exists(rid);
     return new ORecordExistsResponse(recordExists);
   }
@@ -500,17 +500,17 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeCreateRecord(OCreateRecordRequest request) {
 
     final Record record = request.getContent();
-    ORecordInternal.setIdentity(record, request.getRid());
-    ORecordInternal.setVersion(record, 0);
+    RecordInternal.setIdentity(record, request.getRid());
+    RecordInternal.setVersion(record, 0);
     if (record instanceof EntityImpl) {
       // Force conversion of value to class for trigger default values.
-      ODocumentInternal.autoConvertValueToClass(connection.getDatabase(), (EntityImpl) record);
+      DocumentInternal.autoConvertValueToClass(connection.getDatabase(), (EntityImpl) record);
     }
     connection.getDatabase().save(record);
 
     if (request.getMode() < 2) {
-      Map<UUID, OBonsaiCollectionPointer> changedIds;
-      OSBTreeCollectionManager collectionManager =
+      Map<UUID, BonsaiCollectionPointer> changedIds;
+      SBTreeCollectionManager collectionManager =
           connection.getDatabase().getSbTreeCollectionManager();
       if (collectionManager != null) {
         changedIds = new HashMap<>(collectionManager.changedIds());
@@ -520,7 +520,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       }
 
       return new OCreateRecordResponse(
-          (YTRecordId) record.getIdentity(), record.getVersion(), changedIds);
+          (RecordId) record.getIdentity(), record.getVersion(), changedIds);
     }
     return null;
   }
@@ -528,28 +528,28 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeUpdateRecord(OUpdateRecordRequest request) {
 
-    YTDatabaseSessionInternal database = connection.getDatabase();
+    DatabaseSessionInternal database = connection.getDatabase();
     final Record newRecord = request.getContent();
-    ORecordInternal.setIdentity(newRecord, request.getRid());
-    ORecordInternal.setVersion(newRecord, request.getVersion());
+    RecordInternal.setIdentity(newRecord, request.getRid());
+    RecordInternal.setVersion(newRecord, request.getVersion());
 
-    ORecordInternal.setContentChanged(newRecord, request.isUpdateContent());
-    ORecordInternal.getDirtyManager(newRecord).clearForSave();
+    RecordInternal.setContentChanged(newRecord, request.isUpdateContent());
+    RecordInternal.getDirtyManager(newRecord).clearForSave();
     Record currentRecord = null;
     if (newRecord instanceof EntityImpl) {
       try {
         currentRecord = database.load(request.getRid());
-      } catch (YTRecordNotFoundException e) {
+      } catch (RecordNotFoundException e) {
         // MAINTAIN COHERENT THE BEHAVIOR FOR ALL THE STORAGE TYPES
-        if (e.getCause() instanceof YTOfflineClusterException)
+        if (e.getCause() instanceof OfflineClusterException)
         //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
         {
-          throw (YTOfflineClusterException) e.getCause();
+          throw (OfflineClusterException) e.getCause();
         }
       }
 
       if (currentRecord == null) {
-        throw new YTRecordNotFoundException(request.getRid());
+        throw new RecordNotFoundException(request.getRid());
       }
 
       ((EntityImpl) currentRecord).merge((EntityImpl) newRecord, false, false);
@@ -560,7 +560,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       currentRecord = newRecord;
     }
 
-    ORecordInternal.setVersion(currentRecord, request.getVersion());
+    RecordInternal.setVersion(currentRecord, request.getVersion());
 
     database.save(currentRecord);
 
@@ -574,8 +574,8 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     final int newVersion = currentRecord.getVersion();
 
     if (request.getMode() < 2) {
-      Map<UUID, OBonsaiCollectionPointer> changedIds;
-      OSBTreeCollectionManager collectionManager =
+      Map<UUID, BonsaiCollectionPointer> changedIds;
+      SBTreeCollectionManager collectionManager =
           connection.getDatabase().getSbTreeCollectionManager();
       if (collectionManager != null) {
         changedIds = new HashMap<>(collectionManager.changedIds());
@@ -592,7 +592,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeHigherPosition(OHigherPhysicalPositionsRequest request) {
     var db = connection.getDatabase();
-    OPhysicalPosition[] nextPositions =
+    PhysicalPosition[] nextPositions =
         db
             .getStorage()
             .higherPhysicalPositions(db, request.getClusterId(), request.getClusterPosition());
@@ -602,7 +602,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeCeilingPosition(OCeilingPhysicalPositionsRequest request) {
     var db = connection.getDatabase();
-    final OPhysicalPosition[] previousPositions =
+    final PhysicalPosition[] previousPositions =
         db.getStorage()
             .ceilingPhysicalPositions(db, request.getClusterId(), request.getPhysicalPosition());
     return new OCeilingPhysicalPositionsResponse(previousPositions);
@@ -611,7 +611,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeLowerPosition(OLowerPhysicalPositionsRequest request) {
     var db = connection.getDatabase();
-    final OPhysicalPosition[] previousPositions =
+    final PhysicalPosition[] previousPositions =
         db
             .getStorage()
             .lowerPhysicalPositions(db, request.getiClusterId(), request.getPhysicalPosition());
@@ -621,7 +621,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeFloorPosition(OFloorPhysicalPositionsRequest request) {
     var db = connection.getDatabase();
-    final OPhysicalPosition[] previousPositions =
+    final PhysicalPosition[] previousPositions =
         db
             .getStorage()
             .floorPhysicalPositions(db, request.getClusterId(), request.getPhysicalPosition());
@@ -637,34 +637,34 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     final Map<Object, Object> params = command.getParameters();
 
-    if (asynch && command instanceof OSQLSynchQuery) {
+    if (asynch && command instanceof SQLSynchQuery) {
       // CONVERT IT IN ASYNCHRONOUS QUERY
-      final OSQLAsynchQuery asynchQuery = new OSQLAsynchQuery(command.getText());
+      final SQLAsynchQuery asynchQuery = new SQLAsynchQuery(command.getText());
       asynchQuery.setFetchPlan(command.getFetchPlan());
       asynchQuery.setLimit(command.getLimit());
       asynchQuery.setTimeout(command.getTimeoutTime(), command.getTimeoutStrategy());
-      asynchQuery.setUseCache(((OSQLSynchQuery) command).isUseCache());
+      asynchQuery.setUseCache(((SQLSynchQuery) command).isUseCache());
       command = asynchQuery;
     }
 
     connection.getData().commandDetail = command.getText();
 
     connection.getData().command = command;
-    OAbstractCommandResultListener listener = null;
-    OLiveCommandResultListener liveListener = null;
+    AbstractCommandResultListener listener = null;
+    LiveCommandResultListener liveListener = null;
 
-    OCommandResultListener cmdResultListener = command.getResultListener();
+    CommandResultListener cmdResultListener = command.getResultListener();
 
     if (live) {
-      liveListener = new OLiveCommandResultListener(server, connection, cmdResultListener);
-      listener = new OSyncCommandResultListener(null);
+      liveListener = new LiveCommandResultListener(server, connection, cmdResultListener);
+      listener = new SyncCommandResultListener(null);
       command.setResultListener(liveListener);
     } else {
       if (asynch) {
-        listener = new OAsyncCommandResultListener(connection, cmdResultListener);
+        listener = new AsyncCommandResultListener(connection, cmdResultListener);
         command.setResultListener(listener);
       } else {
-        listener = new OSyncCommandResultListener(null);
+        listener = new SyncCommandResultListener(null);
       }
     }
 
@@ -725,46 +725,46 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     var indexChanges = request.getIndexChanges();
 
     if (!indexChanges.isEmpty()) {
-      throw new YTDatabaseException("Manual indexes are not supported");
+      throw new DatabaseException("Manual indexes are not supported");
     }
 
     var database = connection.getDatabase();
     var tx = database.getTransaction();
 
     if (!tx.isActive()) {
-      throw new YTDatabaseException("There is no active transaction on server.");
+      throw new DatabaseException("There is no active transaction on server.");
     }
     if (tx.getId() != request.getTxId()) {
-      throw new YTDatabaseException(
+      throw new DatabaseException(
           "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
     }
 
-    if (!(tx instanceof OTransactionOptimisticServer serverTransaction)) {
-      throw new YTDatabaseException(
+    if (!(tx instanceof TransactionOptimisticServer serverTransaction)) {
+      throw new DatabaseException(
           "Invalid transaction type,"
-              + " expected OTransactionOptimisticServer but found "
+              + " expected TransactionOptimisticServer but found "
               + tx.getClass().getName());
     }
 
     try {
       try {
         serverTransaction.mergeReceivedTransaction(recordOperations);
-      } catch (final YTRecordNotFoundException e) {
-        throw e.getCause() instanceof YTOfflineClusterException
-            ? (YTOfflineClusterException) e.getCause()
+      } catch (final RecordNotFoundException e) {
+        throw e.getCause() instanceof OfflineClusterException
+            ? (OfflineClusterException) e.getCause()
             : e;
       }
       try {
         try {
           serverTransaction.commit();
-        } catch (final YTRecordNotFoundException e) {
-          throw e.getCause() instanceof YTOfflineClusterException
-              ? (YTOfflineClusterException) e.getCause()
+        } catch (final RecordNotFoundException e) {
+          throw e.getCause() instanceof OfflineClusterException
+              ? (OfflineClusterException) e.getCause()
               : e;
         }
-        final OSBTreeCollectionManager collectionManager =
+        final SBTreeCollectionManager collectionManager =
             connection.getDatabase().getSbTreeCollectionManager();
-        Map<UUID, OBonsaiCollectionPointer> changedIds = null;
+        Map<UUID, BonsaiCollectionPointer> changedIds = null;
         if (collectionManager != null) {
           changedIds = collectionManager.changedIds();
         }
@@ -775,7 +775,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
           database.rollback(true);
         }
 
-        final OSBTreeCollectionManager collectionManager =
+        final SBTreeCollectionManager collectionManager =
             connection.getDatabase().getSbTreeCollectionManager();
         if (collectionManager != null) {
           collectionManager.clearChangedIds();
@@ -815,7 +815,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         value = "<hidden>";
       } else {
         try {
-          YTContextConfiguration config =
+          ContextConfiguration config =
               connection.getProtocol().getServer().getContextConfiguration();
           value = config.getValueAsString(cfg) != null ? config.getValueAsString(cfg) : "";
         } catch (Exception e) {
@@ -829,7 +829,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeFreezeDatabase(OFreezeDatabaseRequest request) {
-    YTDatabaseSessionInternal database =
+    DatabaseSessionInternal database =
         server
             .getDatabases()
             .openNoAuthenticate(request.getName(), connection.getServerUser().getName(null));
@@ -843,7 +843,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeReleaseDatabase(OReleaseDatabaseRequest request) {
-    YTDatabaseSessionInternal database =
+    DatabaseSessionInternal database =
         server
             .getDatabases()
             .openNoAuthenticate(request.getName(), connection.getServerUser().getName(null));
@@ -868,11 +868,11 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeSBTreeCreate(OSBTCreateTreeRequest request) {
-    OBonsaiCollectionPointer collectionPointer = null;
+    BonsaiCollectionPointer collectionPointer = null;
     try {
-      final YTDatabaseSessionInternal database = connection.getDatabase();
+      final DatabaseSessionInternal database = connection.getDatabase();
       final AbstractPaginatedStorage storage = (AbstractPaginatedStorage) database.getStorage();
-      final OAtomicOperationsManager atomicOperationsManager = storage.getAtomicOperationsManager();
+      final AtomicOperationsManager atomicOperationsManager = storage.getAtomicOperationsManager();
       collectionPointer =
           atomicOperationsManager.calculateInsideAtomicOperation(
               null,
@@ -882,7 +882,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
                       .getSbTreeCollectionManager()
                       .createSBTree(request.getClusterId(), atomicOperation, null));
     } catch (IOException e) {
-      throw YTException.wrapException(new YTDatabaseException("Error during ridbag creation"), e);
+      throw BaseException.wrapException(new DatabaseException("Error during ridbag creation"), e);
     }
 
     return new OSBTCreateTreeResponse(collectionPointer);
@@ -890,24 +890,24 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeSBTGet(OSBTGetRequest request) {
-    final OSBTreeCollectionManager sbTreeCollectionManager =
+    final SBTreeCollectionManager sbTreeCollectionManager =
         connection.getDatabase().getSbTreeCollectionManager();
-    final OSBTreeBonsai<YTIdentifiable, Integer> tree =
+    final SBTreeBonsai<Identifiable, Integer> tree =
         sbTreeCollectionManager.loadSBTree(request.getCollectionPointer());
     try {
-      final YTIdentifiable key = tree.getKeySerializer().deserialize(request.getKeyStream(), 0);
+      final Identifiable key = tree.getKeySerializer().deserialize(request.getKeyStream(), 0);
 
       Integer result = tree.get(key);
-      final OBinarySerializer<? super Integer> valueSerializer;
+      final BinarySerializer<? super Integer> valueSerializer;
       if (result == null) {
-        valueSerializer = ONullSerializer.INSTANCE;
+        valueSerializer = NullSerializer.INSTANCE;
       } else {
         valueSerializer = tree.getValueSerializer();
       }
 
-      byte[] stream = new byte[OByteSerializer.BYTE_SIZE + valueSerializer.getObjectSize(result)];
-      OByteSerializer.INSTANCE.serialize(valueSerializer.getId(), stream, 0);
-      valueSerializer.serialize(result, stream, OByteSerializer.BYTE_SIZE);
+      byte[] stream = new byte[ByteSerializer.BYTE_SIZE + valueSerializer.getObjectSize(result)];
+      ByteSerializer.INSTANCE.serialize(valueSerializer.getId(), stream, 0);
+      valueSerializer.serialize(result, stream, ByteSerializer.BYTE_SIZE);
       return new OSBTGetResponse(stream);
     } finally {
       sbTreeCollectionManager.releaseSBTree(request.getCollectionPointer());
@@ -917,24 +917,24 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeSBTFirstKey(OSBTFirstKeyRequest request) {
 
-    final OSBTreeCollectionManager sbTreeCollectionManager =
+    final SBTreeCollectionManager sbTreeCollectionManager =
         connection.getDatabase().getSbTreeCollectionManager();
-    final OSBTreeBonsai<YTIdentifiable, Integer> tree =
+    final SBTreeBonsai<Identifiable, Integer> tree =
         sbTreeCollectionManager.loadSBTree(request.getCollectionPointer());
     byte[] stream;
     try {
 
-      YTIdentifiable result = tree.firstKey();
-      final OBinarySerializer<? super YTIdentifiable> keySerializer;
+      Identifiable result = tree.firstKey();
+      final BinarySerializer<? super Identifiable> keySerializer;
       if (result == null) {
-        keySerializer = ONullSerializer.INSTANCE;
+        keySerializer = NullSerializer.INSTANCE;
       } else {
         keySerializer = tree.getKeySerializer();
       }
 
-      stream = new byte[OByteSerializer.BYTE_SIZE + keySerializer.getObjectSize(result)];
-      OByteSerializer.INSTANCE.serialize(keySerializer.getId(), stream, 0);
-      keySerializer.serialize(result, stream, OByteSerializer.BYTE_SIZE);
+      stream = new byte[ByteSerializer.BYTE_SIZE + keySerializer.getObjectSize(result)];
+      ByteSerializer.INSTANCE.serialize(keySerializer.getId(), stream, 0);
+      keySerializer.serialize(result, stream, ByteSerializer.BYTE_SIZE);
       return new OSBTFirstKeyResponse(stream);
     } finally {
       sbTreeCollectionManager.releaseSBTree(request.getCollectionPointer());
@@ -945,20 +945,20 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeSBTFetchEntriesMajor(
       @SuppressWarnings("rawtypes") OSBTFetchEntriesMajorRequest request) {
 
-    final OSBTreeCollectionManager sbTreeCollectionManager =
+    final SBTreeCollectionManager sbTreeCollectionManager =
         connection.getDatabase().getSbTreeCollectionManager();
-    final OSBTreeBonsai<YTIdentifiable, Integer> tree =
+    final SBTreeBonsai<Identifiable, Integer> tree =
         sbTreeCollectionManager.loadSBTree(request.getPointer());
     try {
-      final OBinarySerializer<YTIdentifiable> keySerializer = tree.getKeySerializer();
-      YTIdentifiable key = keySerializer.deserialize(request.getKeyStream(), 0);
+      final BinarySerializer<Identifiable> keySerializer = tree.getKeySerializer();
+      Identifiable key = keySerializer.deserialize(request.getKeyStream(), 0);
 
-      final OBinarySerializer<Integer> valueSerializer = tree.getValueSerializer();
+      final BinarySerializer<Integer> valueSerializer = tree.getValueSerializer();
 
-      OTreeInternal.AccumulativeListener<YTIdentifiable, Integer> listener =
-          new OTreeInternal.AccumulativeListener<>(request.getPageSize());
+      TreeInternal.AccumulativeListener<Identifiable, Integer> listener =
+          new TreeInternal.AccumulativeListener<>(request.getPageSize());
       tree.loadEntriesMajor(key, request.isInclusive(), true, listener);
-      List<Entry<YTIdentifiable, Integer>> result = listener.getResult();
+      List<Entry<Identifiable, Integer>> result = listener.getResult();
       return new OSBTFetchEntriesMajorResponse<>(keySerializer, valueSerializer, result);
     } finally {
       sbTreeCollectionManager.releaseSBTree(request.getPointer());
@@ -967,9 +967,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeSBTGetRealSize(OSBTGetRealBagSizeRequest request) {
-    final OSBTreeCollectionManager sbTreeCollectionManager =
+    final SBTreeCollectionManager sbTreeCollectionManager =
         connection.getDatabase().getSbTreeCollectionManager();
-    final OSBTreeBonsai<YTIdentifiable, Integer> tree =
+    final SBTreeBonsai<Identifiable, Integer> tree =
         sbTreeCollectionManager.loadSBTree(request.getCollectionPointer());
     try {
       int realSize = tree.getRealBagSize(request.getChanges());
@@ -989,10 +989,10 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeImport(OImportRequest request) {
     List<String> result = new ArrayList<>();
     LogManager.instance().info(this, "Starting database import");
-    ODatabaseImport imp;
+    DatabaseImport imp;
     try {
       imp =
-          new ODatabaseImport(
+          new DatabaseImport(
               connection.getDatabase(),
               request.getImporPath(),
               iText -> {
@@ -1007,7 +1007,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       new File(request.getImporPath()).delete();
 
     } catch (IOException e) {
-      throw YTException.wrapException(new YTDatabaseException("error on import"), e);
+      throw BaseException.wrapException(new DatabaseException("error on import"), e);
     }
     return new OImportResponse(result);
   }
@@ -1016,7 +1016,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeConnect(OConnectRequest request) {
     OBinaryProtocolHelper.checkProtocolVersion(this, request.getProtocolVersion());
     if (request.getProtocolVersion() > 36) {
-      throw new YTConfigurationException(
+      throw new ConfigurationException(
           "You can use connect as first operation only for protocol  < 37 please use handshake for"
               + " protocol >= 37");
     }
@@ -1037,7 +1037,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
               this,
               "Session open with token flag false is not supported anymore please use token based"
                   + " sessions");
-      throw new YTConfigurationException(
+      throw new ConfigurationException(
           "Session open with token flag false is not supported anymore please use token based"
               + " sessions");
     }
@@ -1046,18 +1046,18 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         server.authenticateUser(request.getUsername(), request.getPassword(), "server.connect"));
 
     if (connection.getServerUser() == null) {
-      throw new YTSecurityAccessException(
+      throw new SecurityAccessException(
           "Wrong user/password to [connect] to the remote YouTrackDB Server instance");
     }
     byte[] token = null;
-    if (connection.getData().protocolVersion > OChannelBinaryProtocol.PROTOCOL_VERSION_26) {
+    if (connection.getData().protocolVersion > ChannelBinaryProtocol.PROTOCOL_VERSION_26) {
       connection.getData().serverUsername = connection.getServerUser().getName(null);
       connection.getData().serverUser = true;
 
       if (Boolean.TRUE.equals(connection.getTokenBased())) {
         token = server.getTokenHandler().getSignedBinaryToken(null, null, connection.getData());
       } else {
-        token = OCommonConst.EMPTY_BYTE_ARRAY;
+        token = CommonConst.EMPTY_BYTE_ARRAY;
       }
     }
 
@@ -1079,19 +1079,19 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         server.authenticateUser(request.getUsername(), request.getPassword(), "server.connect"));
 
     if (connection.getServerUser() == null) {
-      throw new YTSecurityAccessException(
+      throw new SecurityAccessException(
           "Wrong user/password to [connect] to the remote YouTrackDB Server instance");
     }
 
     byte[] token = null;
-    if (connection.getData().protocolVersion > OChannelBinaryProtocol.PROTOCOL_VERSION_26) {
+    if (connection.getData().protocolVersion > ChannelBinaryProtocol.PROTOCOL_VERSION_26) {
       connection.getData().serverUsername = connection.getServerUser().getName(null);
       connection.getData().serverUser = true;
 
       if (Boolean.TRUE.equals(connection.getTokenBased())) {
         token = server.getTokenHandler().getSignedBinaryToken(null, null, connection.getData());
       } else {
-        token = OCommonConst.EMPTY_BYTE_ARRAY;
+        token = CommonConst.EMPTY_BYTE_ARRAY;
       }
     }
 
@@ -1102,7 +1102,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeDatabaseOpen(OOpenRequest request) {
     OBinaryProtocolHelper.checkProtocolVersion(this, request.getProtocolVersion());
     if (request.getProtocolVersion() > 36) {
-      throw new YTConfigurationException(
+      throw new ConfigurationException(
           "You can use open as first operation only for protocol  < 37 please use handshake for"
               + " protocol >= 37");
     }
@@ -1118,7 +1118,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
               this,
               "Session open with token flag false is not supported anymore please use token based"
                   + " sessions");
-      throw new YTConfigurationException(
+      throw new ConfigurationException(
           "Session open with token flag false is not supported anymore please use token based"
               + " sessions");
     }
@@ -1133,7 +1133,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
               request.getUserName(),
               request.getUserPassword(),
               connection.getData()));
-    } catch (YTException e) {
+    } catch (BaseException e) {
       server.getClientConnectionManager().disconnect(connection);
       throw e;
     }
@@ -1152,16 +1152,16 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       server.getClientConnectionManager().connect(connection.getProtocol(), connection, token);
     }
 
-    YTDatabaseSessionInternal db = connection.getDatabase();
+    DatabaseSessionInternal db = connection.getDatabase();
     final Collection<String> clusters = db.getClusterNames();
     final byte[] tokenToSend;
     if (Boolean.TRUE.equals(connection.getTokenBased())) {
       tokenToSend = token;
     } else {
-      tokenToSend = OCommonConst.EMPTY_BYTE_ARRAY;
+      tokenToSend = CommonConst.EMPTY_BYTE_ARRAY;
     }
 
-    final OServerPlugin plugin = server.getPlugin("cluster");
+    final ServerPlugin plugin = server.getPlugin("cluster");
     byte[] distriConf = null;
     EntityImpl distributedCfg;
     if (plugin instanceof ODistributedServerManager) {
@@ -1172,7 +1172,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
               .getDatabaseConfiguration(connection.getDatabase().getName());
       if (dbCfg != null) {
         // ENHANCE SERVER CFG WITH DATABASE CFG
-        distributedCfg.field("database", dbCfg.getDocument(), YTType.EMBEDDED);
+        distributedCfg.field("database", dbCfg.getDocument(), PropertyType.EMBEDDED);
       }
       distriConf = getRecordBytes(connection, distributedCfg);
     }
@@ -1201,7 +1201,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         clusterIds,
         clusterNames,
         distriConf,
-        OConstants.getVersion());
+        YouTrackDBConstants.getVersion());
   }
 
   @Override
@@ -1220,7 +1220,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
               request.getUserName(),
               request.getUserPassword(),
               connection.getData()));
-    } catch (YTException e) {
+    } catch (BaseException e) {
       server.getClientConnectionManager().disconnect(connection);
       throw e;
     }
@@ -1258,7 +1258,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     LogManager.instance()
         .error(this, "Authentication error of remote client: shutdown is aborted.", null);
 
-    throw new YTSecurityAccessException("Invalid user/password to shutdown the server");
+    throw new SecurityAccessException("Invalid user/password to shutdown the server");
   }
 
   private void runShutdownInNonDaemonThread() {
@@ -1285,13 +1285,13 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     if (cfg != null) {
       cfg.setValue(request.getValue());
       if (!cfg.isChangeableAtRuntime()) {
-        throw new YTConfigurationException(
+        throw new ConfigurationException(
             "Property '"
                 + request.getKey()
                 + "' cannot be changed at runtime. Change the setting at startup");
       }
     } else {
-      throw new YTConfigurationException(
+      throw new ConfigurationException(
           "Property '" + request.getKey() + "' was not found in global configuration");
     }
 
@@ -1303,9 +1303,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     var db = connection.getDatabase();
     final byte[] stream;
     String name = connection.getData().getSerializationImpl();
-    if (ORecordInternal.getRecordType(iRecord) == EntityImpl.RECORD_TYPE) {
+    if (RecordInternal.getRecordType(iRecord) == EntityImpl.RECORD_TYPE) {
       ((EntityImpl) iRecord).deserializeFields();
-      ORecordSerializer ser = ORecordSerializerFactory.instance().getFormat(name);
+      RecordSerializer ser = RecordSerializerFactory.instance().getFormat(name);
       stream = ser.toStream(db, iRecord);
     } else {
       stream = iRecord.toStream();
@@ -1318,7 +1318,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeServerQuery(OServerQueryRequest request) {
     YouTrackDB youTrackDB = server.getContext();
 
-    YTResultSet rs;
+    ResultSet rs;
 
     if (request.isNamedParams()) {
       rs = youTrackDB.execute(request.getStatement(), request.getNamedParameters());
@@ -1327,10 +1327,10 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     }
 
     // copy the result-set to make sure that the execution is successful
-    List<YTResult> rsCopy = rs.stream().collect(Collectors.toList());
+    List<Result> rsCopy = rs.stream().collect(Collectors.toList());
 
     return new OServerQueryResponse(
-        ((YTLocalResultSetLifecycleDecorator) rs).getQueryId(),
+        ((LocalResultSetLifecycleDecorator) rs).getQueryId(),
         false,
         rsCopy,
         rs.getExecutionPlan(),
@@ -1341,13 +1341,13 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeQuery(OQueryRequest request) {
-    YTDatabaseSessionInternal database = connection.getDatabase();
-    OQueryMetadataUpdateListener metadataListener = new OQueryMetadataUpdateListener();
+    DatabaseSessionInternal database = connection.getDatabase();
+    QueryMetadataUpdateListener metadataListener = new QueryMetadataUpdateListener();
     database.getSharedContext().registerListener(metadataListener);
     if (database.getTransaction().isActive()) {
-      ((OTransactionOptimistic) database.getTransaction()).resetChangesTracking();
+      ((TransactionOptimistic) database.getTransaction()).resetChangesTracking();
     }
-    YTResultSet rs;
+    ResultSet rs;
     if (OQueryRequest.QUERY == request.getOperationType()) {
       // TODO Assert is sql.
       if (request.isNamedParams()) {
@@ -1378,23 +1378,23 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     }
 
     // copy the result-set to make sure that the execution is successful
-    Stream<YTResult> stream = rs.stream();
+    Stream<Result> stream = rs.stream();
     if (database
         .getActiveQueries()
-        .containsKey(((YTLocalResultSetLifecycleDecorator) rs).getQueryId())) {
+        .containsKey(((LocalResultSetLifecycleDecorator) rs).getQueryId())) {
       stream = stream.limit(request.getRecordsPerPage());
     }
-    List<YTResult> rsCopy = stream.collect(Collectors.toList());
+    List<Result> rsCopy = stream.collect(Collectors.toList());
 
     boolean hasNext = rs.hasNext();
     boolean txChanges = false;
     if (database.getTransaction().isActive()) {
-      txChanges = ((OTransactionOptimistic) database.getTransaction()).isChanged();
+      txChanges = ((TransactionOptimistic) database.getTransaction()).isChanged();
     }
     database.getSharedContext().unregisterListener(metadataListener);
 
     return new OQueryResponse(
-        ((YTLocalResultSetLifecycleDecorator) rs).getQueryId(),
+        ((LocalResultSetLifecycleDecorator) rs).getQueryId(),
         txChanges,
         rsCopy,
         rs.getExecutionPlan(),
@@ -1406,8 +1406,8 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse closeQuery(OCloseQueryRequest oQueryRequest) {
     String queryId = oQueryRequest.getQueryId();
-    YTDatabaseSessionInternal db = connection.getDatabase();
-    YTResultSet query = db.getActiveQuery(queryId);
+    DatabaseSessionInternal db = connection.getDatabase();
+    ResultSet query = db.getActiveQuery(queryId);
     if (query != null) {
       query.close();
     }
@@ -1416,13 +1416,13 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeQueryNextPage(OQueryNextPageRequest request) {
-    YTDatabaseSessionInternal database = connection.getDatabase();
+    DatabaseSessionInternal database = connection.getDatabase();
     YouTrackDBInternal orientDB = database.getSharedContext().getYouTrackDB();
-    YTLocalResultSetLifecycleDecorator rs =
-        (YTLocalResultSetLifecycleDecorator) database.getActiveQuery(request.getQueryId());
+    LocalResultSetLifecycleDecorator rs =
+        (LocalResultSetLifecycleDecorator) database.getActiveQuery(request.getQueryId());
 
     if (rs == null) {
-      throw new YTDatabaseException(
+      throw new DatabaseException(
           String.format(
               "No query with id '%s' found probably expired session", request.getQueryId()));
     }
@@ -1430,9 +1430,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     try {
       orientDB.startCommand(Optional.empty());
       // copy the result-set to make sure that the execution is successful
-      List<YTResult> rsCopy = new ArrayList<>(request.getRecordsPerPage());
+      List<Result> rsCopy = new ArrayList<>(request.getRecordsPerPage());
       int i = 0;
-      // if it's YTInternalResultSet it means that it's a Command, not a Query, so the result has to
+      // if it's InternalResultSet it means that it's a Command, not a Query, so the result has to
       // be
       // sent as it is, not streamed
       while (rs.hasNext() && (rs.isDetached() || i < request.getRecordsPerPage())) {
@@ -1462,23 +1462,23 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     var indexChanges = request.getIndexChanges();
 
     if (!indexChanges.isEmpty()) {
-      throw new YTDatabaseException("Manual indexes are not supported.");
+      throw new DatabaseException("Manual indexes are not supported.");
     }
 
     if (tx.isActive()) {
-      if (!(tx instanceof OTransactionOptimisticServer serverTransaction)) {
-        throw new YTDatabaseException("Non-server based transaction is active");
+      if (!(tx instanceof TransactionOptimisticServer serverTransaction)) {
+        throw new DatabaseException("Non-server based transaction is active");
       }
       if (tx.getId() != request.getTxId()) {
-        throw new YTDatabaseException(
+        throw new DatabaseException(
             "Transaction id mismatch, expected " + tx.getId() + " but got " + request.getTxId());
       }
 
       try {
         serverTransaction.mergeReceivedTransaction(recordOperations);
-      } catch (final YTRecordNotFoundException e) {
-        throw e.getCause() instanceof YTOfflineClusterException
-            ? (YTOfflineClusterException) e.getCause()
+      } catch (final RecordNotFoundException e) {
+        throw e.getCause() instanceof OfflineClusterException
+            ? (OfflineClusterException) e.getCause()
             : e;
       }
 
@@ -1486,14 +1486,14 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
           tx.getId(), serverTransaction.getTxGeneratedRealRecordIdMap());
     }
 
-    database.begin(new OTransactionOptimisticServer(database, request.getTxId()));
-    var serverTransaction = (OTransactionOptimisticServer) database.getTransaction();
+    database.begin(new TransactionOptimisticServer(database, request.getTxId()));
+    var serverTransaction = (TransactionOptimisticServer) database.getTransaction();
 
     try {
       serverTransaction.mergeReceivedTransaction(recordOperations);
-    } catch (final YTRecordNotFoundException e) {
-      throw e.getCause() instanceof YTOfflineClusterException
-          ? (YTOfflineClusterException) e.getCause()
+    } catch (final RecordNotFoundException e) {
+      throw e.getCause() instanceof OfflineClusterException
+          ? (OfflineClusterException) e.getCause()
           : e;
     }
 
@@ -1508,13 +1508,13 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     var indexChanges = request.getIndexChanges();
     if (!indexChanges.isEmpty()) {
-      throw new YTDatabaseException("Manual indexes are not supported");
+      throw new DatabaseException("Manual indexes are not supported");
     }
 
     var tx = database.getTransaction();
 
     if (tx.isActive()) {
-      throw new YTDatabaseException("Transaction is already started on server");
+      throw new DatabaseException("Transaction is already started on server");
     }
 
     var serverTransaction =
@@ -1523,19 +1523,19 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         tx.getId(), serverTransaction.getTxGeneratedRealRecordIdMap());
   }
 
-  private static OTransactionOptimisticServer doExecuteBeginTransaction(
-      long txId, YTDatabaseSessionInternal database,
+  private static TransactionOptimisticServer doExecuteBeginTransaction(
+      long txId, DatabaseSessionInternal database,
       List<ORecordOperationRequest> recordOperations) {
     assert database.activeTxCount() == 0;
 
-    database.begin(new OTransactionOptimisticServer(database, txId));
-    var serverTransaction = (OTransactionOptimisticServer) database.getTransaction();
+    database.begin(new TransactionOptimisticServer(database, txId));
+    var serverTransaction = (TransactionOptimisticServer) database.getTransaction();
 
     try {
       serverTransaction.mergeReceivedTransaction(recordOperations);
-    } catch (final YTRecordNotFoundException e) {
-      throw e.getCause() instanceof YTOfflineClusterException
-          ? (YTOfflineClusterException) e.getCause()
+    } catch (final RecordNotFoundException e) {
+      throw e.getCause() instanceof OfflineClusterException
+          ? (OfflineClusterException) e.getCause()
           : e;
     }
 
@@ -1550,22 +1550,22 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     var tx = database.getTransaction();
 
     if (!tx.isActive()) {
-      throw new YTDatabaseException(
+      throw new DatabaseException(
           "Transaction with id " + request.getTxId() + " is not active on server.");
     }
 
-    if (!(tx instanceof OTransactionOptimisticServer serverTransaction)) {
-      throw new YTDatabaseException(
+    if (!(tx instanceof TransactionOptimisticServer serverTransaction)) {
+      throw new DatabaseException(
           "Invalid transaction type,"
-              + " expected OTransactionOptimisticServer but found "
+              + " expected TransactionOptimisticServer but found "
               + tx.getClass().getName());
     }
 
     try {
       serverTransaction.mergeReceivedTransaction(recordOperations);
-    } catch (final YTRecordNotFoundException e) {
-      throw e.getCause() instanceof YTOfflineClusterException
-          ? (YTOfflineClusterException) e.getCause()
+    } catch (final RecordNotFoundException e) {
+      throw e.getCause() instanceof OfflineClusterException
+          ? (OfflineClusterException) e.getCause()
           : e;
     }
 
@@ -1579,7 +1579,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     var indexChanges = request.getIndexChanges();
 
     if (!indexChanges.isEmpty()) {
-      throw new YTDatabaseException("Manual indexes are not supported");
+      throw new DatabaseException("Manual indexes are not supported");
     }
 
     var database = connection.getDatabase();
@@ -1592,14 +1592,14 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     }
 
     if (tx.getId() != request.getTxId()) {
-      throw new YTDatabaseException(
+      throw new DatabaseException(
           "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
     }
 
-    if (!(tx instanceof OTransactionOptimisticServer serverTransaction)) {
-      throw new YTDatabaseException(
+    if (!(tx instanceof TransactionOptimisticServer serverTransaction)) {
+      throw new DatabaseException(
           "Invalid transaction type,"
-              + " expected OTransactionOptimisticServer but found "
+              + " expected TransactionOptimisticServer but found "
               + tx.getClass().getName());
     }
 
@@ -1608,27 +1608,27 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         if (started) {
           serverTransaction.mergeReceivedTransaction(recordOperations);
         }
-      } catch (final YTRecordNotFoundException e) {
-        throw e.getCause() instanceof YTOfflineClusterException
-            ? (YTOfflineClusterException) e.getCause()
+      } catch (final RecordNotFoundException e) {
+        throw e.getCause() instanceof OfflineClusterException
+            ? (OfflineClusterException) e.getCause()
             : e;
       }
 
       if (serverTransaction.getTxStartCounter() != 1) {
-        throw new YTDatabaseException("Transaction can be started only once on server");
+        throw new DatabaseException("Transaction can be started only once on server");
       }
 
       try {
         try {
           database.commit();
-        } catch (final YTRecordNotFoundException e) {
-          throw e.getCause() instanceof YTOfflineClusterException
-              ? (YTOfflineClusterException) e.getCause()
+        } catch (final RecordNotFoundException e) {
+          throw e.getCause() instanceof OfflineClusterException
+              ? (OfflineClusterException) e.getCause()
               : e;
         }
-        final OSBTreeCollectionManager collectionManager =
+        final SBTreeCollectionManager collectionManager =
             connection.getDatabase().getSbTreeCollectionManager();
-        Map<UUID, OBonsaiCollectionPointer> changedIds = null;
+        Map<UUID, BonsaiCollectionPointer> changedIds = null;
 
         if (collectionManager != null) {
           changedIds = collectionManager.changedIds();
@@ -1640,7 +1640,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
           database.rollback(true);
         }
 
-        final OSBTreeCollectionManager collectionManager =
+        final SBTreeCollectionManager collectionManager =
             connection.getDatabase().getSbTreeCollectionManager();
         if (collectionManager != null) {
           collectionManager.clearChangedIds();
@@ -1663,7 +1663,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     var indexChanges = request.getIndexChanges();
 
     if (indexChanges != null && !indexChanges.isEmpty()) {
-      throw new YTDatabaseException("Manual indexes are not supported");
+      throw new DatabaseException("Manual indexes are not supported");
     }
 
     var database = connection.getDatabase();
@@ -1674,40 +1674,40 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     }
 
     if (tx.getId() != request.getTxId()) {
-      throw new YTDatabaseException(
+      throw new DatabaseException(
           "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
     }
 
-    if (!(tx instanceof OTransactionOptimisticServer serverTransaction)) {
-      throw new YTDatabaseException(
+    if (!(tx instanceof TransactionOptimisticServer serverTransaction)) {
+      throw new DatabaseException(
           "Invalid transaction type,"
-              + " expected OTransactionOptimisticServer but found "
+              + " expected TransactionOptimisticServer but found "
               + tx.getClass().getName());
     }
 
     if (serverTransaction.getTxStartCounter() != 1) {
-      throw new YTDatabaseException("Transaction can be started only once on server");
+      throw new DatabaseException("Transaction can be started only once on server");
     }
 
     try {
       try {
         serverTransaction.mergeReceivedTransaction(recordOperations);
-      } catch (final YTRecordNotFoundException e) {
-        throw e.getCause() instanceof YTOfflineClusterException
-            ? (YTOfflineClusterException) e.getCause()
+      } catch (final RecordNotFoundException e) {
+        throw e.getCause() instanceof OfflineClusterException
+            ? (OfflineClusterException) e.getCause()
             : e;
       }
       try {
         try {
           database.commit();
-        } catch (final YTRecordNotFoundException e) {
-          throw e.getCause() instanceof YTOfflineClusterException
-              ? (YTOfflineClusterException) e.getCause()
+        } catch (final RecordNotFoundException e) {
+          throw e.getCause() instanceof OfflineClusterException
+              ? (OfflineClusterException) e.getCause()
               : e;
         }
-        final OSBTreeCollectionManager collectionManager =
+        final SBTreeCollectionManager collectionManager =
             connection.getDatabase().getSbTreeCollectionManager();
-        Map<UUID, OBonsaiCollectionPointer> changedIds = null;
+        Map<UUID, BonsaiCollectionPointer> changedIds = null;
 
         if (collectionManager != null) {
           changedIds = collectionManager.changedIds();
@@ -1719,7 +1719,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
           database.rollback(true);
         }
 
-        final OSBTreeCollectionManager collectionManager =
+        final SBTreeCollectionManager collectionManager =
             connection.getDatabase().getSbTreeCollectionManager();
         if (collectionManager != null) {
           collectionManager.clearChangedIds();
@@ -1738,14 +1738,14 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeFetchTransaction(OFetchTransactionRequest request) {
-    YTDatabaseSessionInternal database = connection.getDatabase();
+    DatabaseSessionInternal database = connection.getDatabase();
     if (!database.getTransaction().isActive()) {
-      throw new YTDatabaseException("No Transaction Active");
+      throw new DatabaseException("No Transaction Active");
     }
 
-    OTransactionOptimistic tx = (OTransactionOptimistic) database.getTransaction();
+    TransactionOptimistic tx = (TransactionOptimistic) database.getTransaction();
     if (tx.getId() != request.getTxId()) {
-      throw new YTDatabaseException(
+      throw new DatabaseException(
           "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
     }
 
@@ -1758,13 +1758,13 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeFetchTransaction38(OFetchTransaction38Request request) {
-    YTDatabaseSessionInternal database = connection.getDatabase();
+    DatabaseSessionInternal database = connection.getDatabase();
     if (!database.getTransaction().isActive()) {
-      throw new YTDatabaseException("No Transaction Active");
+      throw new DatabaseException("No Transaction Active");
     }
-    OTransactionOptimistic tx = (OTransactionOptimistic) database.getTransaction();
+    TransactionOptimistic tx = (TransactionOptimistic) database.getTransaction();
     if (tx.getId() != request.getTxId()) {
-      throw new YTDatabaseException(
+      throw new DatabaseException(
           "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
     }
 
@@ -1778,7 +1778,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeRollback(ORollbackTransactionRequest request) {
-    YTDatabaseSessionInternal database = connection.getDatabase();
+    DatabaseSessionInternal database = connection.getDatabase();
     if (database.getTransaction().isActive()) {
       database.rollback(true);
     }
@@ -1798,8 +1798,8 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeSubscribeDistributedConfiguration(
       OSubscribeDistributedConfigurationRequest request) {
-    OPushManager manager = server.getPushManager();
-    manager.subscribeDistributeConfig((ONetworkProtocolBinary) connection.getProtocol());
+    PushManager manager = server.getPushManager();
+    manager.subscribeDistributeConfig((NetworkProtocolBinary) connection.getProtocol());
 
     YouTrackDBInternal databases = server.getDatabases();
     Set<String> dbs = databases.listLodadedDatabases();
@@ -1818,57 +1818,57 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeSubscribeStorageConfiguration(
       OSubscribeStorageConfigurationRequest request) {
-    OPushManager manager = server.getPushManager();
+    PushManager manager = server.getPushManager();
     manager.subscribeStorageConfiguration(
-        connection.getDatabase(), (ONetworkProtocolBinary) connection.getProtocol());
+        connection.getDatabase(), (NetworkProtocolBinary) connection.getProtocol());
     return new OSubscribeStorageConfigurationResponse();
   }
 
   @Override
   public OBinaryResponse executeSubscribeSchema(OSubscribeSchemaRequest request) {
-    OPushManager manager = server.getPushManager();
+    PushManager manager = server.getPushManager();
     manager.subscribeSchema(
-        connection.getDatabase(), (ONetworkProtocolBinary) connection.getProtocol());
+        connection.getDatabase(), (NetworkProtocolBinary) connection.getProtocol());
     return new OSubscribeSchemaResponse();
   }
 
   @Override
   public OBinaryResponse executeSubscribeIndexManager(OSubscribeIndexManagerRequest request) {
-    OPushManager manager = server.getPushManager();
+    PushManager manager = server.getPushManager();
     manager.subscribeIndexManager(
-        connection.getDatabase(), (ONetworkProtocolBinary) connection.getProtocol());
+        connection.getDatabase(), (NetworkProtocolBinary) connection.getProtocol());
     return new OSubscribeIndexManagerResponse();
   }
 
   @Override
   public OBinaryResponse executeSubscribeFunctions(OSubscribeFunctionsRequest request) {
-    OPushManager manager = server.getPushManager();
+    PushManager manager = server.getPushManager();
     manager.subscribeFunctions(
-        connection.getDatabase(), (ONetworkProtocolBinary) connection.getProtocol());
+        connection.getDatabase(), (NetworkProtocolBinary) connection.getProtocol());
     return new OSubscribeFunctionsResponse();
   }
 
   @Override
   public OBinaryResponse executeSubscribeSequences(OSubscribeSequencesRequest request) {
-    OPushManager manager = server.getPushManager();
+    PushManager manager = server.getPushManager();
     manager.subscribeSequences(
-        connection.getDatabase(), (ONetworkProtocolBinary) connection.getProtocol());
+        connection.getDatabase(), (NetworkProtocolBinary) connection.getProtocol());
     return new OSubscribeSequencesResponse();
   }
 
   @Override
   public OBinaryResponse executeUnsubscribeLiveQuery(OUnsubscribeLiveQueryRequest request) {
-    YTDatabaseSessionInternal database = connection.getDatabase();
-    OLiveQueryHookV2.unsubscribe(request.getMonitorId(), database);
+    DatabaseSessionInternal database = connection.getDatabase();
+    LiveQueryHookV2.unsubscribe(request.getMonitorId(), database);
     return new OUnsubscribLiveQueryResponse();
   }
 
   @Override
   public OBinaryResponse executeSubscribeLiveQuery(OSubscribeLiveQueryRequest request) {
-    ONetworkProtocolBinary protocol = (ONetworkProtocolBinary) connection.getProtocol();
-    YTServerLiveQueryResultListener listener =
-        new YTServerLiveQueryResultListener(protocol, connection.getDatabase().getSharedContext());
-    YTLiveQueryMonitor monitor =
+    NetworkProtocolBinary protocol = (NetworkProtocolBinary) connection.getProtocol();
+    ServerLiveQueryResultListener listener =
+        new ServerLiveQueryResultListener(protocol, connection.getDatabase().getSharedContext());
+    LiveQueryMonitor monitor =
         connection.getDatabase().live(request.getQuery(), listener, request.getParams());
     listener.setMonitorId(monitor.getMonitorId());
     return new OSubscribeLiveQueryResponse(monitor.getMonitorId());
@@ -1878,25 +1878,25 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   public OBinaryResponse executeDistributedConnect(ODistributedConnectRequest request) {
     HandshakeInfo handshakeInfo =
         new HandshakeInfo(
-            (short) OChannelBinaryProtocol.PROTOCOL_VERSION_38,
+            (short) ChannelBinaryProtocol.PROTOCOL_VERSION_38,
             "YouTrackDB Distributed",
             "",
             (byte) 0,
-            OChannelBinaryProtocol.ERROR_MESSAGE_JAVA);
-    ((ONetworkProtocolBinary) connection.getProtocol()).setHandshakeInfo(handshakeInfo);
+            ChannelBinaryProtocol.ERROR_MESSAGE_JAVA);
+    ((NetworkProtocolBinary) connection.getProtocol()).setHandshakeInfo(handshakeInfo);
 
     // TODO:check auth type
-    YTSecurityUser serverUser =
+    SecurityUser serverUser =
         server.authenticateUser(request.getUsername(), request.getPassword(), "server.connect");
 
     if (serverUser == null) {
-      throw new YTSecurityAccessException(
+      throw new SecurityAccessException(
           "Wrong user/password to [connect] to the remote YouTrackDB Server instance");
     }
 
     connection.getData().driverName = "YouTrackDB Distributed";
     connection.getData().clientId = "YouTrackDB Distributed";
-    connection.getData().setSerializer(ORecordSerializerNetworkV37.INSTANCE);
+    connection.getData().setSerializer(RecordSerializerNetworkV37.INSTANCE);
     connection.setTokenBased(true);
     connection.getData().supportsLegacyPushMessages = false;
     connection.getData().collectStats = false;
@@ -1911,7 +1911,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
               "Rejected distributed connection from '%s' too old not supported",
               null,
               connection.getRemoteAddress());
-      throw new YTDatabaseException("protocol version too old rejected connection");
+      throw new DatabaseException("protocol version too old rejected connection");
     } else {
       connection.setServerUser(serverUser);
       connection.getData().serverUsername = serverUser.getName(null);

@@ -17,8 +17,8 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.jetbrains.youtrack.db.internal.core.command.script.OScriptManager;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.command.script.ScriptManager;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -38,7 +38,7 @@ public class OServerCommandGetSupportedLanguages extends OServerCommandAuthentic
 
     iRequest.getData().commandInfo = "Returns the supported languages";
 
-    YTDatabaseSession db = null;
+    DatabaseSession db = null;
 
     try {
       db = getProfiledDatabaseInstance(iRequest);
@@ -46,7 +46,7 @@ public class OServerCommandGetSupportedLanguages extends OServerCommandAuthentic
       EntityImpl result = new EntityImpl();
       Set<String> languages = new HashSet<String>();
 
-      OScriptManager scriptManager =
+      ScriptManager scriptManager =
           YouTrackDBInternal.extract(server.getContext()).getScriptManager();
       for (String language : scriptManager.getSupportedLanguages()) {
         if (scriptManager.getFormatters() != null

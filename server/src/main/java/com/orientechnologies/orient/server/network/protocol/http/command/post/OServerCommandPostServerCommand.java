@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAuthenticatedServerAbstract;
@@ -90,7 +90,7 @@ public class OServerCommandPostServerCommand extends OServerCommandAuthenticated
     iRequest.getData().commandInfo = "Command";
     iRequest.getData().commandDetail = text;
 
-    YTResultSet result = executeStatement(language, text, params);
+    ResultSet result = executeStatement(language, text, params);
 
     int i = 0;
     List response = new ArrayList();
@@ -127,8 +127,8 @@ public class OServerCommandPostServerCommand extends OServerCommandAuthenticated
     return false;
   }
 
-  protected YTResultSet executeStatement(String language, String text, Object params) {
-    YTResultSet result;
+  protected ResultSet executeStatement(String language, String text, Object params) {
+    ResultSet result;
 
     YouTrackDB odb = this.server.getContext();
     if (params instanceof Map) {

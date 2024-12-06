@@ -1,42 +1,42 @@
 package com.jetbrains.youtrack.db.internal.core.db.viewmanager;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
+import com.jetbrains.youtrack.db.internal.core.collate.Collate;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.OScenarioThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryResultListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.ScenarioThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.LiveQueryResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseSessionEmbedded;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.index.OClassIndexManager;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinitionFactory;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexManagerAbstract;
-import com.jetbrains.youtrack.db.internal.core.index.OPropertyMapIndexDefinition.INDEX_BY;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.OIndexConfigProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.OViewConfig;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.OViewIndexConfig;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.OViewRemovedMetadata;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTImmutableClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTView;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTViewImpl;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseSessionEmbedded;
+import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionFactory;
+import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
+import com.jetbrains.youtrack.db.internal.core.index.PropertyMapIndexDefinition.INDEX_BY;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.IndexConfigProperty;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaView;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaViewImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.ViewConfig;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.ViewIndexConfig;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.ViewRemovedMetadata;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLProjection;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLProjectionItem;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.OStatementCache;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.StatementCache;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import java.util.ArrayList;
@@ -104,15 +104,15 @@ public class ViewManager {
         });
   }
 
-  private void registerLiveUpdates(YTDatabaseSessionInternal db) {
+  private void registerLiveUpdates(DatabaseSessionInternal db) {
     boolean liveViewsExist = false;
-    Collection<YTView> views = db.getMetadata().getSchema().getViews();
-    for (YTView view : views) {
+    Collection<SchemaView> views = db.getMetadata().getSchema().getViews();
+    for (SchemaView view : views) {
       liveViewsExist = registerLiveUpdateFor(db, view.getName()) || liveViewsExist;
     }
   }
 
-  public boolean registerLiveUpdateFor(YTDatabaseSession db, String viewName) {
+  public boolean registerLiveUpdateFor(DatabaseSession db, String viewName) {
     return false;
   }
 
@@ -135,9 +135,9 @@ public class ViewManager {
   private void schedule() {
   }
 
-  private void updateViews(YTDatabaseSessionInternal db) {
+  private void updateViews(DatabaseSessionInternal db) {
     try {
-      YTView view;
+      SchemaView view;
       do {
         cleanUnusedViewClusters(db);
         cleanUnusedViewIndexes(db);
@@ -159,8 +159,8 @@ public class ViewManager {
     }
   }
 
-  public void cleanUnusedViewClusters(YTDatabaseSession db) {
-    if (((YTDatabaseSessionEmbedded) db).getStorage().isIcrementalBackupRunning()) {
+  public void cleanUnusedViewClusters(DatabaseSession db) {
+    if (((DatabaseSessionEmbedded) db).getStorage().isIcrementalBackupRunning()) {
       // backup is running handle delete the next run
       return;
     }
@@ -187,7 +187,7 @@ public class ViewManager {
     }
   }
 
-  public void cleanUnusedViewIndexes(YTDatabaseSessionInternal db) {
+  public void cleanUnusedViewIndexes(DatabaseSessionInternal db) {
     if (db.getStorage().isIcrementalBackupRunning()) {
       // backup is running handle delete the next run
       return;
@@ -210,15 +210,15 @@ public class ViewManager {
     }
   }
 
-  public YTView getNextViewToUpdate(YTDatabaseSessionInternal db) {
-    YTSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
+  public SchemaView getNextViewToUpdate(DatabaseSessionInternal db) {
+    Schema schema = db.getMetadata().getImmutableSchemaSnapshot();
 
-    Collection<YTView> views = schema.getViews();
+    Collection<SchemaView> views = schema.getViews();
 
     if (views.isEmpty()) {
       return null;
     }
-    for (YTView view : views) {
+    for (SchemaView view : views) {
       if (!buildOnThisNode(db, view)) {
         continue;
       }
@@ -240,15 +240,15 @@ public class ViewManager {
     return null;
   }
 
-  private boolean isViewRefreshing(YTView view) {
+  private boolean isViewRefreshing(SchemaView view) {
     return this.refreshing.contains(view.getName());
   }
 
-  private boolean isLiveUpdate(YTDatabaseSessionInternal db, YTView view) {
-    return OViewConfig.UPDATE_STRATEGY_LIVE.equalsIgnoreCase(view.getUpdateStrategy());
+  private boolean isLiveUpdate(DatabaseSessionInternal db, SchemaView view) {
+    return ViewConfig.UPDATE_STRATEGY_LIVE.equalsIgnoreCase(view.getUpdateStrategy());
   }
 
-  protected boolean buildOnThisNode(YTDatabaseSessionInternal db, YTView name) {
+  protected boolean buildOnThisNode(DatabaseSessionInternal db, SchemaView name) {
     return true;
   }
 
@@ -260,7 +260,7 @@ public class ViewManager {
    * @return true if there are no watch rules for this view; true if there are watch rules and some
    * of them happened since last update; true if the view was never updated; false otherwise.
    */
-  private boolean needsUpdateBasedOnWatchRules(YTView view, YTDatabaseSessionInternal db) {
+  private boolean needsUpdateBasedOnWatchRules(SchemaView view, DatabaseSessionInternal db) {
     if (view == null) {
       return false;
     }
@@ -285,21 +285,21 @@ public class ViewManager {
     return false;
   }
 
-  private boolean isUpdateExpiredFor(YTView view, YTDatabaseSessionInternal db) {
+  private boolean isUpdateExpiredFor(SchemaView view, DatabaseSessionInternal db) {
     long lastUpdate = view.getLastRefreshTime();
     int updateInterval = view.getUpdateIntervalSeconds();
     return lastUpdate + (updateInterval * 1000L) < System.currentTimeMillis();
   }
 
-  public void updateView(YTView view, YTDatabaseSessionInternal db) {
-    OScenarioThreadLocal.executeAsDistributed(
+  public void updateView(SchemaView view, DatabaseSessionInternal db) {
+    ScenarioThreadLocal.executeAsDistributed(
         () -> {
           this.updateViewInternal(view, db);
           return null;
         });
   }
 
-  public void updateViewInternal(YTView view, YTDatabaseSessionInternal db) {
+  public void updateViewInternal(SchemaView view, DatabaseSessionInternal db) {
     if (db.getStorage().isIcrementalBackupRunning() || closed) {
       // backup is running handle rebuild the next run
       return;
@@ -320,12 +320,12 @@ public class ViewManager {
 
       String query = view.getQuery();
       String originRidField = view.getOriginRidField();
-      List<OIndex> indexes = createNewIndexesForView(view, cluster, db);
+      List<Index> indexes = createNewIndexesForView(view, cluster, db);
 
       try {
         fillView(db, viewName, query, originRidField, clusterName, indexes);
       } catch (RuntimeException e) {
-        for (OIndex index : indexes) {
+        for (Index index : indexes) {
           db.getMetadata().getIndexManagerInternal().dropIndex(db, index.getName());
         }
         db.dropCluster(cluster);
@@ -339,8 +339,8 @@ public class ViewManager {
         indexes.forEach(x -> indexesToDrop.add(x.getName()));
         return;
       }
-      OViewRemovedMetadata oldMetadata =
-          ((YTViewImpl) view).replaceViewClusterAndIndex(db, cluster, indexes, lastRefreshTime);
+      ViewRemovedMetadata oldMetadata =
+          ((SchemaViewImpl) view).replaceViewClusterAndIndex(db, cluster, indexes, lastRefreshTime);
       LogManager.instance()
           .info(
               this,
@@ -378,17 +378,17 @@ public class ViewManager {
   }
 
   private void fillView(
-      YTDatabaseSessionInternal db,
+      DatabaseSessionInternal db,
       String viewName,
       String query,
       String originRidField,
       String clusterName,
-      List<OIndex> indexes) {
+      List<Index> indexes) {
     int iterationCount = 0;
-    try (YTResultSet rs = db.query(query)) {
+    try (ResultSet rs = db.query(query)) {
       db.begin();
       while (rs.hasNext()) {
-        YTResult item = rs.next();
+        Result item = rs.next();
         addItemToView(item, db, originRidField, viewName, clusterName, indexes);
         if (iterationCount % 100 == 0) {
           db.commit();
@@ -401,12 +401,12 @@ public class ViewManager {
   }
 
   private void addItemToView(
-      YTResult item,
-      YTDatabaseSessionInternal db,
+      Result item,
+      DatabaseSessionInternal db,
       String originRidField,
       String viewName,
       String clusterName,
-      List<OIndex> indexes) {
+      List<Index> indexes) {
     db.begin();
     Entity newRow = copyElement(item, db);
     if (originRidField != null) {
@@ -414,59 +414,59 @@ public class ViewManager {
       newRow.setProperty("@view", viewName);
     }
     db.save(newRow, clusterName);
-    OClassIndexManager.addIndexesEntries(db, (EntityImpl) newRow, indexes);
+    ClassIndexManager.addIndexesEntries(db, (EntityImpl) newRow, indexes);
     db.commit();
   }
 
-  private List<OIndex> createNewIndexesForView(
-      YTView view, int cluster, YTDatabaseSessionInternal db) {
+  private List<Index> createNewIndexesForView(
+      SchemaView view, int cluster, DatabaseSessionInternal db) {
     try {
-      List<OIndex> result = new ArrayList<>();
-      OIndexManagerAbstract idxMgr = db.getMetadata().getIndexManagerInternal();
-      for (OViewIndexConfig cfg : view.getRequiredIndexesInfo()) {
-        OIndexDefinition definition = createIndexDefinition(view.getName(), cfg.getProperties());
+      List<Index> result = new ArrayList<>();
+      IndexManagerAbstract idxMgr = db.getMetadata().getIndexManagerInternal();
+      for (ViewIndexConfig cfg : view.getRequiredIndexesInfo()) {
+        IndexDefinition definition = createIndexDefinition(view.getName(), cfg.getProperties());
         String indexName = view.getName() + "_" + UUID.randomUUID().toString().replaceAll("-", "_");
         String type = cfg.getType();
         String engine = cfg.getEngine();
-        OIndex idx =
+        Index idx =
             idxMgr.createIndex(
                 db, indexName, type, definition, new int[]{cluster}, null, null, engine);
         result.add(idx);
       }
       return result;
     } catch (Exception e) {
-      throw YTException.wrapException(
-          new YTDatabaseException("Error on creating indexes for view " + view.getName()), e);
+      throw BaseException.wrapException(
+          new DatabaseException("Error on creating indexes for view " + view.getName()), e);
     }
   }
 
-  private OIndexDefinition createIndexDefinition(
-      String viewName, List<OIndexConfigProperty> requiredIndexesInfo) {
+  private IndexDefinition createIndexDefinition(
+      String viewName, List<IndexConfigProperty> requiredIndexesInfo) {
     if (requiredIndexesInfo.size() == 1) {
       String fieldName = requiredIndexesInfo.get(0).getName();
-      YTType fieldType = requiredIndexesInfo.get(0).getType();
-      YTType linkedType = requiredIndexesInfo.get(0).getLinkedType();
-      OCollate collate = requiredIndexesInfo.get(0).getCollate();
+      PropertyType fieldType = requiredIndexesInfo.get(0).getType();
+      PropertyType linkedType = requiredIndexesInfo.get(0).getLinkedType();
+      Collate collate = requiredIndexesInfo.get(0).getCollate();
       INDEX_BY index_by = requiredIndexesInfo.get(0).getIndexBy();
-      return OIndexDefinitionFactory.createSingleFieldIndexDefinition(
+      return IndexDefinitionFactory.createSingleFieldIndexDefinition(
           viewName, fieldName, fieldType, linkedType, collate, null, index_by);
     }
-    OCompositeIndexDefinition result = new OCompositeIndexDefinition(viewName);
-    for (OIndexConfigProperty pair : requiredIndexesInfo) {
+    CompositeIndexDefinition result = new CompositeIndexDefinition(viewName);
+    for (IndexConfigProperty pair : requiredIndexesInfo) {
       String fieldName = pair.getName();
-      YTType fieldType = pair.getType();
-      YTType linkedType = pair.getLinkedType();
-      OCollate collate = pair.getCollate();
+      PropertyType fieldType = pair.getType();
+      PropertyType linkedType = pair.getLinkedType();
+      Collate collate = pair.getCollate();
       INDEX_BY index_by = pair.getIndexBy();
-      OIndexDefinition definition =
-          OIndexDefinitionFactory.createSingleFieldIndexDefinition(
+      IndexDefinition definition =
+          IndexDefinitionFactory.createSingleFieldIndexDefinition(
               viewName, fieldName, fieldType, linkedType, collate, null, index_by);
       result.addIndex(definition);
     }
     return result;
   }
 
-  private String createNextClusterNameFor(YTView view, YTDatabaseSessionInternal db) {
+  private String createNextClusterNameFor(SchemaView view, DatabaseSessionInternal db) {
     int i = 0;
     String viewName = view.getName();
     while (true) {
@@ -476,14 +476,14 @@ public class ViewManager {
         try {
           db.addCluster(clusterName);
           return clusterName;
-        } catch (YTConfigurationException e) {
+        } catch (ConfigurationException e) {
           // Ignore and retry
         }
       }
     }
   }
 
-  private Entity copyElement(YTResult item, YTDatabaseSession db) {
+  private Entity copyElement(Result item, DatabaseSession db) {
     Entity newRow = db.newEntity();
     for (String prop : item.getPropertyNames()) {
       if (!prop.equalsIgnoreCase("@rid") && !prop.equalsIgnoreCase("@class")) {
@@ -502,7 +502,7 @@ public class ViewManager {
             return null;
           }
           try {
-            YTView view = databaseSession.getMetadata().getSchema().getView(name);
+            SchemaView view = databaseSession.getMetadata().getSchema().getView(name);
             if (view != null) {
               updateView(view, databaseSession);
             }
@@ -537,8 +537,8 @@ public class ViewManager {
   }
 
   public void recordAdded(
-      YTImmutableClass clazz, EntityImpl doc,
-      YTDatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
+      SchemaImmutableClass clazz, EntityImpl doc,
+      DatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
     if (viewsExist) {
       lastChangePerClass.put(
           clazz.getName().toLowerCase(Locale.ENGLISH), System.currentTimeMillis());
@@ -546,8 +546,8 @@ public class ViewManager {
   }
 
   public void recordUpdated(
-      YTImmutableClass clazz, EntityImpl doc,
-      YTDatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
+      SchemaImmutableClass clazz, EntityImpl doc,
+      DatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
     if (viewsExist) {
       lastChangePerClass.put(
           clazz.getName().toLowerCase(Locale.ENGLISH), System.currentTimeMillis());
@@ -555,8 +555,8 @@ public class ViewManager {
   }
 
   public void recordDeleted(
-      YTImmutableClass clazz, EntityImpl doc,
-      YTDatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
+      SchemaImmutableClass clazz, EntityImpl doc,
+      DatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
     if (viewsExist) {
       lastChangePerClass.put(
           clazz.getName().toLowerCase(Locale.ENGLISH), System.currentTimeMillis());
@@ -584,7 +584,7 @@ public class ViewManager {
     item.incrementAndGet();
   }
 
-  private class ViewUpdateListener implements YTLiveQueryResultListener {
+  private class ViewUpdateListener implements LiveQueryResultListener {
 
     private final String viewName;
 
@@ -593,9 +593,9 @@ public class ViewManager {
     }
 
     @Override
-    public void onCreate(YTDatabaseSession db, YTResult data) {
-//      YTView view = db.getMetadata().getSchema().getView(viewName);
-//      var dbInternal = (YTDatabaseSessionInternal) db;
+    public void onCreate(DatabaseSession db, Result data) {
+//      SchemaView view = db.getMetadata().getSchema().getView(viewName);
+//      var dbInternal = (DatabaseSessionInternal) db;
 //      if (view != null) {
 //        int cluster = view.getClusterIds()[0];
 //        addItemToView(
@@ -609,28 +609,28 @@ public class ViewManager {
     }
 
     @Override
-    public void onUpdate(YTDatabaseSession db, YTResult before, YTResult after) {
-//      YTView view = db.getMetadata().getSchema().getView(viewName);
+    public void onUpdate(DatabaseSession db, Result before, Result after) {
+//      SchemaView view = db.getMetadata().getSchema().getView(viewName);
 //      if (view != null && view.getOriginRidField() != null) {
-//        try (YTResultSet rs =
+//        try (ResultSet rs =
 //            db.query(
 //                "SELECT FROM " + viewName + " WHERE " + view.getOriginRidField() + " = ?",
 //                (Object) after.getProperty("@rid"))) {
 //          while (rs.hasNext()) {
-//            YTResult row = rs.next();
+//            Result row = rs.next();
 //            row.getEntity()
-//                .ifPresent(elem -> updateViewRow(elem, after, view, (YTDatabaseSessionInternal) db));
+//                .ifPresent(elem -> updateViewRow(elem, after, view, (DatabaseSessionInternal) db));
 //          }
 //        }
 //      }
     }
 
     private void updateViewRow(
-        Entity viewRow, YTResult origin, YTView view, YTDatabaseSessionInternal db) {
+        Entity viewRow, Result origin, SchemaView view, DatabaseSessionInternal db) {
       db.executeInTx(
           () -> {
             var boundRow = db.bindToSession(viewRow);
-            SQLStatement stm = OStatementCache.get(view.getQuery(), db);
+            SQLStatement stm = StatementCache.get(view.getQuery(), db);
             if (stm instanceof SQLSelectStatement) {
               SQLProjection projection = ((SQLSelectStatement) stm).getProjection();
               if (projection == null
@@ -656,10 +656,10 @@ public class ViewManager {
     }
 
     @Override
-    public void onDelete(YTDatabaseSession db, YTResult data) {
-//      YTView view = db.getMetadata().getSchema().getView(viewName);
+    public void onDelete(DatabaseSession db, Result data) {
+//      SchemaView view = db.getMetadata().getSchema().getView(viewName);
 //      if (view != null && view.getOriginRidField() != null) {
-//        try (YTResultSet rs =
+//        try (ResultSet rs =
 //            db.query(
 //                "SELECT FROM " + viewName + " WHERE " + view.getOriginRidField() + " = ?",
 //                (Object) data.getProperty("@rid"))) {
@@ -671,12 +671,12 @@ public class ViewManager {
     }
 
     @Override
-    public void onError(YTDatabaseSession database, YTException exception) {
+    public void onError(DatabaseSession database, BaseException exception) {
       LogManager.instance().error(ViewManager.this, "Error updating view " + viewName, exception);
     }
 
     @Override
-    public void onEnd(YTDatabaseSession database) {
+    public void onEnd(DatabaseSession database) {
     }
   }
 }

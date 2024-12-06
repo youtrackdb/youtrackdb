@@ -1,16 +1,16 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OIndexSearchInfo;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexCandidate;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexFinder;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.IndexSearchInfo;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexCandidate;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -25,12 +25,12 @@ public abstract class SQLBooleanExpression extends SimpleNode {
   public static final SQLBooleanExpression TRUE =
       new SQLBooleanExpression(0) {
         @Override
-        public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
+        public boolean evaluate(Identifiable currentRecord, CommandContext ctx) {
           return true;
         }
 
         @Override
-        public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
+        public boolean evaluate(Result currentRecord, CommandContext ctx) {
           return true;
         }
 
@@ -69,7 +69,7 @@ public abstract class SQLBooleanExpression extends SimpleNode {
         }
 
         @Override
-        public boolean isCacheable(YTDatabaseSessionInternal session) {
+        public boolean isCacheable(DatabaseSessionInternal session) {
           return true;
         }
 
@@ -110,12 +110,12 @@ public abstract class SQLBooleanExpression extends SimpleNode {
   public static final SQLBooleanExpression FALSE =
       new SQLBooleanExpression(0) {
         @Override
-        public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
+        public boolean evaluate(Identifiable currentRecord, CommandContext ctx) {
           return false;
         }
 
         @Override
-        public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
+        public boolean evaluate(Result currentRecord, CommandContext ctx) {
           return false;
         }
 
@@ -154,7 +154,7 @@ public abstract class SQLBooleanExpression extends SimpleNode {
         }
 
         @Override
-        public boolean isCacheable(YTDatabaseSessionInternal session) {
+        public boolean isCacheable(DatabaseSessionInternal session) {
           return true;
         }
 
@@ -195,9 +195,9 @@ public abstract class SQLBooleanExpression extends SimpleNode {
     super(p, id);
   }
 
-  public abstract boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx);
+  public abstract boolean evaluate(Identifiable currentRecord, CommandContext ctx);
 
-  public abstract boolean evaluate(YTResult currentRecord, CommandContext ctx);
+  public abstract boolean evaluate(Result currentRecord, CommandContext ctx);
 
   /**
    * @return true if this expression can be calculated in plain Java, false otherwise (eg. LUCENE
@@ -217,7 +217,7 @@ public abstract class SQLBooleanExpression extends SimpleNode {
   protected abstract List<Object> getExternalCalculationConditions();
 
   public List<SQLBinaryCondition> getIndexedFunctionConditions(
-      YTClass iSchemaClass, YTDatabaseSessionInternal database) {
+      SchemaClass iSchemaClass, DatabaseSessionInternal database) {
     return null;
   }
 
@@ -266,7 +266,7 @@ public abstract class SQLBooleanExpression extends SimpleNode {
   public void translateLuceneOperator() {
   }
 
-  public static SQLBooleanExpression deserializeFromOResult(YTResult doc) {
+  public static SQLBooleanExpression deserializeFromOResult(Result doc) {
     try {
       SQLBooleanExpression result =
           (SQLBooleanExpression)
@@ -275,24 +275,25 @@ public abstract class SQLBooleanExpression extends SimpleNode {
                   .newInstance(-1);
       result.deserialize(doc);
     } catch (Exception e) {
-      throw YTException.wrapException(new YTCommandExecutionException(""), e);
+      throw BaseException.wrapException(new CommandExecutionException(""), e);
     }
     return null;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("__class", getClass().getName());
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     throw new UnsupportedOperationException();
   }
 
-  public abstract boolean isCacheable(YTDatabaseSessionInternal session);
+  public abstract boolean isCacheable(DatabaseSessionInternal session);
 
-  public SQLBooleanExpression rewriteIndexChainsAsSubqueries(CommandContext ctx, YTClass clazz) {
+  public SQLBooleanExpression rewriteIndexChainsAsSubqueries(CommandContext ctx,
+      SchemaClass clazz) {
     return this;
   }
 
@@ -307,11 +308,11 @@ public abstract class SQLBooleanExpression extends SimpleNode {
     return false;
   }
 
-  public boolean isIndexAware(OIndexSearchInfo info) {
+  public boolean isIndexAware(IndexSearchInfo info) {
     return false;
   }
 
-  public Optional<OIndexCandidate> findIndex(OIndexFinder info, CommandContext ctx) {
+  public Optional<IndexCandidate> findIndex(IndexFinder info, CommandContext ctx) {
     return Optional.empty();
   }
 

@@ -2,20 +2,20 @@ package com.orientechnologies.orient.client.remote;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.client.remote.message.MockChannel;
 import com.orientechnologies.orient.client.remote.message.OMessageHelper;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODirtyManager;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DirtyManager;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -38,33 +38,33 @@ public class OMessageHelperTest {
     youTrackDB.execute(
         "create database testOIdentifiable memory users (admin identified by 'admin' role admin)");
 
-    YTDatabaseSessionInternal db =
-        (YTDatabaseSessionInternal) youTrackDB.open("testOIdentifiable", "admin", "admin");
+    DatabaseSessionInternal db =
+        (DatabaseSessionInternal) youTrackDB.open("testOIdentifiable", "admin", "admin");
     int id = db.getClusterIdByName("V");
     try {
       MockChannel channel = new MockChannel();
       EntityImpl doc = new EntityImpl();
       RidBag bags = new RidBag(db);
-      bags.add(new YTRecordId(id, 0));
+      bags.add(new RecordId(id, 0));
       doc.field("bag", bags);
 
-      ODocumentInternal.fillClassNameIfNeeded(doc, "Test");
-      ORecordInternal.setIdentity(doc, new YTRecordId(id, 1));
-      ORecordInternal.setVersion(doc, 1);
+      DocumentInternal.fillClassNameIfNeeded(doc, "Test");
+      RecordInternal.setIdentity(doc, new RecordId(id, 1));
+      RecordInternal.setVersion(doc, 1);
 
       OMessageHelper.writeIdentifiable(null,
-          channel, doc, ORecordSerializerNetworkFactory.INSTANCE.current());
+          channel, doc, RecordSerializerNetworkFactory.INSTANCE.current());
       channel.close();
 
       EntityImpl newDoc =
           (EntityImpl)
               OMessageHelper.readIdentifiable(db,
-                  channel, ORecordSerializerNetworkFactory.INSTANCE.current());
+                  channel, RecordSerializerNetworkFactory.INSTANCE.current());
 
       assertThat(newDoc.getClassName()).isEqualTo("Test");
       assertThat((RidBag) newDoc.field("bag")).hasSize(1);
 
-      ODirtyManager dirtyManager = ORecordInternal.getDirtyManager(newDoc);
+      DirtyManager dirtyManager = RecordInternal.getDirtyManager(newDoc);
       assertThat(dirtyManager.getNewRecords()).isNull();
 
     } finally {
@@ -77,9 +77,9 @@ public class OMessageHelperTest {
   public void testReadWriteTransactionEntry() {
     ORecordOperationRequest request = new ORecordOperationRequest();
 
-    request.setType(ORecordOperation.UPDATED);
-    request.setRecordType(ORecordOperation.UPDATED);
-    request.setId(new YTRecordId(25, 50));
+    request.setType(RecordOperation.UPDATED);
+    request.setRecordType(RecordOperation.UPDATED);
+    request.setId(new RecordId(25, 50));
     request.setRecord(new byte[]{10, 20, 30});
     request.setVersion(100);
     request.setContentChanged(true);

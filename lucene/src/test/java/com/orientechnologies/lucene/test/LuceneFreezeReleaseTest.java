@@ -1,13 +1,13 @@
 package com.orientechnologies.lucene.test;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.io.File;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,13 +29,13 @@ public class LuceneFreezeReleaseTest {
       return;
     }
 
-    YTDatabaseSessionInternal db = new YTDatabaseDocumentTx("plocal:target/freezeRelease");
+    DatabaseSessionInternal db = new DatabaseDocumentTx("plocal:target/freezeRelease");
 
     db.create();
 
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass person = schema.createClass("Person");
-    person.createProperty(db, "name", YTType.STRING);
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass person = schema.createClass("Person");
+    person.createProperty(db, "name", PropertyType.STRING);
 
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE").close();
 
@@ -45,7 +45,7 @@ public class LuceneFreezeReleaseTest {
 
     try {
 
-      YTResultSet results = db.query("select from Person where name lucene 'John'");
+      ResultSet results = db.query("select from Person where name lucene 'John'");
       Assert.assertEquals(1, results.stream().count());
       db.freeze();
 
@@ -74,13 +74,13 @@ public class LuceneFreezeReleaseTest {
       return;
     }
 
-    YTDatabaseSessionInternal db = new YTDatabaseDocumentTx("plocal:target/freezeRelease");
+    DatabaseSessionInternal db = new DatabaseDocumentTx("plocal:target/freezeRelease");
 
     db.create();
 
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass person = schema.createClass("Person");
-    person.createProperty(db, "name", YTType.STRING);
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass person = schema.createClass("Person");
+    person.createProperty(db, "name", PropertyType.STRING);
 
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE").close();
 
@@ -90,7 +90,7 @@ public class LuceneFreezeReleaseTest {
 
     try {
 
-      YTResultSet results = db.query("select from Person where name lucene 'John'");
+      ResultSet results = db.query("select from Person where name lucene 'John'");
       Assert.assertEquals(1, results.stream().count());
 
       db.freeze();

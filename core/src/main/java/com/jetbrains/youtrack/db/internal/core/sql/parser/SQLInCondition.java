@@ -2,18 +2,18 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OIndexSearchInfo;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexCandidate;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexFinder;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OPath;
-import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperatorEquals;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.IndexSearchInfo;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexCandidate;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.MetadataPath;
+import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperatorEquals;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +43,7 @@ public class SQLInCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean evaluate(YTIdentifiable currentRecord, CommandContext ctx) {
+  public boolean evaluate(Identifiable currentRecord, CommandContext ctx) {
     Object leftVal = evaluateLeft(currentRecord, ctx);
     Object rightVal = evaluateRight(currentRecord, ctx);
     if (rightVal == null) {
@@ -52,7 +52,7 @@ public class SQLInCondition extends SQLBooleanExpression {
     return evaluateExpression(ctx.getDatabase(), leftVal, rightVal);
   }
 
-  public Object evaluateRight(YTIdentifiable currentRecord, CommandContext ctx) {
+  public Object evaluateRight(Identifiable currentRecord, CommandContext ctx) {
     Object rightVal = null;
     if (rightStatement != null) {
       rightVal = executeQuery(rightStatement, ctx);
@@ -64,12 +64,12 @@ public class SQLInCondition extends SQLBooleanExpression {
     return rightVal;
   }
 
-  public Object evaluateLeft(YTIdentifiable currentRecord, CommandContext ctx) {
+  public Object evaluateLeft(Identifiable currentRecord, CommandContext ctx) {
     return left.execute(currentRecord, ctx);
   }
 
   @Override
-  public boolean evaluate(YTResult currentRecord, CommandContext ctx) {
+  public boolean evaluate(Result currentRecord, CommandContext ctx) {
     Object rightVal = evaluateRight(currentRecord, ctx);
     if (rightVal == null) {
       return false;
@@ -87,7 +87,7 @@ public class SQLInCondition extends SQLBooleanExpression {
     return evaluateExpression(ctx.getDatabase(), leftVal, rightVal);
   }
 
-  private boolean evaluateAny(YTResult currentRecord, Object rightVal, CommandContext ctx) {
+  private boolean evaluateAny(Result currentRecord, Object rightVal, CommandContext ctx) {
     for (String s : currentRecord.getPropertyNames()) {
       Object leftVal = currentRecord.getProperty(s);
       if (evaluateExpression(ctx.getDatabase(), leftVal, rightVal)) {
@@ -97,7 +97,7 @@ public class SQLInCondition extends SQLBooleanExpression {
     return false;
   }
 
-  private boolean evaluateAllFunction(YTResult currentRecord, Object rightVal,
+  private boolean evaluateAllFunction(Result currentRecord, Object rightVal,
       CommandContext ctx) {
     for (String s : currentRecord.getPropertyNames()) {
       Object leftVal = currentRecord.getProperty(s);
@@ -108,7 +108,7 @@ public class SQLInCondition extends SQLBooleanExpression {
     return true;
   }
 
-  public Object evaluateRight(YTResult currentRecord, CommandContext ctx) {
+  public Object evaluateRight(Result currentRecord, CommandContext ctx) {
     Object rightVal = null;
     if (rightStatement != null) {
       rightVal = executeQuery(rightStatement, ctx);
@@ -120,26 +120,26 @@ public class SQLInCondition extends SQLBooleanExpression {
     return rightVal;
   }
 
-  public Object evaluateLeft(YTResult currentRecord, CommandContext ctx) {
+  public Object evaluateLeft(Result currentRecord, CommandContext ctx) {
     return left.execute(currentRecord, ctx);
   }
 
   protected static Object executeQuery(SQLSelectStatement rightStatement, CommandContext ctx) {
     BasicCommandContext subCtx = new BasicCommandContext();
     subCtx.setParentWithoutOverridingChild(ctx);
-    YTResultSet result = rightStatement.execute(ctx.getDatabase(), ctx.getInputParameters(), false);
+    ResultSet result = rightStatement.execute(ctx.getDatabase(), ctx.getInputParameters(), false);
     return result.stream().collect(Collectors.toSet());
   }
 
-  protected static boolean evaluateExpression(YTDatabaseSessionInternal session, final Object iLeft,
+  protected static boolean evaluateExpression(DatabaseSessionInternal session, final Object iLeft,
       final Object iRight) {
-    if (OMultiValue.isMultiValue(iRight)) {
+    if (MultiValue.isMultiValue(iRight)) {
       if (iRight instanceof Set<?> set) {
         if (set.contains(iLeft)) {
           return true;
         }
-        if (OMultiValue.isMultiValue(iLeft)) {
-          for (final Object o : OMultiValue.getMultiValueIterable(iLeft)) {
+        if (MultiValue.isMultiValue(iLeft)) {
+          for (final Object o : MultiValue.getMultiValueIterable(iLeft)) {
             if (!set.contains(o)) {
               return false;
             }
@@ -147,18 +147,18 @@ public class SQLInCondition extends SQLBooleanExpression {
         }
       }
 
-      for (final Object rightItem : OMultiValue.getMultiValueIterable(iRight)) {
-        if (OQueryOperatorEquals.equals(session, iLeft, rightItem)) {
+      for (final Object rightItem : MultiValue.getMultiValueIterable(iRight)) {
+        if (QueryOperatorEquals.equals(session, iLeft, rightItem)) {
           return true;
         }
-        if (OMultiValue.isMultiValue(iLeft)) {
-          if (OMultiValue.getSize(iLeft) == 1) {
-            Object leftItem = OMultiValue.getFirstValue(iLeft);
+        if (MultiValue.isMultiValue(iLeft)) {
+          if (MultiValue.getSize(iLeft) == 1) {
+            Object leftItem = MultiValue.getFirstValue(iLeft);
             if (compareItems(session, rightItem, leftItem)) {
               return true;
             }
           } else {
-            for (final Object leftItem : OMultiValue.getMultiValueIterable(iLeft)) {
+            for (final Object leftItem : MultiValue.getMultiValueIterable(iLeft)) {
               if (compareItems(session, rightItem, leftItem)) {
                 return true;
               }
@@ -168,15 +168,15 @@ public class SQLInCondition extends SQLBooleanExpression {
       }
     } else if (iRight.getClass().isArray()) {
       for (final Object rightItem : (Object[]) iRight) {
-        if (OQueryOperatorEquals.equals(session, iLeft, rightItem)) {
+        if (QueryOperatorEquals.equals(session, iLeft, rightItem)) {
           return true;
         }
       }
-    } else if (iRight instanceof YTResultSet rsRight) {
+    } else if (iRight instanceof ResultSet rsRight) {
       rsRight.reset();
 
       while (rsRight.hasNext()) {
-        if (OQueryOperatorEquals.equals(session, iLeft, rsRight.next())) {
+        if (QueryOperatorEquals.equals(session, iLeft, rsRight.next())) {
           return true;
         }
       }
@@ -185,17 +185,17 @@ public class SQLInCondition extends SQLBooleanExpression {
     return false;
   }
 
-  private static boolean compareItems(YTDatabaseSessionInternal session, Object rightItem,
+  private static boolean compareItems(DatabaseSessionInternal session, Object rightItem,
       Object leftItem) {
-    if (OQueryOperatorEquals.equals(session, leftItem, rightItem)) {
+    if (QueryOperatorEquals.equals(session, leftItem, rightItem)) {
       return true;
     }
 
-    if (leftItem instanceof YTResult && ((YTResult) leftItem).getPropertyNames().size() == 1) {
+    if (leftItem instanceof Result && ((Result) leftItem).getPropertyNames().size() == 1) {
       Object propValue =
-          ((YTResult) leftItem)
-              .getProperty(((YTResult) leftItem).getPropertyNames().iterator().next());
-      return OQueryOperatorEquals.equals(session, propValue, rightItem);
+          ((Result) leftItem)
+              .getProperty(((Result) leftItem).getPropertyNames().iterator().next());
+      return QueryOperatorEquals.equals(session, propValue, rightItem);
     }
 
     return false;
@@ -392,7 +392,7 @@ public class SQLInCondition extends SQLBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     if (left != null && !left.isCacheable(session)) {
       return false;
     }
@@ -430,7 +430,7 @@ public class SQLInCondition extends SQLBooleanExpression {
     this.rightMathExpression = rightMathExpression;
   }
 
-  public boolean isIndexAware(OIndexSearchInfo info) {
+  public boolean isIndexAware(IndexSearchInfo info) {
     if (left.isBaseIdentifier()) {
       if (info.getField().equals(left.getDefaultAlias().getStringValue())) {
         if (rightMathExpression != null) {
@@ -443,11 +443,11 @@ public class SQLInCondition extends SQLBooleanExpression {
     return false;
   }
 
-  public Optional<OIndexCandidate> findIndex(OIndexFinder info, CommandContext ctx) {
-    Optional<OPath> path = left.getPath();
+  public Optional<IndexCandidate> findIndex(IndexFinder info, CommandContext ctx) {
+    Optional<MetadataPath> path = left.getPath();
     if (path.isPresent()) {
       if (rightMathExpression != null && rightMathExpression.isEarlyCalculated(ctx)) {
-        Object value = rightMathExpression.execute((YTResult) null, ctx);
+        Object value = rightMathExpression.execute((Result) null, ctx);
         return info.findExactIndex(path.get(), value, ctx);
       }
     }

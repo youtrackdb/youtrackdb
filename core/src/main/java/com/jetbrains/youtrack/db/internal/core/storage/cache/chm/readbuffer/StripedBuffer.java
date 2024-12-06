@@ -20,7 +20,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.storage.cache.chm.readbuffer;
 
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.chm.WTinyLFUPolicy;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -152,10 +152,10 @@ abstract class StripedBuffer implements Buffer {
    * @param e the producer's element
    * @return a newly created buffer populated with a single element
    */
-  protected abstract Buffer create(OCacheEntry e);
+  protected abstract Buffer create(CacheEntry e);
 
   @Override
-  public int offer(final OCacheEntry e) {
+  public int offer(final CacheEntry e) {
     final int mask;
     int result = 0;
     final Buffer buffer;
@@ -223,7 +223,7 @@ abstract class StripedBuffer implements Buffer {
    * @param wasUncontended false if CAS failed before call
    */
   @SuppressWarnings("PMD.ConfusingTernary")
-  private void expandOrRetry(final OCacheEntry e, boolean wasUncontended) {
+  private void expandOrRetry(final CacheEntry e, boolean wasUncontended) {
     int h;
     if ((h = getProbe()) == 0) {
       initProbe();

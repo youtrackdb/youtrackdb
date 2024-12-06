@@ -1,23 +1,24 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.collate.Collate;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BytesContainer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.OBinaryComparator;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.OBinaryField;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ODocumentSerializer;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerBinary;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BinaryComparator;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BinaryField;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.DocumentSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerBinary;
 import org.junit.Assert;
 
-public abstract class AbstractComparatorTest extends DBTestBase {
+public abstract class AbstractComparatorTest extends DbTestBase {
 
-  protected ODocumentSerializer serializer =
-      ORecordSerializerBinary.INSTANCE.getCurrentSerializer();
-  protected OBinaryComparator comparator = serializer.getComparator();
+  protected DocumentSerializer serializer =
+      RecordSerializerBinary.INSTANCE.getCurrentSerializer();
+  protected BinaryComparator comparator = serializer.getComparator();
 
-  protected void testEquals(YTDatabaseSessionInternal db, YTType sourceType, YTType destType) {
+  protected void testEquals(DatabaseSessionInternal db, PropertyType sourceType,
+      PropertyType destType) {
     try {
       Assert.assertTrue(comparator.isEqual(field(db, sourceType, 10), field(db, destType, 10)));
       Assert.assertFalse(comparator.isEqual(field(db, sourceType, 10), field(db, destType, 9)));
@@ -28,15 +29,16 @@ public abstract class AbstractComparatorTest extends DBTestBase {
     }
   }
 
-  protected OBinaryField field(YTDatabaseSessionInternal db, final YTType type,
+  protected BinaryField field(DatabaseSessionInternal db, final PropertyType type,
       final Object value) {
     return field(db, type, value, null);
   }
 
-  protected OBinaryField field(YTDatabaseSessionInternal db, final YTType type, final Object value,
-      OCollate collate) {
+  protected BinaryField field(DatabaseSessionInternal db, final PropertyType type,
+      final Object value,
+      Collate collate) {
     BytesContainer bytes = new BytesContainer();
     bytes.offset = serializer.serializeValue(db, bytes, value, type, null, null, null);
-    return new OBinaryField(null, type, bytes, collate);
+    return new BinaryField(null, type, bytes, collate);
   }
 }

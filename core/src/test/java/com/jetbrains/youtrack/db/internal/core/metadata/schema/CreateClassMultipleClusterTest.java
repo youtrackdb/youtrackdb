@@ -2,10 +2,10 @@ package com.jetbrains.youtrack.db.internal.core.metadata.schema;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import org.junit.Test;
 
-public class CreateClassMultipleClusterTest extends DBTestBase {
+public class CreateClassMultipleClusterTest extends DbTestBase {
 
   @Test
   public void testCreateClassSQL() {
@@ -13,10 +13,10 @@ public class CreateClassMultipleClusterTest extends DBTestBase {
     db.command("create class V clusters 16").close();
     db.command("create class X extends V clusters 32").close();
 
-    final YTClass clazzV = db.getMetadata().getSchema().getClass("V");
+    final SchemaClass clazzV = db.getMetadata().getSchema().getClass("V");
     assertEquals(16, clazzV.getClusterIds().length);
 
-    final YTClass clazzX = db.getMetadata().getSchema().getClass("X");
+    final SchemaClass clazzX = db.getMetadata().getSchema().getClass("X");
     assertEquals(32, clazzX.getClusterIds().length);
   }
 
@@ -27,7 +27,7 @@ public class CreateClassMultipleClusterTest extends DBTestBase {
     db.command("drop class V").close();
     db.command("create class V cluster " + s + "," + t).close();
 
-    final YTClass clazzV = db.getMetadata().getSchema().getClass("V");
+    final SchemaClass clazzV = db.getMetadata().getSchema().getClass("V");
     assertEquals(2, clazzV.getClusterIds().length);
 
     assertEquals(s, clazzV.getClusterIds()[0]);

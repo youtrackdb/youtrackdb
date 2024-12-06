@@ -22,14 +22,14 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Test;
 
-public class CommandExecutorSQLCreateSequenceTest extends DBTestBase {
+public class CommandExecutorSQLCreateSequenceTest extends DbTestBase {
 
   @Test
   public void testSimple() {
@@ -37,7 +37,7 @@ public class CommandExecutorSQLCreateSequenceTest extends DBTestBase {
 
     List<Entity> results =
         db.query("select sequence('Sequence1').next() as val").stream()
-            .map(YTResult::toEntity)
+            .map(Result::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (Entity result : results) {
@@ -45,7 +45,7 @@ public class CommandExecutorSQLCreateSequenceTest extends DBTestBase {
     }
     results =
         db.query("select sequence('Sequence1').next() as val").stream()
-            .map(YTResult::toEntity)
+            .map(Result::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (Entity result : results) {
@@ -53,7 +53,7 @@ public class CommandExecutorSQLCreateSequenceTest extends DBTestBase {
     }
     results =
         db.query("select sequence('Sequence1').next() as val").stream()
-            .map(YTResult::toEntity)
+            .map(Result::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (Entity result : results) {
@@ -67,7 +67,7 @@ public class CommandExecutorSQLCreateSequenceTest extends DBTestBase {
 
     List<Entity> results =
         db.query("select sequence('SequenceIncrement').next() as val").stream()
-            .map(YTResult::toEntity)
+            .map(Result::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (Entity result : results) {
@@ -75,7 +75,7 @@ public class CommandExecutorSQLCreateSequenceTest extends DBTestBase {
     }
     results =
         db.query("select sequence('SequenceIncrement').next() as val").stream()
-            .map(YTResult::toEntity)
+            .map(Result::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (Entity result : results) {
@@ -83,7 +83,7 @@ public class CommandExecutorSQLCreateSequenceTest extends DBTestBase {
     }
     results =
         db.query("select sequence('SequenceIncrement').next() as val").stream()
-            .map(YTResult::toEntity)
+            .map(Result::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (Entity result : results) {
@@ -97,7 +97,7 @@ public class CommandExecutorSQLCreateSequenceTest extends DBTestBase {
 
     List<Entity> results =
         db.query("select sequence('SequenceStart').next() as val").stream()
-            .map(YTResult::toEntity)
+            .map(Result::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (Entity result : results) {
@@ -105,7 +105,7 @@ public class CommandExecutorSQLCreateSequenceTest extends DBTestBase {
     }
     results =
         db.query("select sequence('SequenceStart').next() as val").stream()
-            .map(YTResult::toEntity)
+            .map(Result::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (Entity result : results) {
@@ -113,7 +113,7 @@ public class CommandExecutorSQLCreateSequenceTest extends DBTestBase {
     }
     results =
         db.query("select sequence('SequenceStart').next() as val").stream()
-            .map(YTResult::toEntity)
+            .map(Result::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (Entity result : results) {
@@ -127,7 +127,7 @@ public class CommandExecutorSQLCreateSequenceTest extends DBTestBase {
 
     List<Entity> results =
         db.query("select sequence('SequenceStartIncrement').next() as val").stream()
-            .map(YTResult::toEntity)
+            .map(Result::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (Entity result : results) {
@@ -135,7 +135,7 @@ public class CommandExecutorSQLCreateSequenceTest extends DBTestBase {
     }
     results =
         db.query("select sequence('SequenceStartIncrement').next() as val").stream()
-            .map(YTResult::toEntity)
+            .map(Result::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (Entity result : results) {
@@ -143,7 +143,7 @@ public class CommandExecutorSQLCreateSequenceTest extends DBTestBase {
     }
     results =
         db.query("select sequence('SequenceStartIncrement').next() as val").stream()
-            .map(YTResult::toEntity)
+            .map(Result::toEntity)
             .collect(Collectors.toList());
     assertEquals(1, results.size());
     for (Entity result : results) {

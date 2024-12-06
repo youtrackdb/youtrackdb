@@ -15,12 +15,12 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OLegacyResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.query.LegacyResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.LiveQuery;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OLiveResultListener;
+import com.jetbrains.youtrack.db.internal.core.sql.query.LiveResultListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -55,15 +55,15 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
 
     int TOTAL_OPS = 6;
     final CountDownLatch latch = new CountDownLatch(TOTAL_OPS);
-    final List<ORecordOperation> ops = Collections.synchronizedList(new ArrayList());
-    OLegacyResultSet<EntityImpl> tokens =
+    final List<RecordOperation> ops = Collections.synchronizedList(new ArrayList());
+    LegacyResultSet<EntityImpl> tokens =
         database.query(
             new LiveQuery<Object>(
                 "live select from LiveClassTx",
-                new OLiveResultListener() {
+                new LiveResultListener() {
                   @Override
-                  public void onLiveResult(int iLiveToken, ORecordOperation iOp)
-                      throws YTException {
+                  public void onLiveResult(int iLiveToken, RecordOperation iOp)
+                      throws BaseException {
                     ops.add(iOp);
                     latch.countDown();
                   }
@@ -95,10 +95,10 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
     latch.await();
 
     Assert.assertEquals(ops.size(), TOTAL_OPS);
-    for (ORecordOperation doc : ops) {
-      if (doc.type == ORecordOperation.CREATED) {
+    for (RecordOperation doc : ops) {
+      if (doc.type == RecordOperation.CREATED) {
         Assert.assertEquals(((EntityImpl) doc.record).field("name"), "foo");
-      } else if (doc.type == ORecordOperation.UPDATED) {
+      } else if (doc.type == RecordOperation.UPDATED) {
         Assert.assertEquals(((EntityImpl) doc.record).field("name"), "updated");
       } else {
         Assert.fail();
@@ -110,15 +110,15 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
   public void liveQueryTest() throws InterruptedException {
 
     final CountDownLatch latch = new CountDownLatch(6);
-    final List<ORecordOperation> ops = Collections.synchronizedList(new ArrayList());
-    OLegacyResultSet<EntityImpl> tokens =
+    final List<RecordOperation> ops = Collections.synchronizedList(new ArrayList());
+    LegacyResultSet<EntityImpl> tokens =
         database.query(
             new LiveQuery<Object>(
                 "live select from LiveClass",
-                new OLiveResultListener() {
+                new LiveResultListener() {
                   @Override
-                  public void onLiveResult(int iLiveToken, ORecordOperation iOp)
-                      throws YTException {
+                  public void onLiveResult(int iLiveToken, RecordOperation iOp)
+                      throws BaseException {
                     ops.add(iOp);
                     latch.countDown();
                   }
@@ -146,10 +146,10 @@ public class SQLLiveSelectTest extends AbstractSelectTest {
     latch.await();
 
     Assert.assertEquals(ops.size(), 6);
-    for (ORecordOperation doc : ops) {
-      if (doc.type == ORecordOperation.CREATED) {
+    for (RecordOperation doc : ops) {
+      if (doc.type == RecordOperation.CREATED) {
         Assert.assertEquals(((EntityImpl) doc.record).field("name"), "foo");
-      } else if (doc.type == ORecordOperation.UPDATED) {
+      } else if (doc.type == RecordOperation.UPDATED) {
         Assert.assertEquals(((EntityImpl) doc.record).field("name"), "updated");
       } else {
         Assert.fail();

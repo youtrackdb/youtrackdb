@@ -19,16 +19,16 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql.query;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryMonitor;
-import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryResultListener;
-import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.LiveQueryMonitor;
+import com.jetbrains.youtrack.db.internal.core.db.LiveQueryResultListener;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import javax.annotation.Nonnull;
 
 /**
@@ -47,68 +47,68 @@ import javax.annotation.Nonnull;
  * The callback passed as second parameter will be invoked every time a record is
  * created/updated/deleted and it matches the query conditions.
  */
-public class LiveQuery<T> extends OSQLSynchQuery<T> {
+public class LiveQuery<T> extends SQLSynchQuery<T> {
 
   public LiveQuery() {
   }
 
-  public LiveQuery(String iText, final OLiveResultListener iResultListener) {
+  public LiveQuery(String iText, final LiveResultListener iResultListener) {
     super(iText);
-    setResultListener(new OLocalLiveResultListener(iResultListener));
+    setResultListener(new LocalLiveResultListener(iResultListener));
   }
 
   @Override
-  public <RET> RET execute(@Nonnull YTDatabaseSessionInternal querySession, Object... iArgs) {
-    YTDatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
+  public <RET> RET execute(@Nonnull DatabaseSessionInternal querySession, Object... iArgs) {
+    DatabaseSessionInternal database = DatabaseRecordThreadLocal.instance().get();
     if (database.isRemote()) {
-      BackwardYTLiveQueryResultListener listener = new BackwardYTLiveQueryResultListener();
-      YTLiveQueryMonitor monitor = database.live(getText(), listener, iArgs);
+      BackwardLiveQueryResultListener listener = new BackwardLiveQueryResultListener();
+      LiveQueryMonitor monitor = database.live(getText(), listener, iArgs);
       listener.token = monitor.getMonitorId();
       EntityImpl doc = new EntityImpl();
       doc.setProperty("token", listener.token);
-      OLegacyResultSet<EntityImpl> result = new OBasicLegacyResultSet<>();
+      LegacyResultSet<EntityImpl> result = new BasicLegacyResultSet<>();
       result.add(doc);
       return (RET) result;
     }
     return super.execute(querySession, iArgs);
   }
 
-  private class BackwardYTLiveQueryResultListener implements YTLiveQueryResultListener {
+  private class BackwardLiveQueryResultListener implements LiveQueryResultListener {
 
     protected int token;
 
     @Override
-    public void onCreate(YTDatabaseSession database, YTResult data) {
-      ((OLocalLiveResultListener) getResultListener())
+    public void onCreate(DatabaseSession database, Result data) {
+      ((LocalLiveResultListener) getResultListener())
           .onLiveResult(
               token,
-              new ORecordOperation((RecordAbstract) data.toEntity(), ORecordOperation.CREATED));
+              new RecordOperation((RecordAbstract) data.toEntity(), RecordOperation.CREATED));
     }
 
     @Override
-    public void onUpdate(YTDatabaseSession database, YTResult before, YTResult after) {
-      ((OLocalLiveResultListener) getResultListener())
+    public void onUpdate(DatabaseSession database, Result before, Result after) {
+      ((LocalLiveResultListener) getResultListener())
           .onLiveResult(
               token,
-              new ORecordOperation((RecordAbstract) after.toEntity(), ORecordOperation.UPDATED));
+              new RecordOperation((RecordAbstract) after.toEntity(), RecordOperation.UPDATED));
     }
 
     @Override
-    public void onDelete(YTDatabaseSession database, YTResult data) {
-      ((OLocalLiveResultListener) getResultListener())
+    public void onDelete(DatabaseSession database, Result data) {
+      ((LocalLiveResultListener) getResultListener())
           .onLiveResult(
               token,
-              new ORecordOperation((RecordAbstract) data.toEntity(), ORecordOperation.DELETED));
+              new RecordOperation((RecordAbstract) data.toEntity(), RecordOperation.DELETED));
     }
 
     @Override
-    public void onError(YTDatabaseSession database, YTException exception) {
-      ((OLocalLiveResultListener) getResultListener()).onError(token);
+    public void onError(DatabaseSession database, BaseException exception) {
+      ((LocalLiveResultListener) getResultListener()).onError(token);
     }
 
     @Override
-    public void onEnd(YTDatabaseSession database) {
-      ((OLocalLiveResultListener) getResultListener()).onUnsubscribe(token);
+    public void onEnd(DatabaseSession database) {
+      ((LocalLiveResultListener) getResultListener()).onUnsubscribe(token);
     }
   }
 }

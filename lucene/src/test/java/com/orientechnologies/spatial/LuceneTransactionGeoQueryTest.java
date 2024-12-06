@@ -13,14 +13,14 @@
  */
 package com.orientechnologies.spatial;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
@@ -36,21 +36,21 @@ public class LuceneTransactionGeoQueryTest {
   @Test
   public void testPointTransactionRollBack() {
 
-    YTDatabaseSessionInternal db = new YTDatabaseDocumentTx("memory:txPoint");
+    DatabaseSessionInternal db = new DatabaseDocumentTx("memory:txPoint");
 
     try {
       db.create();
 
-      YTSchema schema = db.getMetadata().getSchema();
-      YTClass v = schema.getClass("V");
-      YTClass oClass = schema.createClass("City");
+      Schema schema = db.getMetadata().getSchema();
+      SchemaClass v = schema.getClass("V");
+      SchemaClass oClass = schema.createClass("City");
       oClass.setSuperClass(db, v);
-      oClass.createProperty(db, "location", YTType.EMBEDDED, schema.getClass("OPoint"));
-      oClass.createProperty(db, "name", YTType.STRING);
+      oClass.createProperty(db, "location", PropertyType.EMBEDDED, schema.getClass("OPoint"));
+      oClass.createProperty(db, "name", PropertyType.STRING);
 
       db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
 
-      OIndex idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
+      Index idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
       EntityImpl rome = newCity("Rome", 12.5, 41.9);
       EntityImpl london = newCity("London", -0.1275, 51.507222);
 
@@ -68,7 +68,7 @@ public class LuceneTransactionGeoQueryTest {
               + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
               + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
               + " 21.787556698550834)' ";
-      List<EntityImpl> docs = db.query(new OSQLSynchQuery<EntityImpl>(query));
+      List<EntityImpl> docs = db.query(new SQLSynchQuery<EntityImpl>(query));
       Assert.assertEquals(1, docs.size());
       Assert.assertEquals(3, idx.getInternal().size(db));
       db.rollback();
@@ -78,7 +78,7 @@ public class LuceneTransactionGeoQueryTest {
               + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
               + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
               + " 21.787556698550834)' ";
-      docs = db.query(new OSQLSynchQuery<EntityImpl>(query));
+      docs = db.query(new SQLSynchQuery<EntityImpl>(query));
 
       db.begin();
       Assert.assertEquals(0, docs.size());
@@ -92,21 +92,21 @@ public class LuceneTransactionGeoQueryTest {
   @Test
   public void testPointTransactionUpdate() {
 
-    YTDatabaseSessionInternal db = new YTDatabaseDocumentTx("memory:txPoint");
+    DatabaseSessionInternal db = new DatabaseDocumentTx("memory:txPoint");
 
     try {
       db.create();
 
-      YTSchema schema = db.getMetadata().getSchema();
-      YTClass v = schema.getClass("V");
-      YTClass oClass = schema.createClass("City");
+      Schema schema = db.getMetadata().getSchema();
+      SchemaClass v = schema.getClass("V");
+      SchemaClass oClass = schema.createClass("City");
       oClass.setSuperClass(db, v);
-      oClass.createProperty(db, "location", YTType.EMBEDDED, schema.getClass("OPoint"));
-      oClass.createProperty(db, "name", YTType.STRING);
+      oClass.createProperty(db, "location", PropertyType.EMBEDDED, schema.getClass("OPoint"));
+      oClass.createProperty(db, "name", PropertyType.STRING);
 
       db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
 
-      OIndex idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
+      Index idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
       EntityImpl rome = newCity("Rome", 12.5, 41.9);
 
       db.begin();
@@ -120,7 +120,7 @@ public class LuceneTransactionGeoQueryTest {
               + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
               + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
               + " 21.787556698550834)' ";
-      List<EntityImpl> docs = db.query(new OSQLSynchQuery<EntityImpl>(query));
+      List<EntityImpl> docs = db.query(new SQLSynchQuery<EntityImpl>(query));
 
       db.begin();
       Assert.assertEquals(0, docs.size());
@@ -133,7 +133,7 @@ public class LuceneTransactionGeoQueryTest {
               + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
               + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
               + " 21.787556698550834)' ";
-      docs = db.query(new OSQLSynchQuery<EntityImpl>(query));
+      docs = db.query(new SQLSynchQuery<EntityImpl>(query));
       Assert.assertEquals(1, docs.size());
       Assert.assertEquals(1, idx.getInternal().size(db));
 
@@ -144,7 +144,7 @@ public class LuceneTransactionGeoQueryTest {
               + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
               + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
               + " 21.787556698550834)' ";
-      docs = db.query(new OSQLSynchQuery<EntityImpl>(query));
+      docs = db.query(new SQLSynchQuery<EntityImpl>(query));
 
       db.begin();
       Assert.assertEquals(1, docs.size());

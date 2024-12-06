@@ -3,9 +3,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTInternalResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 import java.util.Objects;
@@ -29,7 +29,7 @@ public class SQLLetStatement extends SQLSimpleExecStatement {
   public ExecutionStream executeSimple(CommandContext ctx) {
     Object result;
     if (expression != null) {
-      result = expression.execute((YTResult) null, ctx);
+      result = expression.execute((Result) null, ctx);
     } else {
       Map<Object, Object> params = ctx.getInputParameters();
       if (statement.originalStatement == null) {
@@ -37,11 +37,11 @@ public class SQLLetStatement extends SQLSimpleExecStatement {
       }
       result = statement.execute(ctx.getDatabase(), params, ctx, false);
     }
-    if (result instanceof YTResultSet) {
-      YTInternalResultSet rs = new YTInternalResultSet();
-      ((YTResultSet) result).stream().forEach(x -> rs.add(x));
-      rs.setPlan(((YTResultSet) result).getExecutionPlan().orElse(null));
-      ((YTResultSet) result).close();
+    if (result instanceof ResultSet) {
+      InternalResultSet rs = new InternalResultSet();
+      ((ResultSet) result).stream().forEach(x -> rs.add(x));
+      rs.setPlan(((ResultSet) result).getExecutionPlan().orElse(null));
+      ((ResultSet) result).close();
       result = rs;
     }
 

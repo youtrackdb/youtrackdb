@@ -20,9 +20,9 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v2;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 
 /**
  * @since 5/14/14
@@ -30,15 +30,15 @@ import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
 public final class DirectoryFirstPageV2 extends DirectoryPageV2 {
 
   private static final int TREE_SIZE_OFFSET = NEXT_FREE_POSITION;
-  private static final int TOMBSTONE_OFFSET = TREE_SIZE_OFFSET + OIntegerSerializer.INT_SIZE;
+  private static final int TOMBSTONE_OFFSET = TREE_SIZE_OFFSET + IntegerSerializer.INT_SIZE;
 
-  private static final int ITEMS_OFFSET = TOMBSTONE_OFFSET + OIntegerSerializer.INT_SIZE;
+  private static final int ITEMS_OFFSET = TOMBSTONE_OFFSET + IntegerSerializer.INT_SIZE;
 
   static final int NODES_PER_PAGE =
       (GlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024 - ITEMS_OFFSET)
           / HashTableDirectory.BINARY_LEVEL_SIZE;
 
-  public DirectoryFirstPageV2(OCacheEntry cacheEntry) {
+  public DirectoryFirstPageV2(CacheEntry cacheEntry) {
     super(cacheEntry);
   }
 

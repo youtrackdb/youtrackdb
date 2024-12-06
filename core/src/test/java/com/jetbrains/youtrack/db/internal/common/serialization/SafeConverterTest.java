@@ -9,7 +9,7 @@ public class SafeConverterTest extends AbstractConverterTest {
 
   @Before
   public void beforeClass() {
-    converter = new OSafeBinaryConverter();
+    converter = new SafeBinaryConverter();
   }
 
   @Override

@@ -2,20 +2,20 @@ package com.jetbrains.youtrack.db.internal.core.db.hook;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.hook.YTRecordHook;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 
-public class HookRegisterRemoveTest extends DBTestBase {
+public class HookRegisterRemoveTest extends DbTestBase {
 
   @Test
   public void addAndRemoveHookTest() {
     final AtomicInteger integer = new AtomicInteger(0);
-    YTRecordHook iHookImpl =
-        new YTRecordHook() {
+    RecordHook iHookImpl =
+        new RecordHook() {
 
           @Override
           public void onUnregister() {

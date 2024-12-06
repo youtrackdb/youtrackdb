@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -24,8 +24,8 @@ public class SQLCreateClassTest {
 
   @Test
   public void testSimpleCreate() {
-    YTDatabaseSessionInternal db =
-        new YTDatabaseDocumentTx("memory:" + SQLCreateClassTest.class.getName());
+    DatabaseSessionInternal db =
+        new DatabaseDocumentTx("memory:" + SQLCreateClassTest.class.getName());
     db.create();
     try {
       Assert.assertFalse(db.getMetadata().getSchema().existsClass("testSimpleCreate"));
@@ -38,8 +38,8 @@ public class SQLCreateClassTest {
 
   @Test
   public void testIfNotExists() {
-    YTDatabaseSessionInternal db =
-        new YTDatabaseDocumentTx("memory:" + SQLCreateClassTest.class.getName() + "_ifNotExists");
+    DatabaseSessionInternal db =
+        new DatabaseDocumentTx("memory:" + SQLCreateClassTest.class.getName() + "_ifNotExists");
     db.create();
     try {
       Assert.assertFalse(db.getMetadata().getSchema().existsClass("testIfNotExists"));

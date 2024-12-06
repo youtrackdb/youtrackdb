@@ -46,6 +46,6 @@ set SSL_OPTS="-Dclient.ssl.enabled=false -Djavax.net.ssl.keyStore=%KEYSTORE% -Dj
 
 set ORIENTDB_SETTINGS=-Xmx1024m -Djna.nosys=true -Djava.util.logging.config.file="%YOU_TRACK_DB_HOME%\config\orientdb-client-log.properties" -Djava.awt.headless=true
 
-call %JAVA% -client %SSL_OPTS% %ORIENTDB_SETTINGS% -Dfile.encoding=utf-8 -Dorientdb.build.number="@BUILD@" -cp "%YOU_TRACK_DB_HOME%\lib\*;%YOU_TRACK_DB_HOME%\plugins\*" com.orientechnologies.orient.console.OConsoleDatabaseApp %CMD_LINE_ARGS%
+call %JAVA% -client %SSL_OPTS% %ORIENTDB_SETTINGS% -Dfile.encoding=utf-8 -Dorientdb.build.number="@BUILD@" -cp "%YOU_TRACK_DB_HOME%\lib\*;%YOU_TRACK_DB_HOME%\plugins\*" com.orientechnologies.orient.console.ConsoleDatabaseApp %CMD_LINE_ARGS%
 
 :end

@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.resultset;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 
 public class ProduceExecutionStream implements ExecutionStream {
 
-  private final OProduceResult producer;
+  private final ProduceResult producer;
 
-  public ProduceExecutionStream(OProduceResult producer) {
+  public ProduceExecutionStream(ProduceResult producer) {
     if (producer == null) {
       throw new NullPointerException();
     }
@@ -20,7 +20,7 @@ public class ProduceExecutionStream implements ExecutionStream {
   }
 
   @Override
-  public YTResult next(CommandContext ctx) {
+  public Result next(CommandContext ctx) {
     return producer.produce(ctx);
   }
 

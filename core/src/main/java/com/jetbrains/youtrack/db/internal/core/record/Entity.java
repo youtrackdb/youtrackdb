@@ -19,10 +19,10 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import java.util.Collection;
 import java.util.Map;
@@ -66,7 +66,7 @@ public interface Entity extends Record {
    *
    * @param name the property name
    * @return the property value as an Entity
-   * @throws YTDatabaseException if the property is not an Entity
+   * @throws DatabaseException if the property is not an Entity
    */
   @Nullable
   default Entity getElementProperty(String name) {
@@ -75,8 +75,8 @@ public interface Entity extends Record {
     return switch (property) {
       case null -> null;
       case Entity entity -> entity;
-      case YTIdentifiable identifiable -> identifiable.getEntity();
-      default -> throw new YTDatabaseException(
+      case Identifiable identifiable -> identifiable.getEntity();
+      default -> throw new DatabaseException(
           "Property "
               + name
               + " is not an entity property, it is a "
@@ -91,7 +91,7 @@ public interface Entity extends Record {
    *
    * @param propertyName the property name
    * @return the property value as an Vertex
-   * @throws YTDatabaseException if the property is not an Vertex
+   * @throws DatabaseException if the property is not an Vertex
    */
   @Nullable
   default Vertex getVertexProperty(String propertyName) {
@@ -103,7 +103,7 @@ public interface Entity extends Record {
     return entity
         .asVertex()
         .orElseThrow(
-            () -> new YTDatabaseException("Property " + propertyName + " is not a vertex"));
+            () -> new DatabaseException("Property " + propertyName + " is not a vertex"));
   }
 
   /**
@@ -112,7 +112,7 @@ public interface Entity extends Record {
    *
    * @param propertyName the property name
    * @return the property value as an Edge
-   * @throws YTDatabaseException if the property is not an Edge
+   * @throws DatabaseException if the property is not an Edge
    */
   @Nullable
   default Edge getEdgeProperty(String propertyName) {
@@ -123,7 +123,7 @@ public interface Entity extends Record {
 
     return entity
         .asEdge()
-        .orElseThrow(() -> new YTDatabaseException("Property " + propertyName + " is not an edge"));
+        .orElseThrow(() -> new DatabaseException("Property " + propertyName + " is not an edge"));
   }
 
   /**
@@ -134,7 +134,7 @@ public interface Entity extends Record {
    *
    * @param propertyName the property name
    * @return the property value as an Blob
-   * @throws YTDatabaseException if the property is not an Blob
+   * @throws DatabaseException if the property is not an Blob
    */
   @Nullable
   default Blob getBlobProperty(String propertyName) {
@@ -143,8 +143,8 @@ public interface Entity extends Record {
     return switch (property) {
       case null -> null;
       case Blob blob -> blob;
-      case YTIdentifiable identifiable -> identifiable.getBlob();
-      default -> throw new YTDatabaseException(
+      case Identifiable identifiable -> identifiable.getBlob();
+      default -> throw new DatabaseException(
           "Property "
               + propertyName
               + " is not a blob property, it is a "
@@ -175,7 +175,7 @@ public interface Entity extends Record {
    * @see #getProperty(String)
    */
   @Nullable
-  YTIdentifiable getLinkProperty(String name);
+  Identifiable getLinkProperty(String name);
 
   /**
    * Check if a property exists in the Element
@@ -200,7 +200,7 @@ public interface Entity extends Record {
    * @param value        the property value
    * @param propertyType Forced type (not auto-determined)
    */
-  void setProperty(String name, Object value, YTType... propertyType);
+  void setProperty(String name, Object value, PropertyType... propertyType);
 
   /**
    * Remove a property
@@ -263,7 +263,7 @@ public interface Entity extends Record {
    * @return the type of current entity. An empty optional is returned if current entity does not
    * have a schema
    */
-  Optional<YTClass> getSchemaType();
+  Optional<SchemaClass> getSchemaType();
 
   /**
    * Retrieves the schema class associated with this entity.
@@ -272,7 +272,7 @@ public interface Entity extends Record {
    * class
    */
   @Nullable
-  YTClass getSchemaClass();
+  SchemaClass getSchemaClass();
 
   /**
    * Retrieves the class name associated with this entity.

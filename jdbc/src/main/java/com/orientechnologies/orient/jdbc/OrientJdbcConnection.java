@@ -14,13 +14,13 @@
 package com.orientechnologies.orient.jdbc;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.util.OURLConnection;
-import com.jetbrains.youtrack.db.internal.core.util.OURLHelper;
+import com.jetbrains.youtrack.db.internal.core.util.DatabaseURLConnection;
+import com.jetbrains.youtrack.db.internal.core.util.URLHelper;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
@@ -47,13 +47,13 @@ import java.util.concurrent.Executor;
  */
 public class OrientJdbcConnection implements Connection {
 
-  private YTDatabaseSession database;
+  private DatabaseSession database;
   private String dbUrl;
   private final Properties info;
   private final YouTrackDB youTrackDB;
   private boolean readOnly;
   private boolean autoCommit;
-  private YTDatabaseSession.STATUS status;
+  private DatabaseSession.STATUS status;
 
   private final boolean youtrackDBisPrivate;
 
@@ -70,7 +70,7 @@ public class OrientJdbcConnection implements Connection {
     final String serverUsername = info.getProperty("serverUser", "");
     final String serverPassword = info.getProperty("serverPassword", "");
 
-    OURLConnection connUrl = OURLHelper.parseNew(dbUrl);
+    DatabaseURLConnection connUrl = URLHelper.parseNew(dbUrl);
     youTrackDB =
         new YouTrackDB(
             connUrl.getType() + ":" + connUrl.getPath(),
@@ -81,7 +81,7 @@ public class OrientJdbcConnection implements Connection {
     if (!serverUsername.isEmpty() && !serverPassword.isEmpty()) {
       youTrackDB.createIfNotExists(
           connUrl.getDbName(),
-          connUrl.getDbType().orElse(ODatabaseType.MEMORY),
+          connUrl.getDbType().orElse(DatabaseType.MEMORY),
           username,
           password,
           "admin");
@@ -90,15 +90,15 @@ public class OrientJdbcConnection implements Connection {
     database = youTrackDB.open(connUrl.getDbName(), username, password);
 
     youtrackDBisPrivate = true;
-    status = YTDatabaseSession.STATUS.OPEN;
+    status = DatabaseSession.STATUS.OPEN;
   }
 
-  public OrientJdbcConnection(YTDatabaseSession database, YouTrackDB youTrackDB, Properties info) {
+  public OrientJdbcConnection(DatabaseSession database, YouTrackDB youTrackDB, Properties info) {
     this.database = database;
     this.youTrackDB = youTrackDB;
     this.info = info;
     youtrackDBisPrivate = false;
-    status = YTDatabaseSession.STATUS.OPEN;
+    status = DatabaseSession.STATUS.OPEN;
   }
 
   protected YouTrackDB getOrientDB() {
@@ -140,7 +140,7 @@ public class OrientJdbcConnection implements Connection {
   }
 
   public void close() throws SQLException {
-    status = YTDatabaseSession.STATUS.CLOSED;
+    status = DatabaseSession.STATUS.CLOSED;
     if (database != null) {
       database.activateOnCurrentThread();
       database.close();
@@ -161,7 +161,7 @@ public class OrientJdbcConnection implements Connection {
   }
 
   public boolean isClosed() throws SQLException {
-    return status == YTDatabaseSession.STATUS.CLOSED;
+    return status == DatabaseSession.STATUS.CLOSED;
   }
 
   public boolean isReadOnly() throws SQLException {
@@ -253,7 +253,7 @@ public class OrientJdbcConnection implements Connection {
   }
 
   public DatabaseMetaData getMetaData() throws SQLException {
-    return new OrientJdbcDatabaseMetaData(this, (YTDatabaseSessionInternal) database);
+    return new OrientJdbcDatabaseMetaData(this, (DatabaseSessionInternal) database);
   }
 
   public int getTransactionIsolation() throws SQLException {
@@ -331,7 +331,7 @@ public class OrientJdbcConnection implements Connection {
     return null;
   }
 
-  public YTDatabaseSession getDatabase() {
+  public DatabaseSession getDatabase() {
     return database;
   }
 

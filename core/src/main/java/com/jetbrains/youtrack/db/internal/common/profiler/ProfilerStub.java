@@ -219,7 +219,7 @@ public class ProfilerStub extends AbstractProfiler {
   }
 
   @Override
-  public OProfilerEntry getChrono(String string) {
+  public ProfilerEntry getChrono(String string) {
     return null;
   }
 

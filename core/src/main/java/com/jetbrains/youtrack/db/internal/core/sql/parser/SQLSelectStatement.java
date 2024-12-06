@@ -8,13 +8,13 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OInternalExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OSelectExecutionPlanner;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.SelectExecutionPlanner;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -253,17 +253,17 @@ public class SQLSelectStatement extends SQLStatement {
     }
   }
 
-  public void validate() throws YTCommandSQLParsingException {
+  public void validate() throws CommandSQLParsingException {
     if (projection != null) {
       projection.validate();
       if (projection.isExpand() && groupBy != null) {
-        throw new YTCommandSQLParsingException("expand() cannot be used together with GROUP BY");
+        throw new CommandSQLParsingException("expand() cannot be used together with GROUP BY");
       }
     }
   }
 
   @Override
-  public boolean executinPlanCanBeCached(YTDatabaseSessionInternal session) {
+  public boolean executinPlanCanBeCached(DatabaseSessionInternal session) {
     if (originalStatement == null) {
       setOriginalStatement(this.toString());
     }
@@ -283,8 +283,8 @@ public class SQLSelectStatement extends SQLStatement {
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
+  public ResultSet execute(
+      DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
     BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
@@ -298,49 +298,49 @@ public class SQLSelectStatement extends SQLStatement {
       }
     }
     ctx.setInputParameters(params);
-    OInternalExecutionPlan executionPlan;
+    InternalExecutionPlan executionPlan;
     if (usePlanCache) {
       executionPlan = createExecutionPlan(ctx, false);
     } else {
       executionPlan = createExecutionPlanNoCache(ctx, false);
     }
 
-    YTLocalResultSet result = new YTLocalResultSet(executionPlan);
+    LocalResultSet result = new LocalResultSet(executionPlan);
     return result;
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
+  public ResultSet execute(
+      DatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
     BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     ctx.setInputParameters(params);
-    OInternalExecutionPlan executionPlan;
+    InternalExecutionPlan executionPlan;
     if (usePlanCache) {
       executionPlan = createExecutionPlan(ctx, false);
     } else {
       executionPlan = createExecutionPlanNoCache(ctx, false);
     }
 
-    YTLocalResultSet result = new YTLocalResultSet(executionPlan);
+    LocalResultSet result = new LocalResultSet(executionPlan);
     return result;
   }
 
-  public OInternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    OSelectExecutionPlanner planner = new OSelectExecutionPlanner(this);
-    OInternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling, true);
+  public InternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
+    SelectExecutionPlanner planner = new SelectExecutionPlanner(this);
+    InternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling, true);
     result.setStatement(this.originalStatement);
     result.setGenericStatement(this.toGenericStatement());
     return result;
   }
 
-  public OInternalExecutionPlan createExecutionPlanNoCache(
+  public InternalExecutionPlan createExecutionPlanNoCache(
       CommandContext ctx, boolean enableProfiling) {
-    OSelectExecutionPlanner planner = new OSelectExecutionPlanner(this);
-    OInternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling, false);
+    SelectExecutionPlanner planner = new SelectExecutionPlanner(this);
+    InternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling, false);
     result.setStatement(this.originalStatement);
     result.setGenericStatement(this.toGenericStatement());
     return result;
@@ -492,8 +492,8 @@ public class SQLSelectStatement extends SQLStatement {
     this.noCache = noCache;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = (YTResultInternal) super.serialize(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = (ResultInternal) super.serialize(db);
     if (target != null) {
       result.setProperty("target", target.serialize(db));
     }
@@ -532,7 +532,7 @@ public class SQLSelectStatement extends SQLStatement {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     if (fromResult.getProperty("target") != null) {
       target = new SQLFromClause(-1);
       target.deserialize(fromResult.getProperty("target"));

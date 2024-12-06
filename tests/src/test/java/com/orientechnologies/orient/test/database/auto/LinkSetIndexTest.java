@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -33,12 +33,12 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
 
   @BeforeClass
   public void setupSchema() {
-    final YTClass ridBagIndexTestClass =
+    final SchemaClass ridBagIndexTestClass =
         database.getMetadata().getSchema().createClass("LinkSetIndexTestClass");
 
-    ridBagIndexTestClass.createProperty(database, "linkSet", YTType.LINKSET);
+    ridBagIndexTestClass.createProperty(database, "linkSet", PropertyType.LINKSET);
 
-    ridBagIndexTestClass.createIndex(database, "linkSetIndex", YTClass.INDEX_TYPE.NOTUNIQUE,
+    ridBagIndexTestClass.createIndex(database, "linkSetIndex", SchemaClass.INDEX_TYPE.NOTUNIQUE,
         "linkSet");
     database.close();
   }
@@ -56,11 +56,11 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     database.command("DELETE FROM LinkSetIndexTestClass").close();
     database.commit();
 
-    YTResultSet result = database.command("select from LinkSetIndexTestClass");
+    ResultSet result = database.command("select from LinkSetIndexTestClass");
     Assert.assertEquals(result.stream().count(), 0);
 
     if (database.getStorage().isRemote()) {
-      OIndex index =
+      Index index =
           database.getMetadata().getIndexManagerInternal().getIndex(database, "linkSetIndex");
       Assert.assertEquals(index.getInternal().size(database), 0);
     }
@@ -79,7 +79,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
-    final Set<YTIdentifiable> linkSet = new HashSet<>();
+    final Set<Identifiable> linkSet = new HashSet<>();
     linkSet.add(docOne);
     linkSet.add(docTwo);
 
@@ -87,7 +87,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
-    OIndex index = getIndex("linkSetIndex");
+    Index index = getIndex("linkSetIndex");
     Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
@@ -95,7 +95,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        YTIdentifiable key = (YTIdentifiable) keysIterator.next();
+        Identifiable key = (Identifiable) keysIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -118,7 +118,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     try {
       database.begin();
       final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
-      final Set<YTIdentifiable> linkSet = new HashSet<>();
+      final Set<Identifiable> linkSet = new HashSet<>();
       linkSet.add(database.bindToSession(docOne));
       linkSet.add(database.bindToSession(docTwo));
 
@@ -130,7 +130,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       throw e;
     }
 
-    OIndex index = getIndex("linkSetIndex");
+    Index index = getIndex("linkSetIndex");
     Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
@@ -138,7 +138,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        YTIdentifiable key = (YTIdentifiable) keysIterator.next();
+        Identifiable key = (Identifiable) keysIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -161,14 +161,14 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
-    final Set<YTIdentifiable> linkSetOne = new HashSet<>();
+    final Set<Identifiable> linkSetOne = new HashSet<>();
     linkSetOne.add(docOne);
     linkSetOne.add(docTwo);
 
     document.field("linkSet", linkSetOne);
     document.save();
 
-    final Set<YTIdentifiable> linkSetTwo = new HashSet<>();
+    final Set<Identifiable> linkSetTwo = new HashSet<>();
     linkSetTwo.add(docOne);
     linkSetTwo.add(docThree);
 
@@ -176,7 +176,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
-    OIndex index = getIndex("linkSetIndex");
+    Index index = getIndex("linkSetIndex");
     Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
@@ -184,7 +184,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        YTIdentifiable key = (YTIdentifiable) keysIterator.next();
+        Identifiable key = (Identifiable) keysIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docThree.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -207,7 +207,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
-    final Set<YTIdentifiable> linkSetOne = new HashSet<>();
+    final Set<Identifiable> linkSetOne = new HashSet<>();
     linkSetOne.add(docOne);
     linkSetOne.add(docTwo);
 
@@ -219,7 +219,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       database.begin();
 
       document = database.bindToSession(document);
-      final Set<YTIdentifiable> linkSetTwo = new HashSet<>();
+      final Set<Identifiable> linkSetTwo = new HashSet<>();
       linkSetTwo.add(database.bindToSession(docOne));
       linkSetTwo.add(database.bindToSession(docThree));
 
@@ -231,7 +231,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       throw e;
     }
 
-    OIndex index = getIndex("linkSetIndex");
+    Index index = getIndex("linkSetIndex");
     Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
@@ -239,7 +239,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        YTIdentifiable key = (YTIdentifiable) keysIterator.next();
+        Identifiable key = (Identifiable) keysIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docThree.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -261,7 +261,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     final EntityImpl docThree = new EntityImpl();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final Set<YTIdentifiable> linkSetOne = new HashSet<>();
+    final Set<Identifiable> linkSetOne = new HashSet<>();
     linkSetOne.add(docOne);
     linkSetOne.add(docTwo);
 
@@ -273,7 +273,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     database.begin();
 
     document = database.bindToSession(document);
-    final Set<YTIdentifiable> linkSetTwo = new HashSet<>();
+    final Set<Identifiable> linkSetTwo = new HashSet<>();
     linkSetTwo.add(database.bindToSession(docOne));
     linkSetTwo.add(database.bindToSession(docThree));
 
@@ -281,7 +281,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     document.save();
     database.rollback();
 
-    OIndex index = getIndex("linkSetIndex");
+    Index index = getIndex("linkSetIndex");
     Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
@@ -289,7 +289,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        YTIdentifiable key = (YTIdentifiable) keysIterator.next();
+        Identifiable key = (Identifiable) keysIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -312,7 +312,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
-    final Set<YTIdentifiable> linkSet = new HashSet<>();
+    final Set<Identifiable> linkSet = new HashSet<>();
     linkSet.add(docOne);
     linkSet.add(docTwo);
     document.field("linkSet", linkSet);
@@ -330,7 +330,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    OIndex index = getIndex("linkSetIndex");
+    Index index = getIndex("linkSetIndex");
     Assert.assertEquals(index.getInternal().size(database), 3);
 
     Iterator<Object> keysIterator;
@@ -338,7 +338,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        YTIdentifiable key = (YTIdentifiable) keysIterator.next();
+        Identifiable key = (Identifiable) keysIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())
             && !key.getIdentity().equals(docThree.getIdentity())) {
@@ -362,7 +362,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     docThree.save();
 
     final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
-    final Set<YTIdentifiable> linkSet = new HashSet<>();
+    final Set<Identifiable> linkSet = new HashSet<>();
     linkSet.add(docOne);
     linkSet.add(docTwo);
 
@@ -373,7 +373,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     try {
       database.begin();
       EntityImpl loadedDocument = database.load(document.getIdentity());
-      loadedDocument.<Set<YTIdentifiable>>field("linkSet").add(database.bindToSession(docThree));
+      loadedDocument.<Set<Identifiable>>field("linkSet").add(database.bindToSession(docThree));
       loadedDocument.save();
       database.commit();
     } catch (Exception e) {
@@ -381,7 +381,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       throw e;
     }
 
-    OIndex index = getIndex("linkSetIndex");
+    Index index = getIndex("linkSetIndex");
     Assert.assertEquals(index.getInternal().size(database), 3);
 
     Iterator<Object> keysIterator;
@@ -389,7 +389,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        YTIdentifiable key = (YTIdentifiable) keysIterator.next();
+        Identifiable key = (Identifiable) keysIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())
             && !key.getIdentity().equals(docThree.getIdentity())) {
@@ -413,7 +413,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
-    final Set<YTIdentifiable> linkSet = new HashSet<>();
+    final Set<Identifiable> linkSet = new HashSet<>();
     linkSet.add(docOne);
     linkSet.add(docTwo);
 
@@ -423,11 +423,11 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
 
     database.begin();
     EntityImpl loadedDocument = database.load(document.getIdentity());
-    loadedDocument.<Set<YTIdentifiable>>field("linkSet").add(database.bindToSession(docThree));
+    loadedDocument.<Set<Identifiable>>field("linkSet").add(database.bindToSession(docThree));
     loadedDocument.save();
     database.rollback();
 
-    OIndex index = getIndex("linkSetIndex");
+    Index index = getIndex("linkSetIndex");
     Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
@@ -435,7 +435,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        YTIdentifiable key = (YTIdentifiable) keysIterator.next();
+        Identifiable key = (Identifiable) keysIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -455,7 +455,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
-    final Set<YTIdentifiable> linkSet = new HashSet<>();
+    final Set<Identifiable> linkSet = new HashSet<>();
     linkSet.add(docOne);
     linkSet.add(docTwo);
     document.field("linkSet", linkSet);
@@ -465,7 +465,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     try {
       database.begin();
       EntityImpl loadedDocument = database.load(document.getIdentity());
-      loadedDocument.<Set<YTIdentifiable>>field("linkSet").remove(docTwo);
+      loadedDocument.<Set<Identifiable>>field("linkSet").remove(docTwo);
       loadedDocument.save();
       database.commit();
     } catch (Exception e) {
@@ -473,7 +473,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       throw e;
     }
 
-    OIndex index = getIndex("linkSetIndex");
+    Index index = getIndex("linkSetIndex");
     Assert.assertEquals(index.getInternal().size(database), 1);
 
     Iterator<Object> keysIterator;
@@ -481,7 +481,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        YTIdentifiable key = (YTIdentifiable) keysIterator.next();
+        Identifiable key = (Identifiable) keysIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
         }
@@ -500,7 +500,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
-    final Set<YTIdentifiable> linkSet = new HashSet<>();
+    final Set<Identifiable> linkSet = new HashSet<>();
     linkSet.add(docOne);
     linkSet.add(docTwo);
     document.field("linkSet", linkSet);
@@ -509,11 +509,11 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
 
     database.begin();
     EntityImpl loadedDocument = database.load(document.getIdentity());
-    loadedDocument.<Set<YTIdentifiable>>field("linkSet").remove(docTwo);
+    loadedDocument.<Set<Identifiable>>field("linkSet").remove(docTwo);
     loadedDocument.save();
     database.rollback();
 
-    OIndex index = getIndex("linkSetIndex");
+    Index index = getIndex("linkSetIndex");
     Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
@@ -521,7 +521,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        YTIdentifiable key = (YTIdentifiable) keysIterator.next();
+        Identifiable key = (Identifiable) keysIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -541,7 +541,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
-    final Set<YTIdentifiable> linkSet = new HashSet<>();
+    final Set<Identifiable> linkSet = new HashSet<>();
     linkSet.add(docOne);
     linkSet.add(docTwo);
 
@@ -555,7 +555,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    OIndex index = getIndex("linkSetIndex");
+    Index index = getIndex("linkSetIndex");
     Assert.assertEquals(index.getInternal().size(database), 1);
 
     Iterator<Object> keysIterator;
@@ -563,7 +563,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        YTIdentifiable key = (YTIdentifiable) keysIterator.next();
+        Identifiable key = (Identifiable) keysIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
         }
@@ -583,7 +583,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
 
     final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
 
-    final Set<YTIdentifiable> linkSet = new HashSet<>();
+    final Set<Identifiable> linkSet = new HashSet<>();
     linkSet.add(docOne);
     linkSet.add(docTwo);
 
@@ -595,7 +595,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     database.bindToSession(document).delete();
     database.commit();
 
-    OIndex index = getIndex("linkSetIndex");
+    Index index = getIndex("linkSetIndex");
     Assert.assertEquals(index.getInternal().size(database), 0);
   }
 
@@ -611,7 +611,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
 
     final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
 
-    final Set<YTIdentifiable> linkSet = new HashSet<>();
+    final Set<Identifiable> linkSet = new HashSet<>();
     linkSet.add(docOne);
     linkSet.add(docTwo);
 
@@ -628,7 +628,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       throw e;
     }
 
-    OIndex index = getIndex("linkSetIndex");
+    Index index = getIndex("linkSetIndex");
     Assert.assertEquals(index.getInternal().size(database), 0);
   }
 
@@ -643,7 +643,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     final EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
-    final Set<YTIdentifiable> linkSet = new HashSet<>();
+    final Set<Identifiable> linkSet = new HashSet<>();
 
     linkSet.add(docOne);
     linkSet.add(docTwo);
@@ -656,7 +656,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     database.bindToSession(document).delete();
     database.rollback();
 
-    OIndex index = getIndex("linkSetIndex");
+    Index index = getIndex("linkSetIndex");
     Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
@@ -664,7 +664,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
       keysIterator = keyStream.iterator();
 
       while (keysIterator.hasNext()) {
-        YTIdentifiable key = (YTIdentifiable) keysIterator.next();
+        Identifiable key = (Identifiable) keysIterator.next();
         if (!key.getIdentity().equals(docOne.getIdentity())
             && !key.getIdentity().equals(docTwo.getIdentity())) {
           Assert.fail("Unknown key found: " + key);
@@ -687,7 +687,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     EntityImpl document = new EntityImpl("LinkSetIndexTestClass");
-    final Set<YTIdentifiable> linkSetOne = new HashSet<>();
+    final Set<Identifiable> linkSetOne = new HashSet<>();
     linkSetOne.add(docOne);
     linkSetOne.add(docTwo);
 
@@ -695,7 +695,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     document.save();
 
     document = new EntityImpl("LinkSetIndexTestClass");
-    final Set<YTIdentifiable> linkSet = new HashSet<>();
+    final Set<Identifiable> linkSet = new HashSet<>();
     linkSet.add(docThree);
     linkSet.add(docTwo);
 
@@ -703,12 +703,12 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
-    YTResultSet result =
+    ResultSet result =
         database.query(
             "select * from LinkSetIndexTestClass where linkSet contains ?", docOne.getIdentity());
 
-    List<YTIdentifiable> listResult =
-        new ArrayList<>(result.next().<Set<YTIdentifiable>>getProperty("linkSet"));
+    List<Identifiable> listResult =
+        new ArrayList<>(result.next().<Set<Identifiable>>getProperty("linkSet"));
     Assert.assertEquals(listResult.size(), 2);
     Assert.assertTrue(
         listResult.containsAll(Arrays.asList(docOne.getIdentity(), docTwo.getIdentity())));

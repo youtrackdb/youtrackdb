@@ -20,9 +20,9 @@ package com.orientechnologies.lucene.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.io.InputStream;
 import java.util.stream.Stream;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
@@ -71,7 +71,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
   @Test
   public void testSelectSingleDocumentWithAndOperator() {
 
-    YTResultSet docs =
+    ResultSet docs =
         db.query(
             "select * from Song where [title,author] LUCENE \"(title:mountain AND"
                 + " author:Fabbio)\"");
@@ -80,7 +80,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
 
   @Test
   public void testSelectSingleDocumentWithAndOperatorNEwExec() {
-    try (YTResultSet docs =
+    try (ResultSet docs =
         db.query(
             "select * from Song where [title,author] LUCENE \"(title:mountain AND"
                 + " author:Fabbio)\"")) {
@@ -93,7 +93,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
 
   @Test
   public void testSelectMultipleDocumentsWithOrOperator() {
-    YTResultSet docs =
+    ResultSet docs =
         db.query(
             "select * from Song where [title,author] LUCENE \"(title:mountain OR author:Fabbio)\"");
 
@@ -102,14 +102,14 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
 
   @Test
   public void testSelectOnTitleAndAuthorWithMatchOnTitle() {
-    YTResultSet docs = db.query("select * from Song where [title,author] LUCENE \"mountain\"");
+    ResultSet docs = db.query("select * from Song where [title,author] LUCENE \"mountain\"");
 
     assertThat(docs).hasSize(5);
   }
 
   @Test
   public void testSelectOnTitleAndAuthorWithMatchOnAuthor() {
-    YTResultSet docs = db.query("select * from Song where [title,author] LUCENE \"author:fabbio\"");
+    ResultSet docs = db.query("select * from Song where [title,author] LUCENE \"author:fabbio\"");
 
     assertThat(docs).hasSize(87);
   }
@@ -117,7 +117,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
   @Test
   @Ignore
   public void testSelectOnAuthorWithMatchOnAuthor() {
-    YTResultSet docs = db.query("select * from Song where [author,title] LUCENE \"(fabbio)\"");
+    ResultSet docs = db.query("select * from Song where [author,title] LUCENE \"(fabbio)\"");
 
     assertThat(docs).hasSize(87);
   }
@@ -140,7 +140,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
             """;
     db.execute("sql", script).close();
 
-    YTResultSet docs = db.query("select * from Item where Title lucene 'te*'");
+    ResultSet docs = db.query("select * from Item where Title lucene 'te*'");
     assertThat(docs).hasSize(1);
 
     //noinspection deprecation
@@ -149,8 +149,8 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
     assertThat(docs).hasSize(1);
 
     // nidex api
-    final OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Item.i_lucene");
-    try (Stream<YTRID> stream = index.getInternal().getRids(db, "(Title:test )")) {
+    final Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Item.i_lucene");
+    try (Stream<RID> stream = index.getInternal().getRids(db, "(Title:test )")) {
       assertThat(stream.findAny().isPresent()).isTrue();
     }
   }

@@ -2,10 +2,10 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -72,33 +72,33 @@ public class SQLUpdateRemoveItem extends SimpleNode {
     return result;
   }
 
-  public void applyUpdate(YTResultInternal result, CommandContext ctx) {
+  public void applyUpdate(ResultInternal result, CommandContext ctx) {
     if (right != null) {
       Object leftVal = left.execute(result, ctx);
       Object rightVal = right.execute(result, ctx);
-      if (rightVal instanceof YTResult && ((YTResult) rightVal).isEntity()) {
-        rightVal = ((YTResult) rightVal).getEntity().get();
+      if (rightVal instanceof Result && ((Result) rightVal).isEntity()) {
+        rightVal = ((Result) rightVal).getEntity().get();
       }
       if (rightVal instanceof Collection
           && ((Collection) rightVal)
-          .stream().allMatch(x -> x instanceof YTResult && ((YTResult) x).isEntity())) {
+          .stream().allMatch(x -> x instanceof Result && ((Result) x).isEntity())) {
         rightVal =
             ((Collection) rightVal)
                 .stream()
                 .map(o -> o)
-                .map(x -> ((YTResult) x).getEntity().get())
+                .map(x -> ((Result) x).getEntity().get())
                 .collect(Collectors.toList());
       }
-      if (OMultiValue.isMultiValue(leftVal)) {
-        OMultiValue.remove(leftVal, rightVal, false);
-        if (OMultiValue.isMultiValue(rightVal)) {
-          Iterator<?> iter = OMultiValue.getMultiValueIterator(rightVal);
+      if (MultiValue.isMultiValue(leftVal)) {
+        MultiValue.remove(leftVal, rightVal, false);
+        if (MultiValue.isMultiValue(rightVal)) {
+          Iterator<?> iter = MultiValue.getMultiValueIterator(rightVal);
           while (iter.hasNext()) {
             Object item = iter.next();
-            if (item instanceof YTResult && ((YTResult) item).getIdentity().isPresent()) {
-              OMultiValue.remove(leftVal, ((YTResult) item).getIdentity().get(), false);
+            if (item instanceof Result && ((Result) item).getIdentity().isPresent()) {
+              MultiValue.remove(leftVal, ((Result) item).getIdentity().get(), false);
             } else {
-              OMultiValue.remove(leftVal, item, false);
+              MultiValue.remove(leftVal, item, false);
             }
           }
         }

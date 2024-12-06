@@ -19,21 +19,21 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClassImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTPropertyImpl;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAlterPropertyStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
-import com.jetbrains.youtrack.db.internal.core.util.ODateHelper;
+import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
@@ -44,7 +44,7 @@ import java.util.Map;
  */
 @SuppressWarnings("unchecked")
 public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String KEYWORD_ALTER = "ALTER";
   public static final String KEYWORD_PROPERTY = "PROPERTY";
@@ -70,21 +70,21 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_ALTER)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_ALTER + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_PROPERTY)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_PROPERTY + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Expected <class>.<property>. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -100,35 +100,35 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
           }
           parts = new String[]{parts[0], fullName.toString()};
         } else {
-          throw new YTCommandSQLParsingException(
+          throw new CommandSQLParsingException(
               "Expected <class>.<property>. Use " + getSyntax(), parserText, oldPos);
         }
       }
 
       className = decodeClassName(parts[0]);
       if (className == null) {
-        throw new YTCommandSQLParsingException("Class not found", parserText, oldPos);
+        throw new CommandSQLParsingException("Class not found", parserText, oldPos);
       }
       fieldName = decodeClassName(parts[1]);
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Missing property attribute to change. Use " + getSyntax(), parserText, oldPos);
       }
 
       final String attributeAsString = word.toString();
 
       try {
-        attribute = YTProperty.ATTRIBUTES.valueOf(attributeAsString.toUpperCase(Locale.ENGLISH));
+        attribute = Property.ATTRIBUTES.valueOf(attributeAsString.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
-        throw YTException.wrapException(
-            new YTCommandSQLParsingException(
+        throw BaseException.wrapException(
+            new CommandSQLParsingException(
                 "Unknown property attribute '"
                     + attributeAsString
                     + "'. Supported attributes are: "
-                    + Arrays.toString(YTProperty.ATTRIBUTES.values()),
+                    + Arrays.toString(Property.ATTRIBUTES.values()),
                 parserText,
                 oldPos),
             e);
@@ -140,7 +140,7 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
       }
 
       if (value.length() == 0) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Missing property value to change for attribute '"
                 + attribute
                 + "'. Use "
@@ -152,12 +152,12 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
       if (preParsedStatement != null) {
         SQLExpression settingExp = ((SQLAlterPropertyStatement) preParsedStatement).settingValue;
         if (settingExp != null) {
-          Object expValue = settingExp.execute((YTIdentifiable) null, context);
+          Object expValue = settingExp.execute((Identifiable) null, context);
           if (expValue == null) {
             expValue = settingExp.toString();
           }
           if (expValue instanceof Date) {
-            value = ODateHelper.getDateTimeFormatInstance().format((Date) expValue);
+            value = DateHelper.getDateTimeFormatInstance().format((Date) expValue);
           } else {
             value = expValue.toString();
           }
@@ -211,22 +211,22 @@ public class CommandExecutorSQLAlterProperty extends CommandExecutorSQLAbstract
   /**
    * Execute the ALTER PROPERTY.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (attribute == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not yet been parsed");
     }
 
     var db = getDatabase();
-    final YTClassImpl sourceClass =
-        (YTClassImpl) db.getMetadata().getSchema().getClass(className);
+    final SchemaClassImpl sourceClass =
+        (SchemaClassImpl) db.getMetadata().getSchema().getClass(className);
     if (sourceClass == null) {
-      throw new YTCommandExecutionException("Source class '" + className + "' not found");
+      throw new CommandExecutionException("Source class '" + className + "' not found");
     }
 
-    final YTPropertyImpl prop = (YTPropertyImpl) sourceClass.getProperty(fieldName);
+    final PropertyImpl prop = (PropertyImpl) sourceClass.getProperty(fieldName);
     if (prop == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Property '" + className + "." + fieldName + "' not exists");
     }
 

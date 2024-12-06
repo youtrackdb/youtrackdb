@@ -2,14 +2,14 @@ package com.orientechnologies.orient.server.network;
 
 import static org.junit.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.sql.query.LiveQuery;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OLiveResultListener;
+import com.jetbrains.youtrack.db.internal.core.sql.query.LiveResultListener;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
@@ -41,8 +41,8 @@ public class OLiveQueryShotdownTest {
   @Test
   public void testShutDown() throws Exception {
     bootServer();
-    YTDatabaseSessionInternal db =
-        new YTDatabaseDocumentTx(
+    DatabaseSessionInternal db =
+        new DatabaseDocumentTx(
             "remote:localhost/" + OLiveQueryShotdownTest.class.getSimpleName());
     db.open("admin", "admin");
     db.getMetadata().getSchema().createClass("Test");
@@ -50,15 +50,15 @@ public class OLiveQueryShotdownTest {
     db.command(
             new LiveQuery(
                 "live select from Test",
-                new OLiveResultListener() {
+                new LiveResultListener() {
 
                   @Override
                   public void onUnsubscribe(int iLiveToken) {
                   }
 
                   @Override
-                  public void onLiveResult(int iLiveToken, ORecordOperation iOp)
-                      throws YTException {
+                  public void onLiveResult(int iLiveToken, RecordOperation iOp)
+                      throws BaseException {
                   }
 
                   @Override

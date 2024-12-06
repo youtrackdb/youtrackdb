@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -37,7 +37,7 @@ public class OServerCommandPostClass extends OServerCommandAuthenticatedDbAbstra
     iRequest.getData().commandInfo = "Create class";
     iRequest.getData().commandDetail = urlParts[2];
 
-    try (YTDatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
+    try (DatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
 
       if (db.getMetadata().getSchema().getClass(urlParts[2]) != null) {
         throw new IllegalArgumentException("Class '" + urlParts[2] + "' already exists");

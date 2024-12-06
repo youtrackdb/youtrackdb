@@ -2,8 +2,8 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexFinder.Operation;
-import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperatorEquals;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder.Operation;
+import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperatorEquals;
 import java.util.Map;
 
 public class SQLNeOperator extends SimpleNode implements SQLBinaryCompareOperator {
@@ -18,7 +18,7 @@ public class SQLNeOperator extends SimpleNode implements SQLBinaryCompareOperato
 
   @Override
   public boolean execute(Object left, Object right) {
-    return !OQueryOperatorEquals.equals(null, left, right);
+    return !QueryOperatorEquals.equals(null, left, right);
   }
 
   @Override

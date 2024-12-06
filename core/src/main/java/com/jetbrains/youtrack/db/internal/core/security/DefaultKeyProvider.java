@@ -1,14 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.security;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.OKeyProvider;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.OTokenHeader;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.KeyProvider;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.TokenHeader;
 import java.security.Key;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
  *
  */
-public class DefaultKeyProvider implements OKeyProvider {
+public class DefaultKeyProvider implements KeyProvider {
 
   private final SecretKeySpec secretKey;
 
@@ -17,7 +17,7 @@ public class DefaultKeyProvider implements OKeyProvider {
   }
 
   @Override
-  public Key getKey(OTokenHeader header) {
+  public Key getKey(TokenHeader header) {
     return secretKey;
   }
 

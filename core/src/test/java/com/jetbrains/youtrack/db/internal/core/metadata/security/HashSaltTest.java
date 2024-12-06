@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
-import com.jetbrains.youtrack.db.internal.core.security.OSecurityManager;
+import com.jetbrains.youtrack.db.internal.core.security.SecurityManager;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import org.junit.Assert;
@@ -14,9 +14,9 @@ public class HashSaltTest {
   @Test
   public void testSalt() throws InvalidKeySpecException, NoSuchAlgorithmException {
     final String password = "OrientDBisCool";
-    final OSecurityManager sm = new OSecurityManager();
-    final String hashed = OSecurityManager.createHashWithSalt(password);
+    final SecurityManager sm = new SecurityManager();
+    final String hashed = SecurityManager.createHashWithSalt(password);
 
-    Assert.assertTrue(OSecurityManager.checkPasswordWithSalt(password, hashed));
+    Assert.assertTrue(SecurityManager.checkPasswordWithSalt(password, hashed));
   }
 }

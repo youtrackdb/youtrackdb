@@ -13,12 +13,12 @@
  */
 package com.orientechnologies.spatial;
 
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
@@ -213,12 +213,13 @@ public class LuceneSpatialMultiLineStringTest extends BaseSpatialLuceneTest {
 
   @Before
   public void init() {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass v = schema.getClass("V");
-    YTClass oClass = schema.createClass("Place");
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass v = schema.getClass("V");
+    SchemaClass oClass = schema.createClass("Place");
     oClass.setSuperClass(db, v);
-    oClass.createProperty(db, "location", YTType.EMBEDDED, schema.getClass("OMultiLineString"));
-    oClass.createProperty(db, "name", YTType.STRING);
+    oClass.createProperty(db, "location", PropertyType.EMBEDDED,
+        schema.getClass("OMultiLineString"));
+    oClass.createProperty(db, "name", PropertyType.STRING);
 
     db.command("CREATE INDEX Place.location ON Place(location) SPATIAL ENGINE LUCENE").close();
   }
@@ -238,7 +239,7 @@ public class LuceneSpatialMultiLineStringTest extends BaseSpatialLuceneTest {
             "insert into Place set name = 'TestInsert' , location = ST_GeomFromText('" + WKT + "')")
         .close();
 
-    OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
+    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
 
     Assert.assertEquals(1, index.getInternal().size(db));
     db.commit();
@@ -248,7 +249,7 @@ public class LuceneSpatialMultiLineStringTest extends BaseSpatialLuceneTest {
 
   protected void testQueryMultiLineString() {
     String query = "select * from Place where location && 'POINT(-157.9159477 21.3433168)' ";
-    List<EntityImpl> docs = db.query(new OSQLSynchQuery<EntityImpl>(query));
+    List<EntityImpl> docs = db.query(new SQLSynchQuery<EntityImpl>(query));
 
     Assert.assertEquals(docs.size(), 1);
   }

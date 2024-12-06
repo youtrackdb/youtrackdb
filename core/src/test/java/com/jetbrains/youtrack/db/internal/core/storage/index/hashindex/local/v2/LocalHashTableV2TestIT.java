@@ -1,15 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v2;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.OBinarySerializerFactory;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.OMurmurHash3HashFunction;
+import com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.MurmurHash3HashFunction;
 import java.io.File;
 import org.junit.After;
 import org.junit.Before;
@@ -34,11 +34,11 @@ public class LocalHashTableV2TestIT extends LocalHashTableV2Base {
 
     youTrackDB.execute(
         "create database " + DB_NAME + " plocal users ( admin identified by 'admin' role admin)");
-    final YTDatabaseSession databaseDocumentTx = youTrackDB.open(DB_NAME, "admin", "admin", config);
+    final DatabaseSession databaseDocumentTx = youTrackDB.open(DB_NAME, "admin", "admin", config);
     storage =
-        (AbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
-    OMurmurHash3HashFunction<Integer> murmurHash3HashFunction =
-        new OMurmurHash3HashFunction<Integer>(OIntegerSerializer.INSTANCE);
+        (AbstractPaginatedStorage) ((DatabaseSessionInternal) databaseDocumentTx).getStorage();
+    MurmurHash3HashFunction<Integer> murmurHash3HashFunction =
+        new MurmurHash3HashFunction<Integer>(IntegerSerializer.INSTANCE);
 
     localHashTable =
         new LocalHashTableV2<>("localHashTableTest", ".imc", ".tsc", ".obf", ".nbh", storage);
@@ -50,8 +50,8 @@ public class LocalHashTableV2TestIT extends LocalHashTableV2Base {
             atomicOperation ->
                 localHashTable.create(
                     atomicOperation,
-                    OIntegerSerializer.INSTANCE,
-                    OBinarySerializerFactory.getInstance().getObjectSerializer(YTType.STRING),
+                    IntegerSerializer.INSTANCE,
+                    BinarySerializerFactory.getInstance().getObjectSerializer(PropertyType.STRING),
                     null,
                     null,
                     murmurHash3HashFunction,

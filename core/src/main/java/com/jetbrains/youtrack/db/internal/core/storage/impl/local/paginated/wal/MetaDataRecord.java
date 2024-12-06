@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import java.nio.ByteBuffer;
 
-public final class MetaDataRecord extends OAbstractWALRecord {
+public final class MetaDataRecord extends AbstractWALRecord {
 
   private byte[] metadata;
 
@@ -20,8 +20,8 @@ public final class MetaDataRecord extends OAbstractWALRecord {
 
   @Override
   public int toStream(byte[] content, int offset) {
-    OIntegerSerializer.INSTANCE.serializeNative(metadata.length, content, offset);
-    offset += OIntegerSerializer.INT_SIZE;
+    IntegerSerializer.INSTANCE.serializeNative(metadata.length, content, offset);
+    offset += IntegerSerializer.INT_SIZE;
 
     System.arraycopy(metadata, 0, content, offset, metadata.length);
 
@@ -36,8 +36,8 @@ public final class MetaDataRecord extends OAbstractWALRecord {
 
   @Override
   public int fromStream(byte[] content, int offset) {
-    final int metadataLen = OIntegerSerializer.INSTANCE.deserializeNative(content, offset);
-    offset += OIntegerSerializer.INT_SIZE;
+    final int metadataLen = IntegerSerializer.INSTANCE.deserializeNative(content, offset);
+    offset += IntegerSerializer.INT_SIZE;
 
     metadata = new byte[metadataLen];
     System.arraycopy(content, offset, metadata, 0, metadataLen);
@@ -46,7 +46,7 @@ public final class MetaDataRecord extends OAbstractWALRecord {
 
   @Override
   public int serializedSize() {
-    return OIntegerSerializer.INT_SIZE + metadata.length;
+    return IntegerSerializer.INT_SIZE + metadata.length;
   }
 
   @Override

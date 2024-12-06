@@ -19,18 +19,18 @@
  */
 package com.orientechnologies.orient.server.network;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.exception.YTSystemException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.common.exception.SystemException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.OChannel;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.YTNetworkProtocolException;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.SocketChannel;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.NetworkProtocolException;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
-import com.orientechnologies.orient.server.network.protocol.ONetworkProtocol;
+import com.orientechnologies.orient.server.network.protocol.NetworkProtocol;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommand;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -49,13 +49,13 @@ public class OServerNetworkListener extends Thread {
   private final OServerSocketFactory socketFactory;
   private ServerSocket serverSocket;
   private InetSocketAddress inboundAddr;
-  private final Class<? extends ONetworkProtocol> protocolType;
+  private final Class<? extends NetworkProtocol> protocolType;
   private volatile boolean active = true;
   private final List<OServerCommandConfiguration> statefulCommands =
       new ArrayList<OServerCommandConfiguration>();
   private final List<OServerCommand> statelessCommands = new ArrayList<OServerCommand>();
   private int socketBufferSize;
-  private YTContextConfiguration configuration;
+  private ContextConfiguration configuration;
   private final OServer server;
   private int protocolVersion = -1;
 
@@ -65,7 +65,7 @@ public class OServerNetworkListener extends Thread {
       final String iHostName,
       final String iHostPortRange,
       final String iProtocolName,
-      final Class<? extends ONetworkProtocol> iProtocol,
+      final Class<? extends NetworkProtocol> iProtocol,
       final OServerParameterConfiguration[] iParameters,
       final OServerCommandConfiguration[] iCommands) {
     super(
@@ -84,7 +84,7 @@ public class OServerNetworkListener extends Thread {
       final String message = "Error on reading protocol version for " + iProtocol;
       LogManager.instance().error(this, message, e);
 
-      throw YTException.wrapException(new YTNetworkProtocolException(message), e);
+      throw BaseException.wrapException(new NetworkProtocolException(message), e);
     }
 
     listen(iHostName, iHostPortRange, iProtocolName, iProtocol);
@@ -112,7 +112,7 @@ public class OServerNetworkListener extends Thread {
   public static int[] getPorts(final String iHostPortRange) {
     int[] ports;
 
-    if (OStringSerializerHelper.contains(iHostPortRange, ',')) {
+    if (StringSerializerHelper.contains(iHostPortRange, ',')) {
       // MULTIPLE ENUMERATED PORTS
       String[] portValues = iHostPortRange.split(",");
       ports = new int[portValues.length];
@@ -120,7 +120,7 @@ public class OServerNetworkListener extends Thread {
         ports[i] = Integer.parseInt(portValues[i]);
       }
 
-    } else if (OStringSerializerHelper.contains(iHostPortRange, '-')) {
+    } else if (StringSerializerHelper.contains(iHostPortRange, '-')) {
       // MULTIPLE RANGE PORTS
       String[] limits = iHostPortRange.split("-");
       int lowerLimit = Integer.parseInt(limits[0]);
@@ -214,7 +214,7 @@ public class OServerNetworkListener extends Thread {
   @Override
   public void run() {
     try {
-      Constructor<? extends ONetworkProtocol> constructor =
+      Constructor<? extends NetworkProtocol> constructor =
           protocolType.getConstructor(OServer.class);
       while (active) {
         try {
@@ -255,7 +255,7 @@ public class OServerNetworkListener extends Thread {
             socket.setReceiveBufferSize(socketBufferSize);
           }
           // CREATE A NEW PROTOCOL INSTANCE
-          final ONetworkProtocol protocol = constructor.newInstance(server);
+          final NetworkProtocol protocol = constructor.newInstance(server);
 
           // CONFIGURE THE PROTOCOL FOR THE INCOMING CONNECTION
           protocol.config(this, server, socket, configuration);
@@ -279,7 +279,7 @@ public class OServerNetworkListener extends Thread {
     }
   }
 
-  public Class<? extends ONetworkProtocol> getProtocolType() {
+  public Class<? extends NetworkProtocol> getProtocolType() {
     return protocolType;
   }
 
@@ -291,7 +291,7 @@ public class OServerNetworkListener extends Thread {
     String address = serverSocket.getInetAddress().getHostAddress();
     if (resolveMultiIfcWithLocal && address.equals("0.0.0.0")) {
       try {
-        address = OChannel.getLocalIpAddress(true);
+        address = SocketChannel.getLocalIpAddress(true);
       } catch (Exception ex) {
         address = null;
       }
@@ -322,7 +322,7 @@ public class OServerNetworkListener extends Thread {
       }
     } catch (UnknownHostException e) {
       try {
-        return OChannel.getLocalIpAddress(true);
+        return SocketChannel.getLocalIpAddress(true);
       } catch (SocketException e1) {
 
       }
@@ -365,7 +365,7 @@ public class OServerNetworkListener extends Thread {
       final String iHostName,
       final String iHostPortRange,
       final String iProtocolName,
-      Class<? extends ONetworkProtocol> protocolClass) {
+      Class<? extends NetworkProtocol> protocolClass) {
 
     for (int port : getPorts(iHostPortRange)) {
       inboundAddr = new InetSocketAddress(iHostName, port);
@@ -410,7 +410,7 @@ public class OServerNetworkListener extends Thread {
             null,
             iHostPortRange,
             iHostName);
-    throw new YTSystemException(
+    throw new SystemException(
         String.format(
             "Unable to listen for connections using the configured ports '%s' on host '%s'",
             iHostPortRange, iHostName));
@@ -423,9 +423,9 @@ public class OServerNetworkListener extends Thread {
    * @param iServerConfig
    */
   private void readParameters(
-      final YTContextConfiguration iServerConfig,
+      final ContextConfiguration iServerConfig,
       final OServerParameterConfiguration[] iParameters) {
-    configuration = new YTContextConfiguration(iServerConfig);
+    configuration = new ContextConfiguration(iServerConfig);
 
     // SET PARAMETERS
     if (iParameters != null) {

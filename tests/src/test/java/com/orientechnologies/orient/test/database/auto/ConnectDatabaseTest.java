@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -59,8 +59,8 @@ public class ConnectDatabaseTest {
 
     GlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_ENABLED.setValue(true);
     try {
-      final YTDatabaseSessionInternal database =
-          new YTDatabaseDocumentTx("remote:orientechnologies.com/" + databaseName);
+      final DatabaseSessionInternal database =
+          new DatabaseDocumentTx("remote:orientechnologies.com/" + databaseName);
       database.open("admin", "admin");
       Assert.assertFalse(database.isClosed());
       database.close();

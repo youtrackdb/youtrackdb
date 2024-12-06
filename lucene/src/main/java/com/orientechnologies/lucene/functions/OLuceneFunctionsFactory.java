@@ -15,19 +15,19 @@
  */
 package com.orientechnologies.lucene.functions;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.functions.OSQLFunctionFactoryTemplate;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionFactoryTemplate;
 
-public class OLuceneFunctionsFactory extends OSQLFunctionFactoryTemplate {
+public class OLuceneFunctionsFactory extends SQLFunctionFactoryTemplate {
 
   public OLuceneFunctionsFactory() {
   }
 
   @Override
-  public void registerDefaultFunctions(YTDatabaseSessionInternal session) {
-    register(session, new OLuceneSearchOnIndexFunction());
-    register(session, new OLuceneSearchOnFieldsFunction());
-    register(session, new OLuceneSearchOnClassFunction());
-    register(session, new OLuceneSearchMoreLikeThisFunction());
+  public void registerDefaultFunctions(DatabaseSessionInternal session) {
+    register(session, new LuceneSearchOnIndexFunction());
+    register(session, new LuceneSearchOnFieldsFunction());
+    register(session, new LuceneSearchOnClassFunction());
+    register(session, new LuceneSearchMoreLikeThisFunction());
   }
 }

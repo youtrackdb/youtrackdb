@@ -2,22 +2,22 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.comparator.OCaseInsentiveComparator;
-import com.jetbrains.youtrack.db.internal.common.util.OCollections;
+import com.jetbrains.youtrack.db.internal.common.comparator.CaseInsentiveComparator;
+import com.jetbrains.youtrack.db.internal.common.util.Collections;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClassImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class SQLDropPropertyStatement extends ODDLStatement {
+public class SQLDropPropertyStatement extends DDLStatement {
 
   protected SQLIdentifier className;
   protected SQLIdentifier propertyName;
@@ -35,27 +35,27 @@ public class SQLDropPropertyStatement extends ODDLStatement {
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
 
-    final YTDatabaseSessionInternal database = ctx.getDatabase();
-    final YTClassImpl sourceClass =
-        (YTClassImpl) database.getMetadata().getSchema().getClass(className.getStringValue());
+    final DatabaseSessionInternal database = ctx.getDatabase();
+    final SchemaClassImpl sourceClass =
+        (SchemaClassImpl) database.getMetadata().getSchema().getClass(className.getStringValue());
     if (sourceClass == null) {
-      throw new YTCommandExecutionException("Source class '" + className + "' not found");
+      throw new CommandExecutionException("Source class '" + className + "' not found");
     }
 
     if (sourceClass.getProperty(propertyName.getStringValue()) == null) {
       if (ifExists) {
         return ExecutionStream.empty();
       }
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Property '" + propertyName + "' not found on class " + className);
     }
-    final List<OIndex> indexes = relatedIndexes(propertyName.getStringValue(), database);
-    List<YTResult> rs = new ArrayList<>();
+    final List<Index> indexes = relatedIndexes(propertyName.getStringValue(), database);
+    List<Result> rs = new ArrayList<>();
     if (!indexes.isEmpty()) {
       if (force) {
-        for (final OIndex index : indexes) {
+        for (final Index index : indexes) {
           database.getMetadata().getIndexManager().dropIndex(index.getName());
-          YTResultInternal result = new YTResultInternal(database);
+          ResultInternal result = new ResultInternal(database);
           result.setProperty("operation", "cascade drop index");
           result.setProperty("indexName", index.getName());
           rs.add(result);
@@ -64,7 +64,7 @@ public class SQLDropPropertyStatement extends ODDLStatement {
         final StringBuilder indexNames = new StringBuilder();
 
         boolean first = true;
-        for (final OIndex index :
+        for (final Index index :
             sourceClass.getClassInvolvedIndexes(database, propertyName.getStringValue())) {
           if (!first) {
             indexNames.append(", ");
@@ -74,7 +74,7 @@ public class SQLDropPropertyStatement extends ODDLStatement {
           indexNames.append(index.getName());
         }
 
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "Property used in indexes ("
                 + indexNames
                 + "). Please drop these indexes before removing property or use FORCE parameter.");
@@ -84,7 +84,7 @@ public class SQLDropPropertyStatement extends ODDLStatement {
     // REMOVE THE PROPERTY
     sourceClass.dropProperty(database, propertyName.getStringValue());
 
-    YTResultInternal result = new YTResultInternal(database);
+    ResultInternal result = new ResultInternal(database);
     result.setProperty("operation", "drop property");
     result.setProperty("className", className.getStringValue());
     result.setProperty("propertyname", propertyName.getStringValue());
@@ -92,17 +92,17 @@ public class SQLDropPropertyStatement extends ODDLStatement {
     return ExecutionStream.resultIterator(rs.iterator());
   }
 
-  private List<OIndex> relatedIndexes(final String fieldName, YTDatabaseSessionInternal database) {
-    final List<OIndex> result = new ArrayList<OIndex>();
-    for (final OIndex oIndex :
+  private List<Index> relatedIndexes(final String fieldName, DatabaseSessionInternal database) {
+    final List<Index> result = new ArrayList<Index>();
+    for (final Index index :
         database
             .getMetadata()
             .getIndexManagerInternal()
             .getClassIndexes(database, className.getStringValue())) {
-      if (OCollections.indexOf(
-          oIndex.getDefinition().getFields(), fieldName, new OCaseInsentiveComparator())
+      if (Collections.indexOf(
+          index.getDefinition().getFields(), fieldName, new CaseInsentiveComparator())
           > -1) {
-        result.add(oIndex);
+        result.add(index);
       }
     }
 

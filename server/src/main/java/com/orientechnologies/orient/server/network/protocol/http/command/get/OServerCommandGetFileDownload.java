@@ -15,14 +15,14 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.jetbrains.youtrack.db.internal.common.util.OPatternConst;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.common.util.PatternConst;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -64,7 +64,7 @@ public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDb
     var db = getProfiledDatabaseInstance(iRequest);
     try {
       try {
-        response = db.load(new YTRecordId(rid));
+        response = db.load(new RecordId(rid));
         if (response instanceof Blob) {
           sendORecordBinaryFileContent(
               iResponse,
@@ -74,9 +74,9 @@ public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDb
               (Blob) response,
               fileName);
         } else if (response instanceof EntityImpl) {
-          for (YTProperty prop :
-              ODocumentInternal.getImmutableSchemaClass(((EntityImpl) response)).properties(db)) {
-            if (prop.getType().equals(YTType.BINARY)) {
+          for (Property prop :
+              DocumentInternal.getImmutableSchemaClass(((EntityImpl) response)).properties(db)) {
+            if (prop.getType().equals(PropertyType.BINARY)) {
               sendBinaryFieldFileContent(
                   iRequest,
                   iResponse,
@@ -88,7 +88,7 @@ public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDb
             }
           }
         }
-      } catch (YTRecordNotFoundException rnf) {
+      } catch (RecordNotFoundException rnf) {
         iResponse.send(
             OHttpUtils.STATUS_INVALIDMETHOD_CODE,
             "Record requested is not a file nor has a readable schema",
@@ -159,8 +159,8 @@ public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDb
   }
 
   private static String encodeResponseText(String iText) {
-    iText = OPatternConst.PATTERN_SINGLE_SPACE.matcher(iText).replaceAll("%20");
-    iText = OPatternConst.PATTERN_AMP.matcher(iText).replaceAll("%26");
+    iText = PatternConst.PATTERN_SINGLE_SPACE.matcher(iText).replaceAll("%20");
+    iText = PatternConst.PATTERN_AMP.matcher(iText).replaceAll("%26");
     return iText;
   }
 }

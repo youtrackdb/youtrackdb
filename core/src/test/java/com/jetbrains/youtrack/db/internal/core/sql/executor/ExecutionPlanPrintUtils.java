@@ -5,11 +5,11 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
  */
 public class ExecutionPlanPrintUtils {
 
-  public static void printExecutionPlan(YTResultSet result) {
+  public static void printExecutionPlan(ResultSet result) {
     printExecutionPlan(null, result);
   }
 
-  public static void printExecutionPlan(String query, YTResultSet result) {
+  public static void printExecutionPlan(String query, ResultSet result) {
     //    if (query != null) {
     //      System.out.println(query);
     //    }

@@ -3,9 +3,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.function.OFunction;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +41,7 @@ public class SQLCreateFunctionStatement extends SQLSimpleExecStatement {
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
     var database = ctx.getDatabase();
-    final OFunction f =
+    final Function f =
         database.getMetadata().getFunctionLibrary().createFunction(name.getStringValue());
     f.setCode(database, code);
     f.setIdempotent(database, Boolean.TRUE.equals(idempotent));
@@ -53,8 +53,8 @@ public class SQLCreateFunctionStatement extends SQLSimpleExecStatement {
       f.setLanguage(database, language.getStringValue());
     }
     f.save(database);
-    YTRID functionId = f.getId(database);
-    YTResultInternal result = new YTResultInternal(database);
+    RID functionId = f.getId(database);
+    ResultInternal result = new ResultInternal(database);
     result.setProperty("operation", "create function");
     result.setProperty("functionName", name.getStringValue());
     result.setProperty("finalId", functionId);

@@ -18,11 +18,11 @@
 
 package com.orientechnologies.lucene.test;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -43,14 +43,14 @@ public class LuceneInheritanceQueryTest extends BaseLuceneTest {
     db.save(doc);
     db.commit();
 
-    YTResultSet vertices = db.query("select from C1 where name lucene \"abc\" ");
+    ResultSet vertices = db.query("select from C1 where name lucene \"abc\" ");
 
     Assert.assertEquals(1, vertices.stream().count());
   }
 
-  protected void createSchema(YTDatabaseSessionInternal db) {
-    final YTClass c1 = db.createVertexClass("C1");
-    c1.createProperty(db, "name", YTType.STRING);
+  protected void createSchema(DatabaseSessionInternal db) {
+    final SchemaClass c1 = db.createVertexClass("C1");
+    c1.createProperty(db, "name", PropertyType.STRING);
     c1.createIndex(db, "C1.name", "FULLTEXT", null, null, "LUCENE", new String[]{"name"});
 
     db.createClass("C2", "C1");

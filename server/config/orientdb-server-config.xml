@@ -40,7 +40,7 @@
       </parameters>
     </handler>
     <!-- AUTOMATIC BACKUP, TO TURN ON SET THE 'ENABLED' PARAMETER TO 'true' -->
-    <handler class="com.orientechnologies.orient.server.handler.OAutomaticBackup">
+    <handler class="com.orientechnologies.orient.server.handler.AutomaticBackup">
       <parameters>
         <parameter name="enabled" value="false"/>
         <!-- LOCATION OF JSON CONFIGURATION FILE -->
@@ -50,7 +50,7 @@
     <!-- SERVER SIDE SCRIPT INTERPRETER. WARNING, THIS CAN BE A SECURITY HOLE BECAUSE MALICIOUS CODE COULD BE INJECTED.
         ENABLE IT ONLY IF CLIENTS ARE TRUSTED, TO TURN ON SET THE 'ENABLED' PARAMETER TO 'true' -->
     <handler
-      class="com.orientechnologies.orient.server.handler.OServerSideScriptInterpreter">
+      class="com.orientechnologies.orient.server.handler.ServerSideScriptInterpreter">
       <parameters>
         <parameter name="enabled" value="true"/>
         <parameter name="allowedLanguages" value="SQL"/>
@@ -59,7 +59,7 @@
       </parameters>
     </handler>
     <!-- CUSTOM SQL FUNCTIONS -->
-    <handler class="com.orientechnologies.orient.server.handler.OCustomSQLFunctionPlugin">
+    <handler class="com.orientechnologies.orient.server.handler.CustomSQLFunctionPlugin">
       <parameters>
         <!-- LOCATION OF JSON CONFIGURATION FILE -->
         <parameter name="config" value="${YOU_TRACK_DB_HOME}/config/custom-sql-functions.json"/>
@@ -94,9 +94,9 @@
       <!-- Default registered protocol. It reads commands using the HTTP protocol
           and write data locally -->
       <protocol name="binary"
-        implementation="com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary"/>
+        implementation="com.orientechnologies.orient.server.network.protocol.binary.NetworkProtocolBinary"/>
       <protocol name="http"
-        implementation="com.orientechnologies.orient.server.network.protocol.http.ONetworkProtocolHttpDb"/>
+        implementation="com.orientechnologies.orient.server.network.protocol.http.NetworkProtocolHttpDb"/>
     </protocols>
     <listeners>
       <listener protocol="binary" ip-address="0.0.0.0" port-range="2424-2430" socket="default"/>

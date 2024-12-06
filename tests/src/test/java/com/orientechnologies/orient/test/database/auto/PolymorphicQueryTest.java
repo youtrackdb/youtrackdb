@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.common.profiler.OProfiler;
+import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -110,7 +110,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
   public void testSubclassesIndexes() throws Exception {
     database.begin();
 
-    OProfiler profiler = YouTrackDBManager.instance().getProfiler();
+    Profiler profiler = YouTrackDBManager.instance().getProfiler();
 
     long indexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long indexUsageReverted = profiler.getCounter("db.demo.query.indexUseAttemptedAndReverted");
@@ -141,7 +141,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from IndexInSubclassesTestBase where name > 'name9995' and name <"
                     + " 'name9999' order by name ASC"));
     Assert.assertEquals(result.size(), 6);
@@ -160,7 +160,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
 
     result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from IndexInSubclassesTestBase where name > 'name9995' and name <"
                     + " 'name9999' order by name DESC"));
     Assert.assertEquals(result.size(), 6);
@@ -178,7 +178,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
   public void testBaseWithoutIndexAndSubclassesIndexes() throws Exception {
     database.begin();
 
-    OProfiler profiler = YouTrackDBManager.instance().getProfiler();
+    Profiler profiler = YouTrackDBManager.instance().getProfiler();
 
     long indexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long indexUsageReverted = profiler.getCounter("db.demo.query.indexUseAttemptedAndReverted");
@@ -212,7 +212,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
 
     List<EntityImpl> result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from IndexInSubclassesTestBase where name > 'name9995' and name <"
                     + " 'name9999' order by name ASC"));
     Assert.assertEquals(result.size(), 9);
@@ -231,7 +231,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
 
     result =
         database.query(
-            new OSQLSynchQuery<EntityImpl>(
+            new SQLSynchQuery<EntityImpl>(
                 "select from IndexInSubclassesTestBase where name > 'name9995' and name <"
                     + " 'name9999' order by name DESC"));
     Assert.assertEquals(result.size(), 9);
@@ -249,7 +249,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
   public void testSubclassesIndexesFailed() throws Exception {
     database.begin();
 
-    OProfiler profiler = YouTrackDBManager.instance().getProfiler();
+    Profiler profiler = YouTrackDBManager.instance().getProfiler();
     profiler.startRecording();
 
     for (int i = 0; i < 10000; i++) {
@@ -278,7 +278,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
       indexUsageReverted = 0;
     }
 
-    YTResultSet result =
+    ResultSet result =
         database.query(
             "select from IndexInSubclassesTestBaseFail where name > 'name9995' and name <"
                 + " 'name9999' order by name ASC");
@@ -308,13 +308,13 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
       doc1.save();
     }
 
-    // crashed with OIOException, issue #3632
-    YTResultSet result =
+    // crashed with YTIOException, issue #3632
+    ResultSet result =
         database.query("SELECT FROM GenericCrash WHERE @class='GenericCrash' ORDER BY @rid DESC");
 
     int count = 0;
     while (result.hasNext()) {
-      YTResult doc = result.next();
+      Result doc = result.next();
       Assert.assertEquals(doc.getProperty("name"), "foo");
       count++;
     }

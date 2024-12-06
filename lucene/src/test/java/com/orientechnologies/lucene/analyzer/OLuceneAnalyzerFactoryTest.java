@@ -6,8 +6,8 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class OLuceneAnalyzerFactoryTest {
 
   private OLuceneAnalyzerFactory analyzerFactory;
   private Map<String, ?> metadata;
-  private OIndexDefinition indexDef;
+  private IndexDefinition indexDef;
 
   @Before
   public void before() throws IOException {
@@ -37,12 +37,12 @@ public class OLuceneAnalyzerFactoryTest {
     // default analyzer for query is standard
 
     String metajson =
-        OIOUtils.readFileAsString(new File("./src/test/resources/index_metadata_new.json"));
+        IOUtils.readFileAsString(new File("./src/test/resources/index_metadata_new.json"));
     var metadataDocument = new EntityImpl();
     metadataDocument.fromJSON(metajson);
     metadata = metadataDocument.toMap();
 
-    indexDef = Mockito.mock(OIndexDefinition.class);
+    indexDef = Mockito.mock(IndexDefinition.class);
     when(indexDef.getFields())
         .thenReturn(asList("name", "title", "author", "lyrics", "genre", "description"));
     when(indexDef.getClassName()).thenReturn("Song");

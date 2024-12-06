@@ -20,26 +20,26 @@
 
 package com.jetbrains.youtrack.db.internal.core.cache;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import java.util.function.BiConsumer;
 
 /**
  * Cache implementation that uses Soft References.
  */
 public class RecordCacheWeakRefs extends
-    OAbstractMapCache<ORIDsWeakValuesHashMap<RecordAbstract>>
-    implements ORecordCache {
+    AbstractMapCache<RIDsWeakValuesHashMap<RecordAbstract>>
+    implements RecordCache {
 
-  private static final BiConsumer<YTRID, RecordAbstract> UNLOAD_RECORDS_CONSUMER =
+  private static final BiConsumer<RID, RecordAbstract> UNLOAD_RECORDS_CONSUMER =
       (rid, record) -> {
-        ORecordInternal.unsetDirty(record);
+        RecordInternal.unsetDirty(record);
         record.unload();
       };
 
-  private static final BiConsumer<YTRID, RecordAbstract> UNLOAD_NOT_MODIFIED_RECORDS_CONSUMER =
+  private static final BiConsumer<RID, RecordAbstract> UNLOAD_NOT_MODIFIED_RECORDS_CONSUMER =
       (rid, record) -> {
         if (!record.isDirtyNoLoading()) {
           record.unload();
@@ -47,11 +47,11 @@ public class RecordCacheWeakRefs extends
       };
 
   public RecordCacheWeakRefs() {
-    super(new ORIDsWeakValuesHashMap<>());
+    super(new RIDsWeakValuesHashMap<>());
   }
 
   @Override
-  public RecordAbstract get(final YTRID rid) {
+  public RecordAbstract get(final RID rid) {
     if (!isEnabled()) {
       return null;
     }
@@ -68,7 +68,7 @@ public class RecordCacheWeakRefs extends
   }
 
   @Override
-  public RecordAbstract remove(final YTRID rid) {
+  public RecordAbstract remove(final RID rid) {
     if (!isEnabled()) {
       return null;
     }
@@ -93,7 +93,7 @@ public class RecordCacheWeakRefs extends
   @Override
   public void clear() {
     cache.clear();
-    cache = new ORIDsWeakValuesHashMap<>();
+    cache = new RIDsWeakValuesHashMap<>();
   }
 
   public void clearRecords() {

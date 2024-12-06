@@ -13,10 +13,10 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +59,7 @@ public class OShapeFactory extends OComplexShapeBuilder {
   }
 
   @Override
-  public void initClazz(YTDatabaseSessionInternal db) {
+  public void initClazz(DatabaseSessionInternal db) {
     for (OShapeBuilder f : factories.values()) {
       f.initClazz(db);
     }
@@ -88,8 +88,8 @@ public class OShapeFactory extends OComplexShapeBuilder {
     if (obj instanceof EntityImpl) {
       return fromDoc((EntityImpl) obj);
     }
-    if (obj instanceof YTResult) {
-      Entity entity = ((YTResult) obj).toEntity();
+    if (obj instanceof Result) {
+      Entity entity = ((Result) obj).toEntity();
       return fromDoc((EntityImpl) entity);
     }
     if (obj instanceof Map) {
@@ -122,8 +122,8 @@ public class OShapeFactory extends OComplexShapeBuilder {
   @Override
   public String asText(Object obj) {
 
-    if (obj instanceof YTResult) {
-      Entity entity = ((YTResult) obj).toEntity();
+    if (obj instanceof Result) {
+      Entity entity = ((Result) obj).toEntity();
       return asText((EntityImpl) entity);
     }
     if (obj instanceof EntityImpl) {

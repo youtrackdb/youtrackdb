@@ -19,25 +19,25 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.OPhysicalPosition;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 
 public class OLowerPhysicalPositionsRequest
     implements OBinaryRequest<OLowerPhysicalPositionsResponse> {
 
-  private OPhysicalPosition physicalPosition;
+  private PhysicalPosition physicalPosition;
   private int iClusterId;
 
-  public OLowerPhysicalPositionsRequest(OPhysicalPosition physicalPosition, int iClusterId) {
+  public OLowerPhysicalPositionsRequest(PhysicalPosition physicalPosition, int iClusterId) {
     this.physicalPosition = physicalPosition;
     this.iClusterId = iClusterId;
   }
@@ -46,22 +46,22 @@ public class OLowerPhysicalPositionsRequest
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal database, OChannelDataOutput network,
+  public void write(DatabaseSessionInternal database, ChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     network.writeInt(iClusterId);
     network.writeLong(physicalPosition.clusterPosition);
   }
 
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
-      ORecordSerializer serializer)
+  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+      RecordSerializer serializer)
       throws IOException {
     this.iClusterId = channel.readInt();
-    this.physicalPosition = new OPhysicalPosition(channel.readLong());
+    this.physicalPosition = new PhysicalPosition(channel.readLong());
   }
 
   @Override
   public byte getCommand() {
-    return OChannelBinaryProtocol.REQUEST_POSITIONS_LOWER;
+    return ChannelBinaryProtocol.REQUEST_POSITIONS_LOWER;
   }
 
   @Override
@@ -73,7 +73,7 @@ public class OLowerPhysicalPositionsRequest
     return iClusterId;
   }
 
-  public OPhysicalPosition getPhysicalPosition() {
+  public PhysicalPosition getPhysicalPosition() {
     return physicalPosition;
   }
 

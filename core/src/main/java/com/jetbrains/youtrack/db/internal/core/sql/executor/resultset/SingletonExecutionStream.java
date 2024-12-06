@@ -1,14 +1,14 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor.resultset;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 
 public class SingletonExecutionStream implements ExecutionStream {
 
   private boolean executed = false;
-  private final YTResult result;
+  private final Result result;
 
-  public SingletonExecutionStream(YTResult result) {
+  public SingletonExecutionStream(Result result) {
     this.result = result;
   }
 
@@ -18,7 +18,7 @@ public class SingletonExecutionStream implements ExecutionStream {
   }
 
   @Override
-  public YTResult next(CommandContext ctx) {
+  public Result next(CommandContext ctx) {
     if (executed) {
       throw new IllegalStateException();
     }

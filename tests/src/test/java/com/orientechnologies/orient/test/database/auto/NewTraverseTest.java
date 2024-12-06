@@ -16,12 +16,12 @@
 
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -121,7 +121,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
   }
 
   public void traverseSQLAllFromActorNoWhereBreadthFrirst() {
-    YTResultSet result1 =
+    ResultSet result1 =
         database.query("traverse * from " + tomCruise.getIdentity() + " strategy BREADTH_FIRST");
 
     for (int i = 0; i < totalElements; i++) {
@@ -132,7 +132,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
   }
 
   public void traverseSQLAllFromActorNoWhereDepthFrirst() {
-    YTResultSet result1 =
+    ResultSet result1 =
         database.query("traverse * from " + tomCruise.getIdentity() + " strategy DEPTH_FIRST");
 
     for (int i = 0; i < totalElements; i++) {
@@ -144,7 +144,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseSQLOutFromActor1Depth() {
-    YTResultSet result1 =
+    ResultSet result1 =
         database.query("traverse out_ from " + tomCruise.getIdentity() + " while $depth <= 1");
 
     Assert.assertTrue(result1.hasNext());
@@ -153,11 +153,11 @@ public class NewTraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseSQLMoviesOnly() {
-    YTResultSet result1 =
+    ResultSet result1 =
         database.query("select from ( traverse * from Movie ) where @class = 'Movie'");
     Assert.assertTrue(result1.hasNext());
     while (result1.hasNext()) {
-      YTResult d = result1.next();
+      Result d = result1.next();
 
       Assert.assertEquals(d.getEntity().get().getSchemaType().get().getName(), "Movie");
     }
@@ -166,14 +166,14 @@ public class NewTraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseSQLPerClassFields() {
-    YTResultSet result1 =
+    ResultSet result1 =
         database.query(
             "select from ( traverse out() from "
                 + tomCruise.getIdentity()
                 + ") where @class = 'Movie'");
     Assert.assertTrue(result1.hasNext());
     while (result1.hasNext()) {
-      YTResult d = result1.next();
+      Result d = result1.next();
       Assert.assertEquals(d.getEntity().get().getSchemaType().get().getName(), "Movie");
     }
     result1.close();
@@ -181,14 +181,14 @@ public class NewTraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseSQLMoviesOnlyDepth() {
-    YTResultSet result1 =
+    ResultSet result1 =
         database.query(
             "select from ( traverse * from "
                 + tomCruise.getIdentity()
                 + " while $depth <= 1 ) where @class = 'Movie'");
     Assert.assertFalse(result1.hasNext());
     result1.close();
-    YTResultSet result2 =
+    ResultSet result2 =
         database.query(
             "select from ( traverse * from "
                 + tomCruise.getIdentity()
@@ -201,7 +201,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
       size2++;
     }
     result2.close();
-    YTResultSet result3 =
+    ResultSet result3 =
         database.query(
             "select from ( traverse * from "
                 + tomCruise.getIdentity()
@@ -219,7 +219,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseSelect() {
-    YTResultSet result1 = database.query("traverse * from ( select from Movie )");
+    ResultSet result1 = database.query("traverse * from ( select from Movie )");
     int tot = 0;
     while (result1.hasNext()) {
       result1.next();
@@ -232,7 +232,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseSQLSelectAndTraverseNested() {
-    YTResultSet result1 =
+    ResultSet result1 =
         database.query(
             "traverse * from ( select from ( traverse * from "
                 + tomCruise.getIdentity()
@@ -250,7 +250,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseAPISelectAndTraverseNested() {
-    YTResultSet result1 =
+    ResultSet result1 =
         database.command(
             "traverse * from ( select from ( traverse * from "
                 + tomCruise.getIdentity()
@@ -265,7 +265,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseAPISelectAndTraverseNestedDepthFirst() {
-    YTResultSet result1 =
+    ResultSet result1 =
         database.query(
             "traverse * from ( select from ( traverse * from "
                 + tomCruise.getIdentity()
@@ -281,7 +281,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseAPISelectAndTraverseNestedBreadthFirst() {
-    YTResultSet result1 =
+    ResultSet result1 =
         database.command(
             "traverse * from ( select from ( traverse * from "
                 + tomCruise.getIdentity()
@@ -296,31 +296,31 @@ public class NewTraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseSelectNoInfluence() {
-    YTResultSet result1 = database.query("traverse * from Movie while $depth < 2");
-    List<YTResult> list1 = new ArrayList<>();
+    ResultSet result1 = database.query("traverse * from Movie while $depth < 2");
+    List<Result> list1 = new ArrayList<>();
     while (result1.hasNext()) {
       list1.add(result1.next());
     }
     result1.close();
-    YTResultSet result2 = database.query("select from ( traverse * from Movie while $depth < 2 )");
-    List<YTResult> list2 = new ArrayList<>();
+    ResultSet result2 = database.query("select from ( traverse * from Movie while $depth < 2 )");
+    List<Result> list2 = new ArrayList<>();
     while (result2.hasNext()) {
       list2.add(result2.next());
     }
     result2.close();
-    YTResultSet result3 =
+    ResultSet result3 =
         database.query("select from ( traverse * from Movie while $depth < 2 ) where true");
-    List<YTResult> list3 = new ArrayList<>();
+    List<Result> list3 = new ArrayList<>();
     while (result3.hasNext()) {
       list3.add(result3.next());
     }
     result3.close();
-    YTResultSet result4 =
+    ResultSet result4 =
         database.query(
             "select from ( traverse * from Movie while $depth < 2 and ( true = true ) ) where"
                 + " true");
 
-    List<YTResult> list4 = new ArrayList<>();
+    List<Result> list4 = new ArrayList<>();
     while (result4.hasNext()) {
       list4.add(result4.next());
     }
@@ -333,7 +333,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseNoConditionLimit1() {
-    YTResultSet result1 = database.query("traverse * from Movie limit 1");
+    ResultSet result1 = database.query("traverse * from Movie limit 1");
     Assert.assertTrue(result1.hasNext());
     result1.next();
     Assert.assertFalse(result1.hasNext());
@@ -342,7 +342,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
   @Test
   public void traverseAndFilterByAttributeThatContainsDotInValue() {
     // issue #4952
-    YTResultSet result1 =
+    ResultSet result1 =
         database.query(
             "select from ( traverse out_married, in[attributeWithDotValue = 'a.b']  from "
                 + tomCruise.getIdentity()
@@ -350,7 +350,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
     Assert.assertTrue(result1.hasNext());
     boolean found = false;
     while (result1.hasNext()) {
-      YTResult doc = result1.next();
+      Result doc = result1.next();
       String name = doc.getProperty("name");
       if ("Nicole Kidman".equals(name)) {
         found = true;
@@ -366,7 +366,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
     // issue #5225
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("param1", "a.b");
-    YTResultSet result1 =
+    ResultSet result1 =
         database.query(
             "select from (traverse out_married, in[attributeWithDotValue = :param1]  from "
                 + tomCruise.getIdentity()
@@ -375,7 +375,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
     Assert.assertTrue(result1.hasNext());
     boolean found = false;
     while (result1.hasNext()) {
-      YTResult doc = result1.next();
+      Result doc = result1.next();
       String name = doc.getProperty("name");
       if ("Nicole Kidman".equals(name)) {
         found = true;
@@ -387,7 +387,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
 
   @Test
   public void traverseAndCheckDepthInSelect() {
-    YTResultSet result1 =
+    ResultSet result1 =
         database.query(
             "select *, $depth as d from ( traverse out_married  from "
                 + tomCruise.getIdentity()
@@ -395,7 +395,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
     boolean found = false;
     Integer i = 0;
     while (result1.hasNext()) {
-      YTResult doc = result1.next();
+      Result doc = result1.next();
       Integer depth = doc.getProperty("d");
       Assert.assertEquals(depth, i++);
     }
@@ -409,13 +409,13 @@ public class NewTraverseTest extends DocumentDBBaseTest {
     try {
 
       String q = "traverse in('married')  from " + nicoleKidman.getIdentity();
-      YTDatabaseSessionInternal db = database.copy();
-      ODatabaseRecordThreadLocal.instance().set(db);
-      YTResultSet result1 = db.query(q);
+      DatabaseSessionInternal db = database.copy();
+      DatabaseRecordThreadLocal.instance().set(db);
+      ResultSet result1 = db.query(q);
       Assert.assertTrue(result1.hasNext());
       boolean found = false;
       Integer i = 0;
-      YTResult doc;
+      Result doc;
       while (result1.hasNext()) {
         doc = result1.next();
         i++;
@@ -423,7 +423,7 @@ public class NewTraverseTest extends DocumentDBBaseTest {
       Assert.assertEquals(i.intValue(), 2);
       result1.close();
     } finally {
-      ODatabaseRecordThreadLocal.instance().set(database);
+      DatabaseRecordThreadLocal.instance().set(database);
     }
   }
 }

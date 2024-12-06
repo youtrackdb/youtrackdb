@@ -1,22 +1,22 @@
 package com.orientechnologies.orient.client.remote;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryResultListener;
+import com.jetbrains.youtrack.db.internal.core.db.LiveQueryResultListener;
 
 /**
  *
  */
 public class OLiveQueryClientListener {
 
-  private final YTDatabaseSession database;
-  private final YTLiveQueryResultListener listener;
+  private final DatabaseSession database;
+  private final LiveQueryResultListener listener;
 
-  public OLiveQueryClientListener(YTDatabaseSession database, YTLiveQueryResultListener listener) {
+  public OLiveQueryClientListener(DatabaseSession database, LiveQueryResultListener listener) {
     this.database = database;
     this.listener = listener;
   }
@@ -28,7 +28,7 @@ public class OLiveQueryClientListener {
    * @return
    */
   public boolean onEvent(OLiveQueryPushRequest pushRequest) {
-    YTDatabaseSessionInternal old = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    DatabaseSessionInternal old = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       database.activateOnCurrentThread();
       if (pushRequest.getStatus() == OLiveQueryPushRequest.ERROR) {
@@ -55,29 +55,29 @@ public class OLiveQueryClientListener {
       }
       return false;
     } finally {
-      ODatabaseRecordThreadLocal.instance().set(old);
+      DatabaseRecordThreadLocal.instance().set(old);
     }
   }
 
-  public void onError(YTException e) {
-    YTDatabaseSessionInternal old = ODatabaseRecordThreadLocal.instance().getIfDefined();
+  public void onError(BaseException e) {
+    DatabaseSessionInternal old = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       database.activateOnCurrentThread();
       listener.onError(database, e);
       database.close();
     } finally {
-      ODatabaseRecordThreadLocal.instance().set(old);
+      DatabaseRecordThreadLocal.instance().set(old);
     }
   }
 
   public void onEnd() {
-    YTDatabaseSessionInternal old = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    DatabaseSessionInternal old = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       database.activateOnCurrentThread();
       listener.onEnd(database);
       database.close();
     } finally {
-      ODatabaseRecordThreadLocal.instance().set(old);
+      DatabaseRecordThreadLocal.instance().set(old);
     }
   }
 }

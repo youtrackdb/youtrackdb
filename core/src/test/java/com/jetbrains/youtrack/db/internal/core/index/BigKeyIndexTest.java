@@ -1,20 +1,20 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.exception.YTTooBigIndexKeyException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass.INDEX_TYPE;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.exception.TooBigIndexKeyException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.INDEX_TYPE;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Test;
 
-public class BigKeyIndexTest extends DBTestBase {
+public class BigKeyIndexTest extends DbTestBase {
 
   @Test
   public void testBigKey() {
-    YTClass cl = db.createClass("One");
-    YTProperty prop = cl.createProperty(db, "two", YTType.STRING);
+    SchemaClass cl = db.createClass("One");
+    Property prop = cl.createProperty(db, "two", PropertyType.STRING);
     prop.createIndex(db, INDEX_TYPE.NOTUNIQUE);
 
     for (int i = 0; i < 100; i++) {
@@ -31,10 +31,10 @@ public class BigKeyIndexTest extends DBTestBase {
     }
   }
 
-  @Test(expected = YTTooBigIndexKeyException.class)
+  @Test(expected = TooBigIndexKeyException.class)
   public void testTooBigKey() {
-    YTClass cl = db.createClass("One");
-    YTProperty prop = cl.createProperty(db, "two", YTType.STRING);
+    SchemaClass cl = db.createClass("One");
+    Property prop = cl.createProperty(db, "two", PropertyType.STRING);
     prop.createIndex(db, INDEX_TYPE.NOTUNIQUE);
 
     db.begin();

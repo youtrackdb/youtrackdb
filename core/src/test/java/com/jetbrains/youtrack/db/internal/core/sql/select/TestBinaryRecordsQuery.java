@@ -2,12 +2,12 @@ package com.jetbrains.youtrack.db.internal.core.sql.select;
 
 import static org.junit.Assert.assertEquals;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +15,7 @@ import org.junit.Test;
 /**
  *
  */
-public class TestBinaryRecordsQuery extends DBTestBase {
+public class TestBinaryRecordsQuery extends DbTestBase {
 
   @Before
   public void beforeTest() throws Exception {
@@ -29,7 +29,7 @@ public class TestBinaryRecordsQuery extends DBTestBase {
     db.save(new RecordBytes("blabla".getBytes()), "BlobCluster");
     db.commit();
 
-    YTResultSet res = db.query("select from cluster:BlobCluster");
+    ResultSet res = db.query("select from cluster:BlobCluster");
 
     assertEquals(1, res.stream().count());
   }
@@ -40,7 +40,7 @@ public class TestBinaryRecordsQuery extends DBTestBase {
     db.save(new RecordBytes("blabla".getBytes()), "BlobCluster");
     db.commit();
 
-    YTResultSet res = db.query("select @rid from cluster:BlobCluster");
+    ResultSet res = db.query("select @rid from cluster:BlobCluster");
     assertEquals(1, res.stream().count());
   }
 
@@ -51,14 +51,14 @@ public class TestBinaryRecordsQuery extends DBTestBase {
     db.commit();
 
     db.begin();
-    YTResultSet res = db.command("delete from (select from cluster:BlobCluster)");
+    ResultSet res = db.command("delete from (select from cluster:BlobCluster)");
     db.commit();
 
     assertEquals(1, (long) res.next().getProperty("count"));
     try {
       db.load(rec.getIdentity());
       Assert.fail();
-    } catch (YTRecordNotFoundException e) {
+    } catch (RecordNotFoundException e) {
       // ignore
     }
   }
@@ -78,7 +78,7 @@ public class TestBinaryRecordsQuery extends DBTestBase {
     db.commit();
 
     db.begin();
-    YTResultSet res =
+    ResultSet res =
         db.command("delete from cluster:BlobCluster where @rid in (select ref from RecordPointer)");
     db.commit();
 
@@ -86,7 +86,7 @@ public class TestBinaryRecordsQuery extends DBTestBase {
     try {
       db.load(rec.getIdentity());
       Assert.fail();
-    } catch (YTRecordNotFoundException e) {
+    } catch (RecordNotFoundException e) {
       // ignore
     }
   }
@@ -113,21 +113,21 @@ public class TestBinaryRecordsQuery extends DBTestBase {
     db.commit();
 
     db.begin();
-    YTResultSet res = db.command("delete from (select expand(ref) from RecordPointer)");
+    ResultSet res = db.command("delete from (select expand(ref) from RecordPointer)");
     assertEquals(2, (long) res.next().getProperty("count"));
     db.commit();
 
     try {
       db.load(rec.getIdentity());
       Assert.fail();
-    } catch (YTRecordNotFoundException e) {
+    } catch (RecordNotFoundException e) {
       // ignore
     }
 
     try {
       db.load(rec1.getIdentity());
       Assert.fail();
-    } catch (YTRecordNotFoundException e) {
+    } catch (RecordNotFoundException e) {
       // ignore
     }
   }

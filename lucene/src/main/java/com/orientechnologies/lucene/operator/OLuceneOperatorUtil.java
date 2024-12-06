@@ -17,33 +17,33 @@
 package com.orientechnologies.lucene.operator;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.sql.OIndexSearchResult;
-import com.jetbrains.youtrack.db.internal.core.sql.OSQLHelper;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterCondition;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItemField;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLFilterItemVariable;
-import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperatorBetween;
-import com.jetbrains.youtrack.db.internal.core.sql.operator.OQueryOperatorIn;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.sql.IndexSearchResult;
+import com.jetbrains.youtrack.db.internal.core.sql.SQLHelper;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemVariable;
+import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperatorBetween;
+import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperatorIn;
 import java.util.Collection;
 import java.util.List;
 
 public class OLuceneOperatorUtil {
 
-  public static OIndexSearchResult buildOIndexSearchResult(
-      YTClass iSchemaClass,
-      OSQLFilterCondition iCondition,
-      List<OIndexSearchResult> iIndexSearchResults,
+  public static IndexSearchResult buildOIndexSearchResult(
+      SchemaClass iSchemaClass,
+      SQLFilterCondition iCondition,
+      List<IndexSearchResult> iIndexSearchResults,
       CommandContext context) {
 
     if (iCondition.getLeft() instanceof Collection left) {
-      OIndexSearchResult lastResult = null;
+      IndexSearchResult lastResult = null;
 
       int i = 0;
       Object lastValue = null;
       for (Object obj : left) {
-        if (obj instanceof OSQLFilterItemField item) {
+        if (obj instanceof SQLFilterItemField item) {
 
           Object value = null;
           if (iCondition.getRight() instanceof Collection) {
@@ -54,14 +54,14 @@ public class OLuceneOperatorUtil {
           }
           if (lastResult == null) {
             lastResult =
-                new OIndexSearchResult(iCondition.getOperator(), item.getFieldChain(), value);
+                new IndexSearchResult(iCondition.getOperator(), item.getFieldChain(), value);
           } else {
             lastResult =
                 lastResult.merge(
-                    new OIndexSearchResult(iCondition.getOperator(), item.getFieldChain(), value));
+                    new IndexSearchResult(iCondition.getOperator(), item.getFieldChain(), value));
           }
 
-        } else if (obj instanceof OSQLFilterItemVariable item) {
+        } else if (obj instanceof SQLFilterItemVariable item) {
           Object value = null;
           if (iCondition.getRight() instanceof Collection) {
             List<Object> right = (List<Object>) iCondition.getRight();
@@ -80,7 +80,7 @@ public class OLuceneOperatorUtil {
       }
       return lastResult;
     } else {
-      OIndexSearchResult result =
+      IndexSearchResult result =
           OLuceneOperatorUtil.createIndexedProperty(iCondition, iCondition.getLeft());
       if (result == null) {
         result = OLuceneOperatorUtil.createIndexedProperty(iCondition, iCondition.getRight());
@@ -99,15 +99,15 @@ public class OLuceneOperatorUtil {
   }
 
   public static boolean checkIndexExistence(
-      YTDatabaseSessionInternal session, final YTClass iSchemaClass,
-      final OIndexSearchResult result) {
+      DatabaseSessionInternal session, final SchemaClass iSchemaClass,
+      final IndexSearchResult result) {
     if (!iSchemaClass.areIndexed(session, result.fields())) {
       return false;
     }
 
     if (result.lastField.isLong()) {
       final int fieldCount = result.lastField.getItemCount();
-      YTClass cls = iSchemaClass.getProperty(result.lastField.getItemName(0)).getLinkedClass();
+      SchemaClass cls = iSchemaClass.getProperty(result.lastField.getItemName(0)).getLinkedClass();
 
       for (int i = 1; i < fieldCount; i++) {
         if (cls == null || !cls.areIndexed(session, result.lastField.getItemName(i))) {
@@ -120,14 +120,14 @@ public class OLuceneOperatorUtil {
     return true;
   }
 
-  public static OIndexSearchResult createIndexedProperty(
-      final OSQLFilterCondition iCondition, final Object iItem) {
-    if (iItem == null || !(iItem instanceof OSQLFilterItemField item)) {
+  public static IndexSearchResult createIndexedProperty(
+      final SQLFilterCondition iCondition, final Object iItem) {
+    if (iItem == null || !(iItem instanceof SQLFilterItemField item)) {
       return null;
     }
 
-    if (iCondition.getLeft() instanceof OSQLFilterItemField
-        && iCondition.getRight() instanceof OSQLFilterItemField) {
+    if (iCondition.getLeft() instanceof SQLFilterItemField
+        && iCondition.getRight() instanceof SQLFilterItemField) {
       return null;
     }
 
@@ -138,17 +138,17 @@ public class OLuceneOperatorUtil {
     final Object origValue =
         iCondition.getLeft() == iItem ? iCondition.getRight() : iCondition.getLeft();
 
-    if (iCondition.getOperator() instanceof OQueryOperatorBetween
-        || iCondition.getOperator() instanceof OQueryOperatorIn) {
-      return new OIndexSearchResult(iCondition.getOperator(), item.getFieldChain(), origValue);
+    if (iCondition.getOperator() instanceof QueryOperatorBetween
+        || iCondition.getOperator() instanceof QueryOperatorIn) {
+      return new IndexSearchResult(iCondition.getOperator(), item.getFieldChain(), origValue);
     }
 
-    final Object value = OSQLHelper.getValue(origValue);
+    final Object value = SQLHelper.getValue(origValue);
 
     if (value == null) {
       return null;
     }
 
-    return new OIndexSearchResult(iCondition.getOperator(), item.getFieldChain(), value);
+    return new IndexSearchResult(iCondition.getOperator(), item.getFieldChain(), value);
   }
 }

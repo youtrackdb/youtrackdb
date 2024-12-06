@@ -16,7 +16,7 @@ package com.orientechnologies.orient.jdbc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import java.sql.Connection;
@@ -141,7 +141,7 @@ public class YouTrackDataSourceTest extends OrientJdbcDbPerClassTemplateTest {
     final String dbName = "test";
 
     YouTrackDB youTrackDB =
-        new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), serverUser, serverPassword,
+        new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()), serverUser, serverPassword,
             YouTrackDBConfig.defaultConfig());
     youTrackDB.execute(
         "create database ? memory users(admin identified by 'admin' role admin)", dbName);

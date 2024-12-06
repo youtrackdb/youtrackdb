@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v2;
 
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandInterruptedException;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandInterruptedException;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperationsManager;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Random;
@@ -43,14 +43,14 @@ public abstract class LocalHashTableV2Base {
     final Set<Integer> keys = new HashSet<>();
     final Random random = new Random();
 
-    final OAtomicOperationsManager manager = storage.getAtomicOperationsManager();
+    final AtomicOperationsManager manager = storage.getAtomicOperationsManager();
     while (keys.size() < KEYS_COUNT) {
       final int key = random.nextInt();
 
       for (int k = 0; k < 2; k++) {
-        final OAtomicOperation atomicOperation = manager.startAtomicOperation(null);
+        final AtomicOperation atomicOperation = manager.startAtomicOperation(null);
         localHashTable.put(atomicOperation, key, String.valueOf(key));
-        manager.endAtomicOperation(k == 0 ? new YTCommandInterruptedException("") : null);
+        manager.endAtomicOperation(k == 0 ? new CommandInterruptedException("") : null);
       }
 
       keys.add(key);
@@ -67,14 +67,14 @@ public abstract class LocalHashTableV2Base {
     final Set<Integer> keys = new HashSet<>();
     Random random = new Random();
 
-    final OAtomicOperationsManager manager = storage.getAtomicOperationsManager();
+    final AtomicOperationsManager manager = storage.getAtomicOperationsManager();
     while (keys.size() < KEYS_COUNT) {
       final int key = (int) (random.nextGaussian() * Integer.MAX_VALUE / 2 + Integer.MAX_VALUE);
 
       for (int k = 0; k < 2; k++) {
-        final OAtomicOperation atomicOperation = manager.startAtomicOperation(null);
+        final AtomicOperation atomicOperation = manager.startAtomicOperation(null);
         localHashTable.put(atomicOperation, key, String.valueOf(key));
-        manager.endAtomicOperation(k == 0 ? new YTCommandInterruptedException("") : null);
+        manager.endAtomicOperation(k == 0 ? new CommandInterruptedException("") : null);
       }
       keys.add(key);
       Assert.assertEquals(localHashTable.get(key), String.valueOf(key));
@@ -92,14 +92,14 @@ public abstract class LocalHashTableV2Base {
     System.out.println("testKeyDelete : " + ms);
     final Random random = new Random(ms);
 
-    final OAtomicOperationsManager manager = storage.getAtomicOperationsManager();
+    final AtomicOperationsManager manager = storage.getAtomicOperationsManager();
     while (keys.size() < KEYS_COUNT) {
       final int key = random.nextInt();
 
       for (int k = 0; k < 2; k++) {
-        final OAtomicOperation atomicOperation = manager.startAtomicOperation(null);
+        final AtomicOperation atomicOperation = manager.startAtomicOperation(null);
         localHashTable.put(atomicOperation, key, String.valueOf(key));
-        manager.endAtomicOperation(k == 0 ? new YTCommandInterruptedException("") : null);
+        manager.endAtomicOperation(k == 0 ? new CommandInterruptedException("") : null);
       }
 
       keys.add(key);
@@ -109,9 +109,9 @@ public abstract class LocalHashTableV2Base {
     for (final int key : keys) {
       if (key % 3 == 0) {
         for (int k = 0; k < 2; k++) {
-          final OAtomicOperation atomicOperation = manager.startAtomicOperation(null);
+          final AtomicOperation atomicOperation = manager.startAtomicOperation(null);
           localHashTable.remove(atomicOperation, key);
-          manager.endAtomicOperation(k == 0 ? new YTCommandInterruptedException("") : null);
+          manager.endAtomicOperation(k == 0 ? new CommandInterruptedException("") : null);
         }
       }
     }
@@ -201,12 +201,12 @@ public abstract class LocalHashTableV2Base {
         (value, rollback, atomicOperation) ->
             localHashTable.put(atomicOperation, value, String.valueOf(value)));
 
-    final OAtomicOperationsManager manager = storage.getAtomicOperationsManager();
+    final AtomicOperationsManager manager = storage.getAtomicOperationsManager();
 
     for (int k = 0; k < 2; k++) {
-      final OAtomicOperation atomicOperation = manager.startAtomicOperation(null);
+      final AtomicOperation atomicOperation = manager.startAtomicOperation(null);
       localHashTable.put(atomicOperation, null, "null");
-      manager.endAtomicOperation(k == 0 ? new YTCommandInterruptedException("") : null);
+      manager.endAtomicOperation(k == 0 ? new CommandInterruptedException("") : null);
     }
 
     for (int i = 0; i < 10; i++) {
@@ -224,9 +224,9 @@ public abstract class LocalHashTableV2Base {
                 localHashTable.remove(atomicOperation, value), String.valueOf(value)));
 
     for (int k = 0; k < 2; k++) {
-      final OAtomicOperation atomicOperation = manager.startAtomicOperation(null);
+      final AtomicOperation atomicOperation = manager.startAtomicOperation(null);
       Assert.assertEquals(localHashTable.remove(atomicOperation, null), "null");
-      manager.endAtomicOperation(k == 0 ? new YTCommandInterruptedException("") : null);
+      manager.endAtomicOperation(k == 0 ? new CommandInterruptedException("") : null);
     }
 
     for (int i = 0; i < 5; i++) {
@@ -253,15 +253,15 @@ public abstract class LocalHashTableV2Base {
   public void testKeyDeleteRandomGaussian() throws IOException {
     HashSet<Integer> keys = new HashSet<>();
 
-    final OAtomicOperationsManager manager = storage.getAtomicOperationsManager();
+    final AtomicOperationsManager manager = storage.getAtomicOperationsManager();
     final Random random = new Random();
     while (keys.size() < KEYS_COUNT) {
       final int key = (int) (random.nextGaussian() * Integer.MAX_VALUE / 2 + Integer.MAX_VALUE);
 
       for (int k = 0; k < 2; k++) {
-        final OAtomicOperation atomicOperation = manager.startAtomicOperation(null);
+        final AtomicOperation atomicOperation = manager.startAtomicOperation(null);
         localHashTable.put(atomicOperation, key, String.valueOf(key));
-        manager.endAtomicOperation(k == 0 ? new YTCommandInterruptedException("") : null);
+        manager.endAtomicOperation(k == 0 ? new CommandInterruptedException("") : null);
       }
 
       keys.add(key);
@@ -270,9 +270,9 @@ public abstract class LocalHashTableV2Base {
     for (final int key : keys) {
       if (key % 3 == 0) {
         for (int k = 0; k < 2; k++) {
-          final OAtomicOperation atomicOperation = manager.startAtomicOperation(null);
+          final AtomicOperation atomicOperation = manager.startAtomicOperation(null);
           localHashTable.remove(atomicOperation, key);
-          manager.endAtomicOperation(k == 0 ? new YTCommandInterruptedException("") : null);
+          manager.endAtomicOperation(k == 0 ? new CommandInterruptedException("") : null);
         }
       }
     }
@@ -290,11 +290,11 @@ public abstract class LocalHashTableV2Base {
   private void doInRollbackLoop(
       final int start, final int end, final int rollbackSlice, final TxCode code)
       throws IOException {
-    final OAtomicOperationsManager atomicOperationsManager = storage.getAtomicOperationsManager();
+    final AtomicOperationsManager atomicOperationsManager = storage.getAtomicOperationsManager();
 
     for (int i = start; i < end; i += rollbackSlice) {
       for (int k = 0; k < 2; k++) {
-        final OAtomicOperation atomicOperation = atomicOperationsManager.startAtomicOperation(null);
+        final AtomicOperation atomicOperation = atomicOperationsManager.startAtomicOperation(null);
 
         int counter = 0;
         while (counter < rollbackSlice && i + counter < end) {
@@ -304,13 +304,13 @@ public abstract class LocalHashTableV2Base {
         }
 
         atomicOperationsManager.endAtomicOperation(
-            k == 0 ? new YTCommandInterruptedException("") : null);
+            k == 0 ? new CommandInterruptedException("") : null);
       }
     }
   }
 
   private interface TxCode {
 
-    void execute(int value, boolean rollback, OAtomicOperation atomicOperation) throws IOException;
+    void execute(int value, boolean rollback, AtomicOperation atomicOperation) throws IOException;
   }
 }

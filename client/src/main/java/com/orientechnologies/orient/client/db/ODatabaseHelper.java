@@ -19,13 +19,13 @@
  */
 package com.orientechnologies.orient.client.db;
 
-import com.jetbrains.youtrack.db.internal.common.parser.OSystemVariableResolver;
-import com.jetbrains.youtrack.db.internal.core.OConstants;
+import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
-import com.orientechnologies.orient.client.remote.OEngineRemote;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
+import com.orientechnologies.orient.client.remote.EngineRemote;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import java.io.File;
 import java.io.FileReader;
@@ -35,59 +35,59 @@ import java.io.IOException;
 public class ODatabaseHelper {
 
   @Deprecated
-  public static void createDatabase(YTDatabaseSession database, final String url)
+  public static void createDatabase(DatabaseSession database, final String url)
       throws IOException {
     createDatabase(database, url, "server", "plocal");
   }
 
   @Deprecated
-  public static void createDatabase(YTDatabaseSession database, final String url, String type)
+  public static void createDatabase(DatabaseSession database, final String url, String type)
       throws IOException {
     createDatabase(database, url, "server", type);
   }
 
   @Deprecated
-  public static void openDatabase(YTDatabaseSession database) {
-    ((YTDatabaseSessionInternal) database).open("admin", "admin");
+  public static void openDatabase(DatabaseSession database) {
+    ((DatabaseSessionInternal) database).open("admin", "admin");
   }
 
   @Deprecated
   public static void createDatabase(
-      YTDatabaseSession database, final String url, String directory, String type)
+      DatabaseSession database, final String url, String directory, String type)
       throws IOException {
-    if (url.startsWith(OEngineRemote.NAME)) {
+    if (url.startsWith(EngineRemote.NAME)) {
       new OServerAdmin(url)
           .connect("root", getServerRootPassword(directory))
           .createDatabase("document", type)
           .close();
     } else {
-      ((YTDatabaseSessionInternal) database).create();
+      ((DatabaseSessionInternal) database).create();
       database.close();
     }
   }
 
   @Deprecated
-  public static void deleteDatabase(final YTDatabaseSession database, String storageType)
+  public static void deleteDatabase(final DatabaseSession database, String storageType)
       throws IOException {
     deleteDatabase(database, "server", storageType);
   }
 
   @Deprecated
   public static void deleteDatabase(
-      final YTDatabaseSession database, final String directory, String storageType)
+      final DatabaseSession database, final String directory, String storageType)
       throws IOException {
     dropDatabase(database, directory, storageType);
   }
 
   @Deprecated
-  public static void dropDatabase(final YTDatabaseSession database, String storageType)
+  public static void dropDatabase(final DatabaseSession database, String storageType)
       throws IOException {
     dropDatabase(database, "server", storageType);
   }
 
   @Deprecated
   public static void dropDatabase(
-      final YTDatabaseSession database, final String directory, String storageType)
+      final DatabaseSession database, final String directory, String storageType)
       throws IOException {
     if (existsDatabase(database, storageType)) {
       if (database.getURL().startsWith("remote:")) {
@@ -103,13 +103,13 @@ public class ODatabaseHelper {
         } else {
           database.activateOnCurrentThread();
         }
-        ((YTDatabaseSessionInternal) database).drop();
+        ((DatabaseSessionInternal) database).drop();
       }
     }
   }
 
   @Deprecated
-  public static boolean existsDatabase(final YTDatabaseSession database, String storageType)
+  public static boolean existsDatabase(final DatabaseSession database, String storageType)
       throws IOException {
     database.activateOnCurrentThread();
     if (database.getURL().startsWith("remote")) {
@@ -120,11 +120,11 @@ public class ODatabaseHelper {
       return exist;
     }
 
-    return ((YTDatabaseSessionInternal) database).exists();
+    return ((DatabaseSessionInternal) database).exists();
   }
 
   @Deprecated
-  public static void freezeDatabase(final YTDatabaseSession database) throws IOException {
+  public static void freezeDatabase(final DatabaseSession database) throws IOException {
     database.activateOnCurrentThread();
     if (database.getURL().startsWith("remote")) {
       final OServerAdmin serverAdmin = new OServerAdmin(database.getURL());
@@ -136,7 +136,7 @@ public class ODatabaseHelper {
   }
 
   @Deprecated
-  public static void releaseDatabase(final YTDatabaseSession database) throws IOException {
+  public static void releaseDatabase(final DatabaseSession database) throws IOException {
     database.activateOnCurrentThread();
     if (database.getURL().startsWith("remote")) {
       final OServerAdmin serverAdmin = new OServerAdmin(database.getURL());
@@ -191,28 +191,28 @@ public class ODatabaseHelper {
       file =
           new File(
               "../releases/orientdb-"
-                  + OConstants.getRawVersion()
+                  + YouTrackDBConstants.getRawVersion()
                   + "/config/orientdb-server-config.xml");
     }
     if (!file.exists()) {
       file =
           new File(
               "../releases/orientdb-community-"
-                  + OConstants.getRawVersion()
+                  + YouTrackDBConstants.getRawVersion()
                   + "/config/orientdb-server-config.xml");
     }
     if (!file.exists()) {
       file =
           new File(
               "../../releases/orientdb-"
-                  + OConstants.getRawVersion()
+                  + YouTrackDBConstants.getRawVersion()
                   + "/config/orientdb-server-config.xml");
     }
     if (!file.exists()) {
       file =
           new File(
               "../../releases/orientdb-community-"
-                  + OConstants.getRawVersion()
+                  + YouTrackDBConstants.getRawVersion()
                   + "/config/orientdb-server-config.xml");
     }
     if (!file.exists() && iDirectory != null) {
@@ -224,12 +224,12 @@ public class ODatabaseHelper {
     if (!file.exists()) {
       file =
           new File(
-              OSystemVariableResolver.resolveSystemVariables(
+              SystemVariableResolver.resolveSystemVariables(
                   "${" + YouTrackDBManager.YOU_TRACK_DB_HOME
                       + "}/config/orientdb-server-config.xml"));
     }
     if (!file.exists()) {
-      throw new YTConfigurationException(
+      throw new ConfigurationException(
           "Cannot load file orientdb-server-config.xml to execute remote tests. Current directory"
               + " is "
               + new File(".").getAbsolutePath());

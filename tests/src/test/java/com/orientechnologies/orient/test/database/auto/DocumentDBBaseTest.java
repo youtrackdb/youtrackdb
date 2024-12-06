@@ -1,19 +1,19 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.record.Direction;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.ODirection;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStep;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStepInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.FetchFromIndexStep;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
  * @since 7/3/14
  */
 @Test
-public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInternal> {
+public abstract class DocumentDBBaseTest extends BaseTest<DatabaseSessionInternal> {
 
   protected static final int TOT_COMPANY_RECORDS = 10;
   protected static final int TOT_RECORDS_ACCOUNT = 100;
@@ -58,51 +58,51 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
   }
 
   @Override
-  protected YTDatabaseSessionInternal createSessionInstance(
+  protected DatabaseSessionInternal createSessionInstance(
       YouTrackDB youTrackDB, String dbName, String user, String password) {
     var session = youTrackDB.open(dbName, user, password);
-    return (YTDatabaseSessionInternal) session;
+    return (DatabaseSessionInternal) session;
   }
 
-  protected List<EntityImpl> executeQuery(String sql, YTDatabaseSessionInternal db,
+  protected List<EntityImpl> executeQuery(String sql, DatabaseSessionInternal db,
       Object... args) {
     return db.query(sql, args).stream()
-        .map(YTResult::toEntity)
+        .map(Result::toEntity)
         .map(element -> (EntityImpl) element)
         .toList();
   }
 
-  protected List<EntityImpl> executeQuery(String sql, YTDatabaseSessionInternal db, Map args) {
+  protected List<EntityImpl> executeQuery(String sql, DatabaseSessionInternal db, Map args) {
     return db.query(sql, args).stream()
-        .map(YTResult::toEntity)
+        .map(Result::toEntity)
         .map(element -> (EntityImpl) element)
         .toList();
   }
 
-  protected List<EntityImpl> executeQuery(String sql, YTDatabaseSessionInternal db) {
+  protected List<EntityImpl> executeQuery(String sql, DatabaseSessionInternal db) {
     return db.query(sql).stream()
-        .map(YTResult::toEntity)
+        .map(Result::toEntity)
         .map(element -> (EntityImpl) element)
         .toList();
   }
 
   protected List<EntityImpl> executeQuery(String sql, Object... args) {
     return database.query(sql, args).stream()
-        .map(YTResult::toEntity)
+        .map(Result::toEntity)
         .map(element -> (EntityImpl) element)
         .toList();
   }
 
   protected List<EntityImpl> executeQuery(String sql, Map<?, ?> args) {
     return database.query(sql, args).stream()
-        .map(YTResult::toEntity)
+        .map(Result::toEntity)
         .map(element -> (EntityImpl) element)
         .toList();
   }
 
   protected List<EntityImpl> executeQuery(String sql) {
     return database.query(sql).stream()
-        .map(YTResult::toEntity)
+        .map(Result::toEntity)
         .map(element -> (EntityImpl) element)
         .toList();
   }
@@ -331,17 +331,17 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
     return address;
   }
 
-  protected YTClass createCountryClass() {
+  protected SchemaClass createCountryClass() {
     if (database.getClass("Country") != null) {
       return database.getClass("Country");
     }
 
     var cls = database.createClass("Country");
-    cls.createProperty(database, "name", YTType.STRING);
+    cls.createProperty(database, "name", PropertyType.STRING);
     return cls;
   }
 
-  protected YTClass createCityClass() {
+  protected SchemaClass createCityClass() {
     var countryCls = createCountryClass();
 
     if (database.getClass("City") != null) {
@@ -349,41 +349,41 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
     }
 
     var cls = database.createClass("City");
-    cls.createProperty(database, "name", YTType.STRING);
-    cls.createProperty(database, "country", YTType.LINK, countryCls);
+    cls.createProperty(database, "name", PropertyType.STRING);
+    cls.createProperty(database, "country", PropertyType.LINK, countryCls);
 
     return cls;
   }
 
-  protected YTClass createAddressClass() {
+  protected SchemaClass createAddressClass() {
     if (database.getClass("Address") != null) {
       return database.getClass("Address");
     }
 
     var cityCls = createCityClass();
     var cls = database.createClass("Address");
-    cls.createProperty(database, "type", YTType.STRING);
-    cls.createProperty(database, "street", YTType.STRING);
-    cls.createProperty(database, "city", YTType.LINK, cityCls);
+    cls.createProperty(database, "type", PropertyType.STRING);
+    cls.createProperty(database, "street", PropertyType.STRING);
+    cls.createProperty(database, "city", PropertyType.LINK, cityCls);
 
     return cls;
   }
 
-  protected YTClass createAccountClass() {
+  protected SchemaClass createAccountClass() {
     if (database.getClass("Account") != null) {
       return database.getClass("Account");
     }
 
     var addressCls = createAddressClass();
     var cls = database.createClass("Account");
-    cls.createProperty(database, "id", YTType.INTEGER);
-    cls.createProperty(database, "name", YTType.STRING);
-    cls.createProperty(database, "surname", YTType.STRING);
-    cls.createProperty(database, "birthDate", YTType.DATE);
-    cls.createProperty(database, "salary", YTType.FLOAT);
-    cls.createProperty(database, "addresses", YTType.LINKLIST, addressCls);
-    cls.createProperty(database, "thumbnail", YTType.BINARY);
-    cls.createProperty(database, "photo", YTType.BINARY);
+    cls.createProperty(database, "id", PropertyType.INTEGER);
+    cls.createProperty(database, "name", PropertyType.STRING);
+    cls.createProperty(database, "surname", PropertyType.STRING);
+    cls.createProperty(database, "birthDate", PropertyType.DATE);
+    cls.createProperty(database, "salary", PropertyType.FLOAT);
+    cls.createProperty(database, "addresses", PropertyType.LINKLIST, addressCls);
+    cls.createProperty(database, "thumbnail", PropertyType.BINARY);
+    cls.createProperty(database, "photo", PropertyType.BINARY);
 
     return cls;
   }
@@ -395,7 +395,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
 
     createAccountClass();
     var cls = database.createClassIfNotExist("Company", "Account");
-    cls.createProperty(database, "employees", YTType.INTEGER);
+    cls.createProperty(database, "employees", PropertyType.INTEGER);
   }
 
   protected void createProfileClass() {
@@ -405,50 +405,50 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
 
     var addressCls = createAddressClass();
     var cls = database.createClass("Profile");
-    cls.createProperty(database, "nick", YTType.STRING)
+    cls.createProperty(database, "nick", PropertyType.STRING)
         .setMin(database, "3")
         .setMax(database, "30")
-        .createIndex(database, YTClass.INDEX_TYPE.UNIQUE,
+        .createIndex(database, SchemaClass.INDEX_TYPE.UNIQUE,
             new EntityImpl().field("ignoreNullValues", true));
-    cls.createProperty(database, "followings", YTType.LINKSET, cls);
-    cls.createProperty(database, "followers", YTType.LINKSET, cls);
-    cls.createProperty(database, "name", YTType.STRING)
+    cls.createProperty(database, "followings", PropertyType.LINKSET, cls);
+    cls.createProperty(database, "followers", PropertyType.LINKSET, cls);
+    cls.createProperty(database, "name", PropertyType.STRING)
         .setMin(database, "3")
         .setMax(database, "30")
-        .createIndex(database, YTClass.INDEX_TYPE.NOTUNIQUE);
+        .createIndex(database, SchemaClass.INDEX_TYPE.NOTUNIQUE);
 
-    cls.createProperty(database, "surname", YTType.STRING).setMin(database, "3")
+    cls.createProperty(database, "surname", PropertyType.STRING).setMin(database, "3")
         .setMax(database, "30");
-    cls.createProperty(database, "location", YTType.LINK, addressCls);
-    cls.createProperty(database, "hash", YTType.LONG);
-    cls.createProperty(database, "invitedBy", YTType.LINK, cls);
-    cls.createProperty(database, "value", YTType.INTEGER);
+    cls.createProperty(database, "location", PropertyType.LINK, addressCls);
+    cls.createProperty(database, "hash", PropertyType.LONG);
+    cls.createProperty(database, "invitedBy", PropertyType.LINK, cls);
+    cls.createProperty(database, "value", PropertyType.INTEGER);
 
-    cls.createProperty(database, "registeredOn", YTType.DATETIME)
+    cls.createProperty(database, "registeredOn", PropertyType.DATETIME)
         .setMin(database, "2010-01-01 00:00:00");
-    cls.createProperty(database, "lastAccessOn", YTType.DATETIME)
+    cls.createProperty(database, "lastAccessOn", PropertyType.DATETIME)
         .setMin(database, "2010-01-01 00:00:00");
-    cls.createProperty(database, "photo", YTType.TRANSIENT);
+    cls.createProperty(database, "photo", PropertyType.TRANSIENT);
   }
 
-  protected YTClass createInheritanceTestAbstractClass() {
+  protected SchemaClass createInheritanceTestAbstractClass() {
     if (database.getClass("InheritanceTestAbstractClass") != null) {
       return database.getClass("InheritanceTestAbstractClass");
     }
 
     var cls = database.createClass("InheritanceTestAbstractClass");
-    cls.createProperty(database, "cField", YTType.INTEGER);
+    cls.createProperty(database, "cField", PropertyType.INTEGER);
     return cls;
   }
 
-  protected YTClass createInheritanceTestBaseClass() {
+  protected SchemaClass createInheritanceTestBaseClass() {
     if (database.getClass("InheritanceTestBaseClass") != null) {
       return database.getClass("InheritanceTestBaseClass");
     }
 
     var abstractCls = createInheritanceTestAbstractClass();
     var cls = database.createClass("InheritanceTestBaseClass", abstractCls.getName());
-    cls.createProperty(database, "aField", YTType.STRING);
+    cls.createProperty(database, "aField", PropertyType.STRING);
 
     return cls;
   }
@@ -460,7 +460,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
 
     var baseCls = createInheritanceTestBaseClass();
     var cls = database.createClass("InheritanceTestClass", baseCls.getName());
-    cls.createProperty(database, "bField", YTType.STRING);
+    cls.createProperty(database, "bField", PropertyType.STRING);
   }
 
   protected void createBasicTestSchema() {
@@ -488,19 +488,20 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
   }
 
   private void createWhizClass() {
-    YTClass account = createAccountClass();
+    SchemaClass account = createAccountClass();
     if (database.getMetadata().getSchema().existsClass("Whiz")) {
       return;
     }
 
-    YTClass whiz = database.getMetadata().getSchema().createClass("Whiz", 1, (YTClass[]) null);
-    whiz.createProperty(database, "id", YTType.INTEGER);
-    whiz.createProperty(database, "account", YTType.LINK, account);
-    whiz.createProperty(database, "date", YTType.DATE).setMin(database, "2010-01-01");
-    whiz.createProperty(database, "text", YTType.STRING).setMandatory(database, true)
+    SchemaClass whiz = database.getMetadata().getSchema()
+        .createClass("Whiz", 1, (SchemaClass[]) null);
+    whiz.createProperty(database, "id", PropertyType.INTEGER);
+    whiz.createProperty(database, "account", PropertyType.LINK, account);
+    whiz.createProperty(database, "date", PropertyType.DATE).setMin(database, "2010-01-01");
+    whiz.createProperty(database, "text", PropertyType.STRING).setMandatory(database, true)
         .setMin(database, "1")
         .setMax(database, "140");
-    whiz.createProperty(database, "replyTo", YTType.LINK, account);
+    whiz.createProperty(database, "replyTo", PropertyType.LINK, account);
   }
 
   private void createAnimalRaceClass() {
@@ -508,12 +509,13 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
       return;
     }
 
-    YTClass animalRace =
-        database.getMetadata().getSchema().createClass("AnimalRace", 1, (YTClass[]) null);
-    animalRace.createProperty(database, "name", YTType.STRING);
-    YTClass animal = database.getMetadata().getSchema().createClass("Animal", 1, (YTClass[]) null);
-    animal.createProperty(database, "races", YTType.LINKSET, animalRace);
-    animal.createProperty(database, "name", YTType.STRING);
+    SchemaClass animalRace =
+        database.getMetadata().getSchema().createClass("AnimalRace", 1, (SchemaClass[]) null);
+    animalRace.createProperty(database, "name", PropertyType.STRING);
+    SchemaClass animal = database.getMetadata().getSchema()
+        .createClass("Animal", 1, (SchemaClass[]) null);
+    animal.createProperty(database, "races", PropertyType.LINKSET, animalRace);
+    animal.createProperty(database, "name", PropertyType.STRING);
   }
 
   private void createStrictTestClass() {
@@ -521,11 +523,11 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
       return;
     }
 
-    YTClass strictTest =
-        database.getMetadata().getSchema().createClass("StrictTest", 1, (YTClass[]) null);
+    SchemaClass strictTest =
+        database.getMetadata().getSchema().createClass("StrictTest", 1, (SchemaClass[]) null);
     strictTest.setStrictMode(database, true);
-    strictTest.createProperty(database, "id", YTType.INTEGER).isMandatory();
-    strictTest.createProperty(database, "name", YTType.STRING);
+    strictTest.createProperty(database, "id", PropertyType.INTEGER).isMandatory();
+    strictTest.createProperty(database, "name", PropertyType.STRING);
   }
 
   protected void createComplexTestClass() {
@@ -537,26 +539,26 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
     }
 
     var childCls = database.createClass("Child");
-    childCls.createProperty(database, "name", YTType.STRING);
+    childCls.createProperty(database, "name", PropertyType.STRING);
 
     var cls = database.createClass("JavaComplexTestClass");
 
-    cls.createProperty(database, "embeddedDocument", YTType.EMBEDDED);
-    cls.createProperty(database, "document", YTType.LINK);
-    cls.createProperty(database, "byteArray", YTType.LINK);
-    cls.createProperty(database, "name", YTType.STRING);
-    cls.createProperty(database, "child", YTType.LINK, childCls);
-    cls.createProperty(database, "stringMap", YTType.EMBEDDEDMAP);
-    cls.createProperty(database, "stringListMap", YTType.EMBEDDEDMAP);
-    cls.createProperty(database, "list", YTType.LINKLIST, childCls);
-    cls.createProperty(database, "set", YTType.LINKSET, childCls);
-    cls.createProperty(database, "duplicationTestSet", YTType.LINKSET, childCls);
-    cls.createProperty(database, "children", YTType.LINKMAP, childCls);
-    cls.createProperty(database, "stringSet", YTType.EMBEDDEDSET);
-    cls.createProperty(database, "embeddedList", YTType.EMBEDDEDLIST);
-    cls.createProperty(database, "embeddedSet", YTType.EMBEDDEDSET);
-    cls.createProperty(database, "embeddedChildren", YTType.EMBEDDEDMAP);
-    cls.createProperty(database, "mapObject", YTType.EMBEDDEDMAP);
+    cls.createProperty(database, "embeddedDocument", PropertyType.EMBEDDED);
+    cls.createProperty(database, "document", PropertyType.LINK);
+    cls.createProperty(database, "byteArray", PropertyType.LINK);
+    cls.createProperty(database, "name", PropertyType.STRING);
+    cls.createProperty(database, "child", PropertyType.LINK, childCls);
+    cls.createProperty(database, "stringMap", PropertyType.EMBEDDEDMAP);
+    cls.createProperty(database, "stringListMap", PropertyType.EMBEDDEDMAP);
+    cls.createProperty(database, "list", PropertyType.LINKLIST, childCls);
+    cls.createProperty(database, "set", PropertyType.LINKSET, childCls);
+    cls.createProperty(database, "duplicationTestSet", PropertyType.LINKSET, childCls);
+    cls.createProperty(database, "children", PropertyType.LINKMAP, childCls);
+    cls.createProperty(database, "stringSet", PropertyType.EMBEDDEDSET);
+    cls.createProperty(database, "embeddedList", PropertyType.EMBEDDEDLIST);
+    cls.createProperty(database, "embeddedSet", PropertyType.EMBEDDEDSET);
+    cls.createProperty(database, "embeddedChildren", PropertyType.EMBEDDEDMAP);
+    cls.createProperty(database, "mapObject", PropertyType.EMBEDDEDMAP);
   }
 
   protected void createSimpleTestClass() {
@@ -565,14 +567,16 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
     }
 
     var cls = database.createClass("JavaSimpleTestClass");
-    cls.createProperty(database, "text", YTType.STRING).setDefaultValue(database, "initTest");
-    cls.createProperty(database, "numberSimple", YTType.INTEGER).setDefaultValue(database, "0");
-    cls.createProperty(database, "longSimple", YTType.LONG).setDefaultValue(database, "0");
-    cls.createProperty(database, "doubleSimple", YTType.DOUBLE).setDefaultValue(database, "0");
-    cls.createProperty(database, "floatSimple", YTType.FLOAT).setDefaultValue(database, "0");
-    cls.createProperty(database, "byteSimple", YTType.BYTE).setDefaultValue(database, "0");
-    cls.createProperty(database, "shortSimple", YTType.SHORT).setDefaultValue(database, "0");
-    cls.createProperty(database, "dateField", YTType.DATETIME);
+    cls.createProperty(database, "text", PropertyType.STRING).setDefaultValue(database, "initTest");
+    cls.createProperty(database, "numberSimple", PropertyType.INTEGER)
+        .setDefaultValue(database, "0");
+    cls.createProperty(database, "longSimple", PropertyType.LONG).setDefaultValue(database, "0");
+    cls.createProperty(database, "doubleSimple", PropertyType.DOUBLE)
+        .setDefaultValue(database, "0");
+    cls.createProperty(database, "floatSimple", PropertyType.FLOAT).setDefaultValue(database, "0");
+    cls.createProperty(database, "byteSimple", PropertyType.BYTE).setDefaultValue(database, "0");
+    cls.createProperty(database, "shortSimple", PropertyType.SHORT).setDefaultValue(database, "0");
+    cls.createProperty(database, "dateField", PropertyType.DATETIME);
   }
 
   protected void generateGraphData() {
@@ -580,7 +584,7 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
       return;
     }
 
-    YTClass vehicleClass = database.createVertexClass("GraphVehicle");
+    SchemaClass vehicleClass = database.createVertexClass("GraphVehicle");
     database.createClass("GraphCar", vehicleClass.getName());
     database.createClass("GraphMotocycle", "GraphVehicle");
 
@@ -604,10 +608,10 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
     motoNode = database.bindToSession(motoNode);
     database.newEdge(carNode, motoNode).save();
 
-    List<YTResult> result =
+    List<Result> result =
         database.query("select from GraphVehicle").stream().collect(Collectors.toList());
     Assert.assertEquals(result.size(), 2);
-    for (YTResult v : result) {
+    for (Result v : result) {
       Assert.assertTrue(v.getEntity().get().getSchemaType().get().isSubClassOf(vehicleClass));
     }
 
@@ -618,28 +622,28 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
     Edge edge1 = null;
     Edge edge2 = null;
 
-    for (YTResult v : result) {
+    for (Result v : result) {
       Assert.assertTrue(v.getEntity().get().getSchemaType().get().isSubClassOf("GraphVehicle"));
 
       if (v.getEntity().get().getSchemaType().isPresent()
           && v.getEntity().get().getSchemaType().get().getName().equals("GraphCar")) {
         Assert.assertEquals(
             CollectionUtils.size(
-                database.<Vertex>load(v.getIdentity().get()).getEdges(ODirection.OUT)),
+                database.<Vertex>load(v.getIdentity().get()).getEdges(Direction.OUT)),
             1);
         edge1 =
             database
                 .<Vertex>load(v.getIdentity().get())
-                .getEdges(ODirection.OUT)
+                .getEdges(Direction.OUT)
                 .iterator()
                 .next();
       } else {
         Assert.assertEquals(
             CollectionUtils.size(
-                database.<Vertex>load(v.getIdentity().get()).getEdges(ODirection.IN)),
+                database.<Vertex>load(v.getIdentity().get()).getEdges(Direction.IN)),
             1);
         edge2 =
-            database.<Vertex>load(v.getIdentity().get()).getEdges(ODirection.IN).iterator()
+            database.<Vertex>load(v.getIdentity().get()).getEdges(Direction.IN).iterator()
                 .next();
       }
     }
@@ -647,14 +651,14 @@ public abstract class DocumentDBBaseTest extends BaseTest<YTDatabaseSessionInter
     Assert.assertEquals(edge1, edge2);
   }
 
-  public static int indexesUsed(OExecutionPlan executionPlan) {
+  public static int indexesUsed(ExecutionPlan executionPlan) {
     var indexes = new HashSet<String>();
     indexesUsed(indexes, executionPlan);
 
     return indexes.size();
   }
 
-  private static void indexesUsed(Set<String> indexes, OExecutionPlan executionPlan) {
+  private static void indexesUsed(Set<String> indexes, ExecutionPlan executionPlan) {
     var steps = executionPlan.getSteps();
     for (var step : steps) {
       indexesUsed(indexes, step);

@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLProjection;
@@ -19,7 +19,7 @@ public class ProjectionCalculationStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev == null) {
       throw new IllegalStateException("Cannot calculate projections without a previous source");
     }
@@ -28,15 +28,15 @@ public class ProjectionCalculationStep extends AbstractExecutionStep {
     return parentRs.map(this::mapResult);
   }
 
-  private YTResult mapResult(YTResult result, CommandContext ctx) {
+  private Result mapResult(Result result, CommandContext ctx) {
     Object oldCurrent = ctx.getVariable("$current");
     ctx.setVariable("$current", result);
-    YTResult newResult = calculateProjections(ctx, result);
+    Result newResult = calculateProjections(ctx, result);
     ctx.setVariable("$current", oldCurrent);
     return newResult;
   }
 
-  private YTResult calculateProjections(CommandContext ctx, YTResult next) {
+  private Result calculateProjections(CommandContext ctx, Result next) {
     return this.projection.calculateSingle(ctx, next);
   }
 

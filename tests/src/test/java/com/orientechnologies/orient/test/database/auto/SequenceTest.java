@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.exception.YTSequenceException;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.YTSequence;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.YTSequence.SEQUENCE_TYPE;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.OSequenceLibrary;
+import com.jetbrains.youtrack.db.internal.core.exception.SequenceException;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence.SEQUENCE_TYPE;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibrary;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import org.testng.Assert;
@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 public class SequenceTest extends DocumentDBBaseTest {
 
   private static final int CACHE_SIZE = 40;
-  private static final long FIRST_START = YTSequence.DEFAULT_START;
+  private static final long FIRST_START = Sequence.DEFAULT_START;
   private static final long SECOND_START = 31;
 
   @Parameters(value = "remote")
@@ -33,14 +33,14 @@ public class SequenceTest extends DocumentDBBaseTest {
 
   private void testSequence(String sequenceName, SEQUENCE_TYPE sequenceType)
       throws ExecutionException, InterruptedException {
-    OSequenceLibrary sequenceLibrary = database.getMetadata().getSequenceLibrary();
+    SequenceLibrary sequenceLibrary = database.getMetadata().getSequenceLibrary();
 
-    YTSequence seq = sequenceLibrary.createSequence(sequenceName, sequenceType, null);
+    Sequence seq = sequenceLibrary.createSequence(sequenceName, sequenceType, null);
 
-    YTSequenceException err = null;
+    SequenceException err = null;
     try {
       sequenceLibrary.createSequence(sequenceName, sequenceType, null);
-    } catch (YTSequenceException se) {
+    } catch (SequenceException se) {
       err = se;
     }
     Assert.assertTrue(
@@ -49,7 +49,7 @@ public class SequenceTest extends DocumentDBBaseTest {
             + sequenceType.toString()
             + " sequences with same name doesn't throw an exception");
 
-    YTSequence seqSame = sequenceLibrary.getSequence(sequenceName);
+    Sequence seqSame = sequenceLibrary.getSequence(sequenceName);
     Assert.assertEquals(seqSame, seq);
 
     // Doing it twice to check everything works after reset
@@ -66,34 +66,34 @@ public class SequenceTest extends DocumentDBBaseTest {
 
   @Test
   public void testOrdered() throws ExecutionException, InterruptedException {
-    OSequenceLibrary sequenceManager = database.getMetadata().getSequenceLibrary();
+    SequenceLibrary sequenceManager = database.getMetadata().getSequenceLibrary();
 
-    YTSequence seq = sequenceManager.createSequence("seqOrdered", SEQUENCE_TYPE.ORDERED, null);
+    Sequence seq = sequenceManager.createSequence("seqOrdered", SEQUENCE_TYPE.ORDERED, null);
 
-    YTSequenceException err = null;
+    SequenceException err = null;
     try {
       sequenceManager.createSequence("seqOrdered", SEQUENCE_TYPE.ORDERED, null);
-    } catch (YTSequenceException se) {
+    } catch (SequenceException se) {
       err = se;
     }
     Assert.assertTrue(
         err == null || err.getMessage().toLowerCase(Locale.ENGLISH).contains("already exists"),
         "Creating two ordered sequences with same name doesn't throw an exception");
 
-    YTSequence seqSame = sequenceManager.getSequence("seqOrdered");
+    Sequence seqSame = sequenceManager.getSequence("seqOrdered");
     Assert.assertEquals(seqSame, seq);
 
     testUsage(seq, FIRST_START);
 
     //
     database.begin();
-    seq.updateParams(new YTSequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
+    seq.updateParams(new Sequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
     database.commit();
 
     testUsage(seq, SECOND_START);
   }
 
-  private void testUsage(YTSequence seq, long reset)
+  private void testUsage(Sequence seq, long reset)
       throws ExecutionException, InterruptedException {
     for (int i = 0; i < 2; ++i) {
       Assert.assertEquals(seq.reset(), reset);

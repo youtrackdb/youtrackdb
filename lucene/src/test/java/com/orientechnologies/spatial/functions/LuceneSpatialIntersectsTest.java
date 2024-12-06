@@ -13,8 +13,8 @@
  */
 package com.orientechnologies.spatial.functions;
 
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.spatial.BaseSpatialLuceneTest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,9 +27,9 @@ public class LuceneSpatialIntersectsTest extends BaseSpatialLuceneTest {
   @Test
   public void testIntersectsNoIndex() {
 
-    YTResultSet execute =
+    ResultSet execute =
         db.query("SELECT ST_Intersects('POINT(0 0)', 'LINESTRING ( 2 0, 0 2 )') as ST_Intersects");
-    YTResult next = execute.next();
+    Result next = execute.next();
 
     Assert.assertEquals(next.getProperty("ST_Intersects"), false);
     execute.close();
@@ -55,7 +55,7 @@ public class LuceneSpatialIntersectsTest extends BaseSpatialLuceneTest {
     db.commit();
 
     db.command("create index L.g on Lines (geometry) SPATIAL engine lucene").close();
-    YTResultSet execute =
+    ResultSet execute =
         db.query("SELECT from lines where ST_Intersects(geometry, 'POINT(0 0)') = true");
 
     Assert.assertEquals(execute.stream().count(), 1);

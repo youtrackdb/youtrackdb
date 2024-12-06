@@ -21,66 +21,67 @@ package com.jetbrains.youtrack.db.internal.core.record.impl;
 
 import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.DB_CUSTOM_SUPPORT;
 
-import com.jetbrains.youtrack.db.internal.common.collection.OMultiValue;
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
+import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.util.OCommonConst;
+import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.YTDatabaseSessionAbstract;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseSessionAbstract;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
-import com.jetbrains.youtrack.db.internal.core.db.record.OMultiValueChangeEvent;
-import com.jetbrains.youtrack.db.internal.core.db.record.OMultiValueChangeTimeLine;
-import com.jetbrains.youtrack.db.internal.core.db.record.OTrackedMultiValue;
+import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
+import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
+import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMultiValue;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.exception.YTConfigurationException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTQueryParsingException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSchemaException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTValidationException;
+import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
+import com.jetbrains.youtrack.db.internal.core.exception.ValidationException;
+import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.index.OClassIndexManager;
-import com.jetbrains.youtrack.db.internal.core.iterator.OEmptyMapEntryIterator;
-import com.jetbrains.youtrack.db.internal.core.metadata.OMetadataInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.OGlobalProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.OSchemaShared;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTImmutableClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTImmutableProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTImmutableSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OIdentity;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OSecurityInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
+import com.jetbrains.youtrack.db.internal.core.iterator.EmptyMapEntryIterator;
+import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.GlobalProperty;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableProperty;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Identity;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyAccess;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryption;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordVersionHelper;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.RecordVersionHelper;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordSchemaAware;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.core.sql.OSQLHelper;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.sql.SQLHelper;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -132,9 +133,9 @@ public class EntityImpl extends RecordAbstract
   private boolean allowChainedAccess = true;
   protected transient WeakReference<RecordElement> owner = null;
 
-  protected YTImmutableSchema schema;
+  protected ImmutableSchema schema;
   private String className;
-  private YTImmutableClass immutableClazz;
+  private SchemaImmutableClass immutableClazz;
   private int immutableSchemaVersion = 1;
   PropertyAccess propertyAccess;
   PropertyEncryption propertyEncryption;
@@ -143,20 +144,20 @@ public class EntityImpl extends RecordAbstract
    * Internal constructor used on unmarshalling.
    */
   public EntityImpl() {
-    setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
+    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
   }
 
   /**
    * Internal constructor used on unmarshalling.
    */
-  public EntityImpl(YTDatabaseSessionInternal database) {
+  public EntityImpl(DatabaseSessionInternal database) {
     assert database == null || database.assertIfNotActive();
     setup(database);
   }
 
-  public EntityImpl(YTDatabaseSession database, YTRID rid) {
-    setup((YTDatabaseSessionInternal) database);
-    this.recordId = (YTRecordId) rid.copy();
+  public EntityImpl(DatabaseSession database, RID rid) {
+    setup((DatabaseSessionInternal) database);
+    this.recordId = (RecordId) rid.copy();
   }
 
   /**
@@ -168,7 +169,7 @@ public class EntityImpl extends RecordAbstract
   @Deprecated
   public EntityImpl(final byte[] iSource) {
     source = iSource;
-    setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
+    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
   }
 
   /**
@@ -179,9 +180,9 @@ public class EntityImpl extends RecordAbstract
    */
   public EntityImpl(final InputStream iSource) throws IOException {
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
-    OIOUtils.copyStream(iSource, out);
+    IOUtils.copyStream(iSource, out);
     source = out.toByteArray();
-    setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
+    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
   }
 
   /**
@@ -190,9 +191,9 @@ public class EntityImpl extends RecordAbstract
    *
    * @param iRID Record Id
    */
-  public EntityImpl(final YTRID iRID) {
-    setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
-    recordId = (YTRecordId) iRID.copy();
+  public EntityImpl(final RID iRID) {
+    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
+    recordId = (RecordId) iRID.copy();
     status = STATUS.NOT_LOADED;
     dirty = false;
     contentChanged = false;
@@ -205,14 +206,14 @@ public class EntityImpl extends RecordAbstract
    * @param iClassName Class name
    * @param iRID       Record Id
    */
-  public EntityImpl(final String iClassName, final YTRID iRID) {
+  public EntityImpl(final String iClassName, final RID iRID) {
     this(iClassName);
-    recordId = (YTRecordId) iRID.copy();
+    recordId = (RecordId) iRID.copy();
 
-    final YTDatabaseSessionInternal database = getSession();
+    final DatabaseSessionInternal database = getSession();
     if (recordId.getClusterId() > -1) {
-      final YTSchema schema = database.getMetadata().getImmutableSchemaSnapshot();
-      final YTClass cls = schema.getClassByClusterId(recordId.getClusterId());
+      final Schema schema = database.getMetadata().getImmutableSchemaSnapshot();
+      final SchemaClass cls = schema.getClassByClusterId(recordId.getClusterId());
       if (cls != null && !cls.getName().equals(iClassName)) {
         throw new IllegalArgumentException(
             "Cluster id does not correspond class name should be "
@@ -234,11 +235,11 @@ public class EntityImpl extends RecordAbstract
    * @param iClassName Class name
    */
   public EntityImpl(final String iClassName) {
-    setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
+    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
     setClassName(iClassName);
   }
 
-  public EntityImpl(final String iClassName, YTDatabaseSessionInternal session) {
+  public EntityImpl(final String iClassName, DatabaseSessionInternal session) {
     assert session == null || session.assertIfNotActive();
     setup(session);
     setClassName(iClassName);
@@ -251,7 +252,7 @@ public class EntityImpl extends RecordAbstract
    * @param session    the session the instance will be attached to
    * @param iClassName Class name
    */
-  public EntityImpl(YTDatabaseSessionInternal session, final String iClassName) {
+  public EntityImpl(DatabaseSessionInternal session, final String iClassName) {
     assert session == null || session.assertIfNotActive();
     setup(session);
     setClassName(iClassName);
@@ -262,9 +263,9 @@ public class EntityImpl extends RecordAbstract
    * persistent until {@link #save()} is called. The database reference is taken from the thread
    * local.
    *
-   * @param iClass YTClass instance
+   * @param iClass SchemaClass instance
    */
-  public EntityImpl(final YTClass iClass) {
+  public EntityImpl(final SchemaClass iClass) {
     this(iClass != null ? iClass.getName() : null);
   }
 
@@ -276,7 +277,7 @@ public class EntityImpl extends RecordAbstract
   public EntityImpl(final Object[] iFields) {
     this(DEFAULT_CLASS_NAME);
 
-    setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
+    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
     if (iFields != null && iFields.length > 0) {
       for (int i = 0; i < iFields.length; i += 2) {
         field(iFields[i].toString(), iFields[i + 1]);
@@ -291,7 +292,7 @@ public class EntityImpl extends RecordAbstract
    * @param iFieldMap Map of Object/Object
    */
   public EntityImpl(final Map<?, Object> iFieldMap) {
-    setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
+    setup(DatabaseRecordThreadLocal.instance().getIfDefined());
     if (iFieldMap != null && !iFieldMap.isEmpty()) {
       for (Entry<?, Object> entry : iFieldMap.entrySet()) {
         field(entry.getKey().toString(), entry.getValue());
@@ -312,7 +313,7 @@ public class EntityImpl extends RecordAbstract
     if (this instanceof Vertex) {
       return Optional.of((Vertex) this);
     }
-    YTClass type = this.getImmutableSchemaClass();
+    SchemaClass type = this.getImmutableSchemaClass();
 
     if (type == null) {
       return Optional.empty();
@@ -329,7 +330,7 @@ public class EntityImpl extends RecordAbstract
       return vertex;
     }
 
-    YTClass type = this.getImmutableSchemaClass();
+    SchemaClass type = this.getImmutableSchemaClass();
     if (type == null) {
       return null;
     }
@@ -344,7 +345,7 @@ public class EntityImpl extends RecordAbstract
     if (this instanceof Edge) {
       return Optional.of((Edge) this);
     }
-    YTClass type = this.getImmutableSchemaClass();
+    SchemaClass type = this.getImmutableSchemaClass();
     if (type == null) {
       return Optional.empty();
     }
@@ -359,7 +360,7 @@ public class EntityImpl extends RecordAbstract
     if (this instanceof Edge edge) {
       return edge;
     }
-    YTClass type = this.getImmutableSchemaClass();
+    SchemaClass type = this.getImmutableSchemaClass();
     if (type == null) {
       return null;
     }
@@ -376,7 +377,7 @@ public class EntityImpl extends RecordAbstract
       return true;
     }
 
-    YTClass type = this.getImmutableSchemaClass();
+    SchemaClass type = this.getImmutableSchemaClass();
     if (type == null) {
       return false;
     }
@@ -390,7 +391,7 @@ public class EntityImpl extends RecordAbstract
       return true;
     }
 
-    YTClass type = this.getImmutableSchemaClass();
+    SchemaClass type = this.getImmutableSchemaClass();
     if (type == null) {
       return false;
     }
@@ -399,7 +400,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   @Override
-  public Optional<YTClass> getSchemaType() {
+  public Optional<SchemaClass> getSchemaType() {
     checkForBinding();
     return Optional.ofNullable(getImmutableSchemaClass());
   }
@@ -488,28 +489,28 @@ public class EntityImpl extends RecordAbstract
     }
 
     checkForBinding();
-    RET value = (RET) ODocumentHelper.getIdentifiableValue(this, name);
+    RET value = (RET) DocumentHelper.getIdentifiableValue(this, name);
     if (!name.startsWith("@")
         && lazyLoad
-        && value instanceof YTRID rid
+        && value instanceof RID rid
         && (rid.isPersistent() || rid.isNew())
-        && ODatabaseRecordThreadLocal.instance().isDefined()) {
+        && DatabaseRecordThreadLocal.instance().isDefined()) {
       // CREATE THE DOCUMENT OBJECT IN LAZY WAY
       var db = getSession();
       try {
-        RET newValue = db.load((YTRID) value);
+        RET newValue = db.load((RID) value);
 
         unTrack(rid);
-        track((YTIdentifiable) newValue);
+        track((Identifiable) newValue);
         value = newValue;
         if (trackingChanges) {
-          ORecordInternal.setDirtyManager((Record) value, this.getDirtyManager());
+          RecordInternal.setDirtyManager((Record) value, this.getDirtyManager());
         }
         EntityEntry entry = fields.get(name);
         entry.disableTracking(this, entry.value);
         entry.value = value;
         entry.enableTracking(this);
-      } catch (YTRecordNotFoundException e) {
+      } catch (RecordNotFoundException e) {
         return null;
       }
     }
@@ -533,11 +534,11 @@ public class EntityImpl extends RecordAbstract
         throw new IllegalArgumentException(
             "getPropertyOnLoadValue(name) is not designed to work with Edge properties");
       }
-      if (onLoadValue instanceof YTRID orid) {
+      if (onLoadValue instanceof RID orid) {
         if (isLazyLoad()) {
           try {
             return getSession().load(orid);
-          } catch (YTRecordNotFoundException e) {
+          } catch (RecordNotFoundException e) {
             return null;
           }
         } else {
@@ -581,13 +582,13 @@ public class EntityImpl extends RecordAbstract
    */
   @Nullable
   @Override
-  public YTIdentifiable getLinkProperty(String fieldName) {
+  public Identifiable getLinkProperty(String fieldName) {
     return getLinkPropertyInternal(fieldName);
   }
 
   @Nullable
   @Override
-  public YTIdentifiable getLinkPropertyInternal(String name) {
+  public Identifiable getLinkPropertyInternal(String name) {
     if (name == null) {
       return null;
     }
@@ -597,7 +598,7 @@ public class EntityImpl extends RecordAbstract
       return null;
     }
 
-    if (!(result instanceof YTIdentifiable identifiable)
+    if (!(result instanceof Identifiable identifiable)
         || (result instanceof EntityImpl document && document.isEmbedded())) {
       throw new IllegalArgumentException("Requested property " + name + " is not a link.");
     }
@@ -607,7 +608,7 @@ public class EntityImpl extends RecordAbstract
       throw new IllegalArgumentException("Requested property " + name + " is not a link.");
     }
 
-    return (YTIdentifiable) convertToGraphElement(result);
+    return (Identifiable) convertToGraphElement(result);
   }
 
   /**
@@ -625,7 +626,7 @@ public class EntityImpl extends RecordAbstract
       return null;
     }
 
-    return (RET) ODocumentHelper.getIdentifiableValue(this, iFieldName);
+    return (RET) DocumentHelper.getIdentifiableValue(this, iFieldName);
   }
 
   /**
@@ -643,9 +644,9 @@ public class EntityImpl extends RecordAbstract
     if (value instanceof Entity element
         && element.getSchemaClass() == null
         && !element.getIdentity().isValid()) {
-      setProperty(name, value, YTType.EMBEDDED);
+      setProperty(name, value, PropertyType.EMBEDDED);
     } else {
-      setPropertyInternal(name, value, OCommonConst.EMPTY_TYPES_ARRAY);
+      setPropertyInternal(name, value, CommonConst.EMPTY_TYPES_ARRAY);
     }
   }
 
@@ -656,12 +657,12 @@ public class EntityImpl extends RecordAbstract
    * @param value The property value
    * @param types Forced type (not auto-determined)
    */
-  public void setProperty(String name, Object value, YTType... types) {
+  public void setProperty(String name, Object value, PropertyType... types) {
     setPropertyInternal(name, value, types);
   }
 
   @Override
-  public void setPropertyInternal(String name, Object value, YTType... type) {
+  public void setPropertyInternal(String name, Object value, PropertyType... type) {
     checkForBinding();
 
     if (name == null) {
@@ -675,25 +676,25 @@ public class EntityImpl extends RecordAbstract
     final char begin = name.charAt(0);
     if (begin == '@') {
       switch (name.toLowerCase(Locale.ROOT)) {
-        case ODocumentHelper.ATTRIBUTE_CLASS -> {
+        case DocumentHelper.ATTRIBUTE_CLASS -> {
           setClassName(value.toString());
           return;
         }
-        case ODocumentHelper.ATTRIBUTE_RID -> {
+        case DocumentHelper.ATTRIBUTE_RID -> {
           if (status == STATUS.UNMARSHALLING) {
-            recordId = new YTRecordId(value.toString());
+            recordId = new RecordId(value.toString());
           } else {
-            throw new YTDatabaseException(
-                "Attribute " + ODocumentHelper.ATTRIBUTE_RID + " is read-only");
+            throw new DatabaseException(
+                "Attribute " + DocumentHelper.ATTRIBUTE_RID + " is read-only");
           }
 
         }
-        case ODocumentHelper.ATTRIBUTE_VERSION -> {
+        case DocumentHelper.ATTRIBUTE_VERSION -> {
           if (status == STATUS.UNMARSHALLING) {
             setVersion(Integer.parseInt(value.toString()));
           }
-          throw new YTDatabaseException(
-              "Attribute " + ODocumentHelper.ATTRIBUTE_VERSION + " is read-only");
+          throw new DatabaseException(
+              "Attribute " + DocumentHelper.ATTRIBUTE_VERSION + " is read-only");
         }
       }
     }
@@ -703,7 +704,7 @@ public class EntityImpl extends RecordAbstract
     EntityEntry entry = fields.get(name);
     final boolean knownProperty;
     final Object oldValue;
-    final YTType oldType;
+    final PropertyType oldType;
     if (entry == null) {
       entry = new EntityEntry();
       fieldSize++;
@@ -718,9 +719,9 @@ public class EntityImpl extends RecordAbstract
       oldType = entry.type;
     }
 
-    YTType fieldType = deriveFieldType(name, entry, type);
+    PropertyType fieldType = deriveFieldType(name, entry, type);
     if (value != null && fieldType != null) {
-      value = ODocumentHelper.convertField(getSessionIfDefined(), this, name, fieldType, null,
+      value = DocumentHelper.convertField(getSessionIfDefined(), this, name, fieldType, null,
           value);
     } else {
       if (value instanceof Enum) {
@@ -774,19 +775,19 @@ public class EntityImpl extends RecordAbstract
       }
     }
 
-    if (oldValue instanceof YTIdentifiable) {
-      unTrack((YTIdentifiable) oldValue);
+    if (oldValue instanceof Identifiable) {
+      unTrack((Identifiable) oldValue);
     }
 
     if (value != null) {
       if (value instanceof EntityImpl) {
-        if (YTType.EMBEDDED.equals(fieldType)) {
+        if (PropertyType.EMBEDDED.equals(fieldType)) {
           final EntityImpl embeddedDocument = (EntityImpl) value;
-          ODocumentInternal.addOwner(embeddedDocument, this);
+          DocumentInternal.addOwner(embeddedDocument, this);
         }
       }
-      if (value instanceof YTIdentifiable) {
-        track((YTIdentifiable) value);
+      if (value instanceof Identifiable) {
+        track((Identifiable) value);
       }
 
       if (value instanceof RidBag ridBag) {
@@ -797,18 +798,18 @@ public class EntityImpl extends RecordAbstract
       }
     }
 
-    if (fieldType == YTType.CUSTOM) {
+    if (fieldType == PropertyType.CUSTOM) {
       if (!DB_CUSTOM_SUPPORT.getValueAsBoolean()) {
-        throw new YTDatabaseException(
+        throw new DatabaseException(
             String.format(
-                "YTType CUSTOM used by serializable types, for value  '%s' is not enabled, set"
+                "PropertyType CUSTOM used by serializable types, for value  '%s' is not enabled, set"
                     + " `db.custom.support` to true for enable it",
                 value));
       }
     }
     if (oldType != fieldType && oldType != null) {
       // can be made in a better way, but "keeping type" issue should be solved before
-      if (value == null || fieldType != null || oldType != YTType.getTypeByValue(value)) {
+      if (value == null || fieldType != null || oldType != PropertyType.getTypeByValue(value)) {
         entry.type = fieldType;
       }
     }
@@ -836,16 +837,16 @@ public class EntityImpl extends RecordAbstract
     checkForBinding();
     checkForFields();
 
-    if (ODocumentHelper.ATTRIBUTE_CLASS.equalsIgnoreCase(name)) {
+    if (DocumentHelper.ATTRIBUTE_CLASS.equalsIgnoreCase(name)) {
       setClassName(null);
     } else {
-      if (ODocumentHelper.ATTRIBUTE_RID.equalsIgnoreCase(name)) {
-        throw new YTDatabaseException(
-            "Attribute " + ODocumentHelper.ATTRIBUTE_RID + " is read-only");
-      } else if (ODocumentHelper.ATTRIBUTE_VERSION.equalsIgnoreCase(name)) {
-        if (ODocumentHelper.ATTRIBUTE_VERSION.equalsIgnoreCase(name)) {
-          throw new YTDatabaseException(
-              "Attribute " + ODocumentHelper.ATTRIBUTE_VERSION + " is read-only");
+      if (DocumentHelper.ATTRIBUTE_RID.equalsIgnoreCase(name)) {
+        throw new DatabaseException(
+            "Attribute " + DocumentHelper.ATTRIBUTE_RID + " is read-only");
+      } else if (DocumentHelper.ATTRIBUTE_VERSION.equalsIgnoreCase(name)) {
+        if (DocumentHelper.ATTRIBUTE_VERSION.equalsIgnoreCase(name)) {
+          throw new DatabaseException(
+              "Attribute " + DocumentHelper.ATTRIBUTE_VERSION + " is read-only");
         }
       }
     }
@@ -870,8 +871,8 @@ public class EntityImpl extends RecordAbstract
     }
     fieldSize--;
     entry.disableTracking(this, oldValue);
-    if (oldValue instanceof YTIdentifiable) {
-      unTrack((YTIdentifiable) oldValue);
+    if (oldValue instanceof Identifiable) {
+      unTrack((Identifiable) oldValue);
     }
     if (oldValue instanceof RidBag) {
       ((RidBag) oldValue).setOwner(null);
@@ -881,9 +882,9 @@ public class EntityImpl extends RecordAbstract
     return (RET) oldValue;
   }
 
-  private static void validateFieldsSecurity(YTDatabaseSessionInternal internal,
+  private static void validateFieldsSecurity(DatabaseSessionInternal internal,
       EntityImpl iRecord)
-      throws YTValidationException {
+      throws ValidationException {
     if (internal == null) {
       return;
     }
@@ -891,12 +892,12 @@ public class EntityImpl extends RecordAbstract
     iRecord.checkForBinding();
     iRecord = (EntityImpl) iRecord.getRecord();
 
-    OSecurityInternal security = internal.getSharedContext().getSecurity();
+    SecurityInternal security = internal.getSharedContext().getSecurity();
     for (Entry<String, EntityEntry> mapEntry : iRecord.fields.entrySet()) {
       EntityEntry entry = mapEntry.getValue();
       if (entry != null && (entry.isTxChanged() || entry.isTxTrackedModified())) {
         if (!security.isAllowedWrite(internal, iRecord, mapEntry.getKey())) {
-          throw new YTSecurityException(
+          throw new SecurityException(
               String.format(
                   "Change of field '%s' is not allowed for user '%s'",
                   iRecord.getClassName() + "." + mapEntry.getKey(),
@@ -907,9 +908,9 @@ public class EntityImpl extends RecordAbstract
   }
 
   private static void validateField(
-      YTDatabaseSessionInternal session, YTImmutableSchema schema, EntityImpl iRecord,
-      YTImmutableProperty p)
-      throws YTValidationException {
+      DatabaseSessionInternal session, ImmutableSchema schema, EntityImpl iRecord,
+      ImmutableProperty p)
+      throws ValidationException {
     iRecord.checkForBinding();
     iRecord = (EntityImpl) iRecord.getRecord();
 
@@ -922,14 +923,14 @@ public class EntityImpl extends RecordAbstract
       if (p.isNotNull() && fieldValue == null)
       // NULLITY
       {
-        throw new YTValidationException(
+        throw new ValidationException(
             "The field '" + p.getFullName() + "' cannot be null, record: " + iRecord);
       }
 
-      if (fieldValue != null && p.getRegexp() != null && p.getType().equals(YTType.STRING)) {
+      if (fieldValue != null && p.getRegexp() != null && p.getType().equals(PropertyType.STRING)) {
         // REGEXP
         if (!((String) fieldValue).matches(p.getRegexp())) {
-          throw new YTValidationException(
+          throw new ValidationException(
               "The field '"
                   + p.getFullName()
                   + "' does not match the regular expression '"
@@ -943,7 +944,7 @@ public class EntityImpl extends RecordAbstract
 
     } else {
       if (p.isMandatory()) {
-        throw new YTValidationException(
+        throw new ValidationException(
             "The field '"
                 + p.getFullName()
                 + "' is mandatory, but not found on record: "
@@ -952,7 +953,7 @@ public class EntityImpl extends RecordAbstract
       fieldValue = null;
     }
 
-    final YTType type = p.getType();
+    final PropertyType type = p.getType();
 
     if (fieldValue != null && type != null) {
       // CHECK TYPE
@@ -962,7 +963,7 @@ public class EntityImpl extends RecordAbstract
           break;
         case LINKLIST:
           if (!(fieldValue instanceof List)) {
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as LINKLIST but an incompatible type is used. Value: "
@@ -972,7 +973,7 @@ public class EntityImpl extends RecordAbstract
           break;
         case LINKSET:
           if (!(fieldValue instanceof Set)) {
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as LINKSET but an incompatible type is used. Value: "
@@ -982,7 +983,7 @@ public class EntityImpl extends RecordAbstract
           break;
         case LINKMAP:
           if (!(fieldValue instanceof Map)) {
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as LINKMAP but an incompatible type is used. Value: "
@@ -993,7 +994,7 @@ public class EntityImpl extends RecordAbstract
 
         case LINKBAG:
           if (!(fieldValue instanceof RidBag)) {
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as LINKBAG but an incompatible type is used. Value: "
@@ -1006,7 +1007,7 @@ public class EntityImpl extends RecordAbstract
           break;
         case EMBEDDEDLIST:
           if (!(fieldValue instanceof List)) {
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as EMBEDDEDLIST but an incompatible type is used. Value:"
@@ -1027,7 +1028,7 @@ public class EntityImpl extends RecordAbstract
           break;
         case EMBEDDEDSET:
           if (!(fieldValue instanceof Set)) {
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as EMBEDDEDSET but an incompatible type is used. Value: "
@@ -1047,7 +1048,7 @@ public class EntityImpl extends RecordAbstract
           break;
         case EMBEDDEDMAP:
           if (!(fieldValue instanceof Map)) {
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as EMBEDDEDMAP but an incompatible type is used. Value: "
@@ -1074,7 +1075,7 @@ public class EntityImpl extends RecordAbstract
       if (p.getMinComparable().compareTo(fieldValue) > 0) {
         switch (p.getType()) {
           case STRING:
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' contains fewer characters than "
@@ -1082,7 +1083,7 @@ public class EntityImpl extends RecordAbstract
                     + " requested");
           case DATE:
           case DATETIME:
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' contains the date "
@@ -1091,7 +1092,7 @@ public class EntityImpl extends RecordAbstract
                     + min
                     + ")");
           case BINARY:
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' contains fewer bytes than "
@@ -1103,14 +1104,14 @@ public class EntityImpl extends RecordAbstract
           case LINKSET:
           case EMBEDDEDMAP:
           case LINKMAP:
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' contains fewer items than "
                     + min
                     + " requested");
           default:
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '" + p.getFullName() + "' is less than " + min);
         }
       }
@@ -1121,7 +1122,7 @@ public class EntityImpl extends RecordAbstract
       if (p.getMaxComparable().compareTo(fieldValue) < 0) {
         switch (p.getType()) {
           case STRING:
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' contains more characters than "
@@ -1129,7 +1130,7 @@ public class EntityImpl extends RecordAbstract
                     + " requested");
           case DATE:
           case DATETIME:
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' contains the date "
@@ -1138,7 +1139,7 @@ public class EntityImpl extends RecordAbstract
                     + max
                     + ")");
           case BINARY:
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' contains more bytes than "
@@ -1150,20 +1151,20 @@ public class EntityImpl extends RecordAbstract
           case LINKSET:
           case EMBEDDEDMAP:
           case LINKMAP:
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' contains more items than "
                     + max
                     + " requested");
           default:
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '" + p.getFullName() + "' is greater than " + max);
         }
       }
     }
 
-    if (p.isReadonly() && !ORecordVersionHelper.isTombstone(iRecord.getVersion())) {
+    if (p.isReadonly() && !RecordVersionHelper.isTombstone(iRecord.getVersion())) {
       if (entry != null
           && (entry.isTxChanged() || entry.isTxTrackedModified())
           && !entry.isTxCreated()) {
@@ -1172,12 +1173,13 @@ public class EntityImpl extends RecordAbstract
         // non-simple fields as dirty
         Object orgVal = entry.getOnLoadValue(session);
         boolean simple =
-            fieldValue != null ? YTType.isSimpleType(fieldValue) : YTType.isSimpleType(orgVal);
+            fieldValue != null ? PropertyType.isSimpleType(fieldValue)
+                : PropertyType.isSimpleType(orgVal);
         if ((simple)
             || (fieldValue != null && orgVal == null)
             || (fieldValue == null && orgVal != null)
             || (fieldValue != null && !fieldValue.equals(orgVal))) {
-          throw new YTValidationException(
+          throw new ValidationException(
               "The field '"
                   + p.getFullName()
                   + "' is immutable and cannot be altered. Field value is: "
@@ -1188,17 +1190,17 @@ public class EntityImpl extends RecordAbstract
   }
 
   private static void validateLinkCollection(
-      YTImmutableSchema schema,
-      final YTProperty property,
+      ImmutableSchema schema,
+      final Property property,
       Iterable<Object> values,
       EntityEntry value) {
     if (property.getLinkedClass() != null) {
       if (value.getTimeLine() != null) {
-        List<OMultiValueChangeEvent<Object, Object>> event =
+        List<MultiValueChangeEvent<Object, Object>> event =
             value.getTimeLine().getMultiValueChangeEvents();
         for (var object : event) {
-          if (object.getChangeType() == OMultiValueChangeEvent.OChangeType.ADD
-              || object.getChangeType() == OMultiValueChangeEvent.OChangeType.UPDATE
+          if (object.getChangeType() == ChangeType.ADD
+              || object.getChangeType() == ChangeType.UPDATE
               && object.getValue() != null) {
             validateLink(schema, property, object.getValue(), true);
           }
@@ -1211,11 +1213,11 @@ public class EntityImpl extends RecordAbstract
     }
   }
 
-  private static void validateType(YTDatabaseSessionInternal session, final YTProperty p,
+  private static void validateType(DatabaseSessionInternal session, final Property p,
       final Object value) {
     if (value != null) {
-      if (YTType.convert(session, value, p.getLinkedType().getDefaultJavaType()) == null) {
-        throw new YTValidationException(
+      if (PropertyType.convert(session, value, p.getLinkedType().getDefaultJavaType()) == null) {
+        throw new ValidationException(
             "The field '"
                 + p.getFullName()
                 + "' has been declared as "
@@ -1229,12 +1231,12 @@ public class EntityImpl extends RecordAbstract
   }
 
   private static void validateLink(
-      YTImmutableSchema schema, final YTProperty p, final Object fieldValue, boolean allowNull) {
+      ImmutableSchema schema, final Property p, final Object fieldValue, boolean allowNull) {
     if (fieldValue == null) {
       if (allowNull) {
         return;
       } else {
-        throw new YTValidationException(
+        throw new ValidationException(
             "The field '"
                 + p.getFullName()
                 + "' has been declared as "
@@ -1243,8 +1245,8 @@ public class EntityImpl extends RecordAbstract
       }
     }
 
-    if (!(fieldValue instanceof YTIdentifiable)) {
-      throw new YTValidationException(
+    if (!(fieldValue instanceof Identifiable)) {
+      throw new ValidationException(
           "The field '"
               + p.getFullName()
               + "' has been declared as "
@@ -1252,17 +1254,17 @@ public class EntityImpl extends RecordAbstract
               + " but the value is not a record or a record-id");
     }
 
-    final YTClass schemaClass = p.getLinkedClass();
-    if (schemaClass != null && !schemaClass.isSubClassOf(OIdentity.CLASS_NAME)) {
+    final SchemaClass schemaClass = p.getLinkedClass();
+    if (schemaClass != null && !schemaClass.isSubClassOf(Identity.CLASS_NAME)) {
       // DON'T VALIDATE OUSER AND OROLE FOR SECURITY RESTRICTIONS
-      var identifiable = (YTIdentifiable) fieldValue;
-      final YTRID rid = identifiable.getIdentity();
+      var identifiable = (Identifiable) fieldValue;
+      final RID rid = identifiable.getIdentity();
       if (!schemaClass.hasPolymorphicClusterId(rid.getClusterId())) {
         // AT THIS POINT CHECK THE CLASS ONLY IF != NULL BECAUSE IN CASE OF GRAPHS THE RECORD
         // COULD BE PARTIAL
-        YTClass cls;
+        SchemaClass cls;
         var clusterId = rid.getClusterId();
-        if (clusterId != YTRID.CLUSTER_ID_INVALID) {
+        if (clusterId != RID.CLUSTER_ID_INVALID) {
           cls = schema.getClassByClusterId(rid.getClusterId());
         } else if (identifiable instanceof Entity element) {
           cls = element.getSchemaClass();
@@ -1271,7 +1273,7 @@ public class EntityImpl extends RecordAbstract
         }
 
         if (cls != null && !schemaClass.isSuperClassOf(cls)) {
-          throw new YTValidationException(
+          throw new ValidationException(
               "The field '"
                   + p.getFullName()
                   + "' has been declared as "
@@ -1288,12 +1290,12 @@ public class EntityImpl extends RecordAbstract
     }
   }
 
-  private static void validateEmbedded(final YTProperty p, final Object fieldValue) {
+  private static void validateEmbedded(final Property p, final Object fieldValue) {
     if (fieldValue == null) {
       return;
     }
-    if (fieldValue instanceof YTRecordId) {
-      throw new YTValidationException(
+    if (fieldValue instanceof RecordId) {
+      throw new ValidationException(
           "The field '"
               + p.getFullName()
               + "' has been declared as "
@@ -1301,9 +1303,9 @@ public class EntityImpl extends RecordAbstract
               + " but the value is the RecordID "
               + fieldValue);
     } else {
-      if (fieldValue instanceof YTIdentifiable embedded) {
+      if (fieldValue instanceof Identifiable embedded) {
         if (embedded.getIdentity().isValid()) {
-          throw new YTValidationException(
+          throw new ValidationException(
               "The field '"
                   + p.getFullName()
                   + "' has been declared as "
@@ -1314,9 +1316,9 @@ public class EntityImpl extends RecordAbstract
 
         final Record embeddedRecord = embedded.getRecord();
         if (embeddedRecord instanceof EntityImpl doc) {
-          final YTClass embeddedClass = p.getLinkedClass();
+          final SchemaClass embeddedClass = p.getLinkedClass();
           if (doc.isVertex()) {
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as "
@@ -1329,7 +1331,7 @@ public class EntityImpl extends RecordAbstract
           }
 
           if (doc.isEdge()) {
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as "
@@ -1342,11 +1344,11 @@ public class EntityImpl extends RecordAbstract
           }
         }
 
-        final YTClass embeddedClass = p.getLinkedClass();
+        final SchemaClass embeddedClass = p.getLinkedClass();
         if (embeddedClass != null) {
 
           if (!(embeddedRecord instanceof EntityImpl doc)) {
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as "
@@ -1357,7 +1359,7 @@ public class EntityImpl extends RecordAbstract
           }
 
           if (doc.getImmutableSchemaClass() == null) {
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as "
@@ -1368,7 +1370,7 @@ public class EntityImpl extends RecordAbstract
           }
 
           if (!(doc.getImmutableSchemaClass().isSubClassOf(embeddedClass))) {
-            throw new YTValidationException(
+            throw new ValidationException(
                 "The field '"
                     + p.getFullName()
                     + "' has been declared as "
@@ -1384,7 +1386,7 @@ public class EntityImpl extends RecordAbstract
         }
 
       } else {
-        throw new YTValidationException(
+        throw new ValidationException(
             "The field '"
                 + p.getFullName()
                 + "' has been declared as "
@@ -1404,14 +1406,14 @@ public class EntityImpl extends RecordAbstract
     checkForBinding();
 
     var doc = new EntityImpl();
-    ORecordInternal.unsetDirty(doc);
+    RecordInternal.unsetDirty(doc);
     var newDoc = (EntityImpl) copyTo(doc);
     newDoc.dirty = true;
 
     return newDoc;
   }
 
-  public EntityImpl copy(YTDatabaseSessionInternal session) {
+  public EntityImpl copy(DatabaseSessionInternal session) {
     var newDoc = copy();
     newDoc.setup(session);
 
@@ -1426,7 +1428,7 @@ public class EntityImpl extends RecordAbstract
     checkForBinding();
 
     if (iDestination.isDirty()) {
-      throw new YTDatabaseException("Cannot copy to dirty records");
+      throw new DatabaseException("Cannot copy to dirty records");
     }
 
     checkForFields();
@@ -1451,7 +1453,7 @@ public class EntityImpl extends RecordAbstract
         var originalEntry = entry.getValue();
         EntityEntry docEntry = originalEntry.clone();
         destination.fields.put(entry.getKey(), docEntry);
-        docEntry.value = ODocumentHelper.cloneValue(getSession(), destination,
+        docEntry.value = DocumentHelper.cloneValue(getSession(), destination,
             entry.getValue().value);
       }
     } else {
@@ -1463,7 +1465,7 @@ public class EntityImpl extends RecordAbstract
     destination.dirty = dirty; // LEAVE IT AS LAST TO AVOID SOMETHING SET THE FLAG TO TRUE
     destination.contentChanged = contentChanged;
 
-    var dirtyManager = new ODirtyManager();
+    var dirtyManager = new DirtyManager();
     if (dirty) {
       dirtyManager.setDirty(this);
     }
@@ -1477,16 +1479,16 @@ public class EntityImpl extends RecordAbstract
     iOther.checkForBinding();
     checkForBinding();
 
-    final YTDatabaseSessionInternal currentDb = ODatabaseRecordThreadLocal.instance()
+    final DatabaseSessionInternal currentDb = DatabaseRecordThreadLocal.instance()
         .getIfDefined();
-    return ODocumentHelper.hasSameContentOf(this, currentDb, iOther, currentDb, null);
+    return DocumentHelper.hasSameContentOf(this, currentDb, iOther, currentDb, null);
   }
 
   @Override
   public byte[] toStream() {
     checkForBinding();
     if (recordFormat == null) {
-      setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
+      setup(DatabaseRecordThreadLocal.instance().getIfDefined());
     }
 
     STATUS prev = status;
@@ -1515,14 +1517,14 @@ public class EntityImpl extends RecordAbstract
       map.put(field, field(field));
     }
 
-    final YTRID id = getIdentity();
+    final RID id = getIdentity();
     if (id.isValid()) {
-      map.put(ODocumentHelper.ATTRIBUTE_RID, id);
+      map.put(DocumentHelper.ATTRIBUTE_RID, id);
     }
 
     final String className = getClassName();
     if (className != null) {
-      map.put(ODocumentHelper.ATTRIBUTE_CLASS, className);
+      map.put(DocumentHelper.ATTRIBUTE_CLASS, className);
     }
 
     return map;
@@ -1607,12 +1609,12 @@ public class EntityImpl extends RecordAbstract
     // OPTIMIZATION
     if (!allowChainedAccess
         || (iFieldName.charAt(0) != '@'
-        && OStringSerializerHelper.indexOf(iFieldName, 0, '.', '[') == -1)) {
+        && StringSerializerHelper.indexOf(iFieldName, 0, '.', '[') == -1)) {
       return (RET) accessProperty(iFieldName);
     }
 
     // NOT FOUND, PARSE THE FIELD NAME
-    return ODocumentHelper.getFieldValue(getSession(), this, iFieldName);
+    return DocumentHelper.getFieldValue(getSession(), this, iFieldName);
   }
 
   /**
@@ -1621,7 +1623,7 @@ public class EntityImpl extends RecordAbstract
    *
    * @param iExpression SQL expression to evaluate.
    * @return The result of expression
-   * @throws YTQueryParsingException in case the expression is not valid
+   * @throws QueryParsingException in case the expression is not valid
    */
   public Object eval(final String iExpression) {
     checkForBinding();
@@ -1640,13 +1642,13 @@ public class EntityImpl extends RecordAbstract
    *
    * @param iExpression SQL expression to evaluate.
    * @return The result of expression
-   * @throws YTQueryParsingException in case the expression is not valid
+   * @throws QueryParsingException in case the expression is not valid
    */
   public Object eval(final String iExpression, @Nonnull final CommandContext iContext) {
     checkForBinding();
 
     if (iContext.getDatabase() != getSession()) {
-      throw new YTDatabaseException(
+      throw new DatabaseException(
           "The context is bound to a different database instance, use the context from the same database instance");
     }
 
@@ -1667,18 +1669,18 @@ public class EntityImpl extends RecordAbstract
 
     if (!iFieldName.startsWith("@")
         && lazyLoad
-        && value instanceof YTRID
-        && (((YTRID) value).isPersistent() || ((YTRID) value).isNew())
-        && ODatabaseRecordThreadLocal.instance().isDefined()) {
+        && value instanceof RID
+        && (((RID) value).isPersistent() || ((RID) value).isNew())
+        && DatabaseRecordThreadLocal.instance().isDefined()) {
       // CREATE THE DOCUMENT OBJECT IN LAZY WAY
       var db = getSession();
       try {
-        RET newValue = db.load((YTRID) value);
-        unTrack((YTRID) value);
-        track((YTIdentifiable) newValue);
+        RET newValue = db.load((RID) value);
+        unTrack((RID) value);
+        track((Identifiable) newValue);
         value = newValue;
         if (this.trackingChanges) {
-          ORecordInternal.setDirtyManager((Record) value, this.getDirtyManager());
+          RecordInternal.setDirtyManager((Record) value, this.getDirtyManager());
         }
         if (!iFieldName.contains(".")) {
           EntityEntry entry = fields.get(iFieldName);
@@ -1686,7 +1688,7 @@ public class EntityImpl extends RecordAbstract
           entry.value = value;
           entry.enableTracking(this);
         }
-      } catch (YTRecordNotFoundException e) {
+      } catch (RecordNotFoundException e) {
         return null;
       }
     }
@@ -1694,8 +1696,8 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * Reads the field value forcing the return type. Use this method to force return of YTRID instead
-   * of the entire document by passing YTRID.class as iFieldType.
+   * Reads the field value forcing the return type. Use this method to force return of RID instead
+   * of the entire document by passing RID.class as iFieldType.
    *
    * @param iFieldName field name
    * @param iFieldType Forced type.
@@ -1707,8 +1709,8 @@ public class EntityImpl extends RecordAbstract
 
     if (value != null) {
       value =
-          ODocumentHelper.convertField(getSession()
-              , this, iFieldName, YTType.getTypeByClass(iFieldType), iFieldType, value);
+          DocumentHelper.convertField(getSession()
+              , this, iFieldName, PropertyType.getTypeByClass(iFieldType), iFieldType, value);
     }
 
     return value;
@@ -1721,16 +1723,16 @@ public class EntityImpl extends RecordAbstract
    * @param iFieldType Forced type.
    * @return field value if defined, otherwise null
    */
-  public <RET> RET field(final String iFieldName, final YTType iFieldType) {
+  public <RET> RET field(final String iFieldName, final PropertyType iFieldType) {
     checkForBinding();
 
     var session = getSessionIfDefined();
     RET value = field(iFieldName);
-    YTType original;
+    PropertyType original;
     if (iFieldType != null && iFieldType != (original = fieldType(iFieldName))) {
       // this is needed for the csv serializer that don't give back values
       if (original == null) {
-        original = YTType.getTypeByValue(value);
+        original = PropertyType.getTypeByValue(value);
         if (iFieldType == original) {
           return value;
         }
@@ -1738,38 +1740,38 @@ public class EntityImpl extends RecordAbstract
 
       final Object newValue;
 
-      if (iFieldType == YTType.BINARY && value instanceof String) {
-        newValue = OStringSerializerHelper.getBinaryContent(value);
+      if (iFieldType == PropertyType.BINARY && value instanceof String) {
+        newValue = StringSerializerHelper.getBinaryContent(value);
       } else {
-        if (iFieldType == YTType.DATE && value instanceof Long) {
+        if (iFieldType == PropertyType.DATE && value instanceof Long) {
           newValue = new Date((Long) value);
         } else {
-          if ((iFieldType == YTType.EMBEDDEDSET || iFieldType == YTType.LINKSET)
+          if ((iFieldType == PropertyType.EMBEDDEDSET || iFieldType == PropertyType.LINKSET)
               && value instanceof List) {
             newValue =
                 Collections.unmodifiableSet(
                     (Set<?>)
-                        ODocumentHelper.convertField(getSession(), this, iFieldName, iFieldType,
+                        DocumentHelper.convertField(getSession(), this, iFieldName, iFieldType,
                             null,
                             value));
           } else {
-            if ((iFieldType == YTType.EMBEDDEDLIST || iFieldType == YTType.LINKLIST)
+            if ((iFieldType == PropertyType.EMBEDDEDLIST || iFieldType == PropertyType.LINKLIST)
                 && value instanceof Set) {
               newValue =
                   Collections.unmodifiableList(
                       (List<?>)
-                          ODocumentHelper.convertField(session, this, iFieldName,
+                          DocumentHelper.convertField(session, this, iFieldName,
                               iFieldType, null, value));
             } else {
-              if ((iFieldType == YTType.EMBEDDEDMAP || iFieldType == YTType.LINKMAP)
+              if ((iFieldType == PropertyType.EMBEDDEDMAP || iFieldType == PropertyType.LINKMAP)
                   && value instanceof Map) {
                 newValue =
                     Collections.unmodifiableMap(
                         (Map<?, ?>)
-                            ODocumentHelper.convertField(session,
+                            DocumentHelper.convertField(session,
                                 this, iFieldName, iFieldType, null, value));
               } else {
-                newValue = YTType.convert(session, value, iFieldType.getDefaultJavaType());
+                newValue = PropertyType.convert(session, value, iFieldType.getDefaultJavaType());
               }
             }
           }
@@ -1794,7 +1796,7 @@ public class EntityImpl extends RecordAbstract
    * in chain.
    */
   public EntityImpl field(final String iFieldName, Object iPropertyValue) {
-    return field(iFieldName, iPropertyValue, OCommonConst.EMPTY_TYPES_ARRAY);
+    return field(iFieldName, iPropertyValue, CommonConst.EMPTY_TYPES_ARRAY);
   }
 
   /**
@@ -1880,7 +1882,7 @@ public class EntityImpl extends RecordAbstract
    * in chain. If the updated document is another document (using the dot (.) notation) then the
    * document returned is the changed one or NULL if no document has been found in chain
    */
-  public EntityImpl field(String iFieldName, Object iPropertyValue, YTType... iFieldType) {
+  public EntityImpl field(String iFieldName, Object iPropertyValue, PropertyType... iFieldType) {
     checkForBinding();
 
     if (iFieldName == null) {
@@ -1892,15 +1894,15 @@ public class EntityImpl extends RecordAbstract
     }
 
     switch (iFieldName) {
-      case ODocumentHelper.ATTRIBUTE_CLASS -> {
+      case DocumentHelper.ATTRIBUTE_CLASS -> {
         setClassName(iPropertyValue.toString());
         return this;
       }
-      case ODocumentHelper.ATTRIBUTE_RID -> {
+      case DocumentHelper.ATTRIBUTE_RID -> {
         recordId.fromString(iPropertyValue.toString());
         return this;
       }
-      case ODocumentHelper.ATTRIBUTE_VERSION -> {
+      case DocumentHelper.ATTRIBUTE_VERSION -> {
         if (iPropertyValue != null) {
           int v;
 
@@ -1937,7 +1939,7 @@ public class EntityImpl extends RecordAbstract
             // KEY/VALUE
             ((Map<String, Object>) subObject).put(subFieldName, iPropertyValue);
           } else {
-            if (OMultiValue.isMultiValue(subObject)) {
+            if (MultiValue.isMultiValue(subObject)) {
               if ((subObject instanceof List<?> || subObject.getClass().isArray()) && lastIsArray) {
                 // List // Array Type with a index subscript.
                 final int subFieldNameLen = subFieldName.length();
@@ -1947,7 +1949,7 @@ public class EntityImpl extends RecordAbstract
                 }
 
                 final String indexPart = subFieldName.substring(1, subFieldNameLen - 1);
-                final Object indexPartObject = ODocumentHelper.getIndexPart(null, indexPart);
+                final Object indexPartObject = DocumentHelper.getIndexPart(null, indexPart);
                 final String indexAsString =
                     indexPartObject == null ? null : indexPartObject.toString();
 
@@ -1957,14 +1959,14 @@ public class EntityImpl extends RecordAbstract
                 }
                 try {
                   final int index = Integer.parseInt(indexAsString);
-                  OMultiValue.setValue(subObject, iPropertyValue, index);
+                  MultiValue.setValue(subObject, iPropertyValue, index);
                 } catch (NumberFormatException e) {
                   throw new IllegalArgumentException(
                       "List / array subscripts must resolve to integer values.", e);
                 }
               } else {
                 // APPLY CHANGE TO ALL THE ITEM IN SUB-COLLECTION
-                for (Object subObjectItem : OMultiValue.getMultiValueIterable(subObject)) {
+                for (Object subObjectItem : MultiValue.getMultiValueIterable(subObject)) {
                   if (subObjectItem instanceof EntityImpl) {
                     // SUB-DOCUMENT, CHECK IF IT'S NOT LINKED
                     if (!((EntityImpl) subObjectItem).isEmbedded()) {
@@ -2004,7 +2006,7 @@ public class EntityImpl extends RecordAbstract
     EntityEntry entry = fields.get(iFieldName);
     final boolean knownProperty;
     final Object oldValue;
-    final YTType oldType;
+    final PropertyType oldType;
     if (entry == null) {
       entry = new EntityEntry();
       fieldSize++;
@@ -2019,10 +2021,10 @@ public class EntityImpl extends RecordAbstract
       oldType = entry.type;
     }
 
-    YTType fieldType = deriveFieldType(iFieldName, entry, iFieldType);
+    PropertyType fieldType = deriveFieldType(iFieldName, entry, iFieldType);
     if (iPropertyValue != null && fieldType != null) {
       iPropertyValue =
-          ODocumentHelper.convertField(getSession(), this, iFieldName, fieldType, null,
+          DocumentHelper.convertField(getSession(), this, iFieldName, fieldType, null,
               iPropertyValue);
     } else {
       if (iPropertyValue instanceof Enum) {
@@ -2081,24 +2083,24 @@ public class EntityImpl extends RecordAbstract
       }
     }
 
-    if (oldValue instanceof YTIdentifiable) {
-      unTrack((YTIdentifiable) oldValue);
+    if (oldValue instanceof Identifiable) {
+      unTrack((Identifiable) oldValue);
     }
 
     if (iPropertyValue != null) {
       if (iPropertyValue instanceof EntityImpl) {
-        if (YTType.EMBEDDED.equals(fieldType)) {
+        if (PropertyType.EMBEDDED.equals(fieldType)) {
           final EntityImpl embeddedDocument = (EntityImpl) iPropertyValue;
-          ODocumentInternal.addOwner(embeddedDocument, this);
+          DocumentInternal.addOwner(embeddedDocument, this);
         } else {
-          if (YTType.LINK.equals(fieldType)) {
+          if (PropertyType.LINK.equals(fieldType)) {
             final EntityImpl embeddedDocument = (EntityImpl) iPropertyValue;
-            ODocumentInternal.removeOwner(embeddedDocument, this);
+            DocumentInternal.removeOwner(embeddedDocument, this);
           }
         }
       }
-      if (iPropertyValue instanceof YTIdentifiable) {
-        track((YTIdentifiable) iPropertyValue);
+      if (iPropertyValue instanceof Identifiable) {
+        track((Identifiable) iPropertyValue);
       }
 
       if (iPropertyValue instanceof RidBag ridBag) {
@@ -2110,11 +2112,11 @@ public class EntityImpl extends RecordAbstract
       }
     }
 
-    if (fieldType == YTType.CUSTOM) {
+    if (fieldType == PropertyType.CUSTOM) {
       if (!DB_CUSTOM_SUPPORT.getValueAsBoolean()) {
-        throw new YTDatabaseException(
+        throw new DatabaseException(
             String.format(
-                "YTType CUSTOM used by serializable types, for value  '%s' is not enabled, set"
+                "PropertyType CUSTOM used by serializable types, for value  '%s' is not enabled, set"
                     + " `db.custom.support` to true for enable it",
                 iPropertyValue));
       }
@@ -2124,7 +2126,7 @@ public class EntityImpl extends RecordAbstract
       // can be made in a better way, but "keeping type" issue should be solved before
       if (iPropertyValue == null
           || fieldType != null
-          || oldType != YTType.getTypeByValue(iPropertyValue)) {
+          || oldType != PropertyType.getTypeByValue(iPropertyValue)) {
         entry.type = fieldType;
       }
     }
@@ -2153,10 +2155,10 @@ public class EntityImpl extends RecordAbstract
     checkForBinding();
     checkForFields();
 
-    if (ODocumentHelper.ATTRIBUTE_CLASS.equalsIgnoreCase(iFieldName)) {
+    if (DocumentHelper.ATTRIBUTE_CLASS.equalsIgnoreCase(iFieldName)) {
       setClassName(null);
     } else {
-      if (ODocumentHelper.ATTRIBUTE_RID.equalsIgnoreCase(iFieldName)) {
+      if (DocumentHelper.ATTRIBUTE_RID.equalsIgnoreCase(iFieldName)) {
         recordId = new ChangeableRecordId();
       }
     }
@@ -2181,8 +2183,8 @@ public class EntityImpl extends RecordAbstract
     fieldSize--;
 
     entry.disableTracking(this, oldValue);
-    if (oldValue instanceof YTIdentifiable) {
-      unTrack((YTIdentifiable) oldValue);
+    if (oldValue instanceof Identifiable) {
+      unTrack((Identifiable) oldValue);
     }
     if (oldValue instanceof RidBag) {
       ((RidBag) oldValue).setOwner(null);
@@ -2268,7 +2270,7 @@ public class EntityImpl extends RecordAbstract
     return null;
   }
 
-  public OMultiValueChangeTimeLine<Object, Object> getCollectionTimeLine(final String iFieldName) {
+  public MultiValueChangeTimeLine<Object, Object> getCollectionTimeLine(final String iFieldName) {
     checkForBinding();
 
     EntityEntry entry = fields != null ? fields.get(iFieldName) : null;
@@ -2285,7 +2287,7 @@ public class EntityImpl extends RecordAbstract
     checkForFields();
 
     if (fields == null) {
-      return OEmptyMapEntryIterator.INSTANCE;
+      return EmptyMapEntryIterator.INSTANCE;
     }
 
     final Iterator<Entry<String, EntityEntry>> iterator = fields.entrySet().iterator();
@@ -2478,7 +2480,7 @@ public class EntityImpl extends RecordAbstract
   @Override
   public final EntityImpl fromStream(final byte[] iRecordBuffer) {
     if (dirty) {
-      throw new YTDatabaseException("Cannot call fromStream() on dirty records");
+      throw new DatabaseException("Cannot call fromStream() on dirty records");
     }
 
     status = STATUS.UNMARSHALLING;
@@ -2501,9 +2503,9 @@ public class EntityImpl extends RecordAbstract
 
   @Override
   protected final EntityImpl fromStream(final byte[] iRecordBuffer,
-      YTDatabaseSessionInternal db) {
+      DatabaseSessionInternal db) {
     if (dirty) {
-      throw new YTDatabaseException("Cannot call fromStream() on dirty records");
+      throw new DatabaseException("Cannot call fromStream() on dirty records");
     }
 
     status = STATUS.UNMARSHALLING;
@@ -2528,7 +2530,7 @@ public class EntityImpl extends RecordAbstract
    *
    * @param iFieldName name of field to check
    */
-  public YTType fieldType(final String iFieldName) {
+  public PropertyType fieldType(final String iFieldName) {
     checkForBinding();
     checkForFields(iFieldName);
 
@@ -2586,7 +2588,7 @@ public class EntityImpl extends RecordAbstract
   public EntityImpl reset() {
     checkForBinding();
 
-    var db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    var db = DatabaseRecordThreadLocal.instance().getIfDefined();
     if (db != null && db.getTransaction().isActive()) {
       throw new IllegalStateException(
           "Cannot reset documents during a transaction. Create a new one each time");
@@ -2611,7 +2613,7 @@ public class EntityImpl extends RecordAbstract
    */
   public void undo() {
     if (!trackingChanges) {
-      throw new YTConfigurationException(
+      throw new ConfigurationException(
           "Cannot undo the document because tracking of changes is disabled");
     }
 
@@ -2632,7 +2634,7 @@ public class EntityImpl extends RecordAbstract
 
   public EntityImpl undo(final String field) {
     if (!trackingChanges) {
-      throw new YTConfigurationException(
+      throw new ConfigurationException(
           "Cannot undo the document because tracking of changes is disabled");
     }
 
@@ -2668,7 +2670,7 @@ public class EntityImpl extends RecordAbstract
 
   /**
    * Enabled or disabled the tracking of changes in the document. This is needed by some triggers
-   * like {@link OClassIndexManager} to determine what
+   * like {@link ClassIndexManager} to determine what
    * fields are changed to update indexes.
    *
    * @param iTrackingChanges True to enable it, otherwise false
@@ -2780,9 +2782,9 @@ public class EntityImpl extends RecordAbstract
    * Sets the field type. This overrides the schema property settings if any.
    *
    * @param iFieldName Field name
-   * @param iFieldType Type to set between YTType enumeration values
+   * @param iFieldType Type to set between PropertyType enumeration values
    */
-  public EntityImpl setFieldType(final String iFieldName, final YTType iFieldType) {
+  public EntityImpl setFieldType(final String iFieldName, final PropertyType iFieldType) {
     checkForBinding();
 
     checkForFields(iFieldName);
@@ -2791,10 +2793,10 @@ public class EntityImpl extends RecordAbstract
         fields = ordered ? new LinkedHashMap<>() : new HashMap<>();
       }
 
-      if (iFieldType == YTType.CUSTOM) {
+      if (iFieldType == PropertyType.CUSTOM) {
         if (!DB_CUSTOM_SUPPORT.getValueAsBoolean()) {
-          throw new YTDatabaseException(
-              "YTType CUSTOM used by serializable types is not enabled, set `db.custom.support`"
+          throw new DatabaseException(
+              "PropertyType CUSTOM used by serializable types is not enabled, set `db.custom.support`"
                   + " to true for enable it");
         }
       }
@@ -2940,7 +2942,7 @@ public class EntityImpl extends RecordAbstract
       return;
     }
 
-    final YTClass _clazz = getSession().getMetadata().getImmutableSchemaSnapshot()
+    final SchemaClass _clazz = getSession().getMetadata().getImmutableSchemaSnapshot()
         .getClass(iClassName);
     if (_clazz != null) {
       className = _clazz.getName();
@@ -2949,7 +2951,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   @Override
-  public YTClass getSchemaClass() {
+  public SchemaClass getSchemaClass() {
     checkForBinding();
 
     if (className == null) {
@@ -2983,10 +2985,10 @@ public class EntityImpl extends RecordAbstract
       return;
     }
 
-    OMetadataInternal metadata = getSession().getMetadata();
+    MetadataInternal metadata = getSession().getMetadata();
     this.immutableClazz =
-        (YTImmutableClass) metadata.getImmutableSchemaSnapshot().getClass(className);
-    YTClass clazz;
+        (SchemaImmutableClass) metadata.getImmutableSchemaSnapshot().getClass(className);
+    SchemaClass clazz;
     if (this.immutableClazz != null) {
       clazz = this.immutableClazz;
     } else {
@@ -3003,11 +3005,11 @@ public class EntityImpl extends RecordAbstract
    * notNull, min, max, regexp, etc. If the schema is not defined for the current class or there are
    * no constraints then the validation is ignored.
    *
-   * @throws YTValidationException if the document breaks some validation constraints defined in the
+   * @throws ValidationException if the document breaks some validation constraints defined in the
    *                              schema
-   * @see YTProperty
+   * @see Property
    */
-  public void validate() throws YTValidationException {
+  public void validate() throws ValidationException {
     checkForBinding();
 
     checkForFields();
@@ -3020,13 +3022,13 @@ public class EntityImpl extends RecordAbstract
       return;
     }
 
-    final YTImmutableClass immutableSchemaClass = getImmutableSchemaClass();
+    final SchemaImmutableClass immutableSchemaClass = getImmutableSchemaClass();
     if (immutableSchemaClass != null) {
       if (immutableSchemaClass.isStrictMode()) {
         // CHECK IF ALL FIELDS ARE DEFINED
         for (String f : fieldNames()) {
           if (immutableSchemaClass.getProperty(f) == null) {
-            throw new YTValidationException(
+            throw new ValidationException(
                 "Found additional field '"
                     + f
                     + "'. It cannot be added because the schema class '"
@@ -3036,9 +3038,9 @@ public class EntityImpl extends RecordAbstract
         }
       }
 
-      final YTImmutableSchema immutableSchema = session.getMetadata().getImmutableSchemaSnapshot();
-      for (YTProperty p : immutableSchemaClass.properties(session)) {
-        validateField(session, immutableSchema, this, (YTImmutableProperty) p);
+      final ImmutableSchema immutableSchema = session.getMetadata().getImmutableSchemaSnapshot();
+      for (Property p : immutableSchemaClass.properties(session)) {
+        validateField(session, immutableSchema, this, (ImmutableProperty) p);
       }
     }
   }
@@ -3089,7 +3091,7 @@ public class EntityImpl extends RecordAbstract
               || f.getValue().value instanceof Map<?, ?>
               || f.getValue().value.getClass().isArray()) {
             buffer.append('[');
-            buffer.append(OMultiValue.getSize(f.getValue().value));
+            buffer.append(MultiValue.getSize(f.getValue().value));
             buffer.append(']');
           } else {
             if (f.getValue().value instanceof Record record) {
@@ -3155,10 +3157,10 @@ public class EntityImpl extends RecordAbstract
             map.putAll(otherMap);
             continue;
           } else {
-            if (OMultiValue.isMultiValue(value) && !(value instanceof RidBag)) {
-              for (Object item : OMultiValue.getMultiValueIterable(otherValue)) {
-                if (!OMultiValue.contains(value, item)) {
-                  OMultiValue.add(value, item);
+            if (MultiValue.isMultiValue(value) && !(value instanceof RidBag)) {
+              for (Object item : MultiValue.getMultiValueIterable(otherValue)) {
+                if (!MultiValue.contains(value, item)) {
+                  MultiValue.add(value, item);
                 }
               }
               continue;
@@ -3194,9 +3196,9 @@ public class EntityImpl extends RecordAbstract
 
   @Override
   protected final RecordAbstract fill(
-      final YTRID iRid, final int iVersion, final byte[] iBuffer, final boolean iDirty) {
+      final RID iRid, final int iVersion, final byte[] iBuffer, final boolean iDirty) {
     if (dirty) {
-      throw new YTDatabaseException("Cannot call fill() on dirty records");
+      throw new DatabaseException("Cannot call fill() on dirty records");
     }
 
     schema = null;
@@ -3206,13 +3208,13 @@ public class EntityImpl extends RecordAbstract
 
   @Override
   protected final RecordAbstract fill(
-      final YTRID iRid,
+      final RID iRid,
       final int iVersion,
       final byte[] iBuffer,
       final boolean iDirty,
-      YTDatabaseSessionInternal db) {
+      DatabaseSessionInternal db) {
     if (dirty) {
-      throw new YTDatabaseException("Cannot call fill() on dirty records");
+      throw new DatabaseException("Cannot call fill() on dirty records");
     }
 
     schema = null;
@@ -3226,22 +3228,22 @@ public class EntityImpl extends RecordAbstract
     schema = null;
   }
 
-  protected OGlobalProperty getGlobalPropertyById(int id) {
+  protected GlobalProperty getGlobalPropertyById(int id) {
     checkForBinding();
     var session = getSession();
     if (schema == null) {
-      OMetadataInternal metadata = session.getMetadata();
+      MetadataInternal metadata = session.getMetadata();
       schema = metadata.getImmutableSchemaSnapshot();
     }
-    OGlobalProperty prop = schema.getGlobalPropertyById(id);
+    GlobalProperty prop = schema.getGlobalPropertyById(id);
     if (prop == null) {
       if (session.isClosed()) {
-        throw new YTDatabaseException(
+        throw new DatabaseException(
             "Cannot unmarshall the document because no database is active, use detach for use the"
                 + " document outside the database session scope");
       }
 
-      OMetadataInternal metadata = session.getMetadata();
+      MetadataInternal metadata = session.getMetadata();
       if (metadata.getImmutableSchemaSnapshot() != null) {
         metadata.clearThreadLocalSchemaSnapshot();
       }
@@ -3263,11 +3265,12 @@ public class EntityImpl extends RecordAbstract
     }
   }
 
-  protected YTImmutableClass getImmutableSchemaClass() {
+  protected SchemaImmutableClass getImmutableSchemaClass() {
     return getImmutableSchemaClass(getSessionIfDefined());
   }
 
-  protected YTImmutableClass getImmutableSchemaClass(@Nullable YTDatabaseSessionInternal database) {
+  protected SchemaImmutableClass getImmutableSchemaClass(
+      @Nullable DatabaseSessionInternal database) {
     if (immutableClazz == null) {
       if (className == null) {
         fetchClassName();
@@ -3275,13 +3278,13 @@ public class EntityImpl extends RecordAbstract
 
       if (className != null) {
         if (database != null && !database.isClosed()) {
-          final YTSchema immutableSchema = database.getMetadata().getImmutableSchemaSnapshot();
+          final Schema immutableSchema = database.getMetadata().getImmutableSchemaSnapshot();
           if (immutableSchema == null) {
             return null;
           }
           //noinspection deprecation
           immutableSchemaVersion = immutableSchema.getVersion();
-          immutableClazz = (YTImmutableClass) immutableSchema.getClass(className);
+          immutableClazz = (SchemaImmutableClass) immutableSchema.getClass(className);
         }
       }
     }
@@ -3290,7 +3293,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   protected void rawField(
-      final String iFieldName, final Object iFieldValue, final YTType iFieldType) {
+      final String iFieldName, final Object iFieldValue, final PropertyType iFieldType) {
     checkForBinding();
 
     if (fields == null) {
@@ -3305,9 +3308,9 @@ public class EntityImpl extends RecordAbstract
     if (iFieldValue instanceof RidBag) {
       ((RidBag) iFieldValue).setRecordAndField(recordId, iFieldName);
     }
-    if (iFieldValue instanceof YTIdentifiable
-        && !((YTIdentifiable) iFieldValue).getIdentity().isPersistent()) {
-      track((YTIdentifiable) iFieldValue);
+    if (iFieldValue instanceof Identifiable
+        && !((Identifiable) iFieldValue).getIdentity().isPersistent()) {
+      track((Identifiable) iFieldValue);
     }
   }
 
@@ -3330,13 +3333,13 @@ public class EntityImpl extends RecordAbstract
     checkForBinding();
 
     var session = getSession();
-    YTClass clazz = getImmutableSchemaClass();
+    SchemaClass clazz = getImmutableSchemaClass();
     if (clazz != null) {
-      for (YTProperty prop : clazz.properties(session)) {
-        YTType type = prop.getType();
-        YTType linkedType = prop.getLinkedType();
-        YTClass linkedClass = prop.getLinkedClass();
-        if (type == YTType.EMBEDDED && linkedClass != null) {
+      for (Property prop : clazz.properties(session)) {
+        PropertyType type = prop.getType();
+        PropertyType linkedType = prop.getLinkedType();
+        SchemaClass linkedClass = prop.getLinkedClass();
+        if (type == PropertyType.EMBEDDED && linkedClass != null) {
           convertToEmbeddedType(prop);
           continue;
         }
@@ -3355,34 +3358,34 @@ public class EntityImpl extends RecordAbstract
           continue;
         }
         try {
-          if (type == YTType.LINKBAG
+          if (type == PropertyType.LINKBAG
               && !(entry.value instanceof RidBag)
               && entry.value instanceof Collection) {
             RidBag newValue = new RidBag(session);
             newValue.setRecordAndField(recordId, prop.getName());
             for (Object o : ((Collection<Object>) entry.value)) {
-              if (!(o instanceof YTIdentifiable)) {
-                throw new YTValidationException("Invalid value in ridbag: " + o);
+              if (!(o instanceof Identifiable)) {
+                throw new ValidationException("Invalid value in ridbag: " + o);
               }
-              newValue.add((YTIdentifiable) o);
+              newValue.add((Identifiable) o);
             }
             entry.value = newValue;
           }
-          if (type == YTType.LINKMAP) {
+          if (type == PropertyType.LINKMAP) {
             if (entry.value instanceof Map) {
               Map<String, Object> map = (Map<String, Object>) entry.value;
               var newMap = new LinkMap(this);
               boolean changed = false;
               for (Entry<String, Object> stringObjectEntry : map.entrySet()) {
                 Object val = stringObjectEntry.getValue();
-                if (OMultiValue.isMultiValue(val) && OMultiValue.getSize(val) == 1) {
-                  val = OMultiValue.getFirstValue(val);
-                  if (val instanceof YTResult) {
-                    val = ((YTResult) val).getIdentity().orElse(null);
+                if (MultiValue.isMultiValue(val) && MultiValue.getSize(val) == 1) {
+                  val = MultiValue.getFirstValue(val);
+                  if (val instanceof Result) {
+                    val = ((Result) val).getIdentity().orElse(null);
                   }
                   changed = true;
                 }
-                newMap.put(stringObjectEntry.getKey(), (YTIdentifiable) val);
+                newMap.put(stringObjectEntry.getKey(), (Identifiable) val);
               }
               if (changed) {
                 entry.value = newMap;
@@ -3394,31 +3397,32 @@ public class EntityImpl extends RecordAbstract
             continue;
           }
 
-          if (type == YTType.EMBEDDEDLIST) {
+          if (type == PropertyType.EMBEDDEDLIST) {
             TrackedList<Object> list = new TrackedList<>(this);
             Collection<Object> values = (Collection<Object>) value;
             for (Object object : values) {
-              list.add(YTType.convert(session, object, linkedType.getDefaultJavaType()));
+              list.add(PropertyType.convert(session, object, linkedType.getDefaultJavaType()));
             }
             entry.value = list;
             replaceListenerOnAutoconvert(entry);
           } else {
-            if (type == YTType.EMBEDDEDMAP) {
+            if (type == PropertyType.EMBEDDEDMAP) {
               Map<Object, Object> map = new TrackedMap<>(this);
               Map<Object, Object> values = (Map<Object, Object>) value;
               for (Entry<Object, Object> object : values.entrySet()) {
                 map.put(
                     object.getKey(),
-                    YTType.convert(session, object.getValue(), linkedType.getDefaultJavaType()));
+                    PropertyType.convert(session, object.getValue(),
+                        linkedType.getDefaultJavaType()));
               }
               entry.value = map;
               replaceListenerOnAutoconvert(entry);
             } else {
-              if (type == YTType.EMBEDDEDSET) {
+              if (type == PropertyType.EMBEDDEDSET) {
                 Set<Object> set = new TrackedSet<>(this);
                 Collection<Object> values = (Collection<Object>) value;
                 for (Object object : values) {
-                  set.add(YTType.convert(session, object, linkedType.getDefaultJavaType()));
+                  set.add(PropertyType.convert(session, object, linkedType.getDefaultJavaType()));
                 }
                 entry.value = set;
                 replaceListenerOnAutoconvert(entry);
@@ -3426,8 +3430,8 @@ public class EntityImpl extends RecordAbstract
             }
           }
         } catch (Exception e) {
-          throw YTException.wrapException(
-              new YTValidationException(
+          throw BaseException.wrapException(
+              new ValidationException(
                   "impossible to convert value of field \"" + prop.getName() + "\""),
               e);
         }
@@ -3435,9 +3439,9 @@ public class EntityImpl extends RecordAbstract
     }
   }
 
-  private void convertToEmbeddedType(YTProperty prop) {
+  private void convertToEmbeddedType(Property prop) {
     final EntityEntry entry = fields.get(prop.getName());
-    YTClass linkedClass = prop.getLinkedClass();
+    SchemaClass linkedClass = prop.getLinkedClass();
     if (entry == null || linkedClass == null) {
       return;
     }
@@ -3450,12 +3454,12 @@ public class EntityImpl extends RecordAbstract
     }
     try {
       if (value instanceof EntityImpl) {
-        YTClass docClass = ((EntityImpl) value).getImmutableSchemaClass();
+        SchemaClass docClass = ((EntityImpl) value).getImmutableSchemaClass();
         if (docClass == null) {
           ((EntityImpl) value).setClass(linkedClass);
         } else {
           if (!docClass.isSubClassOf(linkedClass)) {
-            throw new YTValidationException(
+            throw new ValidationException(
                 "impossible to convert value of field \""
                     + prop.getName()
                     + "\", incompatible with "
@@ -3471,14 +3475,14 @@ public class EntityImpl extends RecordAbstract
           entry.value = newValue;
           newValue.addOwner(this);
         } else {
-          throw new YTValidationException(
+          throw new ValidationException(
               "impossible to convert value of field \"" + prop.getName() + "\"");
         }
       }
 
     } catch (Exception e) {
-      throw YTException.wrapException(
-          new YTValidationException(
+      throw BaseException.wrapException(
+          new ValidationException(
               "impossible to convert value of field \"" + prop.getName() + "\""),
           e);
     }
@@ -3507,7 +3511,7 @@ public class EntityImpl extends RecordAbstract
     }
 
     if (recordId.isPersistent()) {
-      throw new YTDatabaseException("Cannot add owner to a persistent element");
+      throw new DatabaseException("Cannot add owner to a persistent element");
     }
 
     if (owner == null) {
@@ -3538,7 +3542,7 @@ public class EntityImpl extends RecordAbstract
       final Object fieldValue = entry.value;
       if (fieldValue instanceof RidBag) {
         if (isEmbedded()) {
-          throw new YTDatabaseException("RidBag are supported only at document root");
+          throw new DatabaseException("RidBag are supported only at document root");
         }
         ((RidBag) fieldValue).checkAndConvert();
       }
@@ -3551,7 +3555,7 @@ public class EntityImpl extends RecordAbstract
         if (entry.getTimeLine() != null
             && !entry.getTimeLine().getMultiValueChangeEvents().isEmpty()) {
           //noinspection rawtypes
-          checkTimelineTrackable(entry.getTimeLine(), (OTrackedMultiValue) entry.value);
+          checkTimelineTrackable(entry.getTimeLine(), (TrackedMultiValue) entry.value);
         }
         continue;
       }
@@ -3561,16 +3565,16 @@ public class EntityImpl extends RecordAbstract
         continue;
       }
 
-      YTType fieldType = entry.type;
+      PropertyType fieldType = entry.type;
       if (fieldType == null) {
-        YTClass clazz = getImmutableSchemaClass();
+        SchemaClass clazz = getImmutableSchemaClass();
         if (clazz != null) {
-          final YTProperty prop = clazz.getProperty(fieldEntry.getKey());
+          final Property prop = clazz.getProperty(fieldEntry.getKey());
           fieldType = prop != null ? prop.getType() : null;
         }
       }
       if (fieldType == null) {
-        fieldType = YTType.getTypeByValue(fieldValue);
+        fieldType = PropertyType.getTypeByValue(fieldValue);
       }
 
       RecordElement newValue = null;
@@ -3598,17 +3602,17 @@ public class EntityImpl extends RecordAbstract
           break;
         case LINKLIST:
           if (fieldValue instanceof List<?>) {
-            newValue = new LinkList(this, (Collection<YTIdentifiable>) fieldValue);
+            newValue = new LinkList(this, (Collection<Identifiable>) fieldValue);
           }
           break;
         case LINKSET:
           if (fieldValue instanceof Set<?>) {
-            newValue = new LinkSet(this, (Collection<YTIdentifiable>) fieldValue);
+            newValue = new LinkSet(this, (Collection<Identifiable>) fieldValue);
           }
           break;
         case LINKMAP:
           if (fieldValue instanceof Map<?, ?>) {
-            newValue = new LinkMap(this, (Map<Object, YTIdentifiable>) fieldValue);
+            newValue = new LinkMap(this, (Map<Object, Identifiable>) fieldValue);
           }
           break;
         case LINKBAG:
@@ -3616,7 +3620,7 @@ public class EntityImpl extends RecordAbstract
             RidBag bag = new RidBag(session);
             bag.setOwner(this);
             bag.setRecordAndField(recordId, fieldEntry.getKey());
-            bag.addAll((Collection<YTIdentifiable>) fieldValue);
+            bag.addAll((Collection<Identifiable>) fieldValue);
             newValue = bag;
           }
           break;
@@ -3627,15 +3631,15 @@ public class EntityImpl extends RecordAbstract
       if (newValue != null) {
         entry.enableTracking(this);
         entry.value = newValue;
-        if (fieldType == YTType.LINKSET || fieldType == YTType.LINKLIST) {
-          for (YTIdentifiable rec : (Collection<YTIdentifiable>) newValue) {
+        if (fieldType == PropertyType.LINKSET || fieldType == PropertyType.LINKLIST) {
+          for (Identifiable rec : (Collection<Identifiable>) newValue) {
             if (rec instanceof EntityImpl) {
               ((EntityImpl) rec).convertAllMultiValuesToTrackedVersions();
             }
           }
         } else {
-          if (fieldType == YTType.LINKMAP) {
-            for (YTIdentifiable rec : (Collection<YTIdentifiable>) ((Map<?, ?>) newValue).values()) {
+          if (fieldType == PropertyType.LINKMAP) {
+            for (Identifiable rec : (Collection<Identifiable>) ((Map<?, ?>) newValue).values()) {
               if (rec instanceof EntityImpl) {
                 ((EntityImpl) rec).convertAllMultiValuesToTrackedVersions();
               }
@@ -3647,13 +3651,13 @@ public class EntityImpl extends RecordAbstract
   }
 
   private void checkTimelineTrackable(
-      OMultiValueChangeTimeLine<Object, Object> timeLine,
-      OTrackedMultiValue<Object, Object> origin) {
-    List<OMultiValueChangeEvent<Object, Object>> events = timeLine.getMultiValueChangeEvents();
-    for (OMultiValueChangeEvent<Object, Object> event : events) {
+      MultiValueChangeTimeLine<Object, Object> timeLine,
+      TrackedMultiValue<Object, Object> origin) {
+    List<MultiValueChangeEvent<Object, Object>> events = timeLine.getMultiValueChangeEvents();
+    for (MultiValueChangeEvent<Object, Object> event : events) {
       Object value = event.getValue();
-      if (event.getChangeType() == OMultiValueChangeEvent.OChangeType.ADD
-          && !(value instanceof OTrackedMultiValue)) {
+      if (event.getChangeType() == ChangeType.ADD
+          && !(value instanceof TrackedMultiValue)) {
         if (value instanceof List) {
           var newCollection = new TrackedList<>(this);
           fillTrackedCollection(newCollection, newCollection, (Collection<Object>) value);
@@ -3701,7 +3705,7 @@ public class EntityImpl extends RecordAbstract
               cur = newMap;
             } else {
               if (cur instanceof RidBag) {
-                throw new YTDatabaseException("RidBag are supported only at document root");
+                throw new DatabaseException("RidBag are supported only at document root");
               }
             }
           }
@@ -3735,7 +3739,7 @@ public class EntityImpl extends RecordAbstract
               value = newMap;
             } else {
               if (value instanceof RidBag) {
-                throw new YTDatabaseException("RidBag are supported only at document root");
+                throw new DatabaseException("RidBag are supported only at document root");
               }
             }
           }
@@ -3792,7 +3796,7 @@ public class EntityImpl extends RecordAbstract
    * Internal.
    */
   @Override
-  public void setup(YTDatabaseSessionInternal db) {
+  public void setup(DatabaseSessionInternal db) {
     super.setup(db);
 
     if (db != null) {
@@ -3802,7 +3806,7 @@ public class EntityImpl extends RecordAbstract
     if (recordFormat == null)
     // GET THE DEFAULT ONE
     {
-      recordFormat = YTDatabaseSessionAbstract.getDefaultSerializer();
+      recordFormat = DatabaseSessionAbstract.getDefaultSerializer();
     }
 
     if (fields != null) {
@@ -3835,7 +3839,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   private static String checkFieldName(final String iFieldName) {
-    final Character c = OSchemaShared.checkFieldNameIfValid(iFieldName);
+    final Character c = SchemaShared.checkFieldNameIfValid(iFieldName);
     if (c != null) {
       throw new IllegalArgumentException(
           "Invalid field name '" + iFieldName + "'. Character '" + c + "' is invalid");
@@ -3844,11 +3848,11 @@ public class EntityImpl extends RecordAbstract
     return iFieldName;
   }
 
-  void setClass(final YTClass iClass) {
+  void setClass(final SchemaClass iClass) {
     checkForBinding();
 
     if (iClass != null && iClass.isAbstract()) {
-      throw new YTSchemaException(
+      throw new SchemaException(
           "Cannot create a document of the abstract class '" + iClass + "'");
     }
 
@@ -3893,32 +3897,32 @@ public class EntityImpl extends RecordAbstract
 
   private void fetchSchemaIfCan() {
     if (schema == null) {
-      YTDatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+      DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().getIfDefined();
       if (db != null && !db.isClosed()) {
-        OMetadataInternal metadata = db.getMetadata();
+        MetadataInternal metadata = db.getMetadata();
         schema = metadata.getImmutableSchemaSnapshot();
       }
     }
   }
 
-  private void fetchSchemaIfCan(YTDatabaseSessionInternal db) {
+  private void fetchSchemaIfCan(DatabaseSessionInternal db) {
     if (schema == null) {
       if (db != null) {
-        OMetadataInternal metadata = db.getMetadata();
+        MetadataInternal metadata = db.getMetadata();
         schema = metadata.getImmutableSchemaSnapshot();
       }
     }
   }
 
   private void fetchClassName() {
-    final YTDatabaseSessionInternal database = getSessionIfDefined();
+    final DatabaseSessionInternal database = getSessionIfDefined();
 
     if (database != null && !database.isClosed()) {
       if (recordId != null) {
         if (recordId.getClusterId() >= 0) {
-          final YTSchema schema = database.getMetadata().getImmutableSchemaSnapshot();
+          final Schema schema = database.getMetadata().getImmutableSchemaSnapshot();
           if (schema != null) {
-            YTClass clazz = schema.getClassByClusterId(recordId.getClusterId());
+            SchemaClass clazz = schema.getClassByClusterId(recordId.getClusterId());
             if (clazz != null) {
               className = clazz.getName();
             }
@@ -3928,11 +3932,11 @@ public class EntityImpl extends RecordAbstract
     }
   }
 
-  void autoConvertFieldsToClass(final YTDatabaseSessionInternal database) {
+  void autoConvertFieldsToClass(final DatabaseSessionInternal database) {
     checkForBinding();
 
     if (className != null) {
-      YTClass klazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
+      SchemaClass klazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
       if (klazz != null) {
         convertFieldsToClass(klazz);
       }
@@ -3942,10 +3946,10 @@ public class EntityImpl extends RecordAbstract
   /**
    * Checks and convert the field of the document matching the types specified by the class.
    */
-  private void convertFieldsToClass(final YTClass clazz) {
+  private void convertFieldsToClass(final SchemaClass clazz) {
     var session = getSession();
 
-    for (YTProperty prop : clazz.properties(session)) {
+    for (Property prop : clazz.properties(session)) {
       EntityEntry entry = fields != null ? fields.get(prop.getName()) : null;
       if (entry != null && entry.exists()) {
         if (entry.type == null || entry.type != prop.getType()) {
@@ -3968,9 +3972,9 @@ public class EntityImpl extends RecordAbstract
       } else {
         String defValue = prop.getDefaultValue();
         if (defValue != null && /*defValue.length() > 0 && */ !containsField(prop.getName())) {
-          Object curFieldValue = OSQLHelper.parseDefaultValue(session, this, defValue);
+          Object curFieldValue = SQLHelper.parseDefaultValue(session, this, defValue);
           Object fieldValue =
-              ODocumentHelper.convertField(session,
+              DocumentHelper.convertField(session,
                   this, prop.getName(), prop.getType(), null, curFieldValue);
           rawField(prop.getName(), fieldValue, prop.getType());
         }
@@ -3978,8 +3982,9 @@ public class EntityImpl extends RecordAbstract
     }
   }
 
-  private YTType deriveFieldType(String iFieldName, EntityEntry entry, YTType[] iFieldType) {
-    YTType fieldType;
+  private PropertyType deriveFieldType(String iFieldName, EntityEntry entry,
+      PropertyType[] iFieldType) {
+    PropertyType fieldType;
 
     if (iFieldType != null && iFieldType.length == 1) {
       entry.type = iFieldType[0];
@@ -3988,14 +3993,14 @@ public class EntityImpl extends RecordAbstract
       fieldType = null;
     }
 
-    YTClass clazz = getImmutableSchemaClass();
+    SchemaClass clazz = getImmutableSchemaClass();
     if (clazz != null) {
       // SCHEMA-FULL?
-      final YTProperty prop = clazz.getProperty(iFieldName);
+      final Property prop = clazz.getProperty(iFieldName);
       if (prop != null) {
         entry.property = prop;
         fieldType = prop.getType();
-        if (fieldType != YTType.ANY) {
+        if (fieldType != PropertyType.ANY) {
           entry.type = fieldType;
         }
       }
@@ -4026,13 +4031,13 @@ public class EntityImpl extends RecordAbstract
     }
   }
 
-  void checkClass(YTDatabaseSessionInternal database) {
+  void checkClass(DatabaseSessionInternal database) {
     checkForBinding();
     if (className == null) {
       fetchClassName();
     }
 
-    final YTSchema immutableSchema = database.getMetadata().getImmutableSchemaSnapshot();
+    final Schema immutableSchema = database.getMetadata().getImmutableSchemaSnapshot();
     if (immutableSchema == null) {
       return;
     }
@@ -4040,38 +4045,38 @@ public class EntityImpl extends RecordAbstract
     if (immutableClazz == null) {
       //noinspection deprecation
       immutableSchemaVersion = immutableSchema.getVersion();
-      immutableClazz = (YTImmutableClass) immutableSchema.getClass(className);
+      immutableClazz = (SchemaImmutableClass) immutableSchema.getClass(className);
     } else {
       //noinspection deprecation
       if (immutableSchemaVersion < immutableSchema.getVersion()) {
         //noinspection deprecation
         immutableSchemaVersion = immutableSchema.getVersion();
-        immutableClazz = (YTImmutableClass) immutableSchema.getClass(className);
+        immutableClazz = (SchemaImmutableClass) immutableSchema.getClass(className);
       }
     }
   }
 
   @Override
-  protected void track(YTIdentifiable id) {
+  protected void track(Identifiable id) {
     if (trackingChanges && id.getIdentity().getClusterId() != -2) {
       super.track(id);
     }
   }
 
   @Override
-  protected void unTrack(YTIdentifiable id) {
+  protected void unTrack(Identifiable id) {
     if (trackingChanges && id.getIdentity().getClusterId() != -2) {
       super.unTrack(id);
     }
   }
 
-  YTImmutableSchema getImmutableSchema() {
+  ImmutableSchema getImmutableSchema() {
     return schema;
   }
 
   void checkEmbeddable() {
     if (isVertex() || isEdge()) {
-      throw new YTDatabaseException("Vertices or Edges cannot be stored as embedded");
+      throw new DatabaseException("Vertices or Edges cannot be stored as embedded");
     }
   }
 }

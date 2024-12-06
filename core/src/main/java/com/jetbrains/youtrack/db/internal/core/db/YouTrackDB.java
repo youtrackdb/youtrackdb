@@ -16,7 +16,7 @@
 package com.jetbrains.youtrack.db.internal.core.db;
 
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +31,7 @@ import org.apache.commons.lang.ArrayUtils;
  * <pre>
  * <code>
  * try(YouTrackDB youTrackDB = YouTrackDB.remote("localhost","root","root") {
- *  youTrackDB.createIfNotExists("test",ODatabaseType.PLOCAL, "superuser", "password", "admin",
+ *  youTrackDB.createIfNotExists("test",DatabaseType.PLOCAL, "superuser", "password", "admin",
  *  "writer" , "password2", "writer");
  *  try(ODatabaseDocument session = youTrackDB.open("test","superuser","password")) {
  *     session.createClass("MyClass");
@@ -48,7 +48,7 @@ import org.apache.commons.lang.ArrayUtils;
  * <pre>
  * <code>
  * try(YouTrackDB youTrackDB = YouTrackDB.embedded("./databases/")) {
- *  youTrackDB.createIfNotExists("test",ODatabaseType.PLOCAL, "superuser", "password", "admin",
+ *  youTrackDB.createIfNotExists("test",DatabaseType.PLOCAL, "superuser", "password", "admin",
  *  "writer" , "password2", "writer");
  *   try(ODatabaseDocument session = youTrackDB.open("test","superuser","password")) {
  *     session.createClass("MyClass");
@@ -67,7 +67,7 @@ import org.apache.commons.lang.ArrayUtils;
  * <code>
  * tru(YouTrackDB youTrackDB = ...) {
  *  if(!youTrackDB.exists("one")) {
- *     youTrackDB.create("one",ODatabaseType.PLOCAL, "superuser", "password", "admin", "writer,
+ *     youTrackDB.create("one",DatabaseType.PLOCAL, "superuser", "password", "admin", "writer,
  *     "password2", "writer");
  *  }
  *  if(youTrackDB.exists("two")) {
@@ -85,8 +85,9 @@ import org.apache.commons.lang.ArrayUtils;
  * <p>
  */
 public class YouTrackDB implements AutoCloseable {
-  private final ConcurrentLinkedHashMap<ODatabasePoolInternal, ODatabasePool> cachedPools =
-      new ConcurrentLinkedHashMap.Builder<ODatabasePoolInternal, ODatabasePool>()
+
+  private final ConcurrentLinkedHashMap<DatabasePoolInternal, DatabasePool> cachedPools =
+      new ConcurrentLinkedHashMap.Builder<DatabasePoolInternal, DatabasePool>()
           .maximumWeightedCapacity(100)
           .build(); // cache for links to database pools. Avoid create database pool wrapper each
   // time when it is requested
@@ -204,7 +205,7 @@ public class YouTrackDB implements AutoCloseable {
    * <pre>
    * <code>
    * YouTrackDB youTrackDB = new YouTrackDB("remote:localhost","root","root");
-   * youTrackDB.create("test",ODatabaseType.PLOCAL);
+   * youTrackDB.create("test",DatabaseType.PLOCAL);
    * ODatabaseDocument session = youTrackDB.open("test","admin","admin");
    * //...
    * session.close();
@@ -217,7 +218,7 @@ public class YouTrackDB implements AutoCloseable {
    * <pre>
    * <code>
    * YouTrackDB youTrackDB = new YouTrackDB("embedded:./databases/",null,null);
-   * youTrackDB.create("test",ODatabaseType.MEMORY);
+   * youTrackDB.create("test",DatabaseType.MEMORY);
    * ODatabaseDocument session = youTrackDB.open("test","admin","admin");
    * //...
    * session.close();
@@ -272,7 +273,7 @@ public class YouTrackDB implements AutoCloseable {
    * @param password related to the specified username
    * @return the opened database
    */
-  public YTDatabaseSession open(String database, String user, String password) {
+  public DatabaseSession open(String database, String user, String password) {
     return open(database, user, password, YouTrackDBConfig.defaultConfig());
   }
 
@@ -285,20 +286,20 @@ public class YouTrackDB implements AutoCloseable {
    * @param config   custom configuration for current database
    * @return the opened database
    */
-  public YTDatabaseSession open(
+  public DatabaseSession open(
       String database, String user, String password, YouTrackDBConfig config) {
     return internal.open(database, user, password, config);
   }
 
   /**
    * Create a new database without users. In case if you want to create users during creation please
-   * use {@link #create(String, ODatabaseType, String...)}
+   * use {@link #create(String, DatabaseType, String...)}
    *
    * @param database database name
    * @param type     can be plocal or memory
-   * @see #create(String, ODatabaseType, String...)
+   * @see #create(String, DatabaseType, String...)
    */
-  public void create(String database, ODatabaseType type) {
+  public void create(String database, DatabaseType type) {
     create(database, type, YouTrackDBConfig.defaultConfig());
   }
 
@@ -310,7 +311,7 @@ public class YouTrackDB implements AutoCloseable {
    *
    * <p>For example:
    *
-   * <p>{@code youTrackDB.create("test", ODatabaseType.PLOCAL, "user1", "password1", "admin",
+   * <p>{@code youTrackDB.create("test", DatabaseType.PLOCAL, "user1", "password1", "admin",
    * "user2", "password2", "reader"); }
    *
    * <p>The predefined roles are:
@@ -326,7 +327,7 @@ public class YouTrackDB implements AutoCloseable {
    * @param userCredentials user names, passwords and roles provided as a sequence of triple
    *                        strings
    */
-  public void create(String database, ODatabaseType type, String... userCredentials) {
+  public void create(String database, DatabaseType type, String... userCredentials) {
     StringBuilder queryString = new StringBuilder("create database ? " + type.name());
     var params = addUsersToCreationScript(userCredentials, queryString);
     execute(queryString.toString(), ArrayUtils.add(params, 0, database)).close();
@@ -334,25 +335,25 @@ public class YouTrackDB implements AutoCloseable {
 
   /**
    * Creates a new database without users. In case if you want to create users during creation
-   * please use {@link #create(String, ODatabaseType, String...)}
+   * please use {@link #create(String, DatabaseType, String...)}
    *
    * @param database database name
    * @param type     can be plocal or memory
    * @param config   custom configuration for current database
    */
-  public void create(String database, ODatabaseType type, YouTrackDBConfig config) {
+  public void create(String database, DatabaseType type, YouTrackDBConfig config) {
     this.internal.create(database, serverUser, serverPassword, type, config);
   }
 
   /**
    * Create a new database without users if it does not exist. In case if you want to create users
-   * during creation please use {@link #createIfNotExists(String, ODatabaseType, String...)}
+   * during creation please use {@link #createIfNotExists(String, DatabaseType, String...)}
    *
    * @param database database name
    * @param type     can be plocal or memory
    * @return true if the database has been created, false if already exists
    */
-  public boolean createIfNotExists(String database, ODatabaseType type) {
+  public boolean createIfNotExists(String database, DatabaseType type) {
     return createIfNotExists(database, type, YouTrackDBConfig.defaultConfig());
   }
 
@@ -373,7 +374,7 @@ public class YouTrackDB implements AutoCloseable {
    *
    * <p>For example:
    *
-   * <p>{@code youTrackDB.createIfNotExists("test", ODatabaseType.PLOCAL, "user1", "password1",
+   * <p>{@code youTrackDB.createIfNotExists("test", DatabaseType.PLOCAL, "user1", "password1",
    * "admin", "user2", "password2", "reader"); }
    *
    * @param database        database name
@@ -381,7 +382,7 @@ public class YouTrackDB implements AutoCloseable {
    * @param userCredentials user names, passwords and roles provided as a sequence of triple
    *                        strings
    */
-  public void createIfNotExists(String database, ODatabaseType type, String... userCredentials) {
+  public void createIfNotExists(String database, DatabaseType type, String... userCredentials) {
     StringBuilder queryString =
         new StringBuilder("create database ? " + type.name() + " if not exists");
     var params = addUsersToCreationScript(userCredentials, queryString);
@@ -419,14 +420,14 @@ public class YouTrackDB implements AutoCloseable {
 
   /**
    * Create a new database without users if not exists. In case if you want to create users during
-   * creation please use {@link #createIfNotExists(String, ODatabaseType, String...)}
+   * creation please use {@link #createIfNotExists(String, DatabaseType, String...)}
    *
    * @param database database name
    * @param type     can be plocal or memory
    * @param config   custom configuration for current database
    * @return true if the database has been created, false if already exists
    */
-  public boolean createIfNotExists(String database, ODatabaseType type, YouTrackDBConfig config) {
+  public boolean createIfNotExists(String database, DatabaseType type, YouTrackDBConfig config) {
     if (!this.internal.exists(database, serverUser, serverPassword)) {
       this.internal.create(database, serverUser, serverPassword, type, config);
       return true;
@@ -480,12 +481,12 @@ public class YouTrackDB implements AutoCloseable {
     return this.internal.isOpen();
   }
 
-  ODatabasePoolInternal openPool(
+  DatabasePoolInternal openPool(
       String database, String user, String password, YouTrackDBConfig config) {
     return this.internal.openPool(database, user, password, config);
   }
 
-  public ODatabasePool cachedPool(String database, String user, String password) {
+  public DatabasePool cachedPool(String database, String user, String password) {
     return cachedPool(database, user, password, null);
   }
 
@@ -497,19 +498,19 @@ public class YouTrackDB implements AutoCloseable {
    * @param password user password
    * @param config   YouTrackDB config for pool if need create it (in case if there is no cached
    *                 pool)
-   * @return cached {@link ODatabasePool}
+   * @return cached {@link DatabasePool}
    */
-  public ODatabasePool cachedPool(
+  public DatabasePool cachedPool(
       String database, String user, String password, YouTrackDBConfig config) {
-    ODatabasePoolInternal internalPool = internal.cachedPool(database, user, password, config);
+    DatabasePoolInternal internalPool = internal.cachedPool(database, user, password, config);
 
-    ODatabasePool pool = cachedPools.get(internalPool);
+    DatabasePool pool = cachedPools.get(internalPool);
 
     if (pool != null) {
       return pool;
     }
 
-    return cachedPools.computeIfAbsent(internalPool, key -> new ODatabasePool(this, internalPool));
+    return cachedPools.computeIfAbsent(internalPool, key -> new DatabasePool(this, internalPool));
   }
 
   public void invalidateCachedPools() {
@@ -519,11 +520,11 @@ public class YouTrackDB implements AutoCloseable {
     }
   }
 
-  public YTResultSet execute(String script, Map<String, Object> params) {
+  public ResultSet execute(String script, Map<String, Object> params) {
     return internal.executeServerStatementNamedParams(script, serverUser, serverPassword, params);
   }
 
-  public YTResultSet execute(String script, Object... params) {
+  public ResultSet execute(String script, Object... params) {
     return internal.executeServerStatementPositionalParams(script, serverUser, serverPassword,
         params);
   }

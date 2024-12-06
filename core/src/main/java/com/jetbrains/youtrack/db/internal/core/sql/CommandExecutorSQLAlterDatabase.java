@@ -19,16 +19,16 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
@@ -38,7 +38,7 @@ import java.util.Map;
  */
 @SuppressWarnings("unchecked")
 public class CommandExecutorSQLAlterDatabase extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String KEYWORD_ALTER = "ALTER";
   public static final String KEYWORD_DATABASE = "DATABASE";
@@ -62,21 +62,21 @@ public class CommandExecutorSQLAlterDatabase extends CommandExecutorSQLAbstract
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_ALTER)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_ALTER + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_DATABASE)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_DATABASE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Missed the database's attribute to change. Use " + getSyntax(), parserText, oldPos);
       }
 
@@ -86,8 +86,8 @@ public class CommandExecutorSQLAlterDatabase extends CommandExecutorSQLAbstract
         attribute =
             ATTRIBUTES.valueOf(attributeAsString.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
-        throw YTException.wrapException(
-            new YTCommandSQLParsingException(
+        throw BaseException.wrapException(
+            new CommandSQLParsingException(
                 "Unknown database's attribute '"
                     + attributeAsString
                     + "'. Supported attributes are: "
@@ -100,7 +100,7 @@ public class CommandExecutorSQLAlterDatabase extends CommandExecutorSQLAbstract
       value = parserText.substring(pos + 1).trim();
 
       if (value.length() == 0) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Missed the database's value to change for attribute '"
                 + attribute
                 + "'. Use "
@@ -129,14 +129,14 @@ public class CommandExecutorSQLAlterDatabase extends CommandExecutorSQLAbstract
   /**
    * Execute the ALTER DATABASE.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (attribute == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final YTDatabaseSessionInternal database = getDatabase();
-    database.checkSecurity(ORule.ResourceGeneric.DATABASE, ORole.PERMISSION_UPDATE);
+    final DatabaseSessionInternal database = getDatabase();
+    database.checkSecurity(Rule.ResourceGeneric.DATABASE, Role.PERMISSION_UPDATE);
 
     database.setInternal(attribute, value);
     return null;

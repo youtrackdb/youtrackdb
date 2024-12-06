@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OIndexFinder;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.IndexFinder;
 
 /**
  *
@@ -19,5 +19,5 @@ public interface SQLBinaryCompareOperator {
     return false;
   }
 
-  OIndexFinder.Operation getOperation();
+  IndexFinder.Operation getOperation();
 }

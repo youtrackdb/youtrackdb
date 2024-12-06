@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.List;
 
 /**
@@ -10,8 +10,8 @@ import java.util.List;
 public class DistributedQueryContext {
 
   private String queryId;
-  private YTDatabaseSessionInternal db;
-  private YTResultSet resultSet;
+  private DatabaseSessionInternal db;
+  private ResultSet resultSet;
 
   public String getQueryId() {
     return queryId;
@@ -21,52 +21,52 @@ public class DistributedQueryContext {
     this.queryId = queryId;
   }
 
-  public YTDatabaseSession getDb() {
+  public DatabaseSession getDb() {
     return db;
   }
 
-  public void setDb(YTDatabaseSession db) {
-    this.db = (YTDatabaseSessionInternal) db;
+  public void setDb(DatabaseSession db) {
+    this.db = (DatabaseSessionInternal) db;
   }
 
-  public YTResultSet getResultSet() {
+  public ResultSet getResultSet() {
     return resultSet;
   }
 
-  public void setResultSet(YTResultSet resultSet) {
+  public void setResultSet(ResultSet resultSet) {
     this.resultSet = resultSet;
   }
 
-  public List<YTResult> fetchNextPage() {
-    YTDatabaseSessionInternal prev = ODatabaseRecordThreadLocal.instance().getIfDefined();
+  public List<Result> fetchNextPage() {
+    DatabaseSessionInternal prev = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       db.activateOnCurrentThread();
       resultSet.close();
       db.close();
     } finally {
       if (prev == null) {
-        ODatabaseRecordThreadLocal.instance().remove();
+        DatabaseRecordThreadLocal.instance().remove();
       } else {
-        ODatabaseRecordThreadLocal.instance().set(prev);
+        DatabaseRecordThreadLocal.instance().set(prev);
       }
     }
     return null;
   }
 
   public void close() {
-    YTDatabaseSessionInternal prev = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    DatabaseSessionInternal prev = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       db.activateOnCurrentThread();
       resultSet.close();
       db.close();
-      ((OSharedContextEmbedded) db.getSharedContext())
+      ((SharedContextEmbedded) db.getSharedContext())
           .getActiveDistributedQueries()
           .remove(queryId);
     } finally {
       if (prev == null) {
-        ODatabaseRecordThreadLocal.instance().remove();
+        DatabaseRecordThreadLocal.instance().remove();
       } else {
-        ODatabaseRecordThreadLocal.instance().set(prev);
+        DatabaseRecordThreadLocal.instance().set(prev);
       }
     }
   }

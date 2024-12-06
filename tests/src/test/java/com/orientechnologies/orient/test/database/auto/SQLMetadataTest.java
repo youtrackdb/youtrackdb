@@ -15,9 +15,9 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.exception.YTQueryParsingException;
+import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Parameters;
@@ -39,7 +39,7 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
     List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>("select expand(classes) from metadata:schema"))
+                new SQLSynchQuery<EntityImpl>("select expand(classes) from metadata:schema"))
             .execute(database);
 
     Assert.assertTrue(result.size() != 0);
@@ -50,7 +50,7 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
     List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select expand(properties) from (select expand(classes) from metadata:schema)"
                         + " where name = 'OUser'"))
             .execute(database);
@@ -63,7 +63,7 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
     List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select expand(indexes) from metadata:indexmanager"))
             .execute(database);
 
@@ -74,10 +74,10 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
   public void queryMetadataNotSupported() {
     try {
       database
-          .command(new OSQLSynchQuery<EntityImpl>("select expand(indexes) from metadata:blaaa"))
+          .command(new SQLSynchQuery<EntityImpl>("select expand(indexes) from metadata:blaaa"))
           .execute(database);
       Assert.fail();
-    } catch (YTQueryParsingException e) {
+    } catch (QueryParsingException e) {
     }
   }
 }

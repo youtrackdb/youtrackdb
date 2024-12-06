@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
 import org.testng.Assert;
@@ -36,7 +36,7 @@ public class FetchPlanComplexNestedLevelsTest extends DocumentDBBaseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final YTClass personTest = database.getMetadata().getSchema().getClass("PersonTest");
+    final SchemaClass personTest = database.getMetadata().getSchema().getClass("PersonTest");
     if (personTest == null) {
       database
           .getMetadata()
@@ -46,7 +46,7 @@ public class FetchPlanComplexNestedLevelsTest extends DocumentDBBaseTest {
       personTest.setSuperClass(database, database.getMetadata().getSchema().getClass("V"));
     }
 
-    final YTClass followTest = database.getMetadata().getSchema().getClass("FollowTest");
+    final SchemaClass followTest = database.getMetadata().getSchema().getClass("FollowTest");
     if (followTest == null) {
       database
           .getMetadata()

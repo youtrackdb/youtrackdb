@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -32,9 +32,9 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    YTClass cls = database.getMetadata().getSchema().createClass(CLASS_NAME);
-    cls.createProperty(database, PROPERTY_NAME, YTType.INTEGER);
-    cls.createIndex(database, INDEX, YTClass.INDEX_TYPE.UNIQUE, PROPERTY_NAME);
+    SchemaClass cls = database.getMetadata().getSchema().createClass(CLASS_NAME);
+    cls.createProperty(database, PROPERTY_NAME, PropertyType.INTEGER);
+    cls.createIndex(database, INDEX, SchemaClass.INDEX_TYPE.UNIQUE, PROPERTY_NAME);
   }
 
   @AfterMethod
@@ -51,7 +51,7 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
+    final Index index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
     new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
     new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
@@ -59,10 +59,10 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertNull(database.getTransaction().getIndexChanges(INDEX));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 2)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -71,20 +71,20 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
     new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 3).save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 3)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 3)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
     database.rollback();
 
     Assert.assertNull(database.getTransaction().getIndexChanges(INDEX));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 2)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 3)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 3)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
   }
@@ -96,7 +96,7 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
+    final Index index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
     EntityImpl document = new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
@@ -105,10 +105,10 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertNull(database.getTransaction().getIndexChanges(INDEX));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 2)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -118,20 +118,20 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
     document.delete();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 2)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
     database.rollback();
 
     Assert.assertNull(database.getTransaction().getIndexChanges(INDEX));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 2)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -143,7 +143,7 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
     }
 
     database.begin();
-    final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
+    final Index index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
     EntityImpl document = new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
@@ -152,10 +152,10 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertNull(database.getTransaction().getIndexChanges(INDEX));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 2)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -169,10 +169,10 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
     document.save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 2)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
@@ -187,7 +187,7 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
+    final Index index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
     EntityImpl document = new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
@@ -196,12 +196,12 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
     document.save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
     database.commit();
 
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -214,12 +214,12 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
+    final Index index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
     new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1).save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
     database.commit();
@@ -228,7 +228,7 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
     new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 2).save();
     database.commit();
 
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 2)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 2)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -241,20 +241,20 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
+    final Index index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
     EntityImpl document = new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
     document.delete();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
 
     database.commit();
 
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
   }
@@ -267,7 +267,7 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
 
     database.begin();
 
-    final OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
+    final Index index = database.getMetadata().getIndexManagerInternal().getIndex(database, INDEX);
 
     EntityImpl document = new EntityImpl(CLASS_NAME).field(PROPERTY_NAME, 1);
     document.save();
@@ -278,13 +278,13 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
     document.field(PROPERTY_NAME, 1).save();
 
     Assert.assertNotNull(database.getTransaction().getIndexChanges(INDEX));
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
 
     database.commit();
 
-    try (Stream<YTRID> stream = index.getInternal().getRids(database, 1)) {
+    try (Stream<RID> stream = index.getInternal().getRids(database, 1)) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -310,8 +310,8 @@ public class IndexTxAwareOneValueGetTest extends DocumentDBBaseTest {
                 + "return $top")
         .close();
 
-    try (final YTResultSet resultSet = database.query("select * from " + className)) {
-      try (Stream<YTResult> stream = resultSet.stream()) {
+    try (final ResultSet resultSet = database.query("select * from " + className)) {
+      try (Stream<Result> stream = resultSet.stream()) {
         Assert.assertEquals(stream.count(), 0);
       }
     }

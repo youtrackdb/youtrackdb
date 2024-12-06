@@ -20,13 +20,13 @@
 package com.orientechnologies.orient.server.network.protocol.http.command;
 
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OStringSerializerHelper;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponseAbstract;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
-import com.orientechnologies.orient.server.network.protocol.http.YTHttpRequestException;
+import com.orientechnologies.orient.server.network.protocol.http.HttpRequestException;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -59,13 +59,13 @@ public abstract class OServerCommandAbstract implements OServerCommand {
   protected String[] checkSyntax(
       final String iURL, final int iArgumentCount, final String iSyntax) {
     final List<String> parts =
-        OStringSerializerHelper.smartSplit(
+        StringSerializerHelper.smartSplit(
             iURL, OHttpResponseAbstract.URL_SEPARATOR, 1, -1, true, true, false, false);
     for (int i = 0; i < parts.size(); i++) {
       parts.set(i, URLDecoder.decode(parts.get(i), StandardCharsets.UTF_8));
     }
     if (parts.size() < iArgumentCount) {
-      throw new YTHttpRequestException(iSyntax);
+      throw new HttpRequestException(iSyntax);
     }
 
     return parts.toArray(new String[parts.size()]);

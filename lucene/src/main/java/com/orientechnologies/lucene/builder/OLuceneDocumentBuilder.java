@@ -23,9 +23,9 @@ import static com.orientechnologies.lucene.builder.OLuceneIndexType.createFields
 import static com.orientechnologies.lucene.builder.OLuceneIndexType.createIdField;
 import static com.orientechnologies.lucene.builder.OLuceneIndexType.createOldIdField;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,9 +38,9 @@ import org.apache.lucene.document.Field;
 public class OLuceneDocumentBuilder {
 
   public Document build(
-      final OIndexDefinition definition,
+      final IndexDefinition definition,
       final Object key,
-      final YTIdentifiable value,
+      final Identifiable value,
       final Map<String, Boolean> fieldsToStore,
       final Map<String, ?> metadata) {
     final Document doc = new Document();
@@ -64,7 +64,7 @@ public class OLuceneDocumentBuilder {
   }
 
   private void addDefaultFieldsToDocument(
-      OIndexDefinition definition, Object key, YTIdentifiable value, Document doc) {
+      IndexDefinition definition, Object key, Identifiable value, Document doc) {
     if (value != null) {
       doc.add(createOldIdField(value));
       doc.add(createIdField(value, key));
@@ -73,10 +73,10 @@ public class OLuceneDocumentBuilder {
     }
   }
 
-  private List<Object> formatKeys(OIndexDefinition definition, Object key) {
+  private List<Object> formatKeys(IndexDefinition definition, Object key) {
     List<Object> keys;
-    if (key instanceof OCompositeKey) {
-      keys = ((OCompositeKey) key).getKeys();
+    if (key instanceof CompositeKey) {
+      keys = ((CompositeKey) key).getKeys();
     } else if (key instanceof List) {
       keys = ((List) key);
     } else {

@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,71 +30,76 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass oClass = schema.createClass("sqlSelectIndexReuseTestClass");
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass oClass = schema.createClass("sqlSelectIndexReuseTestClass");
 
-    oClass.createProperty(database, "prop1", YTType.INTEGER);
-    oClass.createProperty(database, "prop2", YTType.INTEGER);
-    oClass.createProperty(database, "prop3", YTType.INTEGER);
-    oClass.createProperty(database, "prop4", YTType.INTEGER);
-    oClass.createProperty(database, "prop5", YTType.INTEGER);
-    oClass.createProperty(database, "prop6", YTType.INTEGER);
-    oClass.createProperty(database, "prop7", YTType.STRING);
-    oClass.createProperty(database, "prop8", YTType.INTEGER);
-    oClass.createProperty(database, "prop9", YTType.INTEGER);
+    oClass.createProperty(database, "prop1", PropertyType.INTEGER);
+    oClass.createProperty(database, "prop2", PropertyType.INTEGER);
+    oClass.createProperty(database, "prop3", PropertyType.INTEGER);
+    oClass.createProperty(database, "prop4", PropertyType.INTEGER);
+    oClass.createProperty(database, "prop5", PropertyType.INTEGER);
+    oClass.createProperty(database, "prop6", PropertyType.INTEGER);
+    oClass.createProperty(database, "prop7", PropertyType.STRING);
+    oClass.createProperty(database, "prop8", PropertyType.INTEGER);
+    oClass.createProperty(database, "prop9", PropertyType.INTEGER);
 
-    oClass.createProperty(database, "fEmbeddedMap", YTType.EMBEDDEDMAP, YTType.INTEGER);
-    oClass.createProperty(database, "fEmbeddedMapTwo", YTType.EMBEDDEDMAP, YTType.INTEGER);
+    oClass.createProperty(database, "fEmbeddedMap", PropertyType.EMBEDDEDMAP, PropertyType.INTEGER);
+    oClass.createProperty(database, "fEmbeddedMapTwo", PropertyType.EMBEDDEDMAP,
+        PropertyType.INTEGER);
 
-    oClass.createProperty(database, "fLinkMap", YTType.LINKMAP);
+    oClass.createProperty(database, "fLinkMap", PropertyType.LINKMAP);
 
-    oClass.createProperty(database, "fEmbeddedList", YTType.EMBEDDEDLIST, YTType.INTEGER);
-    oClass.createProperty(database, "fEmbeddedListTwo", YTType.EMBEDDEDLIST, YTType.INTEGER);
+    oClass.createProperty(database, "fEmbeddedList", PropertyType.EMBEDDEDLIST,
+        PropertyType.INTEGER);
+    oClass.createProperty(database, "fEmbeddedListTwo", PropertyType.EMBEDDEDLIST,
+        PropertyType.INTEGER);
 
-    oClass.createProperty(database, "fLinkList", YTType.LINKLIST);
+    oClass.createProperty(database, "fLinkList", PropertyType.LINKLIST);
 
-    oClass.createProperty(database, "fEmbeddedSet", YTType.EMBEDDEDSET, YTType.INTEGER);
-    oClass.createProperty(database, "fEmbeddedSetTwo", YTType.EMBEDDEDSET, YTType.INTEGER);
+    oClass.createProperty(database, "fEmbeddedSet", PropertyType.EMBEDDEDSET, PropertyType.INTEGER);
+    oClass.createProperty(database, "fEmbeddedSetTwo", PropertyType.EMBEDDEDSET,
+        PropertyType.INTEGER);
 
-    oClass.createIndex(database, "indexone", YTClass.INDEX_TYPE.UNIQUE, "prop1", "prop2");
-    oClass.createIndex(database, "indextwo", YTClass.INDEX_TYPE.UNIQUE, "prop3");
-    oClass.createIndex(database, "indexthree", YTClass.INDEX_TYPE.NOTUNIQUE, "prop1", "prop2",
+    oClass.createIndex(database, "indexone", SchemaClass.INDEX_TYPE.UNIQUE, "prop1", "prop2");
+    oClass.createIndex(database, "indextwo", SchemaClass.INDEX_TYPE.UNIQUE, "prop3");
+    oClass.createIndex(database, "indexthree", SchemaClass.INDEX_TYPE.NOTUNIQUE, "prop1", "prop2",
         "prop4");
-    oClass.createIndex(database, "indexfour", YTClass.INDEX_TYPE.NOTUNIQUE, "prop4", "prop1",
+    oClass.createIndex(database, "indexfour", SchemaClass.INDEX_TYPE.NOTUNIQUE, "prop4", "prop1",
         "prop3");
-    oClass.createIndex(database, "indexfive", YTClass.INDEX_TYPE.NOTUNIQUE, "prop6", "prop1",
+    oClass.createIndex(database, "indexfive", SchemaClass.INDEX_TYPE.NOTUNIQUE, "prop6", "prop1",
         "prop3");
 
     oClass.createIndex(database,
-        "sqlSelectIndexReuseTestEmbeddedMapByKey", YTClass.INDEX_TYPE.NOTUNIQUE, "fEmbeddedMap");
+        "sqlSelectIndexReuseTestEmbeddedMapByKey", SchemaClass.INDEX_TYPE.NOTUNIQUE,
+        "fEmbeddedMap");
     oClass.createIndex(database,
         "sqlSelectIndexReuseTestEmbeddedMapByValue",
-        YTClass.INDEX_TYPE.NOTUNIQUE, "fEmbeddedMap by value");
+        SchemaClass.INDEX_TYPE.NOTUNIQUE, "fEmbeddedMap by value");
     oClass.createIndex(database,
-        "sqlSelectIndexReuseTestEmbeddedList", YTClass.INDEX_TYPE.NOTUNIQUE, "fEmbeddedList");
+        "sqlSelectIndexReuseTestEmbeddedList", SchemaClass.INDEX_TYPE.NOTUNIQUE, "fEmbeddedList");
 
     oClass.createIndex(database,
         "sqlSelectIndexReuseTestEmbeddedMapByKeyProp8",
-        YTClass.INDEX_TYPE.NOTUNIQUE,
+        SchemaClass.INDEX_TYPE.NOTUNIQUE,
         "fEmbeddedMapTwo", "prop8");
     oClass.createIndex(database,
         "sqlSelectIndexReuseTestEmbeddedMapByValueProp8",
-        YTClass.INDEX_TYPE.NOTUNIQUE,
+        SchemaClass.INDEX_TYPE.NOTUNIQUE,
         "fEmbeddedMapTwo by value", "prop8");
 
     oClass.createIndex(database,
         "sqlSelectIndexReuseTestEmbeddedSetProp8",
-        YTClass.INDEX_TYPE.NOTUNIQUE,
+        SchemaClass.INDEX_TYPE.NOTUNIQUE,
         "fEmbeddedSetTwo", "prop8");
     oClass.createIndex(database,
         "sqlSelectIndexReuseTestProp9EmbeddedSetProp8",
-        YTClass.INDEX_TYPE.NOTUNIQUE,
+        SchemaClass.INDEX_TYPE.NOTUNIQUE,
         "prop9",
         "fEmbeddedSetTwo", "prop8");
 
     oClass.createIndex(database,
         "sqlSelectIndexReuseTestEmbeddedListTwoProp8",
-        YTClass.INDEX_TYPE.NOTUNIQUE,
+        SchemaClass.INDEX_TYPE.NOTUNIQUE,
         "fEmbeddedListTwo", "prop8");
 
     final String[] fullTextIndexStrings = {
@@ -192,7 +197,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 = 2"))
             .execute(database);
 
@@ -215,7 +220,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1.asInteger() = 1 and"
                         + " prop2 = 2"))
             .execute(database);
@@ -252,7 +257,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1"))
             .execute(database);
 
@@ -299,7 +304,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop3 = 18"
                         + " limit 1"))
             .execute(database);
@@ -346,7 +351,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where fEmbeddedMapTwo containsKey"
                         + " 'key11'"))
             .execute(database);
@@ -401,7 +406,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass "
                         + "where prop8 = 1 and fEmbeddedMapTwo containsKey 'key11'"))
             .execute(database);
@@ -453,7 +458,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass "
                         + "where fEmbeddedMapTwo containsValue 22"))
             .execute(database);
@@ -507,7 +512,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass "
                         + "where prop8 = 1 and fEmbeddedMapTwo containsValue 22"))
             .execute(database);
@@ -560,7 +565,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass "
                         + "where prop8 = 1 and fEmbeddedSetTwo contains 12"))
             .execute(database);
@@ -617,7 +622,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass "
                         + "where prop9 = 0 and fEmbeddedSetTwo contains 92 and prop8 > 2"))
             .execute(database);
@@ -674,7 +679,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where fEmbeddedListTwo contains 4"))
             .execute(database);
 
@@ -725,7 +730,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where"
                         + " prop8 = 1 and fEmbeddedListTwo contains 4"))
             .execute(database);
@@ -758,7 +763,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 = 1"))
             .execute(database);
 
@@ -793,7 +798,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = ? and prop2 = ?"))
             .execute(database, 1, 2);
 
@@ -828,7 +833,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = ?"))
             .execute(database, 1);
 
@@ -856,7 +861,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 = ?"))
             .execute(database, 1);
 
@@ -891,7 +896,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 > 2"))
             .execute(database);
 
@@ -931,7 +936,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 > 7"))
             .execute(database);
 
@@ -961,7 +966,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 > 7"))
             .execute(database);
 
@@ -999,7 +1004,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = ? and prop2 > ?"))
             .execute(database, 1, 2);
 
@@ -1039,7 +1044,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 > ?"))
             .execute(database, 7);
 
@@ -1069,7 +1074,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 > ?"))
             .execute(database, 7);
 
@@ -1107,7 +1112,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 >= 2"))
             .execute(database);
 
@@ -1147,7 +1152,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 >= 7"))
             .execute(database);
 
@@ -1177,7 +1182,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 >= 7"))
             .execute(database);
 
@@ -1215,7 +1220,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = ? and prop2 >= ?"))
             .execute(database, 1, 2);
 
@@ -1255,7 +1260,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 >= ?"))
             .execute(database, 7);
 
@@ -1285,7 +1290,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 >= ?"))
             .execute(database, 7);
 
@@ -1323,7 +1328,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 <= 2"))
             .execute(database);
 
@@ -1363,7 +1368,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 <= 7"))
             .execute(database);
 
@@ -1393,7 +1398,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 <= 7"))
             .execute(database);
 
@@ -1431,7 +1436,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = ? and prop2 <= ?"))
             .execute(database, 1, 2);
 
@@ -1471,7 +1476,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 <= ?"))
             .execute(database, 7);
 
@@ -1501,7 +1506,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 <= ?"))
             .execute(database, 7);
 
@@ -1539,7 +1544,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 < 2"))
             .execute(database);
 
@@ -1579,7 +1584,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 < 7"))
             .execute(database);
 
@@ -1609,7 +1614,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 < 7"))
             .execute(database);
 
@@ -1647,7 +1652,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = ? and prop2 < ?"))
             .execute(database, 1, 2);
 
@@ -1687,7 +1692,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 < ?"))
             .execute(database, 7);
 
@@ -1717,7 +1722,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 < ?"))
             .execute(database, 7);
 
@@ -1755,7 +1760,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 between 1"
                         + " and 3"))
             .execute(database);
@@ -1796,7 +1801,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 between 1 and 3"))
             .execute(database);
 
@@ -1826,7 +1831,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 between 1 and 3"))
             .execute(database);
 
@@ -1864,7 +1869,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 between ?"
                         + " and ?"))
             .execute(database, 1, 3);
@@ -1905,7 +1910,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 between ? and ?"))
             .execute(database, 1, 3);
 
@@ -1935,7 +1940,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop2 between ? and ?"))
             .execute(database, 1, 3);
 
@@ -1966,7 +1971,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 = 1"))
             .execute(database);
 
@@ -1991,7 +1996,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 = ?"))
             .execute(database, 1);
 
@@ -2016,7 +2021,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 > 90"))
             .execute(database);
 
@@ -2045,7 +2050,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 > ?"))
             .execute(database, 90);
 
@@ -2074,7 +2079,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 >= 90"))
             .execute(database);
 
@@ -2103,7 +2108,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 >= ?"))
             .execute(database, 90);
 
@@ -2132,7 +2137,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 <= 10"))
             .execute(database);
 
@@ -2161,7 +2166,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 <= ?"))
             .execute(database, 10);
 
@@ -2190,7 +2195,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 < 10"))
             .execute(database);
 
@@ -2219,7 +2224,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 < ?"))
             .execute(database, 10);
 
@@ -2248,7 +2253,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 between 1 and 10"))
             .execute(database);
 
@@ -2277,7 +2282,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 between ? and ?"))
             .execute(database, 1, 10);
 
@@ -2306,7 +2311,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 in [0, 5, 10]"))
             .execute(database);
 
@@ -2335,7 +2340,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop3 in [?, ?, ?]"))
             .execute(database, 0, 5, 10);
 
@@ -2371,7 +2376,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 = 1 and"
                         + " prop3 = 11"))
             .execute(database);
@@ -2409,7 +2414,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 = 1 and"
                         + " prop4 >= 1"))
             .execute(database);
@@ -2447,7 +2452,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 = 1 and"
                         + " prop5 >= 1"))
             .execute(database);
@@ -2485,7 +2490,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop4 >= 1"))
             .execute(database);
 
@@ -2526,7 +2531,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop4 = 1"))
             .execute(database);
 
@@ -2567,7 +2572,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop6 <= 1 and prop4 < 1"))
             .execute(database);
 
@@ -2607,7 +2612,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2 + 1 = 3"))
             .execute(database);
 
@@ -2636,7 +2641,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where fEmbeddedMap containskey"
                         + " 'key12'"))
             .execute(database);
@@ -2676,7 +2681,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where ( fEmbeddedMap containskey"
                         + " 'key12' ) and ( fEmbeddedMap['key12'] = 12 )"))
             .execute(database);
@@ -2716,7 +2721,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where fEmbeddedMap containsvalue"
                         + " 11"))
             .execute(database);
@@ -2756,7 +2761,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where fEmbeddedList contains 7"))
             .execute(database);
 
@@ -2796,7 +2801,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1 and prop2  = 2 and"
                         + " ( prop4 = 3 or prop4 = 1 )"))
             .execute(database);
@@ -2824,7 +2829,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where ( prop1 = 1 and prop2 = 2 )"
                         + " or ( prop4  = 1 and prop6 = 2 )"))
             .execute(database);
@@ -2859,7 +2864,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop1 = 1777 and prop2  ="
                         + " 2777"))
             .execute(database);
@@ -2875,15 +2880,15 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
   @Test
   public void testReuseOfIndexOnSeveralClassesFields() {
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass superClass = schema.createClass("sqlSelectIndexReuseTestSuperClass");
-    superClass.createProperty(database, "prop0", YTType.INTEGER);
-    final YTClass oClass = schema.createClass("sqlSelectIndexReuseTestChildClass", superClass);
-    oClass.createProperty(database, "prop1", YTType.INTEGER);
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass superClass = schema.createClass("sqlSelectIndexReuseTestSuperClass");
+    superClass.createProperty(database, "prop0", PropertyType.INTEGER);
+    final SchemaClass oClass = schema.createClass("sqlSelectIndexReuseTestChildClass", superClass);
+    oClass.createProperty(database, "prop1", PropertyType.INTEGER);
 
     oClass.createIndex(database,
         "sqlSelectIndexReuseTestOnPropertiesFromClassAndSuperclass",
-        YTClass.INDEX_TYPE.UNIQUE,
+        SchemaClass.INDEX_TYPE.UNIQUE,
         "prop0", "prop1");
 
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
@@ -2907,7 +2912,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestChildClass where prop0 = 0 and prop1 ="
                         + " 1"))
             .execute(database);
@@ -2926,10 +2931,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
 
-    YTClass klazz =
+    SchemaClass klazz =
         database.getMetadata().getSchema().getOrCreateClass("CountFunctionWithNotUniqueIndexTest");
     if (!klazz.existsProperty("a")) {
-      klazz.createProperty(database, "a", YTType.STRING);
+      klazz.createProperty(database, "a", PropertyType.STRING);
       klazz.createIndex(database, "a", "NOTUNIQUE", "a");
     }
 
@@ -2968,10 +2973,10 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
 
   @Test
   public void testCountFunctionWithUniqueIndex() {
-    YTClass klazz =
+    SchemaClass klazz =
         database.getMetadata().getSchema().getOrCreateClass("CountFunctionWithUniqueIndexTest");
     if (!klazz.existsProperty("a")) {
-      klazz.createProperty(database, "a", YTType.STRING);
+      klazz.createProperty(database, "a", PropertyType.STRING);
       klazz.createIndex(database, "testCountFunctionWithUniqueIndex", "NOTUNIQUE", "a");
     }
 
@@ -3054,7 +3059,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop4 = 1 and prop1 = 1 and"
                         + " prop3 in [13, 113]"))
             .execute(database);
@@ -3098,7 +3103,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop4 = 1 and prop1 in [1, 2]"
                         + " and prop3 = 13"))
             .execute(database);
@@ -3142,7 +3147,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop4 = 1 and prop1 in [1, 2]"
                         + " and prop3 in [13, 15]"))
             .execute(database);
@@ -3187,7 +3192,7 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     final List<EntityImpl> result =
         database
             .command(
-                new OSQLSynchQuery<EntityImpl>(
+                new SQLSynchQuery<EntityImpl>(
                     "select * from sqlSelectIndexReuseTestClass where prop4 in [1, 2] and prop1 = 1"
                         + " and prop3 = 13"))
             .execute(database);

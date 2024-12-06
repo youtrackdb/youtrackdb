@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.server.network.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jetbrains.youtrack.db.internal.core.OConstants;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -65,7 +65,7 @@ public class HttpDatabaseTest extends BaseHttpTest {
     var result = objectMapper.readTree(getResponse().getEntity().getContent());
 
     var server = result.findValue("server");
-    Assert.assertEquals(OConstants.getRawVersion(), server.get("version").asText());
+    Assert.assertEquals(YouTrackDBConstants.getRawVersion(), server.get("version").asText());
   }
 
   @Test

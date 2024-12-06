@@ -16,13 +16,13 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCoreException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTStorageException;
+import com.jetbrains.youtrack.db.internal.core.exception.CoreException;
+import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import java.io.File;
 import java.util.Locale;
 import org.testng.Assert;
@@ -78,7 +78,7 @@ public class DbCreationTest {
       youTrackDB.drop(DB_NAME);
     }
 
-    youTrackDB.create(DB_NAME, ODatabaseType.PLOCAL, "admin", "admin", "admin");
+    youTrackDB.create(DB_NAME, DatabaseType.PLOCAL, "admin", "admin", "admin");
   }
 
   @Test(dependsOnMethods = {"testDbCreationDefault"})
@@ -123,7 +123,7 @@ public class DbCreationTest {
 
   @Test(dependsOnMethods = {"testDbOpenWithLastAsSlash"})
   public void testChangeLocale() {
-    try (var database = (YTDatabaseSessionInternal) youTrackDB.open(DB_NAME, "admin", "admin")) {
+    try (var database = (DatabaseSessionInternal) youTrackDB.open(DB_NAME, "admin", "admin")) {
       database.command(" ALTER DATABASE LOCALELANGUAGE  ?", Locale.GERMANY.getLanguage()).close();
       database.command(" ALTER DATABASE LOCALECOUNTRY  ?", Locale.GERMANY.getCountry()).close();
 
@@ -164,7 +164,7 @@ public class DbCreationTest {
       odb.drop("sub");
     }
 
-    odb.create("sub", ODatabaseType.PLOCAL, "admin", "admin", "admin");
+    odb.create("sub", DatabaseType.PLOCAL, "admin", "admin", "admin");
     var db = odb.open("sub", "admin", "admin");
     db.close();
 
@@ -187,7 +187,7 @@ public class DbCreationTest {
       odb.drop("sub");
     }
 
-    odb.create("sub", ODatabaseType.PLOCAL, "admin", "admin", "admin");
+    odb.create("sub", DatabaseType.PLOCAL, "admin", "admin", "admin");
     var db = odb.cachedPool("sub", "admin", "admin");
     db.close();
 
@@ -212,11 +212,11 @@ public class DbCreationTest {
       try {
         youTrackDB.drop(dbName);
         Assert.fail();
-      } catch (YTStorageException e) {
+      } catch (StorageException e) {
         // ignore
       }
 
-      youTrackDB.create(dbName, ODatabaseType.PLOCAL, "admin", "admin", "admin");
+      youTrackDB.create(dbName, DatabaseType.PLOCAL, "admin", "admin", "admin");
       Assert.assertTrue(youTrackDB.exists(dbName));
 
       youTrackDB.open(dbName, "admin", "admin").close();
@@ -231,12 +231,12 @@ public class DbCreationTest {
   }
 
   public void testDbIsNotRemovedOnSecondTry() {
-    youTrackDB.create(DB_NAME + "Remove", ODatabaseType.PLOCAL, "admin", "admin", "admin");
+    youTrackDB.create(DB_NAME + "Remove", DatabaseType.PLOCAL, "admin", "admin", "admin");
 
     try {
-      youTrackDB.create(DB_NAME + "Remove", ODatabaseType.PLOCAL, "admin", "admin", "admin");
+      youTrackDB.create(DB_NAME + "Remove", DatabaseType.PLOCAL, "admin", "admin", "admin");
       Assert.fail();
-    } catch (YTCoreException e) {
+    } catch (CoreException e) {
       // ignore all is correct
     }
 
@@ -250,7 +250,7 @@ public class DbCreationTest {
     try {
       youTrackDB.drop(DB_NAME + "Remove");
       Assert.fail();
-    } catch (YTCoreException e) {
+    } catch (CoreException e) {
       // ignore all is correct
     }
   }

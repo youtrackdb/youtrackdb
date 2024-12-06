@@ -1,19 +1,20 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.util.OCallable;
+import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryBatchResultListener;
-import com.jetbrains.youtrack.db.internal.core.db.YTLiveQueryResultListener;
-import com.jetbrains.youtrack.db.internal.core.db.record.ORecordOperation;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.query.live.OLiveQueryHookV2;
-import com.jetbrains.youtrack.db.internal.core.query.live.OLiveQueryListenerV2;
-import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.LiveQueryBatchResultListener;
+import com.jetbrains.youtrack.db.internal.core.db.LiveQueryResultListener;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHookV2;
+import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHookV2.LiveQueryOp;
+import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryListenerV2;
+import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLWhereClause;
@@ -26,15 +27,15 @@ import java.util.stream.Collectors;
 /**
  *
  */
-public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
+public class LiveQueryListenerImpl implements LiveQueryListenerV2 {
 
   public static final String BEFORE_METADATA_KEY = "$$before$$";
-  private final YTLiveQueryResultListener clientListener;
-  private YTDatabaseSessionInternal execDb;
+  private final LiveQueryResultListener clientListener;
+  private DatabaseSessionInternal execDb;
 
   private final SQLSelectStatement statement;
   private String className;
-  private List<YTRecordId> rids;
+  private List<RecordId> rids;
 
   private final Map<Object, Object> params;
 
@@ -42,15 +43,15 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
   private static final Random random = new Random();
 
   public LiveQueryListenerImpl(
-      YTLiveQueryResultListener clientListener, String query, YTDatabaseSessionInternal db,
+      LiveQueryResultListener clientListener, String query, DatabaseSessionInternal db,
       Object[] iArgs) {
     this(clientListener, query, db, toPositionalParams(iArgs));
   }
 
   public LiveQueryListenerImpl(
-      YTLiveQueryResultListener clientListener,
+      LiveQueryResultListener clientListener,
       String query,
-      YTDatabaseSessionInternal db,
+      DatabaseSessionInternal db,
       Map<Object, Object> iArgs) {
     this.clientListener = clientListener;
     this.params = iArgs;
@@ -58,9 +59,9 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     if (query.trim().toLowerCase().startsWith("live ")) {
       query = query.trim().substring(5);
     }
-    SQLStatement stm = OSQLEngine.parse(query, db);
+    SQLStatement stm = SQLEngine.parse(query, db);
     if (!(stm instanceof SQLSelectStatement)) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Only SELECT statement can be used as a live query: " + query);
     }
     this.statement = (SQLSelectStatement) stm;
@@ -71,7 +72,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
           .getMetadata()
           .getImmutableSchemaSnapshot()
           .existsClass(className)) {
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "Class " + className + " not found in the schema: " + query);
       }
     } else if (statement.getTarget().getItem().getRids() != null) {
@@ -79,11 +80,11 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
       context.setDatabase(db);
       this.rids =
           statement.getTarget().getItem().getRids().stream()
-              .map(x -> x.toRecordId(new YTResultInternal(db), context))
+              .map(x -> x.toRecordId(new ResultInternal(db), context))
               .collect(Collectors.toList());
     }
     execInSeparateDatabase(
-        new OCallable() {
+        new CallableFunction() {
           @Override
           public Object call(Object iArgument) {
             return execDb = db.copy();
@@ -93,7 +94,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     synchronized (random) {
       token = random.nextInt(); // TODO do something better ;-)!
     }
-    OLiveQueryHookV2.subscribe(token, this, db);
+    LiveQueryHookV2.subscribe(token, this, db);
 
     CommandContext ctx = new BasicCommandContext();
     if (iArgs != null)
@@ -105,26 +106,26 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     }
   }
 
-  private void validateStatement(SQLSelectStatement statement, YTDatabaseSessionInternal db) {
+  private void validateStatement(SQLSelectStatement statement, DatabaseSessionInternal db) {
     if (statement.getProjection() != null) {
       if (statement.getProjection().getItems().stream().anyMatch(x -> x.isAggregate(db))) {
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "Aggregate Projections cannot be used in live query " + statement);
       }
     }
     if (statement.getTarget().getItem().getIdentifier() == null
         && statement.getTarget().getItem().getRids() == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Live queries can only be executed against a Class or on RIDs" + statement);
     }
     if (statement.getOrderBy() != null) {
-      throw new YTCommandExecutionException("Live queries do not support ORDER BY " + statement);
+      throw new CommandExecutionException("Live queries do not support ORDER BY " + statement);
     }
     if (statement.getGroupBy() != null) {
-      throw new YTCommandExecutionException("Live queries do not support GROUP BY " + statement);
+      throw new CommandExecutionException("Live queries do not support GROUP BY " + statement);
     }
     if (statement.getSkip() != null || statement.getLimit() != null) {
-      throw new YTCommandExecutionException("Live queries do not support SKIP/LIMIT " + statement);
+      throw new CommandExecutionException("Live queries do not support SKIP/LIMIT " + statement);
     }
   }
 
@@ -133,15 +134,15 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
   }
 
   @Override
-  public void onLiveResults(List<OLiveQueryHookV2.OLiveQueryOp> iRecords) {
+  public void onLiveResults(List<LiveQueryOp> iRecords) {
     execDb.activateOnCurrentThread();
 
-    for (OLiveQueryHookV2.OLiveQueryOp iRecord : iRecords) {
-      YTResultInternal record;
-      if (iRecord.type == ORecordOperation.CREATED || iRecord.type == ORecordOperation.UPDATED) {
+    for (LiveQueryOp iRecord : iRecords) {
+      ResultInternal record;
+      if (iRecord.type == RecordOperation.CREATED || iRecord.type == RecordOperation.UPDATED) {
         record = copy(execDb, iRecord.after);
-        if (iRecord.type == ORecordOperation.UPDATED) {
-          YTResultInternal before = copy(execDb, iRecord.before);
+        if (iRecord.type == RecordOperation.UPDATED) {
+          ResultInternal before = copy(execDb, iRecord.before);
           record.setMetadata(BEFORE_METADATA_KEY, before);
         }
       } else {
@@ -151,41 +152,41 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
 
       if (filter(record)) {
         switch (iRecord.type) {
-          case ORecordOperation.DELETED:
+          case RecordOperation.DELETED:
             record.setMetadata(BEFORE_METADATA_KEY, null);
             clientListener.onDelete(execDb, applyProjections(record));
             break;
-          case ORecordOperation.UPDATED:
-            YTResult before =
-                applyProjections((YTResultInternal) record.getMetadata(BEFORE_METADATA_KEY));
+          case RecordOperation.UPDATED:
+            Result before =
+                applyProjections((ResultInternal) record.getMetadata(BEFORE_METADATA_KEY));
             record.setMetadata(BEFORE_METADATA_KEY, null);
             clientListener.onUpdate(execDb, before, applyProjections(record));
             break;
-          case ORecordOperation.CREATED:
+          case RecordOperation.CREATED:
             clientListener.onCreate(execDb, applyProjections(record));
             break;
         }
       }
     }
-    if (clientListener instanceof YTLiveQueryBatchResultListener) {
-      ((YTLiveQueryBatchResultListener) clientListener).onBatchEnd(execDb);
+    if (clientListener instanceof LiveQueryBatchResultListener) {
+      ((LiveQueryBatchResultListener) clientListener).onBatchEnd(execDb);
     }
   }
 
-  private YTResultInternal applyProjections(YTResultInternal record) {
+  private ResultInternal applyProjections(ResultInternal record) {
     var ctx = new BasicCommandContext();
     ctx.setDatabase(execDb);
 
     if (statement.getProjection() != null) {
-      YTResultInternal result =
-          (YTResultInternal)
+      ResultInternal result =
+          (ResultInternal)
               statement.getProjection().calculateSingle(ctx, record);
       return result;
     }
     return record;
   }
 
-  private boolean filter(YTResult record) {
+  private boolean filter(Result record) {
     // filter by class
     if (className != null) {
       Object filterClass = record.getProperty("@class");
@@ -193,7 +194,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
       if (filterClass == null) {
         return false;
       } else if (!(className.equalsIgnoreCase(recordClassName))) {
-        YTClass recordClass =
+        SchemaClass recordClass =
             this.execDb.getMetadata().getImmutableSchemaSnapshot().getClass(recordClassName);
         if (recordClass == null) {
           return false;
@@ -206,7 +207,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     }
     if (rids != null && rids.size() > 0) {
       boolean found = false;
-      for (YTRecordId rid : rids) {
+      for (RecordId rid : rids) {
         if (rid.equals(record.getIdentity().orElse(null))) {
           found = true;
           break;
@@ -230,11 +231,11 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     return where.matchesFilters(record, ctx);
   }
 
-  private YTResultInternal copy(YTDatabaseSessionInternal db, YTResult item) {
+  private ResultInternal copy(DatabaseSessionInternal db, Result item) {
     if (item == null) {
       return null;
     }
-    YTResultInternal result = new YTResultInternal(db);
+    ResultInternal result = new ResultInternal(db);
 
     for (String prop : item.getPropertyNames()) {
       result.setProperty(prop, item.getProperty(prop));
@@ -255,15 +256,15 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     clientListener.onEnd(execDb);
   }
 
-  protected void execInSeparateDatabase(final OCallable iCallback) {
-    final YTDatabaseSessionInternal prevDb = ODatabaseRecordThreadLocal.instance().getIfDefined();
+  protected void execInSeparateDatabase(final CallableFunction iCallback) {
+    final DatabaseSessionInternal prevDb = DatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       iCallback.call(null);
     } finally {
       if (prevDb != null) {
-        ODatabaseRecordThreadLocal.instance().set(prevDb);
+        DatabaseRecordThreadLocal.instance().set(prevDb);
       } else {
-        ODatabaseRecordThreadLocal.instance().remove();
+        DatabaseRecordThreadLocal.instance().remove();
       }
     }
   }

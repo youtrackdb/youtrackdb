@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.multipart;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.OJSONWriter;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import java.io.BufferedOutputStream;
@@ -51,10 +51,10 @@ public class OHttpMultipartFileToDiskContentParser
       final OHttpRequest iRequest,
       final Map<String, String> headers,
       final OHttpMultipartContentInputStream in,
-      YTDatabaseSession database)
+      DatabaseSession database)
       throws IOException {
     final StringWriter buffer = new StringWriter();
-    final OJSONWriter json = new OJSONWriter(buffer);
+    final JSONWriter json = new JSONWriter(buffer);
     json.beginObject();
     String fileName = headers.get(OHttpUtils.MULTIPART_CONTENT_FILENAME);
     int fileSize = 0;

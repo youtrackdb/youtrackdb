@@ -268,7 +268,7 @@ public class FileUtils {
       return file.delete();
     }
 
-    return OFileUtilsJava7.delete(file);
+    return FileUtilsJava7.delete(file);
   }
 
   /**

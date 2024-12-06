@@ -19,12 +19,12 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db.record;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.OSimpleMultiValueTracker;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -37,14 +37,14 @@ import java.util.ListIterator;
  * types. This avoids to call the makeDirty() by hand when the list is changed.
  */
 public class TrackedList<T> extends ArrayList<T>
-    implements RecordElement, OTrackedMultiValue<Integer, T>, Serializable {
+    implements RecordElement, TrackedMultiValue<Integer, T>, Serializable {
 
   protected final RecordElement sourceRecord;
   protected Class<?> genericClass;
   private final boolean embeddedCollection;
   private boolean dirty = false;
   private boolean transactionDirty = false;
-  private final OSimpleMultiValueTracker<Integer, T> tracker = new OSimpleMultiValueTracker<>(this);
+  private final SimpleMultiValueTracker<Integer, T> tracker = new SimpleMultiValueTracker<>(this);
 
   public TrackedList(
       final RecordElement iRecord,
@@ -108,7 +108,7 @@ public class TrackedList<T> extends ArrayList<T>
 
     if (oldValue != null && !oldValue.equals(element)) {
       if (oldValue instanceof EntityImpl) {
-        ODocumentInternal.removeOwner((EntityImpl) oldValue, this);
+        DocumentInternal.removeOwner((EntityImpl) oldValue, this);
       }
 
       addOwnerToEmbeddedDoc(element);
@@ -129,10 +129,10 @@ public class TrackedList<T> extends ArrayList<T>
   private void addOwnerToEmbeddedDoc(T e) {
     if (embeddedCollection && e instanceof EntityImpl && !((EntityImpl) e).getIdentity()
         .isValid()) {
-      ODocumentInternal.addOwner((EntityImpl) e, this);
+      DocumentInternal.addOwner((EntityImpl) e, this);
     }
     if (e instanceof EntityImpl) {
-      ORecordInternal.track(sourceRecord, (EntityImpl) e);
+      RecordInternal.track(sourceRecord, (EntityImpl) e);
     }
   }
 
@@ -155,7 +155,7 @@ public class TrackedList<T> extends ArrayList<T>
 
   private void updateEvent(int index, T oldValue, T newValue) {
     if (oldValue instanceof EntityImpl) {
-      ODocumentInternal.removeOwner((EntityImpl) oldValue, this);
+      DocumentInternal.removeOwner((EntityImpl) oldValue, this);
     }
 
     addOwnerToEmbeddedDoc(newValue);
@@ -169,7 +169,7 @@ public class TrackedList<T> extends ArrayList<T>
 
   private void removeEvent(int index, T removed) {
     if (removed instanceof EntityImpl) {
-      ODocumentInternal.removeOwner((EntityImpl) removed, this);
+      DocumentInternal.removeOwner((EntityImpl) removed, this);
     }
     if (tracker.isEnabled()) {
       tracker.remove(index, removed);
@@ -232,15 +232,15 @@ public class TrackedList<T> extends ArrayList<T>
   }
 
   public List<T> returnOriginalState(
-      YTDatabaseSessionInternal session,
-      final List<OMultiValueChangeEvent<Integer, T>> multiValueChangeEvents) {
+      DatabaseSessionInternal session,
+      final List<MultiValueChangeEvent<Integer, T>> multiValueChangeEvents) {
     final List<T> reverted = new ArrayList<T>(this);
 
-    final ListIterator<OMultiValueChangeEvent<Integer, T>> listIterator =
+    final ListIterator<MultiValueChangeEvent<Integer, T>> listIterator =
         multiValueChangeEvents.listIterator(multiValueChangeEvents.size());
 
     while (listIterator.hasPrevious()) {
-      final OMultiValueChangeEvent<Integer, T> event = listIterator.previous();
+      final MultiValueChangeEvent<Integer, T> event = listIterator.previous();
       switch (event.getChangeType()) {
         case ADD:
           reverted.remove(event.getKey().intValue());
@@ -269,21 +269,21 @@ public class TrackedList<T> extends ArrayList<T>
   }
 
   @Override
-  public void replace(OMultiValueChangeEvent<Object, Object> event, Object newValue) {
+  public void replace(MultiValueChangeEvent<Object, Object> event, Object newValue) {
     super.set((Integer) event.getKey(), (T) newValue);
   }
 
   public void enableTracking(RecordElement parent) {
     if (!tracker.isEnabled()) {
       tracker.enable();
-      OTrackedMultiValue.nestedEnabled(this.iterator(), this);
+      TrackedMultiValue.nestedEnabled(this.iterator(), this);
     }
   }
 
   public void disableTracking(RecordElement parent) {
     if (tracker.isEnabled()) {
       tracker.disable();
-      OTrackedMultiValue.nestedDisable(this.iterator(), this);
+      TrackedMultiValue.nestedDisable(this.iterator(), this);
     }
     this.dirty = false;
   }
@@ -291,7 +291,7 @@ public class TrackedList<T> extends ArrayList<T>
   @Override
   public void transactionClear() {
     tracker.transactionClear();
-    OTrackedMultiValue.nestedTransactionClear(this.iterator());
+    TrackedMultiValue.nestedTransactionClear(this.iterator());
     this.transactionDirty = false;
   }
 
@@ -306,11 +306,11 @@ public class TrackedList<T> extends ArrayList<T>
   }
 
   @Override
-  public OMultiValueChangeTimeLine<Object, Object> getTimeLine() {
+  public MultiValueChangeTimeLine<Object, Object> getTimeLine() {
     return tracker.getTimeLine();
   }
 
-  public OMultiValueChangeTimeLine<Integer, T> getTransactionTimeLine() {
+  public MultiValueChangeTimeLine<Integer, T> getTransactionTimeLine() {
     return tracker.getTransactionTimeLine();
   }
 }

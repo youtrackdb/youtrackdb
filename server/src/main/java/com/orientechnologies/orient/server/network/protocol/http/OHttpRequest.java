@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.jetbrains.youtrack.db.internal.core.config.YTContextConfiguration;
-import com.jetbrains.youtrack.db.internal.core.security.OParsedToken;
+import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.security.ParsedToken;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
 import com.orientechnologies.orient.server.network.protocol.http.multipart.OHttpMultipartBaseInputStream;
 import java.io.InputStream;
@@ -35,7 +35,7 @@ public interface OHttpRequest {
 
   String getUrl();
 
-  YTContextConfiguration getConfiguration();
+  ContextConfiguration getConfiguration();
 
   InputStream getIn();
 
@@ -107,7 +107,7 @@ public interface OHttpRequest {
 
   void setBearerTokenRaw(String bearerTokenRaw);
 
-  OParsedToken getBearerToken();
+  ParsedToken getBearerToken();
 
-  void setBearerToken(OParsedToken bearerToken);
+  void setBearerToken(ParsedToken bearerToken);
 }

@@ -2,9 +2,9 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -85,8 +85,8 @@ public class SQLClusterList extends SimpleNode {
     return clusters != null ? clusters.hashCode() : 0;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     if (clusters != null) {
       result.setProperty(
           "clusters", clusters.stream().map(x -> x.serialize(db)).collect(Collectors.toList()));
@@ -94,11 +94,11 @@ public class SQLClusterList extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     if (fromResult.getProperty("clusters") != null) {
       clusters = new ArrayList<>();
-      List<YTResult> ser = fromResult.getProperty("clusters");
-      for (YTResult item : ser) {
+      List<Result> ser = fromResult.getProperty("clusters");
+      for (Result item : ser) {
         SQLIdentifier id = SQLIdentifier.deserialize(item);
         clusters.add(id);
       }

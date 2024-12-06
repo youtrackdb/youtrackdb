@@ -23,7 +23,7 @@ package com.orientechnologies.orient.core.db;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
@@ -49,7 +49,7 @@ public class JournaledTxStreamingTest {
   private File buildDir;
   private Process serverProcess;
   private YouTrackDB ctx;
-  private YTDatabaseSessionInternal db;
+  private DatabaseSessionInternal db;
   private DataInputStream stream;
 
   @Before
@@ -75,7 +75,7 @@ public class JournaledTxStreamingTest {
         .close();
 
     db =
-        (YTDatabaseSessionInternal)
+        (DatabaseSessionInternal)
             ctx.open(JournaledTxStreamingTest.class.getSimpleName(), "root", "root");
 
     final Socket socket = new Socket();

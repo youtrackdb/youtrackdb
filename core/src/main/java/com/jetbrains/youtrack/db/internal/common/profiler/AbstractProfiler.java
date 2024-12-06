@@ -23,13 +23,13 @@ package com.jetbrains.youtrack.db.internal.common.profiler;
 import com.jetbrains.youtrack.db.internal.common.concur.resource.SharedResourceAbstract;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.util.OPair;
+import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBStartupListener;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OReadCache;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OWriteCache;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.ReadCache;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
 import java.io.File;
 import java.io.PrintStream;
@@ -49,7 +49,7 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 public abstract class AbstractProfiler extends SharedResourceAbstract
-    implements OProfiler, YouTrackDBStartupListener, OProfilerMXBean {
+    implements Profiler, YouTrackDBStartupListener, ProfilerMXBean {
 
   protected final Map<String, ProfilerHookRuntime> hooks =
       new ConcurrentHashMap<String, ProfilerHookRuntime>();
@@ -59,7 +59,7 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
       new ConcurrentHashMap<String, METRIC_TYPE>();
   protected long recordingFrom = -1;
   protected TimerTask autoDumpTask;
-  protected List<OProfilerListener> listeners = new ArrayList<OProfilerListener>();
+  protected List<ProfilerListener> listeners = new ArrayList<ProfilerListener>();
 
   private static long statsCreateRecords = 0;
   private static long statsReadRecords = 0;
@@ -86,12 +86,12 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
     }
   }
 
-  public class OProfilerHookStatic {
+  public class ProfilerHookStatic {
 
     public Object value;
     public METRIC_TYPE type;
 
-    public OProfilerHookStatic(final Object value, final METRIC_TYPE type) {
+    public ProfilerHookStatic(final Object value, final METRIC_TYPE type) {
       this.value = value;
       this.type = type;
     }
@@ -107,8 +107,8 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
 
         for (Storage s : YouTrackDBManager.instance().getStorages()) {
           if (s instanceof LocalPaginatedStorage) {
-            final OReadCache dk = ((LocalPaginatedStorage) s).getReadCache();
-            final OWriteCache wk = ((LocalPaginatedStorage) s).getWriteCache();
+            final ReadCache dk = ((LocalPaginatedStorage) s).getReadCache();
+            final WriteCache wk = ((LocalPaginatedStorage) s).getWriteCache();
             if (dk == null || wk == null)
             // NOT YET READY
             {
@@ -277,7 +277,7 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
 
           final List<String> chronos = YouTrackDBManager.instance().getProfiler().getChronos();
           for (String c : chronos) {
-            final OProfilerEntry chrono = YouTrackDBManager.instance().getProfiler().getChrono(c);
+            final ProfilerEntry chrono = YouTrackDBManager.instance().getProfiler().getChrono(c);
             if (chrono != null) {
               if (c.startsWith("db.") && c.contains(".command.")) {
                 lastCommands += chrono.entries;
@@ -470,7 +470,7 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
   }
 
   @Override
-  public OProfilerEntry getChrono(String string) {
+  public ProfilerEntry getChrono(String string) {
     return null;
   }
 
@@ -559,13 +559,13 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
   }
 
   @Override
-  public Map<String, OPair<String, METRIC_TYPE>> getMetadata() {
-    final Map<String, OPair<String, METRIC_TYPE>> metadata =
-        new HashMap<String, OPair<String, METRIC_TYPE>>();
+  public Map<String, Pair<String, METRIC_TYPE>> getMetadata() {
+    final Map<String, Pair<String, METRIC_TYPE>> metadata =
+        new HashMap<String, Pair<String, METRIC_TYPE>>();
     for (Entry<String, String> entry : dictionary.entrySet()) {
       metadata.put(
           entry.getKey(),
-          new OPair<String, METRIC_TYPE>(entry.getValue(), types.get(entry.getKey())));
+          new Pair<String, METRIC_TYPE>(entry.getValue(), types.get(entry.getKey())));
     }
     return metadata;
   }
@@ -649,12 +649,12 @@ public abstract class AbstractProfiler extends SharedResourceAbstract
   }
 
   @Override
-  public void registerListener(OProfilerListener listener) {
+  public void registerListener(ProfilerListener listener) {
     listeners.add(listener);
   }
 
   @Override
-  public void unregisterListener(OProfilerListener listener) {
+  public void unregisterListener(ProfilerListener listener) {
     listeners.remove(listener);
   }
 

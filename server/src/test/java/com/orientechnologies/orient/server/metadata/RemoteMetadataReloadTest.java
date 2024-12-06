@@ -6,8 +6,8 @@ import static org.junit.Assert.assertNotNull;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.server.OServer;
@@ -22,7 +22,7 @@ public class RemoteMetadataReloadTest {
   private static final String SERVER_DIRECTORY = "./target/metadata-reload";
   private OServer server;
   private YouTrackDB youTrackDB;
-  private YTDatabaseSessionInternal database;
+  private DatabaseSessionInternal database;
 
   @Before
   public void before() throws Exception {
@@ -37,7 +37,7 @@ public class RemoteMetadataReloadTest {
         "create database ? memory users (admin identified by 'admin' role admin)",
         RemoteMetadataReloadTest.class.getSimpleName());
     database =
-        (YTDatabaseSessionInternal)
+        (DatabaseSessionInternal)
             youTrackDB.open(RemoteMetadataReloadTest.class.getSimpleName(), "admin", "admin");
   }
 

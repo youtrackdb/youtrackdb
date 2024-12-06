@@ -32,7 +32,7 @@ public class SQLFunctionDifferenceTest {
 
   @Test
   public void testExecute() {
-    final OSQLFunctionDifference function = new OSQLFunctionDifference();
+    final SQLFunctionDifference function = new SQLFunctionDifference();
 
     List<List<Object>> incomes =
         Arrays.asList(

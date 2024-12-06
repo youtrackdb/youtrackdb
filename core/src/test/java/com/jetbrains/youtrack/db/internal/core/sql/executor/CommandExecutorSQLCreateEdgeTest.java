@@ -1,8 +1,8 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.HashMap;
 import org.junit.Assert;
@@ -14,7 +14,7 @@ import org.junit.runners.JUnit4;
  *
  */
 @RunWith(JUnit4.class)
-public class CommandExecutorSQLCreateEdgeTest extends DBTestBase {
+public class CommandExecutorSQLCreateEdgeTest extends DbTestBase {
 
   private EntityImpl owner1;
   private EntityImpl owner2;
@@ -22,7 +22,7 @@ public class CommandExecutorSQLCreateEdgeTest extends DBTestBase {
   public void beforeTest() throws Exception {
     super.beforeTest();
 
-    final YTSchema schema = db.getMetadata().getSchema();
+    final Schema schema = db.getMetadata().getSchema();
     schema.createClass("Owner", schema.getClass("V"));
     schema.createClass("link", schema.getClass("E"));
 
@@ -49,9 +49,9 @@ public class CommandExecutorSQLCreateEdgeTest extends DBTestBase {
         .close();
     db.commit();
 
-    YTResultSet list = db.query("SELECT FROM link");
+    ResultSet list = db.query("SELECT FROM link");
 
-    YTResult res = list.next();
+    Result res = list.next();
     Assert.assertEquals(res.getProperty("foo"), "123");
     Assert.assertFalse(list.hasNext());
   }
@@ -71,9 +71,9 @@ public class CommandExecutorSQLCreateEdgeTest extends DBTestBase {
         .close();
     db.commit();
 
-    YTResultSet list = db.query("SELECT FROM link");
+    ResultSet list = db.query("SELECT FROM link");
 
-    YTResult edge = list.next();
+    Result edge = list.next();
     Assert.assertEquals(edge.getProperty("foo"), "bar");
     Assert.assertEquals(edge.getProperty("out"), owner1.getIdentity());
     Assert.assertEquals(edge.getProperty("in"), owner2.getIdentity());
@@ -89,7 +89,7 @@ public class CommandExecutorSQLCreateEdgeTest extends DBTestBase {
     }
 
     db.begin();
-    YTResultSet edges =
+    ResultSet edges =
         db.command(
             "CREATE EDGE link from (select from owner where testbatch = true and id > 0) TO (select"
                 + " from owner where testbatch = true and id = 0) batch 10",
@@ -98,9 +98,9 @@ public class CommandExecutorSQLCreateEdgeTest extends DBTestBase {
 
     Assert.assertEquals(edges.stream().count(), 19);
 
-    YTResultSet list = db.query("select from owner where testbatch = true and id = 0");
+    ResultSet list = db.query("select from owner where testbatch = true and id = 0");
 
-    YTResult res = list.next();
+    Result res = list.next();
     Assert.assertEquals(((RidBag) res.getProperty("in_link")).size(), 19);
     Assert.assertFalse(list.hasNext());
   }

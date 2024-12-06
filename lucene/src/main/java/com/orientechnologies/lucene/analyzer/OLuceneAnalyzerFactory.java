@@ -1,9 +1,9 @@
 package com.orientechnologies.lucene.analyzer;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.YTIndexException;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.Locale;
@@ -18,7 +18,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 public class OLuceneAnalyzerFactory {
 
   public Analyzer createAnalyzer(
-      final OIndexDefinition index, final AnalyzerKind kind, final Map<String, ?> metadata) {
+      final IndexDefinition index, final AnalyzerKind kind, final Map<String, ?> metadata) {
     if (index == null) {
       throw new IllegalArgumentException("Index must not be null");
     }
@@ -48,7 +48,7 @@ public class OLuceneAnalyzerFactory {
   }
 
   private void setDefaultAnalyzerForRequestedKind(
-      final OIndexDefinition index,
+      final IndexDefinition index,
       final AnalyzerKind kind,
       final Map<String, ?> metadata,
       final String prefix,
@@ -63,7 +63,7 @@ public class OLuceneAnalyzerFactory {
   }
 
   private void setSpecializedAnalyzersForEachField(
-      final OIndexDefinition index,
+      final IndexDefinition index,
       final AnalyzerKind kind,
       final Map<String, ?> metadata,
       final String prefix,
@@ -90,8 +90,8 @@ public class OLuceneAnalyzerFactory {
       final Constructor constructor = classAnalyzer.getConstructor();
       return (Analyzer) constructor.newInstance();
     } catch (final ClassNotFoundException e) {
-      throw YTException.wrapException(
-          new YTIndexException("Analyzer: " + analyzerFQN + " not found"), e);
+      throw BaseException.wrapException(
+          new IndexException("Analyzer: " + analyzerFQN + " not found"), e);
     } catch (final NoSuchMethodException e) {
       Class classAnalyzer = null;
       try {
@@ -100,8 +100,8 @@ public class OLuceneAnalyzerFactory {
       } catch (Exception e1) {
         LogManager.instance().error(this, "Exception is suppressed, original exception is ", e);
         //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
-        throw YTException.wrapException(
-            new YTIndexException("Couldn't instantiate analyzer:  public constructor  not found"),
+        throw BaseException.wrapException(
+            new IndexException("Couldn't instantiate analyzer:  public constructor  not found"),
             e1);
       }
     } catch (Exception e) {
@@ -120,11 +120,11 @@ public class OLuceneAnalyzerFactory {
       final Constructor constructor = classAnalyzer.getDeclaredConstructor(CharArraySet.class);
       return (Analyzer) constructor.newInstance(new CharArraySet(stopwords, true));
     } catch (final ClassNotFoundException e) {
-      throw YTException.wrapException(
-          new YTIndexException("Analyzer: " + analyzerFQN + " not found"), e);
+      throw BaseException.wrapException(
+          new IndexException("Analyzer: " + analyzerFQN + " not found"), e);
     } catch (final NoSuchMethodException e) {
-      throw YTException.wrapException(
-          new YTIndexException("Couldn't instantiate analyzer: public constructor not found"), e);
+      throw BaseException.wrapException(
+          new IndexException("Couldn't instantiate analyzer: public constructor not found"), e);
     } catch (final Exception e) {
       LogManager.instance()
           .error(

@@ -1,31 +1,31 @@
 package com.orientechnologies.orient.server.token;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.OToken;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.YTUser;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.OJsonWebToken;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.OJwtPayload;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.OTokenHeader;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.OrientJwtHeader;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.JwtPayload;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.TokenHeader;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.YouTrackDBJwtHeader;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 
 /**
  *
  */
-public class JsonWebToken implements OJsonWebToken, OToken {
+public class JsonWebToken implements
+    com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.JsonWebToken, Token {
 
-  public final OTokenHeader header;
-  public final OJwtPayload payload;
+  public final TokenHeader header;
+  public final JwtPayload payload;
   private boolean isVerified;
   private boolean isValid;
 
   public JsonWebToken() {
-    this(new OrientJwtHeader(), new OrientJwtPayload());
+    this(new YouTrackDBJwtHeader(), new OrientJwtPayload());
   }
 
-  public JsonWebToken(OTokenHeader header, OJwtPayload payload) {
+  public JsonWebToken(TokenHeader header, JwtPayload payload) {
     isVerified = false;
     isValid = false;
     this.header = header;
@@ -33,12 +33,12 @@ public class JsonWebToken implements OJsonWebToken, OToken {
   }
 
   @Override
-  public OTokenHeader getHeader() {
+  public TokenHeader getHeader() {
     return header;
   }
 
   @Override
-  public OJwtPayload getPayload() {
+  public JwtPayload getPayload() {
     return payload;
   }
 
@@ -78,7 +78,7 @@ public class JsonWebToken implements OJsonWebToken, OToken {
   }
 
   @Override
-  public YTRID getUserId() {
+  public RID getUserId() {
     return payload.getUserRid();
   }
 
@@ -88,14 +88,14 @@ public class JsonWebToken implements OJsonWebToken, OToken {
   }
 
   @Override
-  public YTUser getUser(YTDatabaseSessionInternal db) {
-    YTRID userRid = payload.getUserRid();
+  public SecurityUserIml getUser(DatabaseSessionInternal db) {
+    RID userRid = payload.getUserRid();
     EntityImpl result;
     result = db.load(userRid);
-    if (!ODocumentInternal.getImmutableSchemaClass(result).isOuser()) {
+    if (!DocumentInternal.getImmutableSchemaClass(result).isOuser()) {
       result = null;
     }
-    return new YTUser(db, result);
+    return new SecurityUserIml(db, result);
   }
 
   @Override

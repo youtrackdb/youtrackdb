@@ -1,15 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.index.YTIndexException;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.index.IndexException;
 import org.junit.Test;
 
 /**
  *
  */
-public class CreateIndexCommandTest extends DBTestBase {
+public class CreateIndexCommandTest extends DbTestBase {
 
-  @Test(expected = YTIndexException.class)
+  @Test(expected = IndexException.class)
   public void testCreateIndexOnMissingPropertyWithCollate() {
     db.getMetadata().getSchema().createClass("Test");
     db.command(" create index Test.test on Test(test collate ci) UNIQUE").close();

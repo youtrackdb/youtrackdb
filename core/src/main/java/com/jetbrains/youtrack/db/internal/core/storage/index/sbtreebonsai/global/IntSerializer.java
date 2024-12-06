@@ -1,10 +1,10 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.global;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OBinarySerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALChanges;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.BinarySerializer;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALChanges;
 import java.nio.ByteBuffer;
 
-public final class IntSerializer implements OBinarySerializer<Integer> {
+public final class IntSerializer implements BinarySerializer<Integer> {
 
   public static final IntSerializer INSTANCE = new IntSerializer();
 
@@ -124,7 +124,7 @@ public final class IntSerializer implements OBinarySerializer<Integer> {
 
   @Override
   public Integer deserializeFromByteBufferObject(
-      ByteBuffer buffer, OWALChanges walChanges, int offset) {
+      ByteBuffer buffer, WALChanges walChanges, int offset) {
     final int numberSize = walChanges.getByteValue(buffer, offset);
     offset++;
 
@@ -138,7 +138,7 @@ public final class IntSerializer implements OBinarySerializer<Integer> {
   }
 
   @Override
-  public int getObjectSizeInByteBuffer(ByteBuffer buffer, OWALChanges walChanges, int offset) {
+  public int getObjectSizeInByteBuffer(ByteBuffer buffer, WALChanges walChanges, int offset) {
     return walChanges.getByteValue(buffer, offset) + 1;
   }
 

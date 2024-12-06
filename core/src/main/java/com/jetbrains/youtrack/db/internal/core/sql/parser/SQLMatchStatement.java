@@ -2,40 +2,40 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.exception.OErrorCode;
-import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
+import com.jetbrains.youtrack.db.internal.common.exception.ErrorCode;
+import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.util.OPairLongObject;
+import com.jetbrains.youtrack.db.internal.common.util.PairLongObject;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLResultsetDelegate;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLSelect;
-import com.jetbrains.youtrack.db.internal.core.sql.OIterableRecordSource;
-import com.jetbrains.youtrack.db.internal.core.sql.YTCommandSQLParsingException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OInternalExecutionPlan;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OMatchExecutionPlanner;
+import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
+import com.jetbrains.youtrack.db.internal.core.sql.IterableRecordSource;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.MatchExecutionPlanner;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.PatternEdge;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.PatternNode;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.OSQLTarget;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OBasicLegacyResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLAsynchQuery;
-import com.jetbrains.youtrack.db.internal.core.sql.query.OSQLSynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLTarget;
+import com.jetbrains.youtrack.db.internal.core.sql.query.BasicLegacyResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
+import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -55,11 +55,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
-    OIterableRecordSource {
+    IterableRecordSource {
 
-  static final String DEFAULT_ALIAS_PREFIX = "$ORIENT_DEFAULT_ALIAS_";
+  static final String DEFAULT_ALIAS_PREFIX = "$YOUTRACKDB_DEFAULT_ALIAS_";
 
-  private OSQLAsynchQuery<EntityImpl> request;
+  private SQLAsynchQuery<EntityImpl> request;
   public static final String KEYWORD_MATCH = "MATCH";
   // parsed data
   protected List<SQLMatchExpression> matchExpressions = new ArrayList<>();
@@ -82,7 +82,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
 
   // execution data
   private CommandContext context;
-  private OProgressListener progressListener;
+  private ProgressListener progressListener;
 
   long threshold = 20;
   private int limitFromProtocol = -1;
@@ -120,10 +120,10 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     int currentEdgeNumber = 0;
 
     Map<String, Iterable> candidates = new LinkedHashMap<String, Iterable>();
-    Map<String, YTIdentifiable> matched = new LinkedHashMap<String, YTIdentifiable>();
+    Map<String, Identifiable> matched = new LinkedHashMap<String, Identifiable>();
     Map<PatternEdge, Boolean> matchedEdges = new IdentityHashMap<PatternEdge, Boolean>();
 
-    public MatchContext copy(String alias, YTIdentifiable value) {
+    public MatchContext copy(String alias, Identifiable value) {
       MatchContext result = new MatchContext();
 
       result.candidates.putAll(candidates);
@@ -175,8 +175,8 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
+  public ResultSet execute(
+      DatabaseSessionInternal db, Object[] args, CommandContext parentCtx,
       boolean usePlanCache) {
     BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
@@ -190,38 +190,38 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
       }
     }
     ctx.setInputParameters(params);
-    OInternalExecutionPlan executionPlan;
+    InternalExecutionPlan executionPlan;
     if (usePlanCache) {
       executionPlan = createExecutionPlan(ctx, false);
     } else {
       executionPlan = createExecutionPlanNoCache(ctx, false);
     }
 
-    return new YTLocalResultSet(executionPlan);
+    return new LocalResultSet(executionPlan);
   }
 
   @Override
-  public YTResultSet execute(
-      YTDatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
+  public ResultSet execute(
+      DatabaseSessionInternal db, Map params, CommandContext parentCtx, boolean usePlanCache) {
     BasicCommandContext ctx = new BasicCommandContext();
     if (parentCtx != null) {
       ctx.setParentWithoutOverridingChild(parentCtx);
     }
     ctx.setDatabase(db);
     ctx.setInputParameters(params);
-    OInternalExecutionPlan executionPlan;
+    InternalExecutionPlan executionPlan;
     if (usePlanCache) {
       executionPlan = createExecutionPlan(ctx, false);
     } else {
       executionPlan = createExecutionPlanNoCache(ctx, false);
     }
 
-    return new YTLocalResultSet(executionPlan);
+    return new LocalResultSet(executionPlan);
   }
 
-  public OInternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
-    OMatchExecutionPlanner planner = new OMatchExecutionPlanner(this);
-    OInternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling);
+  public InternalExecutionPlan createExecutionPlan(CommandContext ctx, boolean enableProfiling) {
+    MatchExecutionPlanner planner = new MatchExecutionPlanner(this);
+    InternalExecutionPlan result = planner.createExecutionPlan(ctx, enableProfiling);
     result.setStatement(originalStatement);
     result.setGenericStatement(this.toGenericStatement());
     return result;
@@ -241,13 +241,13 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
   @Override
   public <RET extends CommandExecutor> RET parse(CommandRequest iRequest) {
     final CommandRequestText textRequest = (CommandRequestText) iRequest;
-    if (iRequest instanceof OSQLSynchQuery) {
-      request = (OSQLSynchQuery<EntityImpl>) iRequest;
-    } else if (iRequest instanceof OSQLAsynchQuery) {
-      request = (OSQLAsynchQuery<EntityImpl>) iRequest;
+    if (iRequest instanceof SQLSynchQuery) {
+      request = (SQLSynchQuery<EntityImpl>) iRequest;
+    } else if (iRequest instanceof SQLAsynchQuery) {
+      request = (SQLAsynchQuery<EntityImpl>) iRequest;
     } else {
       // BUILD A QUERY OBJECT FROM THE COMMAND REQUEST
-      request = new OSQLSynchQuery<EntityImpl>(textRequest.getText());
+      request = new SQLSynchQuery<EntityImpl>(textRequest.getText());
       if (textRequest.getResultListener() != null) {
         request.setResultListener(textRequest.getResultListener());
       }
@@ -257,7 +257,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     // please, do not look at this... refactor this ASAP with new executor structure
     final InputStream is = new ByteArrayInputStream(queryText.getBytes());
     YouTrackDBSql osql = null;
-    YTDatabaseSessionInternal db = context.getDatabase();
+    DatabaseSessionInternal db = context.getDatabase();
     try {
       if (db == null) {
         osql = new YouTrackDBSql(is);
@@ -283,8 +283,8 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
       this.returnAliases = result.returnAliases;
       this.limit = result.limit;
     } catch (ParseException e) {
-      YTCommandSQLParsingException ex = new YTCommandSQLParsingException(e, queryText);
-      OErrorCode.QUERY_PARSE_ERROR.throwException(ex.getMessage(), ex);
+      CommandSQLParsingException ex = new CommandSQLParsingException(e, queryText);
+      ErrorCode.QUERY_PARSE_ERROR.throwException(ex.getMessage(), ex);
     }
 
     buildPatterns();
@@ -364,7 +364,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
    * @return
    */
   @Override
-  public Object execute(Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     this.context.setInputParameters(iArgs);
     this.context.setDatabase(querySession);
 
@@ -380,20 +380,20 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
    * @return
    */
   public Object execute(
-      OSQLAsynchQuery<EntityImpl> request,
+      SQLAsynchQuery<EntityImpl> request,
       CommandContext context,
-      OProgressListener progressListener) {
+      ProgressListener progressListener) {
     if (orderBy != null) {
-      throw new YTCommandExecutionException("ORDER BY is not supported in MATCH on the legacy API");
+      throw new CommandExecutionException("ORDER BY is not supported in MATCH on the legacy API");
     }
     if (groupBy != null) {
-      throw new YTCommandExecutionException("GROUP BY is not supported in MATCH on the legacy API");
+      throw new CommandExecutionException("GROUP BY is not supported in MATCH on the legacy API");
     }
     if (unwind != null) {
-      throw new YTCommandExecutionException("UNWIND is not supported in MATCH on the legacy API");
+      throw new CommandExecutionException("UNWIND is not supported in MATCH on the legacy API");
     }
     if (skip != null) {
-      throw new YTCommandExecutionException("SKIP is not supported in MATCH on the legacy API");
+      throw new CommandExecutionException("SKIP is not supported in MATCH on the legacy API");
     }
 
     Map<Object, Object> iArgs = context.getInputParameters();
@@ -402,7 +402,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
       Map<String, Long> estimatedRootEntries =
           estimateRootEntries(aliasClasses, aliasFilters, context);
       if (estimatedRootEntries.containsValue(0L)) {
-        return new OBasicLegacyResultSet(); // some aliases do not match on any classes
+        return new BasicLegacyResultSet(); // some aliases do not match on any classes
       }
 
       List<EdgeTraversal> sortedEdges = getTopologicalSortedSchedule(estimatedRootEntries, pattern);
@@ -586,15 +586,15 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
 
     // Sort the possible root vertices in order of estimated size, since we want to start with a
     // small vertex set.
-    List<OPairLongObject<String>> rootWeights = new ArrayList<>();
+    List<PairLongObject<String>> rootWeights = new ArrayList<>();
     for (Map.Entry<String, Long> root : estimatedRootEntries.entrySet()) {
-      rootWeights.add(new OPairLongObject<>(root.getValue(), root.getKey()));
+      rootWeights.add(new PairLongObject<>(root.getValue(), root.getKey()));
     }
     Collections.sort(rootWeights);
 
     // Add the starting vertices, in the correct order, to an ordered set.
     Set<String> remainingStarts = new LinkedHashSet<String>();
-    for (OPairLongObject<String> item : rootWeights) {
+    for (PairLongObject<String> item : rootWeights) {
       remainingStarts.add(item.getValue());
     }
     // Add all the remaining aliases after all the suggested start points.
@@ -627,7 +627,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
         // This means there must be a cycle in our dependency graph, or all dependency-free nodes
         // are optional.
         // Therefore, the query is invalid.
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "This query contains MATCH conditions that cannot be evaluated, "
                 + "like an undefined alias or a circular dependency on a $matched condition.");
       }
@@ -646,9 +646,9 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     return resultingSchedule;
   }
 
-  protected Object getResult(OSQLAsynchQuery<EntityImpl> request) {
-    if (request instanceof OSQLSynchQuery) {
-      return ((OSQLSynchQuery<EntityImpl>) request).getResult();
+  protected Object getResult(SQLAsynchQuery<EntityImpl> request) {
+    if (request instanceof SQLSynchQuery) {
+      return ((SQLSynchQuery<EntityImpl>) request).getResult();
     }
 
     return null;
@@ -661,7 +661,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
       Map<String, String> aliasClasses,
       Map<String, SQLWhereClause> aliasFilters,
       CommandContext iCommandContext,
-      OSQLAsynchQuery<EntityImpl> request,
+      SQLAsynchQuery<EntityImpl> request,
       MatchExecutionPlan executionPlan) {
 
     var db = iCommandContext.getDatabase();
@@ -670,7 +670,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     for (Map.Entry<String, Long> entryPoint : estimatedRootEntries.entrySet()) {
       if (entryPoint.getValue() < threshold) {
         String nextAlias = entryPoint.getKey();
-        Iterable<YTIdentifiable> matches =
+        Iterable<Identifiable> matches =
             fetchAliasCandidates(nextAlias, aliasFilters, iCommandContext, aliasClasses);
 
         if (!matches.iterator().hasNext()) {
@@ -688,7 +688,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     // no nodes under threshold, guess the smallest one
     if (!rootFound) {
       String nextAlias = getNextAlias(estimatedRootEntries, matchContext);
-      Iterable<YTIdentifiable> matches =
+      Iterable<Identifiable> matches =
           fetchAliasCandidates(nextAlias, aliasFilters, iCommandContext, aliasClasses);
       if (!matches.iterator().hasNext()) {
         return true;
@@ -708,12 +708,12 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
       smallestAlias = pattern.aliasToNode.values().iterator().next().alias;
     }
     executionPlan.rootAlias = smallestAlias;
-    Iterable<YTIdentifiable> allCandidates = matchContext.candidates.get(smallestAlias);
+    Iterable<Identifiable> allCandidates = matchContext.candidates.get(smallestAlias);
 
     if (allCandidates == null) {
       SQLSelectStatement select =
           buildSelectStatement(aliasClasses.get(smallestAlias), aliasFilters.get(smallestAlias));
-      allCandidates = (Iterable) db.query(new OSQLSynchQuery<Object>(select.toString()));
+      allCandidates = (Iterable) db.query(new SQLSynchQuery<Object>(select.toString()));
     }
 
     return processContextFromCandidates(
@@ -736,11 +736,11 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
       Map<String, String> aliasClasses,
       Map<String, SQLWhereClause> aliasFilters,
       CommandContext iCommandContext,
-      OSQLAsynchQuery<EntityImpl> request,
-      Iterable<YTIdentifiable> candidates,
+      SQLAsynchQuery<EntityImpl> request,
+      Iterable<Identifiable> candidates,
       String alias,
       int startFromEdge) {
-    for (YTIdentifiable id : candidates) {
+    for (Identifiable id : candidates) {
       MatchContext childContext = matchContext.copy(alias, id);
       childContext.currentEdgeNumber = startFromEdge;
       if (!processContext(
@@ -757,14 +757,14 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     return true;
   }
 
-  private Iterable<YTIdentifiable> fetchAliasCandidates(
+  private Iterable<Identifiable> fetchAliasCandidates(
       String nextAlias,
       Map<String, SQLWhereClause> aliasFilters,
       CommandContext iCommandContext,
       Map<String, String> aliasClasses) {
-    Iterator<YTIdentifiable> it =
+    Iterator<Identifiable> it =
         query(aliasClasses.get(nextAlias), aliasFilters.get(nextAlias), iCommandContext);
-    Set<YTIdentifiable> result = new HashSet<YTIdentifiable>();
+    Set<Identifiable> result = new HashSet<Identifiable>();
     while (it.hasNext()) {
       result.add(it.next().getIdentity());
     }
@@ -779,7 +779,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
       Map<String, String> aliasClasses,
       Map<String, SQLWhereClause> aliasFilters,
       CommandContext iCommandContext,
-      OSQLAsynchQuery<EntityImpl> request) {
+      SQLAsynchQuery<EntityImpl> request) {
 
     var db = iCommandContext.getDatabase();
     iCommandContext.setVariable("$matched", matchContext.matched);
@@ -802,7 +802,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
 
       if (!matchContext.matchedEdges.containsKey(outEdge)) {
 
-        YTIdentifiable startingPoint = matchContext.matched.get(outEdge.out.alias);
+        Identifiable startingPoint = matchContext.matched.get(outEdge.out.alias);
         if (startingPoint == null) {
           // restart from candidates (disjoint patterns? optional? just could not proceed from last
           // node?)
@@ -849,8 +849,8 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
           rightValues = Collections.singleton(rightValues);
         }
         String rightClassName = aliasClasses.get(outEdge.in.alias);
-        YTClass rightClass = db.getMetadata().getSchema().getClass(rightClassName);
-        for (YTIdentifiable rightValue : (Iterable<YTIdentifiable>) rightValues) {
+        SchemaClass rightClass = db.getMetadata().getSchema().getClass(rightClassName);
+        for (Identifiable rightValue : (Iterable<Identifiable>) rightValues) {
           if (rightValue == null) {
             continue; // broken graph?, null reference
           }
@@ -858,7 +858,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
           if (rightClass != null && !matchesClass(rightValue, rightClass)) {
             continue;
           }
-          Iterable<YTIdentifiable> prevMatchedRightValues =
+          Iterable<Identifiable> prevMatchedRightValues =
               matchContext.candidates.get(outEdge.in.alias);
 
           if (matchContext.matched.containsKey(outEdge.in.alias)) {
@@ -887,7 +887,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
               && prevMatchedRightValues.iterator().hasNext()) { // just matching against
             // known
             // values
-            for (YTIdentifiable id : prevMatchedRightValues) {
+            for (Identifiable id : prevMatchedRightValues) {
               if (id.getIdentity().equals(rightValue.getIdentity())) {
                 MatchContext childContext = matchContext.copy(outEdge.in.alias, id);
                 childContext.currentEdgeNumber = matchContext.currentEdgeNumber + 1;
@@ -950,14 +950,14 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
               return false;
             }
           }
-          if (leftValues instanceof YTIdentifiable || !(leftValues instanceof Iterable)) {
+          if (leftValues instanceof Identifiable || !(leftValues instanceof Iterable)) {
             leftValues = Collections.singleton(leftValues);
           }
 
           String leftClassName = aliasClasses.get(inEdge.out.alias);
-          YTClass leftClass = db.getMetadata().getSchema().getClass(leftClassName);
+          SchemaClass leftClass = db.getMetadata().getSchema().getClass(leftClassName);
 
-          for (YTIdentifiable leftValue : (Iterable<YTIdentifiable>) leftValues) {
+          for (Identifiable leftValue : (Iterable<Identifiable>) leftValues) {
             if (leftValue == null) {
               continue; // broken graph? null reference
             }
@@ -965,7 +965,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
             if (leftClass != null && !matchesClass(leftValue, leftClass)) {
               continue;
             }
-            Iterable<YTIdentifiable> prevMatchedRightValues =
+            Iterable<Identifiable> prevMatchedRightValues =
                 matchContext.candidates.get(inEdge.out.alias);
 
             if (matchContext.matched.containsKey(inEdge.out.alias)) {
@@ -994,7 +994,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
                 && prevMatchedRightValues.iterator().hasNext()) { // just matching against
               // known
               // values
-              for (YTIdentifiable id : prevMatchedRightValues) {
+              for (Identifiable id : prevMatchedRightValues) {
                 if (id.getIdentity().equals(leftValue.getIdentity())) {
                   MatchContext childContext = matchContext.copy(inEdge.out.alias, id);
                   childContext.currentEdgeNumber = matchContext.currentEdgeNumber + 1;
@@ -1015,7 +1015,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
             } else { // searching for neighbors
               SQLWhereClause where = aliasFilters.get(inEdge.out.alias);
               String className = aliasClasses.get(inEdge.out.alias);
-              YTClass oClass = db.getMetadata().getSchema().getClass(className);
+              SchemaClass oClass = db.getMetadata().getSchema().getClass(className);
               if ((oClass == null || matchesClass(leftValue, oClass))
                   && (where == null || where.matchesFilters(leftValue, iCommandContext))) {
                 MatchContext childContext =
@@ -1041,34 +1041,34 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     return true;
   }
 
-  private boolean matchesClass(YTIdentifiable identifiable, YTClass oClass) {
+  private boolean matchesClass(Identifiable identifiable, SchemaClass oClass) {
     if (identifiable == null) {
       return false;
     }
     try {
       Record record = identifiable.getRecord();
       if (record instanceof EntityImpl) {
-        YTClass schemaClass = ODocumentInternal.getImmutableSchemaClass(((EntityImpl) record));
+        SchemaClass schemaClass = DocumentInternal.getImmutableSchemaClass(((EntityImpl) record));
         if (schemaClass == null) {
           return false;
         }
         return schemaClass.isSubClassOf(oClass);
       }
       return false;
-    } catch (YTRecordNotFoundException rnf) {
+    } catch (RecordNotFoundException rnf) {
       return false;
     }
   }
 
-  private boolean contains(Object rightValues, YTIdentifiable oIdentifiable) {
+  private boolean contains(Object rightValues, Identifiable oIdentifiable) {
     if (oIdentifiable == null) {
       return true;
     }
     if (rightValues == null) {
       return false;
     }
-    if (rightValues instanceof YTIdentifiable) {
-      return ((YTIdentifiable) rightValues).getIdentity().equals(oIdentifiable.getIdentity());
+    if (rightValues instanceof Identifiable) {
+      return ((Identifiable) rightValues).getIdentity().equals(oIdentifiable.getIdentity());
     }
     Iterator iterator = null;
     if (rightValues instanceof Iterable) {
@@ -1080,8 +1080,8 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     if (iterator != null) {
       while (iterator.hasNext()) {
         Object next = iterator.next();
-        if (next instanceof YTIdentifiable) {
-          if (((YTIdentifiable) next).getIdentity().equals(oIdentifiable.getIdentity())) {
+        if (next instanceof Identifiable) {
+          if (((Identifiable) next).getIdentity().equals(oIdentifiable.getIdentity())) {
             return true;
           }
         }
@@ -1116,18 +1116,18 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
       Map<String, String> aliasClasses,
       Map<String, SQLWhereClause> aliasFilters,
       CommandContext iCommandContext,
-      OSQLAsynchQuery<EntityImpl> request) {
+      SQLAsynchQuery<EntityImpl> request) {
     for (String alias : pattern.aliasToNode.keySet()) {
       if (!matchContext.matched.containsKey(alias)) {
         String target = aliasClasses.get(alias);
         if (target == null) {
-          throw new YTCommandExecutionException(
+          throw new CommandExecutionException(
               "Cannot execute MATCH statement on alias " + alias + ": class not defined");
         }
 
-        Iterable<YTIdentifiable> values =
+        Iterable<Identifiable> values =
             fetchAliasCandidates(alias, aliasFilters, iCommandContext, aliasClasses);
-        for (YTIdentifiable id : values) {
+        for (Identifiable id : values) {
           MatchContext childContext = matchContext.copy(alias, id);
           if (allNodesCalculated(childContext, pattern)) {
             // false if limit reached
@@ -1161,12 +1161,12 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
   }
 
   private boolean addResult(
-      MatchContext matchContext, OSQLAsynchQuery<EntityImpl> request, CommandContext ctx) {
+      MatchContext matchContext, SQLAsynchQuery<EntityImpl> request, CommandContext ctx) {
 
     var db = ctx.getDatabase();
     EntityImpl doc = null;
     if (returnsElements()) {
-      for (Map.Entry<String, YTIdentifiable> entry : matchContext.matched.entrySet()) {
+      for (Map.Entry<String, Identifiable> entry : matchContext.matched.entrySet()) {
         if (isExplicitAlias(entry.getKey()) && entry.getValue() != null) {
           try {
             Record record = entry.getValue().getRecord();
@@ -1175,13 +1175,13 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
                 return false;
               }
             }
-          } catch (YTRecordNotFoundException rnf) {
+          } catch (RecordNotFoundException rnf) {
             return false;
           }
         }
       }
     } else if (returnsPathElements()) {
-      for (Map.Entry<String, YTIdentifiable> entry : matchContext.matched.entrySet()) {
+      for (Map.Entry<String, Identifiable> entry : matchContext.matched.entrySet()) {
         if (entry.getValue() != null) {
           try {
             Record record = entry.getValue().getRecord();
@@ -1190,7 +1190,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
                 return false;
               }
             }
-          } catch (YTRecordNotFoundException rnf) {
+          } catch (RecordNotFoundException rnf) {
             return false;
           }
         }
@@ -1198,7 +1198,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     } else if (returnsPatterns()) {
       doc = db.newInstance();
       doc.setTrackingChanges(false);
-      for (Map.Entry<String, YTIdentifiable> entry : matchContext.matched.entrySet()) {
+      for (Map.Entry<String, Identifiable> entry : matchContext.matched.entrySet()) {
         if (isExplicitAlias(entry.getKey())) {
           doc.field(entry.getKey(), entry.getValue());
         }
@@ -1206,7 +1206,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     } else if (returnsPaths()) {
       doc = db.newInstance();
       doc.setTrackingChanges(false);
-      for (Map.Entry<String, YTIdentifiable> entry : matchContext.matched.entrySet()) {
+      for (Map.Entry<String, Identifiable> entry : matchContext.matched.entrySet()) {
         doc.field(entry.getKey(), entry.getValue());
       }
     } else if (returnsJson()) {
@@ -1232,7 +1232,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
         // Force Embedded Document
         if (executed instanceof EntityImpl && !((EntityImpl) executed).getIdentity()
             .isValid()) {
-          doc.setProperty(returnAlias.getStringValue(), executed, YTType.EMBEDDED);
+          doc.setProperty(returnAlias.getStringValue(), executed, PropertyType.EMBEDDED);
         } else {
           doc.setProperty(returnAlias.getStringValue(), executed);
         }
@@ -1255,7 +1255,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
    * @return false if limit was reached
    */
   private boolean addSingleResult(
-      OSQLAsynchQuery<EntityImpl> request, BasicCommandContext ctx, Record record) {
+      SQLAsynchQuery<EntityImpl> request, BasicCommandContext ctx, Record record) {
     if (((BasicCommandContext) context).addToUniqueResult(record)) {
       request.getResultListener().result(ctx.getDatabase(), record);
       long currentCount = ctx.getResultsProcessed().incrementAndGet();
@@ -1329,13 +1329,13 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     return !key.startsWith(DEFAULT_ALIAS_PREFIX);
   }
 
-  private Iterator<YTIdentifiable> query(
+  private Iterator<Identifiable> query(
       String className, SQLWhereClause oWhereClause, CommandContext ctx) {
     final var database = ctx.getDatabase();
-    YTClass schemaClass = database.getMetadata().getSchema().getClass(className);
+    SchemaClass schemaClass = database.getMetadata().getSchema().getClass(className);
     database.checkSecurity(
-        ORule.ResourceGeneric.CLASS,
-        ORole.PERMISSION_READ,
+        Rule.ResourceGeneric.CLASS,
+        Role.PERMISSION_READ,
         schemaClass.getName().toLowerCase(Locale.ENGLISH));
 
     Iterable<Record> baseIterable = fetchFromIndex(schemaClass, oWhereClause);
@@ -1363,7 +1363,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
       //        replaceIdentifier(oWhereClause, "@this", "$currentMatch");
       //      }
     }
-    OSQLTarget target = new OSQLTarget(text, ctx);
+    SQLTarget target = new SQLTarget(text, ctx);
     Iterable targetResult = target.getTargetRecords();
     if (targetResult == null) {
       return null;
@@ -1405,7 +1405,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     return stm;
   }
 
-  private Iterable<Record> fetchFromIndex(YTClass schemaClass, SQLWhereClause oWhereClause) {
+  private Iterable<Record> fetchFromIndex(SchemaClass schemaClass, SQLWhereClause oWhereClause) {
     return null; // TODO
   }
 
@@ -1423,7 +1423,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     }
 
     if (lowerValue == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot calculate this pattern (maybe a circular dependency on $matched conditions)");
     }
     return lowerValue.getKey();
@@ -1438,7 +1438,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     allAliases.addAll(aliasFilters.keySet());
 
     var db = ctx.getDatabase();
-    YTSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
+    Schema schema = db.getMetadata().getImmutableSchemaSnapshot();
 
     Map<String, Long> result = new LinkedHashMap<String, Long>();
     for (String alias : allAliases) {
@@ -1448,9 +1448,9 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
       }
 
       if (!schema.existsClass(className)) {
-        throw new YTCommandExecutionException("class not defined: " + className);
+        throw new CommandExecutionException("class not defined: " + className);
       }
-      YTClass oClass = schema.getClass(className);
+      SchemaClass oClass = schema.getClass(className);
       long upperBound;
       SQLWhereClause filter = aliasFilters.get(alias);
       if (filter != null) {
@@ -1512,7 +1512,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
         } else {
           String lower = getLowerSubclass(db, clazz, previousClass);
           if (lower == null) {
-            throw new YTCommandExecutionException(
+            throw new CommandExecutionException(
                 "classes defined for alias "
                     + alias
                     + " ("
@@ -1527,16 +1527,16 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     }
   }
 
-  private String getLowerSubclass(YTDatabaseSessionInternal db, String className1,
+  private String getLowerSubclass(DatabaseSessionInternal db, String className1,
       String className2) {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass class1 = schema.getClass(className1);
-    YTClass class2 = schema.getClass(className2);
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass class1 = schema.getClass(className1);
+    SchemaClass class2 = schema.getClass(className2);
     if (class1 == null) {
-      throw new YTCommandExecutionException("Class " + className1 + " not found in the schema");
+      throw new CommandExecutionException("Class " + className1 + " not found in the schema");
     }
     if (class2 == null) {
-      throw new YTCommandExecutionException("Class " + className2 + " not found in the schema");
+      throw new CommandExecutionException("Class " + className2 + " not found in the schema");
     }
     if (class1.isSubClassOf(class2)) {
       return class1.getName();
@@ -1549,7 +1549,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
 
   @Override
   public <RET extends CommandExecutor> RET setProgressListener(
-      OProgressListener progressListener) {
+      ProgressListener progressListener) {
     this.progressListener = progressListener;
     return (RET) this;
   }
@@ -1592,7 +1592,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
 
   @Override
   public int getSecurityOperationType() {
-    return ORole.PERMISSION_READ;
+    return Role.PERMISSION_READ;
   }
 
   @Override
@@ -1738,7 +1738,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
   }
 
   @Override
-  public Iterator<YTIdentifiable> iterator(YTDatabaseSessionInternal querySession,
+  public Iterator<Identifiable> iterator(DatabaseSessionInternal querySession,
       Map<Object, Object> iArgs) {
     if (context == null) {
       var context = new BasicCommandContext();

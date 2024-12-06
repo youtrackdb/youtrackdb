@@ -13,11 +13,11 @@
  */
 package com.orientechnologies.spatial.shape;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,12 +39,12 @@ public class ORectangleShapeBuilder extends OShapeBuilder<Rectangle> {
   }
 
   @Override
-  public void initClazz(YTDatabaseSessionInternal db) {
+  public void initClazz(DatabaseSessionInternal db) {
 
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass rectangle = schema.createAbstractClass(NAME, superClass(db));
-    YTProperty coordinates = rectangle.createProperty(db, COORDINATES, YTType.EMBEDDEDLIST,
-        YTType.DOUBLE);
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass rectangle = schema.createAbstractClass(NAME, superClass(db));
+    Property coordinates = rectangle.createProperty(db, COORDINATES, PropertyType.EMBEDDEDLIST,
+        PropertyType.DOUBLE);
     coordinates.setMin(db, "4");
     coordinates.setMin(db, "4");
   }

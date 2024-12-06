@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import java.util.stream.IntStream;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class GetPropertyOnLoadValueTest extends DBTestBase {
+public class GetPropertyOnLoadValueTest extends DbTestBase {
 
   @Test
   public void testOnloadValue() {
@@ -27,7 +27,7 @@ public class GetPropertyOnLoadValueTest extends DBTestBase {
     doc.setProperty("name", "John Doe");
     doc.save();
     db.commit();
-    YTRID id = doc.getIdentity();
+    RID id = doc.getIdentity();
     db.activateOnCurrentThread();
     db.begin();
     EntityImpl doc2 = db.load(id);
@@ -122,7 +122,7 @@ public class GetPropertyOnLoadValueTest extends DBTestBase {
         after, new String(((RecordBytes) doc.getProperty("stringBlob")).toStream()));
     // no lazy load
     doc.setLazyLoad(false);
-    Assert.assertTrue(doc.getPropertyOnLoadValue("stringBlob") instanceof YTRID);
+    Assert.assertTrue(doc.getPropertyOnLoadValue("stringBlob") instanceof RID);
   }
 
   @Test

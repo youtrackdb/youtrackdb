@@ -18,7 +18,7 @@
 
 package com.orientechnologies.lucene.collections;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import java.util.Collections;
 import java.util.Iterator;
 
@@ -32,7 +32,7 @@ public class OLuceneResultSetEmpty extends OLuceneResultSet {
   }
 
   @Override
-  public Iterator<YTIdentifiable> iterator() {
+  public Iterator<Identifiable> iterator() {
     return Collections.emptyIterator();
   }
 }

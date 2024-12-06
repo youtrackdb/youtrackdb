@@ -2,14 +2,14 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,7 +19,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class SQLAlterClassStatement extends ODDLStatement {
+public class SQLAlterClassStatement extends DDLStatement {
 
   /**
    * the name of the class
@@ -29,7 +29,7 @@ public class SQLAlterClassStatement extends ODDLStatement {
   /**
    * the class property to be altered
    */
-  public YTClass.ATTRIBUTES property;
+  public SchemaClass.ATTRIBUTES property;
 
   protected SQLIdentifier identifierValue;
   protected List<SQLIdentifier> identifierListValue;
@@ -328,9 +328,9 @@ public class SQLAlterClassStatement extends ODDLStatement {
   @Override
   public ExecutionStream executeDDL(CommandContext ctx) {
     var database = ctx.getDatabase();
-    YTClass oClass = database.getMetadata().getSchema().getClass(name.getStringValue());
+    SchemaClass oClass = database.getMetadata().getSchema().getClass(name.getStringValue());
     if (oClass == null) {
-      throw new YTCommandExecutionException("Class not found: " + name);
+      throw new CommandExecutionException("Class not found: " + name);
     }
     if (property != null) {
       switch (property) {
@@ -342,9 +342,9 @@ public class SQLAlterClassStatement extends ODDLStatement {
           try {
             oClass.setName(database, identifierValue.getStringValue());
           } catch (Exception e) {
-            YTException x =
-                YTException.wrapException(
-                    new YTCommandExecutionException("Invalid class name: " + this), e);
+            BaseException x =
+                BaseException.wrapException(
+                    new CommandExecutionException("Invalid class name: " + this), e);
             throw x;
           }
           break;
@@ -353,13 +353,13 @@ public class SQLAlterClassStatement extends ODDLStatement {
             try {
               oClass.setShortName(database, identifierValue.getStringValue());
             } catch (Exception e) {
-              YTException x =
-                  YTException.wrapException(
-                      new YTCommandExecutionException("Invalid class name: " + this), e);
+              BaseException x =
+                  BaseException.wrapException(
+                      new CommandExecutionException("Invalid class name: " + this), e);
               throw x;
             }
           } else {
-            throw new YTCommandExecutionException("Invalid class name: " + this);
+            throw new CommandExecutionException("Invalid class name: " + this);
           }
           break;
         case ADDCLUSTER:
@@ -368,7 +368,7 @@ public class SQLAlterClassStatement extends ODDLStatement {
           } else if (numberValue != null) {
             oClass.addClusterId(database, numberValue.getValue().intValue());
           } else {
-            throw new YTCommandExecutionException("Invalid cluster value: " + this);
+            throw new CommandExecutionException("Invalid cluster value: " + this);
           }
           break;
         case REMOVECLUSTER:
@@ -376,12 +376,12 @@ public class SQLAlterClassStatement extends ODDLStatement {
           if (identifierValue != null) {
             clusterId = ctx.getDatabase().getClusterIdByName(identifierValue.getStringValue());
             if (clusterId < 0) {
-              throw new YTCommandExecutionException("Cluster not found: " + this);
+              throw new CommandExecutionException("Cluster not found: " + this);
             }
           } else if (numberValue != null) {
             clusterId = numberValue.getValue().intValue();
           } else {
-            throw new YTCommandExecutionException("Invalid cluster value: " + this);
+            throw new CommandExecutionException("Invalid cluster value: " + this);
           }
           oClass.removeClusterId(database, clusterId);
           break;
@@ -389,7 +389,7 @@ public class SQLAlterClassStatement extends ODDLStatement {
           if (identifierValue != null) {
             oClass.setDescription(database, identifierValue.getStringValue());
           } else {
-            throw new YTCommandExecutionException("Invalid class name: " + this);
+            throw new CommandExecutionException("Invalid class name: " + this);
           }
           break;
         case ENCRYPTION:
@@ -427,7 +427,7 @@ public class SQLAlterClassStatement extends ODDLStatement {
         case CUSTOM:
           Object value = null;
           if (customValue != null) {
-            value = customValue.execute((YTIdentifiable) null, ctx);
+            value = customValue.execute((Identifiable) null, ctx);
           }
           if (value != null) {
             value = "" + value;
@@ -442,17 +442,17 @@ public class SQLAlterClassStatement extends ODDLStatement {
       oClass.setDefaultClusterId(database, clusterId);
     }
 
-    YTResultInternal result = new YTResultInternal(database);
+    ResultInternal result = new ResultInternal(database);
     result.setProperty("operation", "ALTER CLASS");
     result.setProperty("className", name.getStringValue());
     result.setProperty("result", "OK");
     return ExecutionStream.singleton(result);
   }
 
-  private void checkNotIndexed(YTDatabaseSessionInternal session, YTClass oClass) {
-    Set<OIndex> indexes = oClass.getIndexes(session);
+  private void checkNotIndexed(DatabaseSessionInternal session, SchemaClass oClass) {
+    Set<Index> indexes = oClass.getIndexes(session);
     if (indexes != null && indexes.size() > 0) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot rename class '"
               + oClass.getName()
               + "' because it has indexes defined on it. Drop indexes before or use UNSAFE (at your"
@@ -460,9 +460,9 @@ public class SQLAlterClassStatement extends ODDLStatement {
     }
   }
 
-  private void checkNotEdge(YTClass oClass) {
+  private void checkNotEdge(SchemaClass oClass) {
     if (oClass.isSubClassOf("E")) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot alter class '"
               + oClass
               + "' because is an Edge class and could break vertices. Use UNSAFE if you want to"
@@ -470,15 +470,16 @@ public class SQLAlterClassStatement extends ODDLStatement {
     }
   }
 
-  private void doSetSuperclass(CommandContext ctx, YTClass oClass, SQLIdentifier superclassName) {
+  private void doSetSuperclass(CommandContext ctx, SchemaClass oClass,
+      SQLIdentifier superclassName) {
     if (superclassName == null) {
-      throw new YTCommandExecutionException("Invalid superclass name: " + this);
+      throw new CommandExecutionException("Invalid superclass name: " + this);
     }
     var database = ctx.getDatabase();
-    YTClass superclass =
+    SchemaClass superclass =
         database.getMetadata().getSchema().getClass(superclassName.getStringValue());
     if (superclass == null) {
-      throw new YTCommandExecutionException("superclass not found: " + this);
+      throw new CommandExecutionException("superclass not found: " + this);
     }
     if (Boolean.TRUE.equals(add)) {
       oClass.addSuperClass(database, superclass);
@@ -490,26 +491,26 @@ public class SQLAlterClassStatement extends ODDLStatement {
   }
 
   private void doSetSuperclasses(
-      CommandContext ctx, YTClass oClass, List<SQLIdentifier> superclassNames) {
+      CommandContext ctx, SchemaClass oClass, List<SQLIdentifier> superclassNames) {
     var database = ctx.getDatabase();
     if (superclassNames == null) {
-      throw new YTCommandExecutionException("Invalid superclass name: " + this);
+      throw new CommandExecutionException("Invalid superclass name: " + this);
     }
-    List<YTClass> superclasses = new ArrayList<>();
+    List<SchemaClass> superclasses = new ArrayList<>();
     for (SQLIdentifier superclassName : superclassNames) {
-      YTClass superclass =
+      SchemaClass superclass =
           ctx.getDatabase().getMetadata().getSchema().getClass(superclassName.getStringValue());
       if (superclass == null) {
-        throw new YTCommandExecutionException("superclass not found: " + this);
+        throw new CommandExecutionException("superclass not found: " + this);
       }
       superclasses.add(superclass);
     }
     if (Boolean.TRUE.equals(add)) {
-      for (YTClass superclass : superclasses) {
+      for (SchemaClass superclass : superclasses) {
         oClass.addSuperClass(database, superclass);
       }
     } else if (Boolean.TRUE.equals(remove)) {
-      for (YTClass superclass : superclasses) {
+      for (SchemaClass superclass : superclasses) {
         oClass.removeSuperClass(database, superclass);
       }
     } else {

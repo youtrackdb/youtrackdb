@@ -15,9 +15,9 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTNeedRetryException;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
+import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.concurrent.atomic.AtomicLong;
 import org.testng.Assert;
@@ -42,12 +42,12 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
   class OptimisticUpdateField implements Runnable {
 
-    YTRID rid1;
-    YTRID rid2;
+    RID rid1;
+    RID rid2;
     String fieldValue = null;
     String threadName;
 
-    public OptimisticUpdateField(YTRID iRid1, YTRID iRid2, String iThreadName) {
+    public OptimisticUpdateField(RID iRid1, RID iRid2, String iThreadName) {
       super();
       rid1 = iRid1;
       rid2 = iRid2;
@@ -57,7 +57,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
     @Override
     public void run() {
       try {
-        YTDatabaseSessionInternal db = acquireSession();
+        DatabaseSessionInternal db = acquireSession();
         for (int i = 0; i < OPTIMISTIC_CYCLES; i++) {
           int retries = 0;
           while (true) {
@@ -78,7 +78,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
               counter.incrementAndGet();
               totalRetries.addAndGet(retries);
               break;
-            } catch (YTNeedRetryException e) {
+            } catch (NeedRetryException e) {
               Thread.sleep(retries * 10L);
             }
           }
@@ -93,11 +93,11 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
   class PessimisticUpdate implements Runnable {
 
-    YTRID rid;
+    RID rid;
     String threadName;
     boolean lock;
 
-    public PessimisticUpdate(YTRID iRid, String iThreadName, boolean iLock) {
+    public PessimisticUpdate(RID iRid, String iThreadName, boolean iLock) {
       super();
 
       rid = iRid;
@@ -108,7 +108,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
     @Override
     public void run() {
       try {
-        YTDatabaseSessionInternal db = acquireSession();
+        DatabaseSessionInternal db = acquireSession();
 
         for (int i = 0; i < PESSIMISTIC_CYCLES; i++) {
           String cmd = "update " + rid + " set total = total + 1";
@@ -131,9 +131,9 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
 
               break;
 
-            } catch (YTNeedRetryException e) {
+            } catch (NeedRetryException e) {
               if (lock) {
-                Assert.fail(YTNeedRetryException.class.getSimpleName() + " was encountered");
+                Assert.fail(NeedRetryException.class.getSimpleName() + " was encountered");
               }
             }
           }
@@ -149,7 +149,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
   public void concurrentOptimisticUpdates() throws Exception {
     counter.set(0);
 
-    YTDatabaseSessionInternal database = acquireSession();
+    DatabaseSessionInternal database = acquireSession();
 
     EntityImpl doc1 = database.newInstance();
     doc1.field("INIT", "ok");
@@ -157,7 +157,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
     database.save(doc1);
     database.commit();
 
-    YTRID rid1 = doc1.getIdentity();
+    RID rid1 = doc1.getIdentity();
 
     EntityImpl doc2 = database.newInstance();
     doc2.field("INIT", "ok");
@@ -166,7 +166,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
     database.save(doc2);
     database.commit();
 
-    YTRID rid2 = doc2.getIdentity();
+    RID rid2 = doc2.getIdentity();
 
     OptimisticUpdateField[] ops = new OptimisticUpdateField[THREADS];
     for (int i = 0; i < THREADS; ++i) {
@@ -221,7 +221,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
   protected void sqlUpdate(boolean lock) throws InterruptedException {
     counter.set(0);
 
-    YTDatabaseSessionInternal database = acquireSession();
+    DatabaseSessionInternal database = acquireSession();
     EntityImpl doc1 = database.newInstance();
     doc1.field("total", 0);
 
@@ -229,7 +229,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
     database.save(doc1);
     database.commit();
 
-    YTRID rid1 = doc1.getIdentity();
+    RID rid1 = doc1.getIdentity();
 
     PessimisticUpdate[] ops = new PessimisticUpdate[THREADS];
     for (int i = 0; i < THREADS; ++i) {

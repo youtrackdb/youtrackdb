@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.test.server.network.http;
 
-import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.common.util.OCallable;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
+import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.orientechnologies.orient.server.network.OServerNetworkListener;
-import com.orientechnologies.orient.server.network.protocol.http.ONetworkProtocolHttpAbstract;
+import com.orientechnologies.orient.server.network.protocol.http.NetworkProtocolHttpAbstract;
 import com.orientechnologies.orient.server.network.protocol.http.command.get.OServerCommandGetStaticContent;
 import java.io.BufferedInputStream;
 import java.net.URL;
@@ -23,8 +23,8 @@ public class HttpGetStaticContentTest extends BaseHttpTest {
   }
 
   public void registerFakeVirtualFolder() {
-    OCallable oCallable =
-        new OCallable<Object, String>() {
+    CallableFunction callableFunction =
+        new CallableFunction<Object, String>() {
           @Override
           public Object call(final String iArgument) {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -42,11 +42,11 @@ public class HttpGetStaticContentTest extends BaseHttpTest {
           }
         };
     final OServerNetworkListener httpListener =
-        getServer().getListenerByProtocol(ONetworkProtocolHttpAbstract.class);
+        getServer().getListenerByProtocol(NetworkProtocolHttpAbstract.class);
     final OServerCommandGetStaticContent command =
         (OServerCommandGetStaticContent)
             httpListener.getCommand(OServerCommandGetStaticContent.class);
-    command.registerVirtualFolder("fake", oCallable);
+    command.registerVirtualFolder("fake", callableFunction);
   }
 
   @Test
@@ -55,9 +55,9 @@ public class HttpGetStaticContentTest extends BaseHttpTest {
     Assert.assertEquals(200, response.getCode());
 
     String expected =
-        OIOUtils.readStreamAsString(
+        IOUtils.readStreamAsString(
             this.getClass().getClassLoader().getResourceAsStream("index.htm"));
-    String actual = OIOUtils.readStreamAsString(response.getEntity().getContent());
+    String actual = IOUtils.readStreamAsString(response.getEntity().getContent());
     Assert.assertEquals(expected, actual);
   }
 

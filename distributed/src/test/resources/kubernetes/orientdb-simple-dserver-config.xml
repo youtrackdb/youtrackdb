@@ -12,7 +12,7 @@
       </parameters>
     </handler>
     <handler
-      class="com.orientechnologies.orient.server.handler.OServerSideScriptInterpreter">
+      class="com.orientechnologies.orient.server.handler.ServerSideScriptInterpreter">
       <parameters>
         <parameter value="false" name="enabled"/>
       </parameters>
@@ -43,10 +43,10 @@
     </sockets>
     <protocols>
       <protocol
-        implementation="com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary"
+        implementation="com.orientechnologies.orient.server.network.protocol.binary.NetworkProtocolBinary"
         name="binary"/>
       <protocol
-        implementation="com.orientechnologies.orient.server.network.protocol.http.ONetworkProtocolHttpDb"
+        implementation="com.orientechnologies.orient.server.network.protocol.http.NetworkProtocolHttpDb"
         name="http"/>
     </protocols>
     <listeners>

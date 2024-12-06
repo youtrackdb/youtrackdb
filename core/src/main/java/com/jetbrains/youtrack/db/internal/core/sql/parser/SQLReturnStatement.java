@@ -3,10 +3,10 @@
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,19 +27,19 @@ public class SQLReturnStatement extends SQLSimpleExecStatement {
 
   @Override
   public ExecutionStream executeSimple(CommandContext ctx) {
-    List<YTResult> rs = new ArrayList<>();
+    List<Result> rs = new ArrayList<>();
 
     var database = ctx.getDatabase();
-    Object result = expression == null ? null : expression.execute((YTResult) null, ctx);
-    if (result instanceof YTResult) {
-      rs.add((YTResult) result);
-    } else if (result instanceof YTIdentifiable) {
-      YTResultInternal res = new YTResultInternal(database, (YTIdentifiable) result);
+    Object result = expression == null ? null : expression.execute((Result) null, ctx);
+    if (result instanceof Result) {
+      rs.add((Result) result);
+    } else if (result instanceof Identifiable) {
+      ResultInternal res = new ResultInternal(database, (Identifiable) result);
       rs.add(res);
-    } else if (result instanceof YTResultSet) {
-      if (!((YTResultSet) result).hasNext()) {
+    } else if (result instanceof ResultSet) {
+      if (!((ResultSet) result).hasNext()) {
         try {
-          ((YTResultSet) result).reset();
+          ((ResultSet) result).reset();
         } catch (UnsupportedOperationException ignore) {
           // just try to reset the RS, in case it was already used during the script execution
           // already
@@ -49,11 +49,11 @@ public class SQLReturnStatement extends SQLSimpleExecStatement {
           // this operation does not hurt
         }
       }
-      return ExecutionStream.resultIterator(((YTResultSet) result).stream().iterator());
+      return ExecutionStream.resultIterator(((ResultSet) result).stream().iterator());
     } else if (result instanceof ExecutionStream) {
       return (ExecutionStream) result;
     } else {
-      YTResultInternal res = new YTResultInternal(database);
+      ResultInternal res = new ResultInternal(database);
       res.setProperty("value", result);
       rs.add(res);
     }

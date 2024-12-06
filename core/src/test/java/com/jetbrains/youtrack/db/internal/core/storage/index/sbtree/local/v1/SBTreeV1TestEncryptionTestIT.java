@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v1;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.encryption.OEncryption;
-import com.jetbrains.youtrack.db.internal.core.encryption.OEncryptionFactory;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.OLinkSerializer;
+import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
+import com.jetbrains.youtrack.db.internal.core.encryption.EncryptionFactory;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.io.File;
 
@@ -28,24 +28,24 @@ public class SBTreeV1TestEncryptionTestIT extends SBTreeV1TestIT {
     databaseDocumentTx = youTrackDB.open(dbName, "admin", "admin");
 
     sbTree =
-        new OSBTreeV1<>(
+        new SBTreeV1<>(
             "sbTreeEncrypted",
             ".sbt",
             ".nbt",
             (AbstractPaginatedStorage)
-                ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage());
+                ((DatabaseSessionInternal) databaseDocumentTx).getStorage());
     storage =
-        (AbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
+        (AbstractPaginatedStorage) ((DatabaseSessionInternal) databaseDocumentTx).getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
-    final OEncryption encryption =
-        OEncryptionFactory.INSTANCE.getEncryption("aes/gcm", "T1JJRU5UREJfSVNfQ09PTA==");
+    final Encryption encryption =
+        EncryptionFactory.INSTANCE.getEncryption("aes/gcm", "T1JJRU5UREJfSVNfQ09PTA==");
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
         atomicOperation ->
             sbTree.create(
                 atomicOperation,
-                OIntegerSerializer.INSTANCE,
-                OLinkSerializer.INSTANCE,
+                IntegerSerializer.INSTANCE,
+                LinkSerializer.INSTANCE,
                 null,
                 1,
                 false,

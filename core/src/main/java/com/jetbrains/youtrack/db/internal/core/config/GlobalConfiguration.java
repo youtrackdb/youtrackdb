@@ -21,12 +21,12 @@ package com.jetbrains.youtrack.db.internal.core.config;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.profiler.OProfiler;
-import com.jetbrains.youtrack.db.internal.core.OConstants;
+import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.ORecordSerializerBinary;
-import com.jetbrains.youtrack.db.internal.core.storage.OChecksumMode;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerBinary;
+import com.jetbrains.youtrack.db.internal.core.storage.ChecksumMode;
 import java.io.PrintStream;
 import java.util.Locale;
 import java.util.Map;
@@ -252,8 +252,8 @@ public enum GlobalConfiguration {
           + " testing, but should be avoided in a production environment;"
           + " 'storeAndSwitchReadOnlyMode' (default) - Same as 'storeAndVerify' with addition that"
           + " storage will be switched in read only mode till it will not be repaired.",
-      OChecksumMode.class,
-      OChecksumMode.StoreAndSwitchReadOnlyMode,
+      ChecksumMode.class,
+      ChecksumMode.StoreAndSwitchReadOnlyMode,
       false),
 
   STORAGE_CHECK_LATEST_OPERATION_ID(
@@ -691,7 +691,7 @@ public enum GlobalConfiguration {
       true),
 
   /**
-   * @see OIndexDefinition#isNullValuesIgnored()
+   * @see IndexDefinition#isNullValuesIgnored()
    * @since 2.2
    */
   INDEX_IGNORE_NULL_VALUES_DEFAULT(
@@ -728,7 +728,7 @@ public enum GlobalConfiguration {
 
   SBTREEBONSAI_BUCKET_SIZE(
       "sbtreebonsai.bucketSize",
-      "Size of bucket in OSBTreeBonsai (in kB). Contract: bucketSize < storagePageSize,"
+      "Size of bucket in SBTreeBonsai (in kB). Contract: bucketSize < storagePageSize,"
           + " storagePageSize % bucketSize == 0",
       Integer.class,
       2),
@@ -931,7 +931,7 @@ public enum GlobalConfiguration {
       "Server info to send in HTTP responses. Change the default if you want to hide it is a"
           + " YouTrackDB Server",
       String.class,
-      "YouTrackDB Server v." + OConstants.getVersion(),
+      "YouTrackDB Server v." + YouTrackDBConstants.getVersion(),
       true),
 
   NETWORK_HTTP_MAX_CONTENT_LENGTH(
@@ -1003,21 +1003,21 @@ public enum GlobalConfiguration {
       "Enables the recording of statistics and counters",
       Boolean.class,
       false,
-      new OProfileEnabledChangeCallbac()),
+      new ProfileEnabledChangeCallbac()),
 
   PROFILER_CONFIG(
       "profiler.config",
       "Configures the profiler as <seconds-for-snapshot>,<archive-snapshot-size>,<summary-size>",
       String.class,
       null,
-      new OProfileConfigChangeCallback()),
+      new ProfileConfigChangeCallback()),
 
   PROFILER_AUTODUMP_INTERVAL(
       "profiler.autoDump.interval",
       "Dumps the profiler values at regular intervals (in seconds)",
       Integer.class,
       0,
-      new OProfileDumpIntervalChangeCallback()),
+      new ProfileDumpIntervalChangeCallback()),
 
   /**
    * @since 2.2.27
@@ -1076,7 +1076,7 @@ public enum GlobalConfiguration {
       "Console logging level",
       String.class,
       "info",
-      new OConfigurationChangeCallback() {
+      new ConfigurationChangeCallback() {
         public void change(final Object iCurrentValue, final Object iNewValue) {
           LogManager.instance().setLevel((String) iNewValue, ConsoleHandler.class);
         }
@@ -1087,7 +1087,7 @@ public enum GlobalConfiguration {
       "File logging level",
       String.class,
       "info",
-      new OConfigurationChangeCallback() {
+      new ConfigurationChangeCallback() {
         public void change(final Object iCurrentValue, final Object iNewValue) {
           LogManager.instance().setLevel((String) iNewValue, FileHandler.class);
         }
@@ -1198,7 +1198,7 @@ public enum GlobalConfiguration {
       "query.maxHeapElementsAllowedPerOp",
       "Maximum number of elements (records) allowed in a single query for memory-intensive"
           + " operations (eg. ORDER BY in heap). If exceeded, the query fails with an"
-          + " YTCommandExecutionException. Negative number means no limit.This setting is intended"
+          + " CommandExecutionException. Negative number means no limit.This setting is intended"
           + " as a safety measure against excessive resource consumption from a single query (eg."
           + " prevent OutOfMemory)",
       Long.class,
@@ -1568,7 +1568,7 @@ public enum GlobalConfiguration {
       "db.document.serializer",
       "The default record serializer used by the document database",
       String.class,
-      ORecordSerializerBinary.NAME),
+      RecordSerializerBinary.NAME),
 
   /**
    * @since 2.2
@@ -1722,7 +1722,7 @@ public enum GlobalConfiguration {
   TX_BATCH_SIZE(
       "tx.batchSize",
       "Size of the single batch by default in case of call to the"
-          + " YTDatabaseSession#executeInTxBatches call. 1_000 by default.",
+          + " DatabaseSession#executeInTxBatches call. 1_000 by default.",
       Integer.class,
       1_000),
 
@@ -1776,7 +1776,7 @@ public enum GlobalConfiguration {
   private final Object defValue;
   private final Class<?> type;
   private final String description;
-  private final OConfigurationChangeCallback changeCallback;
+  private final ConfigurationChangeCallback changeCallback;
   private final Boolean canChangeAtRuntime;
   private final boolean hidden;
   private boolean env;
@@ -1788,7 +1788,7 @@ public enum GlobalConfiguration {
       final String iDescription,
       final Class<?> iType,
       final Object iDefValue,
-      final OConfigurationChangeCallback iChangeAction) {
+      final ConfigurationChangeCallback iChangeAction) {
     key = iKey;
     description = iDescription;
     defValue = iDefValue;
@@ -1842,7 +1842,7 @@ public enum GlobalConfiguration {
 
   public static void dumpConfiguration(final PrintStream out) {
     out.print("YouTrackDB ");
-    out.print(OConstants.getVersion());
+    out.print(YouTrackDBConstants.getVersion());
     out.println(" configuration dump:");
 
     String lastSection = "";
@@ -2046,12 +2046,12 @@ public enum GlobalConfiguration {
     return description;
   }
 
-  private static class OProfileEnabledChangeCallbac implements OConfigurationChangeCallback {
+  private static class ProfileEnabledChangeCallbac implements ConfigurationChangeCallback {
 
     public void change(final Object iCurrentValue, final Object iNewValue) {
       YouTrackDBManager instance = YouTrackDBManager.instance();
       if (instance != null) {
-        final OProfiler prof = instance.getProfiler();
+        final Profiler prof = instance.getProfiler();
         if (prof != null) {
           if ((Boolean) iNewValue) {
             prof.startRecording();
@@ -2063,14 +2063,14 @@ public enum GlobalConfiguration {
     }
   }
 
-  private static class OProfileConfigChangeCallback implements OConfigurationChangeCallback {
+  private static class ProfileConfigChangeCallback implements ConfigurationChangeCallback {
 
     public void change(final Object iCurrentValue, final Object iNewValue) {
       YouTrackDBManager.instance().getProfiler().configure(iNewValue.toString());
     }
   }
 
-  private static class OProfileDumpIntervalChangeCallback implements OConfigurationChangeCallback {
+  private static class ProfileDumpIntervalChangeCallback implements ConfigurationChangeCallback {
 
     public void change(final Object iCurrentValue, final Object iNewValue) {
       YouTrackDBManager.instance().getProfiler().setAutoDump((Integer) iNewValue);

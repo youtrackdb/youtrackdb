@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.YTLocalResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.LocalResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.List;
 public class GlobalLetQueryStep extends AbstractExecutionStep {
 
   private final SQLIdentifier varName;
-  private final OInternalExecutionPlan subExecutionPlan;
+  private final InternalExecutionPlan subExecutionPlan;
 
   public GlobalLetQueryStep(
       SQLIdentifier varName,
@@ -44,7 +44,7 @@ public class GlobalLetQueryStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     if (prev != null) {
       prev.start(ctx).close(ctx);
     }
@@ -54,11 +54,11 @@ public class GlobalLetQueryStep extends AbstractExecutionStep {
   }
 
   private void calculate(CommandContext ctx) {
-    ctx.setVariable(varName.getStringValue(), toList(new YTLocalResultSet(subExecutionPlan)));
+    ctx.setVariable(varName.getStringValue(), toList(new LocalResultSet(subExecutionPlan)));
   }
 
-  private List<YTResult> toList(YTLocalResultSet oLocalResultSet) {
-    List<YTResult> result = new ArrayList<>();
+  private List<Result> toList(LocalResultSet oLocalResultSet) {
+    List<Result> result = new ArrayList<>();
     while (oLocalResultSet.hasNext()) {
       result.add(oLocalResultSet.next());
     }
@@ -79,7 +79,7 @@ public class GlobalLetQueryStep extends AbstractExecutionStep {
   }
 
   @Override
-  public List<OExecutionPlan> getSubExecutionPlans() {
+  public List<ExecutionPlan> getSubExecutionPlans() {
     return Collections.singletonList(this.subExecutionPlan);
   }
 

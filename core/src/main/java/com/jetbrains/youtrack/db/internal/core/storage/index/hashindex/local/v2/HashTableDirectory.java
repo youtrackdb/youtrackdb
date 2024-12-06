@@ -20,11 +20,11 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v2;
 
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OByteSerializer;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OLongSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.ByteSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.LongSerializer;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurableComponent;
 import java.io.IOException;
 
@@ -33,11 +33,11 @@ import java.io.IOException;
  */
 public class HashTableDirectory extends DurableComponent {
 
-  static final int ITEM_SIZE = OLongSerializer.LONG_SIZE;
+  static final int ITEM_SIZE = LongSerializer.LONG_SIZE;
 
   private static final int LEVEL_SIZE = LocalHashTableV2.MAX_LEVEL_SIZE;
 
-  static final int BINARY_LEVEL_SIZE = LEVEL_SIZE * ITEM_SIZE + 3 * OByteSerializer.BYTE_SIZE;
+  static final int BINARY_LEVEL_SIZE = LEVEL_SIZE * ITEM_SIZE + 3 * ByteSerializer.BYTE_SIZE;
 
   private long fileId;
 
@@ -52,20 +52,20 @@ public class HashTableDirectory extends DurableComponent {
     this.firstEntryIndex = 0;
   }
 
-  public void create(final OAtomicOperation atomicOperation) throws IOException {
+  public void create(final AtomicOperation atomicOperation) throws IOException {
     fileId = addFile(atomicOperation, getFullName());
     init(atomicOperation);
   }
 
-  private void init(final OAtomicOperation atomicOperation) throws IOException {
-    OCacheEntry firstEntry = loadPageForWrite(atomicOperation, fileId, firstEntryIndex, true);
+  private void init(final AtomicOperation atomicOperation) throws IOException {
+    CacheEntry firstEntry = loadPageForWrite(atomicOperation, fileId, firstEntryIndex, true);
 
     if (firstEntry == null) {
       firstEntry = addPage(atomicOperation, fileId);
       assert firstEntry.getPageIndex() == 0;
     }
 
-    try (OCacheEntry entry = firstEntry) {
+    try (CacheEntry entry = firstEntry) {
       final DirectoryFirstPageV2 firstPage = new DirectoryFirstPageV2(entry);
 
       firstPage.setTreeSize(0);
@@ -73,12 +73,12 @@ public class HashTableDirectory extends DurableComponent {
     }
   }
 
-  public void open(final OAtomicOperation atomicOperation) throws IOException {
+  public void open(final AtomicOperation atomicOperation) throws IOException {
     fileId = openFile(atomicOperation, getFullName());
     final int filledUpTo = (int) getFilledUpTo(atomicOperation, fileId);
 
     for (int i = 0; i < filledUpTo; i++) {
-      try (final OCacheEntry entry = loadPageForRead(atomicOperation, fileId, i)) {
+      try (final CacheEntry entry = loadPageForRead(atomicOperation, fileId, i)) {
         assert entry != null;
       }
     }
@@ -88,7 +88,7 @@ public class HashTableDirectory extends DurableComponent {
     readCache.closeFile(fileId, true, writeCache);
   }
 
-  public void delete(final OAtomicOperation atomicOperation) throws IOException {
+  public void delete(final AtomicOperation atomicOperation) throws IOException {
     deleteFile(atomicOperation, fileId);
   }
 
@@ -97,10 +97,10 @@ public class HashTableDirectory extends DurableComponent {
       final byte maxRightChildDepth,
       final byte nodeLocalDepth,
       final long[] newNode,
-      final OAtomicOperation atomicOperation)
+      final AtomicOperation atomicOperation)
       throws IOException {
     int nodeIndex;
-    try (final OCacheEntry firstEntry =
+    try (final CacheEntry firstEntry =
         loadPageForWrite(atomicOperation, fileId, firstEntryIndex, true)) {
       final DirectoryFirstPageV2 firstPage = new DirectoryFirstPageV2(firstEntry);
 
@@ -132,7 +132,7 @@ public class HashTableDirectory extends DurableComponent {
         final int pageIndex = nodeIndex / DirectoryPageV2.NODES_PER_PAGE;
         final int localLevel = nodeIndex % DirectoryPageV2.NODES_PER_PAGE;
 
-        OCacheEntry cacheEntry = loadPageForWrite(atomicOperation, fileId, pageIndex, true);
+        CacheEntry cacheEntry = loadPageForWrite(atomicOperation, fileId, pageIndex, true);
         while (cacheEntry == null || cacheEntry.getPageIndex() < pageIndex) {
           if (cacheEntry != null) {
             cacheEntry.close();
@@ -165,8 +165,8 @@ public class HashTableDirectory extends DurableComponent {
     return nodeIndex;
   }
 
-  void deleteNode(final int nodeIndex, final OAtomicOperation atomicOperation) throws IOException {
-    try (final OCacheEntry firstEntry =
+  void deleteNode(final int nodeIndex, final AtomicOperation atomicOperation) throws IOException {
+    try (final CacheEntry firstEntry =
         loadPageForWrite(atomicOperation, fileId, firstEntryIndex, true)) {
       final DirectoryFirstPageV2 firstPage = new DirectoryFirstPageV2(firstEntry);
       if (nodeIndex < DirectoryFirstPageV2.NODES_PER_PAGE) {
@@ -176,7 +176,7 @@ public class HashTableDirectory extends DurableComponent {
         final int pageIndex = nodeIndex / DirectoryPageV2.NODES_PER_PAGE;
         final int localNodeIndex = nodeIndex % DirectoryPageV2.NODES_PER_PAGE;
 
-        try (final OCacheEntry cacheEntry =
+        try (final CacheEntry cacheEntry =
             loadPageForWrite(atomicOperation, fileId, pageIndex, true)) {
           final DirectoryPageV2 page = new DirectoryPageV2(cacheEntry);
 
@@ -187,7 +187,7 @@ public class HashTableDirectory extends DurableComponent {
     }
   }
 
-  byte getMaxLeftChildDepth(final int nodeIndex, final OAtomicOperation atomicOperation)
+  byte getMaxLeftChildDepth(final int nodeIndex, final AtomicOperation atomicOperation)
       throws IOException {
     final DirectoryPageV2 page = loadPage(nodeIndex, false, atomicOperation);
     try {
@@ -198,7 +198,7 @@ public class HashTableDirectory extends DurableComponent {
   }
 
   void setMaxLeftChildDepth(
-      final int nodeIndex, final byte maxLeftChildDepth, final OAtomicOperation atomicOperation)
+      final int nodeIndex, final byte maxLeftChildDepth, final AtomicOperation atomicOperation)
       throws IOException {
     final DirectoryPageV2 page = loadPage(nodeIndex, true, atomicOperation);
     try {
@@ -208,7 +208,7 @@ public class HashTableDirectory extends DurableComponent {
     }
   }
 
-  byte getMaxRightChildDepth(final int nodeIndex, final OAtomicOperation atomicOperation)
+  byte getMaxRightChildDepth(final int nodeIndex, final AtomicOperation atomicOperation)
       throws IOException {
     final DirectoryPageV2 page = loadPage(nodeIndex, false, atomicOperation);
     try {
@@ -219,7 +219,7 @@ public class HashTableDirectory extends DurableComponent {
   }
 
   void setMaxRightChildDepth(
-      final int nodeIndex, final byte maxRightChildDepth, final OAtomicOperation atomicOperation)
+      final int nodeIndex, final byte maxRightChildDepth, final AtomicOperation atomicOperation)
       throws IOException {
     final DirectoryPageV2 page = loadPage(nodeIndex, true, atomicOperation);
     try {
@@ -229,7 +229,7 @@ public class HashTableDirectory extends DurableComponent {
     }
   }
 
-  byte getNodeLocalDepth(final int nodeIndex, final OAtomicOperation atomicOperation)
+  byte getNodeLocalDepth(final int nodeIndex, final AtomicOperation atomicOperation)
       throws IOException {
     final DirectoryPageV2 page = loadPage(nodeIndex, false, atomicOperation);
     try {
@@ -240,7 +240,7 @@ public class HashTableDirectory extends DurableComponent {
   }
 
   void setNodeLocalDepth(
-      final int nodeIndex, final byte localNodeDepth, final OAtomicOperation atomicOperation)
+      final int nodeIndex, final byte localNodeDepth, final AtomicOperation atomicOperation)
       throws IOException {
     final DirectoryPageV2 page = loadPage(nodeIndex, true, atomicOperation);
     try {
@@ -250,7 +250,7 @@ public class HashTableDirectory extends DurableComponent {
     }
   }
 
-  long[] getNode(final int nodeIndex, final OAtomicOperation atomicOperation) throws IOException {
+  long[] getNode(final int nodeIndex, final AtomicOperation atomicOperation) throws IOException {
     final long[] node = new long[LEVEL_SIZE];
     final DirectoryPageV2 page = loadPage(nodeIndex, false, atomicOperation);
 
@@ -266,7 +266,7 @@ public class HashTableDirectory extends DurableComponent {
     return node;
   }
 
-  void setNode(final int nodeIndex, final long[] node, final OAtomicOperation atomicOperation)
+  void setNode(final int nodeIndex, final long[] node, final AtomicOperation atomicOperation)
       throws IOException {
     final DirectoryPageV2 page = loadPage(nodeIndex, true, atomicOperation);
     try {
@@ -279,7 +279,7 @@ public class HashTableDirectory extends DurableComponent {
     }
   }
 
-  long getNodePointer(final int nodeIndex, final int index, final OAtomicOperation atomicOperation)
+  long getNodePointer(final int nodeIndex, final int index, final AtomicOperation atomicOperation)
       throws IOException {
     final DirectoryPageV2 page = loadPage(nodeIndex, false, atomicOperation);
     try {
@@ -293,7 +293,7 @@ public class HashTableDirectory extends DurableComponent {
       final int nodeIndex,
       final int index,
       final long pointer,
-      final OAtomicOperation atomicOperation)
+      final AtomicOperation atomicOperation)
       throws IOException {
     final DirectoryPageV2 page = loadPage(nodeIndex, true, atomicOperation);
     try {
@@ -303,7 +303,7 @@ public class HashTableDirectory extends DurableComponent {
     }
   }
 
-  public void clear(final OAtomicOperation atomicOperation) throws IOException {
+  public void clear(final AtomicOperation atomicOperation) throws IOException {
     truncateFile(atomicOperation, fileId);
 
     init(atomicOperation);
@@ -314,10 +314,10 @@ public class HashTableDirectory extends DurableComponent {
   }
 
   private DirectoryPageV2 loadPage(
-      final int nodeIndex, final boolean exclusiveLock, final OAtomicOperation atomicOperation)
+      final int nodeIndex, final boolean exclusiveLock, final AtomicOperation atomicOperation)
       throws IOException {
     if (nodeIndex < DirectoryFirstPageV2.NODES_PER_PAGE) {
-      final OCacheEntry cacheEntry;
+      final CacheEntry cacheEntry;
 
       if (exclusiveLock) {
         cacheEntry = loadPageForWrite(atomicOperation, fileId, firstEntryIndex, true);
@@ -330,7 +330,7 @@ public class HashTableDirectory extends DurableComponent {
 
     final int pageIndex = nodeIndex / DirectoryPageV2.NODES_PER_PAGE;
 
-    final OCacheEntry cacheEntry;
+    final CacheEntry cacheEntry;
 
     if (exclusiveLock) {
       cacheEntry = loadPageForWrite(atomicOperation, fileId, pageIndex, true);
@@ -344,9 +344,9 @@ public class HashTableDirectory extends DurableComponent {
   private void releasePage(
       final DirectoryPageV2 page,
       final boolean exclusiveLock,
-      final OAtomicOperation atomicOperation)
+      final AtomicOperation atomicOperation)
       throws IOException {
-    final OCacheEntry cacheEntry = page.getCacheEntry();
+    final CacheEntry cacheEntry = page.getCacheEntry();
 
     if (exclusiveLock) {
       releasePageFromWrite(atomicOperation, cacheEntry);

@@ -1,28 +1,28 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.local.v2;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OIntegerSerializer;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.IntegerSerializer;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.OLinkSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OReadCache;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OWriteCache;
-import com.jetbrains.youtrack.db.internal.core.storage.cluster.OClusterPage;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.ReadCache;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
+import com.jetbrains.youtrack.db.internal.core.storage.cluster.ClusterPage;
 import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.fs.OFile;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurablePage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OAtomicUnitEndRecord;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OAtomicUnitStartRecord;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OFileCreatedWALRecord;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.ONonTxOperationPerformedWALRecord;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OOperationUnitBodyRecord;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OUpdatePageRecord;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALRecord;
+import com.jetbrains.youtrack.db.internal.core.storage.fs.File;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.AtomicUnitEndRecord;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.FileCreatedWALRecord;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.AtomicUnitStartRecord;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.LogSequenceNumber;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.NonTxOperationPerformedWALRecord;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OperationUnitBodyRecord;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.UpdatePageRecord;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALRecord;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.cas.CASDiskWriteAheadLog;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.common.WriteableWALRecord;
 import java.io.IOException;
@@ -50,12 +50,12 @@ public class SBTreeV2WALTestIT extends SBTreeV2TestIT {
   }
 
   private LocalPaginatedStorage actualStorage;
-  private OWriteCache actualWriteCache;
+  private WriteCache actualWriteCache;
 
-  private YTDatabaseSession expectedDatabaseDocumentTx;
+  private DatabaseSession expectedDatabaseDocumentTx;
   private LocalPaginatedStorage expectedStorage;
-  private OReadCache expectedReadCache;
-  private OWriteCache expectedWriteCache;
+  private ReadCache expectedReadCache;
+  private WriteCache expectedWriteCache;
 
   private String expectedStorageDir;
   private String actualStorageDir;
@@ -94,7 +94,7 @@ public class SBTreeV2WALTestIT extends SBTreeV2TestIT {
 
     databaseDocumentTx = youTrackDB.open(ACTUAL_DB_NAME, "admin", "admin");
     actualStorage =
-        (LocalPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
+        (LocalPaginatedStorage) ((DatabaseSessionInternal) databaseDocumentTx).getStorage();
     actualStorageDir = actualStorage.getStoragePath().toString();
     CASDiskWriteAheadLog writeAheadLog = (CASDiskWriteAheadLog) actualStorage.getWALInstance();
 
@@ -104,14 +104,14 @@ public class SBTreeV2WALTestIT extends SBTreeV2TestIT {
     actualWriteCache = actualStorage.getWriteCache();
     atomicOperationsManager = actualStorage.getAtomicOperationsManager();
 
-    sbTree = new OSBTreeV2<>("actualSBTree", ".sbt", ".nbt", actualStorage);
+    sbTree = new SBTreeV2<>("actualSBTree", ".sbt", ".nbt", actualStorage);
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
         atomicOperation ->
             sbTree.create(
                 atomicOperation,
-                OIntegerSerializer.INSTANCE,
-                OLinkSerializer.INSTANCE,
+                IntegerSerializer.INSTANCE,
+                LinkSerializer.INSTANCE,
                 null,
                 1,
                 false,
@@ -127,7 +127,7 @@ public class SBTreeV2WALTestIT extends SBTreeV2TestIT {
     expectedDatabaseDocumentTx = youTrackDB.open(EXPECTED_DB_NAME, "admin", "admin");
     expectedStorage =
         (LocalPaginatedStorage)
-            ((YTDatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage();
+            ((DatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage();
     expectedReadCache = expectedStorage.getReadCache();
     expectedWriteCache = expectedStorage.getWriteCache();
 
@@ -284,33 +284,33 @@ public class SBTreeV2WALTestIT extends SBTreeV2TestIT {
             true,
             false,
             0);
-    OLogSequenceNumber lsn = log.begin();
+    LogSequenceNumber lsn = log.begin();
 
-    List<OWALRecord> atomicUnit = new ArrayList<>();
+    List<WALRecord> atomicUnit = new ArrayList<>();
     List<WriteableWALRecord> walRecords = log.read(lsn, 1_000);
 
     boolean atomicChangeIsProcessed = false;
     while (!walRecords.isEmpty()) {
       for (WriteableWALRecord walRecord : walRecords) {
-        if (walRecord instanceof OOperationUnitBodyRecord) {
+        if (walRecord instanceof OperationUnitBodyRecord) {
           atomicUnit.add(walRecord);
         }
 
         if (!atomicChangeIsProcessed) {
-          if (walRecord instanceof OAtomicUnitStartRecord) {
+          if (walRecord instanceof AtomicUnitStartRecord) {
             atomicChangeIsProcessed = true;
           }
-        } else if (walRecord instanceof OAtomicUnitEndRecord) {
+        } else if (walRecord instanceof AtomicUnitEndRecord) {
           atomicChangeIsProcessed = false;
 
-          for (OWALRecord restoreRecord : atomicUnit) {
-            if (restoreRecord instanceof OAtomicUnitStartRecord
-                || restoreRecord instanceof OAtomicUnitEndRecord
-                || restoreRecord instanceof ONonTxOperationPerformedWALRecord) {
+          for (WALRecord restoreRecord : atomicUnit) {
+            if (restoreRecord instanceof AtomicUnitStartRecord
+                || restoreRecord instanceof AtomicUnitEndRecord
+                || restoreRecord instanceof NonTxOperationPerformedWALRecord) {
               continue;
             }
 
-            if (restoreRecord instanceof OFileCreatedWALRecord fileCreatedCreatedRecord) {
+            if (restoreRecord instanceof FileCreatedWALRecord fileCreatedCreatedRecord) {
               final String fileName =
                   fileCreatedCreatedRecord.getFileName().replace("actualSBTree", "expectedSBTree");
 
@@ -319,7 +319,7 @@ public class SBTreeV2WALTestIT extends SBTreeV2TestIT {
                     fileName, fileCreatedCreatedRecord.getFileId(), expectedWriteCache);
               }
             } else {
-              final OUpdatePageRecord updatePageRecord = (OUpdatePageRecord) restoreRecord;
+              final UpdatePageRecord updatePageRecord = (UpdatePageRecord) restoreRecord;
 
               final long fileId = updatePageRecord.getFileId();
               final long pageIndex = updatePageRecord.getPageIndex();
@@ -329,7 +329,7 @@ public class SBTreeV2WALTestIT extends SBTreeV2TestIT {
                 continue;
               }
 
-              OCacheEntry cacheEntry =
+              CacheEntry cacheEntry =
                   expectedReadCache.loadForWrite(
                       fileId, pageIndex, expectedWriteCache, false, null);
               if (cacheEntry == null) {
@@ -343,9 +343,9 @@ public class SBTreeV2WALTestIT extends SBTreeV2TestIT {
               }
 
               try {
-                ODurablePage durablePage = new ODurablePage(cacheEntry);
+                DurablePage durablePage = new DurablePage(cacheEntry);
                 durablePage.restoreChanges(updatePageRecord.getChanges());
-                durablePage.setLsn(new OLogSequenceNumber(0, 0));
+                durablePage.setLsn(new LogSequenceNumber(0, 0));
               } finally {
                 expectedReadCache.releaseFromWrite(cacheEntry, expectedWriteCache, true);
               }
@@ -355,9 +355,9 @@ public class SBTreeV2WALTestIT extends SBTreeV2TestIT {
         } else {
           Assert.assertTrue(
               "WAL record type is " + walRecord.getClass().getName(),
-              walRecord instanceof OUpdatePageRecord
-                  || walRecord instanceof ONonTxOperationPerformedWALRecord
-                  || walRecord instanceof OFileCreatedWALRecord);
+              walRecord instanceof UpdatePageRecord
+                  || walRecord instanceof NonTxOperationPerformedWALRecord
+                  || walRecord instanceof FileCreatedWALRecord);
         }
       }
 
@@ -377,11 +377,11 @@ public class SBTreeV2WALTestIT extends SBTreeV2TestIT {
 
         Assert.assertEquals(fileOne.length(), fileTwo.length());
 
-        byte[] expectedContent = new byte[OClusterPage.PAGE_SIZE];
-        byte[] actualContent = new byte[OClusterPage.PAGE_SIZE];
+        byte[] expectedContent = new byte[ClusterPage.PAGE_SIZE];
+        byte[] actualContent = new byte[ClusterPage.PAGE_SIZE];
 
-        fileOne.seek(OFile.HEADER_SIZE);
-        fileTwo.seek(OFile.HEADER_SIZE);
+        fileOne.seek(File.HEADER_SIZE);
+        fileTwo.seek(File.HEADER_SIZE);
 
         int bytesRead = fileOne.read(expectedContent);
         while (bytesRead >= 0) {
@@ -390,15 +390,15 @@ public class SBTreeV2WALTestIT extends SBTreeV2TestIT {
           Assertions.assertThat(
                   Arrays.copyOfRange(
                       expectedContent,
-                      ODurablePage.NEXT_FREE_POSITION,
-                      ODurablePage.MAX_PAGE_SIZE_BYTES))
+                      DurablePage.NEXT_FREE_POSITION,
+                      DurablePage.MAX_PAGE_SIZE_BYTES))
               .isEqualTo(
                   Arrays.copyOfRange(
                       actualContent,
-                      ODurablePage.NEXT_FREE_POSITION,
-                      ODurablePage.MAX_PAGE_SIZE_BYTES));
-          expectedContent = new byte[OClusterPage.PAGE_SIZE];
-          actualContent = new byte[OClusterPage.PAGE_SIZE];
+                      DurablePage.NEXT_FREE_POSITION,
+                      DurablePage.MAX_PAGE_SIZE_BYTES));
+          expectedContent = new byte[ClusterPage.PAGE_SIZE];
+          actualContent = new byte[ClusterPage.PAGE_SIZE];
           bytesRead = fileOne.read(expectedContent);
         }
       }

@@ -2,18 +2,18 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.core.collate.OCollate;
+import com.jetbrains.youtrack.db.internal.core.collate.Collate;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.AggregationContext;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.OPath;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.metadata.MetadataPath;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -53,7 +53,7 @@ public class SQLExpression extends SimpleNode {
     mathExpression = new SQLBaseExpression(attr, modifier);
   }
 
-  public Object execute(YTIdentifiable iCurrentRecord, CommandContext ctx) {
+  public Object execute(Identifiable iCurrentRecord, CommandContext ctx) {
     if (isNull) {
       return null;
     }
@@ -78,7 +78,7 @@ public class SQLExpression extends SimpleNode {
 
     // from here it's old stuff, only for the old executor
     if (value instanceof SQLRid v) {
-      return new YTRecordId(v.cluster.getValue().intValue(), v.position.getValue().longValue());
+      return new RecordId(v.cluster.getValue().intValue(), v.position.getValue().longValue());
     } else if (value instanceof SQLMathExpression) {
       return ((SQLMathExpression) value).execute(iCurrentRecord, ctx);
     } else if (value instanceof SQLArrayConcatExpression) {
@@ -94,7 +94,7 @@ public class SQLExpression extends SimpleNode {
     return value;
   }
 
-  public Object execute(YTResult iCurrentRecord, CommandContext ctx) {
+  public Object execute(Result iCurrentRecord, CommandContext ctx) {
     if (isNull) {
       return null;
     }
@@ -119,7 +119,7 @@ public class SQLExpression extends SimpleNode {
 
     // from here it's old stuff, only for the old executor
     if (value instanceof SQLRid v) {
-      return new YTRecordId(v.cluster.getValue().intValue(), v.position.getValue().longValue());
+      return new RecordId(v.cluster.getValue().intValue(), v.position.getValue().longValue());
     } else if (value instanceof SQLMathExpression) {
       return ((SQLMathExpression) value).execute(iCurrentRecord, ctx);
     } else if (value instanceof SQLArrayConcatExpression) {
@@ -146,7 +146,7 @@ public class SQLExpression extends SimpleNode {
     return false;
   }
 
-  public Optional<OPath> getPath() {
+  public Optional<MetadataPath> getPath() {
     if (mathExpression != null) {
       return mathExpression.getPath();
     }
@@ -283,7 +283,7 @@ public class SQLExpression extends SimpleNode {
     return true;
   }
 
-  public boolean isIndexedFunctionCal(YTDatabaseSessionInternal session) {
+  public boolean isIndexedFunctionCal(DatabaseSessionInternal session) {
     if (mathExpression != null) {
       return mathExpression.isIndexedFunctionCall(session);
     }
@@ -319,7 +319,7 @@ public class SQLExpression extends SimpleNode {
     return -1;
   }
 
-  public Iterable<YTIdentifiable> executeIndexedFunction(
+  public Iterable<Identifiable> executeIndexedFunction(
       SQLFromClause target, CommandContext context, SQLBinaryCompareOperator operator,
       Object right) {
     if (mathExpression != null) {
@@ -414,7 +414,7 @@ public class SQLExpression extends SimpleNode {
     return false;
   }
 
-  public boolean isAggregate(YTDatabaseSessionInternal session) {
+  public boolean isAggregate(DatabaseSessionInternal session) {
     if (mathExpression != null && mathExpression.isAggregate(session)) {
       return true;
     }
@@ -426,7 +426,7 @@ public class SQLExpression extends SimpleNode {
 
   public SQLExpression splitForAggregation(
       AggregateProjectionSplit aggregateSplit, CommandContext ctx) {
-    YTDatabaseSessionInternal database = ctx.getDatabase();
+    DatabaseSessionInternal database = ctx.getDatabase();
     if (isAggregate(database)) {
       SQLExpression result = new SQLExpression(-1);
       if (mathExpression != null) {
@@ -467,7 +467,7 @@ public class SQLExpression extends SimpleNode {
     } else if (arrayConcatExpression != null) {
       return arrayConcatExpression.getAggregationContext(ctx);
     } else {
-      throw new YTCommandExecutionException("Cannot aggregate on " + this);
+      throw new CommandExecutionException("Cannot aggregate on " + this);
     }
   }
 
@@ -602,11 +602,11 @@ public class SQLExpression extends SimpleNode {
     return null;
   }
 
-  public void applyRemove(YTResultInternal result, CommandContext ctx) {
+  public void applyRemove(ResultInternal result, CommandContext ctx) {
     if (mathExpression != null) {
       mathExpression.applyRemove(result, ctx);
     } else {
-      throw new YTCommandExecutionException("Cannot apply REMOVE " + this);
+      throw new CommandExecutionException("Cannot apply REMOVE " + this);
     }
   }
 
@@ -625,8 +625,8 @@ public class SQLExpression extends SimpleNode {
     this.arrayConcatExpression = arrayConcatExpression;
   }
 
-  public YTResult serialize(YTDatabaseSessionInternal db) {
-    YTResultInternal result = new YTResultInternal(db);
+  public Result serialize(DatabaseSessionInternal db) {
+    ResultInternal result = new ResultInternal(db);
     result.setProperty("singleQuotes", singleQuotes);
     result.setProperty("doubleQuotes", doubleQuotes);
     result.setProperty("isNull", isNull);
@@ -647,7 +647,7 @@ public class SQLExpression extends SimpleNode {
     return result;
   }
 
-  public void deserialize(YTResult fromResult) {
+  public void deserialize(Result fromResult) {
     singleQuotes = fromResult.getProperty("singleQuotes");
     doubleQuotes = fromResult.getProperty("doubleQuotes");
     isNull = fromResult.getProperty("isNull");
@@ -671,7 +671,7 @@ public class SQLExpression extends SimpleNode {
     booleanValue = fromResult.getProperty("booleanValue");
   }
 
-  public boolean isDefinedFor(YTResult currentRecord) {
+  public boolean isDefinedFor(Result currentRecord) {
     if (mathExpression != null) {
       return mathExpression.isDefinedFor(currentRecord);
     } else {
@@ -687,14 +687,14 @@ public class SQLExpression extends SimpleNode {
     }
   }
 
-  public OCollate getCollate(YTResult currentRecord, CommandContext ctx) {
+  public Collate getCollate(Result currentRecord, CommandContext ctx) {
     if (mathExpression != null) {
       return mathExpression.getCollate(currentRecord, ctx);
     }
     return null;
   }
 
-  public boolean isCacheable(YTDatabaseSessionInternal session) {
+  public boolean isCacheable(DatabaseSessionInternal session) {
     if (mathExpression != null) {
       return mathExpression.isCacheable(session);
     }
@@ -708,7 +708,7 @@ public class SQLExpression extends SimpleNode {
     return true;
   }
 
-  public boolean isIndexChain(CommandContext ctx, YTClass clazz) {
+  public boolean isIndexChain(CommandContext ctx, SchemaClass clazz) {
     if (mathExpression != null) {
       return mathExpression.isIndexChain(ctx, clazz);
     }

@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +48,7 @@ public class InfoExecutionStep implements ExecutionStep {
   }
 
   @Override
-  public YTResult toResult(YTDatabaseSessionInternal db) {
+  public Result toResult(DatabaseSessionInternal db) {
     return null;
   }
 

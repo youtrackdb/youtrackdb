@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.operationsfreezer;
 
-import com.jetbrains.youtrack.db.internal.common.concur.lock.YTInterruptedException;
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.ThreadInterruptedException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import java.util.concurrent.CountDownLatch;
 
 final class WaitingListNode {
@@ -21,9 +21,9 @@ final class WaitingListNode {
   void waitTillAllLinksWillBeCreated() {
     try {
       linkLatch.await();
-    } catch (InterruptedException e) {
-      throw YTException.wrapException(
-          new YTInterruptedException(
+    } catch (java.lang.InterruptedException e) {
+      throw BaseException.wrapException(
+          new ThreadInterruptedException(
               "Thread was interrupted while was waiting for completion of 'waiting linked list'"
                   + " operation"),
           e);

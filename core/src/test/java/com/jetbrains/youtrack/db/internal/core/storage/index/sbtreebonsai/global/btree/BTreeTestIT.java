@@ -1,13 +1,13 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.global.btree;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.common.util.ORawPairObjectInteger;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.common.util.RawPairObjectInteger;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperationsManager;
 import java.io.File;
 import java.util.Iterator;
 import java.util.Map;
@@ -36,7 +36,7 @@ public class BTreeTestIT {
   public static final String DIR_NAME = "/globalBTreeTest";
   private static YouTrackDB youTrackDB;
   private static BTree bTree;
-  private static OAtomicOperationsManager atomicOperationsManager;
+  private static AtomicOperationsManager atomicOperationsManager;
   private static AbstractPaginatedStorage storage;
   private static String buildDirectory;
 
@@ -71,8 +71,8 @@ public class BTreeTestIT {
     youTrackDB.execute(
         "create database " + DB_NAME + " plocal users ( admin identified by 'admin' role admin)");
 
-    YTDatabaseSession databaseSession = youTrackDB.open(DB_NAME, "admin", "admin");
-    storage = (AbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseSession).getStorage();
+    DatabaseSession databaseSession = youTrackDB.open(DB_NAME, "admin", "admin");
+    storage = (AbstractPaginatedStorage) ((DatabaseSessionInternal) databaseSession).getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
     databaseSession.close();
   }
@@ -429,8 +429,8 @@ public class BTreeTestIT {
         fromKey = new EdgeKey(fromKey.ridBagId, fromKey.targetCluster, fromKey.targetPosition - 1);
       }
 
-      final Iterator<ORawPairObjectInteger<EdgeKey>> indexIterator;
-      try (Stream<ORawPairObjectInteger<EdgeKey>> stream =
+      final Iterator<RawPairObjectInteger<EdgeKey>> indexIterator;
+      try (Stream<RawPairObjectInteger<EdgeKey>> stream =
           bTree.iterateEntriesMajor(fromKey, keyInclusive, ascSortOrder)) {
         indexIterator = stream.iterator();
 
@@ -447,7 +447,7 @@ public class BTreeTestIT {
         }
 
         while (iterator.hasNext()) {
-          final ORawPairObjectInteger<EdgeKey> indexEntry = indexIterator.next();
+          final RawPairObjectInteger<EdgeKey> indexEntry = indexIterator.next();
           final Map.Entry<EdgeKey, Integer> entry = iterator.next();
 
           Assert.assertEquals(indexEntry.first, entry.getKey());
@@ -520,8 +520,8 @@ public class BTreeTestIT {
         toKey = new EdgeKey(toKey.ridBagId, toKey.targetCluster, toKey.targetPosition + 1);
       }
 
-      final Iterator<ORawPairObjectInteger<EdgeKey>> indexIterator;
-      try (Stream<ORawPairObjectInteger<EdgeKey>> stream =
+      final Iterator<RawPairObjectInteger<EdgeKey>> indexIterator;
+      try (Stream<RawPairObjectInteger<EdgeKey>> stream =
           bTree.iterateEntriesMinor(toKey, keyInclusive, ascSortOrder)) {
         indexIterator = stream.iterator();
 
@@ -533,7 +533,7 @@ public class BTreeTestIT {
         }
 
         while (iterator.hasNext()) {
-          ORawPairObjectInteger<EdgeKey> indexEntry = indexIterator.next();
+          RawPairObjectInteger<EdgeKey> indexEntry = indexIterator.next();
           Map.Entry<EdgeKey, Integer> entry = iterator.next();
 
           Assert.assertEquals(indexEntry.first, entry.getKey());
@@ -622,8 +622,8 @@ public class BTreeTestIT {
         fromKey = toKey;
       }
 
-      final Iterator<ORawPairObjectInteger<EdgeKey>> indexIterator;
-      try (Stream<ORawPairObjectInteger<EdgeKey>> stream =
+      final Iterator<RawPairObjectInteger<EdgeKey>> indexIterator;
+      try (Stream<RawPairObjectInteger<EdgeKey>> stream =
           bTree.iterateEntriesBetween(fromKey, fromInclusive, toKey, toInclusive, ascSortOrder)) {
         indexIterator = stream.iterator();
 
@@ -641,7 +641,7 @@ public class BTreeTestIT {
         }
 
         while (iterator.hasNext()) {
-          ORawPairObjectInteger<EdgeKey> indexEntry = indexIterator.next();
+          RawPairObjectInteger<EdgeKey> indexEntry = indexIterator.next();
           Assert.assertNotNull(indexEntry);
 
           Map.Entry<EdgeKey, Integer> mapEntry = iterator.next();

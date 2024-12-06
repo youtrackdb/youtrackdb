@@ -16,12 +16,12 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.local.OWOWCache;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.local.WOWCache;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.ClusterPositionMap;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
@@ -42,7 +42,7 @@ public class SQLCommandsTest extends DocumentDBBaseTest {
   }
 
   public void createProperty() {
-    YTSchema schema = database.getMetadata().getSchema();
+    Schema schema = database.getMetadata().getSchema();
     if (!schema.existsClass("account")) {
       schema.createClass("account");
     }
@@ -51,7 +51,7 @@ public class SQLCommandsTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(
         database.getMetadata().getSchema().getClass("account").getProperty("timesheet").getType(),
-        YTType.STRING);
+        PropertyType.STRING);
   }
 
   @Test(dependsOnMethods = "createProperty")
@@ -60,7 +60,7 @@ public class SQLCommandsTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(
         database.getMetadata().getSchema().getClass("account").getProperty("knows").getType(),
-        YTType.EMBEDDEDMAP);
+        PropertyType.EMBEDDEDMAP);
     Assert.assertEquals(
         database
             .getMetadata()
@@ -77,10 +77,10 @@ public class SQLCommandsTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(
         database.getMetadata().getSchema().getClass("account").getProperty("tags").getType(),
-        YTType.EMBEDDEDLIST);
+        PropertyType.EMBEDDEDLIST);
     Assert.assertEquals(
         database.getMetadata().getSchema().getClass("account").getProperty("tags").getLinkedType(),
-        YTType.STRING);
+        PropertyType.STRING);
   }
 
   @Test(dependsOnMethods = "createLinkedTypeProperty")
@@ -106,10 +106,10 @@ public class SQLCommandsTest extends DocumentDBBaseTest {
 
     Object result = database.command(new CommandScript("sql", cmd)).execute(database);
 
-    Assert.assertTrue(result instanceof YTIdentifiable);
-    Assert.assertTrue(((YTIdentifiable) result).getRecord() instanceof EntityImpl);
+    Assert.assertTrue(result instanceof Identifiable);
+    Assert.assertTrue(((Identifiable) result).getRecord() instanceof EntityImpl);
     Assert.assertTrue(
-        database.bindToSession((EntityImpl) ((YTIdentifiable) result).getRecord())
+        database.bindToSession((EntityImpl) ((Identifiable) result).getRecord())
             .field("script"));
   }
 
@@ -132,11 +132,11 @@ public class SQLCommandsTest extends DocumentDBBaseTest {
     Assert.assertTrue(names.contains("testClusterRename42".toLowerCase(Locale.ENGLISH)));
     Assert.assertFalse(names.contains("testClusterRename".toLowerCase(Locale.ENGLISH)));
 
-    if (!remoteDB && databaseType.equals(ODatabaseType.PLOCAL)) {
+    if (!remoteDB && databaseType.equals(DatabaseType.PLOCAL)) {
       String storagePath = database.getStorage().getConfiguration().getDirectory();
 
-      final OWOWCache wowCache =
-          (OWOWCache) ((LocalPaginatedStorage) database.getStorage()).getWriteCache();
+      final WOWCache wowCache =
+          (WOWCache) ((LocalPaginatedStorage) database.getStorage()).getWriteCache();
 
       File dataFile =
           new File(

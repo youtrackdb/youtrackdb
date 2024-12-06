@@ -21,9 +21,9 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import java.util.Map;
 
 /**
@@ -46,7 +46,7 @@ public class CommandExecutorSQLGrant extends CommandExecutorSQLPermissionAbstrac
 
       init((CommandRequestText) iRequest);
 
-      privilege = ORole.PERMISSION_NONE;
+      privilege = Role.PERMISSION_NONE;
       resource = null;
       role = null;
 
@@ -55,45 +55,45 @@ public class CommandExecutorSQLGrant extends CommandExecutorSQLPermissionAbstrac
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_GRANT)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_GRANT + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1) {
-        throw new YTCommandSQLParsingException("Invalid privilege", parserText, oldPos);
+        throw new CommandSQLParsingException("Invalid privilege", parserText, oldPos);
       }
 
       parsePrivilege(word, oldPos);
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_ON)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_ON + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserText, pos, word, true);
       if (pos == -1) {
-        throw new YTCommandSQLParsingException("Invalid resource", parserText, oldPos);
+        throw new CommandSQLParsingException("Invalid resource", parserText, oldPos);
       }
 
       resource = word.toString();
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_TO)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_TO + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       pos = nextWord(parserText, parserText, pos, word, true);
       if (pos == -1) {
-        throw new YTCommandSQLParsingException("Invalid role", parserText, oldPos);
+        throw new CommandSQLParsingException("Invalid role", parserText, oldPos);
       }
 
       final String roleName = word.toString();
       role = getDatabase().getMetadata().getSecurity().getRole(roleName);
       if (role == null) {
-        throw new YTCommandSQLParsingException("Invalid role: " + roleName);
+        throw new CommandSQLParsingException("Invalid role: " + roleName);
       }
 
     } finally {
@@ -106,9 +106,9 @@ public class CommandExecutorSQLGrant extends CommandExecutorSQLPermissionAbstrac
   /**
    * Execute the GRANT.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (role == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 

@@ -19,7 +19,7 @@
  */
 package com.jetbrains.youtrack.db.internal.common.concur.resource;
 
-import com.jetbrains.youtrack.db.internal.common.concur.lock.YTLockException;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.LockException;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBShutdownListener;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBStartupListener;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
@@ -32,9 +32,9 @@ import java.util.Map;
  * Reentrant implementation of Resource Pool. It manages multiple resource acquisition on thread
  * local map. If you're looking for a Reentrant implementation look at #ReentrantResourcePool.
  *
- * @see OResourcePool
+ * @see ResourcePool
  */
-public class ReentrantResourcePool<K, V> extends OResourcePool<K, V>
+public class ReentrantResourcePool<K, V> extends ResourcePool<K, V>
     implements YouTrackDBStartupListener, YouTrackDBShutdownListener {
 
   private volatile ThreadLocal<Map<K, ResourceHolder<V>>> activeResources =
@@ -51,7 +51,7 @@ public class ReentrantResourcePool<K, V> extends OResourcePool<K, V>
   }
 
   public ReentrantResourcePool(
-      final int maxResources, final OResourcePoolListener<K, V> listener) {
+      final int maxResources, final ResourcePoolListener<K, V> listener) {
     super(maxResources, listener);
 
     YouTrackDBManager.instance().registerWeakYouTrackDBShutdownListener(this);
@@ -71,7 +71,7 @@ public class ReentrantResourcePool<K, V> extends OResourcePool<K, V>
   }
 
   public V getResource(K key, final long maxWaitMillis, Object... additionalArgs)
-      throws YTLockException {
+      throws LockException {
     Map<K, ResourceHolder<V>> resourceHolderMap = activeResources.get();
 
     if (resourceHolderMap == null) {

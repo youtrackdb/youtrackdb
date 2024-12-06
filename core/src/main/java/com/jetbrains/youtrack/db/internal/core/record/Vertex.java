@@ -19,10 +19,10 @@
  */
 package com.jetbrains.youtrack.db.internal.core.record;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -38,7 +38,7 @@ public interface Vertex extends Entity {
   /**
    * The name of the class of the vertex record
    */
-  String CLASS_NAME = YTClass.VERTEX_CLASS_NAME;
+  String CLASS_NAME = SchemaClass.VERTEX_CLASS_NAME;
 
   /**
    * A constant variable representing the prefix used for outbound edges in a graph.
@@ -82,7 +82,7 @@ public interface Vertex extends Entity {
    */
   @Nullable
   @Override
-  YTIdentifiable getLinkProperty(String name);
+  Identifiable getLinkProperty(String name);
 
   /**
    * Check if a property exists in the Element. if the property name starts with
@@ -115,7 +115,7 @@ public interface Vertex extends Entity {
    * @param fieldType Forced type (not auto-determined)
    * @throws IllegalArgumentException if booked property name is used.
    */
-  void setProperty(String name, Object value, YTType... fieldType);
+  void setProperty(String name, Object value, PropertyType... fieldType);
 
   /**
    * Remove a property, if the property name starts with {@link #DIRECTION_IN_PREFIX} or
@@ -129,7 +129,7 @@ public interface Vertex extends Entity {
 
   /**
    * Returns the names of the edges connected to the vertex in both directions. It is identical to
-   * the call : {@code getEdgeNames(ODirection.BOTH)}
+   * the call : {@code getEdgeNames(Direction.BOTH)}
    *
    * @return a set of strings containing the names of the edges
    */
@@ -141,7 +141,7 @@ public interface Vertex extends Entity {
    * @param direction the direction of the edges to retrieve (IN, OUT, or BOTH)
    * @return a Set of String containing the names of the edges
    */
-  Set<String> getEdgeNames(ODirection direction);
+  Set<String> getEdgeNames(Direction direction);
 
   /**
    * Retrieves all edges connected to the vertex in the given direction.
@@ -149,7 +149,7 @@ public interface Vertex extends Entity {
    * @param direction the direction of the edges to retrieve (OUT, IN, or BOTH)
    * @return an iterable collection of edges connected to the vertex
    */
-  Iterable<Edge> getEdges(ODirection direction);
+  Iterable<Edge> getEdges(Direction direction);
 
   /**
    * Retrieves all edges connected to the vertex in the given direction and with the specified
@@ -159,7 +159,7 @@ public interface Vertex extends Entity {
    * @param label     the label(s) of the edges to retrieve
    * @return an iterable collection of edges connected to the vertex
    */
-  Iterable<Edge> getEdges(ODirection direction, String... label);
+  Iterable<Edge> getEdges(Direction direction, String... label);
 
   /**
    * Retrieves all edges connected to the vertex in the given direction and with the specified
@@ -169,7 +169,7 @@ public interface Vertex extends Entity {
    * @param label     the label(s) of the edges to retrieve
    * @return an iterable collection of edges connected to the vertex
    */
-  Iterable<Edge> getEdges(ODirection direction, YTClass... label);
+  Iterable<Edge> getEdges(Direction direction, SchemaClass... label);
 
   /**
    * Retrieves all vertices connected to the current vertex in the specified direction.
@@ -177,7 +177,7 @@ public interface Vertex extends Entity {
    * @param direction the direction of the vertices to retrieve (OUT, IN, or BOTH)
    * @return an iterable collection of vertices connected to the current vertex
    */
-  Iterable<Vertex> getVertices(ODirection direction);
+  Iterable<Vertex> getVertices(Direction direction);
 
   /**
    * Returns the vertices connected to the current vertex in the specified direction and with the
@@ -187,7 +187,7 @@ public interface Vertex extends Entity {
    * @param label     the label(s) of the vertices to retrieve
    * @return an iterable collection of vertices connected to the current vertex
    */
-  Iterable<Vertex> getVertices(ODirection direction, String... label);
+  Iterable<Vertex> getVertices(Direction direction, String... label);
 
   /**
    * Retrieves all vertices connected to the current vertex in the specified direction and with the
@@ -197,7 +197,7 @@ public interface Vertex extends Entity {
    * @param label     the label(s) of the vertices to retrieve
    * @return an iterable collection of vertices connected to the current vertex
    */
-  Iterable<Vertex> getVertices(ODirection direction, YTClass... label);
+  Iterable<Vertex> getVertices(Direction direction, SchemaClass... label);
 
   /**
    * Adds an edge between the current vertex and the specified vertex. Edge will be created without
@@ -244,7 +244,7 @@ public interface Vertex extends Entity {
    * @param label the label of the edge
    * @return the created edge
    */
-  Edge addEdge(Vertex to, YTClass label);
+  Edge addEdge(Vertex to, SchemaClass label);
 
   /**
    * Adds a lightweight edge (one that does not require associated record) between the current
@@ -254,7 +254,7 @@ public interface Vertex extends Entity {
    * @param label the label of the edge
    * @return the created edge
    */
-  Edge addLightWeightEdge(Vertex to, YTClass label);
+  Edge addLightWeightEdge(Vertex to, SchemaClass label);
 
   /**
    * Moves the vertex to the specified class and cluster.
@@ -263,7 +263,7 @@ public interface Vertex extends Entity {
    * @param clusterName the name of the cluster to move the vertex to
    * @return the new RecordID of the moved vertex
    */
-  YTRID moveTo(final String className, final String clusterName);
+  RID moveTo(final String className, final String clusterName);
 
   /**
    * Removes all edges connected to the vertex in the given direction.
@@ -271,7 +271,7 @@ public interface Vertex extends Entity {
    * @param direction the direction of the edges to remove (OUT, IN, or BOTH)
    * @param labels    the labels of the edges to remove
    */
-  default void removeEdges(ODirection direction, YTClass... labels) {
+  default void removeEdges(Direction direction, SchemaClass... labels) {
     var edges = getEdges(direction, labels);
     for (var edge : edges) {
       edge.delete();
@@ -284,7 +284,7 @@ public interface Vertex extends Entity {
    * @param direction the direction of the edges to remove (OUT, IN, or BOTH)
    * @param labels    the labels of the edges to remove
    */
-  default void removeEdges(ODirection direction, String... labels) {
+  default void removeEdges(Direction direction, String... labels) {
     var edges = getEdges(direction, labels);
     for (var edge : edges) {
       edge.delete();
@@ -318,13 +318,13 @@ public interface Vertex extends Entity {
    * @param className the name of the edge class
    * @return the name of the field used to store the direct link to the edge
    */
-  static String getEdgeLinkFieldName(final ODirection direction, final String className) {
-    if (direction == null || direction == ODirection.BOTH) {
+  static String getEdgeLinkFieldName(final Direction direction, final String className) {
+    if (direction == null || direction == Direction.BOTH) {
       throw new IllegalArgumentException("Direction not valid");
     }
 
     // PREFIX "out_" or "in_" TO THE FIELD NAME
-    final String prefix = direction == ODirection.OUT ? DIRECTION_OUT_PREFIX : DIRECTION_IN_PREFIX;
+    final String prefix = direction == Direction.OUT ? DIRECTION_OUT_PREFIX : DIRECTION_IN_PREFIX;
     if (className == null || className.isEmpty() || className.equals(EdgeInternal.CLASS_NAME)) {
       return prefix;
     }

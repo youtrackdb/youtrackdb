@@ -21,14 +21,14 @@ package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseStats;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseStats;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.OSQLEngine;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ODDLStatement;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.DDLStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFetchPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLimit;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
@@ -106,7 +106,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
     iRequest.getData().commandInfo = "Command";
     iRequest.getData().commandDetail = text;
 
-    YTDatabaseSessionInternal db = null;
+    DatabaseSessionInternal db = null;
 
     boolean ok = false;
     boolean txBegun = false;
@@ -115,12 +115,12 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
       db.resetRecordLoadStats();
       SQLStatement stm = parseStatement(language, text, db);
 
-      if (stm != null && !(stm instanceof ODDLStatement)) {
+      if (stm != null && !(stm instanceof DDLStatement)) {
         db.begin();
         txBegun = true;
       }
 
-      YTResultSet result = executeStatement(language, text, params, db);
+      ResultSet result = executeStatement(language, text, params, db);
       limit = getLimitFromStatement(stm, limit);
       String localFetchPlan = getFetchPlanFromStatement(stm);
       if (localFetchPlan != null) {
@@ -166,7 +166,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
       }
 
       additionalContent.put("elapsedMs", elapsedMs);
-      ODatabaseStats dbStats = db.getStats();
+      DatabaseStats dbStats = db.getStats();
       additionalContent.put("dbStats", dbStats.toResult(db).toEntity());
 
       iResponse.writeResult(response, format, accept, additionalContent, mode, db);
@@ -201,10 +201,10 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
     return null;
   }
 
-  public static SQLStatement parseStatement(String language, String text, YTDatabaseSession db) {
+  public static SQLStatement parseStatement(String language, String text, DatabaseSession db) {
     try {
       if (language != null && language.equalsIgnoreCase("sql")) {
-        return OSQLEngine.parse(text, (YTDatabaseSessionInternal) db);
+        return SQLEngine.parse(text, (DatabaseSessionInternal) db);
       }
     } catch (Exception e) {
     }
@@ -230,9 +230,9 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
     return previousLimit;
   }
 
-  protected YTResultSet executeStatement(
-      String language, String text, Object params, YTDatabaseSession db) {
-    YTResultSet result;
+  protected ResultSet executeStatement(
+      String language, String text, Object params, DatabaseSession db) {
+    ResultSet result;
     if ("sql".equalsIgnoreCase(language)) {
       if (params instanceof Map) {
         result = db.command(text, (Map) params);

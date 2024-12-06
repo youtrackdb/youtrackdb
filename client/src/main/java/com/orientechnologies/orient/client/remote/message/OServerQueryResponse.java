@@ -1,17 +1,17 @@
 package com.orientechnologies.orient.client.remote.message;
 
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InfoExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStep;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.OInfoExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InfoExecutionStep;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,8 +32,8 @@ public class OServerQueryResponse implements OBinaryResponse {
 
   private String queryId;
   private boolean txChanges;
-  private List<YTResult> result;
-  private Optional<OExecutionPlan> executionPlan;
+  private List<Result> result;
+  private Optional<ExecutionPlan> executionPlan;
   private boolean hasNextPage;
   private Map<String, Long> queryStats;
   private boolean reloadMetadata;
@@ -41,8 +41,8 @@ public class OServerQueryResponse implements OBinaryResponse {
   public OServerQueryResponse(
       String queryId,
       boolean txChanges,
-      List<YTResult> result,
-      Optional<OExecutionPlan> executionPlan,
+      List<Result> result,
+      Optional<ExecutionPlan> executionPlan,
       boolean hasNextPage,
       Map<String, Long> queryStats,
       boolean reloadMetadata) {
@@ -59,8 +59,8 @@ public class OServerQueryResponse implements OBinaryResponse {
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel,
-      int protocolVersion, ORecordSerializer serializer)
+  public void write(DatabaseSessionInternal session, ChannelDataOutput channel,
+      int protocolVersion, RecordSerializer serializer)
       throws IOException {
     channel.writeString(queryId);
     channel.writeBoolean(txChanges);
@@ -68,7 +68,7 @@ public class OServerQueryResponse implements OBinaryResponse {
     // THIS IS A PREFETCHED COLLECTION NOT YET HERE
     channel.writeInt(0);
     channel.writeInt(result.size());
-    for (YTResult res : result) {
+    for (Result res : result) {
       OMessageHelper.writeResult(session, res, channel, serializer);
     }
     channel.writeBoolean(hasNextPage);
@@ -77,7 +77,7 @@ public class OServerQueryResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
+  public void read(DatabaseSessionInternal db, ChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
     queryId = network.readString();
     txChanges = network.readBoolean();
@@ -94,7 +94,7 @@ public class OServerQueryResponse implements OBinaryResponse {
     reloadMetadata = network.readBoolean();
   }
 
-  private void writeQueryStats(Map<String, Long> queryStats, OChannelDataOutput channel)
+  private void writeQueryStats(Map<String, Long> queryStats, ChannelDataOutput channel)
       throws IOException {
     if (queryStats == null) {
       channel.writeInt(0);
@@ -107,7 +107,7 @@ public class OServerQueryResponse implements OBinaryResponse {
     }
   }
 
-  private Map<String, Long> readQueryStats(OChannelDataInput channel) throws IOException {
+  private Map<String, Long> readQueryStats(ChannelDataInput channel) throws IOException {
     Map<String, Long> result = new HashMap<>();
     int size = channel.readInt();
     for (int i = 0; i < size; i++) {
@@ -119,9 +119,9 @@ public class OServerQueryResponse implements OBinaryResponse {
   }
 
   private void writeExecutionPlan(
-      YTDatabaseSessionInternal session, Optional<OExecutionPlan> executionPlan,
-      OChannelDataOutput channel,
-      ORecordSerializer recordSerializer)
+      DatabaseSessionInternal session, Optional<ExecutionPlan> executionPlan,
+      ChannelDataOutput channel,
+      RecordSerializer recordSerializer)
       throws IOException {
     if (executionPlan.isPresent()
         && GlobalConfiguration.QUERY_REMOTE_SEND_EXECUTION_PLAN.getValueAsBoolean()) {
@@ -133,20 +133,20 @@ public class OServerQueryResponse implements OBinaryResponse {
     }
   }
 
-  private Optional<OExecutionPlan> readExecutionPlan(YTDatabaseSessionInternal db,
-      OChannelDataInput network) throws IOException {
+  private Optional<ExecutionPlan> readExecutionPlan(DatabaseSessionInternal db,
+      ChannelDataInput network) throws IOException {
     boolean present = network.readBoolean();
     if (!present) {
       return Optional.empty();
     }
-    OInfoExecutionPlan result = new OInfoExecutionPlan();
-    YTResult read = OMessageHelper.readResult(db, network);
+    InfoExecutionPlan result = new InfoExecutionPlan();
+    Result read = OMessageHelper.readResult(db, network);
     result.setCost(((Number) read.getProperty("cost")).intValue());
     result.setType(read.getProperty("type"));
     result.setJavaType(read.getProperty("javaType"));
     result.setPrettyPrint(read.getProperty("prettyPrint"));
     result.setStmText(read.getProperty("stmText"));
-    List<YTResult> subSteps = read.getProperty("steps");
+    List<Result> subSteps = read.getProperty("steps");
     if (subSteps != null) {
       subSteps.forEach(x -> result.getSteps().add(toInfoStep(x)));
     }
@@ -157,11 +157,11 @@ public class OServerQueryResponse implements OBinaryResponse {
     return queryId;
   }
 
-  public List<YTResult> getResult() {
+  public List<Result> getResult() {
     return result;
   }
 
-  public Optional<OExecutionPlan> getExecutionPlan() {
+  public Optional<ExecutionPlan> getExecutionPlan() {
     return executionPlan;
   }
 
@@ -173,14 +173,14 @@ public class OServerQueryResponse implements OBinaryResponse {
     return queryStats;
   }
 
-  private ExecutionStep toInfoStep(YTResult x) {
+  private ExecutionStep toInfoStep(Result x) {
     InfoExecutionStep result = new InfoExecutionStep();
     result.setName(x.getProperty("name"));
     result.setType(x.getProperty("type"));
     result.setTargetNode(x.getProperty("targetNode"));
     result.setJavaType(x.getProperty("javaType"));
     result.setCost(x.getProperty("cost") == null ? -1 : x.getProperty("cost"));
-    List<YTResult> ssteps = x.getProperty("subSteps");
+    List<Result> ssteps = x.getProperty("subSteps");
     if (ssteps != null) {
       ssteps.stream().forEach(sstep -> result.getSubSteps().add(toInfoStep(sstep)));
     }

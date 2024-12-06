@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor.resultset;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionStep;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 
 public class CostMeasureExecutionStream implements ExecutionStream {
 
@@ -29,7 +29,7 @@ public class CostMeasureExecutionStream implements ExecutionStream {
   }
 
   @Override
-  public YTResult next(CommandContext ctx) {
+  public Result next(CommandContext ctx) {
     long begin = System.nanoTime();
     ctx.startProfiling(this.step);
     try {

@@ -21,18 +21,18 @@ package com.orientechnologies.spatial;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.common.io.OIOUtils;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandOutputListener;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
+import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.tool.ODatabaseImport;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImport;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
-import com.orientechnologies.orient.server.handler.OAutomaticBackup;
+import com.orientechnologies.orient.server.handler.AutomaticBackup;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -65,14 +65,14 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
   private String BACKUFILE = null;
 
   private OServer server;
-  private YTDatabaseSessionInternal db;
+  private DatabaseSessionInternal db;
 
   @Rule
   public TestName name = new TestName();
 
   @Before
   public void setUp() throws Exception {
-    Assume.assumeFalse(OIOUtils.isOsWindows());
+    Assume.assumeFalse(IOUtils.isOsWindows());
 
     final String buildDirectory = System.getProperty("buildDirectory", "target");
     final File buildDirectoryFile = new File(buildDirectory);
@@ -111,7 +111,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
     youTrackDB.execute(
         "create database ? plocal users(admin identified by 'admin' role admin)", DBNAME);
 
-    db = (YTDatabaseSessionInternal) youTrackDB.open(DBNAME, "admin", "admin");
+    db = (DatabaseSessionInternal) youTrackDB.open(DBNAME, "admin", "admin");
 
     db.command("create class City ").close();
     db.command("create property City.name string").close();
@@ -155,7 +155,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
 
   @After
   public void tearDown() throws Exception {
-    if (!OIOUtils.isOsWindows()) {
+    if (!IOUtils.isOsWindows()) {
       dropIfExists();
 
       tempFolder.delete();
@@ -168,11 +168,11 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
         "select * from City where  ST_WITHIN(location,'POLYGON ((12.314015 41.8262816, 12.314015"
             + " 41.963125, 12.6605063 41.963125, 12.6605063 41.8262816, 12.314015 41.8262816))') ="
             + " true";
-    YTResultSet docs = db.query(query);
+    ResultSet docs = db.query(query);
     Assert.assertEquals(docs.stream().count(), 1);
 
     String jsonConfig =
-        OIOUtils.readStreamAsString(
+        IOUtils.readStreamAsString(
             getClass().getClassLoader().getResourceAsStream("automatic-backup.json"));
 
     EntityImpl doc =
@@ -188,10 +188,10 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
             new SimpleDateFormat("HH:mm:ss")
                 .format(new Date(System.currentTimeMillis() + 2000)));
 
-    OIOUtils.writeFile(
+    IOUtils.writeFile(
         new File(tempFolder.getAbsolutePath() + "/config/automatic-backup.json"), doc.toJSON());
 
-    final OAutomaticBackup aBackup = new OAutomaticBackup();
+    final AutomaticBackup aBackup = new AutomaticBackup();
 
     final OServerParameterConfiguration[] config = new OServerParameterConfiguration[]{};
 
@@ -199,7 +199,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
     final CountDownLatch latch = new CountDownLatch(1);
 
     aBackup.registerListener(
-        new OAutomaticBackup.OAutomaticBackupListener() {
+        new AutomaticBackup.OAutomaticBackupListener() {
           @Override
           public void onBackupCompleted(String database) {
             latch.countDown();
@@ -221,10 +221,10 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
     db = createAndOpen();
 
     GZIPInputStream stream = new GZIPInputStream(new FileInputStream(BACKUFILE + ".json.gz"));
-    new ODatabaseImport(
+    new DatabaseImport(
         db,
         stream,
-        new OCommandOutputListener() {
+        new CommandOutputListener() {
           @Override
           public void onMessage(String s) {
           }
@@ -238,21 +238,21 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
 
     assertThat(db.countClass("City")).isEqualTo(1);
 
-    OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
+    Index index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
 
     assertThat(index).isNotNull();
-    assertThat(index.getType()).isEqualTo(YTClass.INDEX_TYPE.SPATIAL.name());
+    assertThat(index.getType()).isEqualTo(SchemaClass.INDEX_TYPE.SPATIAL.name());
 
     assertThat(db.query(query).stream()).hasSize(1);
   }
 
-  private YTDatabaseSessionInternal createAndOpen() {
+  private DatabaseSessionInternal createAndOpen() {
     youTrackDB.execute(
         "create database ? plocal users(admin identified by 'admin' role admin)", DBNAME);
     return open();
   }
 
-  private YTDatabaseSessionInternal open() {
-    return (YTDatabaseSessionInternal) youTrackDB.open(DBNAME, "admin", "admin");
+  private DatabaseSessionInternal open() {
+    return (DatabaseSessionInternal) youTrackDB.open(DBNAME, "admin", "admin");
   }
 }

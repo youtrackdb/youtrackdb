@@ -1,22 +1,22 @@
 package com.jetbrains.youtrack.db.internal.core.db.tool;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.OStorageRecoverEventListener;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.StorageRecoverEventListener;
 import java.util.Objects;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class GraphRecoveringTest {
 
-  private class TestListener implements OStorageRecoverEventListener {
+  private class TestListener implements StorageRecoverEventListener {
 
     public long scannedEdges = 0;
     public long removedEdges = 0;
@@ -41,12 +41,12 @@ public class GraphRecoveringTest {
     }
 
     @Override
-    public void onScannedLink(YTIdentifiable link) {
+    public void onScannedLink(Identifiable link) {
       scannedLinks++;
     }
 
     @Override
-    public void onRemovedLink(YTIdentifiable link) {
+    public void onRemovedLink(Identifiable link) {
       removedLinks++;
     }
 
@@ -56,7 +56,7 @@ public class GraphRecoveringTest {
     }
   }
 
-  private void init(YTDatabaseSession session) {
+  private void init(DatabaseSession session) {
     session.createVertexClass("V1");
     session.createVertexClass("V2");
     session.createEdgeClass("E1");
@@ -82,7 +82,7 @@ public class GraphRecoveringTest {
 
   @Test
   public void testRecoverPerfectGraphNonLW() {
-    try (YouTrackDB youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+    try (YouTrackDB youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig())) {
       youTrackDB.execute(
           "create database testRecoverPerfectGraphNonLW"
@@ -92,7 +92,7 @@ public class GraphRecoveringTest {
 
         final TestListener eventListener = new TestListener();
 
-        new OGraphRepair().setEventListener(eventListener).repair(session, null, null);
+        new GraphRepair().setEventListener(eventListener).repair(session, null, null);
 
         Assert.assertEquals(eventListener.scannedEdges, 3);
         Assert.assertEquals(eventListener.removedEdges, 0);
@@ -106,7 +106,7 @@ public class GraphRecoveringTest {
 
   @Test
   public void testRecoverBrokenGraphAllEdges() {
-    try (YouTrackDB youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+    try (YouTrackDB youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig())) {
       youTrackDB.execute(
           "create database testRecoverBrokenGraphAllEdges"
@@ -117,7 +117,7 @@ public class GraphRecoveringTest {
         session.begin();
         for (var e :
             session.query("select from E").stream()
-                .map(YTResult::toEntity)
+                .map(Result::toEntity)
                 .map(Entity::toEdge)
                 .toList()) {
           e.<EntityImpl>getRecord().removeField("out");
@@ -127,7 +127,7 @@ public class GraphRecoveringTest {
 
         final TestListener eventListener = new TestListener();
 
-        new OGraphRepair().setEventListener(eventListener).repair(session, null, null);
+        new GraphRepair().setEventListener(eventListener).repair(session, null, null);
 
         Assert.assertEquals(eventListener.scannedEdges, 3);
         Assert.assertEquals(eventListener.removedEdges, 3);
@@ -143,7 +143,7 @@ public class GraphRecoveringTest {
 
   @Test
   public void testRecoverBrokenGraphLinksInVerticesNonLW() {
-    try (YouTrackDB youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+    try (YouTrackDB youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig())) {
       youTrackDB.execute(
           "create database testRecoverBrokenGraphLinksInVerticesNonLW"
@@ -155,7 +155,7 @@ public class GraphRecoveringTest {
         session.begin();
         for (var v :
             session.query("select from V").stream()
-                .map(YTResult::toEntity)
+                .map(Result::toEntity)
                 .filter(Objects::nonNull)
                 .map(Entity::toVertex)
                 .toList()) {
@@ -170,7 +170,7 @@ public class GraphRecoveringTest {
 
         final TestListener eventListener = new TestListener();
 
-        new OGraphRepair().setEventListener(eventListener).repair(session, null, null);
+        new GraphRepair().setEventListener(eventListener).repair(session, null, null);
 
         Assert.assertEquals(eventListener.scannedEdges, 3);
         Assert.assertEquals(eventListener.removedEdges, 3);

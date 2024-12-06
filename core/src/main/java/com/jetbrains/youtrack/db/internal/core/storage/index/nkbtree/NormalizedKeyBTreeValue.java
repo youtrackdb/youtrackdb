@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.nkbtree;
 
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurableComponent;
 
@@ -23,11 +23,11 @@ public class NormalizedKeyBTreeValue<K> extends DurableComponent implements Norm
   }
 
   @Override
-  public byte[] get(final OCompositeKey key) {
+  public byte[] get(final CompositeKey key) {
     return new byte[0];
   }
 
   @Override
-  public void put(final OCompositeKey key, final byte[] value) {
+  public void put(final CompositeKey key, final byte[] value) {
   }
 }

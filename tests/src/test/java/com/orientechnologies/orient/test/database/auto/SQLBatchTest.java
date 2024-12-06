@@ -15,8 +15,8 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.List;
 import org.testng.Assert;
@@ -44,7 +44,7 @@ public class SQLBatchTest extends DocumentDBBaseTest {
               + "RETURN $credential;");
 
       Assert.fail("Tx has been committed while a rollback was expected");
-    } catch (YTCommandExecutionException e) {
+    } catch (CommandExecutionException e) {
 
       List<EntityImpl> result = executeQuery("select from V where email = '123'");
       Assert.assertTrue(result.isEmpty());
@@ -84,9 +84,9 @@ public class SQLBatchTest extends DocumentDBBaseTest {
     Assert.assertEquals(result.size(), 1);
     List foos = result.get(0).field("foos");
     Assert.assertEquals(foos.size(), 3);
-    Assert.assertTrue(foos.get(0) instanceof YTIdentifiable);
-    Assert.assertTrue(foos.get(1) instanceof YTIdentifiable);
-    Assert.assertTrue(foos.get(2) instanceof YTIdentifiable);
+    Assert.assertTrue(foos.get(0) instanceof Identifiable);
+    Assert.assertTrue(foos.get(1) instanceof Identifiable);
+    Assert.assertTrue(foos.get(2) instanceof Identifiable);
   }
 
   public void testInlineArray2() {
@@ -119,8 +119,8 @@ public class SQLBatchTest extends DocumentDBBaseTest {
     Assert.assertEquals(result.size(), 1);
     List foos = result.get(0).field("foos");
     Assert.assertEquals(foos.size(), 3);
-    Assert.assertTrue(foos.get(0) instanceof YTIdentifiable);
-    Assert.assertTrue(foos.get(1) instanceof YTIdentifiable);
-    Assert.assertTrue(foos.get(2) instanceof YTIdentifiable);
+    Assert.assertTrue(foos.get(0) instanceof Identifiable);
+    Assert.assertTrue(foos.get(1) instanceof Identifiable);
+    Assert.assertTrue(foos.get(2) instanceof Identifiable);
   }
 }

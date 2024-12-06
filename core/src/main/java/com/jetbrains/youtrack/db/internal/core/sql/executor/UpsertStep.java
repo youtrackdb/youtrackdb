@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLAndBlock;
@@ -29,7 +29,7 @@ public class UpsertStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     var prev = this.prev;
     assert prev != null;
 
@@ -41,7 +41,7 @@ public class UpsertStep extends AbstractExecutionStep {
     return ExecutionStream.singleton(createNewRecord(ctx, commandTarget, initialFilter));
   }
 
-  private YTResult createNewRecord(
+  private Result createNewRecord(
       CommandContext ctx, SQLFromClause commandTarget, SQLWhereClause initialFilter) {
     EntityImpl doc;
     if (commandTarget.getItem().getIdentifier() != null) {
@@ -52,31 +52,31 @@ public class UpsertStep extends AbstractExecutionStep {
       if (clusterId == null) {
         clusterId = ctx.getDatabase().getClusterIdByName(cluster.getClusterName());
       }
-      YTClass clazz =
+      SchemaClass clazz =
           ctx.getDatabase()
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClassByClusterId(clusterId);
       doc = new EntityImpl(clazz);
     } else {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute UPSERT on target '" + commandTarget + "'");
     }
 
-    YTUpdatableResult result = new YTUpdatableResult(ctx.getDatabase(), doc);
+    UpdatableResult result = new UpdatableResult(ctx.getDatabase(), doc);
     if (initialFilter != null) {
       setContent(result, initialFilter);
     }
     return result;
   }
 
-  private void setContent(YTResultInternal doc, SQLWhereClause initialFilter) {
+  private void setContent(ResultInternal doc, SQLWhereClause initialFilter) {
     List<SQLAndBlock> flattened = initialFilter.flatten();
     if (flattened.isEmpty()) {
       return;
     }
     if (flattened.size() > 1) {
-      throw new YTCommandExecutionException("Cannot UPSERT on OR conditions");
+      throw new CommandExecutionException("Cannot UPSERT on OR conditions");
     }
     SQLAndBlock andCond = flattened.get(0);
     for (SQLBooleanExpression condition : andCond.getSubBlocks()) {

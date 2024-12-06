@@ -13,9 +13,9 @@
  */
 package com.orientechnologies.spatial;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.HashMap;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,7 +23,7 @@ import org.junit.Test;
 /**
  *
  */
-public class LuceneSpatialFunctionAsGeoJSONTest extends DBTestBase {
+public class LuceneSpatialFunctionAsGeoJSONTest extends DbTestBase {
 
 
   @Test
@@ -40,7 +40,7 @@ public class LuceneSpatialFunctionAsGeoJSONTest extends DBTestBase {
 
   protected void queryAndMatch(String wkt, String geoJson) {
 
-    YTResultSet query =
+    ResultSet query =
         db.query(
             "SELECT ST_GeomFromText(:wkt) as wkt,ST_GeomFromGeoJSON(:geoJson) as geoJson;",
             new HashMap() {
@@ -49,13 +49,13 @@ public class LuceneSpatialFunctionAsGeoJSONTest extends DBTestBase {
                 put("wkt", wkt);
               }
             });
-    YTResult result = query.stream().findFirst().get();
-    YTResult jsonGeom = result.getProperty("geoJson");
-    YTResult wktGeom = result.getProperty("wkt");
+    Result result = query.stream().findFirst().get();
+    Result jsonGeom = result.getProperty("geoJson");
+    Result wktGeom = result.getProperty("wkt");
     assertGeometry(wktGeom, jsonGeom);
   }
 
-  private void assertGeometry(YTResult source, YTResult geom) {
+  private void assertGeometry(Result source, Result geom) {
     Assert.assertNotNull(geom);
 
     Assert.assertNotNull(geom.getProperty("coordinates"));

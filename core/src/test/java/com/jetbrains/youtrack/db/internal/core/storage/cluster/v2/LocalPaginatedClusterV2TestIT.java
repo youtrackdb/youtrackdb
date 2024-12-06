@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.cluster.v2;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.LocalPaginatedClusterAbstract;
@@ -29,7 +29,7 @@ public class LocalPaginatedClusterV2TestIT extends LocalPaginatedClusterAbstract
     youTrackDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
-    databaseDocumentTx = (YTDatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
+    databaseDocumentTx = (DatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
     storage = (AbstractPaginatedStorage) databaseDocumentTx.getStorage();
 

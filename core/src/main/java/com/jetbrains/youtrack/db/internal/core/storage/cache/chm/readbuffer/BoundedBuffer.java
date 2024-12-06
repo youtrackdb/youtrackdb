@@ -15,7 +15,7 @@
  */
 package com.jetbrains.youtrack.db.internal.core.storage.cache.chm.readbuffer;
 
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.chm.WTinyLFUPolicy;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReferenceArray;
@@ -56,23 +56,23 @@ public final class BoundedBuffer extends StripedBuffer {
   private static final int OFFSET = 16;
 
   @Override
-  protected Buffer create(final OCacheEntry e) {
+  protected Buffer create(final CacheEntry e) {
     return new RingBuffer(e);
   }
 
   private static final class RingBuffer implements Buffer {
 
-    private final AtomicReferenceArray<OCacheEntry> buffer;
+    private final AtomicReferenceArray<CacheEntry> buffer;
     private final AtomicLong readCounter = new AtomicLong();
     private final AtomicLong writeCounter = new AtomicLong();
 
-    private RingBuffer(final OCacheEntry e) {
+    private RingBuffer(final CacheEntry e) {
       buffer = new AtomicReferenceArray<>(SPACED_SIZE);
       buffer.lazySet(0, e);
     }
 
     @Override
-    public int offer(final OCacheEntry e) {
+    public int offer(final CacheEntry e) {
       final long head = readCounter.get();
       final long tail = writeCounter.get();
       final long size = (tail - head);
@@ -98,7 +98,7 @@ public final class BoundedBuffer extends StripedBuffer {
       }
       do {
         final int index = (int) (head & SPACED_MASK);
-        final OCacheEntry e = buffer.get(index);
+        final CacheEntry e = buffer.get(index);
         if (e == null) {
           // not published yet
           break;

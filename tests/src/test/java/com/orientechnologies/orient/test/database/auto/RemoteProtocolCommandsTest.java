@@ -2,13 +2,13 @@ package com.orientechnologies.orient.test.database.auto;
 
 import static org.testng.AssertJUnit.assertTrue;
 
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
+import com.jetbrains.youtrack.db.internal.core.storage.StorageOperationResult;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.storage.OPhysicalPosition;
-import com.jetbrains.youtrack.db.internal.core.storage.OStorageOperationResult;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
@@ -64,12 +64,12 @@ public class RemoteProtocolCommandsTest extends DocumentDBBaseTest {
   // This is not supported anymore direct record operations are removed from the storage, only tx is
   // available
   public void testRawCreateWithoutIDTest() {
-    YTClass clazz = this.database.getMetadata().getSchema().createClass("RidCreationTestClass");
+    SchemaClass clazz = this.database.getMetadata().getSchema().createClass("RidCreationTestClass");
     AbstractPaginatedStorage storage = (AbstractPaginatedStorage) this.database.getStorage();
     EntityImpl doc = new EntityImpl("RidCreationTestClass");
     doc.field("test", "test");
-    YTRecordId bad = new YTRecordId(-1, -1);
-    OStorageOperationResult<OPhysicalPosition> res =
+    RecordId bad = new RecordId(-1, -1);
+    StorageOperationResult<PhysicalPosition> res =
         storage.createRecord(bad, doc.toStream(), doc.getVersion(), EntityImpl.RECORD_TYPE, null);
 
     // assertTrue(" the cluster is not valid", bad.clusterId >= 0);

@@ -21,10 +21,10 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
 import java.util.Map;
 
 /**
@@ -32,7 +32,7 @@ import java.util.Map;
  */
 @SuppressWarnings("unchecked")
 public class CommandExecutorSQLRebuildIndex extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String KEYWORD_REBUILD = "REBUILD";
   public static final String KEYWORD_INDEX = "INDEX";
@@ -54,21 +54,21 @@ public class CommandExecutorSQLRebuildIndex extends CommandExecutorSQLAbstract
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_REBUILD)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_REBUILD + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_INDEX)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_INDEX + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new YTCommandSQLParsingException("Expected index name", parserText, oldPos);
+        throw new CommandSQLParsingException("Expected index name", parserText, oldPos);
       }
 
       name = word.toString();
@@ -83,16 +83,16 @@ public class CommandExecutorSQLRebuildIndex extends CommandExecutorSQLAbstract
   /**
    * Execute the REMOVE INDEX.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (name == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final YTDatabaseSessionInternal database = getDatabase();
+    final DatabaseSessionInternal database = getDatabase();
     if (name.equals("*")) {
       long totalIndexed = 0;
-      for (OIndex idx : database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
+      for (Index idx : database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
         if (idx.isAutomatic()) {
           totalIndexed += idx.rebuild(database);
         }
@@ -101,13 +101,13 @@ public class CommandExecutorSQLRebuildIndex extends CommandExecutorSQLAbstract
       return totalIndexed;
 
     } else {
-      final OIndex idx = database.getMetadata().getIndexManagerInternal().getIndex(database, name);
+      final Index idx = database.getMetadata().getIndexManagerInternal().getIndex(database, name);
       if (idx == null) {
-        throw new YTCommandExecutionException("Index '" + name + "' not found");
+        throw new CommandExecutionException("Index '" + name + "' not found");
       }
 
       if (!idx.isAutomatic()) {
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "Cannot rebuild index '"
                 + name
                 + "' because it's manual and there aren't indications of what to index");

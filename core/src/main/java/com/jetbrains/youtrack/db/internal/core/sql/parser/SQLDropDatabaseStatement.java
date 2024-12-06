@@ -4,8 +4,8 @@ package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
 import com.jetbrains.youtrack.db.internal.core.command.ServerCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 
@@ -32,7 +32,7 @@ public class SQLDropDatabaseStatement extends SQLSimpleExecServerStatement {
       nameString = "" + nameParam.getValue(ctx.getInputParameters());
     }
     YouTrackDBInternal server = ctx.getServer();
-    YTResultInternal result = new YTResultInternal(ctx.getDatabase());
+    ResultInternal result = new ResultInternal(ctx.getDatabase());
     result.setProperty("operation", "drop database");
     result.setProperty("name", nameString);
 
@@ -44,7 +44,7 @@ public class SQLDropDatabaseStatement extends SQLSimpleExecServerStatement {
         server.drop(nameString, null, null);
         result.setProperty("dropped", true);
       } catch (Exception e) {
-        throw new YTCommandExecutionException(
+        throw new CommandExecutionException(
             "Could not drop database " + nameString + ":" + e.getMessage());
       }
     }

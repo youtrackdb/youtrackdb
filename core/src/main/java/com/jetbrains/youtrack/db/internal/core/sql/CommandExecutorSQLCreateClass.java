@@ -19,15 +19,15 @@
  */
 package com.jetbrains.youtrack.db.internal.core.sql;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTClusterDoesNotExistException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.ClusterDoesNotExistException;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCreateClassStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ import java.util.Map;
  */
 @SuppressWarnings("unchecked")
 public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String KEYWORD_CREATE = "CREATE";
   public static final String KEYWORD_CLASS = "CLASS";
@@ -52,7 +52,7 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
   public static final String KEYWORD_EXISTS = "EXISTS";
 
   private String className;
-  private final List<YTClass> superClasses = new ArrayList<YTClass>();
+  private final List<SchemaClass> superClasses = new ArrayList<SchemaClass>();
   private int[] clusterIds;
   private Integer clusters = null;
   private boolean ifNotExists = false;
@@ -66,7 +66,7 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
-      final YTDatabaseSessionInternal database = getDatabase();
+      final DatabaseSessionInternal database = getDatabase();
       init((CommandRequestText) iRequest);
 
       StringBuilder word = new StringBuilder();
@@ -74,21 +74,21 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CREATE)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_CREATE + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
       if (pos == -1 || !word.toString().equals(KEYWORD_CLASS)) {
-        throw new YTCommandSQLParsingException(
+        throw new CommandSQLParsingException(
             "Keyword " + KEYWORD_CLASS + " not found. Use " + getSyntax(), parserText, oldPos);
       }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
       if (pos == -1) {
-        throw new YTCommandSQLParsingException("Expected <class>", parserText, oldPos);
+        throw new CommandSQLParsingException("Expected <class>", parserText, oldPos);
       }
 
       className = word.toString();
@@ -96,7 +96,7 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
         className = ((SQLCreateClassStatement) preParsedStatement).name.getStringValue();
       }
       if (className == null) {
-        throw new YTCommandSQLParsingException("Expected <class>", parserText, oldPos);
+        throw new CommandSQLParsingException("Expected <class>", parserText, oldPos);
       }
 
       oldPos = pos;
@@ -106,12 +106,12 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
         if (k.equals(KEYWORD_EXTENDS)) {
           boolean hasNext;
           boolean newParser = this.preParsedStatement != null;
-          YTClass superClass;
+          SchemaClass superClass;
           do {
             oldPos = pos;
             pos = nextWord(parserText, parserTextUpperCase, pos, word, false);
             if (pos == -1) {
-              throw new YTCommandSQLParsingException(
+              throw new CommandSQLParsingException(
                   "Syntax error after EXTENDS for class "
                       + className
                       + ". Expected the super-class name. Use "
@@ -123,7 +123,7 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
 
             if (!database.getMetadata().getImmutableSchemaSnapshot().existsClass(superclassName)
                 && !newParser) {
-              throw new YTCommandSQLParsingException(
+              throw new CommandSQLParsingException(
                   "Super-class " + word + " not exists", parserText, oldPos);
             }
             superClass = database.getMetadata().getSchema().getClass(superclassName);
@@ -147,7 +147,7 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
             for (SQLIdentifier superclass : superclasses) {
               String superclassName = superclass.getStringValue();
               if (!database.getMetadata().getSchema().existsClass(superclassName)) {
-                throw new YTCommandSQLParsingException(
+                throw new CommandSQLParsingException(
                     "Super-class " + word + " not exists", parserText, oldPos);
               }
               superClass = database.getMetadata().getSchema().getClass(superclassName);
@@ -158,7 +158,7 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
           oldPos = pos;
           pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false, " =><()");
           if (pos == -1) {
-            throw new YTCommandSQLParsingException(
+            throw new CommandSQLParsingException(
                 "Syntax error after CLUSTER for class "
                     + className
                     + ". Expected the cluster id or name. Use "
@@ -182,22 +182,22 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
               }
 
               if (clusterIds[i] == -1) {
-                throw new YTCommandSQLParsingException(
+                throw new CommandSQLParsingException(
                     "Cluster with id " + clusterIds[i] + " does not exists", parserText, oldPos);
               }
 
               try {
                 String clusterName = database.getClusterNameById(clusterIds[i]);
                 if (clusterName == null) {
-                  throw new YTClusterDoesNotExistException(
+                  throw new ClusterDoesNotExistException(
                       "Cluster with id "
                           + clusterIds[i]
                           + " does not exist inside of storage "
                           + database.getName());
                 }
               } catch (Exception e) {
-                throw YTException.wrapException(
-                    new YTCommandSQLParsingException(
+                throw BaseException.wrapException(
+                    new CommandSQLParsingException(
                         "Cluster with id " + clusterIds[i] + " does not exists",
                         parserText,
                         oldPos),
@@ -209,7 +209,7 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
           oldPos = pos;
           pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false, " =><()");
           if (pos == -1) {
-            throw new YTCommandSQLParsingException(
+            throw new CommandSQLParsingException(
                 "Syntax error after CLUSTERS for class "
                     + className
                     + ". Expected the number of clusters. Use "
@@ -225,7 +225,7 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
           oldPos = pos;
           pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false, " =><()");
           if (!word.toString().equalsIgnoreCase(KEYWORD_NOT)) {
-            throw new YTCommandSQLParsingException(
+            throw new CommandSQLParsingException(
                 "Syntax error after IF for class "
                     + className
                     + ". Expected NOT. Use "
@@ -236,7 +236,7 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
           oldPos = pos;
           pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false, " =><()");
           if (!word.toString().equalsIgnoreCase(KEYWORD_EXISTS)) {
-            throw new YTCommandSQLParsingException(
+            throw new CommandSQLParsingException(
                 "Syntax error after IF NOT for class "
                     + className
                     + ". Expected EXISTS. Use "
@@ -246,7 +246,7 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
           }
           ifNotExists = true;
         } else {
-          throw new YTCommandSQLParsingException("Invalid keyword: " + k);
+          throw new CommandSQLParsingException("Invalid keyword: " + k);
         }
 
         oldPos = pos;
@@ -285,9 +285,9 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
   /**
    * Execute the CREATE CLASS.
    */
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (className == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
@@ -299,12 +299,12 @@ public class CommandExecutorSQLCreateClass extends CommandExecutorSQLAbstract
         database
             .getMetadata()
             .getSchema()
-            .createClass(className, clusters, superClasses.toArray(new YTClass[0]));
+            .createClass(className, clusters, superClasses.toArray(new SchemaClass[0]));
       } else {
         database
             .getMetadata()
             .getSchema()
-            .createClass(className, clusterIds, superClasses.toArray(new YTClass[0]));
+            .createClass(className, clusterIds, superClasses.toArray(new SchemaClass[0]));
       }
     }
     return database.getMetadata().getSchema().getClasses().size();

@@ -20,15 +20,15 @@
 package com.orientechnologies.orient.client.remote.message;
 
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryAsyncRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
@@ -39,7 +39,7 @@ public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordRe
 
   private RecordAbstract content;
   private byte[] rawContent;
-  private YTRecordId rid;
+  private RecordId rid;
   private byte recordType;
   private byte mode;
 
@@ -52,7 +52,7 @@ public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordRe
 
   @Override
   public byte getCommand() {
-    return OChannelBinaryProtocol.REQUEST_RECORD_CREATE;
+    return ChannelBinaryProtocol.REQUEST_RECORD_CREATE;
   }
 
   @Override
@@ -60,20 +60,20 @@ public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordRe
     return "Create Record";
   }
 
-  public OCreateRecordRequest(byte[] iContent, YTRecordId iRid, byte iRecordType) {
+  public OCreateRecordRequest(byte[] iContent, RecordId iRid, byte iRecordType) {
     this.rawContent = iContent;
     this.rid = iRid;
     this.recordType = iRecordType;
   }
 
-  public OCreateRecordRequest(RecordAbstract iContent, YTRecordId iRid, byte iRecordType) {
+  public OCreateRecordRequest(RecordAbstract iContent, RecordId iRid, byte iRecordType) {
     this.content = iContent;
     this.rid = iRid;
     this.recordType = iRecordType;
   }
 
   @Override
-  public void write(YTDatabaseSessionInternal database, final OChannelDataOutput network,
+  public void write(DatabaseSessionInternal database, final ChannelDataOutput network,
       final OStorageRemoteSession session)
       throws IOException {
     network.writeShort((short) rid.getClusterId());
@@ -82,12 +82,12 @@ public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordRe
     network.writeByte(mode);
   }
 
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
-      ORecordSerializer serializer)
+  public void read(DatabaseSessionInternal db, ChannelDataInput channel, int protocolVersion,
+      RecordSerializer serializer)
       throws IOException {
     final int dataSegmentId = protocolVersion < 24 ? channel.readInt() : 0;
 
-    rid = new YTRecordId(channel.readShort(), YTRID.CLUSTER_POS_INVALID);
+    rid = new RecordId(channel.readShort(), RID.CLUSTER_POS_INVALID);
     byte[] rec = channel.readBytes();
     recordType = channel.readByte();
     mode = channel.readByte();
@@ -98,7 +98,7 @@ public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordRe
     serializer.fromStream(db, rec, content, null);
   }
 
-  public YTRecordId getRid() {
+  public RecordId getRid() {
     return rid;
   }
 

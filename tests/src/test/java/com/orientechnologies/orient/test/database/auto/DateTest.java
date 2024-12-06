@@ -15,11 +15,11 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResult;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
-import com.jetbrains.youtrack.db.internal.core.util.ODateHelper;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -57,10 +57,10 @@ public class DateTest extends DocumentDBBaseTest {
 
     database.begin();
     doc2 = database.bindToSession(doc2);
-    Assert.assertTrue(doc2.field("date", YTType.DATE) instanceof Date);
+    Assert.assertTrue(doc2.field("date", PropertyType.DATE) instanceof Date);
     Assert.assertTrue(doc2.field("date", Date.class) instanceof Date);
 
-    YTResultSet result =
+    ResultSet result =
         database.command("select * from Order where date >= ? and context = 'test'", begin);
 
     Assert.assertEquals(result.stream().count(), 2);
@@ -77,11 +77,11 @@ public class DateTest extends DocumentDBBaseTest {
     database.begin();
     EntityImpl doc = new EntityImpl("Order");
     doc.field("context", "testPrecision");
-    doc.field("date", ODateHelper.now(), YTType.DATETIME);
+    doc.field("date", DateHelper.now(), PropertyType.DATETIME);
     doc.save();
     database.commit();
 
-    List<YTResult> result =
+    List<Result> result =
         database
             .command(
                 "select * from Order where date >= ? and context = 'testPrecision'", dateAsString)
@@ -95,7 +95,7 @@ public class DateTest extends DocumentDBBaseTest {
   public void testDateTypes() throws ParseException {
     EntityImpl doc = new EntityImpl();
     doc.field("context", "test");
-    doc.field("date", System.currentTimeMillis(), YTType.DATE);
+    doc.field("date", System.currentTimeMillis(), PropertyType.DATE);
 
     Assert.assertTrue(doc.field("date") instanceof Date);
   }
@@ -116,7 +116,7 @@ public class DateTest extends DocumentDBBaseTest {
         .close();
     database.commit();
 
-    YTResultSet result = database.query("select from TimeTest where firstname = ?", "Robert");
+    ResultSet result = database.query("select from TimeTest where firstname = ?", "Robert");
     Assert.assertEquals(result.next().getProperty("birthDate"), date);
     Assert.assertFalse(result.hasNext());
   }

@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.jetbrains.youtrack.db.internal.common.concur.lock.YTLockException;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.LockException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSecurityAccessException;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.YTSecurityUser;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.SecurityAccessException;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.OTokenHandler;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -70,8 +70,8 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
       } else if (tokenHandler != null) {
         // Generate and return a JWT access token
 
-        YTSecurityUser user = null;
-        try (YTDatabaseSessionInternal db = server.openDatabase(iRequest.getDatabaseName(),
+        SecurityUser user = null;
+        try (DatabaseSessionInternal db = server.openDatabase(iRequest.getDatabaseName(),
             username,
             password)) {
           user = db.getUser();
@@ -81,9 +81,9 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
             signedToken = new String(tokenBytes);
           }
 
-        } catch (YTSecurityAccessException e) {
+        } catch (SecurityAccessException e) {
           // WRONG USER/PASSWD
-        } catch (YTLockException e) {
+        } catch (LockException e) {
           LogManager.instance()
               .error(this, "Cannot access to the database '" + iRequest.getDatabaseName() + "'", e);
         }
@@ -109,15 +109,15 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
   // null is returned in all other cases and means authentication was unsuccessful.
   protected String authenticate(
       final String username, final String password, final String iDatabaseName) throws IOException {
-    YTDatabaseSessionInternal db = null;
+    DatabaseSessionInternal db = null;
     String userRid = null;
     try {
       db = server.openDatabase(iDatabaseName, username, password);
 
       userRid = (db.getUser() == null ? "<server user>" : db.getUser().getIdentity(db).toString());
-    } catch (YTSecurityAccessException e) {
+    } catch (SecurityAccessException e) {
       // WRONG USER/PASSWD
-    } catch (YTLockException e) {
+    } catch (LockException e) {
       LogManager.instance()
           .error(this, "Cannot access to the database '" + iDatabaseName + "'", e);
     } finally {

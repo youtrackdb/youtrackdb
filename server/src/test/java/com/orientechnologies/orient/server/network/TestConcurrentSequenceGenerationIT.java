@@ -4,7 +4,7 @@ import static org.junit.Assert.assertNotNull;
 
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
@@ -34,7 +34,7 @@ public class TestConcurrentSequenceGenerationIT {
     youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         TestConcurrentSequenceGenerationIT.class.getSimpleName());
-    YTDatabaseSession databaseSession =
+    DatabaseSession databaseSession =
         youTrackDB.open(TestConcurrentSequenceGenerationIT.class.getSimpleName(), "admin", "admin");
     databaseSession.execute(
         "sql",
@@ -59,7 +59,7 @@ public class TestConcurrentSequenceGenerationIT {
         var future =
             executorService.submit(
                 () -> {
-                  try (YTDatabaseSession db = pool.acquire()) {
+                  try (DatabaseSession db = pool.acquire()) {
                     for (int j = 0; j < RECORDS; j++) {
                       db.executeInTx(() -> {
                         Vertex vert = db.newVertex("TestSequence");

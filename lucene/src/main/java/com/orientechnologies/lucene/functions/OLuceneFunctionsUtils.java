@@ -1,11 +1,11 @@
 package com.orientechnologies.lucene.functions;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.metadata.OMetadataInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
-import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
+import com.orientechnologies.lucene.index.LuceneFullTextIndex;
 import org.apache.lucene.index.memory.MemoryIndex;
 
 /**
@@ -15,21 +15,21 @@ public class OLuceneFunctionsUtils {
 
   public static final String MEMORY_INDEX = "_memoryIndex";
 
-  protected static OLuceneFullTextIndex searchForIndex(SQLExpression[] args, CommandContext ctx) {
-    final String indexName = (String) args[0].execute((YTIdentifiable) null, ctx);
+  protected static LuceneFullTextIndex searchForIndex(SQLExpression[] args, CommandContext ctx) {
+    final String indexName = (String) args[0].execute((Identifiable) null, ctx);
     return getLuceneFullTextIndex(ctx, indexName);
   }
 
-  protected static OLuceneFullTextIndex getLuceneFullTextIndex(
+  protected static LuceneFullTextIndex getLuceneFullTextIndex(
       final CommandContext ctx, final String indexName) {
-    final YTDatabaseSessionInternal documentDatabase = ctx.getDatabase();
+    final DatabaseSessionInternal documentDatabase = ctx.getDatabase();
     documentDatabase.activateOnCurrentThread();
-    final OMetadataInternal metadata = documentDatabase.getMetadata();
+    final MetadataInternal metadata = documentDatabase.getMetadata();
 
-    final OLuceneFullTextIndex index =
-        (OLuceneFullTextIndex)
+    final LuceneFullTextIndex index =
+        (LuceneFullTextIndex)
             metadata.getIndexManagerInternal().getIndex(documentDatabase, indexName);
-    if (!(index instanceof OLuceneFullTextIndex)) {
+    if (!(index instanceof LuceneFullTextIndex)) {
       throw new IllegalArgumentException("Not a valid Lucene index:: " + indexName);
     }
     return index;

@@ -28,7 +28,7 @@
     <!--<handler class="com.orientechnologies.lucene.OLuceneSpatialIndexPlugin">-->
 
     <!--</handler>-->
-    <handler class="com.orientechnologies.orient.server.handler.OAutomaticBackup">
+    <handler class="com.orientechnologies.orient.server.handler.AutomaticBackup">
       <parameters>
         <parameter value="false" name="enabled"/>
         <parameter value="4h" name="delay"/>
@@ -38,7 +38,7 @@
         <parameter value="" name="db.exclude"/>
       </parameters>
     </handler>
-    <handler class="com.orientechnologies.orient.server.handler.OServerSideScriptInterpreter">
+    <handler class="com.orientechnologies.orient.server.handler.ServerSideScriptInterpreter">
       <parameters>
         <parameter value="true" name="enabled"/>
         <parameter value="SQL" name="allowedLanguages"/>
@@ -48,10 +48,10 @@
   <network>
     <protocols>
       <protocol
-        implementation="com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary"
+        implementation="com.orientechnologies.orient.server.network.protocol.binary.NetworkProtocolBinary"
         name="binary"/>
       <protocol
-        implementation="com.orientechnologies.orient.server.network.protocol.http.ONetworkProtocolHttpDb"
+        implementation="com.orientechnologies.orient.server.network.protocol.http.NetworkProtocolHttpDb"
         name="http"/>
     </protocols>
     <listeners>

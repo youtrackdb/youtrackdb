@@ -9,7 +9,7 @@ public class UnsafeConverterTest extends AbstractConverterTest {
 
   @Before
   public void beforeClass() {
-    converter = new OUnsafeBinaryConverter();
+    converter = new UnsafeBinaryConverter();
   }
 
   @Override

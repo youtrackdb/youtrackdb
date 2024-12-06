@@ -19,11 +19,11 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.put;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -44,14 +44,14 @@ public class OServerCommandPutDocument extends OServerCommandDocumentAbstract {
 
     iRequest.getData().commandInfo = "Edit Document";
 
-    try (YTDatabaseSession db = getProfiledDatabaseInstance(iRequest)) {
-      YTRecordId recordId;
+    try (DatabaseSession db = getProfiledDatabaseInstance(iRequest)) {
+      RecordId recordId;
       if (urlParts.length > 2) {
         // EXTRACT RID
         final int parametersPos = urlParts[2].indexOf('?');
         final String rid =
             parametersPos > -1 ? urlParts[2].substring(0, parametersPos) : urlParts[2];
-        recordId = new YTRecordId(rid);
+        recordId = new RecordId(rid);
 
         if (!recordId.isValid()) {
           throw new IllegalArgumentException("Invalid Record ID in request: " + recordId);
@@ -73,11 +73,11 @@ public class OServerCommandPutDocument extends OServerCommandDocumentAbstract {
                 if (iRequest.getIfMatch() != null)
                 // USE THE IF-MATCH HTTP HEADER AS VERSION
                 {
-                  ORecordInternal.setVersion(doc, Integer.parseInt(iRequest.getIfMatch()));
+                  RecordInternal.setVersion(doc, Integer.parseInt(iRequest.getIfMatch()));
                 }
 
                 if (!txRecordId.isValid()) {
-                  txRecordId = (YTRecordId) doc.getIdentity();
+                  txRecordId = (RecordId) doc.getIdentity();
                 }
 
                 if (!txRecordId.isValid()) {
@@ -87,7 +87,7 @@ public class OServerCommandPutDocument extends OServerCommandDocumentAbstract {
                 final EntityImpl currentDocument;
                 try {
                   currentDocument = db.load(txRecordId);
-                } catch (YTRecordNotFoundException rnf) {
+                } catch (RecordNotFoundException rnf) {
                   return null;
                 }
 
@@ -107,7 +107,7 @@ public class OServerCommandPutDocument extends OServerCommandDocumentAbstract {
                   if (doc.getVersion() > 0)
                   // OVERWRITE THE VERSION
                   {
-                    ORecordInternal.setVersion(currentDocument, doc.getVersion());
+                    RecordInternal.setVersion(currentDocument, doc.getVersion());
                   }
 
                   currentDocument.save();

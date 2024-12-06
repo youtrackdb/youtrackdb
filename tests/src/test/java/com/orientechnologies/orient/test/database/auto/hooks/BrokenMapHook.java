@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.test.database.auto.hooks;
 
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTRecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.hook.YTRecordHook;
-import com.jetbrains.youtrack.db.internal.core.hook.YTRecordHookAbstract;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
+import com.jetbrains.youtrack.db.internal.core.hook.RecordHookAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import java.text.SimpleDateFormat;
@@ -15,12 +15,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-public class BrokenMapHook extends YTRecordHookAbstract implements YTRecordHook {
+public class BrokenMapHook extends RecordHookAbstract implements RecordHook {
 
-  private final YTDatabaseSessionInternal database;
+  private final DatabaseSessionInternal database;
 
   public BrokenMapHook() {
-    this.database = ODatabaseRecordThreadLocal.instance().get();
+    this.database = DatabaseRecordThreadLocal.instance().get();
   }
 
   @Override
@@ -76,7 +76,7 @@ public class BrokenMapHook extends YTRecordHookAbstract implements YTRecordHook 
             });
       }
       return RESULT.RECORD_CHANGED;
-    } catch (YTRecordNotFoundException e) {
+    } catch (RecordNotFoundException e) {
       return RESULT.RECORD_NOT_CHANGED;
     }
   }

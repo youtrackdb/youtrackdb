@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.record.ORecordInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -39,7 +39,7 @@ public class OServerCommandPostDocument extends OServerCommandDocumentAbstract {
 
     iRequest.getData().commandInfo = "Create document";
 
-    YTDatabaseSession db = null;
+    DatabaseSession db = null;
 
     EntityImpl d;
 
@@ -51,10 +51,10 @@ public class OServerCommandPostDocument extends OServerCommandDocumentAbstract {
               () -> {
                 EntityImpl doc = new EntityImpl();
                 doc.fromJSON(iRequest.getContent());
-                ORecordInternal.setVersion(doc, 0);
+                RecordInternal.setVersion(doc, 0);
 
                 // ASSURE TO MAKE THE RECORD ID INVALID
-                ((YTRecordId) doc.getIdentity()).setClusterPosition(YTRID.CLUSTER_POS_INVALID);
+                ((RecordId) doc.getIdentity()).setClusterPosition(RID.CLUSTER_POS_INVALID);
 
                 doc.save();
                 return doc;

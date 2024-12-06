@@ -13,9 +13,9 @@
  */
 package com.orientechnologies.spatial.shape.legacy;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeKey;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import java.util.Collection;
 import java.util.List;
 import org.locationtech.spatial4j.context.SpatialContext;
@@ -28,7 +28,7 @@ import org.locationtech.spatial4j.shape.Rectangle;
 public class ORectangleLegacyBuilder implements OShapeBuilderLegacy<Rectangle> {
 
   @Override
-  public Rectangle makeShape(YTDatabaseSessionInternal session, OCompositeKey key,
+  public Rectangle makeShape(DatabaseSessionInternal session, CompositeKey key,
       SpatialContext ctx) {
 
     Point[] points = new Point[2];
@@ -36,8 +36,10 @@ public class ORectangleLegacyBuilder implements OShapeBuilderLegacy<Rectangle> {
 
     for (Object o : key.getKeys()) {
       List<Number> numbers = (List<Number>) o;
-      double lat = ((Double) YTType.convert(session, numbers.get(0), Double.class)).doubleValue();
-      double lng = ((Double) YTType.convert(session, numbers.get(1), Double.class)).doubleValue();
+      double lat = ((Double) PropertyType.convert(session, numbers.get(0),
+          Double.class)).doubleValue();
+      double lng = ((Double) PropertyType.convert(session, numbers.get(1),
+          Double.class)).doubleValue();
       points[i] = ctx.makePoint(lng, lat);
       i++;
     }
@@ -53,7 +55,7 @@ public class ORectangleLegacyBuilder implements OShapeBuilderLegacy<Rectangle> {
   }
 
   @Override
-  public boolean canHandle(OCompositeKey key) {
+  public boolean canHandle(CompositeKey key) {
     boolean canHandle = key.getKeys().size() == 2;
     for (Object o : key.getKeys()) {
       if (!(o instanceof Collection)) {

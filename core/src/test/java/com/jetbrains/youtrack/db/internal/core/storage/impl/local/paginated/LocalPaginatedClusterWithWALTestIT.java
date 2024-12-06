@@ -1,14 +1,14 @@
 // package com.orientechnologies.orient.core.storage.impl.local.paginated;
 //
 // import com.orientechnologies.core.config.GlobalConfiguration;
-// import com.orientechnologies.core.document.db.YTDatabaseDocumentTx;
+// import com.orientechnologies.core.document.db.DatabaseDocumentTx;
 // import com.orientechnologies.core.storage.Storage;
-// import com.orientechnologies.core.cache.storage.OCacheEntry;
-// import com.orientechnologies.core.cache.storage.OReadCache;
-// import com.orientechnologies.core.cache.storage.OWriteCache;
-// import com.orientechnologies.core.local.cache.storage.OWOWCache;
+// import com.orientechnologies.core.cache.storage.CacheEntry;
+// import com.orientechnologies.core.cache.storage.ReadCache;
+// import com.orientechnologies.core.cache.storage.WriteCache;
+// import com.orientechnologies.core.local.cache.storage.WOWCache;
 // import com.orientechnologies.orient.core.storage.fs.OFileClassic;
-// import com.orientechnologies.core.base.paginated.local.impl.storage.ODurablePage;
+// import com.orientechnologies.core.base.paginated.local.impl.storage.DurablePage;
 // import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.*;
 // import
 // com.orientechnologies.core.cas.wal.paginated.local.impl.storage.CASDiskWriteAheadLog;
@@ -34,13 +34,13 @@
 //    GlobalConfiguration.FILE_LOCK.setValue(false);
 //  }
 //
-//  private YTDatabaseDocumentTx expectedDatabase;
+//  private DatabaseDocumentTx expectedDatabase;
 //
-//  private OReadCache  readCache;
-//  private OWriteCache writeCache;
+//  private ReadCache  readCache;
+//  private WriteCache writeCache;
 //
-//  private OReadCache  expectedReadCache;
-//  private OWriteCache expectedWriteCache;
+//  private ReadCache  expectedReadCache;
+//  private WriteCache expectedWriteCache;
 //
 //  private String                 storageDir;
 //  private String                 expectedStorageDir;
@@ -71,7 +71,7 @@
 //  }
 //
 //  private void createExpectedStorage() {
-//    expectedDatabase = new YTDatabaseDocumentTx("plocal:" + buildDirectory + File.separator +
+//    expectedDatabase = new DatabaseDocumentTx("plocal:" + buildDirectory + File.separator +
 // "localPaginatedClusterWithWALTestTwo");
 //    if (expectedDatabase.exists()) {
 //      expectedDatabase.open("admin", "admin");
@@ -88,7 +88,7 @@
 //  }
 //
 //  private void createActualStorage() throws IOException {
-//    databaseDocumentTx = new YTDatabaseDocumentTx(
+//    databaseDocumentTx = new DatabaseDocumentTx(
 //        "plocal:" + buildDirectory + File.separator + "localPaginatedClusterWithWALTestOne");
 //    if (databaseDocumentTx.exists()) {
 //      databaseDocumentTx.open("admin", "admin");
@@ -326,12 +326,12 @@
 //
 //  private void assertFileRestoreFromWAL() throws IOException {
 //    long actualDataFileId = writeCache.fileIdByName(paginatedCluster.getName() + ".pcl");
-//    String actualDataFileNativeFileName = ((OWOWCache)
+//    String actualDataFileNativeFileName = ((WOWCache)
 // writeCache).nativeFileNameById(actualDataFileId);
 //
 //    long actualClusterPositionMapId = writeCache.fileIdByName(paginatedCluster.getName() +
 // ".cpm");
-//    String actualClusterPositionMapName = ((OWOWCache)
+//    String actualClusterPositionMapName = ((WOWCache)
 // writeCache).nativeFileNameById(actualClusterPositionMapId);
 //
 //    databaseDocumentTx.activateOnCurrentThread();
@@ -343,12 +343,12 @@
 //
 //    long expectedDataFileId =
 // expectedWriteCache.fileIdByName("expectedPaginatedClusterWithWALTest.pcl");
-//    String expectedDataFileNativeFileName = ((OWOWCache)
+//    String expectedDataFileNativeFileName = ((WOWCache)
 // expectedWriteCache).nativeFileNameById(expectedDataFileId);
 //
 //    long expectedClusterPositionMapId =
 // expectedWriteCache.fileIdByName("expectedPaginatedClusterWithWALTest.cpm");
-//    String expectedClusterPositionMapName = ((OWOWCache)
+//    String expectedClusterPositionMapName = ((WOWCache)
 // expectedWriteCache).nativeFileNameById(expectedClusterPositionMapId);
 //
 //    expectedDatabase.activateOnCurrentThread();
@@ -365,30 +365,30 @@
 //    ODiskWriteAheadLog log = new ODiskWriteAheadLog(4, -1, 10 * 1024L * OWALPage.PAGE_SIZE,
 //        null, true, storage, 32 * 1024 * 1024,
 //        120);
-//    OLogSequenceNumber lsn = log.begin();
+//    LogSequenceNumber lsn = log.begin();
 //
-//    List<OWALRecord> atomicUnit = new ArrayList<OWALRecord>();
+//    List<WALRecord> atomicUnit = new ArrayList<WALRecord>();
 //
 //    boolean atomicChangeIsProcessed = false;
 //    while (lsn != null) {
-//      OWALRecord walRecord = log.read(lsn);
-//      if (walRecord instanceof OOperationUnitRecord)
+//      WALRecord walRecord = log.read(lsn);
+//      if (walRecord instanceof OperationUnitRecord)
 //        atomicUnit.add(walRecord);
 //
 //      if (!atomicChangeIsProcessed) {
-//        if (walRecord instanceof OAtomicUnitStartRecord)
+//        if (walRecord instanceof AtomicUnitStartRecord)
 //          atomicChangeIsProcessed = true;
-//      } else if (walRecord instanceof OAtomicUnitEndRecord) {
+//      } else if (walRecord instanceof AtomicUnitEndRecord) {
 //        atomicChangeIsProcessed = false;
 //
-//        for (OWALRecord restoreRecord : atomicUnit) {
-//          if (restoreRecord instanceof OAtomicUnitStartRecord || restoreRecord instanceof
-// OAtomicUnitEndRecord
-//              || restoreRecord instanceof ONonTxOperationPerformedWALRecord)
+//        for (WALRecord restoreRecord : atomicUnit) {
+//          if (restoreRecord instanceof AtomicUnitStartRecord || restoreRecord instanceof
+// AtomicUnitEndRecord
+//              || restoreRecord instanceof NonTxOperationPerformedWALRecord)
 //            continue;
 //
-//          if (restoreRecord instanceof OFileCreatedWALRecord) {
-//            final OFileCreatedWALRecord fileCreatedCreatedRecord = (OFileCreatedWALRecord)
+//          if (restoreRecord instanceof FileCreatedWALRecord) {
+//            final FileCreatedWALRecord fileCreatedCreatedRecord = (FileCreatedWALRecord)
 // restoreRecord;
 //            final String fileName = fileCreatedCreatedRecord.getFileName()
 //                .replace("actualPaginatedClusterWithWALTest",
@@ -397,12 +397,12 @@
 //              expectedReadCache.addFile(fileName, fileCreatedCreatedRecord.getFileId(),
 // expectedWriteCache);
 //          } else {
-//            final OUpdatePageRecord updatePageRecord = (OUpdatePageRecord) restoreRecord;
+//            final UpdatePageRecord updatePageRecord = (UpdatePageRecord) restoreRecord;
 //
 //            final long fileId = updatePageRecord.getFileId();
 //            final long pageIndex = updatePageRecord.getPageIndex();
 //
-//            OCacheEntry cacheEntry = expectedReadCache.loadForWrite(fileId, pageIndex, true,
+//            CacheEntry cacheEntry = expectedReadCache.loadForWrite(fileId, pageIndex, true,
 // expectedWriteCache, 1, false);
 //            if (cacheEntry == null) {
 //              do {
@@ -413,9 +413,9 @@
 //              } while (cacheEntry.getPageIndex() != pageIndex);
 //            }
 //            try {
-//              ODurablePage durablePage = new ODurablePage(cacheEntry);
+//              DurablePage durablePage = new DurablePage(cacheEntry);
 //              durablePage.restoreChanges(updatePageRecord.getChanges());
-//              durablePage.setOperationIdLsn(new OLogSequenceNumber(0, 0));
+//              durablePage.setOperationIdLsn(new LogSequenceNumber(0, 0));
 //
 //            } finally {
 //              expectedReadCache.releaseFromWrite(cacheEntry, expectedWriteCache);
@@ -426,8 +426,8 @@
 //        atomicUnit.clear();
 //      } else {
 //        Assert.assertTrue("Unexpected type of the WAL record " + walRecord.getClass().getName(),
-//            walRecord instanceof OUpdatePageRecord || walRecord instanceof OFileCreatedWALRecord
-//                || walRecord instanceof ONonTxOperationPerformedWALRecord);
+//            walRecord instanceof UpdatePageRecord || walRecord instanceof FileCreatedWALRecord
+//                || walRecord instanceof NonTxOperationPerformedWALRecord);
 //      }
 //
 //      lsn = log.next(lsn);
@@ -468,8 +468,8 @@
 // datFileTwo) throws IOException {
 //    Assert.assertEquals(datFileOne.length(), datFileTwo.length());
 //
-//    byte[] expectedContent = new byte[OClusterPage.PAGE_SIZE];
-//    byte[] actualContent = new byte[OClusterPage.PAGE_SIZE];
+//    byte[] expectedContent = new byte[ClusterPage.PAGE_SIZE];
+//    byte[] actualContent = new byte[ClusterPage.PAGE_SIZE];
 //
 //    datFileOne.seek(OFileClassic.HEADER_SIZE);
 //    datFileTwo.seek(OFileClassic.HEADER_SIZE);
@@ -480,13 +480,13 @@
 //
 //      //      Assert.assertEquals(expectedContent, actualContent);
 //
-//      assertThat(Arrays.copyOfRange(expectedContent, ODurablePage.NEXT_FREE_POSITION,
-// ODurablePage.MAX_PAGE_SIZE_BYTES))
-//          .isEqualTo(Arrays.copyOfRange(actualContent, ODurablePage.NEXT_FREE_POSITION,
-// ODurablePage.MAX_PAGE_SIZE_BYTES));
+//      assertThat(Arrays.copyOfRange(expectedContent, DurablePage.NEXT_FREE_POSITION,
+// DurablePage.MAX_PAGE_SIZE_BYTES))
+//          .isEqualTo(Arrays.copyOfRange(actualContent, DurablePage.NEXT_FREE_POSITION,
+// DurablePage.MAX_PAGE_SIZE_BYTES));
 //
-//      expectedContent = new byte[OClusterPage.PAGE_SIZE];
-//      actualContent = new byte[OClusterPage.PAGE_SIZE];
+//      expectedContent = new byte[ClusterPage.PAGE_SIZE];
+//      actualContent = new byte[ClusterPage.PAGE_SIZE];
 //      bytesRead = datFileOne.read(expectedContent);
 //    }
 //  }

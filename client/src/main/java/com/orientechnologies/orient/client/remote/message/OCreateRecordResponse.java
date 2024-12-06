@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.client.remote.message;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataInput;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.OChannelDataOutput;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import java.io.IOException;
@@ -33,22 +33,22 @@ import java.util.UUID;
 
 public class OCreateRecordResponse implements OBinaryResponse {
 
-  private YTRecordId identity;
+  private RecordId identity;
   private int version;
-  private Map<UUID, OBonsaiCollectionPointer> changedIds;
+  private Map<UUID, BonsaiCollectionPointer> changedIds;
 
   public OCreateRecordResponse() {
   }
 
   public OCreateRecordResponse(
-      YTRecordId identity, int version, Map<UUID, OBonsaiCollectionPointer> changedIds) {
+      RecordId identity, int version, Map<UUID, BonsaiCollectionPointer> changedIds) {
     this.identity = identity;
     this.version = version;
     this.changedIds = changedIds;
   }
 
-  public void write(YTDatabaseSessionInternal session, OChannelDataOutput channel,
-      int protocolVersion, ORecordSerializer serializer)
+  public void write(DatabaseSessionInternal session, ChannelDataOutput channel,
+      int protocolVersion, RecordSerializer serializer)
       throws IOException {
     channel.writeShort((short) this.identity.getClusterId());
     channel.writeLong(this.identity.getClusterPosition());
@@ -59,16 +59,16 @@ public class OCreateRecordResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(YTDatabaseSessionInternal db, OChannelDataInput network,
+  public void read(DatabaseSessionInternal db, ChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
     short clusterId = network.readShort();
     long posistion = network.readLong();
-    identity = new YTRecordId(clusterId, posistion);
+    identity = new RecordId(clusterId, posistion);
     version = network.readVersion();
     changedIds = OMessageHelper.readCollectionChanges(network);
   }
 
-  public YTRecordId getIdentity() {
+  public RecordId getIdentity() {
     return identity;
   }
 
@@ -76,7 +76,7 @@ public class OCreateRecordResponse implements OBinaryResponse {
     return version;
   }
 
-  public Map<UUID, OBonsaiCollectionPointer> getChangedIds() {
+  public Map<UUID, BonsaiCollectionPointer> getChangedIds() {
     return changedIds;
   }
 }

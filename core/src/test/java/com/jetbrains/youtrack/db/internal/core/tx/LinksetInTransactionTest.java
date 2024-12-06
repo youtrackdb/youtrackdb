@@ -1,19 +1,19 @@
 package com.jetbrains.youtrack.db.internal.core.tx;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class LinksetInTransactionTest extends DBTestBase {
+public class LinksetInTransactionTest extends DbTestBase {
 
   @Test
   public void test() {
 
-    db.createClass("WithLinks").createProperty(db, "links", YTType.LINKSET);
+    db.createClass("WithLinks").createProperty(db, "links", PropertyType.LINKSET);
     db.createClass("Linked");
 
     db.begin();

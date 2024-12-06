@@ -20,17 +20,17 @@
 
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v2;
 
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OCacheEntry;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.ODurablePage;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
 
 /**
  * @since 5/8/14
  */
-public final class HashIndexMetadataPageV2 extends ODurablePage {
+public final class HashIndexMetadataPageV2 extends DurablePage {
 
   private static final int RECORDS_COUNT_OFFSET = NEXT_FREE_POSITION;
 
-  public HashIndexMetadataPageV2(OCacheEntry cacheEntry) {
+  public HashIndexMetadataPageV2(CacheEntry cacheEntry) {
     super(cacheEntry);
   }
 

@@ -1,9 +1,9 @@
 package com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.common;
 
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OWALRecord;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.WALRecord;
 import java.nio.ByteBuffer;
 
-public interface WriteableWALRecord extends OWALRecord {
+public interface WriteableWALRecord extends WALRecord {
 
   void setBinaryContent(ByteBuffer buffer);
 

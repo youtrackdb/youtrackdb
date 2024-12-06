@@ -1,15 +1,15 @@
 package com.jetbrains.youtrack.db.internal.core.sql.executor;
 
-import com.jetbrains.youtrack.db.internal.common.concur.YTTimeoutException;
+import com.jetbrains.youtrack.db.internal.common.concur.TimeoutException;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.iterator.ORecordIteratorCluster;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
@@ -47,11 +47,11 @@ public class FindReferencesStep extends AbstractExecutionStep {
   }
 
   @Override
-  public ExecutionStream internalStart(CommandContext ctx) throws YTTimeoutException {
+  public ExecutionStream internalStart(CommandContext ctx) throws TimeoutException {
     var db = ctx.getDatabase();
-    Set<YTRID> rids = fetchRidsToFind(ctx);
-    List<ORecordIteratorCluster<Record>> clustersIterators = initClusterIterators(ctx);
-    Stream<YTResult> stream =
+    Set<RID> rids = fetchRidsToFind(ctx);
+    List<RecordIteratorCluster<Record>> clustersIterators = initClusterIterators(ctx);
+    Stream<Result> stream =
         clustersIterators.stream()
             .flatMap(
                 (iterator) -> {
@@ -62,15 +62,15 @@ public class FindReferencesStep extends AbstractExecutionStep {
     return ExecutionStream.resultIterator(stream.iterator());
   }
 
-  private static Stream<? extends YTResult> findMatching(YTDatabaseSessionInternal db,
-      Set<YTRID> rids,
+  private static Stream<? extends Result> findMatching(DatabaseSessionInternal db,
+      Set<RID> rids,
       Record record) {
-    YTResultInternal rec = new YTResultInternal(db, record);
-    List<YTResult> results = new ArrayList<>();
-    for (YTRID rid : rids) {
+    ResultInternal rec = new ResultInternal(db, record);
+    List<Result> results = new ArrayList<>();
+    for (RID rid : rids) {
       List<String> resultForRecord = checkObject(Collections.singleton(rid), rec, record, "");
       if (!resultForRecord.isEmpty()) {
-        YTResultInternal nextResult = new YTResultInternal(db);
+        ResultInternal nextResult = new ResultInternal(db);
         nextResult.setProperty("rid", rid);
         nextResult.setProperty("referredBy", rec);
         nextResult.setProperty("fields", resultForRecord);
@@ -80,7 +80,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
     return results.stream();
   }
 
-  private List<ORecordIteratorCluster<Record>> initClusterIterators(CommandContext ctx) {
+  private List<RecordIteratorCluster<Record>> initClusterIterators(CommandContext ctx) {
     var db = ctx.getDatabase();
     Collection<String> targetClusterNames = new HashSet<>();
 
@@ -95,17 +95,17 @@ public class FindReferencesStep extends AbstractExecutionStep {
           } else {
             String clusterName = db.getClusterNameById(c.getClusterNumber());
             if (clusterName == null) {
-              throw new YTCommandExecutionException("Cluster not found: " + c.getClusterNumber());
+              throw new CommandExecutionException("Cluster not found: " + c.getClusterNumber());
             }
             targetClusterNames.add(clusterName);
           }
         }
-        YTSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
+        Schema schema = db.getMetadata().getImmutableSchemaSnapshot();
         assert this.classes != null;
         for (SQLIdentifier className : this.classes) {
-          YTClass clazz = schema.getClass(className.getStringValue());
+          SchemaClass clazz = schema.getClass(className.getStringValue());
           if (clazz == null) {
-            throw new YTCommandExecutionException("Class not found: " + className);
+            throw new CommandExecutionException("Class not found: " + className);
           }
           for (int clusterId : clazz.getPolymorphicClusterIds()) {
             targetClusterNames.add(db.getClusterNameById(clusterId));
@@ -115,18 +115,18 @@ public class FindReferencesStep extends AbstractExecutionStep {
     }
 
     return targetClusterNames.stream()
-        .map(clusterName -> new ORecordIteratorCluster<>(db, db.getClusterIdByName(clusterName)))
+        .map(clusterName -> new RecordIteratorCluster<>(db, db.getClusterIdByName(clusterName)))
         .collect(Collectors.toList());
   }
 
-  private Set<YTRID> fetchRidsToFind(CommandContext ctx) {
-    Set<YTRID> ridsToFind = new HashSet<>();
+  private Set<RID> fetchRidsToFind(CommandContext ctx) {
+    Set<RID> ridsToFind = new HashSet<>();
 
     ExecutionStepInternal prevStep = prev;
     assert prevStep != null;
     ExecutionStream nextSlot = prevStep.start(ctx);
     while (nextSlot.hasNext(ctx)) {
-      YTResult nextRes = nextSlot.next(ctx);
+      Result nextRes = nextSlot.next(ctx);
       if (nextRes.isEntity()) {
         ridsToFind.add(nextRes.toEntity().getIdentity());
       }
@@ -136,13 +136,13 @@ public class FindReferencesStep extends AbstractExecutionStep {
   }
 
   private static List<String> checkObject(
-      final Set<YTRID> iSourceRIDs, final Object value, final Record iRootObject, String prefix) {
-    if (value instanceof YTResult) {
-      return checkRoot(iSourceRIDs, (YTResult) value, iRootObject, prefix).stream()
+      final Set<RID> iSourceRIDs, final Object value, final Record iRootObject, String prefix) {
+    if (value instanceof Result) {
+      return checkRoot(iSourceRIDs, (Result) value, iRootObject, prefix).stream()
           .map(y -> value + "." + y)
           .collect(Collectors.toList());
-    } else if (value instanceof YTIdentifiable) {
-      return checkRecord(iSourceRIDs, (YTIdentifiable) value, iRootObject, prefix).stream()
+    } else if (value instanceof Identifiable) {
+      return checkRecord(iSourceRIDs, (Identifiable) value, iRootObject, prefix).stream()
           .map(y -> value + "." + y)
           .collect(Collectors.toList());
     } else if (value instanceof Collection<?>) {
@@ -159,7 +159,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
   }
 
   private static List<String> checkCollection(
-      final Set<YTRID> iSourceRIDs,
+      final Set<RID> iSourceRIDs,
       final Collection<?> values,
       final Record iRootObject,
       String prefix) {
@@ -172,7 +172,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
   }
 
   private static List<String> checkMap(
-      final Set<YTRID> iSourceRIDs,
+      final Set<RID> iSourceRIDs,
       final Map<?, ?> values,
       final Record iRootObject,
       String prefix) {
@@ -190,8 +190,8 @@ public class FindReferencesStep extends AbstractExecutionStep {
   }
 
   private static List<String> checkRecord(
-      final Set<YTRID> iSourceRIDs,
-      final YTIdentifiable value,
+      final Set<RID> iSourceRIDs,
+      final Identifiable value,
       final Record iRootObject,
       String prefix) {
     List<String> result = new ArrayList<>();
@@ -209,7 +209,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
   }
 
   private static List<String> checkRoot(
-      final Set<YTRID> iSourceRIDs, final YTResult value, final Record iRootObject,
+      final Set<RID> iSourceRIDs, final Result value, final Record iRootObject,
       String prefix) {
     List<String> result = new ArrayList<>();
     for (String fieldName : value.getPropertyNames()) {

@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core.query;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.util.List;
 
 public interface Query<T extends Object> extends CommandRequest {
@@ -38,7 +38,7 @@ public interface Query<T extends Object> extends CommandRequest {
    *
    * @return Record if found, otherwise null
    */
-  T runFirst(YTDatabaseSessionInternal database, Object... iArgs);
+  T runFirst(DatabaseSessionInternal database, Object... iArgs);
 
   void reset();
 }

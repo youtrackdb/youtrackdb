@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.jetbrains.youtrack.db.internal.core.OConstants;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -52,7 +52,7 @@ public class OServerCommandGetServerVersion extends OServerCommandGetConnections
 
     iRequest.getData().commandInfo = "Server status";
 
-    final String result = OConstants.getRawVersion();
+    final String result = YouTrackDBConstants.getRawVersion();
 
     iResponse.send(
         OHttpUtils.STATUS_OK_CODE,

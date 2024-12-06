@@ -14,12 +14,12 @@
 package com.orientechnologies.orient.jdbc;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabasePool;
-import com.jetbrains.youtrack.db.internal.core.db.ODatabaseType;
+import com.jetbrains.youtrack.db.internal.core.db.DatabasePool;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.util.OURLConnection;
-import com.jetbrains.youtrack.db.internal.core.util.OURLHelper;
+import com.jetbrains.youtrack.db.internal.core.util.DatabaseURLConnection;
+import com.jetbrains.youtrack.db.internal.core.util.URLHelper;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -48,7 +48,7 @@ public class OrientDataSource implements DataSource {
   private YouTrackDB youTrackDB;
   private String dbName;
 
-  private ODatabasePool pool;
+  private DatabasePool pool;
 
   public OrientDataSource() {
     info = new Properties();
@@ -121,7 +121,7 @@ public class OrientDataSource implements DataSource {
 
       String orientDbUrl = dbUrl.replace("jdbc:orient:", "");
 
-      OURLConnection connUrl = OURLHelper.parseNew(orientDbUrl);
+      DatabaseURLConnection connUrl = URLHelper.parseNew(orientDbUrl);
       YouTrackDBConfig settings =
           YouTrackDBConfig.builder()
               .addConfig(
@@ -142,15 +142,15 @@ public class OrientDataSource implements DataSource {
       if (!serverUsername.isEmpty() && !serverPassword.isEmpty()) {
         youTrackDB.createIfNotExists(
             connUrl.getDbName(),
-            connUrl.getDbType().orElse(ODatabaseType.MEMORY),
+            connUrl.getDbType().orElse(DatabaseType.MEMORY),
             username,
             password,
             "admin");
       }
 
-      pool = new ODatabasePool(youTrackDB, connUrl.getDbName(), username, password);
+      pool = new DatabasePool(youTrackDB, connUrl.getDbName(), username, password);
     } else if (pool == null) {
-      pool = new ODatabasePool(youTrackDB, this.dbName, username, password);
+      pool = new DatabasePool(youTrackDB, this.dbName, username, password);
     }
 
     return new OrientJdbcConnection(

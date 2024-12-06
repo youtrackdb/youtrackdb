@@ -19,13 +19,13 @@
 
 package com.jetbrains.youtrack.db.internal.core.tx;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.storage.YTRecordDuplicatedException;
+import com.jetbrains.youtrack.db.internal.core.storage.RecordDuplicatedException;
 import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,17 +33,17 @@ import org.junit.Test;
 /**
  *
  */
-public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
+public class DuplicateUniqueIndexChangesTxTest extends DbTestBase {
 
-  private OIndex index;
+  private Index index;
 
   public void beforeTest() throws Exception {
     super.beforeTest();
-    final YTClass class_ = db.getMetadata().getSchema().createClass("Person");
+    final SchemaClass class_ = db.getMetadata().getSchema().createClass("Person");
     index =
         class_
-            .createProperty(db, "name", YTType.STRING)
-            .createIndex(db, YTClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
+            .createProperty(db, "name", PropertyType.STRING)
+            .createIndex(db, SchemaClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
   }
 
   @Test
@@ -63,7 +63,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     person2.field("name", "Name2").save();
     person3.field("name", "Name3").save();
 
-    // should not throw YTRecordDuplicatedException exception
+    // should not throw RecordDuplicatedException exception
     db.commit();
 
     // verify index state
@@ -74,8 +74,8 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
   }
 
   private EntityImpl fetchDocumentFromIndex(String o) {
-    try (Stream<YTRID> stream = index.getInternal().getRids(db, o)) {
-      return (EntityImpl) stream.findFirst().map(YTRID::getRecord).orElse(null);
+    try (Stream<RID> stream = index.getInternal().getRids(db, o)) {
+      return (EntityImpl) stream.findFirst().map(RID::getRecord).orElse(null);
     }
   }
 
@@ -119,7 +119,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     person1.field("name", "Name1").save();
     person2.field("name", "Name2").save();
 
-    // should not throw YTRecordDuplicatedException exception
+    // should not throw RecordDuplicatedException exception
     db.commit();
 
     // verify index state
@@ -149,7 +149,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     person2.field("name", "Name2").save();
     person3.field("name", "Name3").save();
 
-    // should not throw YTRecordDuplicatedException exception
+    // should not throw RecordDuplicatedException exception
     db.commit();
 
     // verify index state
@@ -194,7 +194,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     person2.field("name", "Name2").save();
     person1.field("name", "Name1").save();
 
-    // should not throw YTRecordDuplicatedException exception
+    // should not throw RecordDuplicatedException exception
     db.commit();
 
     // verify index state
@@ -226,7 +226,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     person2.field("name", "Name2").save();
     person3.delete();
 
-    // should not throw YTRecordDuplicatedException exception
+    // should not throw RecordDuplicatedException exception
     db.commit();
 
     // verify index state
@@ -270,7 +270,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     person4.field("name", "same").save();
     person2.field("name", "Name2").save();
 
-    // should not throw YTRecordDuplicatedException exception
+    // should not throw RecordDuplicatedException exception
     db.commit();
 
     // verify index state
@@ -290,7 +290,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     Assert.assertNull(fetchDocumentFromIndex("same"));
   }
 
-  @Test(expected = YTRecordDuplicatedException.class)
+  @Test(expected = RecordDuplicatedException.class)
   public void testDuplicateCreateThrows() {
     db.begin();
     EntityImpl person1 = db.newInstance("Person");
@@ -303,7 +303,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     EntityImpl person4 = db.newInstance("Person");
     person4.field("name", "Name1");
     db.save(person4);
-    //    Assert.assertThrows(YTRecordDuplicatedException.class, new Assert.ThrowingRunnable() {
+    //    Assert.assertThrows(RecordDuplicatedException.class, new Assert.ThrowingRunnable() {
     //      @Override
     //      public void run() throws Throwable {
     //        db.commit();
@@ -312,7 +312,7 @@ public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
     db.commit();
   }
 
-  @Test(expected = YTRecordDuplicatedException.class)
+  @Test(expected = RecordDuplicatedException.class)
   public void testDuplicateUpdateThrows() {
     db.begin();
     EntityImpl person1 = db.newInstance("Person");

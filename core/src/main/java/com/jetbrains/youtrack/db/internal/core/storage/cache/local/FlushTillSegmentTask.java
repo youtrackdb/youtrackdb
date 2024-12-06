@@ -7,12 +7,12 @@ final class FlushTillSegmentTask implements Callable<Void> {
   /**
    *
    */
-  private final OWOWCache cache;
+  private final WOWCache cache;
 
   private final long segmentId;
 
-  FlushTillSegmentTask(OWOWCache owowCache, final long segmentId) {
-    cache = owowCache;
+  FlushTillSegmentTask(WOWCache WOWCache, final long segmentId) {
+    cache = WOWCache;
     this.segmentId = segmentId;
   }
 

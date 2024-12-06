@@ -15,13 +15,13 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSchemaException;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.IOException;
 import org.testng.Assert;
@@ -46,9 +46,9 @@ public class AbstractClassTest extends DocumentDBBaseTest {
 
   @BeforeClass
   public void createSchema() throws IOException {
-    YTClass abstractPerson =
+    SchemaClass abstractPerson =
         database.getMetadata().getSchema().createAbstractClass("AbstractPerson");
-    abstractPerson.createProperty(database, "name", YTType.STRING);
+    abstractPerson.createProperty(database, "name", PropertyType.STRING);
 
     Assert.assertTrue(abstractPerson.isAbstract());
     Assert.assertEquals(abstractPerson.getClusterIds().length, 1);
@@ -61,14 +61,14 @@ public class AbstractClassTest extends DocumentDBBaseTest {
       database.begin();
       new EntityImpl("AbstractPerson").save();
       database.begin();
-    } catch (YTException e) {
+    } catch (BaseException e) {
       Throwable cause = e;
 
       while (cause.getCause() != null) {
         cause = cause.getCause();
       }
 
-      Assert.assertTrue(cause instanceof YTSchemaException);
+      Assert.assertTrue(cause instanceof SchemaException);
     }
   }
 }

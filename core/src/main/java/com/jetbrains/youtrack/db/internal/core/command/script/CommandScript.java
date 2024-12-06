@@ -21,11 +21,11 @@ package com.jetbrains.youtrack.db.internal.core.command.script;
 
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestTextAbstract;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTSerializationException;
-import com.jetbrains.youtrack.db.internal.core.serialization.OMemoryStream;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.ORecordSerializer;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
+import com.jetbrains.youtrack.db.internal.core.serialization.MemoryStream;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import javax.script.CompiledScript;
 
 /**
@@ -40,8 +40,8 @@ public class CommandScript extends CommandRequestTextAbstract {
   private String language;
   private CompiledScript compiledScript;
 
-  private OCommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE executionMode =
-      OCommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE.LOCAL;
+  private CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE executionMode =
+      CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE.LOCAL;
 
   public CommandScript() {
     useCache = true;
@@ -73,17 +73,17 @@ public class CommandScript extends CommandRequestTextAbstract {
     return this;
   }
 
-  public CommandRequestText fromStream(YTDatabaseSessionInternal db, byte[] iStream,
-      ORecordSerializer serializer)
-      throws YTSerializationException {
-    final OMemoryStream buffer = new OMemoryStream(iStream);
+  public CommandRequestText fromStream(DatabaseSessionInternal db, byte[] iStream,
+      RecordSerializer serializer)
+      throws SerializationException {
+    final MemoryStream buffer = new MemoryStream(iStream);
     language = buffer.getAsString();
 
     // FIX TO HANDLE USAGE OF EXECUTION MODE STARTING FROM v2.1.3
     final int currPosition = buffer.getPosition();
     final String value = buffer.getAsString();
     try {
-      executionMode = OCommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE.valueOf(value);
+      executionMode = CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE.valueOf(value);
     } catch (IllegalArgumentException ignore) {
       // OLD VERSION: RESET TO THE OLD POSITION
       buffer.setPosition(currPosition);
@@ -93,8 +93,8 @@ public class CommandScript extends CommandRequestTextAbstract {
     return this;
   }
 
-  public byte[] toStream() throws YTSerializationException {
-    final OMemoryStream buffer = new OMemoryStream();
+  public byte[] toStream() throws SerializationException {
+    final MemoryStream buffer = new MemoryStream();
     buffer.setUtf8(language);
     buffer.setUtf8(executionMode.name());
     return toStream(buffer);
@@ -116,12 +116,12 @@ public class CommandScript extends CommandRequestTextAbstract {
     return "script." + text;
   }
 
-  public OCommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE getExecutionMode() {
+  public CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE getExecutionMode() {
     return executionMode;
   }
 
   public CommandScript setExecutionMode(
-      OCommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE executionMode) {
+      CommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE executionMode) {
     this.executionMode = executionMode;
     return this;
   }

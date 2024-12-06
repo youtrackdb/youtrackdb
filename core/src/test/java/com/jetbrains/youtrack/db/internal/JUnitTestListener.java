@@ -19,7 +19,7 @@
 
 package com.jetbrains.youtrack.db.internal;
 
-import com.jetbrains.youtrack.db.internal.common.directmemory.OByteBufferPool;
+import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import org.junit.Assert;
@@ -57,7 +57,7 @@ public class JUnitTestListener extends RunListener {
         // state is verified during engine shutdown
         youTrack.shutdown();
       } else {
-        OByteBufferPool.instance(null).checkMemoryLeaks();
+        ByteBufferPool.instance(null).checkMemoryLeaks();
       }
     }
   }

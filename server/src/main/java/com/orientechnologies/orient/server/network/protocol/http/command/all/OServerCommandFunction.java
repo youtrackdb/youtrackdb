@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.all;
 
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -48,7 +48,7 @@ public class OServerCommandFunction extends OServerCommandAbstractLogic {
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
       final Object iResult,
-      YTDatabaseSessionInternal databaseDocumentInternal)
+      DatabaseSessionInternal databaseDocumentInternal)
       throws InterruptedException, IOException {
     iResponse.writeResult(iResult, databaseDocumentInternal);
   }

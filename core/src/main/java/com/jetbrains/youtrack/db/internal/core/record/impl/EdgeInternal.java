@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.record.impl;
 
-import com.jetbrains.youtrack.db.internal.core.db.record.YTIdentifiable;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -90,7 +90,7 @@ public interface EdgeInternal extends Edge, EntityInternal {
   }
 
   @Override
-  default void setProperty(String name, Object value, YTType... fieldType) {
+  default void setProperty(String name, Object value, PropertyType... fieldType) {
     checkPropertyName(name);
     setPropertyInternal(name, value, fieldType);
   }
@@ -104,7 +104,7 @@ public interface EdgeInternal extends Edge, EntityInternal {
 
   @Nullable
   @Override
-  default YTIdentifiable getLinkProperty(String name) {
+  default Identifiable getLinkProperty(String name) {
     checkPropertyName(name);
 
     var baseDocument = getBaseDocument();
@@ -155,7 +155,7 @@ public interface EdgeInternal extends Edge, EntityInternal {
 
   @Nullable
   @Override
-  default YTIdentifiable getLinkPropertyInternal(String name) {
+  default Identifiable getLinkPropertyInternal(String name) {
     var baseDocument = getBaseDocument();
     if (baseDocument == null) {
       return null;
@@ -180,7 +180,7 @@ public interface EdgeInternal extends Edge, EntityInternal {
   }
 
   @Override
-  default void setPropertyInternal(String name, Object value, YTType... type) {
+  default void setPropertyInternal(String name, Object value, PropertyType... type) {
     var baseDocument = getBaseDocument();
     if (baseDocument == null) {
       promoteToRegularEdge();

@@ -19,16 +19,16 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.jetbrains.youtrack.db.internal.common.util.OPatternConst;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTPropertyImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.common.util.PatternConst;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.ODocumentHelper;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.ORecordSerializerStringAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerStringAbstract;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -46,7 +46,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   private static final String[] NAMES = {"POST|studio/*"};
 
   public boolean execute(final OHttpRequest iRequest, OHttpResponse iResponse) throws Exception {
-    YTDatabaseSessionInternal db = null;
+    DatabaseSessionInternal db = null;
 
     try {
       final String[] urlParts =
@@ -76,7 +76,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
           rid = value;
         } else if ("1".equals(pairs[0])) {
           className = value;
-        } else if (pairs[0].startsWith(ODocumentHelper.ATTRIBUTE_CLASS)) {
+        } else if (pairs[0].startsWith(DocumentHelper.ATTRIBUTE_CLASS)) {
           className = value;
         } else if (pairs[0].startsWith("@") || pairs[0].equals("id")) {
           continue;
@@ -109,14 +109,14 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   private void executeClassProperties(
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
-      final YTDatabaseSessionInternal db,
+      final DatabaseSessionInternal db,
       final String operation,
       final String rid,
       final String className,
       final Map<String, String> fields)
       throws IOException {
     // GET THE TARGET CLASS
-    final YTClass cls = db.getMetadata().getSchema().getClass(rid);
+    final SchemaClass cls = db.getMetadata().getSchema().getClass(rid);
     if (cls == null) {
       iResponse.send(
           OHttpUtils.STATUS_INTERNALERROR_CODE,
@@ -131,24 +131,24 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
       iRequest.getData().commandInfo = "Studio add property";
 
       try {
-        YTType type = YTType.valueOf(fields.get("type"));
+        PropertyType type = PropertyType.valueOf(fields.get("type"));
 
-        YTPropertyImpl prop;
-        if (type == YTType.LINK
-            || type == YTType.LINKLIST
-            || type == YTType.LINKSET
-            || type == YTType.LINKMAP) {
+        PropertyImpl prop;
+        if (type == PropertyType.LINK
+            || type == PropertyType.LINKLIST
+            || type == PropertyType.LINKSET
+            || type == PropertyType.LINKMAP) {
           prop =
-              (YTPropertyImpl)
+              (PropertyImpl)
                   cls.createProperty(db,
                       fields.get("name"),
                       type, db.getMetadata().getSchema().getClass(fields.get("linkedClass")));
         } else {
-          prop = (YTPropertyImpl) cls.createProperty(db, fields.get("name"), type);
+          prop = (PropertyImpl) cls.createProperty(db, fields.get("name"), type);
         }
 
         if (fields.get("linkedType") != null) {
-          prop.setLinkedType(db, YTType.valueOf(fields.get("linkedType")));
+          prop.setLinkedType(db, PropertyType.valueOf(fields.get("linkedType")));
         }
         if (fields.get("mandatory") != null) {
           prop.setMandatory(db, "on".equals(fields.get("mandatory")));
@@ -198,7 +198,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   private void executeClasses(
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
-      final YTDatabaseSessionInternal db,
+      final DatabaseSessionInternal db,
       final String operation,
       final String rid,
       final String className,
@@ -208,14 +208,14 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
       iRequest.getData().commandInfo = "Studio add class";
       try {
         final String superClassName = fields.get("superClass");
-        final YTClass superClass;
+        final SchemaClass superClass;
         if (superClassName != null) {
           superClass = db.getMetadata().getSchema().getClass(superClassName);
         } else {
           superClass = null;
         }
 
-        final YTClass cls = db.getMetadata().getSchema()
+        final SchemaClass cls = db.getMetadata().getSchema()
             .createClass(fields.get("name"), superClass);
 
         final String alias = fields.get("alias");
@@ -258,7 +258,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   private void executeClusters(
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
-      final YTDatabaseSessionInternal db,
+      final DatabaseSessionInternal db,
       final String operation,
       final String rid,
       final String iClusterName,
@@ -291,7 +291,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   }
 
   private void executeDocument(
-      YTDatabaseSessionInternal db, final OHttpRequest iRequest,
+      DatabaseSessionInternal db, final OHttpRequest iRequest,
       final OHttpResponse iResponse,
       final String operation,
       final String rid,
@@ -305,7 +305,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
         throw new IllegalArgumentException("Record ID not found in request");
       }
 
-      EntityImpl doc = new EntityImpl(className, new YTRecordId(rid));
+      EntityImpl doc = new EntityImpl(className, new RecordId(rid));
       // BIND ALL CHANGED FIELDS
       for (Entry<String, String> f : fields.entrySet()) {
         final Object oldValue = doc.rawField(f.getKey());
@@ -314,13 +314,13 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
         if (userValue != null && userValue.equals("undefined")) {
           doc.removeField(f.getKey());
         } else {
-          Object newValue = ORecordSerializerStringAbstract.getTypeValue(db, userValue);
+          Object newValue = RecordSerializerStringAbstract.getTypeValue(db, userValue);
 
           if (newValue != null) {
             if (newValue instanceof Collection) {
               final ArrayList<Object> array = new ArrayList<Object>();
               for (String s : (Collection<String>) newValue) {
-                Object v = ORecordSerializerStringAbstract.getTypeValue(db, s);
+                Object v = RecordSerializerStringAbstract.getTypeValue(db, s);
                 array.add(v);
               }
               newValue = array;
@@ -369,7 +369,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
         throw new IllegalArgumentException("Record ID not found in request");
       }
 
-      final EntityImpl doc = new YTRecordId(rid).getRecord();
+      final EntityImpl doc = new RecordId(rid).getRecord();
       doc.delete();
       iResponse.send(
           OHttpUtils.STATUS_OK_CODE,
@@ -386,14 +386,14 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   private static void executeClassIndexes(
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
-      final YTDatabaseSessionInternal db,
+      final DatabaseSessionInternal db,
       final String operation,
       final String rid,
       final String className,
       final Map<String, String> fields)
       throws IOException {
     // GET THE TARGET CLASS
-    final YTClass cls = db.getMetadata().getSchema().getClass(rid);
+    final SchemaClass cls = db.getMetadata().getSchema().getClass(rid);
     if (cls == null) {
       iResponse.send(
           OHttpUtils.STATUS_INTERNALERROR_CODE,
@@ -409,7 +409,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
 
       try {
         final String[] fieldNames =
-            OPatternConst.PATTERN_COMMA_SEPARATED.split(fields.get("fields").trim());
+            PatternConst.PATTERN_COMMA_SEPARATED.split(fields.get("fields").trim());
         final String indexType = fields.get("type");
 
         cls.createIndex(db, fields.get("name"), indexType, fieldNames);
@@ -433,7 +433,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
       iRequest.getData().commandInfo = "Studio delete index";
 
       try {
-        final OIndex index = cls.getClassIndex(db, className);
+        final Index index = cls.getClassIndex(db, className);
         if (index == null) {
           iResponse.send(
               OHttpUtils.STATUS_INTERNALERROR_CODE,

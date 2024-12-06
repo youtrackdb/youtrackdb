@@ -19,15 +19,15 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command.script;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.util.OCommonConst;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.common.util.CommonConst;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutorAbstract;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.function.OFunction;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORole;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ORule;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.script.Bindings;
@@ -54,7 +54,7 @@ public class CommandExecutorFunction extends CommandExecutorAbstract {
     return this;
   }
 
-  public Object execute(final Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(final Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     return executeInContext(null, iArgs);
   }
 
@@ -62,12 +62,12 @@ public class CommandExecutorFunction extends CommandExecutorAbstract {
 
     parserText = request.getText();
 
-    YTDatabaseSessionInternal db = iContext.getDatabase();
-    final OFunction f = db.getMetadata().getFunctionLibrary().getFunction(parserText);
+    DatabaseSessionInternal db = iContext.getDatabase();
+    final Function f = db.getMetadata().getFunctionLibrary().getFunction(parserText);
 
-    db.checkSecurity(ORule.ResourceGeneric.FUNCTION, ORole.PERMISSION_READ, f.getName(db));
+    db.checkSecurity(Rule.ResourceGeneric.FUNCTION, Role.PERMISSION_READ, f.getName(db));
 
-    final OScriptManager scriptManager = db.getSharedContext().getYouTrackDB().getScriptManager();
+    final ScriptManager scriptManager = db.getSharedContext().getYouTrackDB().getScriptManager();
 
     final ScriptEngine scriptEngine =
         scriptManager.acquireDatabaseEngine(db.getName(), f.getLanguage(db));
@@ -93,7 +93,7 @@ public class CommandExecutorFunction extends CommandExecutorAbstract {
               args[i++] = arg.getValue();
             }
           } else {
-            args = OCommonConst.EMPTY_OBJECT_ARRAY;
+            args = CommonConst.EMPTY_OBJECT_ARRAY;
           }
           result = invocableEngine.invokeFunction(parserText, args);
 
@@ -102,19 +102,19 @@ public class CommandExecutorFunction extends CommandExecutorAbstract {
           final Object[] args = iArgs == null ? null : iArgs.values().toArray();
           result = scriptEngine.eval(scriptManager.getFunctionInvoke(db, f, args), binding);
         }
-        return OCommandExecutorUtility.transformResult(
+        return CommandExecutorUtility.transformResult(
             scriptManager.handleResult(f.getLanguage(db), result, scriptEngine, binding, db));
 
       } catch (ScriptException e) {
-        throw YTException.wrapException(
-            new YTCommandScriptException(
+        throw BaseException.wrapException(
+            new CommandScriptException(
                 "Error on execution of the script", request.getText(), e.getColumnNumber()),
             e);
       } catch (NoSuchMethodException e) {
-        throw YTException.wrapException(
-            new YTCommandScriptException("Error on execution of the script", request.getText(), 0),
+        throw BaseException.wrapException(
+            new CommandScriptException("Error on execution of the script", request.getText(), 0),
             e);
-      } catch (YTCommandScriptException e) {
+      } catch (CommandScriptException e) {
         // PASS THROUGH
         throw e;
 
@@ -132,7 +132,7 @@ public class CommandExecutorFunction extends CommandExecutorAbstract {
 
   @Override
   protected void throwSyntaxErrorException(String iText) {
-    throw new YTCommandScriptException(
+    throw new CommandScriptException(
         "Error on execution of the script: " + iText, request.getText(), 0);
   }
 }

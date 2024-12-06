@@ -15,12 +15,12 @@ public class LocalHashTableV2WALTestIT {
   //  private String actualStorageDir;
   //  private String expectedStorageDir;
   //
-  //  private YTDatabaseSession databaseDocumentTx;
+  //  private DatabaseSession databaseDocumentTx;
   //
-  //  private OWriteCache actualWriteCache;
+  //  private WriteCache actualWriteCache;
   //
-  //  private YTDatabaseSession expectedDatabaseDocumentTx;
-  //  private OWriteCache      expectedWriteCache;
+  //  private DatabaseSession expectedDatabaseDocumentTx;
+  //  private WriteCache      expectedWriteCache;
   //
   //  private YouTrackDB youTrackDB;
   //
@@ -35,10 +35,10 @@ public class LocalHashTableV2WALTestIT {
   //
   //    youTrackDB = new YouTrackDB("plocal:" + buildDirectory, YouTrackDBConfig.defaultConfig());
   //
-  //    youTrackDB.create(ACTUAL_DB_NAME, ODatabaseType.PLOCAL);
+  //    youTrackDB.create(ACTUAL_DB_NAME, DatabaseType.PLOCAL);
   //    databaseDocumentTx = youTrackDB.open(ACTUAL_DB_NAME, "admin", "admin");
   //
-  //    youTrackDB.create(EXPECTED_DB_NAME, ODatabaseType.PLOCAL);
+  //    youTrackDB.create(EXPECTED_DB_NAME, DatabaseType.PLOCAL);
   //    expectedDatabaseDocumentTx = youTrackDB.open(EXPECTED_DB_NAME, "admin", "admin");
   //
   //    expectedStorage = ((LocalPaginatedStorage) ((ODatabaseInternal)
@@ -71,15 +71,15 @@ public class LocalHashTableV2WALTestIT {
   //  }
   //
   //  private void createActualHashTable() throws IOException {
-  //    OMurmurHash3HashFunction<Integer> murmurHash3HashFunction = new
-  // OMurmurHash3HashFunction<>(OIntegerSerializer.INSTANCE);
+  //    MurmurHash3HashFunction<Integer> murmurHash3HashFunction = new
+  // MurmurHash3HashFunction<>(OIntegerSerializer.INSTANCE);
   //
   //    localHashTable = new LocalHashTableV2<>(42, "actualLocalHashTable", ".imc", ".tsc", ".obf",
   // ".nbh",
   //        (AbstractPaginatedStorage) ((ODatabaseInternal) databaseDocumentTx).getStorage());
   //    localHashTable
   //        .create(OIntegerSerializer.INSTANCE,
-  // OBinarySerializerFactory.getInstance().getObjectSerializer(YTType.STRING), null, null,
+  // BinarySerializerFactory.getInstance().getObjectSerializer(PropertyType.STRING), null, null,
   //            murmurHash3HashFunction, true);
   //  }
   //
@@ -87,7 +87,7 @@ public class LocalHashTableV2WALTestIT {
   //  public void testKeyPut() throws IOException {
   //    super.testKeyPut();
   //
-  //    Assert.assertNull(OAtomicOperationsManager.getCurrentOperation());
+  //    Assert.assertNull(AtomicOperationsManager.getCurrentOperation());
   //
   //    assertFileRestoreFromWAL();
   //  }
@@ -96,7 +96,7 @@ public class LocalHashTableV2WALTestIT {
   //  public void testKeyPutRandomUniform() throws IOException {
   //    super.testKeyPutRandomUniform();
   //
-  //    Assert.assertNull(OAtomicOperationsManager.getCurrentOperation());
+  //    Assert.assertNull(AtomicOperationsManager.getCurrentOperation());
   //
   //    assertFileRestoreFromWAL();
   //  }
@@ -105,7 +105,7 @@ public class LocalHashTableV2WALTestIT {
   //  public void testKeyPutRandomGaussian() throws IOException {
   //    super.testKeyPutRandomGaussian();
   //
-  //    Assert.assertNull(OAtomicOperationsManager.getCurrentOperation());
+  //    Assert.assertNull(AtomicOperationsManager.getCurrentOperation());
   //
   //    assertFileRestoreFromWAL();
   //  }
@@ -114,7 +114,7 @@ public class LocalHashTableV2WALTestIT {
   //  public void testKeyDelete() throws IOException {
   //    super.testKeyDelete();
   //
-  //    Assert.assertNull(OAtomicOperationsManager.getCurrentOperation());
+  //    Assert.assertNull(AtomicOperationsManager.getCurrentOperation());
   //
   //    assertFileRestoreFromWAL();
   //  }
@@ -123,7 +123,7 @@ public class LocalHashTableV2WALTestIT {
   //  public void testKeyDeleteRandomGaussian() throws IOException {
   //    super.testKeyDeleteRandomGaussian();
   //
-  //    Assert.assertNull(OAtomicOperationsManager.getCurrentOperation());
+  //    Assert.assertNull(AtomicOperationsManager.getCurrentOperation());
   //
   //    assertFileRestoreFromWAL();
   //  }
@@ -132,7 +132,7 @@ public class LocalHashTableV2WALTestIT {
   //  public void testKeyAddDelete() throws IOException {
   //    super.testKeyAddDelete();
   //
-  //    Assert.assertNull(OAtomicOperationsManager.getCurrentOperation());
+  //    Assert.assertNull(AtomicOperationsManager.getCurrentOperation());
   //
   //    assertFileRestoreFromWAL();
   //  }
@@ -141,7 +141,7 @@ public class LocalHashTableV2WALTestIT {
   //  public void testKeyPutRemoveNullKey() throws IOException {
   //    super.testKeyPutRemoveNullKey();
   //
-  //    Assert.assertNull(OAtomicOperationsManager.getCurrentOperation());
+  //    Assert.assertNull(AtomicOperationsManager.getCurrentOperation());
   //
   //    assertFileRestoreFromWAL();
   //  }
@@ -203,7 +203,7 @@ public class LocalHashTableV2WALTestIT {
   //  }
   //
   //  private void restoreDataFromWAL() throws IOException {
-  //    final OReadCache expectedReadCache = ((AbstractPaginatedStorage) ((ODatabaseInternal)
+  //    final ReadCache expectedReadCache = ((AbstractPaginatedStorage) ((ODatabaseInternal)
   // expectedDatabaseDocumentTx).getStorage())
   //        .getReadCache();
   //
@@ -212,34 +212,34 @@ public class LocalHashTableV2WALTestIT {
   //        10_000, 128, null, null, 30 * 60 * 1_000_000_000L, 100 * 1024 * 1024, 1000, false,
   // Locale.ENGLISH, -1, -1, 1_000, false,
   //        true, false, 0);
-  //    OLogSequenceNumber lsn = log.begin();
+  //    LogSequenceNumber lsn = log.begin();
   //
-  //    List<OWALRecord> atomicUnit = new ArrayList<>();
+  //    List<WALRecord> atomicUnit = new ArrayList<>();
   //    List<WriteableWALRecord> walRecords = log.read(lsn, 1_000);
   //
   //    boolean atomicChangeIsProcessed = false;
   //    while (!walRecords.isEmpty()) {
   //      for (WriteableWALRecord walRecord : walRecords) {
-  //        if (walRecord instanceof OOperationUnitBodyRecord) {
+  //        if (walRecord instanceof OperationUnitBodyRecord) {
   //          atomicUnit.add(walRecord);
   //        }
   //
   //        if (!atomicChangeIsProcessed) {
-  //          if (walRecord instanceof OAtomicUnitStartRecord) {
+  //          if (walRecord instanceof AtomicUnitStartRecord) {
   //            atomicChangeIsProcessed = true;
   //          }
-  //        } else if (walRecord instanceof OAtomicUnitEndRecord) {
+  //        } else if (walRecord instanceof AtomicUnitEndRecord) {
   //          atomicChangeIsProcessed = false;
   //
-  //          for (OWALRecord restoreRecord : atomicUnit) {
-  //            if (restoreRecord instanceof OAtomicUnitStartRecord || restoreRecord instanceof
-  // OAtomicUnitEndRecord
-  //                || restoreRecord instanceof ONonTxOperationPerformedWALRecord) {
+  //          for (WALRecord restoreRecord : atomicUnit) {
+  //            if (restoreRecord instanceof AtomicUnitStartRecord || restoreRecord instanceof
+  // AtomicUnitEndRecord
+  //                || restoreRecord instanceof NonTxOperationPerformedWALRecord) {
   //              continue;
   //            }
   //
-  //            if (restoreRecord instanceof OFileCreatedWALRecord) {
-  //              final OFileCreatedWALRecord fileCreatedCreatedRecord = (OFileCreatedWALRecord)
+  //            if (restoreRecord instanceof FileCreatedWALRecord) {
+  //              final FileCreatedWALRecord fileCreatedCreatedRecord = (FileCreatedWALRecord)
   // restoreRecord;
   //              final String fileName = fileCreatedCreatedRecord.getFileName().
   //                  replace("actualLocalHashTable", "expectedLocalHashTable");
@@ -249,7 +249,7 @@ public class LocalHashTableV2WALTestIT {
   // expectedWriteCache);
   //              }
   //            } else {
-  //              final OUpdatePageRecord updatePageRecord = (OUpdatePageRecord) restoreRecord;
+  //              final UpdatePageRecord updatePageRecord = (UpdatePageRecord) restoreRecord;
   //
   //              final long fileId = updatePageRecord.getFileId();
   //              final long pageIndex = updatePageRecord.getPageIndex();
@@ -259,7 +259,7 @@ public class LocalHashTableV2WALTestIT {
   //                continue;
   //              }
   //
-  //              OCacheEntry cacheEntry = expectedReadCache.loadForWrite(fileId, pageIndex, true,
+  //              CacheEntry cacheEntry = expectedReadCache.loadForWrite(fileId, pageIndex, true,
   // expectedWriteCache, false, null);
   //              if (cacheEntry == null) {
   //                do {
@@ -273,9 +273,9 @@ public class LocalHashTableV2WALTestIT {
   //              }
   //
   //              try {
-  //                ODurablePage durablePage = new ODurablePage(cacheEntry);
+  //                DurablePage durablePage = new DurablePage(cacheEntry);
   //                durablePage.restoreChanges(updatePageRecord.getChanges());
-  //                durablePage.setOperationIdLsn(new OLogSequenceNumber(0, 0));
+  //                durablePage.setOperationIdLsn(new LogSequenceNumber(0, 0));
   //              } finally {
   //                expectedReadCache.releaseFromWrite(cacheEntry, expectedWriteCache, true);
   //              }
@@ -285,9 +285,9 @@ public class LocalHashTableV2WALTestIT {
   //          atomicUnit.clear();
   //        } else {
   //          Assert.assertTrue("WAL record type is " + walRecord.getClass().getName(),
-  //              walRecord instanceof OUpdatePageRecord || walRecord instanceof
-  // ONonTxOperationPerformedWALRecord
-  //                  || walRecord instanceof OFileCreatedWALRecord || walRecord instanceof
+  //              walRecord instanceof UpdatePageRecord || walRecord instanceof
+  // NonTxOperationPerformedWALRecord
+  //                  || walRecord instanceof FileCreatedWALRecord || walRecord instanceof
   // OFuzzyCheckpointStartRecord
   //                  || walRecord instanceof OFuzzyCheckpointEndRecord);
   //        }
@@ -329,23 +329,23 @@ public class LocalHashTableV2WALTestIT {
   //
   //        Assert.assertEquals(fileOne.length(), fileTwo.length());
   //
-  //        byte[] expectedContent = new byte[OClusterPage.PAGE_SIZE];
-  //        byte[] actualContent = new byte[OClusterPage.PAGE_SIZE];
+  //        byte[] expectedContent = new byte[ClusterPage.PAGE_SIZE];
+  //        byte[] actualContent = new byte[ClusterPage.PAGE_SIZE];
   //
-  //        fileOne.seek(OFile.HEADER_SIZE);
-  //        fileTwo.seek(OFile.HEADER_SIZE);
+  //        fileOne.seek(File.HEADER_SIZE);
+  //        fileTwo.seek(File.HEADER_SIZE);
   //
   //        int bytesRead = fileOne.read(expectedContent);
   //        while (bytesRead >= 0) {
   //          fileTwo.readFully(actualContent, 0, bytesRead);
   //
   //          Assertions
-  //              .assertThat(Arrays.copyOfRange(expectedContent, ODurablePage.NEXT_FREE_POSITION,
-  // ODurablePage.MAX_PAGE_SIZE_BYTES))
-  //              .isEqualTo(Arrays.copyOfRange(actualContent, ODurablePage.NEXT_FREE_POSITION,
-  // ODurablePage.MAX_PAGE_SIZE_BYTES));
-  //          expectedContent = new byte[OClusterPage.PAGE_SIZE];
-  //          actualContent = new byte[OClusterPage.PAGE_SIZE];
+  //              .assertThat(Arrays.copyOfRange(expectedContent, DurablePage.NEXT_FREE_POSITION,
+  // DurablePage.MAX_PAGE_SIZE_BYTES))
+  //              .isEqualTo(Arrays.copyOfRange(actualContent, DurablePage.NEXT_FREE_POSITION,
+  // DurablePage.MAX_PAGE_SIZE_BYTES));
+  //          expectedContent = new byte[ClusterPage.PAGE_SIZE];
+  //          actualContent = new byte[ClusterPage.PAGE_SIZE];
   //          bytesRead = fileOne.read(expectedContent);
   //        }
   //

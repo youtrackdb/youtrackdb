@@ -1,12 +1,12 @@
 package com.jetbrains.youtrack.db.internal.core.sql.select;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestSqlForeach extends DBTestBase {
+public class TestSqlForeach extends DbTestBase {
 
   @Test
   public void testForeach() {
@@ -17,7 +17,7 @@ public class TestSqlForeach extends DBTestBase {
     db.save(doc);
     db.commit();
 
-    YTResultSet result =
+    ResultSet result =
         db.execute(
             "sql",
             "let $res = select from Test; foreach ($r in $res) { begin; update $r set timestamp ="

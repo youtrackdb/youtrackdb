@@ -4,15 +4,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTImmutableSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
-import com.jetbrains.youtrack.db.internal.core.storage.cache.OWriteCache;
+import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import java.util.Locale;
@@ -25,15 +25,15 @@ public class ClassTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testShortName() {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass oClass = schema.createClass(SHORTNAME_CLASS_NAME);
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass oClass = schema.createClass(SHORTNAME_CLASS_NAME);
     Assert.assertNull(oClass.getShortName());
     Assert.assertNull(queryShortName());
 
     final Storage storage = db.getStorage();
 
     if (storage instanceof AbstractPaginatedStorage paginatedStorage) {
-      final OWriteCache writeCache = paginatedStorage.getWriteCache();
+      final WriteCache writeCache = paginatedStorage.getWriteCache();
       Assert.assertTrue(
           writeCache.exists(
               SHORTNAME_CLASS_NAME.toLowerCase(Locale.ENGLISH) + PaginatedCluster.DEF_EXTENSION));
@@ -61,18 +61,18 @@ public class ClassTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testShortNameSnapshot() {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass oClass = schema.createClass(SHORTNAME_CLASS_NAME);
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass oClass = schema.createClass(SHORTNAME_CLASS_NAME);
     Assert.assertNull(oClass.getShortName());
 
     String shortName = "shortName";
     oClass.setShortName(db, shortName);
     assertEquals(shortName, oClass.getShortName());
-    YTClass shorted = schema.getClass(shortName);
+    SchemaClass shorted = schema.getClass(shortName);
     Assert.assertNotNull(shorted);
     assertEquals(shortName, shorted.getShortName());
-    OMetadataInternal intern = db.getMetadata();
-    YTImmutableSchema immSchema = intern.getImmutableSchemaSnapshot();
+    MetadataInternal intern = db.getMetadata();
+    ImmutableSchema immSchema = intern.getImmutableSchemaSnapshot();
     shorted = immSchema.getClass(shortName);
     Assert.assertNotNull(shorted);
     assertEquals(shortName, shorted.getShortName());
@@ -80,12 +80,12 @@ public class ClassTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testRename() {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass oClass = schema.createClass("ClassName");
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass oClass = schema.createClass("ClassName");
 
     final Storage storage = db.getStorage();
     final AbstractPaginatedStorage paginatedStorage = (AbstractPaginatedStorage) storage;
-    final OWriteCache writeCache = paginatedStorage.getWriteCache();
+    final WriteCache writeCache = paginatedStorage.getWriteCache();
     Assert.assertTrue(writeCache.exists("classname" + PaginatedCluster.DEF_EXTENSION));
 
     oClass.setName(db, "ClassNameNew");
@@ -101,9 +101,9 @@ public class ClassTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testRenameClusterAlreadyExists() {
-    YTSchema schema = db.getMetadata().getSchema();
-    YTClass classOne = schema.createClass("ClassOne");
-    YTClass classTwo = schema.createClass("ClassTwo");
+    Schema schema = db.getMetadata().getSchema();
+    SchemaClass classOne = schema.createClass("ClassOne");
+    SchemaClass classTwo = schema.createClass("ClassTwo");
 
     final int clusterId = db.addCluster("classthree");
     classTwo.addClusterId(db, clusterId);
@@ -126,7 +126,7 @@ public class ClassTest extends BaseMemoryInternalDatabase {
 
     final Storage storage = db.getStorage();
     final AbstractPaginatedStorage paginatedStorage = (AbstractPaginatedStorage) storage;
-    final OWriteCache writeCache = paginatedStorage.getWriteCache();
+    final WriteCache writeCache = paginatedStorage.getWriteCache();
 
     Assert.assertTrue(writeCache.exists("classone" + PaginatedCluster.DEF_EXTENSION));
 
@@ -142,9 +142,9 @@ public class ClassTest extends BaseMemoryInternalDatabase {
 
   @Test
   public void testOClassAndOPropertyDescription() {
-    final YTSchema oSchema = db.getMetadata().getSchema();
-    YTClass oClass = oSchema.createClass("DescriptionTest");
-    YTProperty property = oClass.createProperty(db, "property", YTType.STRING);
+    final Schema oSchema = db.getMetadata().getSchema();
+    SchemaClass oClass = oSchema.createClass("DescriptionTest");
+    Property property = oClass.createProperty(db, "property", PropertyType.STRING);
     oClass.setDescription(db, "DescriptionTest-class-description");
     property.setDescription(db, "DescriptionTest-property-description");
     assertEquals(oClass.getDescription(), "DescriptionTest-class-description");
@@ -166,7 +166,7 @@ public class ClassTest extends BaseMemoryInternalDatabase {
             + " where name = \""
             + SHORTNAME_CLASS_NAME
             + "\"";
-    try (YTResultSet result = db.query(selectShortNameSQL)) {
+    try (ResultSet result = db.query(selectShortNameSQL)) {
       String name = result.next().getProperty("shortName");
       assertFalse(result.hasNext());
       return name;

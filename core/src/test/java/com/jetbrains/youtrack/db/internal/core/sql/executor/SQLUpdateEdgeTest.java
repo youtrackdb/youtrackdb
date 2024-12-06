@@ -18,14 +18,14 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import com.jetbrains.youtrack.db.internal.DBTestBase;
+import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class SQLUpdateEdgeTest extends DBTestBase {
+public class SQLUpdateEdgeTest extends DbTestBase {
 
   @Test
   public void testUpdateEdge() {
@@ -61,7 +61,7 @@ public class SQLUpdateEdgeTest extends DBTestBase {
     assertEquals(v4.getProperty("name"), "wow");
 
     db.begin();
-    YTResultSet edges =
+    ResultSet edges =
         db.command("create edge E1 from " + v1.getIdentity() + " to " + v2.getIdentity());
     Edge edge = edges.next().getEdge().get();
     assertFalse(edges.hasNext());
@@ -79,12 +79,12 @@ public class SQLUpdateEdgeTest extends DBTestBase {
         .close();
     db.commit();
 
-    YTResultSet result = db.query("select expand(out('E1')) from " + v3.getIdentity());
-    YTResult vertex4 = result.next();
+    ResultSet result = db.query("select expand(out('E1')) from " + v3.getIdentity());
+    Result vertex4 = result.next();
     Assert.assertEquals(vertex4.getProperty("vid"), "v4");
 
     result = db.query("select expand(in('E1')) from " + v4.getIdentity());
-    YTResult vertex3 = result.next();
+    Result vertex3 = result.next();
     Assert.assertEquals(vertex3.getProperty("vid"), "v3");
 
     result = db.query("select expand(out('E1')) from " + v1.getIdentity());
@@ -104,14 +104,14 @@ public class SQLUpdateEdgeTest extends DBTestBase {
     db.commit();
 
     db.begin();
-    YTResultSet edges =
+    ResultSet edges =
         db.command("create edge E from " + v1.getIdentity() + " to " + v2.getIdentity());
     Edge edge = edges.next().toEdge();
 
     db.command("UPDATE EDGE " + edge.getIdentity() + " SET in = " + v3.getIdentity());
     db.commit();
 
-    YTResultSet result = db.query("select expand(out()) from " + v1.getIdentity());
+    ResultSet result = db.query("select expand(out()) from " + v1.getIdentity());
     Assert.assertEquals(result.next().getIdentity().get(), v3.getIdentity());
 
     result = db.query("select expand(in()) from " + v3.getIdentity());

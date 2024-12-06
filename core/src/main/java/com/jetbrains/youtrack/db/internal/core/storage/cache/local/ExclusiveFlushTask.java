@@ -7,16 +7,16 @@ final class ExclusiveFlushTask implements Runnable {
   /**
    *
    */
-  private final OWOWCache cache;
+  private final WOWCache cache;
 
   private final CountDownLatch cacheBoundaryLatch;
   private final CountDownLatch completionLatch;
 
   ExclusiveFlushTask(
-      OWOWCache owowCache,
+      WOWCache WOWCache,
       final CountDownLatch cacheBoundaryLatch,
       final CountDownLatch completionLatch) {
-    cache = owowCache;
+    cache = WOWCache;
     this.cacheBoundaryLatch = cacheBoundaryLatch;
     this.completionLatch = completionLatch;
   }

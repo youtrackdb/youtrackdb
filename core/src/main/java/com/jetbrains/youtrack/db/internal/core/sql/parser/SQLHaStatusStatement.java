@@ -2,12 +2,12 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.jetbrains.youtrack.db.internal.core.sql.parser;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.YTResultInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Map;
 
@@ -90,19 +90,19 @@ public class SQLHaStatusStatement extends SQLSimpleExecStatement {
     if (outputText) {
       LogManager.instance().info(this, "HA STATUS with text output is deprecated");
     }
-    final YTDatabaseSessionInternal database = ctx.getDatabase();
+    final DatabaseSessionInternal database = ctx.getDatabase();
 
     try {
       Map<String, Object> res = database.getHaStatus(servers, this.db, latency, messages);
       if (res != null) {
-        YTResultInternal row = new YTResultInternal(database);
+        ResultInternal row = new ResultInternal(database);
         res.entrySet().forEach(x -> row.setProperty(x.getKey(), x.getValue()));
         return ExecutionStream.singleton(row);
       } else {
         return ExecutionStream.empty();
       }
     } catch (Exception x) {
-      throw YTException.wrapException(new YTCommandExecutionException("Cannot execute HA STATUS"),
+      throw BaseException.wrapException(new CommandExecutionException("Cannot execute HA STATUS"),
           x);
     }
   }

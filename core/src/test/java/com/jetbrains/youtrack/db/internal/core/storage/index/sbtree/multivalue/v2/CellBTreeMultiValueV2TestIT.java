@@ -1,20 +1,20 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.sbtree.multivalue.v2;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTException;
-import com.jetbrains.youtrack.db.internal.common.exception.YTHighLevelException;
+import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.common.exception.HighLevelException;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.common.serialization.types.OUTF8Serializer;
-import com.jetbrains.youtrack.db.internal.common.types.OModifiableInteger;
-import com.jetbrains.youtrack.db.internal.common.util.ORawPair;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.common.serialization.types.UTF8Serializer;
+import com.jetbrains.youtrack.db.internal.common.types.ModifiableInteger;
+import com.jetbrains.youtrack.db.internal.common.util.RawPair;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.id.YTRID;
-import com.jetbrains.youtrack.db.internal.core.id.YTRecordId;
+import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperationsManager;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
@@ -37,7 +37,7 @@ public class CellBTreeMultiValueV2TestIT {
   private CellBTreeMultiValueV2<String> multiValueTree;
   private YouTrackDB youTrackDB;
   private AbstractPaginatedStorage storage;
-  private OAtomicOperationsManager atomicOperationsManager;
+  private AtomicOperationsManager atomicOperationsManager;
 
   private static final String DB_NAME = "localMultiBTreeTest";
 
@@ -56,9 +56,9 @@ public class CellBTreeMultiValueV2TestIT {
     youTrackDB.execute(
         "create database " + DB_NAME + " plocal users ( admin identified by 'admin' role admin)");
 
-    try (YTDatabaseSession databaseDocumentTx = youTrackDB.open(DB_NAME, "admin", "admin")) {
+    try (DatabaseSession databaseDocumentTx = youTrackDB.open(DB_NAME, "admin", "admin")) {
       storage =
-          (AbstractPaginatedStorage) ((YTDatabaseSessionInternal) databaseDocumentTx).getStorage();
+          (AbstractPaginatedStorage) ((DatabaseSessionInternal) databaseDocumentTx).getStorage();
     }
 
     atomicOperationsManager = storage.getAtomicOperationsManager();
@@ -67,7 +67,7 @@ public class CellBTreeMultiValueV2TestIT {
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
         atomicOperation ->
-            multiValueTree.create(OUTF8Serializer.INSTANCE, null, 1, null, atomicOperation));
+            multiValueTree.create(UTF8Serializer.INSTANCE, null, 1, null, atomicOperation));
   }
 
   @After
@@ -85,18 +85,18 @@ public class CellBTreeMultiValueV2TestIT {
         itemsCount,
         100,
         (value, rollback, atomicOperation) ->
-            multiValueTree.put(atomicOperation, null, new YTRecordId(value % 32000, value)));
+            multiValueTree.put(atomicOperation, null, new RecordId(value % 32000, value)));
 
-    final List<YTRID> result;
-    try (Stream<YTRID> stream = multiValueTree.get(null)) {
+    final List<RID> result;
+    try (Stream<RID> stream = multiValueTree.get(null)) {
       result = stream.collect(Collectors.toList());
     }
 
     Assert.assertEquals(itemsCount, result.size());
-    Set<YTRID> resultSet = new HashSet<>(result);
+    Set<RID> resultSet = new HashSet<>(result);
 
     for (int i = 0; i < itemsCount; i++) {
-      Assert.assertTrue(resultSet.contains(new YTRecordId(i % 32000, i)));
+      Assert.assertTrue(resultSet.contains(new RecordId(i % 32000, i)));
     }
   }
 
@@ -109,7 +109,7 @@ public class CellBTreeMultiValueV2TestIT {
         itemsCount,
         100,
         (value, rollback, atomicOperation) ->
-            multiValueTree.put(atomicOperation, null, new YTRecordId(value % 32000, value)));
+            multiValueTree.put(atomicOperation, null, new RecordId(value % 32000, value)));
 
     doInRollbackLoop(
         0,
@@ -117,77 +117,77 @@ public class CellBTreeMultiValueV2TestIT {
         100,
         (value, rollback, atomicOperation) ->
             multiValueTree.remove(
-                atomicOperation, null, new YTRecordId(3 * value % 32_000, 3L * value)));
+                atomicOperation, null, new RecordId(3 * value % 32_000, 3L * value)));
 
-    final List<YTRID> result;
-    try (Stream<YTRID> stream = multiValueTree.get(null)) {
+    final List<RID> result;
+    try (Stream<RID> stream = multiValueTree.get(null)) {
       result = stream.collect(Collectors.toList());
     }
 
     Assert.assertEquals(itemsCount - itemsCount / 3, result.size());
-    Set<YTRID> resultSet = new HashSet<>(result);
+    Set<RID> resultSet = new HashSet<>(result);
 
     for (int i = 0; i < itemsCount / 3; i++) {
       final int val = i * 3;
-      Assert.assertTrue(resultSet.contains(new YTRecordId((val + 1) % 32000, (val + 1))));
-      Assert.assertTrue(resultSet.contains(new YTRecordId((val + 2) % 32000, (val + 2))));
+      Assert.assertTrue(resultSet.contains(new RecordId((val + 1) % 32000, (val + 1))));
+      Assert.assertTrue(resultSet.contains(new RecordId((val + 2) % 32000, (val + 2))));
     }
   }
 
   @Test
   public void testKeyPutRemoveSameTimeNullKey() throws IOException {
     final int itemsCount = 69_000;
-    final OModifiableInteger removed = new OModifiableInteger();
+    final ModifiableInteger removed = new ModifiableInteger();
 
     doInRollbackLoop(
         0,
         itemsCount,
         100,
         ((value, rollback, atomicOperation) -> {
-          multiValueTree.put(atomicOperation, null, new YTRecordId(value % 32_000, value));
+          multiValueTree.put(atomicOperation, null, new RecordId(value % 32_000, value));
 
           if (value % 3 == 0) {
-            multiValueTree.remove(atomicOperation, null, new YTRecordId(value % 32_000, value));
+            multiValueTree.remove(atomicOperation, null, new RecordId(value % 32_000, value));
             if (!rollback) {
               removed.increment();
             }
           }
         }));
 
-    final List<YTRID> result;
-    try (Stream<YTRID> stream = multiValueTree.get(null)) {
+    final List<RID> result;
+    try (Stream<RID> stream = multiValueTree.get(null)) {
       result = stream.collect(Collectors.toList());
     }
 
     Assert.assertEquals(itemsCount - removed.value, result.size());
-    Set<YTRID> resultSet = new HashSet<>(result);
+    Set<RID> resultSet = new HashSet<>(result);
 
     for (int i = 0; i < itemsCount / 3; i++) {
       final int val = i * 3;
-      Assert.assertTrue(resultSet.contains(new YTRecordId((val + 1) % 32000, (val + 1))));
-      Assert.assertTrue(resultSet.contains(new YTRecordId((val + 2) % 32000, (val + 2))));
+      Assert.assertTrue(resultSet.contains(new RecordId((val + 1) % 32000, (val + 1))));
+      Assert.assertTrue(resultSet.contains(new RecordId((val + 2) % 32000, (val + 2))));
     }
   }
 
   @Test
   public void testKeyPutRemoveSameTimeBatchNullKey() throws IOException {
     final int itemsCount = 63_000;
-    final OModifiableInteger removed = new OModifiableInteger();
+    final ModifiableInteger removed = new ModifiableInteger();
 
     doInRollbackLoop(
         0,
         itemsCount,
         100,
         ((value, rollback, atomicOperation) -> {
-          multiValueTree.put(atomicOperation, null, new YTRecordId(value % 32000, value));
+          multiValueTree.put(atomicOperation, null, new RecordId(value % 32000, value));
 
           if (value > 0 && value % 9 == 0) {
             multiValueTree.remove(
-                atomicOperation, null, new YTRecordId((value - 3) % 32_000, value - 3));
+                atomicOperation, null, new RecordId((value - 3) % 32_000, value - 3));
             multiValueTree.remove(
-                atomicOperation, null, new YTRecordId((value - 6) % 32_000, value - 6));
+                atomicOperation, null, new RecordId((value - 6) % 32_000, value - 6));
             multiValueTree.remove(
-                atomicOperation, null, new YTRecordId((value - 9) % 32_000, value - 9));
+                atomicOperation, null, new RecordId((value - 9) % 32_000, value - 9));
 
             if (!rollback) {
               removed.increment(3);
@@ -204,24 +204,24 @@ public class CellBTreeMultiValueV2TestIT {
               multiValueTree.remove(
                   atomicOperation,
                   null,
-                  new YTRecordId((roundedItems - counter) % 32_000, roundedItems - counter)));
+                  new RecordId((roundedItems - counter) % 32_000, roundedItems - counter)));
       if (roundedItems - n < itemsCount) {
         removed.increment();
       }
     }
 
-    final List<YTRID> result;
-    try (Stream<YTRID> stream = multiValueTree.get(null)) {
+    final List<RID> result;
+    try (Stream<RID> stream = multiValueTree.get(null)) {
       result = stream.collect(Collectors.toList());
     }
 
     Assert.assertEquals(itemsCount - removed.value, result.size());
-    Set<YTRID> resultSet = new HashSet<>(result);
+    Set<RID> resultSet = new HashSet<>(result);
 
     for (int i = 0; i < itemsCount / 3; i++) {
       final int val = i * 3;
-      Assert.assertTrue(resultSet.contains(new YTRecordId((val + 1) % 32000, (val + 1))));
-      Assert.assertTrue(resultSet.contains(new YTRecordId((val + 2) % 32000, (val + 2))));
+      Assert.assertTrue(resultSet.contains(new RecordId((val + 1) % 32000, (val + 1))));
+      Assert.assertTrue(resultSet.contains(new RecordId((val + 2) % 32000, (val + 2))));
     }
   }
 
@@ -234,7 +234,7 @@ public class CellBTreeMultiValueV2TestIT {
         itemsCount,
         100,
         (value, rollback, atomicOperation) ->
-            multiValueTree.put(atomicOperation, null, new YTRecordId(value % 32000, value)));
+            multiValueTree.put(atomicOperation, null, new RecordId(value % 32000, value)));
 
     final int start = itemsCount / 3;
     final int end = 2 * itemsCount / 3;
@@ -244,21 +244,21 @@ public class CellBTreeMultiValueV2TestIT {
         end,
         100,
         (value, rollback, atomicOperation) ->
-            multiValueTree.remove(atomicOperation, null, new YTRecordId(value % 32_000, value)));
+            multiValueTree.remove(atomicOperation, null, new RecordId(value % 32_000, value)));
 
-    final List<YTRID> result;
-    try (Stream<YTRID> stream = multiValueTree.get(null)) {
+    final List<RID> result;
+    try (Stream<RID> stream = multiValueTree.get(null)) {
       result = stream.collect(Collectors.toList());
     }
 
     Assert.assertEquals(itemsCount - (end - start), result.size());
-    Set<YTRID> resultSet = new HashSet<>(result);
+    Set<RID> resultSet = new HashSet<>(result);
 
     for (int i = 0; i < itemsCount; i++) {
       if (i >= start && i < end) {
-        Assert.assertFalse(resultSet.contains(new YTRecordId(i % 32_000, i)));
+        Assert.assertFalse(resultSet.contains(new RecordId(i % 32_000, i)));
       } else {
-        Assert.assertTrue(resultSet.contains(new YTRecordId(i % 32_000, i)));
+        Assert.assertTrue(resultSet.contains(new RecordId(i % 32_000, i)));
       }
     }
   }
@@ -272,7 +272,7 @@ public class CellBTreeMultiValueV2TestIT {
         itemsCount,
         100,
         ((value, rollback, atomicOperation) ->
-            multiValueTree.put(atomicOperation, null, new YTRecordId(value % 32000, value))));
+            multiValueTree.put(atomicOperation, null, new RecordId(value % 32000, value))));
 
     final int start = itemsCount / 3;
     final int end = 2 * itemsCount / 3;
@@ -282,24 +282,24 @@ public class CellBTreeMultiValueV2TestIT {
         end,
         100,
         (value, rollback, atomicOperation) ->
-            multiValueTree.remove(atomicOperation, null, new YTRecordId(value % 32_000, value)));
+            multiValueTree.remove(atomicOperation, null, new RecordId(value % 32_000, value)));
     doInRollbackLoop(
         start,
         end,
         100,
         (value, rollback, atomicOperation) ->
-            multiValueTree.put(atomicOperation, null, new YTRecordId(value % 32_000, value)));
+            multiValueTree.put(atomicOperation, null, new RecordId(value % 32_000, value)));
 
-    final List<YTRID> result;
-    try (Stream<YTRID> stream = multiValueTree.get(null)) {
+    final List<RID> result;
+    try (Stream<RID> stream = multiValueTree.get(null)) {
       result = stream.collect(Collectors.toList());
     }
 
     Assert.assertEquals(itemsCount, result.size());
-    Set<YTRID> resultSet = new HashSet<>(result);
+    Set<RID> resultSet = new HashSet<>(result);
 
     for (int i = 0; i < itemsCount; i++) {
-      Assert.assertTrue(resultSet.contains(new YTRecordId(i % 32_000, i)));
+      Assert.assertTrue(resultSet.contains(new RecordId(i % 32_000, i)));
     }
   }
 
@@ -312,7 +312,7 @@ public class CellBTreeMultiValueV2TestIT {
         itemsCount,
         100,
         (value, rollback, atomicOperation) ->
-            multiValueTree.put(atomicOperation, null, new YTRecordId(value % 32000, value)));
+            multiValueTree.put(atomicOperation, null, new RecordId(value % 32000, value)));
 
     final int rollbackSlice = 100;
     final int start = itemsCount / 3;
@@ -323,27 +323,27 @@ public class CellBTreeMultiValueV2TestIT {
         start,
         rollbackSlice,
         (value, rollback, atomicOperation) ->
-            multiValueTree.remove(atomicOperation, null, new YTRecordId(value % 32_000, value)));
+            multiValueTree.remove(atomicOperation, null, new RecordId(value % 32_000, value)));
     doInRollbackLoop(
         end,
         itemsCount,
         100,
         (value, rollback, atomicOperation) ->
-            multiValueTree.remove(atomicOperation, null, new YTRecordId(value % 32_000, value)));
+            multiValueTree.remove(atomicOperation, null, new RecordId(value % 32_000, value)));
 
-    final List<YTRID> result;
-    try (Stream<YTRID> stream = multiValueTree.get(null)) {
+    final List<RID> result;
+    try (Stream<RID> stream = multiValueTree.get(null)) {
       result = stream.collect(Collectors.toList());
     }
 
     Assert.assertEquals(itemsCount - (start + (itemsCount - end)), result.size());
-    Set<YTRID> resultSet = new HashSet<>(result);
+    Set<RID> resultSet = new HashSet<>(result);
 
     for (int i = 0; i < itemsCount; i++) {
       if (i < start || i >= end) {
-        Assert.assertFalse(resultSet.contains(new YTRecordId(i % 32_000, i)));
+        Assert.assertFalse(resultSet.contains(new RecordId(i % 32_000, i)));
       } else {
-        Assert.assertTrue(resultSet.contains(new YTRecordId(i % 32_000, i)));
+        Assert.assertTrue(resultSet.contains(new RecordId(i % 32_000, i)));
       }
     }
   }
@@ -357,7 +357,7 @@ public class CellBTreeMultiValueV2TestIT {
         itemsCount,
         100,
         (value, rollback, atomicOperation) ->
-            multiValueTree.put(atomicOperation, null, new YTRecordId(value % 32000, value)));
+            multiValueTree.put(atomicOperation, null, new RecordId(value % 32000, value)));
 
     final int start = itemsCount / 3;
     final int end = 2 * itemsCount / 3;
@@ -367,36 +367,36 @@ public class CellBTreeMultiValueV2TestIT {
         start,
         100,
         (value, rollback, atomicOperation) ->
-            multiValueTree.remove(atomicOperation, null, new YTRecordId(value % 32_000, value)));
+            multiValueTree.remove(atomicOperation, null, new RecordId(value % 32_000, value)));
     doInRollbackLoop(
         end,
         itemsCount,
         100,
         (value, rollback, atomicOperation) ->
-            multiValueTree.remove(atomicOperation, null, new YTRecordId(value % 32_000, value)));
+            multiValueTree.remove(atomicOperation, null, new RecordId(value % 32_000, value)));
     doInRollbackLoop(
         0,
         start,
         100,
         (value, rollback, atomicOperation) ->
-            multiValueTree.put(atomicOperation, null, new YTRecordId(value % 32_000, value)));
+            multiValueTree.put(atomicOperation, null, new RecordId(value % 32_000, value)));
     doInRollbackLoop(
         end,
         itemsCount,
         100,
         (value, rollback, atomicOperation) ->
-            multiValueTree.put(atomicOperation, null, new YTRecordId(value % 32_000, value)));
+            multiValueTree.put(atomicOperation, null, new RecordId(value % 32_000, value)));
 
-    final List<YTRID> result;
-    try (Stream<YTRID> stream = multiValueTree.get(null)) {
+    final List<RID> result;
+    try (Stream<RID> stream = multiValueTree.get(null)) {
       result = stream.collect(Collectors.toList());
     }
 
     Assert.assertEquals(itemsCount, result.size());
-    Set<YTRID> resultSet = new HashSet<>(result);
+    Set<RID> resultSet = new HashSet<>(result);
 
     for (int i = 0; i < itemsCount; i++) {
-      Assert.assertTrue(resultSet.contains(new YTRecordId(i % 32_000, i)));
+      Assert.assertTrue(resultSet.contains(new RecordId(i % 32_000, i)));
     }
   }
 
@@ -409,7 +409,7 @@ public class CellBTreeMultiValueV2TestIT {
         itemsCount,
         100,
         (value, rollback, atomicOperation) ->
-            multiValueTree.put(atomicOperation, null, new YTRecordId(value % 32000, value)));
+            multiValueTree.put(atomicOperation, null, new RecordId(value % 32000, value)));
 
     final int start = itemsCount / 3;
     final int end = 2 * itemsCount / 3;
@@ -419,36 +419,36 @@ public class CellBTreeMultiValueV2TestIT {
         start,
         100,
         (value, rollback, atomicOperation) ->
-            multiValueTree.remove(atomicOperation, null, new YTRecordId(value % 32_000, value)));
+            multiValueTree.remove(atomicOperation, null, new RecordId(value % 32_000, value)));
     doInRollbackLoop(
         0,
         start,
         100,
         (value, rollback, atomicOperation) ->
-            multiValueTree.put(atomicOperation, null, new YTRecordId(value % 32_000, value)));
+            multiValueTree.put(atomicOperation, null, new RecordId(value % 32_000, value)));
     doInRollbackLoop(
         end,
         itemsCount,
         100,
         (value, rollback, atomicOperation) ->
-            multiValueTree.remove(atomicOperation, null, new YTRecordId(value % 32_000, value)));
+            multiValueTree.remove(atomicOperation, null, new RecordId(value % 32_000, value)));
     doInRollbackLoop(
         end,
         itemsCount,
         100,
         (value, rollback, atomicOperation) ->
-            multiValueTree.put(atomicOperation, null, new YTRecordId(value % 32_000, value)));
+            multiValueTree.put(atomicOperation, null, new RecordId(value % 32_000, value)));
 
-    final List<YTRID> result;
-    try (Stream<YTRID> stream = multiValueTree.get(null)) {
+    final List<RID> result;
+    try (Stream<RID> stream = multiValueTree.get(null)) {
       result = stream.collect(Collectors.toList());
     }
 
     Assert.assertEquals(itemsCount, result.size());
-    Set<YTRID> resultSet = new HashSet<>(result);
+    Set<RID> resultSet = new HashSet<>(result);
 
     for (int i = 0; i < itemsCount; i++) {
-      Assert.assertTrue(resultSet.contains(new YTRecordId(i % 32_000, i)));
+      Assert.assertTrue(resultSet.contains(new RecordId(i % 32_000, i)));
     }
   }
 
@@ -462,18 +462,18 @@ public class CellBTreeMultiValueV2TestIT {
         itemsCount,
         100,
         (value, rollback, atomicOperation) ->
-            multiValueTree.put(atomicOperation, key, new YTRecordId(value % 32000, value)));
+            multiValueTree.put(atomicOperation, key, new RecordId(value % 32000, value)));
 
-    final List<YTRID> result;
-    try (Stream<YTRID> stream = multiValueTree.get(key)) {
+    final List<RID> result;
+    try (Stream<RID> stream = multiValueTree.get(key)) {
       result = stream.collect(Collectors.toList());
     }
 
     Assert.assertEquals(itemsCount, result.size());
-    Set<YTRID> resultSet = new HashSet<>(result);
+    Set<RID> resultSet = new HashSet<>(result);
 
     for (int i = 0; i < itemsCount; i++) {
-      Assert.assertTrue(resultSet.contains(new YTRecordId(i % 32000, i)));
+      Assert.assertTrue(resultSet.contains(new RecordId(i % 32000, i)));
     }
   }
 
@@ -487,7 +487,7 @@ public class CellBTreeMultiValueV2TestIT {
         itemsCount,
         100,
         (value, rollback, atomicOperation) ->
-            multiValueTree.put(atomicOperation, key, new YTRecordId(value % 32000, value)));
+            multiValueTree.put(atomicOperation, key, new RecordId(value % 32000, value)));
 
     doInRollbackLoop(
         0,
@@ -495,21 +495,21 @@ public class CellBTreeMultiValueV2TestIT {
         100,
         (value, rollback, atomicOperation) -> {
           final int val = 3 * value;
-          multiValueTree.remove(atomicOperation, key, new YTRecordId(val % 32_000, val));
+          multiValueTree.remove(atomicOperation, key, new RecordId(val % 32_000, val));
         });
 
-    final List<YTRID> result;
-    try (Stream<YTRID> stream = multiValueTree.get(key)) {
+    final List<RID> result;
+    try (Stream<RID> stream = multiValueTree.get(key)) {
       result = stream.collect(Collectors.toList());
     }
 
     Assert.assertEquals(itemsCount - itemsCount / 3, result.size());
-    Set<YTRID> resultSet = new HashSet<>(result);
+    Set<RID> resultSet = new HashSet<>(result);
 
     for (int i = 0; i < itemsCount / 3; i++) {
       final int val = i * 3;
-      Assert.assertTrue(resultSet.contains(new YTRecordId((val + 1) % 32000, (val + 1))));
-      Assert.assertTrue(resultSet.contains(new YTRecordId((val + 2) % 32000, (val + 2))));
+      Assert.assertTrue(resultSet.contains(new RecordId((val + 1) % 32000, (val + 1))));
+      Assert.assertTrue(resultSet.contains(new RecordId((val + 2) % 32000, (val + 2))));
     }
   }
 
@@ -524,23 +524,23 @@ public class CellBTreeMultiValueV2TestIT {
         itemsCount,
         100,
         (value, rollback, atomicOperation) -> {
-          multiValueTree.put(atomicOperation, keyOne, new YTRecordId(value % 32000, value));
-          multiValueTree.put(atomicOperation, keyTwo, new YTRecordId(value % 32000, value));
+          multiValueTree.put(atomicOperation, keyOne, new RecordId(value % 32000, value));
+          multiValueTree.put(atomicOperation, keyTwo, new RecordId(value % 32000, value));
         });
 
-    List<YTRID> result;
-    try (Stream<YTRID> stream = multiValueTree.get(keyOne)) {
+    List<RID> result;
+    try (Stream<RID> stream = multiValueTree.get(keyOne)) {
       result = stream.collect(Collectors.toList());
     }
 
     Assert.assertEquals(itemsCount, result.size());
-    Set<YTRID> resultSet = new HashSet<>(result);
+    Set<RID> resultSet = new HashSet<>(result);
 
     for (int i = 0; i < itemsCount; i++) {
-      Assert.assertTrue(resultSet.contains(new YTRecordId(i % 32000, i)));
+      Assert.assertTrue(resultSet.contains(new RecordId(i % 32000, i)));
     }
 
-    try (Stream<YTRID> stream = multiValueTree.get(keyTwo)) {
+    try (Stream<RID> stream = multiValueTree.get(keyTwo)) {
       result = stream.collect(Collectors.toList());
     }
 
@@ -548,7 +548,7 @@ public class CellBTreeMultiValueV2TestIT {
     resultSet = new HashSet<>(result);
 
     for (int i = 0; i < itemsCount; i++) {
-      Assert.assertTrue(resultSet.contains(new YTRecordId(i % 32000, i)));
+      Assert.assertTrue(resultSet.contains(new RecordId(i % 32000, i)));
     }
   }
 
@@ -563,8 +563,8 @@ public class CellBTreeMultiValueV2TestIT {
         itemsCount,
         100,
         (value, rollback, atomicOperation) -> {
-          multiValueTree.put(atomicOperation, keyOne, new YTRecordId(value % 32000, value));
-          multiValueTree.put(atomicOperation, keyTwo, new YTRecordId(value % 32000, value));
+          multiValueTree.put(atomicOperation, keyOne, new RecordId(value % 32000, value));
+          multiValueTree.put(atomicOperation, keyTwo, new RecordId(value % 32000, value));
         });
 
     doInRollbackLoop(
@@ -573,39 +573,39 @@ public class CellBTreeMultiValueV2TestIT {
         100,
         (value, rollback, atomicOperation) -> {
           final int val = 3 * value;
-          multiValueTree.remove(atomicOperation, keyOne, new YTRecordId(val % 32_000, val));
-          multiValueTree.remove(atomicOperation, keyTwo, new YTRecordId(val % 32_000, val));
+          multiValueTree.remove(atomicOperation, keyOne, new RecordId(val % 32_000, val));
+          multiValueTree.remove(atomicOperation, keyTwo, new RecordId(val % 32_000, val));
         });
 
     {
-      final List<YTRID> result;
-      try (Stream<YTRID> stream = multiValueTree.get(keyOne)) {
+      final List<RID> result;
+      try (Stream<RID> stream = multiValueTree.get(keyOne)) {
         result = stream.collect(Collectors.toList());
       }
 
       Assert.assertEquals(itemsCount - itemsCount / 3, result.size());
-      Set<YTRID> resultSet = new HashSet<>(result);
+      Set<RID> resultSet = new HashSet<>(result);
 
       for (int i = 0; i < itemsCount / 3; i++) {
         final int val = i * 3;
-        Assert.assertTrue(resultSet.contains(new YTRecordId((val + 1) % 32000, (val + 1))));
-        Assert.assertTrue(resultSet.contains(new YTRecordId((val + 2) % 32000, (val + 2))));
+        Assert.assertTrue(resultSet.contains(new RecordId((val + 1) % 32000, (val + 1))));
+        Assert.assertTrue(resultSet.contains(new RecordId((val + 2) % 32000, (val + 2))));
       }
     }
 
     {
-      final List<YTRID> result;
-      try (Stream<YTRID> stream = multiValueTree.get(keyTwo)) {
+      final List<RID> result;
+      try (Stream<RID> stream = multiValueTree.get(keyTwo)) {
         result = stream.collect(Collectors.toList());
       }
 
       Assert.assertEquals(itemsCount - itemsCount / 3, result.size());
-      Set<YTRID> resultSet = new HashSet<>(result);
+      Set<RID> resultSet = new HashSet<>(result);
 
       for (int i = 0; i < itemsCount / 3; i++) {
         final int val = i * 3;
-        Assert.assertTrue(resultSet.contains(new YTRecordId((val + 1) % 32000, (val + 1))));
-        Assert.assertTrue(resultSet.contains(new YTRecordId((val + 2) % 32000, (val + 2))));
+        Assert.assertTrue(resultSet.contains(new RecordId((val + 1) % 32000, (val + 1))));
+        Assert.assertTrue(resultSet.contains(new RecordId((val + 2) % 32000, (val + 2))));
       }
     }
   }
@@ -625,22 +625,22 @@ public class CellBTreeMultiValueV2TestIT {
         100,
         (value, rollback, atomicOperation) -> {
           for (String key : keys) {
-            multiValueTree.put(atomicOperation, key, new YTRecordId(value % 32000, value));
+            multiValueTree.put(atomicOperation, key, new RecordId(value % 32000, value));
           }
         });
 
     for (String key : keys) {
-      List<YTRID> result;
-      try (Stream<YTRID> stream = multiValueTree.get(key)) {
+      List<RID> result;
+      try (Stream<RID> stream = multiValueTree.get(key)) {
         result = stream.collect(Collectors.toList());
       }
 
       Assert.assertEquals(itemsCount, result.size());
-      Set<YTRID> resultSet = new HashSet<>(result);
+      Set<RID> resultSet = new HashSet<>(result);
       Assert.assertEquals(itemsCount, resultSet.size());
 
       for (int i = 0; i < itemsCount; i++) {
-        Assert.assertTrue(resultSet.contains(new YTRecordId(i % 32000, i)));
+        Assert.assertTrue(resultSet.contains(new RecordId(i % 32000, i)));
       }
     }
   }
@@ -660,21 +660,21 @@ public class CellBTreeMultiValueV2TestIT {
         100,
         (value, rollback, atomicOperation) -> {
           for (String key : keys) {
-            multiValueTree.put(atomicOperation, key, new YTRecordId(value % 32000, value));
+            multiValueTree.put(atomicOperation, key, new RecordId(value % 32000, value));
           }
         });
 
     for (String key : keys) {
-      List<YTRID> result;
-      try (Stream<YTRID> stream = multiValueTree.get(key)) {
+      List<RID> result;
+      try (Stream<RID> stream = multiValueTree.get(key)) {
         result = stream.collect(Collectors.toList());
       }
 
       Assert.assertEquals(itemsCount, result.size());
-      Set<YTRID> resultSet = new HashSet<>(result);
+      Set<RID> resultSet = new HashSet<>(result);
 
       for (int i = 0; i < itemsCount; i++) {
-        Assert.assertTrue(resultSet.contains(new YTRecordId(i % 32000, i)));
+        Assert.assertTrue(resultSet.contains(new RecordId(i % 32000, i)));
       }
     }
   }
@@ -694,7 +694,7 @@ public class CellBTreeMultiValueV2TestIT {
         100,
         (value, rollback, atomicOperation) -> {
           for (String key : keys) {
-            multiValueTree.put(atomicOperation, key, new YTRecordId(value % 32000, value));
+            multiValueTree.put(atomicOperation, key, new RecordId(value % 32000, value));
           }
         });
 
@@ -706,23 +706,23 @@ public class CellBTreeMultiValueV2TestIT {
           final int val = 3 * value;
 
           for (String key : keys) {
-            multiValueTree.remove(atomicOperation, key, new YTRecordId(val % 32_000, val));
+            multiValueTree.remove(atomicOperation, key, new RecordId(val % 32_000, val));
           }
         });
 
     for (String key : keys) {
-      final List<YTRID> result;
-      try (Stream<YTRID> stream = multiValueTree.get(key)) {
+      final List<RID> result;
+      try (Stream<RID> stream = multiValueTree.get(key)) {
         result = stream.collect(Collectors.toList());
       }
 
       Assert.assertEquals(itemsCount - itemsCount / 3, result.size());
-      Set<YTRID> resultSet = new HashSet<>(result);
+      Set<RID> resultSet = new HashSet<>(result);
 
       for (int i = 0; i < itemsCount / 3; i++) {
         final int val = i * 3;
-        Assert.assertTrue(resultSet.contains(new YTRecordId((val + 1) % 32000, (val + 1))));
-        Assert.assertTrue(resultSet.contains(new YTRecordId((val + 2) % 32000, (val + 2))));
+        Assert.assertTrue(resultSet.contains(new RecordId((val + 1) % 32000, (val + 1))));
+        Assert.assertTrue(resultSet.contains(new RecordId((val + 2) % 32000, (val + 2))));
       }
     }
   }
@@ -742,7 +742,7 @@ public class CellBTreeMultiValueV2TestIT {
         100,
         (value, rollback, atomicOperation) -> {
           for (String key : keys) {
-            multiValueTree.put(atomicOperation, key, new YTRecordId(value % 32000, value));
+            multiValueTree.put(atomicOperation, key, new RecordId(value % 32000, value));
           }
           if (!rollback && value % 100 == 0) {
             System.out.printf("%d entries were inserted out of %d %n", value, itemsCount);
@@ -750,16 +750,16 @@ public class CellBTreeMultiValueV2TestIT {
         });
 
     for (String key : keys) {
-      List<YTRID> result;
-      try (Stream<YTRID> stream = multiValueTree.get(key)) {
+      List<RID> result;
+      try (Stream<RID> stream = multiValueTree.get(key)) {
         result = stream.collect(Collectors.toList());
       }
 
       Assert.assertEquals(itemsCount, result.size());
-      Set<YTRID> resultSet = new HashSet<>(result);
+      Set<RID> resultSet = new HashSet<>(result);
 
       for (int i = 0; i < itemsCount; i++) {
-        Assert.assertTrue(resultSet.contains(new YTRecordId(i % 32000, i)));
+        Assert.assertTrue(resultSet.contains(new RecordId(i % 32000, i)));
       }
     }
   }
@@ -779,7 +779,7 @@ public class CellBTreeMultiValueV2TestIT {
         100,
         (value, rollback, atomicOperation) -> {
           for (String key : keys) {
-            multiValueTree.put(atomicOperation, key, new YTRecordId(value % 32000, value));
+            multiValueTree.put(atomicOperation, key, new RecordId(value % 32000, value));
           }
         });
 
@@ -791,23 +791,23 @@ public class CellBTreeMultiValueV2TestIT {
           final int val = 3 * value;
 
           for (String key : keys) {
-            multiValueTree.remove(atomicOperation, key, new YTRecordId(val % 32_000, val));
+            multiValueTree.remove(atomicOperation, key, new RecordId(val % 32_000, val));
           }
         });
 
     for (String key : keys) {
-      final List<YTRID> result;
-      try (Stream<YTRID> stream = multiValueTree.get(key)) {
+      final List<RID> result;
+      try (Stream<RID> stream = multiValueTree.get(key)) {
         result = stream.collect(Collectors.toList());
       }
 
       Assert.assertEquals(itemsCount - itemsCount / 3, result.size());
-      Set<YTRID> resultSet = new HashSet<>(result);
+      Set<RID> resultSet = new HashSet<>(result);
 
       for (int i = 0; i < itemsCount / 3; i++) {
         final int val = i * 3;
-        Assert.assertTrue(resultSet.contains(new YTRecordId((val + 1) % 32000, (val + 1))));
-        Assert.assertTrue(resultSet.contains(new YTRecordId((val + 2) % 32000, (val + 2))));
+        Assert.assertTrue(resultSet.contains(new RecordId((val + 1) % 32000, (val + 1))));
+        Assert.assertTrue(resultSet.contains(new RecordId((val + 2) % 32000, (val + 2))));
       }
     }
   }
@@ -824,7 +824,7 @@ public class CellBTreeMultiValueV2TestIT {
         100,
         (value, rollback, atomicOperation) -> {
           final String key = Integer.toString(value);
-          multiValueTree.put(atomicOperation, key, new YTRecordId(value % 32000, value));
+          multiValueTree.put(atomicOperation, key, new RecordId(value % 32000, value));
 
           if (!rollback) {
             if (value % 100_000 == 0) {
@@ -843,20 +843,20 @@ public class CellBTreeMultiValueV2TestIT {
         });
 
     for (int i = 0; i < keysCount; i++) {
-      final List<YTRID> result;
-      try (Stream<YTRID> stream = multiValueTree.get(Integer.toString(i))) {
+      final List<RID> result;
+      try (Stream<RID> stream = multiValueTree.get(Integer.toString(i))) {
         result = stream.collect(Collectors.toList());
       }
       Assert.assertEquals(1, result.size());
 
-      Assert.assertTrue(i + " key is absent", result.contains(new YTRecordId(i % 32000, i)));
+      Assert.assertTrue(i + " key is absent", result.contains(new RecordId(i % 32000, i)));
       if (i % 100_000 == 0) {
         System.out.printf("%d items tested out of %d%n", i, keysCount);
       }
     }
 
     for (int i = keysCount; i < 2 * keysCount; i++) {
-      try (Stream<YTRID> stream = multiValueTree.get(Integer.toString(i))) {
+      try (Stream<RID> stream = multiValueTree.get(Integer.toString(i))) {
         Assert.assertFalse(stream.iterator().hasNext());
       }
     }
@@ -880,7 +880,7 @@ public class CellBTreeMultiValueV2TestIT {
           atomicOperationsManager.executeInsideAtomicOperation(
               null,
               atomicOperation -> {
-                multiValueTree.put(atomicOperation, key, new YTRecordId(val % 32000, val));
+                multiValueTree.put(atomicOperation, key, new RecordId(val % 32000, val));
                 if (rollbackCounter == 0) {
                   throw new RollbackException();
                 }
@@ -899,15 +899,15 @@ public class CellBTreeMultiValueV2TestIT {
             return v + 1;
           });
 
-      final List<YTRID> result;
-      try (Stream<YTRID> stream = multiValueTree.get(key)) {
+      final List<RID> result;
+      try (Stream<RID> stream = multiValueTree.get(key)) {
         result = stream.collect(Collectors.toList());
       }
 
       Assert.assertEquals(keys.get(key).longValue(), result.size());
-      final YTRID expected = new YTRecordId(val % 32000, val);
+      final RID expected = new RecordId(val % 32000, val);
 
-      for (YTRID rid : result) {
+      for (RID rid : result) {
         Assert.assertEquals(expected, rid);
       }
     }
@@ -917,15 +917,15 @@ public class CellBTreeMultiValueV2TestIT {
 
     for (Map.Entry<String, Integer> entry : keys.entrySet()) {
       final int val = Integer.parseInt(entry.getKey());
-      List<YTRID> result;
-      try (Stream<YTRID> stream = multiValueTree.get(entry.getKey())) {
+      List<RID> result;
+      try (Stream<RID> stream = multiValueTree.get(entry.getKey())) {
         result = stream.collect(Collectors.toList());
       }
 
       Assert.assertEquals(entry.getValue().longValue(), result.size());
-      final YTRID expected = new YTRecordId(val % 32000, val);
+      final RID expected = new RecordId(val % 32000, val);
 
-      for (YTRID rid : result) {
+      for (RID rid : result) {
         Assert.assertEquals(expected, rid);
       }
     }
@@ -943,7 +943,7 @@ public class CellBTreeMultiValueV2TestIT {
         (value, rollback, atomicOperation) -> {
           String key = Integer.toString(value);
 
-          multiValueTree.put(atomicOperation, key, new YTRecordId(value % 32000, value));
+          multiValueTree.put(atomicOperation, key, new RecordId(value % 32000, value));
 
           if (!rollback) {
             keys.compute(
@@ -971,7 +971,7 @@ public class CellBTreeMultiValueV2TestIT {
             atomicOperationsManager.executeInsideAtomicOperation(
                 null,
                 atomicOperation -> {
-                  multiValueTree.remove(atomicOperation, key, new YTRecordId(val % 32000, val));
+                  multiValueTree.remove(atomicOperation, key, new RecordId(val % 32000, val));
                   if (rollbackCounter == 0) {
                     throw new RollbackException();
                   }
@@ -994,19 +994,19 @@ public class CellBTreeMultiValueV2TestIT {
       final String key = String.valueOf(i);
 
       if (i % 3 == 0) {
-        try (Stream<YTRID> stream = multiValueTree.get(key)) {
+        try (Stream<RID> stream = multiValueTree.get(key)) {
           Assert.assertFalse(stream.iterator().hasNext());
         }
       } else {
-        List<YTRID> result;
-        try (Stream<YTRID> stream = multiValueTree.get(key)) {
+        List<RID> result;
+        try (Stream<RID> stream = multiValueTree.get(key)) {
           result = stream.collect(Collectors.toList());
         }
 
         Assert.assertEquals(1, result.size());
-        final YTRID expected = new YTRecordId(i % 32000, i);
+        final RID expected = new RecordId(i % 32000, i);
 
-        for (YTRID rid : result) {
+        for (RID rid : result) {
           Assert.assertEquals(expected, rid);
         }
       }
@@ -1023,7 +1023,7 @@ public class CellBTreeMultiValueV2TestIT {
         100,
         (value, rollback, atomicOperation) ->
             multiValueTree.put(
-                atomicOperation, Integer.toString(value), new YTRecordId(value % 32000, value)));
+                atomicOperation, Integer.toString(value), new RecordId(value % 32000, value)));
 
     doInRollbackLoop(
         0,
@@ -1034,40 +1034,40 @@ public class CellBTreeMultiValueV2TestIT {
             Assert.assertTrue(
                 multiValueTree.remove(
                     atomicOperation, Integer.toString(value),
-                    new YTRecordId(value % 32000, value)));
+                    new RecordId(value % 32000, value)));
           }
 
           if (value % 2 == 0) {
             multiValueTree.put(
                 atomicOperation,
                 Integer.toString(keysCount + value),
-                new YTRecordId((keysCount + value) % 32000, keysCount + value));
+                new RecordId((keysCount + value) % 32000, keysCount + value));
           }
         });
 
     for (int i = 0; i < keysCount; i++) {
       if (i % 3 == 0) {
-        try (Stream<YTRID> stream = multiValueTree.get(Integer.toString(i))) {
+        try (Stream<RID> stream = multiValueTree.get(Integer.toString(i))) {
           Assert.assertFalse(stream.iterator().hasNext());
         }
       } else {
-        List<YTRID> result;
-        try (Stream<YTRID> stream = multiValueTree.get(Integer.toString(i))) {
+        List<RID> result;
+        try (Stream<RID> stream = multiValueTree.get(Integer.toString(i))) {
           result = stream.collect(Collectors.toList());
         }
 
         Assert.assertEquals(1, result.size());
-        Assert.assertTrue(result.contains(new YTRecordId(i % 32000, i)));
+        Assert.assertTrue(result.contains(new RecordId(i % 32000, i)));
       }
 
       if (i % 2 == 0) {
-        List<YTRID> result;
-        try (Stream<YTRID> stream = multiValueTree.get(Integer.toString(keysCount + i))) {
+        List<RID> result;
+        try (Stream<RID> stream = multiValueTree.get(Integer.toString(keysCount + i))) {
           result = stream.collect(Collectors.toList());
         }
 
         Assert.assertEquals(1, result.size());
-        Assert.assertTrue(result.contains(new YTRecordId((keysCount + i) % 32000, keysCount + i)));
+        Assert.assertTrue(result.contains(new RecordId((keysCount + i) % 32000, keysCount + i)));
       }
     }
   }
@@ -1076,7 +1076,7 @@ public class CellBTreeMultiValueV2TestIT {
   public void testKeyCursor() throws Exception {
     final int keysCount = 1_000_000;
 
-    NavigableMap<String, YTRID> keyValues = new TreeMap<>();
+    NavigableMap<String, RID> keyValues = new TreeMap<>();
     final long seed = System.nanoTime();
 
     System.out.println("testKeyCursor: " + seed);
@@ -1092,7 +1092,7 @@ public class CellBTreeMultiValueV2TestIT {
           atomicOperationsManager.executeInsideAtomicOperation(
               null,
               atomicOperation -> {
-                multiValueTree.put(atomicOperation, key, new YTRecordId(val % 32000, val));
+                multiValueTree.put(atomicOperation, key, new RecordId(val % 32000, val));
                 if (rollbackCounter == 0) {
                   throw new RollbackException();
                 }
@@ -1101,7 +1101,7 @@ public class CellBTreeMultiValueV2TestIT {
         }
       }
 
-      keyValues.put(key, new YTRecordId(val % 32000, val));
+      keyValues.put(key, new RecordId(val % 32000, val));
     }
 
     Assert.assertEquals(multiValueTree.firstKey(), keyValues.firstKey());
@@ -1136,7 +1136,7 @@ public class CellBTreeMultiValueV2TestIT {
           atomicOperationsManager.executeInsideAtomicOperation(
               null,
               atomicOperation -> {
-                multiValueTree.put(atomicOperation, key, new YTRecordId(val % 32000, val));
+                multiValueTree.put(atomicOperation, key, new RecordId(val % 32000, val));
                 if (rollbackCounter == 0) {
                   throw new RollbackException();
                 }
@@ -1187,7 +1187,7 @@ public class CellBTreeMultiValueV2TestIT {
           atomicOperationsManager.executeInsideAtomicOperation(
               null,
               atomicOperation -> {
-                multiValueTree.put(atomicOperation, key, new YTRecordId(val % 32000, val));
+                multiValueTree.put(atomicOperation, key, new RecordId(val % 32000, val));
                 if (rollbackCounter == 0) {
                   throw new RollbackException();
                 }
@@ -1233,7 +1233,7 @@ public class CellBTreeMultiValueV2TestIT {
           atomicOperationsManager.executeInsideAtomicOperation(
               null,
               atomicOperation -> {
-                multiValueTree.put(atomicOperation, key, new YTRecordId(val % 32000, val));
+                multiValueTree.put(atomicOperation, key, new RecordId(val % 32000, val));
                 if (rollbackCounter == 0) {
                   throw new RollbackException();
                 }
@@ -1290,8 +1290,8 @@ public class CellBTreeMultiValueV2TestIT {
                 + (char) (fromKey.charAt(fromKey.length() - 1) - 1);
       }
 
-      final Iterator<ORawPair<String, YTRID>> indexIterator;
-      try (Stream<ORawPair<String, YTRID>> stream =
+      final Iterator<RawPair<String, RID>> indexIterator;
+      try (Stream<RawPair<String, RID>> stream =
           multiValueTree.iterateEntriesMajor(fromKey, keyInclusive, ascSortOrder)) {
         indexIterator = stream.iterator();
 
@@ -1308,12 +1308,12 @@ public class CellBTreeMultiValueV2TestIT {
         }
 
         while (iterator.hasNext()) {
-          ORawPair<String, YTRID> indexEntry = indexIterator.next();
+          RawPair<String, RID> indexEntry = indexIterator.next();
           final Map.Entry<String, Integer> entry = iterator.next();
 
           final int repetition = entry.getValue();
           final int value = Integer.parseInt(entry.getKey());
-          final YTRID expected = new YTRecordId(value % 32_000, value);
+          final RID expected = new RecordId(value % 32_000, value);
 
           Assert.assertEquals(entry.getKey(), indexEntry.first);
           Assert.assertEquals(expected, indexEntry.second);
@@ -1354,8 +1354,8 @@ public class CellBTreeMultiValueV2TestIT {
             toKey.substring(0, toKey.length() - 1) + (char) (toKey.charAt(toKey.length() - 1) + 1);
       }
 
-      final Iterator<ORawPair<String, YTRID>> indexIterator;
-      try (Stream<ORawPair<String, YTRID>> stream =
+      final Iterator<RawPair<String, RID>> indexIterator;
+      try (Stream<RawPair<String, RID>> stream =
           multiValueTree.iterateEntriesMinor(toKey, keyInclusive, ascSortOrder)) {
         indexIterator = stream.iterator();
         Iterator<Map.Entry<String, Integer>> iterator;
@@ -1366,12 +1366,12 @@ public class CellBTreeMultiValueV2TestIT {
         }
 
         while (iterator.hasNext()) {
-          ORawPair<String, YTRID> indexEntry = indexIterator.next();
+          RawPair<String, RID> indexEntry = indexIterator.next();
           Map.Entry<String, Integer> entry = iterator.next();
 
           final int repetition = entry.getValue();
           final int value = Integer.parseInt(entry.getKey());
-          final YTRID expected = new YTRecordId(value % 32_000, value);
+          final RID expected = new RecordId(value % 32_000, value);
 
           Assert.assertEquals(entry.getKey(), indexEntry.first);
           Assert.assertEquals(expected, indexEntry.second);
@@ -1431,8 +1431,8 @@ public class CellBTreeMultiValueV2TestIT {
         fromKey = toKey;
       }
 
-      final Iterator<ORawPair<String, YTRID>> indexIterator;
-      try (Stream<ORawPair<String, YTRID>> stream =
+      final Iterator<RawPair<String, RID>> indexIterator;
+      try (Stream<RawPair<String, RID>> stream =
           multiValueTree.iterateEntriesBetween(
               fromKey, fromInclusive, toKey, toInclusive, ascSortOrder)) {
         indexIterator = stream.iterator();
@@ -1451,14 +1451,14 @@ public class CellBTreeMultiValueV2TestIT {
         }
 
         while (iterator.hasNext()) {
-          ORawPair<String, YTRID> indexEntry = indexIterator.next();
+          RawPair<String, RID> indexEntry = indexIterator.next();
           Assert.assertNotNull(indexEntry);
 
           Map.Entry<String, Integer> entry = iterator.next();
 
           final int repetition = entry.getValue();
           final int value = Integer.parseInt(entry.getKey());
-          final YTRID expected = new YTRecordId(value % 32_000, value);
+          final RID expected = new RecordId(value % 32_000, value);
 
           Assert.assertEquals(entry.getKey(), indexEntry.first);
           Assert.assertEquals(expected, indexEntry.second);
@@ -1483,7 +1483,7 @@ public class CellBTreeMultiValueV2TestIT {
       @SuppressWarnings("SameParameterValue") final int rollbackSlice,
       final TxCode code)
       throws IOException {
-    final OAtomicOperationsManager atomicOperationsManager = storage.getAtomicOperationsManager();
+    final AtomicOperationsManager atomicOperationsManager = storage.getAtomicOperationsManager();
 
     for (int i = start; i < end; i += rollbackSlice) {
       final int iterationCounter = i;
@@ -1511,10 +1511,10 @@ public class CellBTreeMultiValueV2TestIT {
 
   private interface TxCode {
 
-    void execute(int value, boolean rollback, OAtomicOperation atomicOperation) throws IOException;
+    void execute(int value, boolean rollback, AtomicOperation atomicOperation) throws IOException;
   }
 
-  static final class RollbackException extends YTException implements YTHighLevelException {
+  static final class RollbackException extends BaseException implements HighLevelException {
 
     public RollbackException() {
       this("");

@@ -6,16 +6,16 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
-import com.jetbrains.youtrack.db.internal.common.listener.OProgressListener;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.index.OCompositeIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.OIndex;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.OIndexManagerAbstract;
-import com.jetbrains.youtrack.db.internal.core.index.OPropertyIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTType;
+import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
+import com.jetbrains.youtrack.db.internal.core.index.PropertyIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -40,29 +40,29 @@ public class IndexManagerTest extends DocumentDBBaseTest {
   public void beforeClass() throws Exception {
     super.beforeClass();
 
-    final YTSchema schema = database.getMetadata().getSchema();
+    final Schema schema = database.getMetadata().getSchema();
 
-    final YTClass oClass = schema.createClass(CLASS_NAME);
+    final SchemaClass oClass = schema.createClass(CLASS_NAME);
 
-    oClass.createProperty(database, "fOne", YTType.INTEGER);
-    oClass.createProperty(database, "fTwo", YTType.STRING);
-    oClass.createProperty(database, "fThree", YTType.BOOLEAN);
-    oClass.createProperty(database, "fFour", YTType.INTEGER);
+    oClass.createProperty(database, "fOne", PropertyType.INTEGER);
+    oClass.createProperty(database, "fTwo", PropertyType.STRING);
+    oClass.createProperty(database, "fThree", PropertyType.BOOLEAN);
+    oClass.createProperty(database, "fFour", PropertyType.INTEGER);
 
-    oClass.createProperty(database, "fSix", YTType.STRING);
-    oClass.createProperty(database, "fSeven", YTType.STRING);
+    oClass.createProperty(database, "fSix", PropertyType.STRING);
+    oClass.createProperty(database, "fSeven", PropertyType.STRING);
   }
 
   @Test
   public void testCreateOnePropertyIndexTest() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final OIndex result =
+    final Index result =
         indexManager.createIndex(
             database,
             "propertyone",
-            YTClass.INDEX_TYPE.UNIQUE.toString(),
-            new OPropertyIndexDefinition(CLASS_NAME, "fOne", YTType.INTEGER),
+            SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+            new PropertyIndexDefinition(CLASS_NAME, "fOne", PropertyType.INTEGER),
             new int[]{database.getClusterIdByName(CLASS_NAME)},
             null,
             null);
@@ -81,18 +81,18 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test
   public void createCompositeIndexTestWithoutListener() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final OIndex result =
+    final Index result =
         indexManager.createIndex(
             database,
             "compositeone",
-            YTClass.INDEX_TYPE.NOTUNIQUE.toString(),
-            new OCompositeIndexDefinition(
+            SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
+            new CompositeIndexDefinition(
                 CLASS_NAME,
                 Arrays.asList(
-                    new OPropertyIndexDefinition(CLASS_NAME, "fOne", YTType.INTEGER),
-                    new OPropertyIndexDefinition(CLASS_NAME, "fTwo", YTType.STRING))),
+                    new PropertyIndexDefinition(CLASS_NAME, "fOne", PropertyType.INTEGER),
+                    new PropertyIndexDefinition(CLASS_NAME, "fTwo", PropertyType.STRING))),
             new int[]{database.getClusterIdByName(CLASS_NAME)},
             null,
             null);
@@ -111,8 +111,8 @@ public class IndexManagerTest extends DocumentDBBaseTest {
   @Test
   public void createCompositeIndexTestWithListener() {
     final AtomicInteger atomicInteger = new AtomicInteger(0);
-    final OProgressListener progressListener =
-        new OProgressListener() {
+    final ProgressListener progressListener =
+        new ProgressListener() {
           @Override
           public void onBegin(final Object iTask, final long iTotal, Object metadata) {
             atomicInteger.incrementAndGet();
@@ -124,25 +124,25 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           }
 
           @Override
-          public void onCompletition(YTDatabaseSessionInternal session, final Object iTask,
+          public void onCompletition(DatabaseSessionInternal session, final Object iTask,
               final boolean iSucceed) {
             atomicInteger.incrementAndGet();
           }
         };
 
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final OIndex result =
+    final Index result =
         indexManager.createIndex(
             database,
             "compositetwo",
-            YTClass.INDEX_TYPE.NOTUNIQUE.toString(),
-            new OCompositeIndexDefinition(
+            SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
+            new CompositeIndexDefinition(
                 CLASS_NAME,
                 Arrays.asList(
-                    new OPropertyIndexDefinition(CLASS_NAME, "fOne", YTType.INTEGER),
-                    new OPropertyIndexDefinition(CLASS_NAME, "fTwo", YTType.STRING),
-                    new OPropertyIndexDefinition(CLASS_NAME, "fThree", YTType.BOOLEAN))),
+                    new PropertyIndexDefinition(CLASS_NAME, "fOne", PropertyType.INTEGER),
+                    new PropertyIndexDefinition(CLASS_NAME, "fTwo", PropertyType.STRING),
+                    new PropertyIndexDefinition(CLASS_NAME, "fThree", PropertyType.BOOLEAN))),
             new int[]{database.getClusterIdByName(CLASS_NAME)},
             progressListener,
             null);
@@ -166,7 +166,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedOneProperty() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
     final boolean result = indexManager.areIndexed(CLASS_NAME, List.of("fOne"));
 
@@ -180,7 +180,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedDoesNotContainProperty() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
     final boolean result = indexManager.areIndexed(CLASS_NAME, List.of("fSix"));
 
@@ -194,7 +194,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedTwoProperties() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
     final boolean result = indexManager.areIndexed(CLASS_NAME, Arrays.asList("fTwo", "fOne"));
 
@@ -208,7 +208,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedThreeProperties() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
     final boolean result =
         indexManager.areIndexed(CLASS_NAME, Arrays.asList("fTwo", "fOne", "fThree"));
@@ -223,7 +223,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedThreePropertiesBrokenFiledNameCase() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
     final boolean result =
         indexManager.areIndexed(CLASS_NAME, Arrays.asList("fTwo", "fOne", "fThree"));
@@ -238,7 +238,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedThreePropertiesBrokenClassNameCase() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
     final boolean result =
         indexManager.areIndexed(
@@ -254,7 +254,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedPropertiesNotFirst() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
     final boolean result = indexManager.areIndexed(CLASS_NAME, Arrays.asList("fTwo", "fTree"));
 
@@ -268,7 +268,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedPropertiesMoreThanNeeded() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
     final boolean result =
         indexManager.areIndexed(CLASS_NAME, Arrays.asList("fTwo", "fOne", "fThee", "fFour"));
@@ -283,7 +283,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedOnePropertyArrayParams() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
     final boolean result = indexManager.areIndexed(CLASS_NAME, "fOne");
 
@@ -297,7 +297,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedDoesNotContainPropertyArrayParams() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
     final boolean result = indexManager.areIndexed(CLASS_NAME, "fSix");
 
@@ -311,7 +311,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedTwoPropertiesArrayParams() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
     final boolean result = indexManager.areIndexed(CLASS_NAME, "fTwo", "fOne");
 
@@ -325,7 +325,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedThreePropertiesArrayParams() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
     final boolean result = indexManager.areIndexed(CLASS_NAME, "fTwo", "fOne", "fThree");
 
@@ -339,7 +339,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedPropertiesNotFirstArrayParams() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
     final boolean result = indexManager.areIndexed(CLASS_NAME, "fTwo", "fTree");
 
@@ -353,7 +353,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedPropertiesMoreThanNeededArrayParams() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
     final boolean result = indexManager.areIndexed(CLASS_NAME, "fTwo", "fOne", "fThee", "fFour");
 
@@ -367,9 +367,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesOnePropertyArrayParams() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final Set<OIndex> result = indexManager.getClassInvolvedIndexes(database, CLASS_NAME, "fOne");
+    final Set<Index> result = indexManager.getClassInvolvedIndexes(database, CLASS_NAME, "fOne");
 
     assertEquals(result.size(), 3);
 
@@ -385,9 +385,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesTwoPropertiesArrayParams() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final Set<OIndex> result =
+    final Set<Index> result =
         indexManager.getClassInvolvedIndexes(database, CLASS_NAME, "fTwo", "fOne");
     assertEquals(result.size(), 2);
 
@@ -402,9 +402,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesThreePropertiesArrayParams() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final Set<OIndex> result =
+    final Set<Index> result =
         indexManager.getClassInvolvedIndexes(database, CLASS_NAME, "fTwo", "fOne", "fThree");
 
     assertEquals(result.size(), 1);
@@ -418,9 +418,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesNotInvolvedPropertiesArrayParams() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final Set<OIndex> result =
+    final Set<Index> result =
         indexManager.getClassInvolvedIndexes(database, CLASS_NAME, "fTwo", "fFour");
 
     assertEquals(result.size(), 0);
@@ -433,9 +433,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesPropertiesMorThanNeededArrayParams() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final Set<OIndex> result =
+    final Set<Index> result =
         indexManager.getClassInvolvedIndexes(
             database, CLASS_NAME, "fTwo", "fOne", "fThee", "fFour");
 
@@ -449,9 +449,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testGetInvolvedIndexesPropertiesMorThanNeeded() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final Set<OIndex> result =
+    final Set<Index> result =
         indexManager.getClassInvolvedIndexes(
             database, CLASS_NAME, Arrays.asList("fTwo", "fOne", "fThee", "fFour"));
 
@@ -465,9 +465,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesNotExistingClass() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final Set<OIndex> result =
+    final Set<Index> result =
         indexManager.getClassInvolvedIndexes(database, "testlass", List.of("fOne"));
 
     assertTrue(result.isEmpty());
@@ -480,9 +480,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesOneProperty() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final Set<OIndex> result =
+    final Set<Index> result =
         indexManager.getClassInvolvedIndexes(database, CLASS_NAME, List.of("fOne"));
 
     assertEquals(result.size(), 3);
@@ -499,9 +499,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesOnePropertyBrokenClassNameCase() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final Set<OIndex> result =
+    final Set<Index> result =
         indexManager.getClassInvolvedIndexes(database, "ClaSSforindeXmanagerTEST", List.of("fOne"));
 
     assertEquals(result.size(), 3);
@@ -518,9 +518,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesTwoProperties() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final Set<OIndex> result =
+    final Set<Index> result =
         indexManager.getClassInvolvedIndexes(database, CLASS_NAME, Arrays.asList("fTwo", "fOne"));
     assertEquals(result.size(), 2);
 
@@ -535,9 +535,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesThreeProperties() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final Set<OIndex> result =
+    final Set<Index> result =
         indexManager.getClassInvolvedIndexes(
             database, CLASS_NAME, Arrays.asList("fTwo", "fOne", "fThree"));
 
@@ -552,9 +552,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesThreePropertiesBrokenFiledNameTest() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final Set<OIndex> result =
+    final Set<Index> result =
         indexManager.getClassInvolvedIndexes(
             database, CLASS_NAME, Arrays.asList("fTwo", "fOne", "fThree"));
 
@@ -569,9 +569,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesNotInvolvedProperties() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final Set<OIndex> result =
+    final Set<Index> result =
         indexManager.getClassInvolvedIndexes(database, CLASS_NAME, Arrays.asList("fTwo", "fFour"));
 
     assertEquals(result.size(), 0);
@@ -584,9 +584,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesPropertiesMorThanNeeded() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final Set<OIndex> result =
+    final Set<Index> result =
         indexManager.getClassInvolvedIndexes(
             database, CLASS_NAME, Arrays.asList("fTwo", "fOne", "fThee", "fFour"));
 
@@ -596,19 +596,19 @@ public class IndexManagerTest extends DocumentDBBaseTest {
   @Test
   public void testGetClassInvolvedIndexesWithNullValues() {
     String className = "GetClassInvolvedIndexesWithNullValues";
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
-    final YTSchema schema = database.getMetadata().getSchema();
-    final YTClass oClass = schema.createClass(className);
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final Schema schema = database.getMetadata().getSchema();
+    final SchemaClass oClass = schema.createClass(className);
 
-    oClass.createProperty(database, "one", YTType.STRING);
-    oClass.createProperty(database, "two", YTType.STRING);
-    oClass.createProperty(database, "three", YTType.STRING);
+    oClass.createProperty(database, "one", PropertyType.STRING);
+    oClass.createProperty(database, "two", PropertyType.STRING);
+    oClass.createProperty(database, "three", PropertyType.STRING);
 
     indexManager.createIndex(
         database,
         className + "_indexOne_notunique",
-        YTClass.INDEX_TYPE.NOTUNIQUE.toString(),
-        new OPropertyIndexDefinition(className, "one", YTType.STRING),
+        SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
+        new PropertyIndexDefinition(className, "one", PropertyType.STRING),
         oClass.getClusterIds(),
         null,
         null);
@@ -616,12 +616,12 @@ public class IndexManagerTest extends DocumentDBBaseTest {
     indexManager.createIndex(
         database,
         className + "_indexOneTwo_notunique",
-        YTClass.INDEX_TYPE.NOTUNIQUE.toString(),
-        new OCompositeIndexDefinition(
+        SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
+        new CompositeIndexDefinition(
             className,
             Arrays.asList(
-                new OPropertyIndexDefinition(className, "one", YTType.STRING),
-                new OPropertyIndexDefinition(className, "two", YTType.STRING))),
+                new PropertyIndexDefinition(className, "one", PropertyType.STRING),
+                new PropertyIndexDefinition(className, "two", PropertyType.STRING))),
         oClass.getClusterIds(),
         null,
         null);
@@ -629,18 +629,18 @@ public class IndexManagerTest extends DocumentDBBaseTest {
     indexManager.createIndex(
         database,
         className + "_indexOneTwoThree_notunique",
-        YTClass.INDEX_TYPE.NOTUNIQUE.toString(),
-        new OCompositeIndexDefinition(
+        SchemaClass.INDEX_TYPE.NOTUNIQUE.toString(),
+        new CompositeIndexDefinition(
             className,
             Arrays.asList(
-                new OPropertyIndexDefinition(className, "one", YTType.STRING),
-                new OPropertyIndexDefinition(className, "two", YTType.STRING),
-                new OPropertyIndexDefinition(className, "three", YTType.STRING))),
+                new PropertyIndexDefinition(className, "one", PropertyType.STRING),
+                new PropertyIndexDefinition(className, "two", PropertyType.STRING),
+                new PropertyIndexDefinition(className, "three", PropertyType.STRING))),
         oClass.getClusterIds(),
         null,
         null);
 
-    Set<OIndex> result = indexManager.getClassInvolvedIndexes(database, className, List.of("one"));
+    Set<Index> result = indexManager.getClassInvolvedIndexes(database, className, List.of("one"));
     assertEquals(result.size(), 3);
 
     result = indexManager.getClassInvolvedIndexes(database, className, Arrays.asList("one", "two"));
@@ -667,34 +667,39 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testGetClassIndexes() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final Set<OIndex> indexes = indexManager.getClassIndexes(database, CLASS_NAME);
-    final Set<OIndexDefinition> expectedIndexDefinitions = new HashSet<OIndexDefinition>();
+    final Set<Index> indexes = indexManager.getClassIndexes(database, CLASS_NAME);
+    final Set<IndexDefinition> expectedIndexDefinitions = new HashSet<IndexDefinition>();
 
-    final OCompositeIndexDefinition compositeIndexOne = new OCompositeIndexDefinition(CLASS_NAME);
+    final CompositeIndexDefinition compositeIndexOne = new CompositeIndexDefinition(CLASS_NAME);
 
-    compositeIndexOne.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fOne", YTType.INTEGER));
-    compositeIndexOne.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fTwo", YTType.STRING));
+    compositeIndexOne.addIndex(
+        new PropertyIndexDefinition(CLASS_NAME, "fOne", PropertyType.INTEGER));
+    compositeIndexOne.addIndex(
+        new PropertyIndexDefinition(CLASS_NAME, "fTwo", PropertyType.STRING));
     compositeIndexOne.setNullValuesIgnored(false);
     expectedIndexDefinitions.add(compositeIndexOne);
 
-    final OCompositeIndexDefinition compositeIndexTwo = new OCompositeIndexDefinition(CLASS_NAME);
+    final CompositeIndexDefinition compositeIndexTwo = new CompositeIndexDefinition(CLASS_NAME);
 
-    compositeIndexTwo.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fOne", YTType.INTEGER));
-    compositeIndexTwo.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fTwo", YTType.STRING));
-    compositeIndexTwo.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fThree", YTType.BOOLEAN));
+    compositeIndexTwo.addIndex(
+        new PropertyIndexDefinition(CLASS_NAME, "fOne", PropertyType.INTEGER));
+    compositeIndexTwo.addIndex(
+        new PropertyIndexDefinition(CLASS_NAME, "fTwo", PropertyType.STRING));
+    compositeIndexTwo.addIndex(
+        new PropertyIndexDefinition(CLASS_NAME, "fThree", PropertyType.BOOLEAN));
     compositeIndexTwo.setNullValuesIgnored(false);
     expectedIndexDefinitions.add(compositeIndexTwo);
 
-    final OPropertyIndexDefinition propertyIndex =
-        new OPropertyIndexDefinition(CLASS_NAME, "fOne", YTType.INTEGER);
+    final PropertyIndexDefinition propertyIndex =
+        new PropertyIndexDefinition(CLASS_NAME, "fOne", PropertyType.INTEGER);
     propertyIndex.setNullValuesIgnored(false);
     expectedIndexDefinitions.add(propertyIndex);
 
     assertEquals(indexes.size(), 3);
 
-    for (final OIndex index : indexes) {
+    for (final Index index : indexes) {
       assertTrue(expectedIndexDefinitions.contains(index.getDefinition()));
     }
   }
@@ -706,47 +711,52 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testGetClassIndexesBrokenClassNameCase() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final Set<OIndex> indexes = indexManager.getClassIndexes(database, "ClassforindeXMaNAgerTeST");
-    final Set<OIndexDefinition> expectedIndexDefinitions = new HashSet<OIndexDefinition>();
+    final Set<Index> indexes = indexManager.getClassIndexes(database, "ClassforindeXMaNAgerTeST");
+    final Set<IndexDefinition> expectedIndexDefinitions = new HashSet<IndexDefinition>();
 
-    final OCompositeIndexDefinition compositeIndexOne = new OCompositeIndexDefinition(CLASS_NAME);
+    final CompositeIndexDefinition compositeIndexOne = new CompositeIndexDefinition(CLASS_NAME);
 
-    compositeIndexOne.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fOne", YTType.INTEGER));
-    compositeIndexOne.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fTwo", YTType.STRING));
+    compositeIndexOne.addIndex(
+        new PropertyIndexDefinition(CLASS_NAME, "fOne", PropertyType.INTEGER));
+    compositeIndexOne.addIndex(
+        new PropertyIndexDefinition(CLASS_NAME, "fTwo", PropertyType.STRING));
     compositeIndexOne.setNullValuesIgnored(false);
     expectedIndexDefinitions.add(compositeIndexOne);
 
-    final OCompositeIndexDefinition compositeIndexTwo = new OCompositeIndexDefinition(CLASS_NAME);
+    final CompositeIndexDefinition compositeIndexTwo = new CompositeIndexDefinition(CLASS_NAME);
 
-    compositeIndexTwo.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fOne", YTType.INTEGER));
-    compositeIndexTwo.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fTwo", YTType.STRING));
-    compositeIndexTwo.addIndex(new OPropertyIndexDefinition(CLASS_NAME, "fThree", YTType.BOOLEAN));
+    compositeIndexTwo.addIndex(
+        new PropertyIndexDefinition(CLASS_NAME, "fOne", PropertyType.INTEGER));
+    compositeIndexTwo.addIndex(
+        new PropertyIndexDefinition(CLASS_NAME, "fTwo", PropertyType.STRING));
+    compositeIndexTwo.addIndex(
+        new PropertyIndexDefinition(CLASS_NAME, "fThree", PropertyType.BOOLEAN));
     compositeIndexTwo.setNullValuesIgnored(false);
     expectedIndexDefinitions.add(compositeIndexTwo);
 
-    final OPropertyIndexDefinition propertyIndex =
-        new OPropertyIndexDefinition(CLASS_NAME, "fOne", YTType.INTEGER);
+    final PropertyIndexDefinition propertyIndex =
+        new PropertyIndexDefinition(CLASS_NAME, "fOne", PropertyType.INTEGER);
     propertyIndex.setNullValuesIgnored(false);
     expectedIndexDefinitions.add(propertyIndex);
 
     assertEquals(indexes.size(), 3);
 
-    for (final OIndex index : indexes) {
+    for (final Index index : indexes) {
       assertTrue(expectedIndexDefinitions.contains(index.getDefinition()));
     }
   }
 
   @Test
   public void testDropIndex() throws Exception {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
     indexManager.createIndex(
         database,
         "anotherproperty",
-        YTClass.INDEX_TYPE.UNIQUE.toString(),
-        new OPropertyIndexDefinition(CLASS_NAME, "fOne", YTType.INTEGER),
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        new PropertyIndexDefinition(CLASS_NAME, "fOne", PropertyType.INTEGER),
         new int[]{database.getClusterIdByName(CLASS_NAME)},
         null,
         null);
@@ -762,17 +772,17 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test
   public void testDropAllClassIndexes() {
-    final YTClass oClass =
+    final SchemaClass oClass =
         database.getMetadata().getSchema().createClass("indexManagerTestClassTwo");
-    oClass.createProperty(database, "fOne", YTType.INTEGER);
+    oClass.createProperty(database, "fOne", PropertyType.INTEGER);
 
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
     indexManager.createIndex(
         database,
         "twoclassproperty",
-        YTClass.INDEX_TYPE.UNIQUE.toString(),
-        new OPropertyIndexDefinition("indexManagerTestClassTwo", "fOne", YTType.INTEGER),
+        SchemaClass.INDEX_TYPE.UNIQUE.toString(),
+        new PropertyIndexDefinition("indexManagerTestClassTwo", "fOne", PropertyType.INTEGER),
         new int[]{database.getClusterIdByName("indexManagerTestClassTwo")},
         null,
         null);
@@ -786,7 +796,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testDropAllClassIndexes")
   public void testDropNonExistingClassIndex() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
     indexManager.dropIndex(database, "twoclassproperty");
   }
@@ -798,9 +808,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testGetClassIndex() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final OIndex result = indexManager.getClassIndex(database, CLASS_NAME, "propertyone");
+    final Index result = indexManager.getClassIndex(database, CLASS_NAME, "propertyone");
     assertNotNull(result);
     assertEquals(result.getName(), "propertyone");
   }
@@ -812,9 +822,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testGetClassIndexBrokenClassNameCase() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final OIndex result =
+    final Index result =
         indexManager.getClassIndex(database, "ClaSSforindeXManagerTeST", "propertyone");
     assertNotNull(result);
     assertEquals(result.getName(), "propertyone");
@@ -827,9 +837,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testGetClassIndexWrongIndexName() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final OIndex result = indexManager.getClassIndex(database, CLASS_NAME, "propertyonetwo");
+    final Index result = indexManager.getClassIndex(database, CLASS_NAME, "propertyonetwo");
     assertNull(result);
   }
 
@@ -840,15 +850,15 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           "testCreateOnePropertyIndexTest"
       })
   public void testGetClassIndexWrongClassName() {
-    final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+    final IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
-    final OIndex result = indexManager.getClassIndex(database, "testClassTT", "propertyone");
+    final Index result = indexManager.getClassIndex(database, "testClassTT", "propertyone");
     assertNull(result);
   }
 
   private boolean containsIndex(
-      final Collection<? extends OIndex> classIndexes, final String indexName) {
-    for (final OIndex index : classIndexes) {
+      final Collection<? extends Index> classIndexes, final String indexName) {
+    for (final Index index : classIndexes) {
       if (index.getName().equals(indexName)) {
         return true;
       }

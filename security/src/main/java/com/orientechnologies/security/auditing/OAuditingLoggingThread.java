@@ -15,11 +15,11 @@ package com.orientechnologies.security.auditing;
 
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.YTSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.security.OAuditingOperation;
-import com.jetbrains.youtrack.db.internal.core.security.OSecuritySystem;
+import com.jetbrains.youtrack.db.internal.core.security.AuditingOperation;
+import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -34,13 +34,13 @@ public class OAuditingLoggingThread extends Thread {
   private final YouTrackDBInternal context;
 
   private final String className;
-  private final OSecuritySystem security;
+  private final SecuritySystem security;
 
   public OAuditingLoggingThread(
       final String iDatabaseName,
       final BlockingQueue auditingQueue,
       final YouTrackDBInternal context,
-      OSecuritySystem security) {
+      SecuritySystem security) {
     super(
         YouTrackDBManager.instance().getThreadGroup(),
         "YouTrackDB Auditing Logging Thread - " + iDatabaseName);
@@ -54,20 +54,20 @@ public class OAuditingLoggingThread extends Thread {
     // This will create a cluster in the system database for logging auditing events for
     // "databaseName", if it doesn't already
     // exist.
-    // server.getSystemDatabase().createCluster(ODefaultAuditing.AUDITING_LOG_CLASSNAME,
-    // ODefaultAuditing.getClusterName(databaseName));
+    // server.getSystemDatabase().createCluster(DefaultAuditing.AUDITING_LOG_CLASSNAME,
+    // DefaultAuditing.getClusterName(databaseName));
 
-    className = ODefaultAuditing.getClassName(databaseName);
+    className = DefaultAuditing.getClassName(databaseName);
 
     context
         .getSystemDatabase()
         .executeInDBScope(
             session -> {
-              YTSchema schema = session.getMetadata().getSchema();
+              Schema schema = session.getMetadata().getSchema();
               if (!schema.existsClass(className)) {
-                YTClass clazz = schema.getClass(ODefaultAuditing.AUDITING_LOG_CLASSNAME);
-                YTClass cls = schema.createClass(className, clazz);
-                cls.createIndex(session, className + ".date", YTClass.INDEX_TYPE.NOTUNIQUE,
+                SchemaClass clazz = schema.getClass(DefaultAuditing.AUDITING_LOG_CLASSNAME);
+                SchemaClass cls = schema.createClass(className, clazz);
+                cls.createIndex(session, className + ".date", SchemaClass.INDEX_TYPE.NOTUNIQUE,
                     "date");
               }
               return null;
@@ -90,7 +90,7 @@ public class OAuditingLoggingThread extends Thread {
         context.getSystemDatabase().save(log);
 
         if (security.getSyslog() != null) {
-          byte byteOp = OAuditingOperation.UNSPECIFIED.getByte();
+          byte byteOp = AuditingOperation.UNSPECIFIED.getByte();
 
           if (log.containsField("operation")) {
             byteOp = log.field("operation");
@@ -102,7 +102,7 @@ public class OAuditingLoggingThread extends Thread {
 
           security
               .getSyslog()
-              .log(OAuditingOperation.getByByte(byteOp).toString(), dbName, username, message);
+              .log(AuditingOperation.getByByte(byteOp).toString(), dbName, username, message);
         }
 
       } catch (InterruptedException e) {

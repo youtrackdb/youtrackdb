@@ -3,18 +3,18 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.OCommandDistributedReplicateRequest;
-import com.jetbrains.youtrack.db.internal.core.db.YTDatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.exception.YTCommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.exception.YTDatabaseException;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.YTSequence;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
 import java.util.Map;
 
 /**
  * @since 3/5/2015
  */
 public class CommandExecutorSQLAlterSequence extends CommandExecutorSQLAbstract
-    implements OCommandDistributedReplicateRequest {
+    implements CommandDistributedReplicateRequest {
 
   public static final String KEYWORD_ALTER = "ALTER";
   public static final String KEYWORD_SEQUENCE = "SEQUENCE";
@@ -23,7 +23,7 @@ public class CommandExecutorSQLAlterSequence extends CommandExecutorSQLAbstract
   public static final String KEYWORD_CACHE = "CACHE";
 
   private String sequenceName;
-  private YTSequence.CreateParams params;
+  private Sequence.CreateParams params;
 
   @Override
   public CommandExecutorSQLAlterSequence parse(CommandRequest iRequest) {
@@ -37,13 +37,13 @@ public class CommandExecutorSQLAlterSequence extends CommandExecutorSQLAbstract
 
       init((CommandRequestText) iRequest);
 
-      final YTDatabaseSessionInternal database = getDatabase();
+      final DatabaseSessionInternal database = getDatabase();
       final StringBuilder word = new StringBuilder();
 
       parserRequiredKeyword(KEYWORD_ALTER);
       parserRequiredKeyword(KEYWORD_SEQUENCE);
       this.sequenceName = parserRequiredWord(false, "Expected <sequence name>");
-      this.params = new YTSequence.CreateParams();
+      this.params = new Sequence.CreateParams();
 
       String temp;
       while ((temp = parseOptionalWord(true)) != null) {
@@ -69,14 +69,14 @@ public class CommandExecutorSQLAlterSequence extends CommandExecutorSQLAbstract
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs, YTDatabaseSessionInternal querySession) {
+  public Object execute(Map<Object, Object> iArgs, DatabaseSessionInternal querySession) {
     if (this.sequenceName == null) {
-      throw new YTCommandExecutionException(
+      throw new CommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
     final var database = getDatabase();
-    YTSequence sequence = database.getMetadata().getSequenceLibrary()
+    Sequence sequence = database.getMetadata().getSequenceLibrary()
         .getSequence(this.sequenceName);
 
     boolean result;
@@ -84,10 +84,10 @@ public class CommandExecutorSQLAlterSequence extends CommandExecutorSQLAbstract
       result = sequence.updateParams(this.params);
       // TODO check, but reset should not be here
       //      sequence.reset();
-    } catch (YTDatabaseException exc) {
+    } catch (DatabaseException exc) {
       String message = "Unable to execute command: " + exc.getMessage();
       LogManager.instance().error(this, message, exc, (Object) null);
-      throw new YTCommandExecutionException(message);
+      throw new CommandExecutionException(message);
     }
     return result;
   }

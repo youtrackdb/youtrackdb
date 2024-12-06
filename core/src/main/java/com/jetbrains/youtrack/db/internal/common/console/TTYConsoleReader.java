@@ -20,7 +20,7 @@
 
 package com.jetbrains.youtrack.db.internal.common.console;
 
-import com.jetbrains.youtrack.db.internal.common.exception.YTSystemException;
+import com.jetbrains.youtrack.db.internal.common.exception.SystemException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -46,7 +46,7 @@ import sun.misc.SignalHandler;
 /**
  * Custom implementation of TTY reader. Supports arrow keys + history.
  */
-public class TTYConsoleReader implements OConsoleReader {
+public class TTYConsoleReader implements ConsoleReader {
 
   public static final int HORIZONTAL_TAB_CHAR = 9;
   public static final int NEW_LINE_CHAR = 10;
@@ -96,7 +96,7 @@ public class TTYConsoleReader implements OConsoleReader {
   protected Reader inStream;
 
   protected PrintStream outStream;
-  protected OConsoleApplication console;
+  protected ConsoleApplication console;
 
   public TTYConsoleReader(boolean historyEnabled) {
     this.historyEnabled = historyEnabled;
@@ -125,7 +125,7 @@ public class TTYConsoleReader implements OConsoleReader {
     }
 
     if (inStream == null) {
-      throw new YTSystemException(
+      throw new SystemException(
           "Cannot access to the input stream. Check permissions of running process");
     }
   }
@@ -296,7 +296,7 @@ public class TTYConsoleReader implements OConsoleReader {
     }
   }
 
-  public void setConsole(OConsoleApplication iConsole) {
+  public void setConsole(ConsoleApplication iConsole) {
     console = iConsole;
   }
 
@@ -327,7 +327,7 @@ public class TTYConsoleReader implements OConsoleReader {
       }
 
       return cachedConsoleWidth == -2 || cachedConsoleWidth == 0
-          ? OConsoleReader.FALLBACK_CONSOLE_WIDTH
+          ? ConsoleReader.FALLBACK_CONSOLE_WIDTH
           : cachedConsoleWidth;
     }
   }
@@ -367,7 +367,7 @@ public class TTYConsoleReader implements OConsoleReader {
   private StringBuffer writeHint(StringBuffer buffer) {
     List<String> suggestions = new ArrayList<String>();
     for (Method method : console.getConsoleMethods().keySet()) {
-      String command = OConsoleApplication.getClearName(method.getName());
+      String command = ConsoleApplication.getClearName(method.getName());
       if (command.startsWith(buffer.toString())) {
         suggestions.add(command);
       }
