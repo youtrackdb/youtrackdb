@@ -21,7 +21,7 @@ import com.jetbrains.youtrack.db.internal.common.console.annotation.ConsoleComma
 /**
  * Commun interface for addtitional console commands. Instances of this class are discovered
  * throught serviceLoaders. It should be declared in file :
- * META-INF/services/com.orientechnologies.common.console.ConsoleCommandCollection
+ * META-INF/services/com.jetbrains.youtrack.db.internal.common.console.ConsoleCommandCollection
  *
  * <p>This interface is empty, all wanted commands are expected to be annoted with {@link
  * ConsoleCommand}.

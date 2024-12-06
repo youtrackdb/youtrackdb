@@ -41,9 +41,9 @@ public class ResultSerializationTest extends DbTestBase {
 
   @Test
   public void testSimpleSerialization() {
-    try (var orientDB = new YouTrackDB("memory", YouTrackDBConfig.defaultConfig())) {
-      orientDB.createIfNotExists("test", DatabaseType.MEMORY, "admin", "admin", "admin");
-      try (var db = (DatabaseSessionInternal) orientDB.open("test", "admin", "admin")) {
+    try (var youTrackDB = new YouTrackDB("memory", YouTrackDBConfig.defaultConfig())) {
+      youTrackDB.createIfNotExists("test", DatabaseType.MEMORY, "admin", "admin", "admin");
+      try (var db = (DatabaseSessionInternal) youTrackDB.open("test", "admin", "admin")) {
         ResultInternal document = new ResultInternal(db);
 
         document.setProperty("name", "name");
@@ -135,7 +135,7 @@ public class ResultSerializationTest extends DbTestBase {
     bytes.add((byte) 3);
     document.setProperty("bytes", bytes);
 
-    // TODO: char not currently supported in orient.
+    // TODO: char not currently supported
     List<Character> chars = new ArrayList<Character>();
     chars.add('A');
     chars.add('B');

@@ -26,8 +26,8 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.record.Direction;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLHelper;
@@ -158,8 +158,6 @@ public class SQLFunctionAstar extends SQLFunctionHeuristicPathFinderAbstract {
     while (!open.isEmpty()) {
       Vertex current = open.poll();
 
-      // we discussed about this feature in
-      // https://github.com/orientechnologies/orientdb/pull/6002#issuecomment-212492687
       if (paramEmptyIfMaxDepth && currentDepth >= paramMaxDepth) {
         route.clear(); // to ensure our result is empty
         return getPath();

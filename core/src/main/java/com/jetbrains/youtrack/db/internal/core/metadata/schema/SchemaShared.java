@@ -378,11 +378,6 @@ public abstract class SchemaShared implements CloseableInStorage {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.orientechnologies.core.schema.metadata.Schema#dropClass(java.lang.String)
-   */
   public abstract void dropClass(DatabaseSessionInternal database, final String className);
 
   public abstract void dropView(DatabaseSessionInternal database, final String viewName);
@@ -433,11 +428,6 @@ public abstract class SchemaShared implements CloseableInStorage {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.orientechnologies.core.schema.metadata.Schema#getClass(java.lang.Class)
-   */
   public SchemaClass getClass(final Class<?> iClass) {
     if (iClass == null) {
       return null;
@@ -446,11 +436,6 @@ public abstract class SchemaShared implements CloseableInStorage {
     return getClass(iClass.getSimpleName());
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.orientechnologies.core.schema.metadata.Schema#getClass(java.lang.String)
-   */
   public SchemaClass getClass(final String iClassName) {
     if (iClassName == null) {
       return null;

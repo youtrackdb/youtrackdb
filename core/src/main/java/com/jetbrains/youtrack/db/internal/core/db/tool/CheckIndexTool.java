@@ -1,6 +1,5 @@
 /*
  *
- *  *  Copyright 2017 YouTrackDB LTD (info(at)orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -21,8 +20,8 @@ package com.jetbrains.youtrack.db.internal.core.db.tool;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Record;

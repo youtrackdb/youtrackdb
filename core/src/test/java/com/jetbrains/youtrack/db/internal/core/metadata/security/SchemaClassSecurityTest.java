@@ -17,12 +17,12 @@ import org.junit.Test;
 public class SchemaClassSecurityTest {
 
   private static final String DB_NAME = SchemaClassSecurityTest.class.getSimpleName();
-  private static YouTrackDB orient;
+  private static YouTrackDB youTrackDB;
   private DatabaseSessionInternal db;
 
   @BeforeClass
   public static void beforeClass() {
-    orient =
+    youTrackDB =
         new YouTrackDB(
             "plocal:.",
             YouTrackDBConfig.builder()
@@ -32,12 +32,12 @@ public class SchemaClassSecurityTest {
 
   @AfterClass
   public static void afterClass() {
-    orient.close();
+    youTrackDB.close();
   }
 
   @Before
   public void before() {
-    orient.execute(
+    youTrackDB.execute(
         "create database "
             + DB_NAME
             + " "
@@ -49,14 +49,14 @@ public class SchemaClassSecurityTest {
             + "' role reader, writer identified by '"
             + CreateDatabaseUtil.NEW_ADMIN_PASSWORD
             + "' role writer)");
-    this.db = (DatabaseSessionInternal) orient.open(DB_NAME, "admin",
+    this.db = (DatabaseSessionInternal) youTrackDB.open(DB_NAME, "admin",
         CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @After
   public void after() {
     this.db.close();
-    orient.drop(DB_NAME);
+    youTrackDB.drop(DB_NAME);
     this.db = null;
   }
 
@@ -79,7 +79,7 @@ public class SchemaClassSecurityTest {
 
     db.close();
 
-    db = (DatabaseSessionInternal) orient.open(DB_NAME, "reader",
+    db = (DatabaseSessionInternal) youTrackDB.open(DB_NAME, "reader",
         CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
     try (final ResultSet resultSet = db.query("SELECT from Person")) {
       Assert.assertFalse(resultSet.hasNext());

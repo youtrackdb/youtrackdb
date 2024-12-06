@@ -47,13 +47,13 @@ import com.jetbrains.youtrack.db.internal.core.sql.method.SQLMethod;
 import com.jetbrains.youtrack.db.internal.core.sql.method.SQLMethodFactory;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperator;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperatorFactory;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLOrBlock;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSecurityResourceSegment;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLServerStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.StatementCache;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.YouTrackDBSql;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ParseException;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -76,7 +76,7 @@ public class SQLEngine {
   private static List<QueryOperatorFactory> OPERATOR_FACTORIES = null;
   private static List<CollateFactory> COLLATE_FACTORIES = null;
   private static QueryOperator[] SORTED_OPERATORS = null;
-  private static final ClassLoader orientClassLoader = SQLEngine.class.getClassLoader();
+  private static final ClassLoader youTrackDbClassLoader = SQLEngine.class.getClassLoader();
 
   public static SQLStatement parse(String query, DatabaseSessionInternal db) {
     return StatementCache.get(query, db);
@@ -172,7 +172,8 @@ public class SQLEngine {
       synchronized (INSTANCE) {
         if (FUNCTION_FACTORIES == null) {
           final Iterator<SQLFunctionFactory> ite =
-              lookupProviderWithYouTrackDBClassLoader(SQLFunctionFactory.class, orientClassLoader);
+              lookupProviderWithYouTrackDBClassLoader(SQLFunctionFactory.class,
+                  youTrackDbClassLoader);
 
           final List<SQLFunctionFactory> factories = new ArrayList<SQLFunctionFactory>();
           while (ite.hasNext()) {
@@ -198,7 +199,8 @@ public class SQLEngine {
         if (METHOD_FACTORIES == null) {
 
           final Iterator<SQLMethodFactory> ite =
-              lookupProviderWithYouTrackDBClassLoader(SQLMethodFactory.class, orientClassLoader);
+              lookupProviderWithYouTrackDBClassLoader(SQLMethodFactory.class,
+                  youTrackDbClassLoader);
 
           final List<SQLMethodFactory> factories = new ArrayList<SQLMethodFactory>();
           while (ite.hasNext()) {
@@ -220,7 +222,7 @@ public class SQLEngine {
         if (COLLATE_FACTORIES == null) {
 
           final Iterator<CollateFactory> ite =
-              lookupProviderWithYouTrackDBClassLoader(CollateFactory.class, orientClassLoader);
+              lookupProviderWithYouTrackDBClassLoader(CollateFactory.class, youTrackDbClassLoader);
 
           final List<CollateFactory> factories = new ArrayList<CollateFactory>();
           while (ite.hasNext()) {
@@ -243,7 +245,7 @@ public class SQLEngine {
 
           final Iterator<QueryOperatorFactory> ite =
               lookupProviderWithYouTrackDBClassLoader(QueryOperatorFactory.class,
-                  orientClassLoader);
+                  youTrackDbClassLoader);
 
           final List<QueryOperatorFactory> factories = new ArrayList<QueryOperatorFactory>();
           while (ite.hasNext()) {
@@ -266,7 +268,7 @@ public class SQLEngine {
 
           final Iterator<CommandExecutorSQLFactory> ite =
               lookupProviderWithYouTrackDBClassLoader(
-                  CommandExecutorSQLFactory.class, orientClassLoader);
+                  CommandExecutorSQLFactory.class, youTrackDbClassLoader);
           final List<CommandExecutorSQLFactory> factories =
               new ArrayList<CommandExecutorSQLFactory>();
           while (ite.hasNext()) {

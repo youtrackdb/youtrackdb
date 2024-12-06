@@ -24,7 +24,7 @@ public abstract class SL4JLogManager {
 
   private final ConcurrentHashMap<String, Logger> loggersCache = new ConcurrentHashMap<>();
 
-  protected static final String DEFAULT_LOG = "com.orientechnologies";
+  protected static final String DEFAULT_LOG = "com.jetbrains.youtrack.db";
   protected boolean debug = false;
   protected boolean info = true;
   protected boolean warn = true;
@@ -73,7 +73,7 @@ public abstract class SL4JLogManager {
       Marker dbMarker = null;
       if (dbName != null) {
         message = "[" + dbName + "] " + message;
-        dbMarker = MarkerFactory.getMarker("orientdb:" + dbName);
+        dbMarker = MarkerFactory.getMarker("youtrackdb:" + dbName);
       }
 
       // USE THE LOG

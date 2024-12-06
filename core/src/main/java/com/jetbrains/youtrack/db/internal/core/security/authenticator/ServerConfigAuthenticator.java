@@ -24,7 +24,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
 
 /**
- * Provides an SecurityAuthenticator for the users listed in orientdb-server-config.xml.
+ * Provides an SecurityAuthenticator for the users listed in youtrackdb-server-config.xml.
  */
 public class ServerConfigAuthenticator extends SecurityAuthenticatorAbstract {
 

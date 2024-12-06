@@ -27,39 +27,14 @@ public interface File extends ClosableItem {
 
   void create() throws IOException;
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.orientechnologies.orient.core.storage.fs.OFileAAA#open()
-   */
   void open();
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.orientechnologies.orient.core.storage.fs.OFileAAA#close()
-   */
   void close();
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.orientechnologies.orient.core.storage.fs.OFileAAA#delete()
-   */
   void delete() throws IOException, InterruptedException;
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.orientechnologies.orient.core.storage.fs.OFileAAA#isOpen()
-   */
   boolean isOpen();
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.orientechnologies.orient.core.storage.fs.OFileAAA#exists()
-   */
   boolean exists();
 
   String getName();
@@ -76,11 +51,6 @@ public interface File extends ClosableItem {
 
   void replaceContentWith(Path newContentFile) throws IOException, InterruptedException;
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.orientechnologies.orient.core.storage.fs.OFileAAA#toString()
-   */
   @Override
   String toString();
 }

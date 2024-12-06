@@ -210,7 +210,7 @@ public class DocumentSchemalessBinarySerializationTest extends DbTestBase {
     bytes[2] = (byte) 3;
     document.field("bytes", bytes);
 
-    // TODO: char not currently supported in orient.
+    // TODO: char not currently supported
     Character[] chars = new Character[3];
     chars[0] = 'A';
     chars[1] = 'B';
@@ -305,7 +305,7 @@ public class DocumentSchemalessBinarySerializationTest extends DbTestBase {
     bytes.add((byte) 3);
     document.field("bytes", bytes);
 
-    // TODO: char not currently supported in orient.
+    // TODO: char not currently supported
     List<Character> chars = new ArrayList<Character>();
     chars.add('A');
     chars.add('B');
@@ -405,7 +405,7 @@ public class DocumentSchemalessBinarySerializationTest extends DbTestBase {
         bytes.add((byte) 3);
         document.field("bytes", bytes);
 
-        // TODO: char not currently supported in orient.
+        // TODO: char not currently supported
         Set<Character> chars = new HashSet<Character>();
         chars.add('A');
         chars.add('B');

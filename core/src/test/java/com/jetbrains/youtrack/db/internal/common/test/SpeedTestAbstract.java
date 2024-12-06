@@ -45,11 +45,6 @@ public abstract class SpeedTestAbstract implements SpeedTest {
     return this;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.orientechnologies.common.test.SpeedTest#executeCycle(java.lang.reflect.Method, java.lang.Object)
-   */
   public long executeCycle(final Method iMethod, final Object... iArgs)
       throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
     data.startTimer(getClass().getSimpleName());

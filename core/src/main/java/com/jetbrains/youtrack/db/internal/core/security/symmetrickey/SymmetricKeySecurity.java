@@ -1,6 +1,5 @@
 /*
  *
- *  *  Copyright 2014 Orient Technologies LTD (info(at)orientechnologies.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -34,9 +33,9 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityPolicyI
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityResourceProperty;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityRole;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityRole.ALLOW_MODES;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;

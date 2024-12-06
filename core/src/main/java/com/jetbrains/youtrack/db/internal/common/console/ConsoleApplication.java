@@ -53,8 +53,7 @@ public class ConsoleApplication {
 
   public static final String PARAM_DISABLE_HISTORY = "--disable-history";
 
-  public static final String ONLINE_HELP_URL =
-      "https://raw.githubusercontent.com/orientechnologies/orientdb-docs/master/";
+  public static final String ONLINE_HELP_URL = "";
   public static final String ONLINE_HELP_EXT = ".md";
   protected static final String[] COMMENT_PREFIXS = new String[]{"#", "--", "//"};
   protected final StringBuilder commandBuffer = new StringBuilder(2048);

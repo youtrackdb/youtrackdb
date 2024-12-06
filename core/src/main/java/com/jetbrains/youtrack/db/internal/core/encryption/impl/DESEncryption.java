@@ -11,14 +11,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 
-/**
- * * Stateful compression implementation that encrypt the content using DES algorithm
- * (https://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html). Issue
- * https://github.com/orientechnologies/orientdb/issues/89.
- * <p>
- * <p>
- * https://github.com/orientechnologies/orientdb/issues/8207.
- */
 public class DESEncryption extends AbstractEncryption {
 
   // @see

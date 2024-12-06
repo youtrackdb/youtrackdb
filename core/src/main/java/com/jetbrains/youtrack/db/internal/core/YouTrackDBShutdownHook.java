@@ -33,7 +33,7 @@ public class YouTrackDBShutdownHook extends Thread {
   }
 
   /**
-   * Shutdown Orient engine.
+   * Shutdown YouTrackDB engine.
    */
   @Override
   public void run() {

@@ -8,16 +8,14 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ForEachExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ForEachStep;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.GlobalLetExpressionStep;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.UpdateExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.UpdateExecutionPlan;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-// import com.orientechnologies.core.executor.sql.LetExpressionStep;
 
 public class SQLForEachBlock extends SQLStatement {
 
@@ -96,7 +94,7 @@ public class SQLForEachBlock extends SQLStatement {
     if (FOREACH_VARIABLE_PROGR < 0) {
       FOREACH_VARIABLE_PROGR = 0;
     }
-    SQLIdentifier varName = new SQLIdentifier("$__ORIENTDB_FOREACH_VAR_" + nextProg);
+    SQLIdentifier varName = new SQLIdentifier("$__YOUTRACKDB_FOREACH_VAR_" + nextProg);
     plan.chain(new GlobalLetExpressionStep(varName, loopValues, ctx, enableProfiling));
     plan.chain(
         new ForEachStep(loopVariable, new SQLExpression(varName), statements, ctx,

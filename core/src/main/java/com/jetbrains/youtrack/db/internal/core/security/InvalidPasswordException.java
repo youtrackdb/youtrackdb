@@ -19,8 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.security;
 
-// import com.orientechnologies.common.exception.SecurityException;
-
 import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
 
 /**

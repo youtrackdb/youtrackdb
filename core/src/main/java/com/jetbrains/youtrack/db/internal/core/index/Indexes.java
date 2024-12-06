@@ -39,7 +39,7 @@ import java.util.Set;
  * <p>
  *
  * <p>In addition to implementing this interface datasources should have a services file:<br>
- * <code>META-INF/services/com.orientechnologies.core.index.IndexFactory</code>
+ * <code>META-INF/services/com.jetbrains.youtrack.db.internal.core.index.IndexFactory</code>
  *
  * <p>
  *
@@ -55,7 +55,7 @@ public final class Indexes {
   private static Set<IndexFactory> FACTORIES = null;
   private static final Set<IndexFactory> DYNAMIC_FACTORIES =
       java.util.Collections.synchronizedSet(new HashSet<>());
-  private static final ClassLoader orientClassLoader = Indexes.class.getClassLoader();
+  private static final ClassLoader youTrackDbClassLoader = Indexes.class.getClassLoader();
 
   private Indexes() {
   }
@@ -70,7 +70,7 @@ public final class Indexes {
     if (FACTORIES == null) {
 
       final Iterator<IndexFactory> ite =
-          lookupProviderWithYouTrackDBClassLoader(IndexFactory.class, orientClassLoader);
+          lookupProviderWithYouTrackDBClassLoader(IndexFactory.class, youTrackDbClassLoader);
 
       final Set<IndexFactory> factories = new HashSet<>();
       while (ite.hasNext()) {

@@ -20,7 +20,7 @@
 package com.jetbrains.youtrack.db.internal.core;
 
 /**
- * Listener Interface to catch Orient startup event.
+ * Listener Interface to catch YouTrackDB startup event.
  */
 public interface YouTrackDBStartupListener {
 

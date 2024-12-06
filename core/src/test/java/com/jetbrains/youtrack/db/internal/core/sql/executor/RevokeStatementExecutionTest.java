@@ -21,30 +21,30 @@ import org.junit.Test;
  */
 public class RevokeStatementExecutionTest {
 
-  static YouTrackDB orient;
+  static YouTrackDB youTrackDB;
   private DatabaseSessionInternal db;
 
   @BeforeClass
   public static void beforeClass() {
-    orient = new YouTrackDB("plocal:.", YouTrackDBConfig.defaultConfig());
+    youTrackDB = new YouTrackDB("plocal:.", YouTrackDBConfig.defaultConfig());
   }
 
   @AfterClass
   public static void afterClass() {
-    orient.close();
+    youTrackDB.close();
   }
 
   @Before
   public void before() {
-    CreateDatabaseUtil.createDatabase("test", orient, CreateDatabaseUtil.TYPE_MEMORY);
-    this.db = (DatabaseSessionInternal) orient.open("test", "admin",
+    CreateDatabaseUtil.createDatabase("test", youTrackDB, CreateDatabaseUtil.TYPE_MEMORY);
+    this.db = (DatabaseSessionInternal) youTrackDB.open("test", "admin",
         CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @After
   public void after() {
     this.db.close();
-    orient.drop("test");
+    youTrackDB.drop("test");
     this.db = null;
   }
 

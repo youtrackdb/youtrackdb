@@ -1,5 +1,4 @@
 /*
- * Copyright 2010-2014 YouTrackDB LTD (info(-at-)orientdb.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,12 +32,13 @@ public class ClusterSelectionFactory
     this.registerStrategy();
   }
 
-  private static final ClassLoader orientClassLoader =
+  private static final ClassLoader youTrackDbClassLoader =
       ClusterSelectionFactory.class.getClassLoader();
 
   private void registerStrategy() {
     final Iterator<ClusterSelectionStrategy> ite =
-        lookupProviderWithYouTrackDBClassLoader(ClusterSelectionStrategy.class, orientClassLoader);
+        lookupProviderWithYouTrackDBClassLoader(ClusterSelectionStrategy.class,
+            youTrackDbClassLoader);
     while (ite.hasNext()) {
       ClusterSelectionStrategy strategy = ite.next();
       Class clz = strategy.getClass();

@@ -122,8 +122,6 @@ public class ChannelBinaryProtocol {
   public static final short RECORD_NULL = -2;
   public static final short RECORD_RID = -3;
 
-  // FOR MORE INFO:
-  // https://github.com/orientechnologies/orientdb/wiki/Network-Binary-Protocol#wiki-Compatibility
   public static final int PROTOCOL_VERSION_26 = 26;
   public static final int PROTOCOL_VERSION_27 = 27;
   public static final int PROTOCOL_VERSION_28 = 28; // SENT AS SHORT AS FIRST PACKET AFTER

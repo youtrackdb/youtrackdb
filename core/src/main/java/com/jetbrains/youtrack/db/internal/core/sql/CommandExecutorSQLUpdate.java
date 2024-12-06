@@ -23,9 +23,9 @@ import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
 import com.jetbrains.youtrack.db.internal.common.util.Triple;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
@@ -40,11 +40,11 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
 import com.jetbrains.youtrack.db.internal.core.query.Query;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItem;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilter;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItem;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLUpdateStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
 import com.jetbrains.youtrack.db.internal.core.storage.RecordDuplicatedException;
@@ -403,10 +403,10 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
    * checks if an object is an Identifiable and an instance of a particular (schema) class
    *
    * @param iRecord     The record object
-   * @param orientClass The schema class
+   * @param youTrackDbClass The schema class
    * @return
    */
-  private boolean isRecordInstanceOf(Object iRecord, String orientClass) {
+  private boolean isRecordInstanceOf(Object iRecord, String youTrackDbClass) {
     if (iRecord == null) {
       return false;
     }
@@ -417,7 +417,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     if (iRecord == null) {
       return false;
     }
-    return (DocumentInternal.getImmutableSchemaClass(record).isSubClassOf(orientClass));
+    return (DocumentInternal.getImmutableSchemaClass(record).isSubClassOf(youTrackDbClass));
   }
 
   /**

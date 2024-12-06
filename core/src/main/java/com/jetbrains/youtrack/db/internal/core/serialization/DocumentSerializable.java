@@ -41,7 +41,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
  */
 public interface DocumentSerializable {
 
-  String CLASS_NAME = "__orientdb_serilized_class__ ";
+  String CLASS_NAME = "__youtrackdb_serilized_class__ ";
 
   EntityImpl toDocument();
 

@@ -17,12 +17,12 @@ public class TestManyProperties {
   @Test
   @Ignore
   public void test() {
-    try (YouTrackDB orientdb = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
+    try (YouTrackDB youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig())) {
-      orientdb
+      youTrackDB
           .execute("create database test memory users(admin identified by 'admin' role admin)")
           .close();
-      try (DatabaseSession session = orientdb.open("test", "admin", "admin")) {
+      try (DatabaseSession session = youTrackDB.open("test", "admin", "admin")) {
         SchemaClass clazz = session.createClass("test");
         clazz.createProperty(session, "property1", PropertyType.STRING);
         clazz.createProperty(session, "property2", PropertyType.STRING);

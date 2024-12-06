@@ -178,9 +178,9 @@ public class JSScriptTest extends DbTestBase {
   }
 
   @Test
-  public void jsSandboxWithOrient() {
+  public void jsSandboxWithYouTrackDb() {
     try (ResultSet resultSet =
-        db.execute("javascript", "Orient.instance().getScriptManager().addAllowedPackages([])")) {
+        db.execute("javascript", "youtrackdb.getScriptManager().addAllowedPackages([])")) {
       Assert.assertEquals(1, resultSet.stream().count());
     } catch (Exception e) {
       Assert.assertEquals(ScriptException.class, e.getCause().getClass());
@@ -189,20 +189,7 @@ public class JSScriptTest extends DbTestBase {
     try (ResultSet resultSet =
         db.execute(
             "javascript",
-            "com.orientechnologies.orient.core.Orient.instance().getScriptManager().addAllowedPackages([])")) {
-      Assert.assertEquals(1, resultSet.stream().count());
-    } catch (Exception e) {
-      Assert.assertEquals(
-          GlobalConfiguration.SCRIPT_POLYGLOT_USE_GRAAL.getValueAsBoolean()
-              ? ScriptException.class
-              : ClassNotFoundException.class,
-          e.getCause().getClass());
-    }
-
-    try (ResultSet resultSet =
-        db.execute(
-            "javascript",
-            "Java.type('com.orientechnologies.orient.core.Orient').instance().getScriptManager().addAllowedPackages([])")) {
+            "youtrackdb.getScriptManager().addAllowedPackages([])")) {
       Assert.assertEquals(1, resultSet.stream().count());
     } catch (Exception e) {
       Assert.assertEquals(

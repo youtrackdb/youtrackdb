@@ -68,7 +68,7 @@ public class SQLCreateDatabaseStatement extends SQLSimpleExecServerStatement {
         YouTrackDBConfigBuilder configBuilder = YouTrackDBConfig.builder();
 
         if (config != null) {
-          configBuilder = mapOrientDBConfig(this.config, ctx, configBuilder);
+          configBuilder = mapYouTrackDbConfig(this.config, ctx, configBuilder);
         }
 
         if (!users.isEmpty()) {
@@ -105,7 +105,7 @@ public class SQLCreateDatabaseStatement extends SQLSimpleExecServerStatement {
     return ExecutionStream.singleton(result);
   }
 
-  private YouTrackDBConfigBuilder mapOrientDBConfig(
+  private YouTrackDBConfigBuilder mapYouTrackDbConfig(
       SQLJson config, ServerCommandContext ctx, YouTrackDBConfigBuilder builder) {
     Map<String, Object> configMap = config.toMap(new ResultInternal(ctx.getDatabase()), ctx);
 

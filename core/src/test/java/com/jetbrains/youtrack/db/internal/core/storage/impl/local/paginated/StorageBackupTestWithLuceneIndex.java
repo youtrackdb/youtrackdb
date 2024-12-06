@@ -109,15 +109,15 @@ public class StorageBackupTestWithLuceneIndex {
 
     backupStorage.close(db, true);
 
-    var orientDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
+    var youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
     final DatabaseCompare compare =
         new DatabaseCompare(
             (DatabaseSessionInternal)
-                orientDB.open(
+                youTrackDB.open(
                     StorageBackupTestWithLuceneIndex.class.getSimpleName(), "admin", "admin"),
             (DatabaseSessionInternal)
-                orientDB.open(
+                youTrackDB.open(
                     StorageBackupTestWithLuceneIndex.class.getSimpleName() + "BackUp",
                     "admin",
                     "admin"),
@@ -187,15 +187,15 @@ public class StorageBackupTestWithLuceneIndex {
 
     backupStorage.close(db, true);
 
-    var orientDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
+    var youTrackDB = new YouTrackDB(DbTestBase.embeddedDBUrl(getClass()),
         YouTrackDBConfig.defaultConfig());
     final DatabaseCompare compare =
         new DatabaseCompare(
             (DatabaseSessionInternal)
-                orientDB.open(
+                youTrackDB.open(
                     StorageBackupTestWithLuceneIndex.class.getSimpleName(), "admin", "admin"),
             (DatabaseSessionInternal)
-                orientDB.open(
+                youTrackDB.open(
                     StorageBackupTestWithLuceneIndex.class.getSimpleName() + "BackUp",
                     "admin",
                     "admin"),

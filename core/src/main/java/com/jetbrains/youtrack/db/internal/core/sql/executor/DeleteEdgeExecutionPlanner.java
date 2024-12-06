@@ -3,9 +3,9 @@ package com.jetbrains.youtrack.db.internal.core.sql.executor;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.ExecutionPlanCache;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBatch;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLDeleteEdgeStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ExecutionPlanCache;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromClause;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFromItem;
@@ -92,25 +92,25 @@ public class DeleteEdgeExecutionPlanner {
     if (leftExpression != null || rightExpression != null) {
       handleGlobalLet(
           result,
-          new SQLIdentifier("$__ORIENT_DELETE_EDGE_fromV"),
+          new SQLIdentifier("$__YOUTRACKDB_DELETE_EDGE_fromV"),
           leftExpression,
           ctx,
           enableProfiling);
       handleGlobalLet(
           result,
-          new SQLIdentifier("$__ORIENT_DELETE_EDGE_toV"),
+          new SQLIdentifier("$__YOUTRACKDB_DELETE_EDGE_toV"),
           rightExpression,
           ctx,
           enableProfiling);
       String fromLabel = null;
       if (leftExpression != null) {
-        fromLabel = "$__ORIENT_DELETE_EDGE_fromV";
+        fromLabel = "$__YOUTRACKDB_DELETE_EDGE_fromV";
       }
       handleFetchFromTo(
           result,
           ctx,
           fromLabel,
-          "$__ORIENT_DELETE_EDGE_toV",
+          "$__YOUTRACKDB_DELETE_EDGE_toV",
           className,
           targetClusterName,
           enableProfiling);

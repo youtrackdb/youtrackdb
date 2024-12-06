@@ -19,8 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command.script;
 
-import static com.jetbrains.youtrack.db.internal.common.util.ClassLoaderHelper.lookupProviderWithYouTrackDBClassLoader;
-
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.StringParser;
 import com.jetbrains.youtrack.db.internal.common.util.ClassLoaderHelper;
@@ -345,7 +343,7 @@ public class ScriptManager {
     if (db != null) {
       // BIND FIXED VARIABLES
       //      binding.put("db", new ScriptDocumentDatabaseWrapper(db));
-      binding.put("orient", new ScriptOrientWrapper(db));
+      binding.put("youtrackdb", new ScriptYouTrackDbWrapper(db));
     }
     binding.put("util", new FunctionUtilWrapper());
   }
@@ -450,7 +448,7 @@ public class ScriptManager {
     }
 
     binding.put("db", null);
-    binding.put("orient", null);
+    binding.put("youtrackdb", null);
 
     binding.put("util", null);
 
@@ -562,7 +560,7 @@ public class ScriptManager {
   }
 
   /**
-   * Closes the pool for a database. This is called at Orient shutdown and in case a function has
+   * Closes the pool for a database. This is called at YouTrackDB shutdown and in case a function has
    * been updated.
    *
    * @param iDatabaseName

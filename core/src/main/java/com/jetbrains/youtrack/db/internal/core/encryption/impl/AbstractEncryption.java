@@ -5,10 +5,6 @@ import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
 import com.jetbrains.youtrack.db.internal.core.exception.InvalidStorageEncryptionKeyException;
 import javax.crypto.Cipher;
 
-/**
- * * (https://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html). Issue
- * https://github.com/orientechnologies/orientdb/issues/89.
- */
 public abstract class AbstractEncryption implements Encryption {
 
   /**

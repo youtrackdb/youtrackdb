@@ -53,7 +53,7 @@ public interface YouTrackDBInternal extends AutoCloseable, SchedulerInternal {
    * @param url           the url for the specific factory.
    * @param configuration configuration for the specific factory for the list of option
    *                      {@see GlobalConfiguration}.
-   * @return the new Orient Factory.
+   * @return the new YouTrackDB Factory.
    */
   static YouTrackDBInternal fromUrl(String url, YouTrackDBConfig configuration) {
     String what = url.substring(0, url.indexOf(':'));
@@ -65,16 +65,8 @@ public interface YouTrackDBInternal extends AutoCloseable, SchedulerInternal {
     throw new DatabaseException("not supported database type");
   }
 
-  default YouTrackDB newOrientDB() {
+  default YouTrackDB newYouTrackDb() {
     return new YouTrackDB(this);
-  }
-
-  default YouTrackDB newOrientDBNoClose() {
-    return new YouTrackDB(this) {
-      @Override
-      public void close() {
-      }
-    };
   }
 
   /**
@@ -127,43 +119,6 @@ public interface YouTrackDBInternal extends AutoCloseable, SchedulerInternal {
     return new YouTrackDBEmbedded(directoryPath, config, YouTrackDBManager.instance());
   }
 
-  static YouTrackDBInternal distributed(String directoryPath, YouTrackDBConfig configuration) {
-    YouTrackDBInternal factory;
-
-    try {
-      ClassLoader loader;
-      if (configuration != null) {
-        loader = configuration.getClassLoader();
-      } else {
-        loader = YouTrackDBInternal.class.getClassLoader();
-      }
-      Class<?> kass;
-      try {
-        String className = "com.orientechnologies.orient.distributed.db.OrientDBDistributed";
-        kass = loader.loadClass(className);
-      } catch (ClassNotFoundException e) {
-        String className = "com.orientechnologies.orient.distributed.OrientDBDistributed";
-        kass = loader.loadClass(className);
-      }
-      Constructor<?> constructor =
-          kass.getConstructor(String.class, YouTrackDBConfig.class, YouTrackDBManager.class);
-      factory =
-          (YouTrackDBInternal)
-              constructor.newInstance(directoryPath, configuration, YouTrackDBManager.instance());
-    } catch (ClassNotFoundException
-             | NoSuchMethodException
-             | IllegalAccessException
-             | InstantiationException e) {
-      throw BaseException.wrapException(new DatabaseException("YouTrackDB distributed API missing"),
-          e);
-    } catch (InvocationTargetException e) {
-      //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
-      throw BaseException.wrapException(
-          new DatabaseException("Error creating YouTrackDB remote factory"),
-          e.getTargetException());
-    }
-    return factory;
-  }
 
   /**
    * Open a database specified by name using the username and password if needed

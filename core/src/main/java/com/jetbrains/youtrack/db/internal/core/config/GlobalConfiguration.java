@@ -130,7 +130,7 @@ public enum GlobalConfiguration {
       "Activates the direct memory pool [leak detector](Leak-Detector.md). This detector causes a"
           + " large overhead and should be used for debugging purposes only. It's also a good idea"
           + " to pass the"
-          + " -Djava.util.logging.manager=com.orientechnologies.common.log.ShutdownLogManager"
+          + " -Djava.util.logging.manager=com.jetbrains.youtrack.db.internal.common.log.ShutdownLogManager"
           + " switch to the JVM, if you use this mode, this will enable the logging from JVM"
           + " shutdown hooks.",
       Boolean.class,
@@ -990,7 +990,7 @@ public enum GlobalConfiguration {
       60),
 
   INIT_IN_SERVLET_CONTEXT_LISTENER(
-      "orient.initInServletContextListener",
+      "youtrackdb.initInServletContextListener",
       "If this value set to ture (default) YouTrackDB engine "
           + "will be initialzed using embedded ServletContextListener",
       Boolean.class,
@@ -1928,7 +1928,7 @@ public enum GlobalConfiguration {
     if (!config.env) {
       return null;
     }
-    return "ORIENTDB_" + config.name();
+    return "YOUTRACKDB_" + config.name();
   }
 
   public <T> T getValue() {

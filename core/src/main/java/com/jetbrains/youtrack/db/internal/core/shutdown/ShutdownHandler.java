@@ -21,7 +21,9 @@ public interface ShutdownHandler {
   int SHUTDOWN_WORKERS_PRIORITY = 1000;
 
   /**
-   * Priority of com.orientechnologies.orient.core.Orient.OShutdownPendingThreadsHandler handler.
+   * Priority of
+   * com.jetbrains.youtrack.db.internal.core.YouTrackDBManager.ShutdownPendingThreadsHandler
+   * handler.
    */
   int SHUTDOWN_PENDING_THREADS_PRIORITY = 1100;
 
@@ -31,12 +33,15 @@ public interface ShutdownHandler {
   int SHUTDOWN_ENGINES_PRIORITY = 1200;
 
   /**
-   * Priority of com.orientechnologies.orient.core.Orient.OShutdownProfilerHandler handler.
+   * Priority of com.jetbrains.youtrack.db.internal.core.YouTrackDBManager.ShutdownProfilerHandler
+   * handler.
    */
   int SHUTDOWN_PROFILER_PRIORITY = 1300;
 
   /**
-   * Priority of com.orientechnologies.orient.core.Orient.OShutdownCallListenersHandler handler.
+   * Priority of
+   * com.jetbrains.youtrack.db.internal.core.YouTrackDBManager.ShutdownCallListenersHandler
+   * handler.
    */
   int SHUTDOWN_CALL_LISTENERS = 1400;
 

@@ -6,16 +6,16 @@ import com.jetbrains.youtrack.db.internal.core.collate.Collate;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.ScenarioThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.LiveQueryResultListener;
+import com.jetbrains.youtrack.db.internal.core.db.ScenarioThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseSessionEmbedded;
 import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
+import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionFactory;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.PropertyMapIndexDefinition.INDEX_BY;
@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
 
 public class ViewManager {
 
-  private final YouTrackDBInternal oxygenDB;
+  private final YouTrackDBInternal youTrackDb;
   private final String dbName;
   private final boolean viewsExist = false;
 
@@ -87,13 +87,13 @@ public class ViewManager {
   private volatile TimerTask timerTask;
   private volatile boolean closed = false;
 
-  public ViewManager(YouTrackDBInternal orientDb, String dbName) {
-    this.oxygenDB = orientDb;
+  public ViewManager(YouTrackDBInternal youTrackDb, String dbName) {
+    this.youTrackDb = youTrackDb;
     this.dbName = dbName;
   }
 
   protected void init() {
-    oxygenDB.executeNoAuthorizationAsync(
+    youTrackDb.executeNoAuthorizationAsync(
         dbName,
         (db) -> {
           // do this to make sure that the storage is already initialized and so is the shared
@@ -494,7 +494,7 @@ public class ViewManager {
   }
 
   public void updateViewAsync(String name, ViewCreationListener listener) {
-    oxygenDB.executeNoAuthorizationAsync(
+    youTrackDb.executeNoAuthorizationAsync(
         dbName,
         (databaseSession) -> {
           if (!buildOnThisNode(

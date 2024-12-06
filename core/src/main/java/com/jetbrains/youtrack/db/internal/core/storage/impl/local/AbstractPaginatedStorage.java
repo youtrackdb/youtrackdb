@@ -44,8 +44,8 @@ import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
-import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
+import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
 import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.IndexEngineData;
@@ -53,34 +53,34 @@ import com.jetbrains.youtrack.db.internal.core.config.StorageClusterConfiguratio
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfigurationUpdateListener;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseListener;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.CurrentStorageComponentsFactory;
-import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBagDeleter;
 import com.jetbrains.youtrack.db.internal.core.encryption.Encryption;
 import com.jetbrains.youtrack.db.internal.core.encryption.EncryptionFactory;
 import com.jetbrains.youtrack.db.internal.core.encryption.impl.NothingEncryption;
 import com.jetbrains.youtrack.db.internal.core.exception.ClusterDoesNotExistException;
 import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.CommitSerializationException;
 import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentCreateException;
 import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentModificationException;
 import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.exception.FastConcurrentModificationException;
 import com.jetbrains.youtrack.db.internal.core.exception.InternalErrorException;
+import com.jetbrains.youtrack.db.internal.core.exception.InvalidDatabaseNameException;
 import com.jetbrains.youtrack.db.internal.core.exception.InvalidIndexEngineIdException;
 import com.jetbrains.youtrack.db.internal.core.exception.InvalidInstanceIdException;
 import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
-import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
-import com.jetbrains.youtrack.db.internal.core.exception.CommitSerializationException;
-import com.jetbrains.youtrack.db.internal.core.exception.StorageExistsException;
-import com.jetbrains.youtrack.db.internal.core.exception.InvalidDatabaseNameException;
 import com.jetbrains.youtrack.db.internal.core.exception.RetryQueryException;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageDoesNotExistException;
+import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
+import com.jetbrains.youtrack.db.internal.core.exception.StorageExistsException;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
@@ -106,25 +106,25 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass.INDEX
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.query.QueryAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.RecordVersionHelper;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.RecordVersionHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index.CompositeKeySerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.sharding.auto.AutoShardingIndexEngine;
 import com.jetbrains.youtrack.db.internal.core.storage.IdentifiableStorage;
-import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
-import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.RawBuffer;
 import com.jetbrains.youtrack.db.internal.core.storage.RecordCallback;
 import com.jetbrains.youtrack.db.internal.core.storage.RecordMetadata;
-import com.jetbrains.youtrack.db.internal.core.storage.StorageOperationResult;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
+import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster.ATTRIBUTES;
+import com.jetbrains.youtrack.db.internal.core.storage.StorageOperationResult;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.CacheEntry;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.PageDataVerificationError;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.ReadCache;
@@ -136,19 +136,19 @@ import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster.
 import com.jetbrains.youtrack.db.internal.core.storage.config.ClusterBasedStorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.RecordSerializationContext;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.StorageTransaction;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperationsManager;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperationsTable;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.base.DurablePage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.AtomicUnitEndRecord;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.AtomicUnitStartMetadataRecord;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.AtomicUnitStartRecord;
+import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.FileCreatedWALRecord;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.FileDeletedWALRecord;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.HighLevelTransactionChangeRecord;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.LogSequenceNumber;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.MetaDataRecord;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.NonTxOperationPerformedWALRecord;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.AtomicUnitStartRecord;
-import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.FileCreatedWALRecord;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.OperationUnitRecord;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.PaginatedClusterFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.wal.UpdatePageRecord;
@@ -165,6 +165,8 @@ import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.IndexRIDCon
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManagerShared;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeRidBag;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransacationMetadataHolder;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransacationMetadataHolderImpl;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionData;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionId;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChanges;
@@ -172,8 +174,6 @@ import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChange
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey.TransactionIndexEntry;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionInternal;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransacationMetadataHolder;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransacationMetadataHolderImpl;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -2247,8 +2247,6 @@ public abstract class AbstractPaginatedStorage
     // this method don't forget to change its counterpart:
     //
     //
-    // AbstractPaginatedStorage.commit(com.orientechnologies.orient.core.storage.impl.local.OMicroTransaction)
-
     try {
       txBegun.increment();
 

@@ -19,15 +19,15 @@ import com.jetbrains.youtrack.db.internal.common.console.ConsoleReader;
 import com.jetbrains.youtrack.db.internal.common.console.DefaultConsoleReader;
 import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.log.AnsiCode;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
 import com.jetbrains.youtrack.db.internal.common.profiler.AbstractProfiler.ProfilerHookValue;
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler.METRIC_TYPE;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
 import com.jetbrains.youtrack.db.internal.core.db.SystemDatabase;
@@ -55,7 +55,6 @@ import com.orientechnologies.orient.server.config.OServerSocketFactoryConfigurat
 import com.orientechnologies.orient.server.config.OServerStorageConfiguration;
 import com.orientechnologies.orient.server.config.ServerUserConfiguration;
 import com.orientechnologies.orient.server.distributed.ODistributedServerManager;
-import com.orientechnologies.orient.server.distributed.config.ODistributedConfig;
 import com.orientechnologies.orient.server.handler.ConfigurableHooksManager;
 import com.orientechnologies.orient.server.network.OServerNetworkListener;
 import com.orientechnologies.orient.server.network.OServerSocketFactory;
@@ -63,8 +62,8 @@ import com.orientechnologies.orient.server.network.protocol.NetworkProtocol;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
 import com.orientechnologies.orient.server.network.protocol.http.HttpSessionManager;
 import com.orientechnologies.orient.server.network.protocol.http.NetworkProtocolHttpDb;
-import com.orientechnologies.orient.server.plugin.ServerPlugin;
 import com.orientechnologies.orient.server.plugin.OServerPluginInfo;
+import com.orientechnologies.orient.server.plugin.ServerPlugin;
 import com.orientechnologies.orient.server.plugin.ServerPluginManager;
 import com.orientechnologies.orient.server.token.OTokenHandlerImpl;
 import java.io.ByteArrayInputStream;
@@ -208,8 +207,6 @@ public class OServer {
 
   /**
    * Set the preferred {@link ClassLoader} used to load extensions.
-   *
-   * 
    */
   public void setExtensionClassLoader(/* @Nullable */ final ClassLoader extensionClassLoader) {
     this.extensionClassLoader = extensionClassLoader;
@@ -217,8 +214,6 @@ public class OServer {
 
   /**
    * Get the preferred {@link ClassLoader} used to load extensions.
-   *
-   * 
    */
   /* @Nullable */
   public ClassLoader getExtensionClassLoader() {
@@ -410,31 +405,14 @@ public class OServer {
       databases =
           DatabaseDocumentTxInternal.getOrCreateEmbeddedFactory(this.databaseDirectory, config);
     } else {
-      OServerConfiguration configuration = getConfiguration();
-
-      if (configuration.distributed != null && configuration.distributed.enabled) {
-        try {
-          YouTrackDBConfig youTrackDBConfig =
-              ODistributedConfig.buildConfig(
-                  contextConfiguration, ODistributedConfig.fromEnv(configuration.distributed));
-          databases = YouTrackDBInternal.distributed(this.databaseDirectory, youTrackDBConfig);
-        } catch (DatabaseException ex) {
-          databases = YouTrackDBInternal.embedded(this.databaseDirectory, config);
-        }
-      } else {
-        try {
-          databases = YouTrackDBInternal.distributed(this.databaseDirectory, config);
-        } catch (DatabaseException ex) {
-          databases = YouTrackDBInternal.embedded(this.databaseDirectory, config);
-        }
-      }
+      databases = YouTrackDBInternal.embedded(this.databaseDirectory, config);
     }
 
     if (databases instanceof OServerAware) {
       ((OServerAware) databases).init(this);
     }
 
-    context = databases.newOrientDB();
+    context = databases.newYouTrackDb();
 
     LogManager.instance()
         .info(this, "Databases directory: " + new File(databaseDirectory).getAbsolutePath());

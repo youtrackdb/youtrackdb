@@ -13,7 +13,7 @@ public class HashSaltTest {
 
   @Test
   public void testSalt() throws InvalidKeySpecException, NoSuchAlgorithmException {
-    final String password = "OrientDBisCool";
+    final String password = "YouTrackDBisCool";
     final SecurityManager sm = new SecurityManager();
     final String hashed = SecurityManager.createHashWithSalt(password);
 

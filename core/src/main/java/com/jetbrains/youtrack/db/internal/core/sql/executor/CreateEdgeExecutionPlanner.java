@@ -5,9 +5,9 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.ExecutionPlanCache;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLBatch;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLCreateEdgeStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.ExecutionPlanCache;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLExpression;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLIdentifier;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInputParameter;
@@ -87,13 +87,13 @@ public class CreateEdgeExecutionPlanner {
 
     handleGlobalLet(
         result,
-        new SQLIdentifier("$__ORIENT_CREATE_EDGE_fromV"),
+        new SQLIdentifier("$__YOUTRACKDB_CREATE_EDGE_fromV"),
         leftExpression,
         ctx,
         enableProfiling);
     handleGlobalLet(
         result,
-        new SQLIdentifier("$__ORIENT_CREATE_EDGE_toV"),
+        new SQLIdentifier("$__YOUTRACKDB_CREATE_EDGE_toV"),
         rightExpression,
         ctx,
         enableProfiling);
@@ -134,8 +134,8 @@ public class CreateEdgeExecutionPlanner {
             targetClass,
             targetClusterName,
             uniqueIndexName,
-            new SQLIdentifier("$__ORIENT_CREATE_EDGE_fromV"),
-            new SQLIdentifier("$__ORIENT_CREATE_EDGE_toV"),
+            new SQLIdentifier("$__YOUTRACKDB_CREATE_EDGE_fromV"),
+            new SQLIdentifier("$__YOUTRACKDB_CREATE_EDGE_toV"),
             wait,
             retry,
             batch,

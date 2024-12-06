@@ -24,18 +24,18 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
 
 /**
- * Orient wrapper class to use from scripts.
+ * YouTrackDB wrapper class to use from scripts.
  */
 @Deprecated
-public class ScriptOrientWrapper {
+public class ScriptYouTrackDbWrapper {
 
   protected final DatabaseSession db;
 
-  public ScriptOrientWrapper() {
+  public ScriptYouTrackDbWrapper() {
     this.db = null;
   }
 
-  public ScriptOrientWrapper(final DatabaseSession db) {
+  public ScriptYouTrackDbWrapper(final DatabaseSession db) {
     this.db = db;
   }
 

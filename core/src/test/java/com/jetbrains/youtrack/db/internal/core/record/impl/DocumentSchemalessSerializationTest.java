@@ -129,7 +129,7 @@ public class DocumentSchemalessSerializationTest extends DbTestBase {
     bytes.add((byte) 3);
     document.field("bytes", bytes);
 
-    // TODO: char not currently supported in orient.
+    // TODO: char not currently supported
     List<Character> chars = new ArrayList<Character>();
     chars.add('A');
     chars.add('B');

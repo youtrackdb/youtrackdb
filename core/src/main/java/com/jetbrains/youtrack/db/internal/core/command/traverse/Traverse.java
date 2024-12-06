@@ -19,8 +19,8 @@
  */
 package com.jetbrains.youtrack.db.internal.core.command.traverse;
 
-import com.jetbrains.youtrack.db.internal.core.command.CommandExecutorAbstract;
 import com.jetbrains.youtrack.db.internal.core.command.Command;
+import com.jetbrains.youtrack.db.internal.core.command.CommandExecutorAbstract;
 import com.jetbrains.youtrack.db.internal.core.command.CommandPredicate;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
@@ -58,8 +58,6 @@ public class Traverse implements Command, Iterable<Identifiable>, Iterator<Ident
   /*
    * Executes a traverse collecting all the result in the returning List<Identifiable>. This could be memory expensive because for
    * large results the list could be huge. it's always better to use it as an Iterable and lazy fetch each result on next() call.
-   *
-   * @see com.orientechnologies.core.command.Command#execute()
    */
   public List<Identifiable> execute(DatabaseSessionInternal session) {
     context.setDatabase(session);

@@ -9,8 +9,8 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
@@ -212,7 +212,7 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
     bytes.add((byte) 3);
     document.field(LIST_BYTES, bytes);
 
-    // TODO: char not currently supported in orient.
+    // TODO: char not currently supported
     List<Character> chars = new ArrayList<Character>();
     chars.add('A');
     chars.add('B');

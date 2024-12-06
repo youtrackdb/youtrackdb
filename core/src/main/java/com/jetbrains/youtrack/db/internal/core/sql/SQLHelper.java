@@ -23,8 +23,8 @@ import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.parser.BaseParser;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
-import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
+import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -34,13 +34,12 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerCSVAbstract;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItem;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemAbstract;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemParameter;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemVariable;
@@ -64,9 +63,6 @@ public class SQLHelper {
   public static final String VALUE_NOT_PARSED = "_NOT_PARSED_";
   public static final String NOT_NULL = "_NOT_NULL_";
   public static final String DEFINED = "_DEFINED_";
-
-  private static final ClassLoader orientClassLoader =
-      SQLFilterItemAbstract.class.getClassLoader();
 
   public static Object parseDefaultValue(DatabaseSessionInternal session, EntityImpl iRecord,
       final String iWord) {

@@ -9,15 +9,6 @@ import java.util.Base64;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
-/**
- * * Stateful compression implementation that encrypt the content using AES
- * (https://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html). Issue
- * https://github.com/orientechnologies/orientdb/issues/89.
- * <p>
- * <p>
- * <p>
- * is thus not secure. See https://github.com/orientechnologies/orientdb/issues/8207.
- */
 public class AESEncryption extends AbstractEncryption {
 
   // @see

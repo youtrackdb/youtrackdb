@@ -82,11 +82,6 @@ public class SpeedTestData {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.orientechnologies.common.test.SpeedTest#startTimer(java.lang.String)
-   */
   public void startTimer(final String iName) {
     Runtime.getRuntime().runFinalization();
     Runtime.getRuntime().gc();
@@ -115,20 +110,10 @@ public class SpeedTestData {
     currentTestTimer = System.currentTimeMillis();
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.orientechnologies.common.test.SpeedTest#takeTimer()
-   */
   public long takeTimer() {
     return System.currentTimeMillis() - currentTestTimer;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.orientechnologies.common.test.SpeedTest#collectResults(long)
-   */
   public void collectResults(final long elapsed) {
     Runtime.getRuntime().runFinalization();
     Runtime.getRuntime().gc();
@@ -246,11 +231,6 @@ public class SpeedTestData {
     currentTestNonHeapMaxMemory = nonHeapMaxMemory;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.orientechnologies.common.test.SpeedTest#printSnapshot()
-   */
   public long printSnapshot() {
     final long e = takeTimer();
 

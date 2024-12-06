@@ -20,11 +20,11 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.internal.common.types.ModifiableBoolean;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandExecutor;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestInternal;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -63,8 +63,6 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
   private int removed = 0;
   private CommandRequest query;
   private SQLFilter compiledFilter;
-  //  private AtomicReference<OrientBaseGraph> currentGraph  = new
-  // AtomicReference<OrientBaseGraph>();
   private String label;
   private final ModifiableBoolean shutdownFlag = new ModifiableBoolean();
   private boolean txAlreadyBegun;
@@ -100,8 +98,6 @@ public class CommandExecutorSQLDeleteEdge extends CommandExecutorSQLSetAware
       }
 
       DatabaseSessionInternal curDb = DatabaseRecordThreadLocal.instance().get();
-      //      final OrientGraph graph = OGraphCommandExecutorSQLFactory.getGraph(false,
-      // shutdownFlag);
       try {
         while (temp != null) {
 

@@ -16,10 +16,10 @@ public class GlobalConfigurationTest {
   public void testReadFromEnv() {
 
     Assert.assertEquals(
-        "ORIENTDB_DISTRIBUTED", GlobalConfiguration.getEnvKey(GlobalConfiguration.DISTRIBUTED));
+        "YOUTRACKDB_DISTRIBUTED", GlobalConfiguration.getEnvKey(GlobalConfiguration.DISTRIBUTED));
 
     Assert.assertEquals(
-        "ORIENTDB_DISTRIBUTED_NODE_NAME",
+        "YOUTRACKDB_DISTRIBUTED_NODE_NAME",
         GlobalConfiguration.getEnvKey(GlobalConfiguration.DISTRIBUTED_NODE_NAME));
   }
 

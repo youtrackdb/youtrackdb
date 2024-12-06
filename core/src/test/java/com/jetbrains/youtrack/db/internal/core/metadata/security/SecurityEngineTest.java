@@ -17,13 +17,13 @@ import org.junit.Test;
 
 public class SecurityEngineTest {
 
-  static YouTrackDB orient;
+  static YouTrackDB youTrackDB;
   private DatabaseSessionInternal db;
   private static final String DB_NAME = "test";
 
   @BeforeClass
   public static void beforeClass() {
-    orient =
+    youTrackDB =
         new YouTrackDB(
             "plocal:./target/securityEngineTest",
             YouTrackDBConfig.builder()
@@ -33,12 +33,12 @@ public class SecurityEngineTest {
 
   @AfterClass
   public static void afterClass() {
-    orient.close();
+    youTrackDB.close();
   }
 
   @Before
   public void before() {
-    orient.execute(
+    youTrackDB.execute(
         "create database "
             + DB_NAME
             + " "
@@ -48,13 +48,13 @@ public class SecurityEngineTest {
             + "' role admin)");
     this.db =
         (DatabaseSessionInternal)
-            orient.open(DB_NAME, "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+            youTrackDB.open(DB_NAME, "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @After
   public void after() {
     this.db.close();
-    orient.drop(DB_NAME);
+    youTrackDB.drop(DB_NAME);
     this.db = null;
   }
 
@@ -220,7 +220,7 @@ public class SecurityEngineTest {
     db.close();
     db =
         (DatabaseSessionInternal)
-            orient.open(DB_NAME, "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+            youTrackDB.open(DB_NAME, "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     SecurityInternal security = db.getSharedContext().getSecurity();
 

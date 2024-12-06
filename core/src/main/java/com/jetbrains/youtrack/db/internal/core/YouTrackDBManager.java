@@ -21,10 +21,8 @@ package com.jetbrains.youtrack.db.internal.core;
 
 import com.jetbrains.youtrack.db.internal.common.directmemory.ByteBufferPool;
 import com.jetbrains.youtrack.db.internal.common.directmemory.DirectMemoryAllocator;
-import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.listener.ListenerManger;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
 import com.jetbrains.youtrack.db.internal.common.profiler.AbstractProfiler;
 import com.jetbrains.youtrack.db.internal.common.profiler.Profiler;
 import com.jetbrains.youtrack.db.internal.common.profiler.ProfilerStub;
@@ -231,20 +229,6 @@ public class YouTrackDBManager extends ListenerManger<YouTrackDBListener> {
     return instance;
   }
 
-  public static String getHomePath() {
-    String v = System.getProperty("orient.home");
-
-    if (v == null) {
-      v = SystemVariableResolver.resolveVariable(YOU_TRACK_DB_HOME);
-    }
-
-    return FileUtils.getPath(v);
-  }
-
-  public static String getTempPath() {
-    return FileUtils.getPath(System.getProperty("java.io.tmpdir") + "/orientdb/");
-  }
-
   /**
    * Tells if to register database by path. Default is false. Setting to true allows to have
    * multiple databases in different path with the same name.
@@ -391,7 +375,7 @@ public class YouTrackDBManager extends ListenerManger<YouTrackDBListener> {
 
       active = false;
 
-      LogManager.instance().info(this, "Orient Engine is shutting down...");
+      LogManager.instance().info(this, "YouTrackDB Engine is shutting down...");
       for (ShutdownHandler handler : shutdownHandlers) {
         try {
           LogManager.instance().debug(this, "Shutdown handler %s is going to be called", handler);
@@ -900,7 +884,7 @@ public class YouTrackDBManager extends ListenerManger<YouTrackDBListener> {
           }
 
         } catch (Exception e) {
-          LogManager.instance().error(this, "Error during orient shutdown", e);
+          LogManager.instance().error(this, "Error during YouTrackDB shutdown", e);
         }
       }
 
@@ -910,7 +894,7 @@ public class YouTrackDBManager extends ListenerManger<YouTrackDBListener> {
           try {
             l.onShutdown();
           } catch (Exception e) {
-            LogManager.instance().error(this, "Error during orient shutdown", e);
+            LogManager.instance().error(this, "Error during YouTrackDB shutdown", e);
           }
         }
       }

@@ -14,9 +14,9 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
 import com.jetbrains.youtrack.db.internal.core.db.LiveQueryMonitor;
 import com.jetbrains.youtrack.db.internal.core.db.LiveQueryResultListener;
+import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
@@ -37,14 +37,14 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaView;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceAction;
 import com.jetbrains.youtrack.db.internal.core.query.Query;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
-import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
@@ -195,11 +195,7 @@ public class DatabaseDocumentTx implements DatabaseSessionInternal {
     try {
       factory = embedded.get(baseUrl);
       if (factory == null || !factory.isOpen()) {
-        try {
-          factory = YouTrackDBInternal.distributed(baseUrl, config);
-        } catch (DatabaseException ignore) {
-          factory = YouTrackDBInternal.embedded(baseUrl, config);
-        }
+        factory = YouTrackDBInternal.embedded(baseUrl, config);
         embedded.put(baseUrl, factory);
       }
     } finally {

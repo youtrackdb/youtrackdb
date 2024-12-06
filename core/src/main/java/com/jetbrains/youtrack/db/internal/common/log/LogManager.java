@@ -46,7 +46,7 @@ import org.slf4j.event.Level;
  */
 public class LogManager extends SL4JLogManager {
 
-  private static final String ENV_INSTALL_CUSTOM_FORMATTER = "orientdb.installCustomFormatter";
+  private static final String ENV_INSTALL_CUSTOM_FORMATTER = "youtrackdb.installCustomFormatter";
   private static final LogManager instance = new LogManager();
 
   private java.util.logging.Level minimumLevel = java.util.logging.Level.SEVERE;

@@ -31,12 +31,12 @@ import com.jetbrains.youtrack.db.internal.core.engine.Engine;
 import com.jetbrains.youtrack.db.internal.core.engine.EngineAbstract;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.RawBuffer;
 import com.jetbrains.youtrack.db.internal.core.storage.RecordCallback;
 import com.jetbrains.youtrack.db.internal.core.storage.RecordMetadata;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.storage.StorageCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.cluster.PaginatedCluster;
 import com.jetbrains.youtrack.db.internal.core.storage.config.ClusterBasedStorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
@@ -59,7 +59,7 @@ import org.junit.Test;
  */
 public class PostponedEngineStartTest {
 
-  private static YouTrackDBManager YOU_TRACK;
+  private static YouTrackDBManager YOUTRACKDB;
 
   private static Engine ENGINE1;
   private static Engine ENGINE2;
@@ -67,13 +67,13 @@ public class PostponedEngineStartTest {
 
   @BeforeClass
   public static void before() {
-    YOU_TRACK =
+    YOUTRACKDB =
         new YouTrackDBManager(false) {
           @Override
           public YouTrackDBManager startup() {
-            YOU_TRACK.registerEngine(ENGINE1 = new NamedEngine("engine1"));
-            YOU_TRACK.registerEngine(ENGINE2 = new NamedEngine("engine2"));
-            YOU_TRACK.registerEngine(FAULTY_ENGINE = new FaultyEngine());
+            YOUTRACKDB.registerEngine(ENGINE1 = new NamedEngine("engine1"));
+            YOUTRACKDB.registerEngine(ENGINE2 = new NamedEngine("engine2"));
+            YOUTRACKDB.registerEngine(FAULTY_ENGINE = new FaultyEngine());
             return this;
           }
 
@@ -84,7 +84,7 @@ public class PostponedEngineStartTest {
           }
         };
 
-    YOU_TRACK.startup();
+    YOUTRACKDB.startup();
   }
 
   @Test
@@ -114,42 +114,42 @@ public class PostponedEngineStartTest {
 
   // @Test
   public void testEngineShouldNotStartAtRuntimeStart() {
-    final Engine engine = YOU_TRACK.getEngine(ENGINE1.getName());
+    final Engine engine = YOUTRACKDB.getEngine(ENGINE1.getName());
     Assert.assertFalse(engine.isRunning());
   }
 
   // @Test(dependsOnMethods = "testEngineShouldNotStartAtRuntimeStart")
   public void testGetEngineIfRunningShouldReturnNullEngineIfNotRunning() {
-    final Engine engine = YOU_TRACK.getEngineIfRunning(ENGINE1.getName());
+    final Engine engine = YOUTRACKDB.getEngineIfRunning(ENGINE1.getName());
     Assert.assertNull(engine);
   }
 
   // @Test(dependsOnMethods = "testGetEngineIfRunningShouldReturnNullEngineIfNotRunning")
   public void testGetRunningEngineShouldStartEngine() {
-    final Engine engine = YOU_TRACK.getRunningEngine(ENGINE1.getName());
+    final Engine engine = YOUTRACKDB.getRunningEngine(ENGINE1.getName());
     Assert.assertNotNull(engine);
     Assert.assertTrue(engine.isRunning());
   }
 
   // @Test(dependsOnMethods = "testGetRunningEngineShouldStartEngine")
   public void testEngineRestart() {
-    Engine engine = YOU_TRACK.getRunningEngine(ENGINE1.getName());
+    Engine engine = YOUTRACKDB.getRunningEngine(ENGINE1.getName());
     engine.shutdown();
     Assert.assertFalse(engine.isRunning());
 
-    engine = YOU_TRACK.getEngineIfRunning(ENGINE1.getName());
+    engine = YOUTRACKDB.getEngineIfRunning(ENGINE1.getName());
     Assert.assertNull(engine);
 
-    engine = YOU_TRACK.getEngine(ENGINE1.getName());
+    engine = YOUTRACKDB.getEngine(ENGINE1.getName());
     Assert.assertFalse(engine.isRunning());
 
-    engine = YOU_TRACK.getRunningEngine(ENGINE1.getName());
+    engine = YOUTRACKDB.getRunningEngine(ENGINE1.getName());
     Assert.assertTrue(engine.isRunning());
   }
 
   // @Test
   public void testStoppedEngineShouldStartAndCreateStorage() {
-    Engine engine = YOU_TRACK.getEngineIfRunning(ENGINE2.getName());
+    Engine engine = YOUTRACKDB.getEngineIfRunning(ENGINE2.getName());
     Assert.assertNull(engine);
 
     final Storage storage =
@@ -162,20 +162,14 @@ public class PostponedEngineStartTest {
 
     Assert.assertNotNull(storage);
 
-    engine = YOU_TRACK.getRunningEngine(ENGINE2.getName());
+    engine = YOUTRACKDB.getRunningEngine(ENGINE2.getName());
     Assert.assertTrue(engine.isRunning());
   }
 
   //  @Test(expected = IllegalStateException.class)
   public void testGetRunningEngineShouldThrowIfEngineIsUnknown() {
-    //    Assert.assertThrows(IllegalStateException.class, new Assert.ThrowingRunnable() {
-    //      @Override
-    //      public void run() throws Throwable {
-    //        ORIENT.getRunningEngine("unknown engine");
-    //      }
-    //    });
     try {
-      YOU_TRACK.getRunningEngine("unknown engine");
+      YOUTRACKDB.getRunningEngine("unknown engine");
       Assert.fail();
     } catch (Exception e) {
       // exception expected
@@ -184,20 +178,13 @@ public class PostponedEngineStartTest {
 
   // @Test(expected = IllegalStateException.class)
   public void testGetRunningEngineShouldThrowIfEngineIsUnableToStart() {
-    Engine engine = YOU_TRACK.getEngine(FAULTY_ENGINE.getName());
+    Engine engine = YOUTRACKDB.getEngine(FAULTY_ENGINE.getName());
     Assert.assertNotNull(engine);
-
-    //    Assert.assertThrows(IllegalStateException.class, new Assert.ThrowingRunnable() {
-    //      @Override
-    //      public void run() throws Throwable {
-    //        ORIENT.getRunningEngine(FAULTY_ENGINE.getName());
-    //      }
-    //    });
     try {
 
-      YOU_TRACK.getRunningEngine(FAULTY_ENGINE.getName());
+      YOUTRACKDB.getRunningEngine(FAULTY_ENGINE.getName());
 
-      engine = YOU_TRACK.getEngine(FAULTY_ENGINE.getName());
+      engine = YOUTRACKDB.getEngine(FAULTY_ENGINE.getName());
       Assert.assertNull(engine);
       Assert.fail();
     } catch (Exception e) {

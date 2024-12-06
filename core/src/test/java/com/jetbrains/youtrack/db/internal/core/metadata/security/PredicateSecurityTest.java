@@ -24,12 +24,12 @@ import org.junit.Test;
 public class PredicateSecurityTest {
 
   private static final String DB_NAME = PredicateSecurityTest.class.getSimpleName();
-  private static YouTrackDB orient;
+  private static YouTrackDB youTrackDB;
   private DatabaseSessionInternal db;
 
   @BeforeClass
   public static void beforeClass() {
-    orient =
+    youTrackDB =
         new YouTrackDB(
             "plocal:.",
             YouTrackDBConfig.builder()
@@ -39,12 +39,12 @@ public class PredicateSecurityTest {
 
   @AfterClass
   public static void afterClass() {
-    orient.close();
+    youTrackDB.close();
   }
 
   @Before
   public void before() {
-    orient.execute(
+    youTrackDB.execute(
         "create database "
             + DB_NAME
             + " "
@@ -58,13 +58,13 @@ public class PredicateSecurityTest {
             + "' role writer)");
     this.db =
         (DatabaseSessionInternal)
-            orient.open(DB_NAME, "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+            youTrackDB.open(DB_NAME, "admin", CreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @After
   public void after() {
     this.db.close();
-    orient.drop(DB_NAME);
+    youTrackDB.drop(DB_NAME);
     this.db = null;
   }
 
@@ -85,7 +85,7 @@ public class PredicateSecurityTest {
     db.close();
     this.db =
         (DatabaseSessionInternal)
-            orient.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
+            youTrackDB.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
     db.executeInTx(
         () -> {
@@ -124,7 +124,7 @@ public class PredicateSecurityTest {
     Thread.sleep(500);
     this.db =
         (DatabaseSessionInternal)
-            orient.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
+            youTrackDB.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
     db.begin();
     db.command("insert into Person SET name = 'foo'");
@@ -170,7 +170,7 @@ public class PredicateSecurityTest {
     db.close();
     this.db =
         (DatabaseSessionInternal)
-            orient.open(DB_NAME, "reader", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
+            youTrackDB.open(DB_NAME, "reader", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
     ResultSet rs = db.query("select from Person");
     Assert.assertTrue(rs.hasNext());
     rs.next();
@@ -211,7 +211,7 @@ public class PredicateSecurityTest {
     db.close();
     this.db =
         (DatabaseSessionInternal)
-            orient.open(DB_NAME, "reader", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
+            youTrackDB.open(DB_NAME, "reader", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
     ResultSet rs = db.query("select from Person where name = 'bar'");
     Assert.assertFalse(rs.hasNext());
     rs.close();
@@ -252,7 +252,7 @@ public class PredicateSecurityTest {
     db.close();
     this.db =
         (DatabaseSessionInternal)
-            orient.open(DB_NAME, "reader", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
+            youTrackDB.open(DB_NAME, "reader", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
     ResultSet rs = db.query("select from Person where name = 'foo'");
     Assert.assertTrue(rs.hasNext());
     Result item = rs.next();
@@ -279,7 +279,7 @@ public class PredicateSecurityTest {
     Thread.sleep(500);
     this.db =
         (DatabaseSessionInternal)
-            orient.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
+            youTrackDB.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
     Entity elem =
         db.computeInTx(
@@ -334,7 +334,7 @@ public class PredicateSecurityTest {
   private boolean doTestBeforeUpdateSQL() {
     this.db =
         (DatabaseSessionInternal)
-            orient.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
+            youTrackDB.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
     Entity elem =
         db.computeInTx(
@@ -374,7 +374,7 @@ public class PredicateSecurityTest {
     db.close();
     this.db =
         (DatabaseSessionInternal)
-            orient.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
+            youTrackDB.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
     Entity elem =
         db.computeInTx(
@@ -417,7 +417,7 @@ public class PredicateSecurityTest {
     db.close();
     this.db =
         (DatabaseSessionInternal)
-            orient.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
+            youTrackDB.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
     Entity elem =
         db.computeInTx(
@@ -456,7 +456,7 @@ public class PredicateSecurityTest {
     db.close();
     this.db =
         (DatabaseSessionInternal)
-            orient.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
+            youTrackDB.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
     Entity elem =
         db.computeInTx(
@@ -504,7 +504,7 @@ public class PredicateSecurityTest {
     db.close();
     this.db =
         (DatabaseSessionInternal)
-            orient.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
+            youTrackDB.open(DB_NAME, "writer", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "writer"
 
     db.executeInTx(
         () -> {
@@ -570,7 +570,7 @@ public class PredicateSecurityTest {
     db.close();
     this.db =
         (DatabaseSessionInternal)
-            orient.open(DB_NAME, "reader", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
+            youTrackDB.open(DB_NAME, "reader", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
     ResultSet rs = db.query("select count(*) as count from Person");
     Assert.assertEquals(1L, (long) rs.next().getProperty("count"));
     rs.close();
@@ -609,7 +609,7 @@ public class PredicateSecurityTest {
     db.close();
     this.db =
         (DatabaseSessionInternal)
-            orient.open(DB_NAME, "reader", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
+            youTrackDB.open(DB_NAME, "reader", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
     ResultSet rs = db.query("select count(*) as count from Person where name = 'bar'");
     Assert.assertEquals(0L, (long) rs.next().getProperty("count"));
     rs.close();
@@ -652,7 +652,7 @@ public class PredicateSecurityTest {
     db.close();
     this.db =
         (DatabaseSessionInternal)
-            orient.open(DB_NAME, "reader", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
+            youTrackDB.open(DB_NAME, "reader", CreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
 
     Index index = db.getMetadata().getIndexManager().getIndex("Person.name");
 

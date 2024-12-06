@@ -60,10 +60,9 @@ public class SQLMethodConvert extends AbstractSQLMethod {
         LogManager.instance().error(this, "Class for destination type was not found", e);
       }
     } else {
-      final PropertyType orientType = PropertyType.valueOf(destType.toUpperCase(Locale.ENGLISH));
-      if (orientType != null) {
-        return PropertyType.convert(db, iThis, orientType.getDefaultJavaType());
-      }
+      final PropertyType youTrackDbType = PropertyType.valueOf(
+          destType.toUpperCase(Locale.ENGLISH));
+      return PropertyType.convert(db, iThis, youTrackDbType.getDefaultJavaType());
     }
 
     return null;

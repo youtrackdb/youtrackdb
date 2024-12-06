@@ -14,7 +14,7 @@ public class YouTrackDBConstants {
   static {
     try (final InputStream inputStream =
         YouTrackDBConstants.class.getResourceAsStream(
-            "/com/jetbrains/youtrack/db/orientdb.properties")) {
+            "/com/jetbrains/youtrack/db/youtrackdb.properties")) {
       if (inputStream != null) {
         properties.load(inputStream);
       }
