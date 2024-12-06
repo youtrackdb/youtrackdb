@@ -19,17 +19,25 @@
  */
 package com.orientechnologies.orient.server.network.protocol.binary;
 
+import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
+import com.jetbrains.youtrack.db.internal.client.remote.BinaryRequest;
+import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
+import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryProtocolHelper;
+import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushRequest;
+import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushResponse;
+import com.jetbrains.youtrack.db.internal.client.remote.message.Error37Response;
+import com.jetbrains.youtrack.db.internal.client.remote.message.ErrorResponse;
 import com.jetbrains.youtrack.db.internal.common.concur.OfflineNodeException;
-import com.jetbrains.youtrack.db.internal.common.concur.lock.ThreadInterruptedException;
 import com.jetbrains.youtrack.db.internal.common.concur.lock.LockException;
+import com.jetbrains.youtrack.db.internal.common.concur.lock.ThreadInterruptedException;
 import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.exception.ErrorCode;
 import com.jetbrains.youtrack.db.internal.common.exception.InvalidBinaryChunkException;
 import com.jetbrains.youtrack.db.internal.common.io.YTIOException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
@@ -39,8 +47,8 @@ import com.jetbrains.youtrack.db.internal.core.exception.SecurityAccessException
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
@@ -48,28 +56,20 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.S
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerSchemaAware2CSV;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinary;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinaryServer;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.NetworkProtocolException;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinary;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinaryServer;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.TokenSecurityException;
-import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
-import com.orientechnologies.orient.client.remote.OBinaryRequest;
-import com.orientechnologies.orient.client.remote.OBinaryResponse;
-import com.orientechnologies.orient.client.remote.message.OBinaryProtocolHelper;
-import com.orientechnologies.orient.client.remote.message.OBinaryPushRequest;
-import com.orientechnologies.orient.client.remote.message.OBinaryPushResponse;
-import com.orientechnologies.orient.client.remote.message.OError37Response;
-import com.orientechnologies.orient.client.remote.message.OErrorResponse;
+import com.orientechnologies.orient.server.ConnectionBinaryExecutor;
 import com.orientechnologies.orient.server.OClientConnection;
-import com.orientechnologies.orient.server.OConnectionBinaryExecutor;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerAware;
+import com.orientechnologies.orient.server.distributed.DistributedException;
 import com.orientechnologies.orient.server.distributed.ODistributedDatabase;
 import com.orientechnologies.orient.server.distributed.ODistributedRequest;
 import com.orientechnologies.orient.server.distributed.ODistributedResponse;
 import com.orientechnologies.orient.server.distributed.ODistributedServerManager;
-import com.orientechnologies.orient.server.distributed.DistributedException;
 import com.orientechnologies.orient.server.network.OServerNetworkListener;
 import com.orientechnologies.orient.server.network.protocol.NetworkProtocol;
 import com.orientechnologies.orient.server.plugin.OServerPluginHelper;
@@ -99,11 +99,11 @@ public class NetworkProtocolBinary extends NetworkProtocol {
   private boolean tokenConnection = true;
   private long requests = 0;
   private HandshakeInfo handshakeInfo;
-  private volatile OBinaryPushResponse expectedPushResponse;
-  private final BlockingQueue<OBinaryPushResponse> pushResponse =
-      new SynchronousQueue<OBinaryPushResponse>();
+  private volatile BinaryPushResponse expectedPushResponse;
+  private final BlockingQueue<BinaryPushResponse> pushResponse =
+      new SynchronousQueue<BinaryPushResponse>();
 
-  private Function<Integer, OBinaryRequest<? extends OBinaryResponse>> factory =
+  private Function<Integer, BinaryRequest<? extends BinaryResponse>> factory =
       ONetworkBinaryProtocolFactory.defaultProtocol();
 
   public NetworkProtocolBinary(OServer server) {
@@ -269,7 +269,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
     String driverVersion = channel.readString();
     byte encoding = channel.readByte();
     byte errorEncoding = channel.readByte();
-    OBinaryProtocolHelper.checkProtocolVersion(this, protocolVersion);
+    BinaryProtocolHelper.checkProtocolVersion(this, protocolVersion);
     this.handshakeInfo =
         new HandshakeInfo(protocolVersion, driverName, driverVersion, encoding, errorEncoding);
     this.factory = ONetworkBinaryProtocolFactory.matchProtocol(protocolVersion);
@@ -300,7 +300,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
     LogManager.instance().debug(this, "Request id:" + clientTxId + " type:" + requestType);
 
     try {
-      OBinaryRequest<? extends OBinaryResponse> request = factory.apply(requestType);
+      BinaryRequest<? extends BinaryResponse> request = factory.apply(requestType);
       if (request != null) {
         Exception exception = null;
 
@@ -351,7 +351,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
           return;
         }
 
-        OBinaryResponse response = null;
+        BinaryResponse response = null;
         if (exception == null) {
           try {
 
@@ -806,7 +806,7 @@ public class NetworkProtocolBinary extends NetworkProtocol {
       } else {
         result = new byte[]{};
       }
-      OBinaryResponse error;
+      BinaryResponse error;
       if (handshakeInfo != null) {
         ErrorCode code;
         if (current instanceof CoreException) {
@@ -817,9 +817,9 @@ public class NetworkProtocolBinary extends NetworkProtocol {
         } else {
           code = ErrorCode.GENERIC_ERROR;
         }
-        error = new OError37Response(code, 0, messages, result);
+        error = new Error37Response(code, 0, messages, result);
       } else {
-        error = new OErrorResponse(messages, result);
+        error = new ErrorResponse(messages, result);
       }
       int protocolVersion = ChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION;
       RecordSerializer serializationImpl = RecordSerializerNetworkFactory.INSTANCE.current();
@@ -1051,11 +1051,11 @@ public class NetworkProtocolBinary extends NetworkProtocol {
   }
 
   @Override
-  public OBinaryRequestExecutor executor(OClientConnection connection) {
-    return new OConnectionBinaryExecutor(connection, server, handshakeInfo);
+  public BinaryRequestExecutor executor(OClientConnection connection) {
+    return new ConnectionBinaryExecutor(connection, server, handshakeInfo);
   }
 
-  public OBinaryPushResponse push(DatabaseSessionInternal session, OBinaryPushRequest request)
+  public BinaryPushResponse push(DatabaseSessionInternal session, BinaryPushRequest request)
       throws IOException {
     expectedPushResponse = request.createResponse();
     channel.acquireWriteLock();

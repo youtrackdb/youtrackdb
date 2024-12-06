@@ -19,15 +19,15 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http;
 
+import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
 import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.orientechnologies.orient.server.OClientConnection;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.network.OServerNetworkListener;
-import com.orientechnologies.orient.server.network.protocol.http.command.post.ServerCommandPostImportDatabase;
 import com.orientechnologies.orient.server.network.protocol.http.command.post.OServerCommandPostUploadSingleFile;
+import com.orientechnologies.orient.server.network.protocol.http.command.post.ServerCommandPostImportDatabase;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -78,7 +78,7 @@ public class NetworkProtocolHttpDb extends NetworkProtocolHttpAbstract {
   }
 
   @Override
-  public OBinaryRequestExecutor executor(OClientConnection connection) {
+  public BinaryRequestExecutor executor(OClientConnection connection) {
     return null;
   }
 }

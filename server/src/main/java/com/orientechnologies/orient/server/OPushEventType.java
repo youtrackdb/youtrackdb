@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server;
 
+import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushRequest;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.orientechnologies.orient.client.remote.message.OBinaryPushRequest;
 import com.orientechnologies.orient.server.network.protocol.binary.NetworkProtocolBinary;
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
@@ -12,20 +12,20 @@ import java.util.concurrent.ConcurrentMap;
 
 public class OPushEventType {
 
-  private final ConcurrentMap<String, OBinaryPushRequest<?>> databases = new ConcurrentHashMap<>();
+  private final ConcurrentMap<String, BinaryPushRequest<?>> databases = new ConcurrentHashMap<>();
   protected final ConcurrentMap<String, Set<WeakReference<NetworkProtocolBinary>>> listeners =
       new ConcurrentHashMap<>();
 
   public synchronized void send(
-      DatabaseSessionInternal session, String database, OBinaryPushRequest<?> request,
+      DatabaseSessionInternal session, String database, BinaryPushRequest<?> request,
       PushManager pushManager) {
-    OBinaryPushRequest<?> prev = databases.put(database, request);
+    BinaryPushRequest<?> prev = databases.put(database, request);
     if (prev == null) {
       pushManager.genericNotify(session, listeners, database, this);
     }
   }
 
-  public synchronized OBinaryPushRequest<?> getRequest(String database) {
+  public synchronized BinaryPushRequest<?> getRequest(String database) {
     return databases.remove(database);
   }
 

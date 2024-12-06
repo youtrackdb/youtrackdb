@@ -7,7 +7,7 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageOperationResult;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
-import com.orientechnologies.orient.client.remote.OServerAdmin;
+import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import java.util.Arrays;
 import java.util.Map;
@@ -31,16 +31,16 @@ public class RemoteProtocolCommandsTest extends DocumentDBBaseTest {
 
   @Test(enabled = false)
   public void testConnect() throws Exception {
-    final OServerAdmin admin =
-        new OServerAdmin("remote:localhost:" + serverPort)
+    final ServerAdmin admin =
+        new ServerAdmin("remote:localhost:" + serverPort)
             .connect("root", SERVER_PASSWORD);
     admin.close();
   }
 
   @Test
   public void testListDatabasesMemoryDB() throws Exception {
-    final OServerAdmin admin =
-        new OServerAdmin("remote:localhost")
+    final ServerAdmin admin =
+        new ServerAdmin("remote:localhost")
             .connect("root", SERVER_PASSWORD);
     try {
       final Random random = new Random();

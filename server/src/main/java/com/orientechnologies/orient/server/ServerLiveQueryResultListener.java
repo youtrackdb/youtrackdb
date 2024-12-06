@@ -5,8 +5,8 @@ import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.exception.LiveQueryInterruptedException;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
-import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
-import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
+import com.jetbrains.youtrack.db.internal.client.remote.message.LiveQueryPushRequest;
+import com.jetbrains.youtrack.db.internal.client.remote.message.live.LiveQueryResult;
 import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.LiveQueryBatchResultListener;
@@ -26,7 +26,7 @@ class ServerLiveQueryResultListener implements LiveQueryBatchResultListener {
   private final SharedContext sharedContext;
   private int monitorId;
 
-  List<OLiveQueryResult> toSend = new ArrayList<>();
+  List<LiveQueryResult> toSend = new ArrayList<>();
 
   public ServerLiveQueryResultListener(
       NetworkProtocolBinary protocol, SharedContext sharedContext) {
@@ -38,23 +38,23 @@ class ServerLiveQueryResultListener implements LiveQueryBatchResultListener {
     this.monitorId = monitorId;
   }
 
-  private synchronized void addEvent(OLiveQueryResult event) {
+  private synchronized void addEvent(LiveQueryResult event) {
     toSend.add(event);
   }
 
   @Override
   public void onCreate(DatabaseSession database, Result data) {
-    addEvent(new OLiveQueryResult(OLiveQueryResult.CREATE_EVENT, data, null));
+    addEvent(new LiveQueryResult(LiveQueryResult.CREATE_EVENT, data, null));
   }
 
   @Override
   public void onUpdate(DatabaseSession database, Result before, Result after) {
-    addEvent(new OLiveQueryResult(OLiveQueryResult.UPDATE_EVENT, after, before));
+    addEvent(new LiveQueryResult(LiveQueryResult.UPDATE_EVENT, after, before));
   }
 
   @Override
   public void onDelete(DatabaseSession database, Result data) {
-    addEvent(new OLiveQueryResult(OLiveQueryResult.DELETE_EVENT, data, null));
+    addEvent(new LiveQueryResult(LiveQueryResult.DELETE_EVENT, data, null));
   }
 
   @Override
@@ -67,7 +67,7 @@ class ServerLiveQueryResultListener implements LiveQueryBatchResultListener {
         code = ((CoreException) exception).getErrorCode();
       }
       protocol.push((DatabaseSessionInternal) database,
-          new OLiveQueryPushRequest(monitorId, errorIdentifier, code, exception.getMessage()));
+          new LiveQueryPushRequest(monitorId, errorIdentifier, code, exception.getMessage()));
     } catch (IOException e) {
       throw BaseException.wrapException(
           new LiveQueryInterruptedException("Live query interrupted by socket close"), e);
@@ -78,7 +78,7 @@ class ServerLiveQueryResultListener implements LiveQueryBatchResultListener {
   public void onEnd(DatabaseSession database) {
     try {
       protocol.push((DatabaseSessionInternal) database,
-          new OLiveQueryPushRequest(monitorId, OLiveQueryPushRequest.END, Collections.emptyList()));
+          new LiveQueryPushRequest(monitorId, LiveQueryPushRequest.END, Collections.emptyList()));
     } catch (IOException e) {
       throw BaseException.wrapException(
           new LiveQueryInterruptedException("Live query interrupted by socket close"), e);
@@ -94,12 +94,12 @@ class ServerLiveQueryResultListener implements LiveQueryBatchResultListener {
     if (toSend.isEmpty()) {
       return;
     }
-    List<OLiveQueryResult> events = toSend;
+    List<LiveQueryResult> events = toSend;
     toSend = new ArrayList<>();
 
     try {
       protocol.push((DatabaseSessionInternal) database,
-          new OLiveQueryPushRequest(monitorId, OLiveQueryPushRequest.HAS_MORE, events));
+          new LiveQueryPushRequest(monitorId, LiveQueryPushRequest.HAS_MORE, events));
     } catch (IOException e) {
       sharedContext.getLiveQueryOpsV2().getSubscribers().remove(monitorId);
       throw BaseException.wrapException(

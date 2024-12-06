@@ -16,14 +16,14 @@
 
 package com.orientechnologies.orient.test.database.auto;
 
+import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.local.WOWCache;
 import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
-import com.orientechnologies.orient.client.remote.EngineRemote;
-import com.orientechnologies.orient.client.remote.OServerAdmin;
+import com.jetbrains.youtrack.db.internal.client.remote.EngineRemote;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.engine.memory.EngineMemory;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManagerShared;
@@ -71,8 +71,8 @@ public class SBTreeRidBagTest extends ORidBagTest {
         GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.getValueAsInteger();
 
     if (database.isRemote()) {
-      OServerAdmin server =
-          new OServerAdmin(database.getURL())
+      ServerAdmin server =
+          new ServerAdmin(database.getURL())
               .connect("root", SERVER_PASSWORD);
       server.setGlobalConfiguration(
           GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, -1);
@@ -91,8 +91,8 @@ public class SBTreeRidBagTest extends ORidBagTest {
     GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(bottomThreshold);
 
     if (database.isRemote()) {
-      OServerAdmin server =
-          new OServerAdmin(database.getURL())
+      ServerAdmin server =
+          new ServerAdmin(database.getURL())
               .connect("root", SERVER_PASSWORD);
       server.setGlobalConfiguration(
           GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, topThreshold);

@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.client.remote.OServerAdmin;
+import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import java.io.IOException;
 import org.testng.Assert;
@@ -32,7 +32,7 @@ public class OEmbeddedRidBagTest extends ORidBagTest {
     GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(Integer.MAX_VALUE);
 
     if (database.isRemote()) {
-      OServerAdmin server = new OServerAdmin(database.getURL()).connect("root", SERVER_PASSWORD);
+      ServerAdmin server = new ServerAdmin(database.getURL()).connect("root", SERVER_PASSWORD);
       server.setGlobalConfiguration(
           GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, Integer.MAX_VALUE);
       server.setGlobalConfiguration(
@@ -47,7 +47,7 @@ public class OEmbeddedRidBagTest extends ORidBagTest {
     GlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(bottomThreshold);
 
     if (database.isRemote()) {
-      OServerAdmin server = new OServerAdmin(database.getURL()).connect("root", SERVER_PASSWORD);
+      ServerAdmin server = new ServerAdmin(database.getURL()).connect("root", SERVER_PASSWORD);
       server.setGlobalConfiguration(
           GlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, topThreshold);
       server.setGlobalConfiguration(

@@ -11,11 +11,11 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
+import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
+import com.jetbrains.youtrack.db.internal.client.remote.db.document.DatabaseSessionRemote;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.orientechnologies.orient.client.remote.StorageRemote;
-import com.orientechnologies.orient.client.remote.db.document.DatabaseSessionRemote;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;

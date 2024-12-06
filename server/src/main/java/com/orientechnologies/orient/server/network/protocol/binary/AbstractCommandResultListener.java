@@ -19,6 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.binary;
 
+import com.jetbrains.youtrack.db.internal.client.remote.SimpleValueFetchPlanCommandListener;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchContext;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchHelper;
@@ -26,7 +27,6 @@ import com.jetbrains.youtrack.db.internal.core.fetch.FetchListener;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchPlan;
 import com.jetbrains.youtrack.db.internal.core.fetch.remote.RemoteFetchContext;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
-import com.orientechnologies.orient.client.remote.SimpleValueFetchPlanCommandListener;
 
 /**
  * Abstract class to manage command results.

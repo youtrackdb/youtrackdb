@@ -4,9 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.orientechnologies.orient.client.remote.ORemoteConnectionManager;
-import com.orientechnologies.orient.client.remote.RemoteConnectionPool;
-import com.orientechnologies.orient.client.remote.YouTrackDBRemote;
+import com.jetbrains.youtrack.db.internal.client.remote.RemoteConnectionManager;
+import com.jetbrains.youtrack.db.internal.client.remote.RemoteConnectionPool;
+import com.jetbrains.youtrack.db.internal.client.remote.YouTrackDBRemote;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
@@ -58,7 +58,7 @@ public class SocketIdleCleanupIT {
     session.save(session.newVertex("V"));
     Thread.sleep(2000);
     YouTrackDBRemote remote = (YouTrackDBRemote) YouTrackDBInternal.extract(orientdb);
-    ORemoteConnectionManager connectionManager = remote.getConnectionManager();
+    RemoteConnectionManager connectionManager = remote.getConnectionManager();
     RemoteConnectionPool pool =
         connectionManager.getPool(connectionManager.getURLs().iterator().next());
     assertFalse(pool.getPool().getResources().iterator().next().isConnected());

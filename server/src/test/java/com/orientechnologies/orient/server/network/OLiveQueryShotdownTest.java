@@ -2,6 +2,7 @@ package com.orientechnologies.orient.server.network;
 
 import static org.junit.Assert.assertTrue;
 
+import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
 import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
@@ -10,7 +11,6 @@ import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.sql.query.LiveQuery;
 import com.jetbrains.youtrack.db.internal.core.sql.query.LiveResultListener;
-import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.util.concurrent.CountDownLatch;
@@ -26,7 +26,7 @@ public class OLiveQueryShotdownTest {
     server.startup(getClass().getResourceAsStream("orientdb-server-config.xml"));
     server.activate();
 
-    OServerAdmin server = new OServerAdmin("remote:localhost");
+    ServerAdmin server = new ServerAdmin("remote:localhost");
     server.connect("root", "root");
     server.createDatabase(OLiveQueryShotdownTest.class.getSimpleName(), "graph", "memory");
   }

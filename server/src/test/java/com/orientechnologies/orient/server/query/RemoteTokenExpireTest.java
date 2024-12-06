@@ -8,7 +8,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabasePool;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.TokenSecurityException;
-import com.orientechnologies.orient.client.remote.StorageRemote;
+import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;

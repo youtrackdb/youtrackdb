@@ -2,6 +2,7 @@ package com.orientechnologies.orient.server.network;
 
 import static org.junit.Assert.assertEquals;
 
+import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseSessionAbstract;
@@ -11,7 +12,6 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerBinary;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerSchemaAware2CSV;
-import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
@@ -65,13 +65,13 @@ public class TestNetworkSerializerIndipendency {
   }
 
   private void dropDatabase() throws IOException {
-    OServerAdmin admin = new OServerAdmin("remote:localhost/test");
+    ServerAdmin admin = new ServerAdmin("remote:localhost/test");
     admin.connect("root", "root");
     admin.dropDatabase("plocal");
   }
 
   private void createDatabase() throws IOException {
-    OServerAdmin admin = new OServerAdmin("remote:localhost/test");
+    ServerAdmin admin = new ServerAdmin("remote:localhost/test");
     admin.connect("root", "root");
     admin.createDatabase("document", "plocal");
   }

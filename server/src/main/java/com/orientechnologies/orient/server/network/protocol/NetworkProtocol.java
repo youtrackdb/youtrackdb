@@ -19,10 +19,10 @@
  */
 package com.orientechnologies.orient.server.network.protocol;
 
+import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
 import com.jetbrains.youtrack.db.internal.common.thread.SoftThread;
-import com.jetbrains.youtrack.db.internal.enterprise.channel.SocketChannel;
-import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.internal.enterprise.channel.SocketChannel;
 import com.orientechnologies.orient.server.OClientConnection;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.network.OServerNetworkListener;
@@ -63,5 +63,5 @@ public abstract class NetworkProtocol extends SoftThread {
     return server;
   }
 
-  public abstract OBinaryRequestExecutor executor(OClientConnection connection);
+  public abstract BinaryRequestExecutor executor(OClientConnection connection);
 }

@@ -19,12 +19,12 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
+import com.jetbrains.youtrack.db.internal.client.binary.SocketChannelBinarySynchClient;
+import com.jetbrains.youtrack.db.internal.client.remote.message.DistributedConnectRequest;
+import com.jetbrains.youtrack.db.internal.client.remote.message.DistributedConnectResponse;
 import com.jetbrains.youtrack.db.internal.common.thread.ThreadPoolExecutors;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.orientechnologies.orient.client.binary.SocketChannelBinarySynchClient;
-import com.orientechnologies.orient.client.remote.message.ODistributedConnectRequest;
-import com.orientechnologies.orient.client.remote.message.ODistributedConnectResponse;
 import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.binary.BinaryTokenSerializer;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
@@ -201,13 +201,13 @@ public class ORemoteServerChannel {
     networkOperation(
         ChannelBinaryProtocol.DISTRIBUTED_CONNECT,
         () -> {
-          ODistributedConnectRequest request =
-              new ODistributedConnectRequest(protocolVersion, userName, userPassword);
+          DistributedConnectRequest request =
+              new DistributedConnectRequest(protocolVersion, userName, userPassword);
           request.write(null, channel, null);
           channel.flush();
 
           channel.beginResponse(true);
-          ODistributedConnectResponse response = request.createResponse();
+          DistributedConnectResponse response = request.createResponse();
           response.read(null, channel, null);
           sessionId = response.getSessionId();
           if (response.getToken() != null) {

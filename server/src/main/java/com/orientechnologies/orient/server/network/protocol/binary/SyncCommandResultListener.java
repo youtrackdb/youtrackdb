@@ -20,7 +20,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.orientechnologies.orient.client.remote.OFetchPlanResults;
+import com.jetbrains.youtrack.db.internal.client.remote.FetchPlanResults;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.FetchException;
@@ -36,7 +36,7 @@ import java.util.Set;
  * Synchronous command result manager.
  */
 public class SyncCommandResultListener extends AbstractCommandResultListener
-    implements OFetchPlanResults {
+    implements FetchPlanResults {
 
   private final Set<Record> fetchedRecordsToSend = new HashSet<Record>();
   private final Set<Record> alreadySent = new HashSet<Record>();

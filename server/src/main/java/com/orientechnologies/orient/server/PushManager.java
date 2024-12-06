@@ -8,14 +8,14 @@ import com.jetbrains.youtrack.db.internal.core.db.MetadataUpdateListener;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
-import com.orientechnologies.orient.client.remote.message.OBinaryPushRequest;
-import com.orientechnologies.orient.client.remote.message.OBinaryPushResponse;
-import com.orientechnologies.orient.client.remote.message.OPushDistributedConfigurationRequest;
-import com.orientechnologies.orient.client.remote.message.OPushFunctionsRequest;
-import com.orientechnologies.orient.client.remote.message.OPushIndexManagerRequest;
-import com.orientechnologies.orient.client.remote.message.OPushSchemaRequest;
-import com.orientechnologies.orient.client.remote.message.OPushSequencesRequest;
-import com.orientechnologies.orient.client.remote.message.OPushStorageConfigurationRequest;
+import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushRequest;
+import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushResponse;
+import com.jetbrains.youtrack.db.internal.client.remote.message.PushDistributedConfigurationRequest;
+import com.jetbrains.youtrack.db.internal.client.remote.message.PushFunctionsRequest;
+import com.jetbrains.youtrack.db.internal.client.remote.message.PushIndexManagerRequest;
+import com.jetbrains.youtrack.db.internal.client.remote.message.PushSchemaRequest;
+import com.jetbrains.youtrack.db.internal.client.remote.message.PushSequencesRequest;
+import com.jetbrains.youtrack.db.internal.client.remote.message.PushStorageConfigurationRequest;
 import com.orientechnologies.orient.server.network.protocol.binary.NetworkProtocolBinary;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -53,10 +53,10 @@ public class PushManager implements MetadataUpdateListener {
       NetworkProtocolBinary protocolBinary = ref.get();
       if (protocolBinary != null) {
         // TODO Filter by database, push just list of active server for a specific database
-        OPushDistributedConfigurationRequest request =
-            new OPushDistributedConfigurationRequest(hosts);
+        PushDistributedConfigurationRequest request =
+            new PushDistributedConfigurationRequest(hosts);
         try {
-          OBinaryPushResponse response = protocolBinary.push(database, request);
+          BinaryPushResponse response = protocolBinary.push(database, request);
         } catch (IOException e) {
           iter.remove();
         }
@@ -138,7 +138,7 @@ public class PushManager implements MetadataUpdateListener {
       SchemaShared schema) {
     var document = schema.toNetworkStream();
     document.setup(null);
-    OPushSchemaRequest request = new OPushSchemaRequest(document);
+    PushSchemaRequest request = new PushSchemaRequest(document);
     this.schema.send(session, database, request, this);
   }
 
@@ -147,26 +147,26 @@ public class PushManager implements MetadataUpdateListener {
       IndexManagerAbstract indexManager) {
     var document = ((IndexManagerShared) indexManager).toNetworkStream(session);
     document.setup(null);
-    OPushIndexManagerRequest request = new OPushIndexManagerRequest(document);
+    PushIndexManagerRequest request = new PushIndexManagerRequest(document);
     this.indexManager.send(session, database, request, this);
   }
 
   @Override
   public void onFunctionLibraryUpdate(DatabaseSessionInternal session, String database) {
-    OPushFunctionsRequest request = new OPushFunctionsRequest();
+    PushFunctionsRequest request = new PushFunctionsRequest();
     this.functions.send(session, database, request, this);
   }
 
   @Override
   public void onSequenceLibraryUpdate(DatabaseSessionInternal session, String database) {
-    OPushSequencesRequest request = new OPushSequencesRequest();
+    PushSequencesRequest request = new PushSequencesRequest();
     this.sequences.send(session, database, request, this);
   }
 
   @Override
   public void onStorageConfigurationUpdate(String database,
       StorageConfiguration update) {
-    OPushStorageConfigurationRequest request = new OPushStorageConfigurationRequest(update);
+    PushStorageConfigurationRequest request = new PushStorageConfigurationRequest(update);
     storageConfigurations.send(null, database, request, this);
   }
 
@@ -197,7 +197,7 @@ public class PushManager implements MetadataUpdateListener {
                 NetworkProtocolBinary protocolBinary = ref.get();
                 if (protocolBinary != null) {
                   try {
-                    OBinaryPushRequest<?> request = pack.getRequest(database);
+                    BinaryPushRequest<?> request = pack.getRequest(database);
                     if (request != null) {
                       if (sessionCopy != null) {
                         sessionCopy.activateOnCurrentThread();

@@ -19,18 +19,18 @@
  */
 package com.orientechnologies.orient.server;
 
+import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
 import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.exception.SystemException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.document.QueryDatabaseState;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.security.ParsedToken;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.SocketChannelBinary;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.TokenSecurityException;
-import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.server.network.protocol.NetworkProtocol;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
 import com.orientechnologies.orient.server.network.protocol.binary.NetworkProtocolBinary;
@@ -65,7 +65,7 @@ public class OClientConnection {
   private byte[] tokenBytes;
   private ParsedToken token;
   private boolean disconnectOnAfter;
-  private final OBinaryRequestExecutor executor;
+  private final BinaryRequestExecutor executor;
 
   public OClientConnection(final int id, final NetworkProtocol protocol) {
     this.id = id;
@@ -399,7 +399,7 @@ public class OClientConnection {
     return disconnectOnAfter;
   }
 
-  public OBinaryRequestExecutor getExecutor() {
+  public BinaryRequestExecutor getExecutor() {
     return executor;
   }
 

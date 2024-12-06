@@ -21,6 +21,11 @@ package com.orientechnologies.orient.console;
 
 import static com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration.WARNING_DEFAULT_USERS;
 
+import com.jetbrains.youtrack.db.internal.client.remote.DatabaseImportRemote;
+import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
+import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
+import com.jetbrains.youtrack.db.internal.client.remote.YouTrackDBRemote;
+import com.jetbrains.youtrack.db.internal.client.remote.db.document.DatabaseSessionRemote;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.console.ConsoleApplication;
 import com.jetbrains.youtrack.db.internal.common.console.ConsoleProperties;
@@ -32,8 +37,8 @@ import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.io.YTIOException;
 import com.jetbrains.youtrack.db.internal.common.listener.ProgressListener;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.SignalHandler;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
@@ -42,29 +47,29 @@ import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.StorageEntryConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.tool.BonsaiTreeRepair;
-import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseRepair;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseCompare;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseExport;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseExportException;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImport;
-import com.jetbrains.youtrack.db.internal.core.db.tool.GraphRepair;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImportException;
+import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseRepair;
+import com.jetbrains.youtrack.db.internal.core.db.tool.GraphRepair;
 import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
-import com.jetbrains.youtrack.db.internal.core.exception.RetryQueryException;
 import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.RetryQueryException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.iterator.IdentifiableIterator;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
@@ -87,11 +92,6 @@ import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.util.DatabaseURLConnection;
 import com.jetbrains.youtrack.db.internal.core.util.URLHelper;
-import com.orientechnologies.orient.client.remote.DatabaseImportRemote;
-import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.orient.client.remote.StorageRemote;
-import com.orientechnologies.orient.client.remote.YouTrackDBRemote;
-import com.orientechnologies.orient.client.remote.db.document.DatabaseSessionRemote;
 import com.orientechnologies.orient.server.config.OServerConfigurationManager;
 import com.orientechnologies.orient.server.config.ServerUserConfiguration;
 import java.io.BufferedReader;
@@ -947,7 +947,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
         storageType = "plocal";
       }
 
-      new OServerAdmin(currentDatabase.getURL())
+      new ServerAdmin(currentDatabase.getURL())
           .connect(currentDatabaseUserName, currentDatabaseUserPassword)
           .freezeDatabase(storageType);
     } else {
@@ -977,7 +977,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
         storageType = "plocal";
       }
 
-      new OServerAdmin(currentDatabase.getURL())
+      new ServerAdmin(currentDatabase.getURL())
           .connect(currentDatabaseUserName, currentDatabaseUserPassword)
           .releaseDatabase(storageType);
     } else {

@@ -11,7 +11,7 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
-import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
+import com.jetbrains.youtrack.db.internal.client.remote.message.tx.RecordOperationRequest;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
@@ -38,13 +38,13 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
     super(database, txId);
   }
 
-  public void mergeReceivedTransaction(List<ORecordOperationRequest> operations) {
+  public void mergeReceivedTransaction(List<RecordOperationRequest> operations) {
     if (operations == null) {
       return;
     }
 
     // SORT OPERATIONS BY TYPE TO BE SURE THAT CREATES ARE PROCESSED FIRST
-    operations.sort(Comparator.comparingInt(ORecordOperationRequest::getType).reversed());
+    operations.sort(Comparator.comparingInt(RecordOperationRequest::getType).reversed());
 
     final HashMap<RID, RecordOperation> tempEntries = new LinkedHashMap<>();
     final HashMap<RID, RecordOperation> createdRecords = new HashMap<>();
@@ -52,7 +52,7 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
 
     try {
       List<RecordOperation> toMergeUpdates = new ArrayList<>();
-      for (ORecordOperationRequest operation : operations) {
+      for (RecordOperationRequest operation : operations) {
         final byte recordStatus = operation.getType();
 
         final RecordId rid = (RecordId) operation.getId();

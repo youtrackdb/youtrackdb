@@ -5,10 +5,10 @@ import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.orientechnologies.orient.client.remote.ORemotePushHandler;
-import com.orientechnologies.orient.client.remote.OStorageRemotePushThread;
-import com.orientechnologies.orient.client.remote.message.OBinaryPushRequest;
-import com.orientechnologies.orient.client.remote.message.OBinaryPushResponse;
+import com.jetbrains.youtrack.db.internal.client.remote.RemotePushHandler;
+import com.jetbrains.youtrack.db.internal.client.remote.StorageRemotePushThread;
+import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushRequest;
+import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushResponse;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
 import com.orientechnologies.orient.server.OServer;
@@ -29,7 +29,7 @@ import org.mockito.MockitoAnnotations;
  */
 public class PushMessageUnitTest {
 
-  public class MockPushResponse implements OBinaryPushResponse {
+  public class MockPushResponse implements BinaryPushResponse {
 
     @Override
     public void write(ChannelDataOutput network) throws IOException {
@@ -41,7 +41,7 @@ public class PushMessageUnitTest {
     }
   }
 
-  public class MockPushRequest implements OBinaryPushRequest<OBinaryPushResponse> {
+  public class MockPushRequest implements BinaryPushRequest<BinaryPushResponse> {
 
     @Override
     public void write(DatabaseSessionInternal session, ChannelDataOutput channel)
@@ -59,19 +59,19 @@ public class PushMessageUnitTest {
     }
 
     @Override
-    public OBinaryPushResponse execute(DatabaseSessionInternal session,
-        ORemotePushHandler remote) {
+    public BinaryPushResponse execute(DatabaseSessionInternal session,
+        RemotePushHandler remote) {
       executed.countDown();
       return new MockPushResponse();
     }
 
     @Override
-    public OBinaryPushResponse createResponse() {
+    public BinaryPushResponse createResponse() {
       return new MockPushResponse();
     }
   }
 
-  public class MockPushRequestNoResponse implements OBinaryPushRequest<OBinaryPushResponse> {
+  public class MockPushRequestNoResponse implements BinaryPushRequest<BinaryPushResponse> {
 
     @Override
     public void write(DatabaseSessionInternal session, ChannelDataOutput channel)
@@ -89,14 +89,14 @@ public class PushMessageUnitTest {
     }
 
     @Override
-    public OBinaryPushResponse execute(DatabaseSessionInternal session,
-        ORemotePushHandler remote) {
+    public BinaryPushResponse execute(DatabaseSessionInternal session,
+        RemotePushHandler remote) {
       executed.countDown();
       return null;
     }
 
     @Override
-    public OBinaryPushResponse createResponse() {
+    public BinaryPushResponse createResponse() {
       return null;
     }
   }
@@ -110,7 +110,7 @@ public class PushMessageUnitTest {
   private OServer server;
 
   @Mock
-  private ORemotePushHandler remote;
+  private RemotePushHandler remote;
 
   @Before
   public void before() throws IOException {
@@ -145,7 +145,7 @@ public class PushMessageUnitTest {
         .start();
     binary.start();
     assertTrue(requestWritten.await(10, TimeUnit.SECONDS));
-    OStorageRemotePushThread pushThread = new OStorageRemotePushThread(remote, "none", 10, 1000);
+    StorageRemotePushThread pushThread = new StorageRemotePushThread(remote, "none", 10, 1000);
     pushThread.start();
 
     assertTrue(executed.await(10, TimeUnit.SECONDS));
@@ -171,7 +171,7 @@ public class PushMessageUnitTest {
     thread.start();
     binary.start();
     assertTrue(requestWritten.await(10, TimeUnit.SECONDS));
-    OStorageRemotePushThread pushThread = new OStorageRemotePushThread(remote, "none", 10, 1000);
+    StorageRemotePushThread pushThread = new StorageRemotePushThread(remote, "none", 10, 1000);
     pushThread.start();
 
     assertTrue(executed.await(10, TimeUnit.SECONDS));

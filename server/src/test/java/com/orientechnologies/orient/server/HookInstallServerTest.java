@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.server;
 
+import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.hook.DocumentHookAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.server.config.OServerConfigurationManager;
 import com.orientechnologies.orient.server.config.OServerHookConfiguration;
 import java.io.File;
@@ -75,7 +75,7 @@ public class HookInstallServerTest {
     server.startup(ret.getConfiguration());
     server.activate();
 
-    OServerAdmin admin = new OServerAdmin("remote:localhost");
+    ServerAdmin admin = new ServerAdmin("remote:localhost");
     admin.connect("root", "root");
     admin.createDatabase("test", "nothign", "memory");
     admin.close();
@@ -83,7 +83,7 @@ public class HookInstallServerTest {
 
   @After
   public void after() throws IOException {
-    OServerAdmin admin = new OServerAdmin("remote:localhost");
+    ServerAdmin admin = new ServerAdmin("remote:localhost");
     admin.connect("root", "root");
     admin.dropDatabase("test", "memory");
     admin.close();

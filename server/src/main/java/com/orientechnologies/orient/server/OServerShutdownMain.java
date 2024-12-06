@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.server;
 
+import com.jetbrains.youtrack.db.internal.client.binary.SocketChannelBinaryAsynchClient;
+import com.jetbrains.youtrack.db.internal.client.remote.message.ShutdownRequest;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.orientechnologies.orient.client.binary.SocketChannelBinaryAsynchClient;
-import com.orientechnologies.orient.client.remote.message.OShutdownRequest;
 import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.NetworkProtocolException;
@@ -81,7 +81,7 @@ public class OServerShutdownMain {
               + Arrays.toString(networkPort));
     }
 
-    OShutdownRequest request = new OShutdownRequest(rootUser, rootPassword);
+    ShutdownRequest request = new ShutdownRequest(rootUser, rootPassword);
     channel.writeByte(request.getCommand());
     channel.writeInt(0);
     channel.writeBytes(null);
