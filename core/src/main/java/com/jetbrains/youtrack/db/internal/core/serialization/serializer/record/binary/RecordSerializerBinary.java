@@ -37,11 +37,11 @@ public class RecordSerializerBinary implements RecordSerializer {
   public static final RecordSerializerBinary INSTANCE = new RecordSerializerBinary();
   private static final byte CURRENT_RECORD_VERSION = 1;
 
-  private DocumentSerializer[] serializerByVersion;
+  private EntitySerializer[] serializerByVersion;
   private final byte currentSerializerVersion;
 
   private void init() {
-    serializerByVersion = new DocumentSerializer[2];
+    serializerByVersion = new EntitySerializer[2];
     serializerByVersion[0] = new RecordSerializerBinaryV0();
     serializerByVersion[1] = new RecordSerializerBinaryV1();
   }
@@ -70,11 +70,11 @@ public class RecordSerializerBinary implements RecordSerializer {
     return currentSerializerVersion;
   }
 
-  public DocumentSerializer getSerializer(final int iVersion) {
+  public EntitySerializer getSerializer(final int iVersion) {
     return serializerByVersion[iVersion];
   }
 
-  public DocumentSerializer getCurrentSerializer() {
+  public EntitySerializer getCurrentSerializer() {
     return serializerByVersion[currentSerializerVersion];
   }
 
@@ -175,7 +175,7 @@ public class RecordSerializerBinary implements RecordSerializer {
   }
 
   public Result getBinaryResult(DatabaseSessionInternal db, byte[] bytes, RecordId id) {
-    DocumentSerializer serializer = getSerializer(bytes[0]);
+    EntitySerializer serializer = getSerializer(bytes[0]);
     return new ResultBinary(db, bytes, 1, bytes.length, serializer, id);
   }
 }

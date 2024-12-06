@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

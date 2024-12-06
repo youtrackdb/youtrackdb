@@ -36,5 +36,5 @@ public interface RecordListener {
     IDENTITY_CHANGED
   }
 
-  void onEvent(Record iDocument, EVENT iEvent);
+  void onEvent(Record record, EVENT iEvent);
 }

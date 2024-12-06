@@ -29,30 +29,30 @@ import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
-import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMultiValue;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMultiValue;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.exception.ValidationException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityEntry;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImplEmbedded;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.DocumentSerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.BonsaiBucketPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.Change;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.ChangeSerializationHelper;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.io.Serializable;
@@ -85,26 +85,26 @@ public class DocumentSerializerDelta {
   protected DocumentSerializerDelta() {
   }
 
-  public byte[] serialize(EntityImpl document) {
+  public byte[] serialize(EntityImpl entity) {
     BytesContainer bytes = new BytesContainer();
-    serialize(document, bytes);
+    serialize(entity, bytes);
     return bytes.fitBytes();
   }
 
-  public byte[] serializeDelta(EntityImpl document) {
+  public byte[] serializeDelta(EntityImpl entity) {
     BytesContainer bytes = new BytesContainer();
-    serializeDelta(bytes, document);
+    serializeDelta(bytes, entity);
     return bytes.fitBytes();
   }
 
-  protected SchemaClass serializeClass(final EntityImpl document, final BytesContainer bytes) {
-    final SchemaClass clazz = DocumentInternal.getImmutableSchemaClass(document);
+  protected SchemaClass serializeClass(final EntityImpl entity, final BytesContainer bytes) {
+    final SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
     String name = null;
     if (clazz != null) {
       name = clazz.getName();
     }
     if (name == null) {
-      name = document.getClassName();
+      name = entity.getClassName();
     }
 
     if (name != null) {
@@ -119,14 +119,14 @@ public class DocumentSerializerDelta {
     return VarIntSerializer.write(bytes, 0);
   }
 
-  private void serialize(final EntityImpl document, final BytesContainer bytes) {
-    serializeClass(document, bytes);
-    SchemaClass oClass = DocumentInternal.getImmutableSchemaClass(document);
-    final Set<Map.Entry<String, EntityEntry>> fields = DocumentInternal.rawEntries(document);
-    VarIntSerializer.write(bytes, document.fields());
+  private void serialize(final EntityImpl entity, final BytesContainer bytes) {
+    serializeClass(entity, bytes);
+    SchemaClass oClass = EntityInternalUtils.getImmutableSchemaClass(entity);
+    final Set<Map.Entry<String, EntityEntry>> fields = EntityInternalUtils.rawEntries(entity);
+    VarIntSerializer.write(bytes, entity.fields());
     for (Map.Entry<String, EntityEntry> entry : fields) {
-      EntityEntry docEntry = entry.getValue();
-      if (!docEntry.exists()) {
+      EntityEntry entityEntry = entry.getValue();
+      if (!entityEntry.exists()) {
         continue;
       }
       writeString(bytes, entry.getKey());
@@ -152,11 +152,11 @@ public class DocumentSerializerDelta {
     deserialize(session, toFill, bytesContainer);
   }
 
-  private void deserialize(DatabaseSessionInternal session, final EntityImpl document,
+  private void deserialize(DatabaseSessionInternal session, final EntityImpl entity,
       final BytesContainer bytes) {
     final String className = readString(bytes);
     if (!className.isEmpty()) {
-      DocumentInternal.fillClassNameIfNeeded(document, className);
+      EntityInternalUtils.fillClassNameIfNeeded(entity, className);
     }
 
     String fieldName;
@@ -170,9 +170,9 @@ public class DocumentSerializerDelta {
       if (type == null) {
         value = null;
       } else {
-        value = deserializeValue(session, bytes, type, document);
+        value = deserializeValue(session, bytes, type, entity);
       }
-      document.setPropertyInternal(fieldName, value, type);
+      entity.setPropertyInternal(fieldName, value, type);
     }
   }
 
@@ -186,7 +186,7 @@ public class DocumentSerializerDelta {
       EntityImpl toFill) {
     final String className = readString(bytes);
     if (!className.isEmpty() && toFill != null) {
-      DocumentInternal.fillClassNameIfNeeded(toFill, className);
+      EntityInternalUtils.fillClassNameIfNeeded(toFill, className);
     }
     long count = VarIntSerializer.readAsLong(bytes);
     while (count-- > 0) {
@@ -562,11 +562,11 @@ public class DocumentSerializerDelta {
     }
   }
 
-  public void serializeDelta(BytesContainer bytes, EntityImpl document) {
-    serializeClass(document, bytes);
-    SchemaClass oClass = DocumentInternal.getImmutableSchemaClass(document);
+  public void serializeDelta(BytesContainer bytes, EntityImpl entity) {
+    serializeClass(entity, bytes);
+    SchemaClass oClass = EntityInternalUtils.getImmutableSchemaClass(entity);
     long count =
-        DocumentInternal.rawEntries(document).stream()
+        EntityInternalUtils.rawEntries(entity).stream()
             .filter(
                 (e) -> {
                   EntityEntry entry = e.getValue();
@@ -576,7 +576,7 @@ public class DocumentSerializerDelta {
                       || !entry.isTxExists();
                 })
             .count();
-    Set<Map.Entry<String, EntityEntry>> entries = DocumentInternal.rawEntries(document);
+    Set<Map.Entry<String, EntityEntry>> entries = EntityInternalUtils.rawEntries(entity);
 
     VarIntSerializer.write(bytes, count);
     for (final Map.Entry<String, EntityEntry> entry : entries) {
@@ -1264,7 +1264,7 @@ public class DocumentSerializerDelta {
             throw new RuntimeException(e);
           }
         } else {
-          DocumentInternal.addOwner((EntityImpl) value, owner);
+          EntityInternalUtils.addOwner((EntityImpl) value, owner);
         }
 
         break;

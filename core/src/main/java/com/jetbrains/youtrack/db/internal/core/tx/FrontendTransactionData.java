@@ -4,13 +4,13 @@ import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.DocumentSerializerDelta;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkDistributed;
 import java.io.ByteArrayInputStream;
@@ -96,7 +96,7 @@ public class FrontendTransactionData {
                         }
 
                         ((EntityImpl) record).deserializeFields();
-                        DocumentInternal.clearTransactionTrackData((EntityImpl) record);
+                        EntityInternalUtils.clearTransactionTrackData((EntityImpl) record);
                         DocumentSerializerDelta.instance()
                             .deserializeDelta(database, x.getRecord().get(), (EntityImpl) record);
                         /// Got record with empty deltas, at this level we mark the record dirty

@@ -65,9 +65,9 @@ public class OServerCommandPutIndex extends OServerCommandDocumentAbstract {
           throw new IllegalArgumentException("Index's entry value is null");
         }
 
-        var doc = new EntityImpl();
-        doc.fromJSON(iRequest.getContent());
-        record = doc;
+        var entity = new EntityImpl();
+        entity.fromJSON(iRequest.getContent());
+        record = entity;
       }
 
       final IndexDefinition indexDefinition = index.getDefinition();

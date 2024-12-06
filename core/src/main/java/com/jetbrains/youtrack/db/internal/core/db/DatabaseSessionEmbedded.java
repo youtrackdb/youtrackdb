@@ -18,7 +18,7 @@
  *
  */
 
-package com.jetbrains.youtrack.db.internal.core.db.document;
+package com.jetbrains.youtrack.db.internal.core.db;
 
 import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
@@ -29,51 +29,39 @@ import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.ScriptExecutor;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseLifecycleListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseStats;
-import com.jetbrains.youtrack.db.internal.core.db.HookReplacedRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
-import com.jetbrains.youtrack.db.internal.core.db.SharedContextEmbedded;
-import com.jetbrains.youtrack.db.internal.core.db.LiveQueryMonitor;
-import com.jetbrains.youtrack.db.internal.core.db.LiveQueryResultListener;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.record.ClassTrigger;
-import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.db.viewmanager.ViewManager;
 import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
+import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentModificationException;
 import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
+import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
 import com.jetbrains.youtrack.db.internal.core.exception.SecurityAccessException;
 import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
-import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentModificationException;
-import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
 import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.FunctionLibraryImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaProxy;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaView;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.ImmutableUser;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyAccess;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryptionNone;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.RestrictedAccessHook;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.RestrictedOperation;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyAccess;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryptionNone;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ImmutableUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceAction;
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceLibraryProxy;
@@ -84,22 +72,22 @@ import com.jetbrains.youtrack.db.internal.core.query.live.YTLiveQueryMonitorEmbe
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.jetbrains.youtrack.db.internal.core.schedule.ScheduledEvent;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.LiveQueryListenerImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.InternalResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.LiveQueryListenerImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.LocalResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.LocalResultSetLifecycleDecorator;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.LocalResultSet;
 import com.jetbrains.youtrack.db.internal.core.storage.RecordMetadata;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageInfo;
@@ -931,36 +919,36 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
     RecordHook.RESULT triggerChanged = null;
     boolean changed = false;
-    if (id instanceof EntityImpl doc) {
+    if (id instanceof EntityImpl entity) {
 
-      if (!getSharedContext().getSecurity().canCreate(this, doc)) {
+      if (!getSharedContext().getSecurity().canCreate(this, entity)) {
         throw new SecurityException(
             "Cannot update record "
-                + doc
+                + entity
                 + ": the resource has restricted access due to security policies");
       }
 
-      SchemaImmutableClass clazz = DocumentInternal.getImmutableSchemaClass(this, doc);
+      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
         checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_CREATE, clazz.getName());
         if (clazz.isScheduler()) {
-          getSharedContext().getScheduler().initScheduleRecord(this, doc);
+          getSharedContext().getScheduler().initScheduleRecord(this, entity);
           changed = true;
         }
         if (clazz.isOuser()) {
-          doc.validate();
-          changed = SecurityUserIml.encodePassword(this, doc);
+          entity.validate();
+          changed = SecurityUserIml.encodePassword(this, entity);
         }
         if (clazz.isTriggered()) {
-          triggerChanged = ClassTrigger.onRecordBeforeCreate(doc, this);
+          triggerChanged = ClassTrigger.onRecordBeforeCreate(entity, this);
         }
         if (clazz.isRestricted()) {
-          changed = RestrictedAccessHook.onRecordBeforeCreate(doc, this);
+          changed = RestrictedAccessHook.onRecordBeforeCreate(entity, this);
         }
         if (clazz.isFunction()) {
-          FunctionLibraryImpl.validateFunctionRecord(doc);
+          FunctionLibraryImpl.validateFunctionRecord(entity);
         }
-        DocumentInternal.setPropertyEncryption(doc, PropertyEncryptionNone.instance());
+        EntityInternalUtils.setPropertyEncryption(entity, PropertyEncryptionNone.instance());
       }
     }
 
@@ -991,38 +979,38 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
     RecordHook.RESULT triggerChanged = null;
     boolean changed = false;
-    if (id instanceof EntityImpl doc) {
-      SchemaImmutableClass clazz = DocumentInternal.getImmutableSchemaClass(this, doc);
+    if (id instanceof EntityImpl entity) {
+      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
         if (clazz.isScheduler()) {
-          getSharedContext().getScheduler().preHandleUpdateScheduleInTx(this, doc);
+          getSharedContext().getScheduler().preHandleUpdateScheduleInTx(this, entity);
           changed = true;
         }
         if (clazz.isOuser()) {
-          changed = SecurityUserIml.encodePassword(this, doc);
+          changed = SecurityUserIml.encodePassword(this, entity);
         }
         if (clazz.isTriggered()) {
-          triggerChanged = ClassTrigger.onRecordBeforeUpdate(doc, this);
+          triggerChanged = ClassTrigger.onRecordBeforeUpdate(entity, this);
         }
         if (clazz.isRestricted()) {
           if (!RestrictedAccessHook.isAllowed(
-              this, doc, RestrictedOperation.ALLOW_UPDATE, true)) {
+              this, entity, RestrictedOperation.ALLOW_UPDATE, true)) {
             throw new SecurityException(
                 "Cannot update record "
-                    + doc.getIdentity()
+                    + entity.getIdentity()
                     + ": the resource has restricted access");
           }
         }
         if (clazz.isFunction()) {
-          FunctionLibraryImpl.validateFunctionRecord(doc);
+          FunctionLibraryImpl.validateFunctionRecord(entity);
         }
-        if (!getSharedContext().getSecurity().canUpdate(this, doc)) {
+        if (!getSharedContext().getSecurity().canUpdate(this, entity)) {
           throw new SecurityException(
               "Cannot update record "
-                  + doc.getIdentity()
+                  + entity.getIdentity()
                   + ": the resource has restricted access due to security policies");
         }
-        DocumentInternal.setPropertyEncryption(doc, PropertyEncryptionNone.instance());
+        EntityInternalUtils.setPropertyEncryption(entity, PropertyEncryptionNone.instance());
       }
     }
     RecordHook.RESULT res = callbackHooks(RecordHook.TYPE.BEFORE_UPDATE, id);
@@ -1050,14 +1038,14 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   /**
-   * Deletes a document. Behavior depends by the current running transaction if any. If no
+   * Deletes a entity. Behavior depends by the current running transaction if any. If no
    * transaction is running then the record is deleted immediately. If an Optimistic transaction is
    * running then the record will be deleted at commit time. The current transaction will continue
    * to see the record as deleted, while others not. If a Pessimistic transaction is running, then
    * an exclusive lock is acquired against the record. Current transaction will continue to see the
    * record as deleted, while others cannot access to it since it's locked.
    *
-   * <p>If MVCC is enabled and the version of the document is different by the version stored in
+   * <p>If MVCC is enabled and the version of the entity is different by the version stored in
    * the database, then a {@link ConcurrentModificationException} exception is thrown.
    *
    * @param record record to delete
@@ -1066,7 +1054,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
     checkOpenness();
 
     if (record == null) {
-      throw new DatabaseException("Cannot delete null document");
+      throw new DatabaseException("Cannot delete null entity");
     }
 
     if (record instanceof Entity) {
@@ -1111,25 +1099,25 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   @Override
   public void beforeDeleteOperations(Identifiable id, String iClusterName) {
     checkSecurity(Role.PERMISSION_DELETE, id, iClusterName);
-    if (id instanceof EntityImpl doc) {
-      SchemaImmutableClass clazz = DocumentInternal.getImmutableSchemaClass(this, doc);
+    if (id instanceof EntityImpl entity) {
+      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
         if (clazz.isTriggered()) {
-          ClassTrigger.onRecordBeforeDelete(doc, this);
+          ClassTrigger.onRecordBeforeDelete(entity, this);
         }
         if (clazz.isRestricted()) {
           if (!RestrictedAccessHook.isAllowed(
-              this, doc, RestrictedOperation.ALLOW_DELETE, true)) {
+              this, entity, RestrictedOperation.ALLOW_DELETE, true)) {
             throw new SecurityException(
                 "Cannot delete record "
-                    + doc.getIdentity()
+                    + entity.getIdentity()
                     + ": the resource has restricted access");
           }
         }
-        if (!getSharedContext().getSecurity().canDelete(this, doc)) {
+        if (!getSharedContext().getSecurity().canDelete(this, entity)) {
           throw new SecurityException(
               "Cannot delete record "
-                  + doc.getIdentity()
+                  + entity.getIdentity()
                   + ": the resource has restricted access due to security policies");
         }
       }
@@ -1138,32 +1126,32 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   public void afterCreateOperations(final Identifiable id) {
-    if (id instanceof EntityImpl doc) {
-      final SchemaImmutableClass clazz = DocumentInternal.getImmutableSchemaClass(this, doc);
+    if (id instanceof EntityImpl entity) {
+      final SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
 
       if (clazz != null) {
-        ClassIndexManager.checkIndexesAfterCreate(doc, this);
+        ClassIndexManager.checkIndexesAfterCreate(entity, this);
         if (clazz.isFunction()) {
-          this.getSharedContext().getFunctionLibrary().createdFunction(doc);
+          this.getSharedContext().getFunctionLibrary().createdFunction(entity);
         }
         if (clazz.isOuser() || clazz.isOrole() || clazz.isSecurityPolicy()) {
           sharedContext.getSecurity().incrementVersion(this);
         }
         if (clazz.isTriggered()) {
-          ClassTrigger.onRecordAfterCreate(doc, this);
+          ClassTrigger.onRecordAfterCreate(entity, this);
         }
       }
 
-      LiveQueryHook.addOp(doc, RecordOperation.CREATED, this);
-      LiveQueryHookV2.addOp(this, doc, RecordOperation.CREATED);
+      LiveQueryHook.addOp(entity, RecordOperation.CREATED, this);
+      LiveQueryHookV2.addOp(this, entity, RecordOperation.CREATED);
     }
 
     callbackHooks(RecordHook.TYPE.AFTER_CREATE, id);
   }
 
   public void afterUpdateOperations(final Identifiable id) {
-    if (id instanceof EntityImpl doc) {
-      SchemaImmutableClass clazz = DocumentInternal.getImmutableSchemaClass(this, doc);
+    if (id instanceof EntityImpl entity) {
+      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
         ClassIndexManager.checkIndexesAfterUpdate((EntityImpl) id, this);
 
@@ -1172,7 +1160,7 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
         }
 
         if (clazz.isTriggered()) {
-          ClassTrigger.onRecordAfterUpdate(doc, this);
+          ClassTrigger.onRecordAfterUpdate(entity, this);
         }
 
       }
@@ -1182,40 +1170,40 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
   }
 
   public void afterDeleteOperations(final Identifiable id) {
-    if (id instanceof EntityImpl doc) {
-      SchemaImmutableClass clazz = DocumentInternal.getImmutableSchemaClass(this, doc);
+    if (id instanceof EntityImpl entity) {
+      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
-        ClassIndexManager.checkIndexesAfterDelete(doc, this);
+        ClassIndexManager.checkIndexesAfterDelete(entity, this);
         if (clazz.isFunction()) {
-          this.getSharedContext().getFunctionLibrary().droppedFunction(doc);
+          this.getSharedContext().getFunctionLibrary().droppedFunction(entity);
         }
         if (clazz.isSequence()) {
           ((SequenceLibraryProxy) getMetadata().getSequenceLibrary())
               .getDelegate()
-              .onSequenceDropped(this, doc);
+              .onSequenceDropped(this, entity);
         }
         if (clazz.isScheduler()) {
-          final String eventName = doc.field(ScheduledEvent.PROP_NAME);
+          final String eventName = entity.field(ScheduledEvent.PROP_NAME);
           getSharedContext().getScheduler().removeEventInternal(eventName);
         }
         if (clazz.isTriggered()) {
-          ClassTrigger.onRecordAfterDelete(doc, this);
+          ClassTrigger.onRecordAfterDelete(entity, this);
         }
-        getSharedContext().getViewManager().recordDeleted(clazz, doc, this);
+        getSharedContext().getViewManager().recordDeleted(clazz, entity, this);
       }
-      LiveQueryHook.addOp(doc, RecordOperation.DELETED, this);
-      LiveQueryHookV2.addOp(this, doc, RecordOperation.DELETED);
+      LiveQueryHook.addOp(entity, RecordOperation.DELETED, this);
+      LiveQueryHookV2.addOp(this, entity, RecordOperation.DELETED);
     }
     callbackHooks(RecordHook.TYPE.AFTER_DELETE, id);
   }
 
   @Override
   public void afterReadOperations(Identifiable identifiable) {
-    if (identifiable instanceof EntityImpl doc) {
-      SchemaImmutableClass clazz = DocumentInternal.getImmutableSchemaClass(this, doc);
+    if (identifiable instanceof EntityImpl entity) {
+      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
         if (clazz.isTriggered()) {
-          ClassTrigger.onRecordAfterRead(doc, this);
+          ClassTrigger.onRecordAfterRead(entity, this);
         }
       }
     }
@@ -1224,17 +1212,18 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
 
   @Override
   public boolean beforeReadOperations(Identifiable identifiable) {
-    if (identifiable instanceof EntityImpl doc) {
-      SchemaImmutableClass clazz = DocumentInternal.getImmutableSchemaClass(this, doc);
+    if (identifiable instanceof EntityImpl entity) {
+      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null) {
         if (clazz.isTriggered()) {
-          RecordHook.RESULT val = ClassTrigger.onRecordBeforeRead(doc, this);
+          RecordHook.RESULT val = ClassTrigger.onRecordBeforeRead(entity, this);
           if (val == RecordHook.RESULT.SKIP) {
             return true;
           }
         }
         if (clazz.isRestricted()) {
-          if (!RestrictedAccessHook.isAllowed(this, doc, RestrictedOperation.ALLOW_READ, false)) {
+          if (!RestrictedAccessHook.isAllowed(this, entity, RestrictedOperation.ALLOW_READ,
+              false)) {
             return true;
           }
         }
@@ -1244,13 +1233,13 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
           return true;
         }
 
-        if (!getSharedContext().getSecurity().canRead(this, doc)) {
+        if (!getSharedContext().getSecurity().canRead(this, entity)) {
           return true;
         }
 
-        DocumentInternal.setPropertyAccess(
-            doc, new PropertyAccess(this, doc, getSharedContext().getSecurity()));
-        DocumentInternal.setPropertyEncryption(doc, PropertyEncryptionNone.instance());
+        EntityInternalUtils.setPropertyAccess(
+            entity, new PropertyAccess(this, entity, getSharedContext().getSecurity()));
+        EntityInternalUtils.setPropertyEncryption(entity, PropertyEncryptionNone.instance());
       }
     }
     return callbackHooks(RecordHook.TYPE.BEFORE_READ, identifiable) == RecordHook.RESULT.SKIP;
@@ -1262,37 +1251,37 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       if (operation.type == RecordOperation.CREATED) {
         var record = operation.record;
 
-        if (record instanceof EntityImpl doc) {
-          SchemaImmutableClass clazz = DocumentInternal.getImmutableSchemaClass(this, doc);
+        if (record instanceof EntityImpl entity) {
+          SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
 
           if (clazz != null) {
             if (clazz.isSequence()) {
               ((SequenceLibraryProxy) getMetadata().getSequenceLibrary())
                   .getDelegate()
-                  .onSequenceCreated(this, doc);
+                  .onSequenceCreated(this, entity);
             }
 
             if (clazz.isScheduler()) {
-              getMetadata().getScheduler().scheduleEvent(this, new ScheduledEvent(doc, this));
+              getMetadata().getScheduler().scheduleEvent(this, new ScheduledEvent(entity, this));
             }
           }
         }
       } else if (operation.type == RecordOperation.UPDATED) {
         var record = operation.record;
 
-        if (record instanceof EntityImpl doc) {
-          SchemaImmutableClass clazz = DocumentInternal.getImmutableSchemaClass(this, doc);
+        if (record instanceof EntityImpl entity) {
+          SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
           if (clazz != null) {
             if (clazz.isFunction()) {
-              this.getSharedContext().getFunctionLibrary().updatedFunction(doc);
+              this.getSharedContext().getFunctionLibrary().updatedFunction(entity);
             }
             if (clazz.isScheduler()) {
-              getSharedContext().getScheduler().postHandleUpdateScheduleAfterTxCommit(this, doc);
+              getSharedContext().getScheduler().postHandleUpdateScheduleAfterTxCommit(this, entity);
             }
           }
 
-          LiveQueryHook.addOp(doc, RecordOperation.UPDATED, this);
-          LiveQueryHookV2.addOp(this, doc, RecordOperation.UPDATED);
+          LiveQueryHook.addOp(entity, RecordOperation.UPDATED, this);
+          LiveQueryHookV2.addOp(this, entity, RecordOperation.UPDATED);
         }
       }
     }
@@ -1316,13 +1305,13 @@ public class DatabaseSessionEmbedded extends DatabaseSessionAbstract
       // COMPUTE THE CLUSTER ID
       SchemaClass schemaClass = null;
       if (record instanceof EntityImpl) {
-        schemaClass = DocumentInternal.getImmutableSchemaClass(this, (EntityImpl) record);
+        schemaClass = EntityInternalUtils.getImmutableSchemaClass(this, (EntityImpl) record);
       }
       if (schemaClass != null) {
         // FIND THE RIGHT CLUSTER AS CONFIGURED IN CLASS
         if (schemaClass.isAbstract()) {
           throw new SchemaException(
-              "Document belongs to abstract class '"
+              "Entity belongs to abstract class '"
                   + schemaClass.getName()
                   + "' and cannot be saved");
         }

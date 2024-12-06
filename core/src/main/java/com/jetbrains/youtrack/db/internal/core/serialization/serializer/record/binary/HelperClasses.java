@@ -25,29 +25,29 @@ import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
 import com.jetbrains.youtrack.db.internal.core.db.StringCache;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
-import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMultiValue;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMultiValue;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBagDelegate;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.embedded.EmbeddedRidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
-import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.GlobalProperty;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.RecordSerializationContext;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.BonsaiBucketPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.Change;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.ChangeSerializationHelper;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeRidBag;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
@@ -216,9 +216,9 @@ public class HelperClasses {
     return toCalendar.getTimeInMillis();
   }
 
-  public static GlobalProperty getGlobalProperty(final EntityImpl document, final int len) {
+  public static GlobalProperty getGlobalProperty(final EntityImpl entity, final int len) {
     final int id = (len * -1) - 1;
-    return DocumentInternal.getGlobalPropertyById(document, id);
+    return EntityInternalUtils.getGlobalPropertyById(entity, id);
   }
 
   public static int writeBinary(final BytesContainer bytes, final byte[] valueBytes) {

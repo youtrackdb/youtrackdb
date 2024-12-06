@@ -21,7 +21,7 @@ import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.DocumentSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.EntitySerializer;
 import com.jetbrains.youtrack.db.internal.core.sql.IndexSearchResult;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.IndexReuseType;
@@ -53,7 +53,7 @@ public class LuceneWithinOperator extends QueryTargetOperator {
       Object iLeft,
       Object iRight,
       CommandContext iContext,
-      final DocumentSerializer serializer) {
+      final EntitySerializer serializer) {
     List<Number> left = (List<Number>) iLeft;
 
     double lat = left.get(0).doubleValue();

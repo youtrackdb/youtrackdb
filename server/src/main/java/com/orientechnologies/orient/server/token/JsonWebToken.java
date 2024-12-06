@@ -2,13 +2,13 @@ package com.orientechnologies.orient.server.token;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.JwtPayload;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.TokenHeader;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.jwt.YouTrackDBJwtHeader;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 
 /**
  *
@@ -92,7 +92,7 @@ public class JsonWebToken implements
     RID userRid = payload.getUserRid();
     EntityImpl result;
     result = db.load(userRid);
-    if (!DocumentInternal.getImmutableSchemaClass(result).isOuser()) {
+    if (!EntityInternalUtils.getImmutableSchemaClass(result).isOuser()) {
       result = null;
     }
     return new SecurityUserIml(db, result);

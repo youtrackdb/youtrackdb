@@ -15,19 +15,19 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseSessionAbstract;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerSchemaAware2CSV;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
@@ -499,13 +499,13 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     EntityImpl parent = new EntityImpl();
 
     EntityImpl child1 = new EntityImpl();
-    DocumentInternal.addOwner(child1, parent);
+    EntityInternalUtils.addOwner(child1, parent);
     parent.field("child1", child1);
 
     Assert.assertTrue(child1.hasOwners());
 
     EntityImpl child2 = new EntityImpl();
-    DocumentInternal.addOwner(child2, child1);
+    EntityInternalUtils.addOwner(child2, child1);
     child1.field("child2", child2);
 
     Assert.assertTrue(child2.hasOwners());

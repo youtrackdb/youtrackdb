@@ -84,29 +84,29 @@ public class RuntimeKeyIndexDefinition<T> extends AbstractIndexDefinition {
   }
 
   @Override
-  public @Nonnull EntityImpl toStream(@Nonnull EntityImpl document) {
-    serializeToStream(document);
-    return document;
+  public @Nonnull EntityImpl toStream(@Nonnull EntityImpl entity) {
+    serializeToStream(entity);
+    return entity;
   }
 
   @Override
-  protected void serializeToStream(EntityImpl document) {
-    super.serializeToStream(document);
+  protected void serializeToStream(EntityImpl entity) {
+    super.serializeToStream(entity);
 
-    document.setProperty("keySerializerId", serializer.getId());
-    document.setProperty("collate", collate.getName());
-    document.setProperty("nullValuesIgnored", isNullValuesIgnored());
+    entity.setProperty("keySerializerId", serializer.getId());
+    entity.setProperty("collate", collate.getName());
+    entity.setProperty("nullValuesIgnored", isNullValuesIgnored());
   }
 
-  public void fromStream(@Nonnull EntityImpl document) {
-    serializeFromStream(document);
+  public void fromStream(@Nonnull EntityImpl entity) {
+    serializeFromStream(entity);
   }
 
   @Override
-  protected void serializeFromStream(EntityImpl document) {
-    super.serializeFromStream(document);
+  protected void serializeFromStream(EntityImpl entity) {
+    super.serializeFromStream(entity);
 
-    final byte keySerializerId = ((Number) document.field("keySerializerId")).byteValue();
+    final byte keySerializerId = ((Number) entity.field("keySerializerId")).byteValue();
     //noinspection unchecked
     serializer =
         (BinarySerializer<T>)
@@ -118,11 +118,11 @@ public class RuntimeKeyIndexDefinition<T> extends AbstractIndexDefinition {
               + ". Assure to plug custom serializer into the server.");
     }
 
-    setNullValuesIgnored(!Boolean.FALSE.equals(document.<Boolean>field("nullValuesIgnored")));
+    setNullValuesIgnored(!Boolean.FALSE.equals(entity.<Boolean>field("nullValuesIgnored")));
   }
 
   public Object getDocumentValueToIndex(
-      DatabaseSessionInternal session, final EntityImpl iDocument) {
+      DatabaseSessionInternal session, final EntityImpl entity) {
     throw new IndexException("This method is not supported in given index definition.");
   }
 

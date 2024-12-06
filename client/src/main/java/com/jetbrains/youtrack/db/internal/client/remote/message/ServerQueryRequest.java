@@ -149,10 +149,10 @@ public final class ServerQueryRequest implements BinaryRequest<ServerQueryRespon
   public Map<String, Object> getParams() {
     if (params == null && this.paramsBytes != null) {
       // params
-      EntityImpl paramsDoc = new EntityImpl();
-      paramsDoc.setTrackingChanges(false);
-      serializer.fromStream(null, this.paramsBytes, paramsDoc, null);
-      this.params = paramsDoc.field("params");
+      EntityImpl paramsEntity = new EntityImpl();
+      paramsEntity.setTrackingChanges(false);
+      serializer.fromStream(null, this.paramsBytes, paramsEntity, null);
+      this.params = paramsEntity.field("params");
     }
     return params;
   }

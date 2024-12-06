@@ -115,10 +115,10 @@ public class SQLFunctionMap extends SQLFunctionMultiValueAbstract<Map<Object, Ob
 
   protected Map<Object, Object> prepareResult(final Map<Object, Object> res) {
     if (returnDistributedResult()) {
-      final Map<String, Object> doc = new HashMap<String, Object>();
-      doc.put("node", getDistributedStorageId());
-      doc.put("context", res);
-      return Collections.singletonMap("doc", doc);
+      final Map<String, Object> entity = new HashMap<String, Object>();
+      entity.put("node", getDistributedStorageId());
+      entity.put("context", res);
+      return Collections.singletonMap("entity", entity);
     } else {
       return res;
     }

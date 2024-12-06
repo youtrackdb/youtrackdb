@@ -31,7 +31,7 @@ import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityEntry;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.LiveQueryListenerImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultInternal;
@@ -57,10 +57,10 @@ public class LiveQueryHookV2 {
     public Result before;
     public Result after;
     public byte type;
-    protected EntityImpl originalDoc;
+    protected EntityImpl originalEntity;
 
-    LiveQueryOp(EntityImpl originalDoc, Result before, Result after, byte type) {
-      this.originalDoc = originalDoc;
+    LiveQueryOp(EntityImpl originalEntity, Result before, Result after, byte type) {
+      this.originalEntity = originalEntity;
       this.type = type;
       this.before = before;
       this.after = after;
@@ -203,7 +203,7 @@ public class LiveQueryHookV2 {
     }
   }
 
-  public static void addOp(DatabaseSessionInternal database, EntityImpl iDocument, byte iType) {
+  public static void addOp(DatabaseSessionInternal database, EntityImpl entity, byte iType) {
     LiveQueryOps ops = getOpsReference(database);
     if (!ops.hasListeners()) {
       return;
@@ -216,12 +216,12 @@ public class LiveQueryHookV2 {
 
     Result before =
         iType == RecordOperation.CREATED ? null
-            : calculateBefore(database, iDocument, projectionsToLoad);
+            : calculateBefore(database, entity, projectionsToLoad);
     Result after =
         iType == RecordOperation.DELETED ? null
-            : calculateAfter(database, iDocument, projectionsToLoad);
+            : calculateAfter(database, entity, projectionsToLoad);
 
-    LiveQueryOp result = new LiveQueryOp(iDocument, before, after, iType);
+    LiveQueryOp result = new LiveQueryOp(entity, before, after, iType);
     synchronized (ops.pendingOps) {
       List<LiveQueryOp> list = ops.pendingOps.get(database);
       if (list == null) {
@@ -229,7 +229,7 @@ public class LiveQueryHookV2 {
         ops.pendingOps.put(database, list);
       }
       if (result.type == RecordOperation.UPDATED) {
-        LiveQueryOp prev = prevousUpdate(list, result.originalDoc);
+        LiveQueryOp prev = prevousUpdate(list, result.originalEntity);
         if (prev == null) {
           list.add(result);
         } else {
@@ -270,9 +270,9 @@ public class LiveQueryHookV2 {
     return result;
   }
 
-  private static LiveQueryOp prevousUpdate(List<LiveQueryOp> list, EntityImpl doc) {
+  private static LiveQueryOp prevousUpdate(List<LiveQueryOp> list, EntityImpl entity) {
     for (LiveQueryOp liveQueryOp : list) {
-      if (liveQueryOp.originalDoc == doc) {
+      if (liveQueryOp.originalEntity == entity) {
         return liveQueryOp;
       }
     }
@@ -280,22 +280,22 @@ public class LiveQueryHookV2 {
   }
 
   public static ResultInternal calculateBefore(
-      @Nonnull DatabaseSessionInternal db, EntityImpl iDocument,
+      @Nonnull DatabaseSessionInternal db, EntityImpl entity,
       Set<String> projectionsToLoad) {
     ResultInternal result = new ResultInternal(db);
-    for (String prop : iDocument.getPropertyNamesInternal()) {
+    for (String prop : entity.getPropertyNamesInternal()) {
       if (projectionsToLoad == null || projectionsToLoad.contains(prop)) {
-        result.setProperty(prop, unboxRidbags(iDocument.getPropertyInternal(prop)));
+        result.setProperty(prop, unboxRidbags(entity.getPropertyInternal(prop)));
       }
     }
-    result.setProperty("@rid", iDocument.getIdentity());
-    result.setProperty("@class", iDocument.getClassName());
-    result.setProperty("@version", iDocument.getVersion());
-    for (Map.Entry<String, EntityEntry> rawEntry : DocumentInternal.rawEntries(iDocument)) {
+    result.setProperty("@rid", entity.getIdentity());
+    result.setProperty("@class", entity.getClassName());
+    result.setProperty("@version", entity.getVersion());
+    for (Map.Entry<String, EntityEntry> rawEntry : EntityInternalUtils.rawEntries(entity)) {
       EntityEntry entry = rawEntry.getValue();
       if (entry.isChanged()) {
         result.setProperty(
-            rawEntry.getKey(), convert(iDocument.getOriginalValue(rawEntry.getKey())));
+            rawEntry.getKey(), convert(entity.getOriginalValue(rawEntry.getKey())));
       } else if (entry.isTrackedModified()) {
         if (entry.value instanceof EntityImpl && ((EntityImpl) entry.value).isEmbedded()) {
           result.setProperty(rawEntry.getKey(),
@@ -316,16 +316,16 @@ public class LiveQueryHookV2 {
   }
 
   private static ResultInternal calculateAfter(
-      DatabaseSessionInternal db, EntityImpl iDocument, Set<String> projectionsToLoad) {
+      DatabaseSessionInternal db, EntityImpl entity, Set<String> projectionsToLoad) {
     ResultInternal result = new ResultInternal(db);
-    for (String prop : iDocument.getPropertyNamesInternal()) {
+    for (String prop : entity.getPropertyNamesInternal()) {
       if (projectionsToLoad == null || projectionsToLoad.contains(prop)) {
-        result.setProperty(prop, unboxRidbags(iDocument.getPropertyInternal(prop)));
+        result.setProperty(prop, unboxRidbags(entity.getPropertyInternal(prop)));
       }
     }
-    result.setProperty("@rid", iDocument.getIdentity());
-    result.setProperty("@class", iDocument.getClassName());
-    result.setProperty("@version", iDocument.getVersion() + 1);
+    result.setProperty("@rid", entity.getIdentity());
+    result.setProperty("@class", entity.getClassName());
+    result.setProperty("@version", entity.getVersion() + 1);
     return result;
   }
 

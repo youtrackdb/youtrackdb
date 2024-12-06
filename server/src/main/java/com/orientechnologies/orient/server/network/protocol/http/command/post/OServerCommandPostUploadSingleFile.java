@@ -171,11 +171,11 @@ public class OServerCommandPostUploadSingleFile extends
         if (fileDocument.contains("$file")) {
           fileDocument = fileDocument.replace("$file", fileRID.toString());
         }
-        EntityImpl doc = new EntityImpl();
-        doc.fromJSON(fileDocument);
-        doc.save();
+        EntityImpl entity = new EntityImpl();
+        entity.fromJSON(fileDocument);
+        entity.save();
         writer.beginObject("updatedDocument");
-        writer.writeAttribute(1, true, "rid", doc.getIdentity().toString());
+        writer.writeAttribute(1, true, "rid", entity.getIdentity().toString());
         writer.endObject();
       } else {
         iResponse.send(

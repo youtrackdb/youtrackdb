@@ -81,16 +81,16 @@ public final class SimpleMultiValueTracker<K, V> {
       return;
     }
 
-    final RecordElement document = this.element.get();
-    if (document == null) {
-      // doc not alive anymore, do nothing.
+    final RecordElement entity = this.element.get();
+    if (entity == null) {
+      // entity not alive anymore, do nothing.
       return;
     }
 
     if (changeOwner) {
-      document.setDirty();
+      entity.setDirty();
     } else {
-      document.setDirtyNoChanged();
+      entity.setDirtyNoChanged();
     }
 
     if (timeLine == null) {

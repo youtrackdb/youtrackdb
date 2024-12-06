@@ -90,10 +90,10 @@ public class SQLFunctionAverage extends SQLFunctionMathAbstract {
   @Override
   public Object getResult() {
     if (returnDistributedResult()) {
-      final Map<String, Object> doc = new HashMap<String, Object>();
-      doc.put("sum", sum);
-      doc.put("total", total);
-      return doc;
+      final Map<String, Object> map = new HashMap<String, Object>();
+      map.put("sum", sum);
+      map.put("total", total);
+      return map;
     } else {
       return computeAverage(sum, total);
     }

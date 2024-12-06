@@ -22,9 +22,9 @@ package com.jetbrains.youtrack.db.internal.core.db.record;
 import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import java.util.Comparator;
@@ -81,7 +81,7 @@ public interface Identifiable extends Comparable<Identifiable>, Comparator<Ident
       return element;
     }
 
-    throw new DatabaseException("Record " + getIdentity() + " is not an element.");
+    throw new DatabaseException("Record " + getIdentity() + " is not an entity.");
   }
 
   /**

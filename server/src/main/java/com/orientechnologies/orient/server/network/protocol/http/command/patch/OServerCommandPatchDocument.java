@@ -23,8 +23,8 @@ import com.jetbrains.youtrack.db.internal.common.util.RawPair;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -63,19 +63,19 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
                 }
 
                 // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
-                var doc = new EntityImpl();
-                doc.fromJSON(iRequest.getContent());
+                var entity = new EntityImpl();
+                entity.fromJSON(iRequest.getContent());
 
                 if (iRequest.getIfMatch() != null)
                 // USE THE IF-MATCH HTTP HEADER AS VERSION
                 {
-                  RecordInternal.setVersion(doc, Integer.parseInt(iRequest.getIfMatch()));
+                  RecordInternal.setVersion(entity, Integer.parseInt(iRequest.getIfMatch()));
                 }
 
                 if (!recordId.isValid()) {
-                  recordId = (RecordId) doc.getIdentity();
+                  recordId = (RecordId) entity.getIdentity();
                 } else {
-                  RecordInternal.setIdentity(doc, recordId);
+                  RecordInternal.setIdentity(entity, recordId);
                 }
 
                 if (!recordId.isValid()) {
@@ -91,8 +91,8 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
                 }
 
                 boolean partialUpdateMode = true;
-                currentDocument.merge(doc, partialUpdateMode, false);
-                RecordInternal.setVersion(currentDocument, doc.getVersion());
+                currentDocument.merge(entity, partialUpdateMode, false);
+                RecordInternal.setVersion(currentDocument, entity.getVersion());
 
                 currentDocument.save();
                 return new RawPair<>(true, recordId);

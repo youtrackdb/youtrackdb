@@ -27,8 +27,8 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.MetadataUpdateListener;
 import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
@@ -170,8 +170,8 @@ public class FunctionLibraryImpl {
   public synchronized void dropFunction(DatabaseSessionInternal session, Function function) {
     reloadIfNeeded(session);
     String name = function.getName(session);
-    EntityImpl doc = function.getDocument(session);
-    doc.delete();
+    EntityImpl entity = function.getDocument(session);
+    entity.delete();
     functions.remove(name.toUpperCase(Locale.ENGLISH));
   }
 
@@ -181,8 +181,8 @@ public class FunctionLibraryImpl {
     session.executeInTx(
         () -> {
           Function function = getFunction(iName);
-          EntityImpl doc = function.getDocument(session);
-          doc.delete();
+          EntityImpl entity = function.getDocument(session);
+          entity.delete();
           functions.remove(iName.toUpperCase(Locale.ENGLISH));
         });
   }
@@ -226,8 +226,8 @@ public class FunctionLibraryImpl {
     needReload.set(true);
   }
 
-  public static void validateFunctionRecord(EntityImpl doc) throws DatabaseException {
-    String name = doc.getProperty("name");
+  public static void validateFunctionRecord(EntityImpl entity) throws DatabaseException {
+    String name = entity.getProperty("name");
     if (!Pattern.compile("[A-Za-z][A-Za-z0-9_]*").matcher(name).matches()) {
       throw new DatabaseException("Invalid function name: " + name);
     }

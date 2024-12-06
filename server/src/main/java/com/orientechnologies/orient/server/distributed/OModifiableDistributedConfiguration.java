@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.distributed;
 
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -285,7 +285,7 @@ public class OModifiableDistributedConfiguration extends ODistributedConfigurati
     }
 
     cluster = new EntityImpl();
-    DocumentInternal.addOwner(cluster, clusters);
+    EntityInternalUtils.addOwner(cluster, clusters);
     clusters.field(iClusterName, cluster, PropertyType.EMBEDDED);
 
     final List<String> servers = initClusterServers(cluster);

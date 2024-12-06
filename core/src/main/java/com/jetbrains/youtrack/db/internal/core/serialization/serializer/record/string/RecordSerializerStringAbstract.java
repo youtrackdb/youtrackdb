@@ -31,7 +31,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.string.StringSerializerAnyStreamable;
@@ -56,7 +56,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
   private static final int MAX_INTEGER_DIGITS = MAX_INTEGER_AS_STRING.length();
 
   public static Object fieldTypeFromStream(
-      DatabaseSessionInternal db, final EntityImpl iDocument, PropertyType iType,
+      DatabaseSessionInternal db, final EntityImpl entity, PropertyType iType,
       final Object iValue) {
     if (iValue == null) {
       return null;
@@ -87,7 +87,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         final Object embeddedObject =
             StringSerializerEmbedded.INSTANCE.fromStream(db, (String) iValue);
         if (embeddedObject instanceof EntityImpl) {
-          DocumentInternal.addOwner((EntityImpl) embeddedObject, iDocument);
+          EntityInternalUtils.addOwner((EntityImpl) embeddedObject, entity);
         }
 
         // EMBEDDED OBJECT
@@ -99,7 +99,7 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
         final Object result = StringSerializerAnyStreamable.INSTANCE.fromStream(db,
             (String) iValue);
         if (result instanceof EntityImpl) {
-          DocumentInternal.addOwner((EntityImpl) result, iDocument);
+          EntityInternalUtils.addOwner((EntityImpl) result, entity);
         }
         return result;
 
@@ -107,13 +107,13 @@ public abstract class RecordSerializerStringAbstract implements RecordSerializer
       case EMBEDDEDLIST: {
         final String value = (String) iValue;
         return RecordSerializerSchemaAware2CSV.INSTANCE.embeddedCollectionFromStream(db,
-            iDocument, iType, null, null, value);
+            entity, iType, null, null, value);
       }
 
       case EMBEDDEDMAP: {
         final String value = (String) iValue;
         return RecordSerializerSchemaAware2CSV.INSTANCE.embeddedMapFromStream(db,
-            iDocument, null, value, null);
+            entity, null, value, null);
       }
     }
 

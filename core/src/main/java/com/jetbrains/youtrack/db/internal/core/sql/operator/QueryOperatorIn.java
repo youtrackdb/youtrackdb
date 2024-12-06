@@ -26,12 +26,12 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionMultiValue;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionMultiValue;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItem;
@@ -87,10 +87,10 @@ public class QueryOperatorIn extends QueryOperatorEqualityNotNulls {
       if (inParams instanceof LegacyResultSet) { // manage IN (subquery)
         Set newInParams = new HashSet();
         for (Object o : inParams) {
-          if (o instanceof EntityImpl doc && doc.getIdentity().getClusterId() < -1) {
-            String[] fieldNames = doc.fieldNames();
+          if (o instanceof EntityImpl entity && entity.getIdentity().getClusterId() < -1) {
+            String[] fieldNames = entity.fieldNames();
             if (fieldNames.length == 1) {
-              newInParams.add(doc.field(fieldNames[0]));
+              newInParams.add(entity.field(fieldNames[0]));
             } else {
               newInParams.add(o);
             }

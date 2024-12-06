@@ -21,8 +21,8 @@
 package com.jetbrains.youtrack.db.internal.core.index;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -72,8 +72,8 @@ public class PropertyRidBagIndexDefinition extends PropertyIndexDefinition
   }
 
   @Override
-  public Object getDocumentValueToIndex(DatabaseSessionInternal session, EntityImpl iDocument) {
-    return createValue(session, iDocument.<Object>field(field));
+  public Object getDocumentValueToIndex(DatabaseSessionInternal session, EntityImpl entity) {
+    return createValue(session, entity.<Object>field(field));
   }
 
   @Override

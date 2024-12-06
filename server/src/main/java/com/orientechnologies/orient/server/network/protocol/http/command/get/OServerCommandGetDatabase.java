@@ -340,8 +340,8 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
   private void exportSecurityInfo(DatabaseSessionInternal db, JSONWriter json)
       throws IOException {
     json.beginCollection("users");
-    for (EntityImpl doc : db.getMetadata().getSecurity().getAllUsers()) {
-      SecurityUserIml user = new SecurityUserIml(db, doc);
+    for (EntityImpl entity : db.getMetadata().getSecurity().getAllUsers()) {
+      SecurityUserIml user = new SecurityUserIml(db, entity);
       json.beginObject();
       json.writeAttribute("name", user.getName(db));
       json.writeAttribute(
@@ -352,8 +352,8 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
 
     json.beginCollection("roles");
     Role role;
-    for (EntityImpl doc : db.getMetadata().getSecurity().getAllRoles()) {
-      role = new Role(db, doc);
+    for (EntityImpl entity : db.getMetadata().getSecurity().getAllRoles()) {
+      role = new Role(db, entity);
       json.beginObject();
       json.writeAttribute("name", role.getName(db));
       json.writeAttribute("mode", role.getMode().toString());

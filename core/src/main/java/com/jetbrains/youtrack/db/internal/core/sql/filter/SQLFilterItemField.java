@@ -34,10 +34,10 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryption;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BytesContainer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BinaryField;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.DocumentSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.EntitySerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerBinary;
 import com.jetbrains.youtrack.db.internal.core.sql.method.SQLMethodRuntime;
 import com.jetbrains.youtrack.db.internal.core.sql.method.misc.SQLMethodField;
@@ -125,7 +125,7 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
       }
     }
 
-    final EntityImpl doc = iRecord.getRecord();
+    final EntityImpl entity = iRecord.getRecord();
 
     if (preLoadedFieldsArray == null
         && preLoadedFields != null
@@ -138,14 +138,14 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
     }
 
     // UNMARSHALL THE SINGLE FIELD
-    if (preLoadedFieldsArray != null && !doc.deserializeFields(preLoadedFieldsArray)) {
+    if (preLoadedFieldsArray != null && !entity.deserializeFields(preLoadedFieldsArray)) {
       return null;
     }
 
-    final Object v = stringValue == null ? doc.rawField(name) : stringValue;
+    final Object v = stringValue == null ? entity.rawField(name) : stringValue;
 
     if (!collatePreset) {
-      SchemaClass schemaClass = DocumentInternal.getImmutableSchemaClass(doc);
+      SchemaClass schemaClass = EntityInternalUtils.getImmutableSchemaClass(entity);
       if (schemaClass != null) {
         collate = getCollateForField(schemaClass, name);
       }
@@ -167,16 +167,16 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
     }
 
     final EntityImpl rec = iRecord.getRecord();
-    PropertyEncryption encryption = DocumentInternal.getPropertyEncryption(rec);
+    PropertyEncryption encryption = EntityInternalUtils.getPropertyEncryption(rec);
     BytesContainer serialized = new BytesContainer(rec.toStream());
     byte version = serialized.bytes[serialized.offset++];
-    DocumentSerializer serializer = RecordSerializerBinary.INSTANCE.getSerializer(version);
+    EntitySerializer serializer = RecordSerializerBinary.INSTANCE.getSerializer(version);
     DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
 
     // check for embedded objects, they have invalid ID and they are serialized with class name
     return serializer.deserializeField(
         serialized,
-        DocumentInternal.getImmutableSchemaClass(rec),
+        EntityInternalUtils.getImmutableSchemaClass(rec),
         name,
         rec.isEmbedded(),
         db.getMetadata().getImmutableSchemaSnapshot(),
@@ -251,19 +251,19 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
    * get the collate of this expression, based on the fully evaluated field chain starting from the
    * passed object.
    *
-   * @param doc the root element (document?) of this field chain
+   * @param object the root element (entity?) of this field chain
    * @return the collate, null if no collate is defined
    */
-  public Collate getCollate(Object doc) {
+  public Collate getCollate(Object object) {
     if (collate != null || operationsChain == null || !isFieldChain()) {
       return collate;
     }
-    if (!(doc instanceof Identifiable)) {
+    if (!(object instanceof Identifiable)) {
       return null;
     }
     FieldChain chain = getFieldChain();
     try {
-      EntityImpl lastDoc = ((Identifiable) doc).getRecord();
+      EntityImpl lastDoc = ((Identifiable) object).getRecord();
       for (int i = 0; i < chain.getItemCount() - 1; i++) {
         Object nextDoc = lastDoc.field(chain.getItemName(i));
         if (!(nextDoc instanceof Identifiable)) {
@@ -271,7 +271,7 @@ public class SQLFilterItemField extends SQLFilterItemAbstract {
         }
         lastDoc = ((Identifiable) nextDoc).getRecord();
       }
-      SchemaClass schemaClass = DocumentInternal.getImmutableSchemaClass(lastDoc);
+      SchemaClass schemaClass = EntityInternalUtils.getImmutableSchemaClass(lastDoc);
       if (schemaClass == null) {
         return null;
       }

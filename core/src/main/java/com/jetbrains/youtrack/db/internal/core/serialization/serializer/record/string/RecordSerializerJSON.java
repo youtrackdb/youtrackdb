@@ -42,20 +42,20 @@ import com.jetbrains.youtrack.db.internal.core.fetch.FetchPlan;
 import com.jetbrains.youtrack.db.internal.core.fetch.json.JSONFetchContext;
 import com.jetbrains.youtrack.db.internal.core.fetch.json.JSONFetchListener;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.RecordStringable;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.RecordStringable;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
+import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImplEmbedded;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
@@ -321,7 +321,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
               if (fieldName.equals(DocumentHelper.ATTRIBUTE_CLASS)
                   && record instanceof EntityImpl) {
                 className = "null".equals(fieldValueAsString) ? null : fieldValueAsString;
-                DocumentInternal.fillClassNameIfNeeded(((EntityImpl) record), className);
+                EntityInternalUtils.fillClassNameIfNeeded(((EntityImpl) record), className);
               }
             }
           }
@@ -408,10 +408,10 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
                   }
                 }
               } else {
-                if (record instanceof EntityImpl doc) {
+                if (record instanceof EntityImpl entity) {
 
                   // DETERMINE THE TYPE FROM THE SCHEMA
-                  PropertyType type = determineType(doc, fieldName);
+                  PropertyType type = determineType(entity, fieldName);
 
                   final Object v;
                   if (StringSerializerHelper.SKIPPED_VALUE.equals(fieldValue)) {
@@ -419,7 +419,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
                   } else {
                     v =
                         getValueV0(db,
-                            doc,
+                            entity,
                             fieldName,
                             fieldValue,
                             fieldValueAsString,
@@ -444,7 +444,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
 
                       if (type != null) {
                         // TREAT IT AS EMBEDDED
-                        doc.setPropertyInternal(fieldName, v, type);
+                        entity.setPropertyInternal(fieldName, v, type);
                         return;
                       }
                     } else {
@@ -453,7 +453,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
                         Object first = ((Map<?, ?>) v).values().iterator().next();
                         if (first instanceof Record
                             && !((Record) first).getIdentity().isValid()) {
-                          doc.setProperty(fieldName, v, PropertyType.EMBEDDEDMAP);
+                          entity.setProperty(fieldName, v, PropertyType.EMBEDDEDMAP);
                           return;
                         }
                       } else {
@@ -485,9 +485,9 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
                   }
 
                   if (type != null) {
-                    doc.setPropertyInternal(fieldName, v, type);
+                    entity.setPropertyInternal(fieldName, v, type);
                   } else {
-                    doc.setPropertyInternal(fieldName, v);
+                    entity.setPropertyInternal(fieldName, v);
                   }
                 }
               }
@@ -596,9 +596,9 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
     return NAME;
   }
 
-  private PropertyType determineType(EntityImpl doc, String fieldName) {
+  private PropertyType determineType(EntityImpl entity, String fieldName) {
     PropertyType type = null;
-    final SchemaClass cls = DocumentInternal.getImmutableSchemaClass(doc);
+    final SchemaClass cls = EntityInternalUtils.getImmutableSchemaClass(entity);
     if (cls != null) {
       final Property prop = cls.getProperty(fieldName);
       if (prop != null) {
@@ -622,9 +622,9 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
       return null;
     }
 
-    if (iFieldName != null && DocumentInternal.getImmutableSchemaClass(iRecord) != null) {
+    if (iFieldName != null && EntityInternalUtils.getImmutableSchemaClass(iRecord) != null) {
       final Property p =
-          DocumentInternal.getImmutableSchemaClass(iRecord).getProperty(iFieldName);
+          EntityInternalUtils.getImmutableSchemaClass(iRecord).getProperty(iFieldName);
       if (p != null) {
         iType = p.getType();
         iLinkedType = p.getLinkedType();
@@ -815,7 +815,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
     if (fields.length == 0) {
       if (iNoMap) {
         EntityImpl res = new EntityImpl();
-        DocumentInternal.addOwner(res, iRecord);
+        EntityInternalUtils.addOwner(res, iRecord);
         return res;
       } else {
         return new HashMap<String, Object>();
@@ -879,7 +879,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
             shouldReload);
 
     if (shouldBeDeserializedAsEmbedded(recordInternal, iType)) {
-      DocumentInternal.addOwner(recordInternal, iRecord);
+      EntityInternalUtils.addOwner(recordInternal, iRecord);
     } else {
       DatabaseSession database = DatabaseRecordThreadLocal.instance().getIfDefined();
 
@@ -1055,7 +1055,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
 
           // TODO: redundant in some cases, owner is already added by getValueV0 in some cases
           if (shouldBeDeserializedAsEmbedded(collectionItem, iType)) {
-            DocumentInternal.addOwner((EntityImpl) collectionItem, iRecord);
+            EntityInternalUtils.addOwner((EntityImpl) collectionItem, iRecord);
           }
           if (collectionItem != null) {
             visitor.visitItem(collectionItem);
@@ -1094,7 +1094,7 @@ public class RecordSerializerJSON extends RecordSerializerStringAbstract {
 
         // TODO redundant in some cases, owner is already added by getValueV0 in some cases
         if (shouldBeDeserializedAsEmbedded(collectionItem, iType)) {
-          DocumentInternal.addOwner((EntityImpl) collectionItem, iRecord);
+          EntityInternalUtils.addOwner((EntityImpl) collectionItem, iRecord);
         }
 
         visitor.visitItem(collectionItem);

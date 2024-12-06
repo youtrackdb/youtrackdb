@@ -10,7 +10,7 @@ import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -86,12 +86,11 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
   }
 
   private static boolean matchesClass(Record record, String className) {
-    Record doc = record.getRecord();
-    if (!(doc instanceof EntityImpl)) {
+    if (!(record.getRecord() instanceof EntityImpl entity)) {
       return false;
     }
 
-    SchemaClass schema = DocumentInternal.getImmutableSchemaClass(((EntityImpl) doc));
+    SchemaClass schema = EntityInternalUtils.getImmutableSchemaClass(entity);
     if (schema == null) {
       return className == null;
     } else if (schema.getName().equals(className)) {

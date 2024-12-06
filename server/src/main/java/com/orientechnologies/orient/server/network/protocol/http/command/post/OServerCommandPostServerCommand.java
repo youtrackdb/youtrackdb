@@ -60,12 +60,12 @@ public class OServerCommandPostServerCommand extends OServerCommandAuthenticated
       // CONTENT REPLACES TEXT
       if (iRequest.getContent().startsWith("{")) {
         // JSON PAYLOAD
-        final EntityImpl doc = new EntityImpl();
-        doc.fromJSON(iRequest.getContent());
-        text = doc.field("command");
-        params = doc.field("parameters");
+        final EntityImpl entity = new EntityImpl();
+        entity.fromJSON(iRequest.getContent());
+        text = entity.field("command");
+        params = entity.field("parameters");
 
-        if ("false".equalsIgnoreCase("" + doc.field("returnExecutionPlan"))) {
+        if ("false".equalsIgnoreCase("" + entity.field("returnExecutionPlan"))) {
           returnExecutionPlan = false;
         }
 

@@ -266,14 +266,14 @@ public abstract class SQLBooleanExpression extends SimpleNode {
   public void translateLuceneOperator() {
   }
 
-  public static SQLBooleanExpression deserializeFromOResult(Result doc) {
+  public static SQLBooleanExpression deserializeFromOResult(Result res) {
     try {
       SQLBooleanExpression result =
           (SQLBooleanExpression)
-              Class.forName(doc.getProperty("__class"))
+              Class.forName(res.getProperty("__class"))
                   .getConstructor(Integer.class)
                   .newInstance(-1);
-      result.deserialize(doc);
+      result.deserialize(res);
     } catch (Exception e) {
       throw BaseException.wrapException(new CommandExecutionException(""), e);
     }

@@ -40,8 +40,8 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
 import com.jetbrains.youtrack.db.internal.core.query.Query;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilter;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItem;
@@ -323,11 +323,11 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     if (upsertMode && !updated) {
       // IF UPDATE DOES NOT PRODUCE RESULTS AND UPSERT MODE IS ENABLED, CREATE DOCUMENT AND APPLY
       // SET/ADD/PUT/MERGE and so on
-      final EntityImpl doc =
+      final EntityImpl entity =
           subjectName != null ? new EntityImpl(subjectName) : new EntityImpl();
-      // locks by result(doc)
+      // locks by result(entity)
       try {
-        result(querySession, doc);
+        result(querySession, entity);
       } catch (RecordDuplicatedException e) {
         if (upsertMode)
         // UPDATE THE NEW RECORD
@@ -417,7 +417,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
     if (iRecord == null) {
       return false;
     }
-    return (DocumentInternal.getImmutableSchemaClass(record).isSubClassOf(youTrackDbClass));
+    return (EntityInternalUtils.getImmutableSchemaClass(record).isSubClassOf(youTrackDbClass));
   }
 
   /**
@@ -526,7 +526,7 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
   protected void parseMerge() {
     if (!parserIsEnded() && !parserGetLastWord().equals(KEYWORD_WHERE)) {
-      final String contentAsString = parserRequiredWord(false, "document to merge expected").trim();
+      final String contentAsString = parserRequiredWord(false, "entity to merge expected").trim();
       merge = new EntityImpl();
       merge.fromJSON(contentAsString);
       parserSkipWhiteSpaces();
@@ -624,13 +624,13 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
               .getClass(Security.RESTRICTED_CLASSNAME);
 
       if (restricted != null
-          && restricted.isSuperClassOf(DocumentInternal.getImmutableSchemaClass(record))) {
+          && restricted.isSuperClassOf(EntityInternalUtils.getImmutableSchemaClass(record))) {
         for (Property prop : restricted.properties(getDatabase())) {
           fieldsToPreserve.field(prop.getName(), record.<Object>field(prop.getName()));
         }
       }
 
-      SchemaClass recordClass = DocumentInternal.getImmutableSchemaClass(record);
+      SchemaClass recordClass = EntityInternalUtils.getImmutableSchemaClass(record);
       if (recordClass != null && recordClass.isSubClassOf("V")) {
         for (String fieldName : record.fieldNames()) {
           if (fieldName.startsWith("in_") || fieldName.startsWith("out_")) {
@@ -713,9 +713,9 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
       RidBag bag = null;
       if (!record.containsField(entry.getKey())) {
         // GET THE TYPE IF ANY
-        if (DocumentInternal.getImmutableSchemaClass(record) != null) {
+        if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
           Property prop =
-              DocumentInternal.getImmutableSchemaClass(record).getProperty(entry.getKey());
+              EntityInternalUtils.getImmutableSchemaClass(record).getProperty(entry.getKey());
           if (prop != null && prop.getType() == PropertyType.LINKSET)
           // SET TYPE
           {
@@ -785,9 +785,9 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
         Object fieldValue = record.field(entry.getKey());
 
         if (fieldValue == null) {
-          if (DocumentInternal.getImmutableSchemaClass(record) != null) {
+          if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
             final Property property =
-                DocumentInternal.getImmutableSchemaClass(record).getProperty(entry.getKey());
+                EntityInternalUtils.getImmutableSchemaClass(record).getProperty(entry.getKey());
             if (property != null
                 && (property.getType() != null
                 && (!property.getType().equals(PropertyType.EMBEDDEDMAP)
@@ -807,9 +807,9 @@ public class CommandExecutorSQLUpdate extends CommandExecutorSQLRetryAbstract
 
           Object value = extractValue(querySession, record, pair);
 
-          if (DocumentInternal.getImmutableSchemaClass(record) != null) {
+          if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
             final Property property =
-                DocumentInternal.getImmutableSchemaClass(record).getProperty(entry.getKey());
+                EntityInternalUtils.getImmutableSchemaClass(record).getProperty(entry.getKey());
             if (property != null
                 && property.getType().equals(PropertyType.LINKMAP)
                 && !(value instanceof Identifiable)) {

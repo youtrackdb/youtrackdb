@@ -34,7 +34,6 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.command.script.ScriptManager;
 import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseSessionEmbedded;
 import com.jetbrains.youtrack.db.internal.core.engine.Engine;
 import com.jetbrains.youtrack.db.internal.core.engine.MemoryAndLocalPaginatedEnginesInitializer;
 import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;

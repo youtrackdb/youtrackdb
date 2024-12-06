@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.storage.index.hashindex.local.v2;
 
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.exception.CommandInterruptedException;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.paginated.atomicoperations.AtomicOperation;

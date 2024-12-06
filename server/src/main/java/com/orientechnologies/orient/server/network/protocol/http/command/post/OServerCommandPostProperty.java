@@ -20,9 +20,9 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -95,7 +95,7 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
               throw new IllegalArgumentException(
                   "linked type declared as "
                       + urlParts[5]
-                      + " can be either a Type or a Class, use the JSON document usage instead."
+                      + " can be either a Type or a Class, use the JSON entity usage instead."
                       + " See 'http://code.google.com/p/orient/w/edit/OrientDB_REST'");
             }
           }
@@ -147,14 +147,14 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
     propertiesDoc.fromJSON(iRequest.getContent());
 
     for (String propertyName : propertiesDoc.fieldNames()) {
-      final Map<String, String> doc = propertiesDoc.field(propertyName);
-      final PropertyType propertyType = PropertyType.valueOf(doc.get(PROPERTY_TYPE_JSON_FIELD));
+      final Map<String, String> entity = propertiesDoc.field(propertyName);
+      final PropertyType propertyType = PropertyType.valueOf(entity.get(PROPERTY_TYPE_JSON_FIELD));
       switch (propertyType) {
         case LINKLIST:
         case LINKMAP:
         case LINKSET: {
-          final String linkType = doc.get(LINKED_TYPE_JSON_FIELD);
-          final String linkClass = doc.get(LINKED_CLASS_JSON_FIELD);
+          final String linkType = entity.get(LINKED_TYPE_JSON_FIELD);
+          final String linkClass = entity.get(LINKED_CLASS_JSON_FIELD);
           if (linkType != null) {
             final Property prop =
                 cls.createProperty(db, propertyName, propertyType, PropertyType.valueOf(linkType));
@@ -173,7 +173,7 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
           break;
         }
         case LINK: {
-          final String linkClass = doc.get(LINKED_CLASS_JSON_FIELD);
+          final String linkClass = entity.get(LINKED_CLASS_JSON_FIELD);
           if (linkClass != null) {
             final Property prop =
                 cls.createProperty(db,

@@ -26,7 +26,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BinaryField;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.DocumentSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.EntitySerializer;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
 
 /**
@@ -64,7 +64,7 @@ public class QueryOperatorNotEquals extends QueryOperatorEqualityNotNulls {
       final BinaryField iFirstField,
       final BinaryField iSecondField,
       CommandContext iContext,
-      final DocumentSerializer serializer) {
+      final EntitySerializer serializer) {
     return !serializer.getComparator().isEqual(iFirstField, iSecondField);
   }
 

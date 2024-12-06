@@ -20,9 +20,9 @@
 package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
@@ -119,22 +119,22 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
       long lastLapBrowsed = 0;
       long lastLapTime = System.currentTimeMillis();
 
-      for (EntityImpl doc : db.browseClass("E")) {
+      for (EntityImpl entity : db.browseClass("E")) {
         if (Thread.currentThread().isInterrupted()) {
           break;
         }
 
         browsedEdges++;
 
-        if (doc != null) {
-          if (doc.fields() == 2) {
-            final RID edgeIdentity = doc.getIdentity();
+        if (entity != null) {
+          if (entity.fields() == 2) {
+            final RID edgeIdentity = entity.getIdentity();
 
-            final EntityImpl outV = doc.field("out");
-            final EntityImpl inV = doc.field("in");
+            final EntityImpl outV = entity.field("out");
+            final EntityImpl inV = entity.field("in");
 
             // OUTGOING
-            final Object outField = outV.field("out_" + doc.getClassName());
+            final Object outField = outV.field("out_" + entity.getClassName());
             if (outField instanceof RidBag) {
               final Iterator<Identifiable> it = ((RidBag) outField).iterator();
               while (it.hasNext()) {
@@ -151,7 +151,7 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
             outV.save();
 
             // INCOMING
-            final Object inField = inV.field("in_" + doc.getClassName());
+            final Object inField = inV.field("in_" + entity.getClassName());
             if (outField instanceof RidBag) {
               final Iterator<Identifiable> it = ((RidBag) inField).iterator();
               while (it.hasNext()) {
@@ -167,7 +167,7 @@ public class CommandExecutorSQLOptimizeDatabase extends CommandExecutorSQLAbstra
 
             inV.save();
 
-            doc.delete();
+            entity.delete();
 
             if (++transformed % batch == 0) {
               db.commit();

@@ -18,7 +18,7 @@
  *
  */
 
-package com.jetbrains.youtrack.db.internal.client.remote.db.document;
+package com.jetbrains.youtrack.db.internal.client.remote.db;
 
 import com.jetbrains.youtrack.db.internal.client.remote.LiveQueryClientListener;
 import com.jetbrains.youtrack.db.internal.client.remote.RemoteQueryResult;
@@ -36,13 +36,13 @@ import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.HookReplacedRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.LiveQueryMonitor;
 import com.jetbrains.youtrack.db.internal.core.db.LiveQueryResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
@@ -65,9 +65,9 @@ import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeEntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37Client;
@@ -581,30 +581,30 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
 
   public void afterUpdateOperations(final Identifiable id) {
     callbackHooks(RecordHook.TYPE.AFTER_UPDATE, id);
-    if (id instanceof EntityImpl doc) {
-      SchemaImmutableClass clazz = DocumentInternal.getImmutableSchemaClass(this, doc);
+    if (id instanceof EntityImpl entity) {
+      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null && getTransaction().isActive()) {
-        ClassIndexManager.processIndexOnUpdate(this, doc);
+        ClassIndexManager.processIndexOnUpdate(this, entity);
       }
     }
   }
 
   public void afterCreateOperations(final Identifiable id) {
     callbackHooks(RecordHook.TYPE.AFTER_CREATE, id);
-    if (id instanceof EntityImpl doc) {
-      SchemaImmutableClass clazz = DocumentInternal.getImmutableSchemaClass(this, doc);
+    if (id instanceof EntityImpl entity) {
+      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null && getTransaction().isActive()) {
-        ClassIndexManager.processIndexOnCreate(this, doc);
+        ClassIndexManager.processIndexOnCreate(this, entity);
       }
     }
   }
 
   public void afterDeleteOperations(final Identifiable id) {
     callbackHooks(RecordHook.TYPE.AFTER_DELETE, id);
-    if (id instanceof EntityImpl doc) {
-      SchemaImmutableClass clazz = DocumentInternal.getImmutableSchemaClass(this, doc);
+    if (id instanceof EntityImpl entity) {
+      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(this, entity);
       if (clazz != null && getTransaction().isActive()) {
-        ClassIndexManager.processIndexOnDelete(this, doc);
+        ClassIndexManager.processIndexOnDelete(this, entity);
       }
     }
   }
@@ -669,7 +669,7 @@ public class DatabaseSessionRemote extends DatabaseSessionAbstract {
   public void delete(final Record record) {
     checkOpenness();
     if (record == null) {
-      throw new DatabaseException("Cannot delete null document");
+      throw new DatabaseException("Cannot delete null entity");
     }
     if (record instanceof Vertex) {
       VertexInternal.deleteLinks((Vertex) record);

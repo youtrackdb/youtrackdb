@@ -194,8 +194,8 @@ public class SQLProjectionItem extends SimpleNode {
       result = expression.execute(iCurrentRecord, ctx);
     }
     if (nestedProjection != null) {
-      if (result instanceof EntityImpl document && document.isEmpty()) {
-        result = ctx.getDatabase().bindToSession(document);
+      if (result instanceof EntityImpl entity && entity.isEmpty()) {
+        result = ctx.getDatabase().bindToSession(entity);
       }
       result = nestedProjection.apply(expression, result, ctx);
     }

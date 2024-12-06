@@ -33,7 +33,7 @@ import java.util.Set;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-public class DocumentSerializerDeltaTest extends DbTestBase {
+public class EntitySerializerDeltaTest extends DbTestBase {
 
   @Test
   public void testGetFromOriginalSimpleDelta() {

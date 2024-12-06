@@ -65,9 +65,9 @@ public class SQLOrBlock extends SQLBooleanExpression {
     } else if (currentRecord instanceof Identifiable) {
       return evaluate((Identifiable) currentRecord, ctx);
     } else if (currentRecord instanceof Map) {
-      EntityImpl doc = new EntityImpl();
-      doc.fromMap((Map<String, Object>) currentRecord);
-      return evaluate(doc, ctx);
+      EntityImpl entity = new EntityImpl();
+      entity.fromMap((Map<String, Object>) currentRecord);
+      return evaluate(entity, ctx);
     }
     return false;
   }

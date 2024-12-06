@@ -53,7 +53,7 @@ public class SystemRole extends Role {
   }
 
   /**
-   * Create the role by reading the source document.
+   * Create the role by reading the source entity.
    */
   public SystemRole(DatabaseSessionInternal session, final EntityImpl iSource) {
     super(session, iSource);
@@ -63,11 +63,11 @@ public class SystemRole extends Role {
   public void fromStream(DatabaseSessionInternal session, final EntityImpl iSource) {
     super.fromStream(session, iSource);
 
-    var document = getDocument(session);
-    if (document != null
-        && document.containsField(DB_FILTER)
-        && document.fieldType(DB_FILTER) == PropertyType.EMBEDDEDLIST) {
-      dbFilter = document.field(DB_FILTER, PropertyType.EMBEDDEDLIST);
+    var entity = getDocument(session);
+    if (entity != null
+        && entity.containsField(DB_FILTER)
+        && entity.fieldType(DB_FILTER) == PropertyType.EMBEDDEDLIST) {
+      dbFilter = entity.field(DB_FILTER, PropertyType.EMBEDDEDLIST);
     }
   }
 }

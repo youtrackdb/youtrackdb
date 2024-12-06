@@ -48,8 +48,8 @@ public class PropertyListIndexDefinition extends PropertyIndexDefinition
   }
 
   @Override
-  public Object getDocumentValueToIndex(DatabaseSessionInternal session, EntityImpl iDocument) {
-    return createValue(session, iDocument.<Object>field(field));
+  public Object getDocumentValueToIndex(DatabaseSessionInternal session, EntityImpl entity) {
+    return createValue(session, entity.<Object>field(field));
   }
 
   @Override

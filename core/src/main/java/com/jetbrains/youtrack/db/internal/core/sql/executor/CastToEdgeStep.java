@@ -34,7 +34,7 @@ public class CastToEdgeStep extends AbstractExecutionStep {
         result = new ResultInternal(db, result.toEntity().toEdge());
       }
     } else {
-      throw new CommandExecutionException("Current element is not a vertex: " + result);
+      throw new CommandExecutionException("Current entity is not a vertex: " + result);
     }
     return result;
   }

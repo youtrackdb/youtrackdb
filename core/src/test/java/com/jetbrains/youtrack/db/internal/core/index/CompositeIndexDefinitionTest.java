@@ -2,7 +2,7 @@ package com.jetbrains.youtrack.db.internal.core.index;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;

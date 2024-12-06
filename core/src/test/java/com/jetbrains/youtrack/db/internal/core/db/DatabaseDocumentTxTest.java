@@ -1,4 +1,4 @@
-package com.jetbrains.youtrack.db.internal.core.db.document;
+package com.jetbrains.youtrack.db.internal.core.db;
 
 import static org.junit.Assert.assertTrue;
 
@@ -11,8 +11,8 @@ import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClassDescendentOrder;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;

@@ -35,9 +35,9 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper.DbRelatedCall;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.RawBuffer;
@@ -775,10 +775,10 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
             recordsCounter++;
 
             databaseOne.activateOnCurrentThread();
-            @SuppressWarnings("ObjectAllocationInLoop") final EntityImpl doc1 = new EntityImpl();
+            @SuppressWarnings("ObjectAllocationInLoop") final EntityImpl entity1 = new EntityImpl();
             databaseTwo.activateOnCurrentThread();
 
-            @SuppressWarnings("ObjectAllocationInLoop") final EntityImpl doc2 = new EntityImpl();
+            @SuppressWarnings("ObjectAllocationInLoop") final EntityImpl entity2 = new EntityImpl();
 
             final long position = physicalPosition.clusterPosition;
             rid1.setClusterPosition(position);
@@ -870,21 +870,21 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
 
                       } else {
                         if (buffer1.recordType == EntityImpl.RECORD_TYPE) {
-                          // DOCUMENT: TRY TO INSTANTIATE AND COMPARE
+                          // ENTITY: TRY TO INSTANTIATE AND COMPARE
 
                           makeDbCall(
                               databaseOne,
                               database -> {
-                                RecordInternal.unsetDirty(doc1);
-                                RecordInternal.fromStream(doc1, buffer1.buffer, database);
+                                RecordInternal.unsetDirty(entity1);
+                                RecordInternal.fromStream(entity1, buffer1.buffer, database);
                                 return null;
                               });
 
                           makeDbCall(
                               databaseTwo,
                               database -> {
-                                RecordInternal.unsetDirty(doc2);
-                                RecordInternal.fromStream(doc2, buffer2.buffer, database);
+                                RecordInternal.unsetDirty(entity2);
+                                RecordInternal.fromStream(entity2, buffer2.buffer, database);
                                 return null;
                               });
 
@@ -893,26 +893,26 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
                             makeDbCall(
                                 databaseOne,
                                 database -> {
-                                  convertSchemaDoc(doc1);
+                                  convertSchemaDoc(entity1);
                                   return null;
                                 });
 
                             makeDbCall(
                                 databaseTwo,
                                 database -> {
-                                  convertSchemaDoc(doc2);
+                                  convertSchemaDoc(entity2);
                                   return null;
                                 });
                           }
 
                           if (!DocumentHelper.hasSameContentOf(
-                              doc1, databaseOne, doc2, databaseTwo, ridMapper)) {
+                              entity1, databaseOne, entity2, databaseTwo, ridMapper)) {
                             listener.onMessage(
                                 "\n- ERR: RID="
                                     + clusterId1
                                     + ":"
                                     + position
-                                    + " document content is different");
+                                    + " entity content is different");
                             //noinspection ObjectAllocationInLoop
                             listener.onMessage("\n--- REC1: " + new String(buffer1.buffer));
                             //noinspection ObjectAllocationInLoop
@@ -1049,10 +1049,10 @@ public class DatabaseCompare extends DatabaseImpExpAbstract {
     this.autoDetectExportImportMap = autoDetectExportImportMap;
   }
 
-  private static void convertSchemaDoc(final EntityImpl document) {
-    if (document.field("classes") != null) {
-      document.setFieldType("classes", PropertyType.EMBEDDEDSET);
-      for (EntityImpl classDoc : document.<Set<EntityImpl>>field("classes")) {
+  private static void convertSchemaDoc(final EntityImpl entity) {
+    if (entity.field("classes") != null) {
+      entity.setFieldType("classes", PropertyType.EMBEDDEDSET);
+      for (EntityImpl classDoc : entity.<Set<EntityImpl>>field("classes")) {
         classDoc.setFieldType("properties", PropertyType.EMBEDDEDSET);
       }
     }

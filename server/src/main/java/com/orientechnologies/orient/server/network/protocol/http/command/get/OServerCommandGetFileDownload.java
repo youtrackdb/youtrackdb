@@ -22,8 +22,8 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -75,7 +75,7 @@ public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDb
               fileName);
         } else if (response instanceof EntityImpl) {
           for (Property prop :
-              DocumentInternal.getImmutableSchemaClass(((EntityImpl) response)).properties(db)) {
+              EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) response)).properties(db)) {
             if (prop.getType().equals(PropertyType.BINARY)) {
               sendBinaryFieldFileContent(
                   iRequest,

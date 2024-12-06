@@ -673,10 +673,10 @@ public class DefaultSecuritySystem implements SecuritySystem {
       LogManager.instance()
           .warn(
               this,
-              "DefaultServerSecurity.reload(EntityImpl) The provided configuration document is"
+              "DefaultServerSecurity.reload(EntityImpl) The provided configuration entity is"
                   + " null");
       throw new SecuritySystemException(
-          "DefaultServerSecurity.reload(EntityImpl) The provided configuration document is null");
+          "DefaultServerSecurity.reload(EntityImpl) The provided configuration entity is null");
     }
   }
 
@@ -688,7 +688,7 @@ public class DefaultSecuritySystem implements SecuritySystem {
     }
     if (jsonConfig == null) {
       throw new SecuritySystemException(
-          "DefaultServerSecurity.reloadComponent() Configuration document is null");
+          "DefaultServerSecurity.reloadComponent() Configuration entity is null");
     }
 
     if (name.equalsIgnoreCase("auditing")) {
@@ -801,7 +801,7 @@ public class DefaultSecuritySystem implements SecuritySystem {
       }
     } else {
       initDefultAuthenticators(session);
-      LogManager.instance().debug(this, "onAfterDynamicPlugins() Configuration document is empty");
+      LogManager.instance().debug(this, "onAfterDynamicPlugins() Configuration entity is empty");
     }
   }
 
@@ -845,7 +845,7 @@ public class DefaultSecuritySystem implements SecuritySystem {
         LogManager.instance()
             .error(
                 this,
-                "DefaultServerSecurity.getSection(%s) Configuration document is null",
+                "DefaultServerSecurity.getSection(%s) Configuration entity is null",
                 null,
                 section);
       }

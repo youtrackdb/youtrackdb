@@ -1,9 +1,7 @@
-package com.jetbrains.youtrack.db.internal.core.db.document;
+package com.jetbrains.youtrack.db.internal.core.db;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;

@@ -105,10 +105,10 @@ public class SQLFunctionDocument extends SQLFunctionMultiValueAbstract<EntityImp
 
   protected EntityImpl prepareResult(EntityImpl res) {
     if (returnDistributedResult()) {
-      final EntityImpl doc = new EntityImpl();
-      doc.field("node", getDistributedStorageId());
-      doc.field("context", res);
-      return doc;
+      final EntityImpl entity = new EntityImpl();
+      entity.field("node", getDistributedStorageId());
+      entity.field("context", res);
+      return entity;
     } else {
       return res;
     }
@@ -121,7 +121,7 @@ public class SQLFunctionDocument extends SQLFunctionMultiValueAbstract<EntityImp
       final Map<String, Map<Object, Object>> chunks = new HashMap<String, Map<Object, Object>>();
       for (Object iParameter : resultsToMerge) {
         final Map<String, Object> container =
-            (Map<String, Object>) ((Map<Object, Object>) iParameter).get("doc");
+            (Map<String, Object>) ((Map<Object, Object>) iParameter).get("entity");
         chunks.put((String) container.get("node"), (Map<Object, Object>) container.get("context"));
       }
       final Map<Object, Object> result = new HashMap<Object, Object>();

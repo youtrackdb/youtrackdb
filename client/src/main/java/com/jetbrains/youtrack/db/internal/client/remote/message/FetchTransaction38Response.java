@@ -55,17 +55,17 @@ public class FetchTransaction38Response implements BinaryResponse {
       request.setOldId(oldID != null ? oldID : txEntry.getRID());
       request.setRecordType(RecordInternal.getRecordType(txEntry.record));
       if (txEntry.type == RecordOperation.UPDATED
-          && txEntry.record instanceof EntityImpl doc) {
+          && txEntry.record instanceof EntityImpl entity) {
         var result =
             database.getStorage()
-                .readRecord(database, (RecordId) doc.getIdentity(), false, false, null);
+                .readRecord(database, (RecordId) entity.getIdentity(), false, false, null);
 
-        EntityImpl docFromPersistence = new EntityImpl(doc.getIdentity());
-        docFromPersistence.fromStream(result.buffer);
+        EntityImpl entityFromPersistence = new EntityImpl(entity.getIdentity());
+        entityFromPersistence.fromStream(result.buffer);
         request.setOriginal(
-            RecordSerializerNetworkV37Client.INSTANCE.toStream(session, docFromPersistence));
+            RecordSerializerNetworkV37Client.INSTANCE.toStream(session, entityFromPersistence));
         DocumentSerializerDelta delta = DocumentSerializerDelta.instance();
-        request.setRecord(delta.serializeDelta(doc));
+        request.setRecord(delta.serializeDelta(entity));
       } else {
         request.setRecord(
             RecordSerializerNetworkV37Client.INSTANCE.toStream(session, txEntry.record));

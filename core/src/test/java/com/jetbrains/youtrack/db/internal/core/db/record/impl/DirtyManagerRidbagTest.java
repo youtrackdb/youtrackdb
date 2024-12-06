@@ -6,9 +6,9 @@ import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DirtyManager;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import org.junit.Test;
 
 public class DirtyManagerRidbagTest extends DbTestBase {
@@ -24,7 +24,7 @@ public class DirtyManagerRidbagTest extends DbTestBase {
       EntityImpl doc1 = new EntityImpl();
       bag.add(doc1);
       doc.field("bag", bag);
-      DocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
+      EntityInternalUtils.convertAllMultiValuesToTrackedVersions(doc);
       DirtyManager manager = RecordInternal.getDirtyManager(doc1);
       assertEquals(2, manager.getNewRecords().size());
     } finally {

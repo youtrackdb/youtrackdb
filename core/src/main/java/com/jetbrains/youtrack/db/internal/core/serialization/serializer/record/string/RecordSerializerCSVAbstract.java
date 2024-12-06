@@ -45,7 +45,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.DocumentSerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.string.StringBuilderSerializable;
@@ -242,7 +242,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
           final Object embeddedObject = StringSerializerEmbedded.INSTANCE.fromStream(db, value);
           if (embeddedObject instanceof EntityImpl) {
-            DocumentInternal.addOwner((EntityImpl) embeddedObject, iSourceRecord);
+            EntityInternalUtils.addOwner((EntityImpl) embeddedObject, iSourceRecord);
           }
 
           // RECORD
@@ -329,7 +329,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
             mapValueObject = fieldTypeFromStream(db, iSourceDocument, linkedType, mapValue);
 
             if (mapValueObject != null && mapValueObject instanceof EntityImpl) {
-              DocumentInternal.addOwner((EntityImpl) mapValueObject, iSourceDocument);
+              EntityInternalUtils.addOwner((EntityImpl) mapValueObject, iSourceDocument);
             }
           } else {
             mapValueObject = null;
@@ -549,11 +549,11 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
           toString((Record) iValue, iOutput, null, true);
           iOutput.append(StringSerializerHelper.EMBEDDED_END);
         } else if (iValue instanceof DocumentSerializable) {
-          final EntityImpl doc = ((DocumentSerializable) iValue).toDocument();
-          doc.field(DocumentSerializable.CLASS_NAME, iValue.getClass().getName());
+          final EntityImpl entity = ((DocumentSerializable) iValue).toDocument();
+          entity.field(DocumentSerializable.CLASS_NAME, iValue.getClass().getName());
 
           iOutput.append(StringSerializerHelper.EMBEDDED_BEGIN);
-          toString(doc, iOutput, null, true);
+          toString(entity, iOutput, null, true);
           iOutput.append(StringSerializerHelper.EMBEDDED_END);
 
         } else if (iValue != null) {
@@ -669,7 +669,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
   }
 
   public Object embeddedCollectionFromStream(
-      DatabaseSessionInternal db, final EntityImpl iDocument,
+      DatabaseSessionInternal db, final EntityImpl e,
       final PropertyType iType,
       SchemaClass iLinkedClass,
       final PropertyType iLinkedType,
@@ -689,23 +689,23 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
     Collection<?> coll;
     if (iLinkedType == PropertyType.LINK) {
-      if (iDocument != null) {
+      if (e != null) {
         coll =
             (iType == PropertyType.EMBEDDEDLIST
-                ? unserializeList(db, iDocument, value)
-                : unserializeSet(db, iDocument, value));
+                ? unserializeList(db, e, value)
+                : unserializeSet(db, e, value));
       } else {
         if (iType == PropertyType.EMBEDDEDLIST) {
-          coll = unserializeList(db, iDocument, value);
+          coll = unserializeList(db, e, value);
         } else {
-          return unserializeSet(db, iDocument, value);
+          return unserializeSet(db, e, value);
         }
       }
     } else {
       coll =
           iType == PropertyType.EMBEDDEDLIST
-              ? new TrackedList<Object>(iDocument)
-              : new TrackedSet<Object>(iDocument);
+              ? new TrackedList<Object>(e)
+              : new TrackedSet<Object>(e);
     }
 
     if (value.length() == 0) {
@@ -735,13 +735,13 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
           iLinkedClass = StringSerializerHelper.getRecordClassName(item, iLinkedClass);
 
           if (iLinkedClass != null) {
-            EntityImpl doc = new EntityImpl();
-            objectToAdd = fromString(db, item, doc, null);
-            DocumentInternal.fillClassNameIfNeeded(doc, iLinkedClass.getName());
+            EntityImpl entity = new EntityImpl();
+            objectToAdd = fromString(db, item, entity, null);
+            EntityInternalUtils.fillClassNameIfNeeded(entity, iLinkedClass.getName());
           } else
           // EMBEDDED OBJECT
           {
-            objectToAdd = fieldTypeFromStream(db, iDocument, PropertyType.EMBEDDED, item);
+            objectToAdd = fieldTypeFromStream(db, e, PropertyType.EMBEDDED, item);
           }
         }
       } else {
@@ -766,13 +766,13 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
           item = item.substring(1, item.length() - 1);
         }
 
-        objectToAdd = fieldTypeFromStream(db, iDocument, linkedType, item);
+        objectToAdd = fieldTypeFromStream(db, e, linkedType, item);
       }
 
       if (objectToAdd != null
           && objectToAdd instanceof EntityImpl
           && coll instanceof RecordElement) {
-        DocumentInternal.addOwner((EntityImpl) objectToAdd, (RecordElement) coll);
+        EntityInternalUtils.addOwner((EntityImpl) objectToAdd, (RecordElement) coll);
       }
 
       ((Collection<Object>) coll).add(objectToAdd);
@@ -808,7 +808,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
       }
 
       Identifiable id = null;
-      EntityImpl doc = null;
+      EntityImpl entity = null;
 
       final SchemaClass linkedClass;
       if (!(o instanceof Identifiable)) {
@@ -831,9 +831,9 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         }
 
         if (id instanceof EntityImpl) {
-          doc = (EntityImpl) id;
+          entity = (EntityImpl) id;
 
-          if (doc.hasOwners()) {
+          if (entity.hasOwners()) {
             linkedType = PropertyType.EMBEDDED;
           }
 
@@ -842,7 +842,7 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
               || DatabaseRecordThreadLocal.instance().get().isRemote()
               : "Impossible to serialize invalid link " + id.getIdentity();
 
-          linkedClass = DocumentInternal.getImmutableSchemaClass(doc);
+          linkedClass = EntityInternalUtils.getImmutableSchemaClass(entity);
         } else {
           linkedClass = null;
         }
@@ -854,8 +854,8 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
 
       if (linkedType == PropertyType.EMBEDDED && o instanceof Identifiable) {
         toString(((Identifiable) o).getRecord(), iOutput, null);
-      } else if (linkedType != PropertyType.LINK && (linkedClass != null || doc != null)) {
-        toString(doc, iOutput, null, true);
+      } else if (linkedType != PropertyType.LINK && (linkedClass != null || entity != null)) {
+        toString(entity, iOutput, null, true);
       } else {
         // EMBEDDED LITERALS
         if (iLinkedType == null) {
@@ -914,12 +914,12 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         if (item.startsWith("#")) {
           coll.add(new RecordId(item));
         } else {
-          final Record doc = fromString(db, item);
-          if (doc instanceof EntityImpl) {
-            DocumentInternal.addOwner((EntityImpl) doc, iSourceRecord);
+          final Record entity = fromString(db, item);
+          if (entity instanceof EntityImpl) {
+            EntityInternalUtils.addOwner((EntityImpl) entity, iSourceRecord);
           }
 
-          coll.add(doc);
+          coll.add(entity);
         }
       }
     }
@@ -938,12 +938,12 @@ public abstract class RecordSerializerCSVAbstract extends RecordSerializerString
         if (item.startsWith("#")) {
           coll.add(new RecordId(item));
         } else {
-          final Record doc = fromString(db, item);
-          if (doc instanceof EntityImpl) {
-            DocumentInternal.addOwner((EntityImpl) doc, iSourceRecord);
+          final Record entity = fromString(db, item);
+          if (entity instanceof EntityImpl) {
+            EntityInternalUtils.addOwner((EntityImpl) entity, iSourceRecord);
           }
 
-          coll.add(doc);
+          coll.add(entity);
         }
       }
     }

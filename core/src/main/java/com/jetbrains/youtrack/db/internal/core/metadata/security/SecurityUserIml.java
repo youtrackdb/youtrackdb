@@ -75,7 +75,7 @@ public class SecurityUserIml extends Identity implements SecurityUser {
   }
 
   /**
-   * Create the user by reading the source document.
+   * Create the user by reading the source entity.
    */
   public SecurityUserIml(DatabaseSession session, final EntityImpl iSource) {
     fromStream((DatabaseSessionInternal) session, iSource);
@@ -89,22 +89,22 @@ public class SecurityUserIml extends Identity implements SecurityUser {
   }
 
   public static boolean encodePassword(
-      DatabaseSessionInternal session, final EntityImpl iDocument) {
-    final String name = iDocument.field("name");
+      DatabaseSessionInternal session, final EntityImpl entity) {
+    final String name = entity.field("name");
     if (name == null) {
       throw new SecurityException("User name not found");
     }
 
-    final String password = iDocument.field("password");
+    final String password = entity.field("password");
 
     if (password == null) {
-      throw new SecurityException("User '" + iDocument.field("name") + "' has no password");
+      throw new SecurityException("User '" + entity.field("name") + "' has no password");
     }
     SecuritySystem security = session.getSharedContext().getYouTrackDB().getSecuritySystem();
     security.validatePassword(name, password);
 
     if (!password.startsWith("{")) {
-      iDocument.field("password", encryptPassword(password));
+      entity.field("password", encryptPassword(password));
       return true;
     }
 
@@ -112,15 +112,15 @@ public class SecurityUserIml extends Identity implements SecurityUser {
   }
 
   @Override
-  public void fromStream(DatabaseSessionInternal session, final EntityImpl iSource) {
+  public void fromStream(DatabaseSessionInternal session, final EntityImpl entity) {
     if (getDocument(session) != null) {
       return;
     }
 
-    setDocument(session, iSource);
+    setDocument(session, entity);
 
     roles = new HashSet<>();
-    final Collection<Identifiable> loadedRoles = iSource.field("roles");
+    final Collection<Identifiable> loadedRoles = entity.field("roles");
     if (loadedRoles != null) {
       for (final Identifiable d : loadedRoles) {
         if (d != null) {
@@ -163,17 +163,17 @@ public class SecurityUserIml extends Identity implements SecurityUser {
       String resourceSpecific,
       final int iOperation) {
     var sessionInternal = session;
-    var document = getDocument(session);
+    var entity = getDocument(session);
     if (roles == null || roles.isEmpty()) {
-      if (document.field("roles") != null
-          && !((Collection<Identifiable>) document.field("roles")).isEmpty()) {
-        final EntityImpl doc = document;
-        document = null;
-        fromStream(sessionInternal, doc);
+      if (entity.field("roles") != null
+          && !((Collection<Identifiable>) entity.field("roles")).isEmpty()) {
+        final EntityImpl e = entity;
+        entity = null;
+        fromStream(sessionInternal, e);
       } else {
         throw new SecurityAccessException(
             sessionInternal.getName(),
-            "User '" + document.field("name") + "' has no role defined");
+            "User '" + entity.field("name") + "' has no role defined");
       }
     }
 
@@ -181,9 +181,9 @@ public class SecurityUserIml extends Identity implements SecurityUser {
 
     if (role == null) {
       throw new SecurityAccessException(
-          document.getSession().getName(),
+          entity.getSession().getName(),
           "User '"
-              + document.field("name")
+              + entity.field("name")
               + "' does not have permission to execute the operation '"
               + Role.permissionToString(iOperation)
               + "' against the resource: "
@@ -351,7 +351,7 @@ public class SecurityUserIml extends Identity implements SecurityUser {
 
   public boolean removeRole(DatabaseSessionInternal session, final String iRoleName) {
     boolean removed = false;
-    var document = getDocument(session);
+    var entity = getDocument(session);
     for (Iterator<Role> it = roles.iterator(); it.hasNext(); ) {
       if (it.next().getName(session).equals(iRoleName)) {
         it.remove();
@@ -364,7 +364,7 @@ public class SecurityUserIml extends Identity implements SecurityUser {
       for (Role r : roles) {
         persistentRoles.add(r.toStream(session));
       }
-      document.field("roles", persistentRoles);
+      entity.field("roles", persistentRoles);
     }
 
     return removed;

@@ -112,10 +112,10 @@ public class SQLFunctionSet extends SQLFunctionMultiValueAbstract<Set<Object>> {
 
   protected Set<Object> prepareResult(Set<Object> res) {
     if (returnDistributedResult()) {
-      final Map<String, Object> doc = new HashMap<String, Object>();
-      doc.put("node", getDistributedStorageId());
-      doc.put("context", context);
-      return Collections.singleton(doc);
+      final Map<String, Object> entity = new HashMap<String, Object>();
+      entity.put("node", getDistributedStorageId());
+      entity.put("context", context);
+      return Collections.singleton(entity);
     } else {
       return res;
     }

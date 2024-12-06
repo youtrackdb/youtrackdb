@@ -1883,7 +1883,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
       } catch (final IOException e) {
         throw BaseException.wrapException(
             new CellBTreeMultiValueException(
-                "Error during element iteration", CellBTreeMultiValueV2.this),
+                "Error during entity iteration", CellBTreeMultiValueV2.this),
             e);
       } finally {
         atomicOperationsManager.releaseReadLock(CellBTreeMultiValueV2.this);
@@ -2097,7 +2097,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
       } catch (final IOException e) {
         throw BaseException.wrapException(
             new CellBTreeMultiValueException(
-                "Error during element iteration", CellBTreeMultiValueV2.this),
+                "Error during entity iteration", CellBTreeMultiValueV2.this),
             e);
       } finally {
         atomicOperationsManager.releaseReadLock(CellBTreeMultiValueV2.this);
@@ -2318,7 +2318,7 @@ public final class CellBTreeMultiValueV2<K> extends DurableComponent
       } catch (final IOException e) {
         throw BaseException.wrapException(
             new CellBTreeMultiValueException(
-                "Error during element iteration", CellBTreeMultiValueV2.this),
+                "Error during entity iteration", CellBTreeMultiValueV2.this),
             e);
       } finally {
         atomicOperationsManager.releaseReadLock(CellBTreeMultiValueV2.this);

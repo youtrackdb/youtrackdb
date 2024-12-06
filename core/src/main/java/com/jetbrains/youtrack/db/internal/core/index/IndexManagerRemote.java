@@ -27,8 +27,8 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.MetadataUpdateListener;
 import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
 import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.Metadata;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
@@ -86,8 +86,8 @@ public class IndexManagerRemote implements IndexManagerAbstract {
 
         database.executeInTx(
             () -> {
-              EntityImpl document = database.load(id);
-              fromStream(document);
+              EntityImpl entity = database.load(id);
+              fromStream(entity);
             });
       } finally {
         releaseExclusiveLock();
@@ -104,8 +104,8 @@ public class IndexManagerRemote implements IndexManagerAbstract {
 
       database.executeInTx(
           () -> {
-            EntityImpl document = database.load(id);
-            fromStream(document);
+            EntityImpl entity = database.load(id);
+            fromStream(entity);
           });
     } finally {
       releaseExclusiveLock();
@@ -571,12 +571,12 @@ public class IndexManagerRemote implements IndexManagerAbstract {
         storage.getName());
   }
 
-  protected void fromStream(EntityImpl document) {
+  protected void fromStream(EntityImpl entity) {
     acquireExclusiveLock();
     try {
       clearMetadata();
 
-      final Collection<EntityImpl> idxs = document.field(CONFIG_INDEXES);
+      final Collection<EntityImpl> idxs = entity.field(CONFIG_INDEXES);
       if (idxs != null) {
         for (EntityImpl d : idxs) {
           d.setLazyLoad(false);

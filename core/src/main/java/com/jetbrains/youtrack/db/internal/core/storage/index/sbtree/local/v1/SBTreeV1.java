@@ -1532,7 +1532,7 @@ public final class SBTreeV1<K, V> extends DurableComponent
         }
       } catch (final IOException e) {
         throw BaseException.wrapException(
-            new SBTreeException("Error during element iteration", SBTreeV1.this), e);
+            new SBTreeException("Error during entity iteration", SBTreeV1.this), e);
       } finally {
         atomicOperationsManager.releaseReadLock(SBTreeV1.this);
       }
@@ -1691,7 +1691,7 @@ public final class SBTreeV1<K, V> extends DurableComponent
         }
       } catch (final IOException e) {
         throw BaseException.wrapException(
-            new SBTreeException("Error during element iteration", SBTreeV1.this), e);
+            new SBTreeException("Error during entity iteration", SBTreeV1.this), e);
       } finally {
         atomicOperationsManager.releaseReadLock(SBTreeV1.this);
       }
@@ -1859,7 +1859,7 @@ public final class SBTreeV1<K, V> extends DurableComponent
         }
       } catch (final IOException e) {
         throw BaseException.wrapException(
-            new SBTreeException("Error during element iteration", SBTreeV1.this), e);
+            new SBTreeException("Error during entity iteration", SBTreeV1.this), e);
       } finally {
         atomicOperationsManager.releaseReadLock(SBTreeV1.this);
       }

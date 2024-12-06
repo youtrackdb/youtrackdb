@@ -172,8 +172,8 @@ import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkV37;
@@ -465,7 +465,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
         if (!fetchPlanString.isEmpty()) {
           // BUILD THE SERVER SIDE RECORD TO ACCES TO THE FETCH
           // PLAN
-          if (record instanceof EntityImpl doc) {
+          if (record instanceof EntityImpl entity) {
             final FetchPlan fetchPlan = FetchHelper.buildFetchPlan(fetchPlanString);
 
             final FetchListener listener =
@@ -476,7 +476,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
                   }
                 };
             final FetchContext context = new RemoteFetchContext();
-            FetchHelper.fetch(doc, doc, fetchPlan, listener, context, "");
+            FetchHelper.fetch(entity, entity, fetchPlan, listener, context, "");
           }
         }
         response =
@@ -504,7 +504,7 @@ public final class ConnectionBinaryExecutor implements BinaryRequestExecutor {
     RecordInternal.setVersion(record, 0);
     if (record instanceof EntityImpl) {
       // Force conversion of value to class for trigger default values.
-      DocumentInternal.autoConvertValueToClass(connection.getDatabase(), (EntityImpl) record);
+      EntityInternalUtils.autoConvertValueToClass(connection.getDatabase(), (EntityImpl) record);
     }
     connection.getDatabase().save(record);
 

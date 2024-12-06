@@ -37,14 +37,14 @@ import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
-import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
+import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerStringAbstract;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
@@ -127,7 +127,7 @@ public class DocumentHelper {
 
   @SuppressWarnings("unchecked")
   public static <RET> RET convertField(
-      DatabaseSessionInternal session, final EntityImpl iDocument,
+      DatabaseSessionInternal session, final EntityImpl entity,
       final String iFieldName,
       PropertyType type,
       Class<?> iFieldType,
@@ -167,9 +167,9 @@ public class DocumentHelper {
         // CONVERT IT TO SET
         final Collection<?> newValue;
         if (type.isLink()) {
-          newValue = new LinkSet(iDocument);
+          newValue = new LinkSet(entity);
         } else {
-          newValue = new TrackedSet<>(iDocument);
+          newValue = new TrackedSet<>(entity);
         }
         if (iValue instanceof Collection<?>) {
           ((Collection<Object>) newValue).addAll((Collection<Object>) iValue);
@@ -199,9 +199,9 @@ public class DocumentHelper {
         final Collection<?> newValue;
 
         if (type.isLink()) {
-          newValue = new LinkList(iDocument);
+          newValue = new LinkList(entity);
         } else {
-          newValue = new TrackedList<Object>(iDocument);
+          newValue = new TrackedList<Object>(entity);
         }
 
         if (iValue instanceof Collection) {
@@ -401,9 +401,9 @@ public class DocumentHelper {
             String from = indexRanges.get(0);
             String to = indexRanges.get(1);
 
-            final EntityImpl doc = (EntityImpl) record;
+            final EntityImpl entity = (EntityImpl) record;
 
-            final String[] fieldNames = doc.fieldNames();
+            final String[] fieldNames = entity.fieldNames();
             final int rangeFrom = from != null && !from.isEmpty() ? Integer.parseInt(from) : 0;
             final int rangeTo =
                 to != null && !to.isEmpty()
@@ -413,7 +413,7 @@ public class DocumentHelper {
             final Object[] values = new Object[rangeTo - rangeFrom + 1];
 
             for (int i = rangeFrom; i <= rangeTo; ++i) {
-              values[i - rangeFrom] = doc.field(fieldNames[i]);
+              values[i - rangeFrom] = entity.field(fieldNames[i]);
             }
 
             value = values;
@@ -580,9 +580,9 @@ public class DocumentHelper {
                   values.add(v);
                 }
               } else if (v instanceof Map) {
-                EntityImpl doc = new EntityImpl();
-                doc.fromMap((Map<String, ? extends Object>) v);
-                Object result = pred.evaluate(doc, doc, iContext);
+                EntityImpl entity = new EntityImpl();
+                entity.fromMap((Map<String, ? extends Object>) v);
+                Object result = pred.evaluate(entity, entity, iContext);
                 if (Boolean.TRUE.equals(result)) {
                   values.add(v);
                 }
@@ -795,17 +795,17 @@ public class DocumentHelper {
         return null;
       }
 
-      if (rec instanceof EntityImpl doc) {
+      if (rec instanceof EntityImpl entity) {
 
-        Object fieldValue = doc.field(iConditionFieldName);
+        Object fieldValue = entity.field(iConditionFieldName);
 
         if (iConditionFieldValue == null) {
-          return fieldValue == null ? doc : null;
+          return fieldValue == null ? entity : null;
         }
 
         fieldValue = PropertyType.convert(session, fieldValue, iConditionFieldValue.getClass());
         if (fieldValue != null && fieldValue.equals(iConditionFieldValue)) {
-          return doc;
+          return entity;
         }
       }
     } else if (iValue instanceof Map<?, ?>) {
@@ -903,8 +903,8 @@ public class DocumentHelper {
     }
 
     try {
-      final EntityImpl doc = iCurrent.getRecord();
-      return doc.accessProperty(iFieldName);
+      final EntityImpl entity = iCurrent.getRecord();
+      return entity.accessProperty(iFieldName);
     } catch (RecordNotFoundException rnf) {
       return null;
     }
@@ -1133,8 +1133,8 @@ public class DocumentHelper {
 
           return id.equals(iOther);
         } else {
-          final EntityImpl otherDoc = iOtherDb.load((RID) iOther);
-          return DocumentHelper.hasSameContentOf(current, iMyDb, otherDoc, iOtherDb, ridMapper);
+          final EntityImpl otherEntity = iOtherDb.load((RID) iOther);
+          return DocumentHelper.hasSameContentOf(current, iMyDb, otherEntity, iOtherDb, ridMapper);
         }
       } else {
         return DocumentHelper.hasSameContentOf(

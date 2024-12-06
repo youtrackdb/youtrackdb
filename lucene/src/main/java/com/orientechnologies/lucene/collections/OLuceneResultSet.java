@@ -113,7 +113,7 @@ public class OLuceneResultSet implements Set<Identifiable> {
       }
     } catch (final IOException e) {
       LogManager.instance()
-          .error(this, "Error on fetching document by query '%s' to Lucene index", e, query);
+          .error(this, "Error on fetching entity by query '%s' to Lucene index", e, query);
     }
   }
 
@@ -247,7 +247,7 @@ public class OLuceneResultSet implements Set<Identifiable> {
       try {
         return queryContext.getSearcher().doc(score.doc);
       } catch (final IOException e) {
-        LogManager.instance().error(this, "Error during conversion to document", e);
+        LogManager.instance().error(this, "Error during conversion to entity", e);
         return null;
       }
     }
@@ -294,7 +294,7 @@ public class OLuceneResultSet implements Set<Identifiable> {
         scoreDocs = topDocs.scoreDocs;
       } catch (final IOException e) {
         LogManager.instance()
-            .error(this, "Error on fetching document by query '%s' to Lucene index", e, query);
+            .error(this, "Error on fetching entity by query '%s' to Lucene index", e, query);
       }
     }
 

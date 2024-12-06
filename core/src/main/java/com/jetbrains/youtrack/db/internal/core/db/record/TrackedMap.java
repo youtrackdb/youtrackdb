@@ -23,7 +23,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -85,7 +85,7 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
     }
 
     if (oldValue instanceof EntityImpl) {
-      DocumentInternal.removeOwner((EntityImpl) oldValue, this);
+      EntityInternalUtils.removeOwner((EntityImpl) oldValue, this);
     }
 
     addOwnerToEmbeddedDoc(value);
@@ -116,7 +116,7 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
   private void addOwnerToEmbeddedDoc(T e) {
     if (embeddedCollection && e instanceof EntityImpl && !((EntityImpl) e).getIdentity()
         .isValid()) {
-      DocumentInternal.addOwner((EntityImpl) e, this);
+      EntityInternalUtils.addOwner((EntityImpl) e, this);
     }
     if (e instanceof EntityImpl) {
       RecordInternal.track(sourceRecord, (EntityImpl) e);
@@ -223,7 +223,7 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
 
   private void updateEvent(Object key, T oldValue, T newValue) {
     if (oldValue instanceof EntityImpl) {
-      DocumentInternal.removeOwner((EntityImpl) oldValue, this);
+      EntityInternalUtils.removeOwner((EntityImpl) oldValue, this);
     }
 
     addOwnerToEmbeddedDoc(newValue);
@@ -237,7 +237,7 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
 
   private void removeEvent(Object iKey, T removed) {
     if (removed instanceof EntityImpl) {
-      DocumentInternal.removeOwner((EntityImpl) removed, this);
+      EntityInternalUtils.removeOwner((EntityImpl) removed, this);
     }
     if (tracker.isEnabled()) {
       tracker.remove(iKey, removed);
@@ -253,7 +253,7 @@ public class TrackedMap<T> extends LinkedHashMap<Object, T>
     }
   }
 
-  public void disableTracking(RecordElement document) {
+  public void disableTracking(RecordElement entity) {
     if (tracker.isEnabled()) {
       this.tracker.disable();
       TrackedMultiValue.nestedDisable(this.values().iterator(), this);

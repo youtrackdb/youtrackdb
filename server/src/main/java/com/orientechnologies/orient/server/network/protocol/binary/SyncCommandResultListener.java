@@ -80,7 +80,7 @@ public class SyncCommandResultListener extends AbstractCommandResultListener
   }
 
   @Override
-  public void linkdedBySimpleValue(EntityImpl doc) {
+  public void linkdedBySimpleValue(EntityImpl entity) {
 
     RemoteFetchListener listener =
         new RemoteFetchListener() {
@@ -119,6 +119,6 @@ public class SyncCommandResultListener extends AbstractCommandResultListener
           }
         };
     final FetchContext context = new RemoteFetchContext();
-    FetchHelper.fetch(doc, doc, FetchHelper.buildFetchPlan(""), listener, context, "");
+    FetchHelper.fetch(entity, entity, FetchHelper.buildFetchPlan(""), listener, context, "");
   }
 }

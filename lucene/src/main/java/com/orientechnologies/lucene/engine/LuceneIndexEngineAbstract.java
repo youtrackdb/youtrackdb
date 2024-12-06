@@ -30,11 +30,11 @@ import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.id.ContextualRecordId;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
 import com.jetbrains.youtrack.db.internal.core.index.IndexException;
+import com.jetbrains.youtrack.db.internal.core.index.IndexMetadata;
 import com.jetbrains.youtrack.db.internal.core.index.engine.IndexEngineValuesTransformer;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
@@ -132,7 +132,7 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
       reopenToken = indexWriter.addDocument(doc);
     } catch (IOException e) {
       LogManager.instance()
-          .error(this, "Error on adding new document '%s' to Lucene index", e, doc);
+          .error(this, "Error on adding new entity '%s' to Lucene index", e, doc);
     }
   }
 
@@ -443,13 +443,13 @@ public abstract class LuceneIndexEngineAbstract implements LuceneIndexEngine {
         LogManager.instance()
             .error(
                 this,
-                "Error on deleting document by query '%s' to Lucene index",
-                new IndexException("Error deleting document"),
+                "Error on deleting entity by query '%s' to Lucene index",
+                new IndexException("Error deleting entity"),
                 query);
       }
     } catch (IOException e) {
       LogManager.instance()
-          .error(this, "Error on deleting document by query '%s' to Lucene index", e, query);
+          .error(this, "Error on deleting entity by query '%s' to Lucene index", e, query);
     }
   }
 

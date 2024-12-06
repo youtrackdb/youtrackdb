@@ -8,7 +8,7 @@ import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -165,7 +165,7 @@ public class SQLMatchPathItem extends SimpleNode {
     try {
       Record record = identifiable.getRecord();
       if (record instanceof EntityImpl) {
-        return DocumentInternal.getImmutableSchemaClass(((EntityImpl) record))
+        return EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record))
             .isSubClassOf(oClass);
       }
     } catch (RecordNotFoundException rnf) {

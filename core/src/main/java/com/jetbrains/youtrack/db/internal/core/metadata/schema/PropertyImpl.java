@@ -659,13 +659,13 @@ public abstract class PropertyImpl implements Property {
     }
   }
 
-  public void fromStream(EntityImpl document) {
-    String name = document.field("name");
+  public void fromStream(EntityImpl entity) {
+    String name = entity.field("name");
     PropertyType type = null;
-    if (document.field("type") != null) {
-      type = PropertyType.getById(((Integer) document.field("type")).byteValue());
+    if (entity.field("type") != null) {
+      type = PropertyType.getById(((Integer) entity.field("type")).byteValue());
     }
-    Integer globalId = document.field("globalId");
+    Integer globalId = entity.field("globalId");
     if (globalId != null) {
       globalRef = owner.owner.getGlobalPropertyById(globalId);
     } else {
@@ -675,28 +675,28 @@ public abstract class PropertyImpl implements Property {
       globalRef = owner.owner.findOrCreateGlobalProperty(name, type);
     }
 
-    mandatory = document.containsField("mandatory") ? (Boolean) document.field("mandatory") : false;
-    readonly = document.containsField("readonly") ? (Boolean) document.field("readonly") : false;
-    notNull = document.containsField("notNull") ? (Boolean) document.field("notNull") : false;
-    defaultValue = document.containsField("defaultValue") ? document.field("defaultValue") : null;
-    if (document.containsField("collate")) {
-      collate = SQLEngine.getCollate(document.field("collate"));
+    mandatory = entity.containsField("mandatory") ? (Boolean) entity.field("mandatory") : false;
+    readonly = entity.containsField("readonly") ? (Boolean) entity.field("readonly") : false;
+    notNull = entity.containsField("notNull") ? (Boolean) entity.field("notNull") : false;
+    defaultValue = entity.containsField("defaultValue") ? entity.field("defaultValue") : null;
+    if (entity.containsField("collate")) {
+      collate = SQLEngine.getCollate(entity.field("collate"));
     }
 
-    min = document.containsField("min") ? document.field("min") : null;
-    max = document.containsField("max") ? document.field("max") : null;
-    regexp = document.containsField("regexp") ? document.field("regexp") : null;
-    linkedClassName = document.containsField("linkedClass") ? document.field("linkedClass") : null;
+    min = entity.containsField("min") ? entity.field("min") : null;
+    max = entity.containsField("max") ? entity.field("max") : null;
+    regexp = entity.containsField("regexp") ? entity.field("regexp") : null;
+    linkedClassName = entity.containsField("linkedClass") ? entity.field("linkedClass") : null;
     linkedType =
-        document.field("linkedType") != null
-            ? PropertyType.getById(((Integer) document.field("linkedType")).byteValue())
+        entity.field("linkedType") != null
+            ? PropertyType.getById(((Integer) entity.field("linkedType")).byteValue())
             : null;
-    if (document.containsField("customFields")) {
-      customFields = document.field("customFields", PropertyType.EMBEDDEDMAP);
+    if (entity.containsField("customFields")) {
+      customFields = entity.field("customFields", PropertyType.EMBEDDEDMAP);
     } else {
       customFields = null;
     }
-    description = document.containsField("description") ? document.field("description") : null;
+    description = entity.containsField("description") ? entity.field("description") : null;
   }
 
   public Collection<Index> getAllIndexes(DatabaseSession session) {
@@ -718,38 +718,38 @@ public abstract class PropertyImpl implements Property {
   }
 
   public EntityImpl toStream() {
-    EntityImpl document = new EntityImpl();
-    document.field("name", getName());
-    document.field("type", getType().id);
-    document.field("globalId", globalRef.getId());
-    document.field("mandatory", mandatory);
-    document.field("readonly", readonly);
-    document.field("notNull", notNull);
-    document.field("defaultValue", defaultValue);
+    EntityImpl entity = new EntityImpl();
+    entity.field("name", getName());
+    entity.field("type", getType().id);
+    entity.field("globalId", globalRef.getId());
+    entity.field("mandatory", mandatory);
+    entity.field("readonly", readonly);
+    entity.field("notNull", notNull);
+    entity.field("defaultValue", defaultValue);
 
-    document.field("min", min);
-    document.field("max", max);
+    entity.field("min", min);
+    entity.field("max", max);
     if (regexp != null) {
-      document.field("regexp", regexp);
+      entity.field("regexp", regexp);
     } else {
-      document.removeField("regexp");
+      entity.removeField("regexp");
     }
     if (linkedType != null) {
-      document.field("linkedType", linkedType.id);
+      entity.field("linkedType", linkedType.id);
     }
     if (linkedClass != null || linkedClassName != null) {
-      document.field("linkedClass", linkedClass != null ? linkedClass.getName() : linkedClassName);
+      entity.field("linkedClass", linkedClass != null ? linkedClass.getName() : linkedClassName);
     }
 
-    document.field(
+    entity.field(
         "customFields",
         customFields != null && customFields.size() > 0 ? customFields : null,
         PropertyType.EMBEDDEDMAP);
     if (collate != null) {
-      document.field("collate", collate.getName());
+      entity.field("collate", collate.getName());
     }
-    document.field("description", description);
-    return document;
+    entity.field("description", description);
+    return entity;
   }
 
   public void acquireSchemaReadLock() {
@@ -806,39 +806,39 @@ public abstract class PropertyImpl implements Property {
   }
 
   public EntityImpl toNetworkStream() {
-    EntityImpl document = new EntityImpl();
-    document.setTrackingChanges(false);
-    document.field("name", getName());
-    document.field("type", getType().id);
-    document.field("globalId", globalRef.getId());
-    document.field("mandatory", mandatory);
-    document.field("readonly", readonly);
-    document.field("notNull", notNull);
-    document.field("defaultValue", defaultValue);
+    EntityImpl entity = new EntityImpl();
+    entity.setTrackingChanges(false);
+    entity.field("name", getName());
+    entity.field("type", getType().id);
+    entity.field("globalId", globalRef.getId());
+    entity.field("mandatory", mandatory);
+    entity.field("readonly", readonly);
+    entity.field("notNull", notNull);
+    entity.field("defaultValue", defaultValue);
 
-    document.field("min", min);
-    document.field("max", max);
+    entity.field("min", min);
+    entity.field("max", max);
     if (regexp != null) {
-      document.field("regexp", regexp);
+      entity.field("regexp", regexp);
     } else {
-      document.removeField("regexp");
+      entity.removeField("regexp");
     }
     if (linkedType != null) {
-      document.field("linkedType", linkedType.id);
+      entity.field("linkedType", linkedType.id);
     }
     if (linkedClass != null || linkedClassName != null) {
-      document.field("linkedClass", linkedClass != null ? linkedClass.getName() : linkedClassName);
+      entity.field("linkedClass", linkedClass != null ? linkedClass.getName() : linkedClassName);
     }
 
-    document.field(
+    entity.field(
         "customFields",
         customFields != null && customFields.size() > 0 ? customFields : null,
         PropertyType.EMBEDDEDMAP);
     if (collate != null) {
-      document.field("collate", collate.getName());
+      entity.field("collate", collate.getName());
     }
-    document.field("description", description);
+    entity.field("description", description);
 
-    return document;
+    return entity;
   }
 }

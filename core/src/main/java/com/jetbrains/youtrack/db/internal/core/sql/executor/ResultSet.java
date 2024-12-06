@@ -90,7 +90,7 @@ public interface ResultSet extends Spliterator<Result>, Iterator<Result>, AutoCl
 
   default Entity findFirstEntityOrThrow() {
     return entityStream().findFirst()
-        .orElseThrow(() -> new IllegalStateException("No element found"));
+        .orElseThrow(() -> new IllegalStateException("No entity found"));
   }
 
   default Vertex findFirstVertex() {

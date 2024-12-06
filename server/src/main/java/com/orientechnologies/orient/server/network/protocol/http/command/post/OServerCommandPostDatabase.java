@@ -28,8 +28,8 @@ import com.jetbrains.youtrack.db.internal.core.engine.local.EngineLocalPaginated
 import com.jetbrains.youtrack.db.internal.core.engine.memory.EngineMemory;
 import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.exception.SecurityAccessException;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
@@ -192,8 +192,8 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
 
     json.beginCollection(1, false, "users");
     SecurityUserIml user;
-    for (EntityImpl doc : db.getMetadata().getSecurity().getAllUsers()) {
-      user = new SecurityUserIml(db, doc);
+    for (EntityImpl entity : db.getMetadata().getSecurity().getAllUsers()) {
+      user = new SecurityUserIml(db, entity);
       json.beginObject(2, true, null);
       json.writeAttribute(3, false, "name", user.getName(db));
       json.writeAttribute(
@@ -207,8 +207,8 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
 
     json.beginCollection(1, true, "roles");
     Role role;
-    for (EntityImpl doc : db.getMetadata().getSecurity().getAllRoles()) {
-      role = new Role(db, doc);
+    for (EntityImpl entity : db.getMetadata().getSecurity().getAllRoles()) {
+      role = new Role(db, entity);
       json.beginObject(2, true, null);
       json.writeAttribute(3, false, "name", role.getName(db));
       json.writeAttribute(3, false, "mode", role.getMode().toString());

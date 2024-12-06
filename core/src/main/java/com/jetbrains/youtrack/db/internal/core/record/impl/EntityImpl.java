@@ -30,8 +30,8 @@ import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkList;
 import com.jetbrains.youtrack.db.internal.core.db.record.LinkMap;
@@ -39,10 +39,10 @@ import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeEvent.ChangeType;
 import com.jetbrains.youtrack.db.internal.core.db.record.MultiValueChangeTimeLine;
-import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMultiValue;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordElement;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedList;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMap;
+import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMultiValue;
 import com.jetbrains.youtrack.db.internal.core.db.record.TrackedSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
@@ -50,8 +50,8 @@ import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.exception.QueryParsingException;
 import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
-import com.jetbrains.youtrack.db.internal.core.exception.ValidationException;
 import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
+import com.jetbrains.youtrack.db.internal.core.exception.ValidationException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
@@ -61,23 +61,23 @@ import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.GlobalProperty;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableProperty;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Identity;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyAccess;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryption;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.RecordVersionHelper;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordSchemaAware;
+import com.jetbrains.youtrack.db.internal.core.record.RecordVersionHelper;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLHelper;
@@ -111,7 +111,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Document representation to handle values dynamically. Can be used in schema-less, schema-mixed
+ * Entity representation to handle values dynamically. Can be used in schema-less, schema-mixed
  * and schema-full modes. Fields can be added at run-time. Instances can be reused across calls by
  * using the reset() before to re-use.
  */
@@ -270,7 +270,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * Fills a document passing the field array in form of pairs of field name and value.
+   * Fills a entity passing the field array in form of pairs of field name and value.
    *
    * @param iFields Array of field pairs
    */
@@ -286,7 +286,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * Fills a document passing a map of key/values where the key is the field name and the value the
+   * Fills a entity passing a map of key/values where the key is the field name and the value the
    * field's value.
    *
    * @param iFieldMap Map of Object/Object
@@ -301,7 +301,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * Fills a document passing the field names/values pair, where the first pair is mandatory.
+   * Fills a entity passing the field names/values pair, where the first pair is mandatory.
    */
   public EntityImpl(final String iFieldName, final Object iFieldValue, final Object... iFields) {
     this(iFields);
@@ -467,7 +467,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * retrieves a property value from the current document
+   * retrieves a property value from the current entity
    *
    * @param fieldName The field name, it can contain any character (it's not evaluated as an
    *                  expression, as in #eval()
@@ -495,7 +495,7 @@ public class EntityImpl extends RecordAbstract
         && value instanceof RID rid
         && (rid.isPersistent() || rid.isNew())
         && DatabaseRecordThreadLocal.instance().isDefined()) {
-      // CREATE THE DOCUMENT OBJECT IN LAZY WAY
+      // CREATE THE ENTITY OBJECT IN LAZY WAY
       var db = getSession();
       try {
         RET newValue = db.load((RID) value);
@@ -599,7 +599,7 @@ public class EntityImpl extends RecordAbstract
     }
 
     if (!(result instanceof Identifiable identifiable)
-        || (result instanceof EntityImpl document && document.isEmbedded())) {
+        || (result instanceof EntityImpl entity && entity.isEmbedded())) {
       throw new IllegalArgumentException("Requested property " + name + " is not a link.");
     }
 
@@ -612,8 +612,8 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * retrieves a property value from the current document, without evaluating it (eg. no conversion
-   * from RID to document)
+   * retrieves a property value from the current entity, without evaluating it (eg. no conversion
+   * from RID to entity)
    *
    * @param iFieldName The field name, it can contain any character (it's not evaluated as an
    *                   expression, as in #eval()
@@ -630,7 +630,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * sets a property value on current document
+   * sets a property value on current entity
    *
    * @param iFieldName     The property name
    * @param iPropertyValue The property value
@@ -782,8 +782,8 @@ public class EntityImpl extends RecordAbstract
     if (value != null) {
       if (value instanceof EntityImpl) {
         if (PropertyType.EMBEDDED.equals(fieldType)) {
-          final EntityImpl embeddedDocument = (EntityImpl) value;
-          DocumentInternal.addOwner(embeddedDocument, this);
+          final EntityImpl embeddedEntity = (EntityImpl) value;
+          EntityInternalUtils.addOwner(embeddedEntity, this);
         }
       }
       if (value instanceof Identifiable) {
@@ -1280,7 +1280,7 @@ public class EntityImpl extends RecordAbstract
                   + p.getType()
                   + " of type '"
                   + schemaClass.getName()
-                  + "' but the value is the document "
+                  + "' but the value is the entity "
                   + rid
                   + " of class '"
                   + cls
@@ -1310,14 +1310,14 @@ public class EntityImpl extends RecordAbstract
                   + p.getFullName()
                   + "' has been declared as "
                   + p.getType()
-                  + " but the value is a document with the valid RecordID "
+                  + " but the value is a entity with the valid RecordID "
                   + fieldValue);
         }
 
         final Record embeddedRecord = embedded.getRecord();
-        if (embeddedRecord instanceof EntityImpl doc) {
+        if (embeddedRecord instanceof EntityImpl entity) {
           final SchemaClass embeddedClass = p.getLinkedClass();
-          if (doc.isVertex()) {
+          if (entity.isVertex()) {
             throw new ValidationException(
                 "The field '"
                     + p.getFullName()
@@ -1326,11 +1326,11 @@ public class EntityImpl extends RecordAbstract
                     + " with linked class '"
                     + embeddedClass
                     + "' but the record is of class '"
-                    + doc.getImmutableSchemaClass().getName()
+                    + entity.getImmutableSchemaClass().getName()
                     + "' that is vertex class");
           }
 
-          if (doc.isEdge()) {
+          if (entity.isEdge()) {
             throw new ValidationException(
                 "The field '"
                     + p.getFullName()
@@ -1339,7 +1339,7 @@ public class EntityImpl extends RecordAbstract
                     + " with linked class '"
                     + embeddedClass
                     + "' but the record is of class '"
-                    + doc.getImmutableSchemaClass().getName()
+                    + entity.getImmutableSchemaClass().getName()
                     + "' that is edge class");
           }
         }
@@ -1347,7 +1347,7 @@ public class EntityImpl extends RecordAbstract
         final SchemaClass embeddedClass = p.getLinkedClass();
         if (embeddedClass != null) {
 
-          if (!(embeddedRecord instanceof EntityImpl doc)) {
+          if (!(embeddedRecord instanceof EntityImpl entity)) {
             throw new ValidationException(
                 "The field '"
                     + p.getFullName()
@@ -1355,10 +1355,10 @@ public class EntityImpl extends RecordAbstract
                     + p.getType()
                     + " with linked class '"
                     + embeddedClass
-                    + "' but the record was not a document");
+                    + "' but the record was not a entity");
           }
 
-          if (doc.getImmutableSchemaClass() == null) {
+          if (entity.getImmutableSchemaClass() == null) {
             throw new ValidationException(
                 "The field '"
                     + p.getFullName()
@@ -1369,7 +1369,7 @@ public class EntityImpl extends RecordAbstract
                     + "' but the record has no class");
           }
 
-          if (!(doc.getImmutableSchemaClass().isSubClassOf(embeddedClass))) {
+          if (!(entity.getImmutableSchemaClass().isSubClassOf(embeddedClass))) {
             throw new ValidationException(
                 "The field '"
                     + p.getFullName()
@@ -1378,11 +1378,11 @@ public class EntityImpl extends RecordAbstract
                     + " with linked class '"
                     + embeddedClass
                     + "' but the record is of class '"
-                    + doc.getImmutableSchemaClass().getName()
+                    + entity.getImmutableSchemaClass().getName()
                     + "' that is not a subclass of that");
           }
 
-          doc.validate();
+          entity.validate();
         }
 
       } else {
@@ -1405,23 +1405,23 @@ public class EntityImpl extends RecordAbstract
   public EntityImpl copy() {
     checkForBinding();
 
-    var doc = new EntityImpl();
-    RecordInternal.unsetDirty(doc);
-    var newDoc = (EntityImpl) copyTo(doc);
-    newDoc.dirty = true;
+    var entity = new EntityImpl();
+    RecordInternal.unsetDirty(entity);
+    var newEntity = (EntityImpl) copyTo(entity);
+    newEntity.dirty = true;
 
-    return newDoc;
+    return newEntity;
   }
 
   public EntityImpl copy(DatabaseSessionInternal session) {
-    var newDoc = copy();
-    newDoc.setup(session);
+    var newEntity = copy();
+    newEntity.setup(session);
 
-    return newDoc;
+    return newEntity;
   }
 
   /**
-   * Copies all the fields into iDestination document.
+   * Copies all the fields into iDestination entity.
    */
   @Override
   public final RecordAbstract copyTo(final RecordAbstract iDestination) {
@@ -1451,9 +1451,9 @@ public class EntityImpl extends RecordAbstract
           fields instanceof LinkedHashMap ? new LinkedHashMap<>() : new HashMap<>();
       for (Entry<String, EntityEntry> entry : fields.entrySet()) {
         var originalEntry = entry.getValue();
-        EntityEntry docEntry = originalEntry.clone();
-        destination.fields.put(entry.getKey(), docEntry);
-        docEntry.value = DocumentHelper.cloneValue(getSession(), destination,
+        EntityEntry entityEntry = originalEntry.clone();
+        destination.fields.put(entry.getKey(), entityEntry);
+        entityEntry.value = DocumentHelper.cloneValue(getSession(), destination,
             entry.getValue().value);
       }
     } else {
@@ -1505,8 +1505,8 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * Returns the document as Map String,Object . If the document has identity, then the @rid entry
-   * is valued. If the document has a class, then the @class entry is valued.
+   * Returns the entity as Map String,Object . If the entity has identity, then the @rid entry
+   * is valued. If the entity has a class, then the @class entry is valued.
    *
    * @since 2.0
    */
@@ -1543,7 +1543,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * Fills the EntityImpl directly with the string representation of the document itself. Use it for
+   * Fills the EntityImpl directly with the string representation of the entity itself. Use it for
    * faster insertion but pay attention to respect the YouTrackDB record format.
    *
    * <p><code> record.reset();<br> record.setClassName("Account");<br>
@@ -1618,8 +1618,8 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * Evaluates a SQL expression against current document. Example: <code> long amountPlusVat =
-   * doc.eval("amount * 120 / 100");</code>
+   * Evaluates a SQL expression against current entity. Example: <code> long amountPlusVat =
+   * entity.eval("amount * 120 / 100");</code>
    *
    * @param iExpression SQL expression to evaluate.
    * @return The result of expression
@@ -1635,9 +1635,9 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * Evaluates a SQL expression against current document by passing a context. The expression can
+   * Evaluates a SQL expression against current entity by passing a context. The expression can
    * refer to the variables contained in the context. Example: <code> CommandContext context = new
-   * BasicCommandContext().setVariable("vat", 20); long amountPlusVat = doc.eval("amount *
+   * BasicCommandContext().setVariable("vat", 20); long amountPlusVat = entity.eval("amount *
    * (100+$vat) / 100", context); </code>
    *
    * @param iExpression SQL expression to evaluate.
@@ -1672,7 +1672,7 @@ public class EntityImpl extends RecordAbstract
         && value instanceof RID
         && (((RID) value).isPersistent() || ((RID) value).isNew())
         && DatabaseRecordThreadLocal.instance().isDefined()) {
-      // CREATE THE DOCUMENT OBJECT IN LAZY WAY
+      // CREATE THE ENTITY OBJECT IN LAZY WAY
       var db = getSession();
       try {
         RET newValue = db.load((RID) value);
@@ -1697,7 +1697,7 @@ public class EntityImpl extends RecordAbstract
 
   /**
    * Reads the field value forcing the return type. Use this method to force return of RID instead
-   * of the entire document by passing RID.class as iFieldType.
+   * of the entire entity by passing RID.class as iFieldType.
    *
    * @param iFieldName field name
    * @param iFieldType Forced type.
@@ -1786,7 +1786,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * Writes the field value. This method sets the current document as dirty.
+   * Writes the field value. This method sets the current entity as dirty.
    *
    * @param iFieldName     field name. If contains dots (.) the change is applied to the nested
    *                       documents in chain. To disable this feature call
@@ -1800,7 +1800,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * Fills a document passing the field names/values.
+   * Fills a entity passing the field names/values.
    */
   public EntityImpl fields(
       final String iFieldName, final Object iFieldValue, final Object... iFields) {
@@ -1820,7 +1820,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * Deprecated. Use fromMap(Map) instead.<br> Fills a document passing the field names/values as a
+   * Deprecated. Use fromMap(Map) instead.<br> Fills a entity passing the field names/values as a
    * Map String,Object where the keys are the field names and the values are the field values.
    *
    * @see #fromMap(Map)
@@ -1832,7 +1832,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * Fills a document passing the field names/values as a Map String,Object where the keys are the
+   * Fills a entity passing the field names/values as a Map String,Object where the keys are the
    * field names and the values are the field values. It accepts also @rid for record id and @class
    * for class name.
    *
@@ -1866,7 +1866,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * Writes the field value forcing the type. This method sets the current document as dirty.
+   * Writes the field value forcing the type. This method sets the current entity as dirty.
    *
    * <p>if there's a schema definition for the specified field, the value will be converted to
    * respect the schema definition if needed. if the type defined in the schema support less
@@ -1879,8 +1879,8 @@ public class EntityImpl extends RecordAbstract
    * @param iPropertyValue field value.
    * @param iFieldType     Forced type (not auto-determined)
    * @return The Record instance itself giving a "fluent interface". Useful to call multiple methods
-   * in chain. If the updated document is another document (using the dot (.) notation) then the
-   * document returned is the changed one or NULL if no document has been found in chain
+   * in chain. If the updated entity is another entity (using the dot (.) notation) then the
+   * entity returned is the changed one or NULL if no entity has been found in chain
    */
   public EntityImpl field(String iFieldName, Object iPropertyValue, PropertyType... iFieldType) {
     checkForBinding();
@@ -1931,7 +1931,7 @@ public class EntityImpl extends RecordAbstract
         final String subFieldName =
             lastIsArray ? iFieldName.substring(lastSep) : iFieldName.substring(lastSep + 1);
         if (subObject instanceof EntityImpl) {
-          // SUB-DOCUMENT
+          // SUB-ENTITY
           ((EntityImpl) subObject).field(subFieldName, iPropertyValue);
           return (EntityImpl) (((EntityImpl) subObject).isEmbedded() ? this : subObject);
         } else {
@@ -1968,13 +1968,13 @@ public class EntityImpl extends RecordAbstract
                 // APPLY CHANGE TO ALL THE ITEM IN SUB-COLLECTION
                 for (Object subObjectItem : MultiValue.getMultiValueIterable(subObject)) {
                   if (subObjectItem instanceof EntityImpl) {
-                    // SUB-DOCUMENT, CHECK IF IT'S NOT LINKED
+                    // SUB-ENTITY, CHECK IF IT'S NOT LINKED
                     if (!((EntityImpl) subObjectItem).isEmbedded()) {
                       throw new IllegalArgumentException(
                           "Property '"
                               + iFieldName
                               + "' points to linked collection of items. You can only change"
-                              + " embedded documents in this way");
+                              + " embedded entities in this way");
                     }
                     ((EntityImpl) subObjectItem).field(subFieldName, iPropertyValue);
                   } else {
@@ -2090,12 +2090,12 @@ public class EntityImpl extends RecordAbstract
     if (iPropertyValue != null) {
       if (iPropertyValue instanceof EntityImpl) {
         if (PropertyType.EMBEDDED.equals(fieldType)) {
-          final EntityImpl embeddedDocument = (EntityImpl) iPropertyValue;
-          DocumentInternal.addOwner(embeddedDocument, this);
+          final EntityImpl embeddedEntity = (EntityImpl) iPropertyValue;
+          EntityInternalUtils.addOwner(embeddedEntity, this);
         } else {
           if (PropertyType.LINK.equals(fieldType)) {
-            final EntityImpl embeddedDocument = (EntityImpl) iPropertyValue;
-            DocumentInternal.removeOwner(embeddedDocument, this);
+            final EntityImpl embeddedEntity = (EntityImpl) iPropertyValue;
+            EntityInternalUtils.removeOwner(embeddedEntity, this);
           }
         }
       }
@@ -2194,14 +2194,14 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * Merge current document with the document passed as parameter. If the field already exists then
+   * Merge current entity with the entity passed as parameter. If the field already exists then
    * the conflicts are managed based on the value of the parameter 'iUpdateOnlyMode'.
    *
    * @param iOther                              Other EntityImpl instance to merge
-   * @param iUpdateOnlyMode                     if true, the other document properties will always
+   * @param iUpdateOnlyMode                     if true, the other entity properties will always
    *                                            be added or overwritten. If false, the missed
-   *                                            properties in the "other" document will be removed
-   *                                            by original document
+   *                                            properties in the "other" entity will be removed
+   *                                            by original entity
    * @param iMergeSingleItemsOfMultiValueFields If true, merges single items of multi field fields
    *                                            (collections, maps, arrays, etc)
    */
@@ -2440,9 +2440,9 @@ public class EntityImpl extends RecordAbstract
   public RecordAbstract setDirty() {
     if (owner != null) {
       // PROPAGATES TO THE OWNER
-      var ownerDoc = owner.get();
-      if (ownerDoc != null) {
-        ownerDoc.setDirty();
+      var ownerEntity = owner.get();
+      if (ownerEntity != null) {
+        ownerEntity.setDirty();
       }
     } else {
       if (!isDirty()) {
@@ -2463,9 +2463,9 @@ public class EntityImpl extends RecordAbstract
   public void setDirtyNoChanged() {
     if (owner != null) {
       // PROPAGATES TO THE OWNER
-      var ownerDoc = owner.get();
-      if (ownerDoc != null) {
-        ownerDoc.setDirtyNoChanged();
+      var ownerEntity = owner.get();
+      if (ownerEntity != null) {
+        ownerEntity.setDirtyNoChanged();
       }
     }
 
@@ -2553,7 +2553,7 @@ public class EntityImpl extends RecordAbstract
     }
 
     if (dirty) {
-      throw new IllegalStateException("Can not unload dirty document");
+      throw new IllegalStateException("Can not unload dirty entity");
     }
 
     internalReset();
@@ -2566,8 +2566,8 @@ public class EntityImpl extends RecordAbstract
    *
    * <p>
    *
-   * <p>The following code will clear all data from specified document. <code>
-   * doc.clear(); doc.save(); </code>
+   * <p>The following code will clear all data from specified entity. <code>
+   * entity.clear(); entity.save(); </code>
    *
    * @see #reset()
    */
@@ -2591,7 +2591,7 @@ public class EntityImpl extends RecordAbstract
     var db = DatabaseRecordThreadLocal.instance().getIfDefined();
     if (db != null && db.getTransaction().isActive()) {
       throw new IllegalStateException(
-          "Cannot reset documents during a transaction. Create a new one each time");
+          "Cannot reset entities during a transaction. Create a new one each time");
     }
 
     super.reset();
@@ -2607,14 +2607,14 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * Rollbacks changes to the loaded version without reloading the document. Works only if tracking
+   * Rollbacks changes to the loaded version without reloading the entity. Works only if tracking
    * changes is enabled @see {@link #isTrackingChanges()} and {@link #setTrackingChanges(boolean)}
    * methods.
    */
   public void undo() {
     if (!trackingChanges) {
       throw new ConfigurationException(
-          "Cannot undo the document because tracking of changes is disabled");
+          "Cannot undo the entity because tracking of changes is disabled");
     }
 
     if (fields != null) {
@@ -2635,7 +2635,7 @@ public class EntityImpl extends RecordAbstract
   public EntityImpl undo(final String field) {
     if (!trackingChanges) {
       throw new ConfigurationException(
-          "Cannot undo the document because tracking of changes is disabled");
+          "Cannot undo the entity because tracking of changes is disabled");
     }
 
     if (fields != null) {
@@ -2669,7 +2669,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * Enabled or disabled the tracking of changes in the document. This is needed by some triggers
+   * Enabled or disabled the tracking of changes in the entity. This is needed by some triggers
    * like {@link ClassIndexManager} to determine what
    * fields are changed to update indexes.
    *
@@ -3005,7 +3005,7 @@ public class EntityImpl extends RecordAbstract
    * notNull, min, max, regexp, etc. If the schema is not defined for the current class or there are
    * no constraints then the validation is ignored.
    *
-   * @throws ValidationException if the document breaks some validation constraints defined in the
+   * @throws ValidationException if the entity breaks some validation constraints defined in the
    *                              schema
    * @see Property
    */
@@ -3139,11 +3139,11 @@ public class EntityImpl extends RecordAbstract
 
     for (Entry<String, EntityEntry> entry : iOther.entrySet()) {
       String f = entry.getKey();
-      EntityEntry docEntry = entry.getValue();
-      if (!docEntry.exists()) {
+      EntityEntry entityEntry = entry.getValue();
+      if (!entityEntry.exists()) {
         continue;
       }
-      final Object otherValue = docEntry.value;
+      final Object otherValue = entityEntry.value;
 
       EntityEntry curValue = fields.get(f);
 
@@ -3183,7 +3183,7 @@ public class EntityImpl extends RecordAbstract
     }
 
     if (!iUpdateOnlyMode) {
-      // REMOVE PROPERTIES NOT FOUND IN OTHER DOC
+      // REMOVE PROPERTIES NOT FOUND IN OTHER ENTITY
       for (String f : getPropertyNamesInternal()) {
         if (!iOther.containsKey(f) || !iOther.get(f).exists()) {
           removePropertyInternal(f);
@@ -3239,8 +3239,8 @@ public class EntityImpl extends RecordAbstract
     if (prop == null) {
       if (session.isClosed()) {
         throw new DatabaseException(
-            "Cannot unmarshall the document because no database is active, use detach for use the"
-                + " document outside the database session scope");
+            "Cannot unmarshall the entity because no database is active, use detach for use the"
+                + " entity outside the database session scope");
       }
 
       MetadataInternal metadata = session.getMetadata();
@@ -3454,11 +3454,11 @@ public class EntityImpl extends RecordAbstract
     }
     try {
       if (value instanceof EntityImpl) {
-        SchemaClass docClass = ((EntityImpl) value).getImmutableSchemaClass();
-        if (docClass == null) {
+        SchemaClass entityClass = ((EntityImpl) value).getImmutableSchemaClass();
+        if (entityClass == null) {
           ((EntityImpl) value).setClass(linkedClass);
         } else {
-          if (!docClass.isSubClassOf(linkedClass)) {
+          if (!entityClass.isSubClassOf(linkedClass)) {
             throw new ValidationException(
                 "impossible to convert value of field \""
                     + prop.getName()
@@ -3511,7 +3511,7 @@ public class EntityImpl extends RecordAbstract
     }
 
     if (recordId.isPersistent()) {
-      throw new DatabaseException("Cannot add owner to a persistent element");
+      throw new DatabaseException("Cannot add owner to a persistent entity");
     }
 
     if (owner == null) {
@@ -3542,7 +3542,7 @@ public class EntityImpl extends RecordAbstract
       final Object fieldValue = entry.value;
       if (fieldValue instanceof RidBag) {
         if (isEmbedded()) {
-          throw new DatabaseException("RidBag are supported only at document root");
+          throw new DatabaseException("RidBag are supported only at entity root");
         }
         ((RidBag) fieldValue).checkAndConvert();
       }
@@ -3705,7 +3705,7 @@ public class EntityImpl extends RecordAbstract
               cur = newMap;
             } else {
               if (cur instanceof RidBag) {
-                throw new DatabaseException("RidBag are supported only at document root");
+                throw new DatabaseException("RidBag are supported only at entity root");
               }
             }
           }
@@ -3739,7 +3739,7 @@ public class EntityImpl extends RecordAbstract
               value = newMap;
             } else {
               if (value instanceof RidBag) {
-                throw new DatabaseException("RidBag are supported only at document root");
+                throw new DatabaseException("RidBag are supported only at entity root");
               }
             }
           }
@@ -3853,7 +3853,7 @@ public class EntityImpl extends RecordAbstract
 
     if (iClass != null && iClass.isAbstract()) {
       throw new SchemaException(
-          "Cannot create a document of the abstract class '" + iClass + "'");
+          "Cannot create a entity of the abstract class '" + iClass + "'");
     }
 
     if (iClass == null) {
@@ -3944,7 +3944,7 @@ public class EntityImpl extends RecordAbstract
   }
 
   /**
-   * Checks and convert the field of the document matching the types specified by the class.
+   * Checks and convert the field of the entity matching the types specified by the class.
    */
   private void convertFieldsToClass(final SchemaClass clazz) {
     var session = getSession();
@@ -4014,10 +4014,10 @@ public class EntityImpl extends RecordAbstract
     }
 
     for (final Map.Entry<String, EntityEntry> field : fields.entrySet()) {
-      var docEntry = field.getValue();
+      var entityEntry = field.getValue();
 
-      var value = docEntry.value;
-      docEntry.disableTracking(this, value);
+      var value = entityEntry.value;
+      entityEntry.disableTracking(this, value);
     }
   }
 

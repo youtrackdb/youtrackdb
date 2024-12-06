@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.db.tool.importer;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.EntityPropertiesVisitor;
+import com.jetbrains.youtrack.db.internal.core.db.EntityPropertiesVisitor;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 
 /**

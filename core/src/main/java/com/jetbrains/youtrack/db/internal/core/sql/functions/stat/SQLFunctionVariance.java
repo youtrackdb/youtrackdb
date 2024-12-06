@@ -98,11 +98,11 @@ public class SQLFunctionVariance extends SQLFunctionAbstract {
   @Override
   public Object getResult() {
     if (returnDistributedResult()) {
-      final Map<String, Object> doc = new HashMap<String, Object>();
-      doc.put("n", n);
-      doc.put("mean", mean);
-      doc.put("var", this.evaluate());
-      return doc;
+      final Map<String, Object> map = new HashMap<String, Object>();
+      map.put("n", n);
+      map.put("mean", mean);
+      map.put("var", this.evaluate());
+      return map;
     } else {
       return this.evaluate();
     }

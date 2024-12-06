@@ -463,7 +463,7 @@ public class AutomaticBackup extends ServerPluginAbstract implements OServerPlug
 
   // TODO change current config and restart the automatic backup plugin
   @Override
-  public void changeConfig(EntityImpl document) {
+  public void changeConfig(EntityImpl entity) {
   }
 
   public void registerListener(OAutomaticBackupListener listener) {

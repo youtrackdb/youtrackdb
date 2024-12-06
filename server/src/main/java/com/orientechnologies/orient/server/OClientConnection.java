@@ -23,7 +23,7 @@ import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
 import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.exception.SystemException;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.QueryDatabaseState;
+import com.jetbrains.youtrack.db.internal.core.db.QueryDatabaseState;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.security.ParsedToken;

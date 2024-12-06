@@ -69,7 +69,7 @@ public class LuceneSearchMoreLikeThisFunction extends SQLFunctionAbstract
       Object[] params,
       CommandContext ctx) {
 
-    throw new LuceneIndexException("SEARCH_MORE can't be executed by document");
+    throw new LuceneIndexException("SEARCH_MORE can't be executed by entity");
   }
 
   @Override

@@ -24,7 +24,7 @@ import com.jetbrains.youtrack.db.internal.core.command.traverse.TraverseRecordPr
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionConfigurableAbstract;
 import java.util.ArrayList;
@@ -102,7 +102,7 @@ public class SQLFunctionTraversedElement extends SQLFunctionConfigurableAbstract
           final Identifiable record = ((TraverseRecordProcess) o).getTarget();
 
           if (iClassName == null
-              || DocumentInternal.getImmutableSchemaClass(record.getRecord())
+              || EntityInternalUtils.getImmutableSchemaClass(record.getRecord())
               .isSubClassOf(iClassName)) {
             if (i <= beginIndex) {
               if (items == 1) {
@@ -119,7 +119,7 @@ public class SQLFunctionTraversedElement extends SQLFunctionConfigurableAbstract
         } else if (o instanceof Identifiable record) {
 
           if (iClassName == null
-              || DocumentInternal.getImmutableSchemaClass(record.getRecord())
+              || EntityInternalUtils.getImmutableSchemaClass(record.getRecord())
               .isSubClassOf(iClassName)) {
             if (i <= beginIndex) {
               if (items == 1) {
@@ -144,7 +144,7 @@ public class SQLFunctionTraversedElement extends SQLFunctionConfigurableAbstract
           final Identifiable record = ((TraverseRecordProcess) o).getTarget();
 
           if (iClassName == null
-              || DocumentInternal.getImmutableSchemaClass(record.getRecord())
+              || EntityInternalUtils.getImmutableSchemaClass(record.getRecord())
               .isSubClassOf(iClassName)) {
             if (i >= beginIndex) {
               if (items == 1) {
@@ -161,7 +161,7 @@ public class SQLFunctionTraversedElement extends SQLFunctionConfigurableAbstract
         } else if (o instanceof Identifiable record) {
 
           if (iClassName == null
-              || DocumentInternal.getImmutableSchemaClass(record.getRecord())
+              || EntityInternalUtils.getImmutableSchemaClass(record.getRecord())
               .isSubClassOf(iClassName)) {
             if (i >= beginIndex) {
               if (items == 1) {

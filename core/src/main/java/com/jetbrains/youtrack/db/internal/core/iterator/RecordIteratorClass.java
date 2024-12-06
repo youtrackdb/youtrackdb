@@ -20,13 +20,13 @@
 package com.jetbrains.youtrack.db.internal.core.iterator;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
+import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import java.util.Arrays;
 
 /**
@@ -115,7 +115,7 @@ public class RecordIteratorClass<REC extends Record> extends RecordIteratorClust
   protected boolean include(final Record record) {
     return record instanceof EntityImpl
         && targetClass.isSuperClassOf(
-        DocumentInternal.getImmutableSchemaClass(((EntityImpl) record)));
+        EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record)));
   }
 
   public SchemaClass getTargetClass() {

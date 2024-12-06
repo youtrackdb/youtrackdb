@@ -26,12 +26,12 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.Serializable;
 
 /**
- * Base abstract class to wrap a document.
+ * Base abstract class to wrap a entity.
  */
 @SuppressWarnings("unchecked")
 public class EntityWrapper implements Serializable {
 
-  private EntityImpl document;
+  private EntityImpl entity;
 
   public EntityWrapper() {
   }
@@ -40,12 +40,12 @@ public class EntityWrapper implements Serializable {
     this(new EntityImpl(iClassName));
   }
 
-  public EntityWrapper(final EntityImpl iDocument) {
-    document = iDocument;
+  public EntityWrapper(final EntityImpl entity) {
+    this.entity = entity;
   }
 
-  public void fromStream(DatabaseSessionInternal session, final EntityImpl iDocument) {
-    document = iDocument;
+  public void fromStream(DatabaseSessionInternal session, final EntityImpl entity) {
+    this.entity = entity;
   }
 
   public EntityImpl toStream(DatabaseSession session) {
@@ -53,40 +53,40 @@ public class EntityWrapper implements Serializable {
   }
 
   public <RET extends EntityWrapper> RET save(DatabaseSessionInternal session) {
-    document.save();
+    entity.save();
     return (RET) this;
   }
 
   public <RET extends EntityWrapper> RET save(final String iClusterName) {
-    document.save(iClusterName);
+    entity.save(iClusterName);
     return (RET) this;
   }
 
   public EntityImpl getDocument(DatabaseSession session) {
-    if (document != null && document.isNotBound(session)) {
-      document = session.bindToSession(document);
+    if (entity != null && entity.isNotBound(session)) {
+      entity = session.bindToSession(entity);
     }
 
-    return document;
+    return entity;
   }
 
-  public void setDocument(DatabaseSessionInternal session, EntityImpl document) {
-    if (document != null && document.isNotBound(session)) {
-      document = session.bindToSession(document);
+  public void setDocument(DatabaseSessionInternal session, EntityImpl entity) {
+    if (entity != null && entity.isNotBound(session)) {
+      entity = session.bindToSession(entity);
     }
 
-    this.document = document;
+    this.entity = entity;
   }
 
   public RID getIdentity() {
-    return document.getIdentity();
+    return entity.getIdentity();
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((document == null) ? 0 : document.hashCode());
+    result = prime * result + ((entity == null) ? 0 : entity.hashCode());
     return result;
   }
 
@@ -102,15 +102,15 @@ public class EntityWrapper implements Serializable {
       return false;
     }
     final EntityWrapper other = (EntityWrapper) obj;
-    if (document == null) {
-      return other.document == null;
+    if (entity == null) {
+      return other.entity == null;
     } else {
-      return document.equals(other.document);
+      return entity.equals(other.entity);
     }
   }
 
   @Override
   public String toString() {
-    return document != null ? document.toString() : "?";
+    return entity != null ? entity.toString() : "?";
   }
 }

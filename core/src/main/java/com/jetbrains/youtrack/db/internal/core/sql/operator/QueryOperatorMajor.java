@@ -28,14 +28,14 @@ import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
+import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionMultiValue;
-import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BinaryField;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.DocumentSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.EntitySerializer;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemParameter;
@@ -169,7 +169,7 @@ public class QueryOperatorMajor extends QueryOperatorEqualityNotNulls {
       final BinaryField iFirstField,
       final BinaryField iSecondField,
       CommandContext iContext,
-      final DocumentSerializer serializer) {
+      final EntitySerializer serializer) {
     return serializer.getComparator().compare(iFirstField, iSecondField) > 0;
   }
 

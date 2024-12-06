@@ -25,7 +25,7 @@ import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.QueryDatabaseState;
+import com.jetbrains.youtrack.db.internal.core.db.QueryDatabaseState;
 import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentModificationException;
 import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
@@ -60,7 +60,6 @@ import com.orientechnologies.orient.server.network.protocol.http.command.get.OSe
 import com.orientechnologies.orient.server.network.protocol.http.command.get.OServerCommandGetDisconnect;
 import com.orientechnologies.orient.server.network.protocol.http.command.get.OServerCommandGetDocument;
 import com.orientechnologies.orient.server.network.protocol.http.command.get.OServerCommandGetDocumentByClass;
-import com.orientechnologies.orient.server.network.protocol.http.command.get.ServerCommandGetExportDatabase;
 import com.orientechnologies.orient.server.network.protocol.http.command.get.OServerCommandGetFileDownload;
 import com.orientechnologies.orient.server.network.protocol.http.command.get.OServerCommandGetIndex;
 import com.orientechnologies.orient.server.network.protocol.http.command.get.OServerCommandGetListDatabases;
@@ -72,6 +71,7 @@ import com.orientechnologies.orient.server.network.protocol.http.command.get.OSe
 import com.orientechnologies.orient.server.network.protocol.http.command.get.OServerCommandGetStorageAllocation;
 import com.orientechnologies.orient.server.network.protocol.http.command.get.OServerCommandGetSupportedLanguages;
 import com.orientechnologies.orient.server.network.protocol.http.command.get.OServerCommandIsEnterprise;
+import com.orientechnologies.orient.server.network.protocol.http.command.get.ServerCommandGetExportDatabase;
 import com.orientechnologies.orient.server.network.protocol.http.command.options.OServerCommandOptions;
 import com.orientechnologies.orient.server.network.protocol.http.command.patch.OServerCommandPatchDocument;
 import com.orientechnologies.orient.server.network.protocol.http.command.post.OServerCommandPostAuthToken;

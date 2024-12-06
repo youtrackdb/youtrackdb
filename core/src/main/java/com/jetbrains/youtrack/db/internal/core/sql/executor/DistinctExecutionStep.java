@@ -61,7 +61,7 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
     if (maxElementsAllowed > 0 && maxElementsAllowed < pastItems.size()) {
       pastItems.clear();
       throw new CommandExecutionException(
-          "Limit of allowed elements for in-heap DISTINCT in a single query exceeded ("
+          "Limit of allowed entities for in-heap DISTINCT in a single query exceeded ("
               + maxElementsAllowed
               + ") . You can set "
               + GlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.getKey()

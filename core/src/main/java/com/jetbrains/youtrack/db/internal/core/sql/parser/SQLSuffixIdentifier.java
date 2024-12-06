@@ -360,27 +360,27 @@ public class SQLSuffixIdentifier extends SimpleNode {
     if (target == null) {
       return;
     }
-    Entity doc = null;
+    Entity entity = null;
     if (target instanceof Entity) {
-      doc = (Entity) target;
+      entity = (Entity) target;
     } else {
       try {
         Record rec = target.getRecord();
         if (rec instanceof Entity) {
-          doc = (Entity) rec;
+          entity = (Entity) rec;
         }
       } catch (RecordNotFoundException rnf) {
         throw BaseException.wrapException(
             new CommandExecutionException(
-                "Cannot set record attribute " + recordAttribute + " on existing document"),
+                "Cannot set record attribute " + recordAttribute + " on existing entity"),
             rnf);
       }
     }
-    if (doc != null) {
-      doc.setProperty(identifier.getStringValue(), value);
+    if (entity != null) {
+      entity.setProperty(identifier.getStringValue(), value);
     } else {
       throw new CommandExecutionException(
-          "Cannot set record attribute " + recordAttribute + " on existing document");
+          "Cannot set record attribute " + recordAttribute + " on existing entity");
     }
   }
 

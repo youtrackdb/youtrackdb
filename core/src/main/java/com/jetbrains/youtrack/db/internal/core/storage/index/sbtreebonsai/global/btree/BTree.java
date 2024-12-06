@@ -951,7 +951,7 @@ public final class BTree extends DurableComponent {
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw BaseException.wrapException(new StorageException("Error during element iteration"), e);
+      throw BaseException.wrapException(new StorageException("Error during entity iteration"), e);
     } finally {
       atomicOperationsManager.releaseReadLock(BTree.this);
     }
@@ -1084,7 +1084,7 @@ public final class BTree extends DurableComponent {
         releaseSharedLock();
       }
     } catch (final IOException e) {
-      throw BaseException.wrapException(new StorageException("Error during element iteration"), e);
+      throw BaseException.wrapException(new StorageException("Error during entity iteration"), e);
     } finally {
       atomicOperationsManager.releaseReadLock(BTree.this);
     }

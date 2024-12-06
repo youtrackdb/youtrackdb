@@ -36,8 +36,8 @@ import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -61,25 +61,25 @@ import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClass;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClusters;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.ImmutableSchema;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.FilterOptimizer;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilter;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItem;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemVariable;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilter;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLPredicate;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.SQLFunctionRuntime;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.coll.SQLFunctionDistinct;
@@ -281,11 +281,11 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
   private static EntityImpl createIndexEntryAsDocument(
       final Object iKey, final Identifiable iValue) {
-    final EntityImpl doc = new EntityImpl().setOrdered(true);
-    doc.field("key", iKey);
-    doc.field("rid", iValue);
-    RecordInternal.unsetDirty(doc);
-    return doc;
+    final EntityImpl entity = new EntityImpl().setOrdered(true);
+    entity.field("key", iKey);
+    entity.field("rid", iValue);
+    RecordInternal.unsetDirty(entity);
+    return entity;
   }
 
   /**
@@ -802,14 +802,14 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
     if (groupByFields != null && !groupByFields.isEmpty()) {
       if (groupByFields.size() > 1) {
         // MULTI-FIELD GROUP BY
-        final EntityImpl doc = iRecord.getRecord();
+        final EntityImpl entity = iRecord.getRecord();
         final Object[] fields = new Object[groupByFields.size()];
         for (int i = 0; i < groupByFields.size(); ++i) {
           final String field = groupByFields.get(i);
           if (field.startsWith("$")) {
             fields[i] = iContext.getVariable(field);
           } else {
-            fields[i] = doc.field(field);
+            fields[i] = entity.field(field);
           }
         }
         fieldValue = fields;
@@ -865,36 +865,36 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
       final List<String> unwindFields,
       final CommandContext iContext) {
     final List<Identifiable> result = new ArrayList<Identifiable>();
-    EntityImpl doc;
+    EntityImpl entity;
     if (iRecord instanceof EntityImpl) {
-      doc = (EntityImpl) iRecord;
+      entity = (EntityImpl) iRecord;
     } else {
-      doc = iRecord.getRecord();
+      entity = iRecord.getRecord();
     }
     if (unwindFields.size() == 0) {
-      RecordInternal.setIdentity(doc, new RecordId(-2, getTemporaryRIDCounter(iContext)));
-      result.add(doc);
+      RecordInternal.setIdentity(entity, new RecordId(-2, getTemporaryRIDCounter(iContext)));
+      result.add(entity);
     } else {
       String firstField = unwindFields.get(0);
       final List<String> nextFields = unwindFields.subList(1, unwindFields.size());
 
-      Object fieldValue = doc.field(firstField);
+      Object fieldValue = entity.field(firstField);
       if (fieldValue == null
           || !(fieldValue instanceof Iterable)
           || fieldValue instanceof EntityImpl) {
-        result.addAll(unwind(doc, nextFields, iContext));
+        result.addAll(unwind(entity, nextFields, iContext));
       } else {
         Iterator iterator = ((Iterable) fieldValue).iterator();
         if (!iterator.hasNext()) {
           EntityImpl unwindedDoc = new EntityImpl();
-          doc.copyTo(unwindedDoc);
+          entity.copyTo(unwindedDoc);
           unwindedDoc.field(firstField, (Object) null);
           result.addAll(unwind(unwindedDoc, nextFields, iContext));
         } else {
           do {
             Object o = iterator.next();
             EntityImpl unwindedDoc = new EntityImpl();
-            doc.copyTo(unwindedDoc);
+            entity.copyTo(unwindedDoc);
             unwindedDoc.field(firstField, o);
             result.addAll(unwind(unwindedDoc, nextFields, iContext));
           } while (iterator.hasNext());
@@ -2640,14 +2640,14 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
 
     while (iterator.hasNext()) {
       final RawPair<Object, RID> entryRecord = iterator.next();
-      final EntityImpl doc = new EntityImpl().setOrdered(true);
-      doc.field("key", entryRecord.first);
-      doc.field("rid", entryRecord.second);
-      RecordInternal.unsetDirty(doc);
+      final EntityImpl entity = new EntityImpl().setOrdered(true);
+      entity.field("key", entryRecord.first);
+      entity.field("rid", entryRecord.second);
+      RecordInternal.unsetDirty(entity);
 
-      applyGroupBy(doc, context);
+      applyGroupBy(entity, context);
 
-      if (!handleResult(doc, context)) {
+      if (!handleResult(entity, context)) {
         // LIMIT REACHED
         break;
       }
@@ -3016,14 +3016,14 @@ public class CommandExecutorSQLSelect extends CommandExecutorSQLResultsetAbstrac
     BreakingForEach.forEach(
         rids,
         (rid, breaker) -> {
-          final EntityImpl doc = new EntityImpl().setOrdered(true);
-          doc.field("key", (Object) null);
-          doc.field("rid", rid);
-          RecordInternal.unsetDirty(doc);
+          final EntityImpl entity = new EntityImpl().setOrdered(true);
+          entity.field("key", (Object) null);
+          entity.field("rid", rid);
+          RecordInternal.unsetDirty(entity);
 
-          applyGroupBy(doc, context);
+          applyGroupBy(entity, context);
 
-          if (!handleResult(doc, context)) {
+          if (!handleResult(entity, context)) {
             // LIMIT REACHED
             breaker.stop();
           }

@@ -24,12 +24,12 @@ public class DefaultClusterSelectionStrategy implements ClusterSelectionStrategy
 
   public static final String NAME = "default";
 
-  public int getCluster(final SchemaClass iClass, final EntityImpl doc) {
+  public int getCluster(final SchemaClass iClass, final EntityImpl entity) {
     return iClass.getDefaultClusterId();
   }
 
   @Override
-  public int getCluster(SchemaClass iClass, int[] selection, EntityImpl doc) {
+  public int getCluster(SchemaClass iClass, int[] selection, EntityImpl entity) {
     return iClass.getDefaultClusterId();
   }
 

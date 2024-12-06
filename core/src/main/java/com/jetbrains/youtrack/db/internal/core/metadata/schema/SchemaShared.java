@@ -393,8 +393,8 @@ public abstract class SchemaShared implements CloseableInStorage {
             identity = new RecordId(
                 database.getStorageInfo().getConfiguration().getSchemaRecordId());
 
-            EntityImpl document = database.load(identity);
-            fromStream(database, document);
+            EntityImpl entity = database.load(identity);
+            fromStream(database, entity);
             forceSnapshot(database);
           });
     } finally {
@@ -581,12 +581,12 @@ public abstract class SchemaShared implements CloseableInStorage {
   /**
    * Binds EntityImpl to POJO.
    */
-  public void fromStream(DatabaseSessionInternal session, EntityImpl document) {
+  public void fromStream(DatabaseSessionInternal session, EntityImpl entity) {
     lock.writeLock().lock();
     modificationCounter.increment();
     try {
       // READ CURRENT SCHEMA VERSION
-      final Integer schemaVersion = document.field("schemaVersion");
+      final Integer schemaVersion = entity.field("schemaVersion");
       if (schemaVersion == null) {
         LogManager.instance()
             .error(
@@ -606,7 +606,7 @@ public abstract class SchemaShared implements CloseableInStorage {
 
       properties.clear();
       propertiesByNameType.clear();
-      List<EntityImpl> globalProperties = document.field("globalProperties");
+      List<EntityImpl> globalProperties = entity.field("globalProperties");
       boolean hasGlobalProperties = false;
       if (globalProperties != null) {
         hasGlobalProperties = true;
@@ -624,7 +624,7 @@ public abstract class SchemaShared implements CloseableInStorage {
       final Map<String, SchemaClass> newClasses = new HashMap<String, SchemaClass>();
       final Map<String, SchemaView> newViews = new HashMap<String, SchemaView>();
 
-      Collection<EntityImpl> storedClasses = document.field("classes");
+      Collection<EntityImpl> storedClasses = entity.field("classes");
       for (EntityImpl c : storedClasses) {
         String name = c.field("name");
 
@@ -695,7 +695,7 @@ public abstract class SchemaShared implements CloseableInStorage {
       // VIEWS
 
       clustersToViews.clear();
-      Collection<EntityImpl> storedViews = document.field("views");
+      Collection<EntityImpl> storedViews = entity.field("views");
       if (storedViews != null) {
         for (EntityImpl v : storedViews) {
 
@@ -723,8 +723,8 @@ public abstract class SchemaShared implements CloseableInStorage {
       views.clear();
       views.putAll(newViews);
 
-      if (document.containsField("blobClusters")) {
-        blobClusters = new IntOpenHashSet((Set<Integer>) document.field("blobClusters"));
+      if (entity.containsField("blobClusters")) {
+        blobClusters = new IntOpenHashSet((Set<Integer>) entity.field("blobClusters"));
       }
 
       if (!hasGlobalProperties) {
@@ -748,16 +748,16 @@ public abstract class SchemaShared implements CloseableInStorage {
   public EntityImpl toNetworkStream() {
     lock.readLock().lock();
     try {
-      EntityImpl document = new EntityImpl();
-      document.setTrackingChanges(false);
-      document.field("schemaVersion", CURRENT_VERSION_NUMBER);
+      EntityImpl entity = new EntityImpl();
+      entity.setTrackingChanges(false);
+      entity.field("schemaVersion", CURRENT_VERSION_NUMBER);
 
       Set<EntityImpl> cc = new HashSet<EntityImpl>();
       for (SchemaClass c : classes.values()) {
         cc.add(((SchemaClassImpl) c).toNetworkStream());
       }
 
-      document.field("classes", cc, PropertyType.EMBEDDEDSET);
+      entity.field("classes", cc, PropertyType.EMBEDDEDSET);
 
       // TODO: this should trigger a netowork protocol version change
       Set<EntityImpl> vv = new HashSet<EntityImpl>();
@@ -765,7 +765,7 @@ public abstract class SchemaShared implements CloseableInStorage {
         vv.add(((SchemaViewImpl) v).toNetworkStream());
       }
 
-      document.field("views", vv, PropertyType.EMBEDDEDSET);
+      entity.field("views", vv, PropertyType.EMBEDDEDSET);
 
       List<EntityImpl> globalProperties = new ArrayList<EntityImpl>();
       for (GlobalProperty globalProperty : properties) {
@@ -773,9 +773,9 @@ public abstract class SchemaShared implements CloseableInStorage {
           globalProperties.add(((GlobalPropertyImpl) globalProperty).toDocument());
         }
       }
-      document.field("globalProperties", globalProperties, PropertyType.EMBEDDEDLIST);
-      document.field("blobClusters", blobClusters, PropertyType.EMBEDDEDSET);
-      return document;
+      entity.field("globalProperties", globalProperties, PropertyType.EMBEDDEDLIST);
+      entity.field("blobClusters", blobClusters, PropertyType.EMBEDDEDSET);
+      return entity;
     } finally {
       lock.readLock().unlock();
     }
@@ -787,8 +787,8 @@ public abstract class SchemaShared implements CloseableInStorage {
   public EntityImpl toStream(@Nonnull DatabaseSessionInternal db) {
     lock.readLock().lock();
     try {
-      EntityImpl document = db.load(identity);
-      document.field("schemaVersion", CURRENT_VERSION_NUMBER);
+      EntityImpl entity = db.load(identity);
+      entity.field("schemaVersion", CURRENT_VERSION_NUMBER);
 
       // This steps is needed because in classes there are duplicate due to aliases
       Set<SchemaClassImpl> realClases = new HashSet<SchemaClassImpl>();
@@ -796,11 +796,11 @@ public abstract class SchemaShared implements CloseableInStorage {
         realClases.add(((SchemaClassImpl) c));
       }
 
-      Set<EntityImpl> classesDocuments = new HashSet<EntityImpl>();
+      Set<EntityImpl> classesEntities = new HashSet<EntityImpl>();
       for (SchemaClassImpl c : realClases) {
-        classesDocuments.add(c.toStream());
+        classesEntities.add(c.toStream());
       }
-      document.field("classes", classesDocuments, PropertyType.EMBEDDEDSET);
+      entity.field("classes", classesEntities, PropertyType.EMBEDDEDSET);
 
       // This steps is needed because in views there are duplicate due to aliases
       Set<SchemaViewImpl> realViews = new HashSet<SchemaViewImpl>();
@@ -808,11 +808,11 @@ public abstract class SchemaShared implements CloseableInStorage {
         realViews.add(((SchemaViewImpl) v));
       }
 
-      Set<EntityImpl> viewsDocuments = new HashSet<EntityImpl>();
+      Set<EntityImpl> viewsEntities = new HashSet<EntityImpl>();
       for (SchemaClassImpl c : realViews) {
-        viewsDocuments.add(c.toStream());
+        viewsEntities.add(c.toStream());
       }
-      document.field("views", viewsDocuments, PropertyType.EMBEDDEDSET);
+      entity.field("views", viewsEntities, PropertyType.EMBEDDEDSET);
 
       List<EntityImpl> globalProperties = new ArrayList<EntityImpl>();
       for (GlobalProperty globalProperty : properties) {
@@ -820,9 +820,9 @@ public abstract class SchemaShared implements CloseableInStorage {
           globalProperties.add(((GlobalPropertyImpl) globalProperty).toDocument());
         }
       }
-      document.field("globalProperties", globalProperties, PropertyType.EMBEDDEDLIST);
-      document.field("blobClusters", blobClusters, PropertyType.EMBEDDEDSET);
-      return document;
+      entity.field("globalProperties", globalProperties, PropertyType.EMBEDDEDLIST);
+      entity.field("blobClusters", blobClusters, PropertyType.EMBEDDEDSET);
+      return entity;
     } finally {
       lock.readLock().unlock();
     }
@@ -878,8 +878,8 @@ public abstract class SchemaShared implements CloseableInStorage {
       }
       database.executeInTx(
           () -> {
-            EntityImpl document = database.load(identity);
-            fromStream(database, document);
+            EntityImpl entity = database.load(identity);
+            fromStream(database, entity);
           });
       return this;
     } finally {
@@ -890,11 +890,11 @@ public abstract class SchemaShared implements CloseableInStorage {
   public void create(final DatabaseSessionInternal database) {
     lock.writeLock().lock();
     try {
-      EntityImpl document =
+      EntityImpl entity =
           database.computeInTx(
               () -> database.save(new EntityImpl(), MetadataDefault.CLUSTER_INTERNAL_NAME));
-      this.identity = document.getIdentity();
-      database.getStorage().setSchemaRecordId(document.getIdentity().toString());
+      this.identity = entity.getIdentity();
+      database.getStorage().setSchemaRecordId(entity.getIdentity().toString());
       snapshot = new ImmutableSchema(this, database);
     } finally {
       lock.writeLock().unlock();
@@ -974,8 +974,8 @@ public abstract class SchemaShared implements CloseableInStorage {
     ScenarioThreadLocal.executeAsDistributed(
         () -> {
           database.executeInTx(() -> {
-            EntityImpl document = toStream(database);
-            database.save(document, MetadataDefault.CLUSTER_INTERNAL_NAME);
+            EntityImpl entity = toStream(database);
+            database.save(entity, MetadataDefault.CLUSTER_INTERNAL_NAME);
           });
           return null;
         });

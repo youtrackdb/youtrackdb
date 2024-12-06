@@ -17,7 +17,7 @@ import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -151,7 +151,7 @@ public class ResultInternal implements Result {
     } else {
       if (isEntity()) {
         result = (T) wrap(session,
-            DocumentInternal.rawPropertyRead((Entity) identifiable, name));
+            EntityInternalUtils.rawPropertyRead((Entity) identifiable, name));
       }
     }
     if (result instanceof Identifiable && ((Identifiable) result).getIdentity()
@@ -170,7 +170,7 @@ public class ResultInternal implements Result {
       result = content.get(name);
     } else {
       if (isEntity()) {
-        result = DocumentInternal.rawPropertyRead((Entity) identifiable, name);
+        result = EntityInternalUtils.rawPropertyRead((Entity) identifiable, name);
       }
     }
 
@@ -193,7 +193,7 @@ public class ResultInternal implements Result {
       result = content.get(name);
     } else {
       if (isEntity()) {
-        result = DocumentInternal.rawPropertyRead((Entity) identifiable, name);
+        result = EntityInternalUtils.rawPropertyRead((Entity) identifiable, name);
       }
     }
 
@@ -216,7 +216,7 @@ public class ResultInternal implements Result {
       result = content.get(name);
     } else {
       if (isEntity()) {
-        result = DocumentInternal.rawPropertyRead((Entity) identifiable, name);
+        result = EntityInternalUtils.rawPropertyRead((Entity) identifiable, name);
       }
     }
 
@@ -239,7 +239,7 @@ public class ResultInternal implements Result {
       result = content.get(name);
     } else {
       if (isEntity()) {
-        result = DocumentInternal.rawPropertyRead((Entity) identifiable, name);
+        result = EntityInternalUtils.rawPropertyRead((Entity) identifiable, name);
       }
     }
 
@@ -365,7 +365,7 @@ public class ResultInternal implements Result {
     if (isEntity()) {
       return getEntity().get();
     }
-    EntityImpl doc = new EntityImpl();
+    EntityImpl entity = new EntityImpl();
     for (String s : getPropertyNames()) {
       if (s == null) {
         continue;
@@ -377,28 +377,28 @@ public class ResultInternal implements Result {
           } else {
             continue;
           }
-          RecordId oldId = (RecordId) doc.getIdentity();
+          RecordId oldId = (RecordId) entity.getIdentity();
           oldId.setClusterId(((RID) newRid).getClusterId());
           oldId.setClusterPosition(((RID) newRid).getClusterPosition());
         } else {
           if (s.equalsIgnoreCase("@version")) {
             Object v = getProperty(s);
             if (v instanceof Number) {
-              RecordInternal.setVersion(doc, ((Number) v).intValue());
+              RecordInternal.setVersion(entity, ((Number) v).intValue());
             } else {
               continue;
             }
           } else {
             if (s.equalsIgnoreCase("@class")) {
-              doc.setClassName(getProperty(s));
+              entity.setClassName(getProperty(s));
             } else {
-              doc.setProperty(s, convertToElement(getProperty(s)));
+              entity.setProperty(s, convertToElement(getProperty(s)));
             }
           }
         }
       }
     }
-    return doc;
+    return entity;
   }
 
   @Override
@@ -513,7 +513,7 @@ public class ResultInternal implements Result {
       if (elem.isUnloaded()) {
         try {
           if (session == null) {
-            throw new IllegalStateException("There is no active session to load element");
+            throw new IllegalStateException("There is no active session to load entity");
           }
 
           identifiable = session.bindToSession(elem);
@@ -531,7 +531,7 @@ public class ResultInternal implements Result {
 
     try {
       if (session == null) {
-        throw new IllegalStateException("There is no active session to load element");
+        throw new IllegalStateException("There is no active session to load entity");
       }
 
       this.identifiable = session.load(identifiable.getIdentity());

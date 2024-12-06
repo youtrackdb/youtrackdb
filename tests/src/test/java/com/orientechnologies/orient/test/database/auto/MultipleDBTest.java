@@ -12,7 +12,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
-import com.jetbrains.youtrack.db.internal.client.remote.db.document.DatabaseSessionRemote;
+import com.jetbrains.youtrack.db.internal.client.remote.db.DatabaseSessionRemote;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal.ATTRIBUTES;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;

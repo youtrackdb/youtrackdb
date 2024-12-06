@@ -24,10 +24,10 @@ import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.exception.FetchException;
 import com.jetbrains.youtrack.db.internal.core.fetch.FetchContext;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.FieldTypesString;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJSON.FormatSettings;
@@ -166,7 +166,7 @@ public class JSONFetchContext implements FetchContext {
 
   public void onBeforeDocument(
       final EntityImpl iRootRecord,
-      final EntityImpl iDocument,
+      final EntityImpl entity,
       final String iFieldName,
       final Object iUserObject) {
     try {
@@ -177,7 +177,7 @@ public class JSONFetchContext implements FetchContext {
         fieldName = iFieldName;
       }
       jsonWriter.beginObject(++settings.indentLevel, true, fieldName);
-      writeSignature(jsonWriter, iDocument);
+      writeSignature(jsonWriter, entity);
     } catch (IOException e) {
       throw BaseException.wrapException(
           new FetchException(
@@ -188,7 +188,7 @@ public class JSONFetchContext implements FetchContext {
 
   public void onAfterDocument(
       final EntityImpl iRootRecord,
-      final EntityImpl iDocument,
+      final EntityImpl entity,
       final String iFieldName,
       final Object iUserObject) {
     try {

@@ -21,9 +21,9 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.internal.common.parser.StringParser;
 import com.jetbrains.youtrack.db.internal.common.util.RawPair;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -31,18 +31,18 @@ import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeKey;
 import com.jetbrains.youtrack.db.internal.core.index.IndexAbstract;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
-import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilter;
+import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLDeleteStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLQuery;
@@ -352,7 +352,7 @@ public class CommandExecutorSQLDelete extends CommandExecutorSQLAbstract
 
       if (!unsafe && record instanceof EntityImpl) {
         // CHECK IF ARE VERTICES OR EDGES
-        final SchemaClass cls = DocumentInternal.getImmutableSchemaClass(((EntityImpl) record));
+        final SchemaClass cls = EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record));
         if (cls != null) {
           if (cls.isSubClassOf("V"))
           // FOUND VERTEX

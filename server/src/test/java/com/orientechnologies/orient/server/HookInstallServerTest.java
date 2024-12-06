@@ -36,7 +36,7 @@ public class HookInstallServerTest {
     }
 
     @Override
-    public void onRecordAfterCreate(EntityImpl iDocument) {
+    public void onRecordAfterCreate(EntityImpl entity) {
       count++;
     }
   }

@@ -29,7 +29,7 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandOutputListener;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession.STATUS;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.EntityFieldWalker;
+import com.jetbrains.youtrack.db.internal.core.db.EntityFieldWalker;
 import com.jetbrains.youtrack.db.internal.core.db.record.ClassTrigger;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
@@ -42,19 +42,19 @@ import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
 import com.jetbrains.youtrack.db.internal.core.index.RuntimeKeyIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.SimpleKeyIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.function.Function;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassEmbedded;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Identity;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
@@ -62,16 +62,16 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityPolicy;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONReader;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJSON;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.RidSet;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.RidSet;
 import com.jetbrains.youtrack.db.internal.core.storage.PhysicalPosition;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
@@ -561,7 +561,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
   private void importManualIndexes() throws IOException, ParseException {
     listener.onMessage("\nImporting manual index entries...");
 
-    EntityImpl document = new EntityImpl();
+    EntityImpl entity = new EntityImpl();
 
     IndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
     // FORCE RELOADING
@@ -594,15 +594,15 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         }
 
         if (!value.isEmpty()) {
-          document = (EntityImpl) RecordSerializerJSON.INSTANCE.fromString(database, value,
-              document, null);
-          document.setLazyLoad(false);
+          entity = (EntityImpl) RecordSerializerJSON.INSTANCE.fromString(database, value,
+              entity, null);
+          entity.setLazyLoad(false);
 
-          final Identifiable oldRid = document.field("rid");
+          final Identifiable oldRid = entity.field("rid");
           assert oldRid != null;
 
           final Identifiable newRid;
-          if (!document.<Boolean>field("binary")) {
+          if (!entity.<Boolean>field("binary")) {
             try (final ResultSet result =
                 database.query(
                     "select value from " + EXPORT_IMPORT_CLASS_NAME + " where key = ?",
@@ -614,7 +614,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
               }
             }
 
-            index.put(database, document.field("key"), newRid.getIdentity());
+            index.put(database, entity.field("key"), newRid.getIdentity());
           } else {
             RuntimeKeyIndexDefinition<?> runtimeKeyIndexDefinition =
                 (RuntimeKeyIndexDefinition<?>) index.getDefinition();
@@ -623,15 +623,15 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
             try (final ResultSet result =
                 database.query(
                     "select value from " + EXPORT_IMPORT_CLASS_NAME + " where key = ?",
-                    String.valueOf(document.<Identifiable>field("rid")))) {
+                    String.valueOf(entity.<Identifiable>field("rid")))) {
               if (!result.hasNext()) {
-                newRid = document.field("rid");
+                newRid = entity.field("rid");
               } else {
                 newRid = new RecordId(result.next().<String>getProperty("value"));
               }
             }
 
-            index.put(database, binarySerializer.deserialize(document.field("key"), 0), newRid);
+            index.put(database, binarySerializer.deserialize(entity.field("key"), 0), newRid);
           }
           tot++;
         }
@@ -1261,9 +1261,9 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     database.begin();
     if (!database.exists(
         new RecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId()))) {
-      EntityImpl indexDocument = new EntityImpl();
-      indexDocument.save(MetadataDefault.CLUSTER_INTERNAL_NAME);
-      database.getStorage().setIndexMgrRecordId(indexDocument.getIdentity().toString());
+      EntityImpl indexEntity = new EntityImpl();
+      indexEntity.save(MetadataDefault.CLUSTER_INTERNAL_NAME);
+      database.getStorage().setIndexMgrRecordId(indexEntity.getIdentity().toString());
     }
     database.commit();
 
@@ -1617,20 +1617,20 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     if (bags == null) {
       return;
     }
-    Entity doc = (Entity) record;
+    Entity entity = (Entity) record;
     bags.forEach(
         (field, ridset) -> {
           RidBag ridbag = ((EntityInternal) record).getPropertyInternal(field);
           ridset.forEach(
               rid -> {
                 ridbag.add(rid);
-                doc.save();
+                entity.save();
               });
         });
   }
 
   private void importSkippedRidbag(Record record, String value, Integer skippedPartsIndex) {
-    var doc = (EntityInternal) record;
+    var entity = (EntityInternal) record;
 
     StringBuilder builder = new StringBuilder();
 
@@ -1652,7 +1652,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
             '\t');
 
     String fieldName = IOUtils.getStringContent(builder.toString());
-    RidBag bag = doc.getPropertyInternal(fieldName);
+    RidBag bag = entity.getPropertyInternal(fieldName);
 
     if (!(value.charAt(nextIndex) == '[')) {
       throw new DatabaseImportException("Cannot import field: " + fieldName + " (too big)");
@@ -1729,9 +1729,9 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
                     if (fieldName.equals("engineProperties")) {
                       final String jsonEngineProperties =
                           jsonReader.readString(JSONReader.END_OBJECT, true);
-                      var doc = new EntityImpl();
-                      doc.fromJSON(jsonEngineProperties);
-                      Map<String, ?> map = doc.toMap();
+                      var entity = new EntityImpl();
+                      entity.fromJSON(jsonEngineProperties);
+                      Map<String, ?> map = entity.toMap();
                       if (map != null) {
                         map.replaceAll((k, v) -> v);
                       }
@@ -1862,12 +1862,12 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
     final String value = jsonReader.readString(JSONReader.END_OBJECT, true);
 
     final IndexDefinition indexDefinition;
-    final EntityImpl indexDefinitionDoc =
+    final EntityImpl indexDefinitionEntity =
         (EntityImpl) RecordSerializerJSON.INSTANCE.fromString(database, value, null, null);
     try {
       final Class<?> indexDefClass = Class.forName(className);
       indexDefinition = (IndexDefinition) indexDefClass.getDeclaredConstructor().newInstance();
-      indexDefinition.fromStream(indexDefinitionDoc);
+      indexDefinition.fromStream(indexDefinitionEntity);
     } catch (final ClassNotFoundException e) {
       throw new IOException("Error during deserialization of index definition", e);
     } catch (final NoSuchMethodException e) {
@@ -1893,9 +1893,9 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
     final long begin = System.currentTimeMillis();
     final long[] last = new long[]{begin};
-    final long[] documentsLastLap = new long[1];
+    final long[] entitiesLastLap = new long[1];
 
-    long[] totalDocuments = new long[1];
+    long[] totalEntities = new long[1];
     Collection<String> clusterNames = database.getClusterNames();
     for (String clusterName : clusterNames) {
       if (MetadataDefault.CLUSTER_INDEX_NAME.equals(clusterName)
@@ -1904,7 +1904,7 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         continue;
       }
 
-      final long[] documents = new long[1];
+      final long[] entities = new long[1];
       final String[] prefix = new String[]{""};
 
       listener.onMessage("\n- Cluster " + clusterName + "...");
@@ -1919,26 +1919,26 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
         for (PhysicalPosition position : positions) {
           database.executeInTx(() -> {
             Record record = database.load(new RecordId(clusterId, position.clusterPosition));
-            if (record instanceof EntityImpl document) {
-              rewriteLinksInDocument(database, document, brokenRids);
+            if (record instanceof EntityImpl entity) {
+              rewriteLinksInDocument(database, entity, brokenRids);
 
-              documents[0]++;
-              documentsLastLap[0]++;
-              totalDocuments[0]++;
+              entities[0]++;
+              entitiesLastLap[0]++;
+              totalEntities[0]++;
 
               final long now = System.currentTimeMillis();
               if (now - last[0] > IMPORT_RECORD_DUMP_LAP_EVERY_MS) {
                 listener.onMessage(
                     String.format(
                         "\n--- Migrated %,d of %,d records (%,.2f/sec)",
-                        documents[0],
+                        entities[0],
                         clusterRecords,
-                        (float) documentsLastLap[0] * 1000
+                        (float) entitiesLastLap[0] * 1000
                             / (float) IMPORT_RECORD_DUMP_LAP_EVERY_MS));
 
                 // RESET LAP COUNTERS
                 last[0] = now;
-                documentsLastLap[0] = 0;
+                entitiesLastLap[0] = 0;
                 prefix[0] = "\n---";
               }
             }
@@ -1951,29 +1951,29 @@ public class DatabaseImport extends DatabaseImpExpAbstract {
 
       listener.onMessage(
           String.format(
-              "%s Completed migration of %,d records in current cluster", prefix[0], documents[0]));
+              "%s Completed migration of %,d records in current cluster", prefix[0], entities[0]));
     }
 
-    listener.onMessage(String.format("\nTotal links updated: %,d", totalDocuments[0]));
+    listener.onMessage(String.format("\nTotal links updated: %,d", totalEntities[0]));
   }
 
   protected static void rewriteLinksInDocument(
-      DatabaseSessionInternal session, EntityImpl document, Set<RID> brokenRids) {
-    var doc = doRewriteLinksInDocument(session, document, brokenRids);
+      DatabaseSessionInternal session, EntityImpl entity, Set<RID> brokenRids) {
+    entity = doRewriteLinksInDocument(session, entity, brokenRids);
 
-    if (!doc.isDirty()) {
+    if (!entity.isDirty()) {
       // nothing changed
       return;
     }
 
-    session.executeInTx(doc::save);
+    session.executeInTx(entity::save);
   }
 
   protected static EntityImpl doRewriteLinksInDocument(
-      DatabaseSessionInternal session, EntityImpl document, Set<RID> brokenRids) {
+      DatabaseSessionInternal session, EntityImpl entity, Set<RID> brokenRids) {
     final LinksRewriter rewriter = new LinksRewriter(new ConverterData(session, brokenRids));
     final EntityFieldWalker entityFieldWalker = new EntityFieldWalker();
-    return entityFieldWalker.walkDocument(session, document, rewriter);
+    return entityFieldWalker.walkDocument(session, entity, rewriter);
   }
 
   public int getMaxRidbagStringSizeBeforeLazyImport() {

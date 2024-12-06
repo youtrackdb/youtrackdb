@@ -208,8 +208,8 @@ public abstract class SchemaClassAbstractDelegate implements SchemaClass {
   }
 
   @Override
-  public int getClusterForNewInstance(final EntityImpl doc) {
-    return delegate.getClusterForNewInstance(doc);
+  public int getClusterForNewInstance(final EntityImpl entity) {
+    return delegate.getClusterForNewInstance(entity);
   }
 
   @Override

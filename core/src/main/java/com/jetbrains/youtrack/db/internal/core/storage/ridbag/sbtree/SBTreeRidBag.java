@@ -218,7 +218,7 @@ public class SBTreeRidBag implements RidBagDelegate {
     @Override
     public void remove() {
       if (currentRemoved) {
-        throw new IllegalStateException("Current element has already been removed");
+        throw new IllegalStateException("Current entity has already been removed");
       }
 
       if (currentValue == null) {
@@ -418,9 +418,9 @@ public class SBTreeRidBag implements RidBagDelegate {
   public void setOwner(RecordElement owner) {
     if (owner != null && this.owner != null && !this.owner.equals(owner)) {
       throw new IllegalStateException(
-          "This data structure is owned by document "
+          "This data structure is owned by entity "
               + owner
-              + " if you want to use it in other document create new rid bag instance and copy"
+              + " if you want to use it in other entity create new rid bag instance and copy"
               + " content of current one.");
     }
     if (this.owner != null) {
@@ -1028,7 +1028,7 @@ public class SBTreeRidBag implements RidBagDelegate {
     }
   }
 
-  public void disableTracking(RecordElement document) {
+  public void disableTracking(RecordElement entity) {
     if (tracker.isEnabled()) {
       this.tracker.disable();
       this.dirty = false;

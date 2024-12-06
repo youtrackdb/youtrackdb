@@ -9,7 +9,7 @@ import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.Result;
 import java.util.Collections;
@@ -44,10 +44,10 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
       return false;
     }
 
-    if (!(record instanceof EntityImpl doc)) {
+    if (!(record instanceof EntityImpl entity)) {
       return false;
     }
-    SchemaClass clazz = DocumentInternal.getImmutableSchemaClass(doc);
+    SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
     if (clazz == null) {
       return false;
     }
@@ -69,10 +69,10 @@ public class SQLInstanceofCondition extends SQLBooleanExpression {
     }
 
     Record record = currentRecord.getEntity().get().getRecord();
-    if (!(record instanceof EntityImpl doc)) {
+    if (!(record instanceof EntityImpl entity)) {
       return false;
     }
-    SchemaClass clazz = DocumentInternal.getImmutableSchemaClass(doc);
+    SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
     if (clazz == null) {
       return false;
     }

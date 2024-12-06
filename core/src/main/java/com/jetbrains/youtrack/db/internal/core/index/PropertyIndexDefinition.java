@@ -70,16 +70,16 @@ public class PropertyIndexDefinition extends AbstractIndexDefinition {
   }
 
   public Object getDocumentValueToIndex(
-      DatabaseSessionInternal session, final EntityImpl iDocument) {
+      DatabaseSessionInternal session, final EntityImpl entity) {
     if (PropertyType.LINK.equals(keyType)) {
-      final Identifiable identifiable = iDocument.field(field);
+      final Identifiable identifiable = entity.field(field);
       if (identifiable != null) {
         return createValue(session, identifiable.getIdentity());
       } else {
         return null;
       }
     }
-    return createValue(session, iDocument.<Object>field(field));
+    return createValue(session, entity.<Object>field(field));
   }
 
   @Override
@@ -153,37 +153,37 @@ public class PropertyIndexDefinition extends AbstractIndexDefinition {
     return new PropertyType[]{keyType};
   }
 
-  public void fromStream(@Nonnull EntityImpl document) {
-    serializeFromStream(document);
+  public void fromStream(@Nonnull EntityImpl entity) {
+    serializeFromStream(entity);
   }
 
   @Override
-  public final @Nonnull EntityImpl toStream(@Nonnull EntityImpl document) {
-    serializeToStream(document);
-    return document;
+  public final @Nonnull EntityImpl toStream(@Nonnull EntityImpl entity) {
+    serializeToStream(entity);
+    return entity;
   }
 
-  protected void serializeToStream(EntityImpl document) {
-    super.serializeToStream(document);
+  protected void serializeToStream(EntityImpl entity) {
+    super.serializeToStream(entity);
 
-    document.setPropertyInternal("className", className);
-    document.setPropertyInternal("field", field);
-    document.setPropertyInternal("keyType", keyType.toString());
-    document.setPropertyInternal("collate", collate.getName());
-    document.setPropertyInternal("nullValuesIgnored", isNullValuesIgnored());
+    entity.setPropertyInternal("className", className);
+    entity.setPropertyInternal("field", field);
+    entity.setPropertyInternal("keyType", keyType.toString());
+    entity.setPropertyInternal("collate", collate.getName());
+    entity.setPropertyInternal("nullValuesIgnored", isNullValuesIgnored());
   }
 
-  protected void serializeFromStream(EntityImpl document) {
-    super.serializeFromStream(document);
+  protected void serializeFromStream(EntityImpl entity) {
+    super.serializeFromStream(entity);
 
-    className = document.field("className");
-    field = document.field("field");
+    className = entity.field("className");
+    field = entity.field("field");
 
-    final String keyTypeStr = document.field("keyType");
+    final String keyTypeStr = entity.field("keyType");
     keyType = PropertyType.valueOf(keyTypeStr);
 
-    setCollate((String) document.field("collate"));
-    setNullValuesIgnored(!Boolean.FALSE.equals(document.<Boolean>field("nullValuesIgnored")));
+    setCollate((String) entity.field("collate"));
+    setNullValuesIgnored(!Boolean.FALSE.equals(entity.<Boolean>field("nullValuesIgnored")));
   }
 
   /**

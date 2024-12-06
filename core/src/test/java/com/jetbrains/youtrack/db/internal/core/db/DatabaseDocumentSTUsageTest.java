@@ -1,4 +1,4 @@
-package com.jetbrains.youtrack.db.internal.core.db.document;
+package com.jetbrains.youtrack.db.internal.core.db;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

@@ -64,20 +64,20 @@ public class OServerCommandPutDocument extends OServerCommandDocumentAbstract {
           db.computeInTx(
               () -> {
                 var txRecordId = recordId;
-                final EntityImpl doc;
+                final EntityImpl entity;
                 // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
-                doc = new EntityImpl();
-                doc.fromJSON(iRequest.getContent());
-                doc.setTrackingChanges(false);
+                entity = new EntityImpl();
+                entity.fromJSON(iRequest.getContent());
+                entity.setTrackingChanges(false);
 
                 if (iRequest.getIfMatch() != null)
                 // USE THE IF-MATCH HTTP HEADER AS VERSION
                 {
-                  RecordInternal.setVersion(doc, Integer.parseInt(iRequest.getIfMatch()));
+                  RecordInternal.setVersion(entity, Integer.parseInt(iRequest.getIfMatch()));
                 }
 
                 if (!txRecordId.isValid()) {
-                  txRecordId = (RecordId) doc.getIdentity();
+                  txRecordId = (RecordId) entity.getIdentity();
                 }
 
                 if (!txRecordId.isValid()) {
@@ -102,12 +102,12 @@ public class OServerCommandPutDocument extends OServerCommandDocumentAbstract {
                   partialUpdateMode = true;
                 }
 
-                currentDocument.merge(doc, partialUpdateMode, false);
+                currentDocument.merge(entity, partialUpdateMode, false);
                 if (currentDocument.isDirty()) {
-                  if (doc.getVersion() > 0)
+                  if (entity.getVersion() > 0)
                   // OVERWRITE THE VERSION
                   {
-                    RecordInternal.setVersion(currentDocument, doc.getVersion());
+                    RecordInternal.setVersion(currentDocument, entity.getVersion());
                   }
 
                   currentDocument.save();

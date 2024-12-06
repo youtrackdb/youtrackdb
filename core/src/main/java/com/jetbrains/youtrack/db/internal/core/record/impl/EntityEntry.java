@@ -26,7 +26,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 
 /**
- * Document entry. Used by EntityImpl.
+ * Entity entry. Used by EntityImpl.
  */
 public class EntityEntry {
 
@@ -112,24 +112,24 @@ public class EntityEntry {
     }
   }
 
-  public void replaceListener(EntityImpl document) {
-    enableTracking(document);
+  public void replaceListener(EntityImpl entity) {
+    enableTracking(entity);
   }
 
-  public boolean enableTracking(EntityImpl document) {
+  public boolean enableTracking(EntityImpl entity) {
     //noinspection rawtypes
     if (value instanceof TrackedMultiValue trackedMultiValue) {
-      trackedMultiValue.enableTracking(document);
+      trackedMultiValue.enableTracking(entity);
       return true;
     } else {
       return false;
     }
   }
 
-  public void disableTracking(EntityImpl document, Object fieldValue) {
+  public void disableTracking(EntityImpl entity, Object fieldValue) {
     //noinspection rawtypes
     if (fieldValue instanceof TrackedMultiValue trackedMultiValue) {
-      trackedMultiValue.disableTracking(document);
+      trackedMultiValue.disableTracking(entity);
     }
   }
 
@@ -138,8 +138,8 @@ public class EntityEntry {
     if (value instanceof TrackedMultiValue trackedMultiValue) {
       return trackedMultiValue.isModified();
     }
-    if (value instanceof EntityImpl document && document.isEmbedded()) {
-      return document.isDirty();
+    if (value instanceof EntityImpl entity && entity.isEmbedded()) {
+      return entity.isDirty();
     }
     return false;
   }
@@ -149,8 +149,8 @@ public class EntityEntry {
     if (value instanceof TrackedMultiValue trackedMultiValue) {
       return trackedMultiValue.isTransactionModified();
     }
-    if (value instanceof EntityImpl document && document.isEmbedded()) {
-      return document.isDirty();
+    if (value instanceof EntityImpl entity && entity.isEmbedded()) {
+      return entity.isDirty();
     }
     return false;
   }

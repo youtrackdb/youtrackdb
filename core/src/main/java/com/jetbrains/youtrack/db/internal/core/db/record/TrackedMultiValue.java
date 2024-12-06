@@ -22,7 +22,7 @@ package com.jetbrains.youtrack.db.internal.core.db.record;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import java.util.Iterator;
 import java.util.List;
 
@@ -51,7 +51,7 @@ public interface TrackedMultiValue<K, V> {
 
   void enableTracking(RecordElement parent);
 
-  void disableTracking(RecordElement document);
+  void disableTracking(RecordElement entity);
 
   boolean isModified();
 
@@ -75,7 +75,7 @@ public interface TrackedMultiValue<K, V> {
         ((TrackedMultiValue) x).disableTracking(parent);
       } else if (x instanceof EntityImpl) {
         if (((EntityImpl) x).isEmbedded()) {
-          DocumentInternal.clearTrackData((EntityImpl) x);
+          EntityInternalUtils.clearTrackData((EntityImpl) x);
           RecordInternal.unsetDirty((EntityImpl) x);
         }
       }
@@ -89,7 +89,7 @@ public interface TrackedMultiValue<K, V> {
         ((TrackedMultiValue) x).transactionClear();
       } else if (x instanceof EntityImpl) {
         if (((EntityImpl) x).isEmbedded()) {
-          DocumentInternal.clearTransactionTrackData((EntityImpl) x);
+          EntityInternalUtils.clearTransactionTrackData((EntityImpl) x);
         }
       }
     }

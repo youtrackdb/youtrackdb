@@ -1,8 +1,4 @@
-package com.jetbrains.youtrack.db.internal.core.db.document;
-
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
+package com.jetbrains.youtrack.db.internal.core.db;
 
 /**
  *

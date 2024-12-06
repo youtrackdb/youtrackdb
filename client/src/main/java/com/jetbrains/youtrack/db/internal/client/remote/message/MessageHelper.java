@@ -474,9 +474,9 @@ public class MessageHelper {
   }
 
   private static void writeDocument(
-      DatabaseSessionInternal session, ChannelDataOutput channel, EntityImpl doc,
+      DatabaseSessionInternal session, ChannelDataOutput channel, EntityImpl entity,
       RecordSerializer serializer) throws IOException {
-    writeIdentifiable(session, channel, doc, serializer);
+    writeIdentifiable(session, channel, entity, serializer);
   }
 
   public static void writeResult(

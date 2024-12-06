@@ -301,7 +301,7 @@ public class YouTrackDbJdbcResultSet implements java.sql.ResultSet {
       throw new SQLException(
           "The column '"
               + columnLabel
-              + "' does not exists (Result Set element: "
+              + "' does not exists (Result Set entity: "
               + rowCount
               + ")");
     }

@@ -1926,7 +1926,7 @@ public final class CellBTreeSingleValueV3<K> extends DurableComponent
       }
     } catch (final IOException e) {
       throw BaseException.wrapException(
-          new CellBTreeSingleValueV3Exception("Error during element iteration", this), e);
+          new CellBTreeSingleValueV3Exception("Error during entity iteration", this), e);
     } finally {
       atomicOperationsManager.releaseReadLock(this);
     }
@@ -2004,7 +2004,7 @@ public final class CellBTreeSingleValueV3<K> extends DurableComponent
     } catch (final IOException e) {
       throw BaseException.wrapException(
           new CellBTreeSingleValueV3Exception(
-              "Error during element iteration", CellBTreeSingleValueV3.this),
+              "Error during entity iteration", CellBTreeSingleValueV3.this),
           e);
     } finally {
       atomicOperationsManager.releaseReadLock(CellBTreeSingleValueV3.this);

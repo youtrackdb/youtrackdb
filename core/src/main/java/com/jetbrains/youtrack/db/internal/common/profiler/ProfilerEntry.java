@@ -57,21 +57,21 @@ public class ProfilerEntry {
   }
 
   public EntityImpl toDocument() {
-    final EntityImpl doc = new EntityImpl();
-    doc.field("entries", entries);
-    doc.field("last", last);
-    doc.field("min", min);
-    doc.field("max", max);
-    doc.field("average", average);
-    doc.field("total", total);
-    doc.field("firstExecution", firstExecution);
-    doc.field("lastExecution", lastExecution);
-    doc.field("lastReset", lastReset);
-    doc.field("lastResetEntries", lastResetEntries);
+    final EntityImpl entity = new EntityImpl();
+    entity.field("entries", entries);
+    entity.field("last", last);
+    entity.field("min", min);
+    entity.field("max", max);
+    entity.field("average", average);
+    entity.field("total", total);
+    entity.field("firstExecution", firstExecution);
+    entity.field("lastExecution", lastExecution);
+    entity.field("lastReset", lastReset);
+    entity.field("lastResetEntries", lastResetEntries);
     if (payLoad != null) {
-      doc.field("payload", payLoad);
+      entity.field("payload", payLoad);
     }
-    return doc;
+    return entity;
   }
 
   public String toJSON() {

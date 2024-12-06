@@ -161,24 +161,24 @@ public class SchedulerImpl {
         true);
   }
 
-  public void initScheduleRecord(DatabaseSessionInternal session, EntityImpl doc) {
-    String name = doc.field(ScheduledEvent.PROP_NAME);
+  public void initScheduleRecord(DatabaseSessionInternal session, EntityImpl entity) {
+    String name = entity.field(ScheduledEvent.PROP_NAME);
     final ScheduledEvent event = getEvent(name);
-    if (event != null && event.getDocument(session) != doc) {
+    if (event != null && event.getDocument(session) != entity) {
       throw new DatabaseException(
           "Scheduled event with name '" + name + "' already exists in database");
     }
-    doc.field(ScheduledEvent.PROP_STATUS, Scheduler.STATUS.STOPPED.name());
+    entity.field(ScheduledEvent.PROP_STATUS, Scheduler.STATUS.STOPPED.name());
   }
 
-  public void preHandleUpdateScheduleInTx(DatabaseSessionInternal session, EntityImpl doc) {
+  public void preHandleUpdateScheduleInTx(DatabaseSessionInternal session, EntityImpl entity) {
     try {
-      final String schedulerName = doc.field(ScheduledEvent.PROP_NAME);
+      final String schedulerName = entity.field(ScheduledEvent.PROP_NAME);
       ScheduledEvent event = getEvent(schedulerName);
 
       if (event != null) {
         // UPDATED EVENT
-        final Set<String> dirtyFields = new HashSet<>(Arrays.asList(doc.getDirtyFields()));
+        final Set<String> dirtyFields = new HashSet<>(Arrays.asList(entity.getDirtyFields()));
 
         if (dirtyFields.contains(ScheduledEvent.PROP_NAME)) {
           throw new ValidationException("Scheduled event cannot change name");
@@ -195,7 +195,7 @@ public class SchedulerImpl {
             tx.setCustomData(RIDS_OF_EVENTS_TO_RESCHEDULE_KEY, rids);
           }
 
-          rids.add(doc.getIdentity());
+          rids.add(entity.getIdentity());
         }
       }
     } catch (Exception ex) {
@@ -204,19 +204,19 @@ public class SchedulerImpl {
   }
 
   public void postHandleUpdateScheduleAfterTxCommit(DatabaseSessionInternal session,
-      EntityImpl doc) {
+      EntityImpl entity) {
     try {
       var tx = session.getTransaction();
       @SuppressWarnings("unchecked")
       Set<RID> rids = (Set<RID>) tx.getCustomData(RIDS_OF_EVENTS_TO_RESCHEDULE_KEY);
 
-      if (rids != null && rids.contains(doc.getIdentity())) {
-        final String schedulerName = doc.field(ScheduledEvent.PROP_NAME);
+      if (rids != null && rids.contains(entity.getIdentity())) {
+        final String schedulerName = entity.field(ScheduledEvent.PROP_NAME);
         ScheduledEvent event = getEvent(schedulerName);
 
         if (event != null) {
           // RULE CHANGED, STOP CURRENT EVENT AND RESCHEDULE IT
-          updateEvent(session, new ScheduledEvent(doc, session));
+          updateEvent(session, new ScheduledEvent(entity, session));
         }
       }
     } catch (Exception ex) {

@@ -208,12 +208,12 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final Object newResult;
 
       if (iResult instanceof Map) {
-        EntityImpl doc = new EntityImpl();
+        EntityImpl entity = new EntityImpl();
         for (Map.Entry<?, ?> entry : ((Map<?, ?>) iResult).entrySet()) {
           String key = keyFromMapObject(entry.getKey());
-          doc.field(key, entry.getValue());
+          entity.field(key, entry.getValue());
         }
-        newResult = Collections.singleton(doc).iterator();
+        newResult = Collections.singleton(entity).iterator();
       } else if (MultiValue.isMultiValue(iResult)
           && (MultiValue.getSize(iResult) > 0
           && !((MultiValue.getFirstValue(iResult) instanceof Identifiable)
@@ -342,9 +342,9 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
                 } else if (r instanceof Identifiable) {
                   try {
                     final Record rec = ((Identifiable) r).getRecord();
-                    if (rec instanceof EntityImpl doc) {
-                      records.add(doc);
-                      Collections.addAll(colNames, doc.fieldNames());
+                    if (rec instanceof EntityImpl entity) {
+                      records.add(entity);
+                      Collections.addAll(colNames, entity.fieldNames());
                     }
                   } catch (RecordNotFoundException rnf) {
                     // IGNORE IT
@@ -366,13 +366,13 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
                 iArgument.write(OHttpUtils.EOL);
 
                 // WRITE EACH RECORD
-                for (Entity doc : records) {
+                for (Entity entity : records) {
                   for (int col = 0; col < orderedColumns.size(); ++col) {
                     if (col > 0) {
                       iArgument.write(',');
                     }
 
-                    Object value = doc.getProperty(orderedColumns.get(col));
+                    Object value = entity.getProperty(orderedColumns.get(col));
                     if (value != null) {
                       if (!(value instanceof Number)) {
                         value = "\"" + value + "\"";

@@ -40,9 +40,9 @@ import com.jetbrains.youtrack.db.internal.core.index.iterator.IndexCursorStream;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
-import com.jetbrains.youtrack.db.internal.core.storage.Storage;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.storage.RecordDuplicatedException;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.ReadCache;
 import com.jetbrains.youtrack.db.internal.core.storage.cache.WriteCache;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
@@ -110,15 +110,15 @@ public abstract class IndexAbstract implements IndexInternal {
       final String valueContainerAlgorithm) {
     final String indexName = config.field(CONFIG_NAME);
 
-    final EntityImpl indexDefinitionDoc = config.field(INDEX_DEFINITION);
+    final EntityImpl indexDefinitionEntity = config.field(INDEX_DEFINITION);
     IndexDefinition loadedIndexDefinition = null;
-    if (indexDefinitionDoc != null) {
+    if (indexDefinitionEntity != null) {
       try {
         final String indexDefClassName = config.field(INDEX_DEFINITION_CLASS);
         final Class<?> indexDefClass = Class.forName(indexDefClassName);
         loadedIndexDefinition =
             (IndexDefinition) indexDefClass.getDeclaredConstructor().newInstance();
-        loadedIndexDefinition.fromStream(indexDefinitionDoc);
+        loadedIndexDefinition.fromStream(indexDefinitionEntity);
 
       } catch (final ClassNotFoundException
                      | IllegalAccessException
@@ -477,7 +477,7 @@ public abstract class IndexAbstract implements IndexInternal {
    */
   public long rebuild(DatabaseSessionInternal session,
       final ProgressListener iProgressListener) {
-    long documentIndexed;
+    long entitiesIndexed;
 
     acquireExclusiveLock();
     try {
@@ -515,7 +515,7 @@ public abstract class IndexAbstract implements IndexInternal {
 
     acquireSharedLock();
     try {
-      documentIndexed = fillIndex(session, iProgressListener, true);
+      entitiesIndexed = fillIndex(session, iProgressListener, true);
     } catch (final Exception e) {
       LogManager.instance().error(this, "Error during index rebuild", e);
       try {
@@ -535,31 +535,31 @@ public abstract class IndexAbstract implements IndexInternal {
       releaseSharedLock();
     }
 
-    return documentIndexed;
+    return entitiesIndexed;
   }
 
   private long fillIndex(DatabaseSessionInternal session,
       final ProgressListener iProgressListener, final boolean rebuild) {
-    long documentIndexed = 0;
+    long entitiesIndexed = 0;
     try {
-      long documentNum = 0;
-      long documentTotal = 0;
+      long entityNum = 0;
+      long entitiesTotal = 0;
 
       for (final String cluster : clustersToIndex) {
-        documentTotal += storage.count(session, storage.getClusterIdByName(cluster));
+        entitiesTotal += storage.count(session, storage.getClusterIdByName(cluster));
       }
 
       if (iProgressListener != null) {
-        iProgressListener.onBegin(this, documentTotal, rebuild);
+        iProgressListener.onBegin(this, entitiesTotal, rebuild);
       }
 
       // INDEX ALL CLUSTERS
       for (final String clusterName : clustersToIndex) {
         final long[] metrics =
-            indexCluster(session, clusterName, iProgressListener, documentNum,
-                documentIndexed, documentTotal);
-        documentNum = metrics[0];
-        documentIndexed = metrics[1];
+            indexCluster(session, clusterName, iProgressListener, entityNum,
+                entitiesIndexed, entitiesTotal);
+        entityNum = metrics[0];
+        entitiesIndexed = metrics[1];
       }
 
       if (iProgressListener != null) {
@@ -571,7 +571,7 @@ public abstract class IndexAbstract implements IndexInternal {
       }
       throw e;
     }
-    return documentIndexed;
+    return entitiesIndexed;
   }
 
   @Override
@@ -740,38 +740,38 @@ public abstract class IndexAbstract implements IndexInternal {
   }
 
   public EntityImpl updateConfiguration(DatabaseSessionInternal session) {
-    EntityImpl document = new EntityImpl(session);
-    document.field(CONFIG_TYPE, im.getType());
-    document.field(CONFIG_NAME, im.getName());
-    document.field(INDEX_VERSION, im.getVersion());
+    EntityImpl entity = new EntityImpl(session);
+    entity.field(CONFIG_TYPE, im.getType());
+    entity.field(CONFIG_NAME, im.getName());
+    entity.field(INDEX_VERSION, im.getVersion());
 
     if (im.getIndexDefinition() != null) {
 
-      final EntityImpl indexDefDocument = im.getIndexDefinition()
+      final EntityImpl indexDefEntity = im.getIndexDefinition()
           .toStream(new EntityImpl(session));
-      if (!indexDefDocument.hasOwners()) {
-        DocumentInternal.addOwner(indexDefDocument, document);
+      if (!indexDefEntity.hasOwners()) {
+        EntityInternalUtils.addOwner(indexDefEntity, entity);
       }
 
-      document.field(INDEX_DEFINITION, indexDefDocument, PropertyType.EMBEDDED);
-      document.field(
+      entity.field(INDEX_DEFINITION, indexDefEntity, PropertyType.EMBEDDED);
+      entity.field(
           INDEX_DEFINITION_CLASS, im.getIndexDefinition().getClass().getName());
     } else {
-      document.removeField(INDEX_DEFINITION);
-      document.removeField(INDEX_DEFINITION_CLASS);
+      entity.removeField(INDEX_DEFINITION);
+      entity.removeField(INDEX_DEFINITION_CLASS);
     }
 
-    document.field(CONFIG_CLUSTERS, clustersToIndex, PropertyType.EMBEDDEDSET);
-    document.field(ALGORITHM, im.getAlgorithm());
-    document.field(VALUE_CONTAINER_ALGORITHM, im.getValueContainerAlgorithm());
+    entity.field(CONFIG_CLUSTERS, clustersToIndex, PropertyType.EMBEDDEDSET);
+    entity.field(ALGORITHM, im.getAlgorithm());
+    entity.field(VALUE_CONTAINER_ALGORITHM, im.getValueContainerAlgorithm());
 
     if (im.getMetadata() != null) {
-      var imDoc = new EntityImpl();
-      imDoc.fromMap(im.getMetadata());
-      document.field(METADATA, imDoc, PropertyType.EMBEDDED);
+      var imEntity = new EntityImpl();
+      imEntity.fromMap(im.getMetadata());
+      entity.field(METADATA, imEntity, PropertyType.EMBEDDED);
     }
 
-    return document;
+    return entity;
   }
 
   /**
@@ -955,8 +955,8 @@ public abstract class IndexAbstract implements IndexInternal {
         throw new CommandExecutionException("The index rebuild has been interrupted");
       }
 
-      if (record instanceof EntityImpl doc) {
-        ClassIndexManager.reIndex(session, doc, this);
+      if (record instanceof EntityImpl entity) {
+        ClassIndexManager.reIndex(session, entity, this);
         ++stat[1];
       }
 

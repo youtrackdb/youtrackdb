@@ -1543,7 +1543,7 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
         }
       } catch (final IOException e) {
         throw BaseException.wrapException(
-            new SBTreeException("Error during element iteration", SBTreeV2.this), e);
+            new SBTreeException("Error during entity iteration", SBTreeV2.this), e);
       } finally {
         atomicOperationsManager.releaseReadLock(SBTreeV2.this);
       }
@@ -1748,7 +1748,7 @@ public class SBTreeV2<K, V> extends DurableComponent implements SBTree<K, V> {
         }
       } catch (final IOException e) {
         throw BaseException.wrapException(
-            new SBTreeException("Error during element iteration", SBTreeV2.this), e);
+            new SBTreeException("Error during entity iteration", SBTreeV2.this), e);
       } finally {
         atomicOperationsManager.releaseReadLock(SBTreeV2.this);
       }

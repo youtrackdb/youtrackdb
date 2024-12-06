@@ -19,17 +19,17 @@
  */
 package com.jetbrains.youtrack.db.internal.client.remote.message;
 
+import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
+import com.jetbrains.youtrack.db.internal.client.remote.BinaryRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.BinaryResponse;
+import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
+import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelBinaryProtocol;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataInput;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.ChannelDataOutput;
-import com.jetbrains.youtrack.db.internal.client.binary.BinaryRequestExecutor;
-import com.jetbrains.youtrack.db.internal.client.remote.BinaryRequest;
-import com.jetbrains.youtrack.db.internal.client.remote.StorageRemoteSession;
-import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
 import java.io.IOException;
 import java.util.Map;
 
@@ -154,10 +154,10 @@ public final class QueryRequest implements BinaryRequest<QueryResponse> {
   public Map<String, Object> getParams(DatabaseSessionInternal db) {
     if (params == null && this.paramsBytes != null) {
       // params
-      EntityImpl paramsDoc = new EntityImpl();
-      paramsDoc.setTrackingChanges(false);
-      serializer.fromStream(db, this.paramsBytes, paramsDoc, null);
-      this.params = paramsDoc.field("params");
+      EntityImpl paramsEntity = new EntityImpl();
+      paramsEntity.setTrackingChanges(false);
+      serializer.fromStream(db, this.paramsBytes, paramsEntity, null);
+      this.params = paramsEntity.field("params");
     }
     return params;
   }

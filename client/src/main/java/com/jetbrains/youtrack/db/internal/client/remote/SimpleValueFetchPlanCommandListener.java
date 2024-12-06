@@ -5,5 +5,5 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 
 public interface SimpleValueFetchPlanCommandListener extends CommandResultListener {
 
-  void linkdedBySimpleValue(EntityImpl doc);
+  void linkdedBySimpleValue(EntityImpl entity);
 }

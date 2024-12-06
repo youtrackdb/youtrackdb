@@ -115,14 +115,14 @@ public class SortedMultiIterator<T extends Identifiable> implements Iterator<T> 
       return false;
     }
 
-    EntityImpl leftDoc =
+    EntityImpl leftEntity =
         (left instanceof EntityImpl) ? (EntityImpl) left : (EntityImpl) left.getRecord();
-    EntityImpl rightDoc =
+    EntityImpl rightEntity =
         (right instanceof EntityImpl) ? (EntityImpl) right : (EntityImpl) right.getRecord();
 
     for (SQLOrderByItem orderItem : orderBy.getItems()) {
-      Object leftVal = leftDoc.field(orderItem.getRecordAttr());
-      Object rightVal = rightDoc.field(orderItem.getRecordAttr());
+      Object leftVal = leftEntity.field(orderItem.getRecordAttr());
+      Object rightVal = rightEntity.field(orderItem.getRecordAttr());
       if (rightVal == null) {
         return true;
       }

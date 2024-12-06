@@ -236,7 +236,7 @@ public class SQLArraySingleValuesSelector extends SimpleNode {
       }
     } else {
       throw new CommandExecutionException(
-          "Trying to remove elements from "
+          "Trying to remove entities from "
               + currentValue
               + " ("
               + currentValue.getClass().getSimpleName()

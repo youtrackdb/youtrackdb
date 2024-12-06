@@ -52,7 +52,7 @@ public class RemoteFetchContext implements FetchContext {
   }
 
   public void onBeforeDocument(
-      EntityImpl iRecord, final EntityImpl iDocument, String iFieldName,
+      EntityImpl iRecord, final EntityImpl entity, String iFieldName,
       final Object iUserObject)
       throws FetchException {
   }
@@ -73,7 +73,7 @@ public class RemoteFetchContext implements FetchContext {
   }
 
   public void onAfterDocument(
-      EntityImpl iRootRecord, final EntityImpl iDocument, String iFieldName,
+      EntityImpl iRootRecord, final EntityImpl entity, String iFieldName,
       final Object iUserObject)
       throws FetchException {
   }

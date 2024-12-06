@@ -56,8 +56,8 @@ public class DocumentComparator implements Comparator<Identifiable> {
   }
 
   @SuppressWarnings("unchecked")
-  public int compare(final Identifiable iDoc1, final Identifiable iDoc2) {
-    if (iDoc1 != null && iDoc1.equals(iDoc2)) {
+  public int compare(final Identifiable ind1, final Identifiable ind2) {
+    if (ind1 != null && ind1.equals(ind2)) {
       return 0;
     }
 
@@ -70,8 +70,8 @@ public class DocumentComparator implements Comparator<Identifiable> {
       final String fieldName = field.getKey();
       final String ordering = field.getValue();
 
-      fieldValue1 = ((EntityImpl) iDoc1.getRecord()).field(fieldName);
-      fieldValue2 = ((EntityImpl) iDoc2.getRecord()).field(fieldName);
+      fieldValue1 = ((EntityImpl) ind1.getRecord()).field(fieldName);
+      fieldValue2 = ((EntityImpl) ind2.getRecord()).field(fieldName);
 
       if (fieldValue1 == null && fieldValue2 == null) {
         continue;

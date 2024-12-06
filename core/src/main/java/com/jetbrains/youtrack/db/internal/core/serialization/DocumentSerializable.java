@@ -23,14 +23,14 @@ package com.jetbrains.youtrack.db.internal.core.serialization;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 
 /**
- * Interface for objects which are hold inside of document as field values and can serialize
- * yourself into document. In such way it is possible to serialize complex types and do not break
+ * Interface for objects which are hold inside of entity as field values and can serialize
+ * yourself into entity. In such way it is possible to serialize complex types and do not break
  * compatibility with non-Java binary drivers.
  *
- * <p>After serialization into document additional field {@link #CLASS_NAME} will be added. This
+ * <p>After serialization into entity additional field {@link #CLASS_NAME} will be added. This
  * field contains value of class of original object.
  *
- * <p>During deserialization of embedded object if embedded document contains {@link #CLASS_NAME}
+ * <p>During deserialization of embedded object if embedded entity contains {@link #CLASS_NAME}
  * field we try to find class with given name and only if this class implements
  * {@link DocumentSerializable} interface it will be converted to the object. So it is pretty safe
  * to use field with {@link #CLASS_NAME} in ordinary documents if it is needed.
@@ -45,5 +45,5 @@ public interface DocumentSerializable {
 
   EntityImpl toDocument();
 
-  void fromDocument(EntityImpl document);
+  void fromDocument(EntityImpl entity);
 }

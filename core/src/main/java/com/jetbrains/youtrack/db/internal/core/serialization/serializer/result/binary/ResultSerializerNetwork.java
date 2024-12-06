@@ -70,7 +70,7 @@ public class ResultSerializerNetwork {
   }
 
   public ResultInternal deserialize(DatabaseSessionInternal db, final BytesContainer bytes) {
-    final ResultInternal document = new ResultInternal(db);
+    final ResultInternal entity = new ResultInternal(db);
     String fieldName;
     PropertyType type;
     int size = VarIntSerializer.readAsInteger(bytes);
@@ -83,10 +83,10 @@ public class ResultSerializerNetwork {
       type = readOType(bytes);
 
       if (type == null) {
-        document.setProperty(fieldName, null);
+        entity.setProperty(fieldName, null);
       } else {
         final Object value = deserializeValue(db, bytes, type);
-        document.setProperty(fieldName, value);
+        entity.setProperty(fieldName, value);
       }
     }
 
@@ -100,14 +100,14 @@ public class ResultSerializerNetwork {
       type = readOType(bytes);
 
       if (type == null) {
-        document.setMetadata(fieldName, null);
+        entity.setMetadata(fieldName, null);
       } else {
         final Object value = deserializeValue(db, bytes, type);
-        document.setMetadata(fieldName, value);
+        entity.setMetadata(fieldName, value);
       }
     }
 
-    return document;
+    return entity;
   }
 
   @SuppressWarnings("unchecked")
@@ -308,7 +308,7 @@ public class ResultSerializerNetwork {
 
   private Map readEmbeddedMap(DatabaseSessionInternal db, final BytesContainer bytes) {
     int size = VarIntSerializer.readAsInteger(bytes);
-    final Map document = new LinkedHashMap();
+    final Map entity = new LinkedHashMap();
     String fieldName;
     PropertyType type;
     while ((size--) > 0) {
@@ -319,13 +319,13 @@ public class ResultSerializerNetwork {
       type = readOType(bytes);
 
       if (type == null) {
-        document.put(fieldName, null);
+        entity.put(fieldName, null);
       } else {
         final Object value = deserializeValue(db, bytes, type);
-        document.put(fieldName, value);
+        entity.put(fieldName, value);
       }
     }
-    return document;
+    return entity;
   }
 
   private Collection<Identifiable> readLinkCollection(

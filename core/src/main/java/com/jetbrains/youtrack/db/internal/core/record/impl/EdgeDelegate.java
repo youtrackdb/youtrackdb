@@ -68,14 +68,14 @@ public class EdgeDelegate implements EdgeInternal {
       return vOut;
     }
 
-    final EntityImpl doc;
+    final EntityImpl entity;
     try {
-      doc = getRecord();
+      entity = getRecord();
     } catch (RecordNotFoundException rnf) {
       return null;
     }
 
-    Object result = doc.getProperty(DIRECTION_OUT);
+    Object result = entity.getProperty(DIRECTION_OUT);
     if (!(result instanceof Entity v)) {
       return null;
     }
@@ -93,18 +93,18 @@ public class EdgeDelegate implements EdgeInternal {
       return vOut;
     }
 
-    final EntityImpl doc;
+    final EntityImpl entity;
     try {
-      doc = getRecord();
+      entity = getRecord();
     } catch (RecordNotFoundException rnf) {
       return null;
     }
 
-    var result = doc.getLinkProperty(DIRECTION_OUT);
+    var result = entity.getLinkProperty(DIRECTION_OUT);
     assert result != null;
 
     var id = result.getIdentity();
-    var db = doc.getSession();
+    var db = entity.getSession();
     var schema = db.getMetadata().getSchema();
 
     if (schema.getClassByClusterId(id.getClusterId()).isVertexType()) {
@@ -127,14 +127,14 @@ public class EdgeDelegate implements EdgeInternal {
       return vIn;
     }
 
-    final EntityImpl doc;
+    final EntityImpl entity;
     try {
-      doc = getRecord();
+      entity = getRecord();
     } catch (RecordNotFoundException rnf) {
       return null;
     }
 
-    Object result = doc.getProperty(DIRECTION_IN);
+    Object result = entity.getProperty(DIRECTION_IN);
     if (!(result instanceof Entity v)) {
       return null;
     }
@@ -152,19 +152,19 @@ public class EdgeDelegate implements EdgeInternal {
       return vIn;
     }
 
-    final EntityImpl doc;
+    final EntityImpl entity;
 
     try {
-      doc = getRecord();
+      entity = getRecord();
     } catch (RecordNotFoundException rnf) {
       return null;
     }
 
-    var result = doc.getLinkProperty(DIRECTION_IN);
+    var result = entity.getLinkProperty(DIRECTION_IN);
     assert result != null;
 
     var id = result.getIdentity();
-    var schema = doc.getSession().getMetadata().getSchema();
+    var schema = entity.getSession().getMetadata().getSchema();
 
     if (schema.getClassByClusterId(id.getClusterId()).isVertexType()) {
       return id;

@@ -21,9 +21,9 @@ package com.jetbrains.youtrack.db.internal.core.sql;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.Pair;
+import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestText;
-import com.jetbrains.youtrack.db.internal.core.command.CommandDistributedReplicateRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
@@ -37,7 +37,7 @@ import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLAsynchQuery;
@@ -258,12 +258,12 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
       final List<EntityImpl> docs = new ArrayList<EntityImpl>();
       if (newRecords != null) {
         for (Map<String, Object> candidate : newRecords) {
-          final EntityImpl doc =
+          final EntityImpl entity =
               className != null ? new EntityImpl(className) : new EntityImpl();
-          SQLHelper.bindParameters(doc, candidate, commandParameters, context);
+          SQLHelper.bindParameters(entity, candidate, commandParameters, context);
 
-          saveRecord(doc);
-          docs.add(doc);
+          saveRecord(entity);
+          docs.add(entity);
         }
 
         if (docs.size() == 1) {
@@ -272,11 +272,11 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
           return prepareReturnResult(docs);
         }
       } else if (content != null) {
-        final EntityImpl doc =
+        final EntityImpl entity =
             className != null ? new EntityImpl(className) : new EntityImpl();
-        doc.merge(content, true, false);
-        saveRecord(doc);
-        return prepareReturnItem(doc);
+        entity.merge(content, true, false);
+        saveRecord(entity);
+        return prepareReturnItem(entity);
       } else if (subQuery != null) {
         subQuery.execute(querySession);
         if (queryResult != null) {
@@ -324,40 +324,40 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
     RecordAbstract oldRecord = ((Identifiable) iRecord).getRecord();
 
     if (oldRecord instanceof EntityImpl) {
-      oldClass = DocumentInternal.getImmutableSchemaClass(((EntityImpl) oldRecord));
+      oldClass = EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) oldRecord));
     }
     final RecordAbstract rec = oldRecord.copy();
 
     // RESET THE IDENTITY TO AVOID UPDATE
     rec.getIdentity().reset();
 
-    if (rec instanceof EntityImpl doc) {
+    if (rec instanceof EntityImpl entity) {
 
       if (className != null) {
-        doc.setClassName(className);
-        doc.setTrackingChanges(true);
+        entity.setClassName(className);
+        entity.setTrackingChanges(true);
       }
     }
 
     if (rec instanceof Entity) {
-      EntityInternal doc = (EntityInternal) rec;
+      EntityInternal entity = (EntityInternal) rec;
 
       if (oldClass != null && oldClass.isSubClassOf("V")) {
         LogManager.instance()
             .warn(
                 this,
                 "WARNING: copying vertex record "
-                    + doc
+                    + entity
                     + " with INSERT/SELECT, the edge pointers won't be copied");
         String[] fields = ((EntityImpl) rec).fieldNames();
         for (String field : fields) {
           if (field.startsWith("out_") || field.startsWith("in_")) {
-            Object edges = doc.getPropertyInternal(field);
+            Object edges = entity.getPropertyInternal(field);
             if (edges instanceof Identifiable) {
               EntityImpl edgeRec = ((Identifiable) edges).getRecord();
-              SchemaClass clazz = DocumentInternal.getImmutableSchemaClass(edgeRec);
+              SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(edgeRec);
               if (clazz != null && clazz.isSubClassOf("E")) {
-                doc.removeProperty(field);
+                entity.removeProperty(field);
               }
             } else if (edges instanceof Iterable) {
               for (Object edge : (Iterable) edges) {
@@ -365,7 +365,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
                   Entity edgeRec = ((Identifiable) edge).getRecord();
                   if (edgeRec.getSchemaType().isPresent()
                       && edgeRec.getSchemaType().get().isSubClassOf("E")) {
-                    doc.removeProperty(field);
+                    entity.removeProperty(field);
                     break;
                   }
                 }
@@ -410,7 +410,7 @@ public class CommandExecutorSQLInsert extends CommandExecutorSQLSetAware
     final Object res = SQLHelper.getValue(returnExpression, item, this.getContext());
     if (res instanceof Identifiable) {
       return res;
-    } else { // wrapping doc
+    } else { // wrapping entity
       final EntityImpl wrappingDoc = new EntityImpl("result", res);
       wrappingDoc.field(
           "rid", item.getIdentity()); // passing record id.In many cases usable on client side

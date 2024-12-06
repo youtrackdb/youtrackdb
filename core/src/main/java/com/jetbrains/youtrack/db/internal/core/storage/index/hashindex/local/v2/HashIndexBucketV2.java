@@ -400,7 +400,7 @@ public final class HashIndexBucketV2<K, V> extends DurablePage {
     @Override
     public HashTable.Entry<K, V> next() {
       if (currentIndex >= size()) {
-        throw new NoSuchElementException("Iterator was reached last element");
+        throw new NoSuchElementException("Iterator was reached last entity");
       }
 
       final HashTable.Entry<K, V> entry =
@@ -441,7 +441,7 @@ public final class HashIndexBucketV2<K, V> extends DurablePage {
     @Override
     public HashTable.RawEntry next() {
       if (currentIndex >= size()) {
-        throw new NoSuchElementException("Iterator was reached last element");
+        throw new NoSuchElementException("Iterator was reached last entity");
       }
 
       final HashTable.RawEntry entry =

@@ -109,10 +109,10 @@ public class SQLFunctionList extends SQLFunctionMultiValueAbstract<List<Object>>
 
   protected List<Object> prepareResult(List<Object> res) {
     if (returnDistributedResult()) {
-      final Map<String, Object> doc = new HashMap<String, Object>();
-      doc.put("node", getDistributedStorageId());
-      doc.put("context", res);
-      return Collections.singletonList(doc);
+      final Map<String, Object> entity = new HashMap<String, Object>();
+      entity.put("node", getDistributedStorageId());
+      entity.put("context", res);
+      return Collections.singletonList(entity);
     } else {
       return res;
     }

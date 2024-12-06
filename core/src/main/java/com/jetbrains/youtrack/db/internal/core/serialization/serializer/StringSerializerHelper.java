@@ -78,7 +78,7 @@ public abstract class StringSerializerHelper {
   public static final String SKIPPED_VALUE = "[SKIPPED VALUE]";
 
   public static Object fieldTypeFromStream(
-      DatabaseSessionInternal db, final EntityImpl iDocument, PropertyType iType,
+      DatabaseSessionInternal db, final EntityImpl entity, PropertyType iType,
       final Object iValue) {
     if (iValue == null) {
       return null;
@@ -210,7 +210,7 @@ public abstract class StringSerializerHelper {
         // RECORD
         final String value = (String) iValue;
         return RecordSerializerSchemaAware2CSV.INSTANCE.embeddedMapFromStream(db,
-            iDocument, null, value, null);
+            entity, null, value, null);
 
       case ANY:
         if (iValue instanceof String s) {

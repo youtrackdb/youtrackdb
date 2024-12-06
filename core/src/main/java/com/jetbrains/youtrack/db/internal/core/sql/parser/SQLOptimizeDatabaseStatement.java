@@ -84,22 +84,22 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
     long lastLapBrowsed = 0;
     long lastLapTime = System.currentTimeMillis();
 
-    for (EntityImpl doc : db.browseClass("E")) {
+    for (EntityImpl entity : db.browseClass("E")) {
       if (Thread.currentThread().isInterrupted()) {
         break;
       }
 
       browsedEdges++;
 
-      if (doc != null) {
-        if (doc.fields() == 2) {
-          final RID edgeIdentity = doc.getIdentity();
+      if (entity != null) {
+        if (entity.fields() == 2) {
+          final RID edgeIdentity = entity.getIdentity();
 
-          final EntityImpl outV = doc.getPropertyInternal("out");
-          final EntityImpl inV = doc.getPropertyInternal("in");
+          final EntityImpl outV = entity.getPropertyInternal("out");
+          final EntityImpl inV = entity.getPropertyInternal("in");
 
           // OUTGOING
-          final Object outField = outV.getPropertyInternal("out_" + doc.getClassName());
+          final Object outField = outV.getPropertyInternal("out_" + entity.getClassName());
           if (outField instanceof RidBag) {
             final Iterator<Identifiable> it = ((RidBag) outField).iterator();
             while (it.hasNext()) {
@@ -116,7 +116,7 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
           outV.save();
 
           // INCOMING
-          final Object inField = inV.getPropertyInternal("in_" + doc.getClassName());
+          final Object inField = inV.getPropertyInternal("in_" + entity.getClassName());
           if (outField instanceof RidBag) {
             final Iterator<Identifiable> it = ((RidBag) inField).iterator();
             while (it.hasNext()) {
@@ -132,7 +132,7 @@ public class SQLOptimizeDatabaseStatement extends SQLSimpleExecStatement {
 
           inV.save();
 
-          doc.delete();
+          entity.delete();
 
           final long now = System.currentTimeMillis();
 

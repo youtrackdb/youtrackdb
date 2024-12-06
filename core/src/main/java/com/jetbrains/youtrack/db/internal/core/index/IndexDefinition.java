@@ -28,7 +28,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
- * Presentation of index that is used information and contained in document {@link SchemaClass} .
+ * Presentation of index that is used information and contained in entity {@link SchemaClass} .
  *
  * <p>This object cannot be created directly, use {@link
  * SchemaClass} manipulation method instead.
@@ -104,7 +104,7 @@ public interface IndexDefinition extends IndexCallback {
 
   /**
    * Return types of values from which index key consist. In case of index that is built on single
-   * document property value single array that contains property type will be returned. In case of
+   * entity property value single array that contains property type will be returned. In case of
    * composite indexes result will contain several key types.
    *
    * @return Types of values from which index key consist.
@@ -112,19 +112,19 @@ public interface IndexDefinition extends IndexCallback {
   PropertyType[] getTypes();
 
   /**
-   * Serializes internal index state to document.
+   * Serializes internal index state to entity.
    *
-   * @return Document that contains internal index state.
+   * @return Entity that contains internal index state.
    */
   @Nonnull
-  EntityImpl toStream(@Nonnull EntityImpl document);
+  EntityImpl toStream(@Nonnull EntityImpl entity);
 
   /**
-   * Deserialize internal index state from document.
+   * Deserialize internal index state from entity.
    *
-   * @param document Serialized index presentation.
+   * @param entity Serialized index presentation.
    */
-  void fromStream(@Nonnull EntityImpl document);
+  void fromStream(@Nonnull EntityImpl entity);
 
   String toCreateIndexDDL(String indexName, String indexType, String engine);
 

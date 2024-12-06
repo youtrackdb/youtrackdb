@@ -104,6 +104,6 @@ public class MailPlugin extends ServerPluginAbstract
   }
 
   @Override
-  public void changeConfig(EntityImpl document) {
+  public void changeConfig(EntityImpl entity) {
   }
 }

@@ -98,7 +98,7 @@ public class OServerCommandPostImportRecords extends OServerCommandDocumentAbstr
               break;
             }
 
-            final EntityImpl doc = new EntityImpl(cls);
+            final EntityImpl entity = new EntityImpl(cls);
             final String row = parsedRow.trim();
             final List<String> cells = StringSerializerHelper.smartSplit(row, CSV_SEPARATOR);
 
@@ -125,10 +125,10 @@ public class OServerCommandPostImportRecords extends OServerCommandDocumentAbstr
                 }
               }
 
-              doc.field(columns.get(col), value);
+              entity.field(columns.get(col), value);
             }
 
-            doc.save();
+            entity.save();
             imported++;
 
           } catch (Exception e) {

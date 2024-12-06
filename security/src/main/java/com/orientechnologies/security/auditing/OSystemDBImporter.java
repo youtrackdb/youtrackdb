@@ -123,35 +123,35 @@ public class OSystemDBImporter extends Thread {
         String lastRID = null;
 
         while (result.hasNext()) {
-          Result doc = result.next();
+          Result entity = result.next();
           try {
             Entity copy = new EntityImpl();
 
-            if (doc.hasProperty("date")) {
-              copy.setProperty("date", doc.getProperty("date"), PropertyType.DATETIME);
+            if (entity.hasProperty("date")) {
+              copy.setProperty("date", entity.getProperty("date"), PropertyType.DATETIME);
             }
 
-            if (doc.hasProperty("operation")) {
-              copy.setProperty("operation", doc.getProperty("operation"), PropertyType.BYTE);
+            if (entity.hasProperty("operation")) {
+              copy.setProperty("operation", entity.getProperty("operation"), PropertyType.BYTE);
             }
 
-            if (doc.hasProperty("record")) {
-              copy.setProperty("record", doc.getProperty("record"), PropertyType.LINK);
+            if (entity.hasProperty("record")) {
+              copy.setProperty("record", entity.getProperty("record"), PropertyType.LINK);
             }
 
-            if (doc.hasProperty("changes")) {
-              copy.setProperty("changes", doc.getProperty("changes"), PropertyType.EMBEDDED);
+            if (entity.hasProperty("changes")) {
+              copy.setProperty("changes", entity.getProperty("changes"), PropertyType.EMBEDDED);
             }
 
-            if (doc.hasProperty("note")) {
-              copy.setProperty("note", doc.getProperty("note"), PropertyType.STRING);
+            if (entity.hasProperty("note")) {
+              copy.setProperty("note", entity.getProperty("note"), PropertyType.STRING);
             }
 
             try {
               // Convert user RID to username.
-              if (doc.hasProperty("user")) {
-                // doc.field("user") will throw an exception if the user's RID is not found.
-                EntityImpl userDoc = doc.getProperty("user");
+              if (entity.hasProperty("user")) {
+                // entity.field("user") will throw an exception if the user's RID is not found.
+                EntityImpl userDoc = entity.getProperty("user");
                 final String username = userDoc.field("name");
 
                 if (username != null) {
@@ -167,12 +167,12 @@ public class OSystemDBImporter extends Thread {
             sysdb.activateOnCurrentThread();
             sysdb.save(copy, DefaultAuditing.getClusterName(dbName));
 
-            lastRID = doc.getIdentity().toString();
+            lastRID = entity.getIdentity().toString();
 
             count++;
 
             db.activateOnCurrentThread();
-            db.delete(doc.getIdentity().get());
+            db.delete(entity.getIdentity().get());
           } catch (Exception ex) {
             LogManager.instance().error(this, "importDB()", ex);
           }

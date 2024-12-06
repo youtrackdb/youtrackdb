@@ -36,16 +36,16 @@ public class SequenceCached extends Sequence {
   private long cacheEnd;
   private volatile boolean firstCache;
 
-  public SequenceCached(final EntityImpl document) {
-    super(document);
+  public SequenceCached(final EntityImpl entity) {
+    super(entity);
 
     firstCache = true;
-    cacheStart = cacheEnd = getValue(document);
+    cacheStart = cacheEnd = getValue(entity);
   }
 
   public SequenceCached(Sequence.CreateParams params, @Nonnull String name) {
     super(params, name);
-    var document = (EntityImpl) docRid.getRecord();
+    var entity = (EntityImpl) entityRid.getRecord();
 
     if (params == null) {
       params = new CreateParams().setDefaults();
@@ -55,32 +55,32 @@ public class SequenceCached extends Sequence {
     var currentParams = params;
     db.executeInTx(
         () -> {
-          EntityImpl boundDocument;
+          EntityImpl boundEntity;
 
-          if (document.isNotBound(db)) {
-            boundDocument = db.bindToSession(document);
+          if (entity.isNotBound(db)) {
+            boundEntity = db.bindToSession(entity);
           } else {
-            boundDocument = document;
+            boundEntity = entity;
           }
 
-          setCacheSize(boundDocument, currentParams.cacheSize);
+          setCacheSize(boundEntity, currentParams.cacheSize);
           cacheStart = cacheEnd = 0L;
           allocateCache(
-              boundDocument,
+              boundEntity,
               currentParams.cacheSize,
-              getOrderType(boundDocument),
-              getLimitValue(boundDocument));
-          boundDocument.save();
+              getOrderType(boundEntity),
+              getLimitValue(boundEntity));
+          boundEntity.save();
         });
   }
 
   @Override
   boolean updateParams(
-      EntityImpl document, Sequence.CreateParams params, boolean executeViaDistributed)
+      EntityImpl entity, Sequence.CreateParams params, boolean executeViaDistributed)
       throws DatabaseException {
-    boolean any = super.updateParams(document, params, executeViaDistributed);
-    if (params.cacheSize != null && this.getCacheSize(document) != params.cacheSize) {
-      this.setCacheSize(document, params.cacheSize);
+    boolean any = super.updateParams(entity, params, executeViaDistributed);
+    if (params.cacheSize != null && this.getCacheSize(entity) != params.cacheSize) {
+      this.setCacheSize(entity, params.cacheSize);
       any = true;
     }
 
@@ -90,15 +90,15 @@ public class SequenceCached extends Sequence {
   }
 
   private void doRecycle(
-      EntityImpl document,
+      EntityImpl entity,
       long start,
       int cacheSize,
       boolean recyclable,
       SequenceOrderType orderType,
       Long limitValue) {
     if (recyclable) {
-      setValue(document, start);
-      allocateCache(document, cacheSize, orderType, limitValue);
+      setValue(entity, start);
+      allocateCache(entity, cacheSize, orderType, limitValue);
     } else {
       throw new SequenceLimitReachedException("Limit reached");
     }
@@ -126,49 +126,49 @@ public class SequenceCached extends Sequence {
         .checkSecurity(
             Rule.ResourceGeneric.CLASS,
             Role.PERMISSION_UPDATE,
-            this.docRid.<EntityImpl>getRecord().getClassName());
+            this.entityRid.<EntityImpl>getRecord().getClassName());
   }
 
   @Override
   public long nextWork() throws SequenceLimitReachedException {
     return callRetry(
-        (db, doc) -> {
-          var orderType = getOrderType(doc);
-          var limitValue = getLimitValue(doc);
-          var increment = getIncrement(doc);
-          var cacheSize = getCacheSize(doc);
-          var recyble = getRecyclable(doc);
-          var start = getStart(doc);
+        (db, entity) -> {
+          var orderType = getOrderType(entity);
+          var limitValue = getLimitValue(entity);
+          var increment = getIncrement(entity);
+          var cacheSize = getCacheSize(entity);
+          var recyble = getRecyclable(entity);
+          var start = getStart(entity);
 
           if (orderType == SequenceOrderType.ORDER_POSITIVE) {
             if (signalToAllocateCache(orderType, increment, limitValue)) {
               boolean cachedbefore = !firstCache;
-              allocateCache(doc, cacheSize, orderType, limitValue);
+              allocateCache(entity, cacheSize, orderType, limitValue);
               if (!cachedbefore) {
                 if (limitValue != null && cacheStart + increment > limitValue) {
-                  doRecycle(doc, start, cacheSize, recyble, orderType, limitValue);
+                  doRecycle(entity, start, cacheSize, recyble, orderType, limitValue);
                 } else {
                   cacheStart = cacheStart + increment;
                 }
               }
             } else if (limitValue != null && cacheStart + increment > limitValue) {
-              doRecycle(doc, start, cacheSize, recyble, orderType, limitValue);
+              doRecycle(entity, start, cacheSize, recyble, orderType, limitValue);
             } else {
               cacheStart = cacheStart + increment;
             }
           } else {
             if (signalToAllocateCache(orderType, increment, limitValue)) {
               boolean cachedbefore = !firstCache;
-              allocateCache(doc, cacheSize, orderType, limitValue);
+              allocateCache(entity, cacheSize, orderType, limitValue);
               if (!cachedbefore) {
                 if (limitValue != null && cacheStart - increment < limitValue) {
-                  doRecycle(doc, start, cacheSize, recyble, orderType, limitValue);
+                  doRecycle(entity, start, cacheSize, recyble, orderType, limitValue);
                 } else {
                   cacheStart = cacheStart - increment;
                 }
               }
             } else if (limitValue != null && cacheStart - increment < limitValue) {
-              doRecycle(doc, start, cacheSize, recyble, orderType, limitValue);
+              doRecycle(entity, start, cacheSize, recyble, orderType, limitValue);
             } else {
               cacheStart = cacheStart - increment;
             }
@@ -181,7 +181,7 @@ public class SequenceCached extends Sequence {
             if (tillEnd <= (delta / 100.f) || tillEnd <= 1) {
               String warningMessage =
                   "Non-recyclable sequence: "
-                      + getSequenceName(doc)
+                      + getSequenceName(entity)
                       + " reaching limt, current value: "
                       + cacheStart
                       + " limit value: "
@@ -206,11 +206,11 @@ public class SequenceCached extends Sequence {
   @Override
   public long resetWork() {
     return callRetry(
-        (db, doc) -> {
-          long newValue = getStart(doc);
-          setValue(doc, newValue);
+        (db, entity) -> {
+          long newValue = getStart(entity);
+          setValue(entity, newValue);
           firstCache = true;
-          allocateCache(doc, getCacheSize(doc), getOrderType(doc), getLimitValue(doc));
+          allocateCache(entity, getCacheSize(entity), getOrderType(entity), getLimitValue(entity));
           return newValue;
         },
         "reset");
@@ -221,30 +221,30 @@ public class SequenceCached extends Sequence {
     return SEQUENCE_TYPE.CACHED;
   }
 
-  private int getCacheSize(EntityImpl document) {
-    return document.getProperty(FIELD_CACHE);
+  private int getCacheSize(EntityImpl entity) {
+    return entity.getProperty(FIELD_CACHE);
   }
 
-  public final void setCacheSize(EntityImpl document, int cacheSize) {
-    document.setProperty(FIELD_CACHE, cacheSize);
+  public final void setCacheSize(EntityImpl entity, int cacheSize) {
+    entity.setProperty(FIELD_CACHE, cacheSize);
   }
 
   private void allocateCache(
-      EntityImpl document, int cacheSize, SequenceOrderType orderType, Long limitValue) {
-    long value = getValue(document);
+      EntityImpl entity, int cacheSize, SequenceOrderType orderType, Long limitValue) {
+    long value = getValue(entity);
     long newValue;
     if (orderType == SequenceOrderType.ORDER_POSITIVE) {
-      newValue = value + ((long) getIncrement(document) * cacheSize);
+      newValue = value + ((long) getIncrement(entity) * cacheSize);
       if (limitValue != null && newValue > limitValue) {
         newValue = limitValue;
       }
     } else {
-      newValue = value - ((long) getIncrement(document) * cacheSize);
+      newValue = value - ((long) getIncrement(entity) * cacheSize);
       if (limitValue != null && newValue < limitValue) {
         newValue = limitValue;
       }
     }
-    setValue(document, newValue);
+    setValue(entity, newValue);
     this.cacheStart = value;
     if (orderType == SequenceOrderType.ORDER_POSITIVE) {
       this.cacheEnd = newValue - 1;

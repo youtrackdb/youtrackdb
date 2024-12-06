@@ -150,14 +150,14 @@ public class SQLInputParameter extends SimpleNode {
     throw new UnsupportedOperationException();
   }
 
-  public static SQLInputParameter deserializeFromOResult(Result doc) {
+  public static SQLInputParameter deserializeFromOResult(Result res) {
     try {
       SQLInputParameter result =
           (SQLInputParameter)
-              Class.forName(doc.getProperty("__class"))
+              Class.forName(res.getProperty("__class"))
                   .getConstructor(Integer.class)
                   .newInstance(-1);
-      result.deserialize(doc);
+      result.deserialize(res);
     } catch (Exception e) {
       throw BaseException.wrapException(new CommandExecutionException(""), e);
     }

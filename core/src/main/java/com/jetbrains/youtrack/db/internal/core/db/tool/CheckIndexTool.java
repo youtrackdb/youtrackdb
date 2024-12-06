@@ -114,8 +114,8 @@ public class CheckIndexTool extends DatabaseTool {
         step = currentStep;
       }
       Record record = iter.next();
-      if (record instanceof EntityImpl doc) {
-        checkThatRecordIsIndexed(session, doc, index, fields);
+      if (record instanceof EntityImpl entity) {
+        checkThatRecordIsIndexed(session, entity, index, fields);
       }
       count++;
     }
@@ -140,11 +140,11 @@ public class CheckIndexTool extends DatabaseTool {
   }
 
   private void checkThatRecordIsIndexed(
-      DatabaseSessionInternal session, EntityImpl doc, Index index, List<String> fields) {
+      DatabaseSessionInternal session, EntityImpl entity, Index index, List<String> fields) {
     Object[] vals = new Object[fields.size()];
-    RID docId = doc.getIdentity();
+    RID entityId = entity.getIdentity();
     for (int i = 0; i < vals.length; i++) {
-      vals[i] = doc.field(fields.get(i));
+      vals[i] = entity.field(fields.get(i));
     }
 
     Object indexKey = index.getDefinition().createValue(session, vals);
@@ -162,13 +162,13 @@ public class CheckIndexTool extends DatabaseTool {
 
     for (final Object key : indexKeys) {
       try (final Stream<RID> stream = index.getInternal().getRids(session, key)) {
-        if (stream.noneMatch((rid) -> rid.equals(docId))) {
+        if (stream.noneMatch((rid) -> rid.equals(entityId))) {
           totalErrors++;
           message(
               "\rERROR: Index "
                   + index.getName()
                   + " - record not found: "
-                  + doc.getIdentity()
+                  + entity.getIdentity()
                   + "\n");
         }
       }

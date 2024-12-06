@@ -18,7 +18,7 @@
  *
  */
 
-package com.jetbrains.youtrack.db.internal.core.db.document;
+package com.jetbrains.youtrack.db.internal.core.db;
 
 import com.jetbrains.youtrack.db.internal.common.concur.NeedRetryException;
 import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
@@ -31,13 +31,6 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequestInternal;
 import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseLifecycleListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.ScenarioThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseListener;
 import com.jetbrains.youtrack.db.internal.core.db.record.CurrentStorageComponentsFactory;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.db.record.RecordOperation;
@@ -45,12 +38,12 @@ import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
 import com.jetbrains.youtrack.db.internal.core.exception.ConcurrentModificationException;
 import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
+import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
 import com.jetbrains.youtrack.db.internal.core.exception.SecurityException;
 import com.jetbrains.youtrack.db.internal.core.exception.SessionNotActivatedException;
 import com.jetbrains.youtrack.db.internal.core.exception.TransactionBlockedException;
-import com.jetbrains.youtrack.db.internal.core.exception.ValidationException;
-import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
 import com.jetbrains.youtrack.db.internal.core.exception.TransactionException;
+import com.jetbrains.youtrack.db.internal.core.exception.ValidationException;
 import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
@@ -63,30 +56,30 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableView;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaView;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.ImmutableUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ImmutableUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml;
 import com.jetbrains.youtrack.db.internal.core.query.Query;
 import com.jetbrains.youtrack.db.internal.core.record.Direction;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
+import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.Entity;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
-import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
-import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeDelegate;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
+import com.jetbrains.youtrack.db.internal.core.record.impl.RecordBytes;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexEntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
@@ -100,8 +93,8 @@ import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction.TXSTATUS;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionAbstract;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx;
-import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import com.jetbrains.youtrack.db.internal.core.tx.RollbackException;
+import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -125,7 +118,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 
 /**
- * Document API entrypoint.
+ * Entity API entrypoint.
  */
 @SuppressWarnings("unchecked")
 public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseListener>
@@ -922,7 +915,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
 
         afterReadOperations(record);
         if (record instanceof EntityImpl) {
-          DocumentInternal.checkClass((EntityImpl) record, this);
+          EntityInternalUtils.checkClass((EntityImpl) record, this);
         }
 
         localCache.updateRecord(record);
@@ -969,7 +962,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
       RecordInternal.fill(record, rid, recordBuffer.version, recordBuffer.buffer, false, this);
 
       if (record instanceof EntityImpl) {
-        DocumentInternal.checkClass((EntityImpl) record, this);
+        EntityInternalUtils.checkClass((EntityImpl) record, this);
       }
 
       if (beforeReadOperations(record)) {
@@ -1020,11 +1013,11 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
     if (rid.getClusterId() <= RID.CLUSTER_ID_INVALID
         && getStorageInfo().isAssigningClusterIds()) {
       if (record instanceof EntityImpl) {
-        schemaClass = DocumentInternal.getImmutableSchemaClass(this, ((EntityImpl) record));
+        schemaClass = EntityInternalUtils.getImmutableSchemaClass(this, ((EntityImpl) record));
         if (schemaClass != null) {
           if (schemaClass.isAbstract()) {
             throw new SchemaException(
-                "Document belongs to abstract class "
+                "Entity belongs to abstract class "
                     + schemaClass.getName()
                     + " and cannot be saved");
           }
@@ -1033,7 +1026,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
           var defaultCluster = getStorageInfo().getDefaultClusterId();
           if (defaultCluster < 0) {
             throw new DatabaseException(
-                "Cannot save (1) document " + record + ": no class or cluster defined");
+                "Cannot save (1) entity " + record + ": no class or cluster defined");
           }
           rid.setClusterId(defaultCluster);
         }
@@ -1047,12 +1040,12 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
           }
         } else {
           throw new DatabaseException(
-              "Cannot save (3) document " + record + ": no class or cluster defined");
+              "Cannot save (3) entity " + record + ": no class or cluster defined");
         }
       }
     } else {
       if (record instanceof EntityImpl) {
-        schemaClass = DocumentInternal.getImmutableSchemaClass(this, ((EntityImpl) record));
+        schemaClass = EntityInternalUtils.getImmutableSchemaClass(this, ((EntityImpl) record));
       }
     }
     // If the cluster id was set check is validity
@@ -1143,10 +1136,10 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
   }
 
   /**
-   * Creates a document with specific class.
+   * Creates a entity with specific class.
    *
-   * @param iClassName the name of class that should be used as a class of created document.
-   * @return new instance of document.
+   * @param iClassName the name of class that should be used as a class of created entity.
+   * @return new instance of entity.
    */
   @Override
   public EntityImpl newInstance(final String iClassName) {
@@ -1220,10 +1213,10 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
     Objects.requireNonNull(inVertex, "To vertex is null");
 
     EdgeInternal edge;
-    EntityImpl outDocument;
-    EntityImpl inDocument;
+    EntityImpl outEntity;
+    EntityImpl inEntity;
 
-    boolean outDocumentModified = false;
+    boolean outEntityModified = false;
     if (checkDeletedInTx(toVertex)) {
       throw new RecordNotFoundException(
           toVertex.getIdentity(),
@@ -1236,14 +1229,14 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
     }
 
     try {
-      outDocument = toVertex.getRecord();
+      outEntity = toVertex.getRecord();
     } catch (RecordNotFoundException e) {
       throw new IllegalArgumentException(
           "source vertex is invalid (rid=" + toVertex.getIdentity() + ")");
     }
 
     try {
-      inDocument = inVertex.getRecord();
+      inEntity = inVertex.getRecord();
     } catch (RecordNotFoundException e) {
       throw new IllegalArgumentException(
           "source vertex is invalid (rid=" + inVertex.getIdentity() + ")");
@@ -1276,15 +1269,15 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
     } else {
       edge = newEdgeInternal(className);
       edge.setPropertyInternal(EdgeInternal.DIRECTION_OUT, toVertex.getRecord());
-      edge.setPropertyInternal(Edge.DIRECTION_IN, inDocument.getRecord());
+      edge.setPropertyInternal(Edge.DIRECTION_IN, inEntity.getRecord());
 
-      if (!outDocumentModified) {
+      if (!outEntityModified) {
         // OUT-VERTEX ---> IN-VERTEX/EDGE
-        VertexInternal.createLink(outDocument, edge.getRecord(), outFieldName);
+        VertexInternal.createLink(outEntity, edge.getRecord(), outFieldName);
       }
 
       // IN-VERTEX ---> OUT-VERTEX/EDGE
-      VertexInternal.createLink(inDocument, edge.getRecord(), inFieldName);
+      VertexInternal.createLink(inEntity, edge.getRecord(), inFieldName);
     }
     // OK
 
@@ -1363,25 +1356,24 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
   }
 
   /**
-   * Saves a document to the database. Behavior depends on the current running transaction if any.
-   * If no transaction is running then changes apply immediately. If an Optimistic transaction is
+   * Saves a entity to the database. Behavior depends on the current running transaction if any. If
+   * no transaction is running then changes apply immediately. If an Optimistic transaction is
    * running then the record will be changed at commit time. The current transaction will continue
    * to see the record as modified, while others not. If a Pessimistic transaction is running, then
    * an exclusive lock is acquired against the record. Current transaction will continue to see the
    * record as modified, while others cannot access to it since it's locked.
    *
-   * <p>If MVCC is enabled and the version of the document is different by the version stored in
+   * <p>If MVCC is enabled and the version of the entity is different by the version stored in
    * the database, then a {@link ConcurrentModificationException} exception is thrown.Before to save
-   * the document it must be valid following the constraints declared in the schema if any (can work
-   * also in schema-less mode). To validate the document the {@link EntityImpl#validate()} is
-   * called.
+   * the entity it must be valid following the constraints declared in the schema if any (can work
+   * also in schema-less mode). To validate the entity the {@link EntityImpl#validate()} is called.
    *
    * @param record Record to save.
    * @return The Database instance itself giving a "fluent interface". Useful to call multiple
    * methods in chain.
-   * @throws ConcurrentModificationException if the version of the document is different by the
+   * @throws ConcurrentModificationException if the version of the entity is different by the
    *                                         version contained in the database.
-   * @throws ValidationException             if the document breaks some validation constraints
+   * @throws ValidationException             if the entity breaks some validation constraints
    *                                         defined in the schema
    * @see #setMVCC(boolean), {@link #isMVCC()}
    */
@@ -1391,27 +1383,27 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
   }
 
   /**
-   * Saves a document specifying a cluster where to store the record. Behavior depends by the
-   * current running transaction if any. If no transaction is running then changes apply
-   * immediately. If an Optimistic transaction is running then the record will be changed at commit
-   * time. The current transaction will continue to see the record as modified, while others not. If
-   * a Pessimistic transaction is running, then an exclusive lock is acquired against the record.
-   * Current transaction will continue to see the record as modified, while others cannot access to
-   * it since it's locked.
+   * Saves a entity specifying a cluster where to store the record. Behavior depends by the current
+   * running transaction if any. If no transaction is running then changes apply immediately. If an
+   * Optimistic transaction is running then the record will be changed at commit time. The current
+   * transaction will continue to see the record as modified, while others not. If a Pessimistic
+   * transaction is running, then an exclusive lock is acquired against the record. Current
+   * transaction will continue to see the record as modified, while others cannot access to it since
+   * it's locked.
    *
-   * <p>If MVCC is enabled and the version of the document is different by the version stored in
+   * <p>If MVCC is enabled and the version of the entity is different by the version stored in
    * the database, then a {@link ConcurrentModificationException} exception is thrown. Before to
-   * save the document it must be valid following the constraints declared in the schema if any (can
-   * work also in schema-less mode). To validate the document the {@link EntityImpl#validate()} is
+   * save the entity it must be valid following the constraints declared in the schema if any (can
+   * work also in schema-less mode). To validate the entity the {@link EntityImpl#validate()} is
    * called.
    *
    * @param record      Record to save
    * @param clusterName Cluster name where to save the record
    * @return The Database instance itself giving a "fluent interface". Useful to call multiple
    * methods in chain.
-   * @throws ConcurrentModificationException if the version of the document is different by the
+   * @throws ConcurrentModificationException if the version of the entity is different by the
    *                                         version contained in the database.
-   * @throws ValidationException             if the document breaks some validation constraints
+   * @throws ValidationException             if the entity breaks some validation constraints
    *                                         defined in the schema
    * @see #setMVCC(boolean), {@link #isMVCC()}, EntityImpl#validate()
    */
@@ -1442,40 +1434,38 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
 
   private <RET extends Record> RET saveInternal(RecordAbstract record, String clusterName) {
 
-    if (!(record instanceof EntityImpl document)) {
+    if (!(record instanceof EntityImpl entity)) {
       assignAndCheckCluster(record, clusterName);
       return (RET) currentTx.saveRecord(record, clusterName);
     }
 
-    EntityImpl doc = document;
-    DocumentInternal.checkClass(doc, this);
+    EntityInternalUtils.checkClass(entity, this);
     try {
-      doc.autoConvertValues();
+      entity.autoConvertValues();
     } catch (ValidationException e) {
-      doc.undo();
+      entity.undo();
       throw e;
     }
-    DocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
+    EntityInternalUtils.convertAllMultiValuesToTrackedVersions(entity);
 
-    if (!doc.getIdentity().isValid()) {
-      if (doc.getClassName() != null) {
-        checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_CREATE, doc.getClassName());
+    if (!entity.getIdentity().isValid()) {
+      if (entity.getClassName() != null) {
+        checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_CREATE, entity.getClassName());
       }
 
-      assignAndCheckCluster(doc, clusterName);
+      assignAndCheckCluster(entity, clusterName);
     } else {
       // UPDATE: CHECK ACCESS ON SCHEMA CLASS NAME (IF ANY)
-      if (doc.getClassName() != null) {
-        checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_UPDATE, doc.getClassName());
+      if (entity.getClassName() != null) {
+        checkSecurity(Rule.ResourceGeneric.CLASS, Role.PERMISSION_UPDATE, entity.getClassName());
       }
     }
 
-    if (!serializer.equals(RecordInternal.getRecordSerializer(doc))) {
-      RecordInternal.setRecordSerializer(doc, serializer);
+    if (!serializer.equals(RecordInternal.getRecordSerializer(entity))) {
+      RecordInternal.setRecordSerializer(entity, serializer);
     }
 
-    doc = (EntityImpl) currentTx.saveRecord(record, clusterName);
-    return (RET) doc;
+    return (RET) currentTx.saveRecord(record, clusterName);
   }
 
   /**
@@ -1525,7 +1515,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
         if (op.type == RecordOperation.DELETED) {
           final Record rec = op.record;
           if (rec instanceof EntityImpl) {
-            SchemaClass schemaClass = DocumentInternal.getImmutableSchemaClass(((EntityImpl) rec));
+            SchemaClass schemaClass = EntityInternalUtils.getImmutableSchemaClass(
+                ((EntityImpl) rec));
             if (iPolymorphic) {
               if (schemaClass.isSubClassOf(className)) {
                 deletedInTx++;
@@ -1541,7 +1532,8 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
         if (op.type == RecordOperation.CREATED) {
           final Record rec = op.record;
           if (rec instanceof EntityImpl) {
-            SchemaClass schemaClass = DocumentInternal.getImmutableSchemaClass(((EntityImpl) rec));
+            SchemaClass schemaClass = EntityInternalUtils.getImmutableSchemaClass(
+                ((EntityImpl) rec));
             if (schemaClass != null) {
               if (iPolymorphic) {
                 if (schemaClass.isSubClassOf(className)) {
@@ -1737,7 +1729,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
   }
 
   /**
-   * Sets serializer for the database which will be used for document serialization.
+   * Sets serializer for the database which will be used for entity serialization.
    *
    * @param serializer the serializer to set.
    */
@@ -1857,7 +1849,7 @@ public abstract class DatabaseSessionAbstract extends ListenerManger<DatabaseLis
 
   protected static void clearDocumentTracking(final Record record) {
     if (record instanceof EntityImpl && ((EntityImpl) record).isTrackingChanges()) {
-      DocumentInternal.clearTrackData((EntityImpl) record);
+      EntityInternalUtils.clearTrackData((EntityImpl) record);
     }
   }
 

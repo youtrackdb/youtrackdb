@@ -55,8 +55,8 @@ public interface RecordElement {
     var owner = getOwner();
 
     while (true) {
-      if (owner instanceof EntityImpl document) {
-        return document;
+      if (owner instanceof EntityImpl entity) {
+        return entity;
       }
       if (owner == null) {
         return null;

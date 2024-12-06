@@ -223,7 +223,7 @@ public class ConcurrentLegacyResultSet<T> implements LegacyResultSet<T> {
 
         if (index > size || size == 0) {
           throw new NoSuchElementException(
-              "Error on browsing at element "
+              "Error on browsing at entity "
                   + index
                   + " while the resultset contains only "
                   + size

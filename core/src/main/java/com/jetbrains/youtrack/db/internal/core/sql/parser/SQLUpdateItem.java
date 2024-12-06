@@ -138,24 +138,24 @@ public class SQLUpdateItem extends SimpleNode {
     return result;
   }
 
-  public void applyUpdate(ResultInternal doc, CommandContext ctx) {
-    Object rightValue = right.execute(doc, ctx);
-    SchemaClass linkedType = calculateLinkedTypeForThisItem(doc, ctx);
+  public void applyUpdate(ResultInternal entity, CommandContext ctx) {
+    Object rightValue = right.execute(entity, ctx);
+    SchemaClass linkedType = calculateLinkedTypeForThisItem(entity, ctx);
     if (leftModifier == null) {
-      applyOperation(doc, left, rightValue, ctx);
+      applyOperation(entity, left, rightValue, ctx);
     } else {
       var propertyName = left.getStringValue();
       rightValue = convertToType(rightValue, null, linkedType, ctx);
-      Object val = doc.getProperty(propertyName);
+      Object val = entity.getProperty(propertyName);
       if (val == null) {
-        val = initSchemafullCollections(doc, propertyName);
+        val = initSchemafullCollections(entity, propertyName);
       }
-      leftModifier.setValue(doc, val, rightValue, ctx);
+      leftModifier.setValue(entity, val, rightValue, ctx);
     }
   }
 
-  private Object initSchemafullCollections(ResultInternal doc, String propName) {
-    SchemaClass oClass = doc.getEntity().flatMap(x -> x.getSchemaType()).orElse(null);
+  private Object initSchemafullCollections(ResultInternal entity, String propName) {
+    SchemaClass oClass = entity.getEntity().flatMap(x -> x.getSchemaType()).orElse(null);
     if (oClass == null) {
       return null;
     }
@@ -165,36 +165,36 @@ public class SQLUpdateItem extends SimpleNode {
     if (prop == null) {
       if (leftModifier.isArraySingleValue()) {
         result = new HashMap<>();
-        doc.setProperty(propName, result);
+        entity.setProperty(propName, result);
       }
     } else {
       if (prop.getType() == PropertyType.EMBEDDEDMAP || prop.getType() == PropertyType.LINKMAP) {
         result = new HashMap<>();
-        doc.setProperty(propName, result);
+        entity.setProperty(propName, result);
       } else if (prop.getType() == PropertyType.EMBEDDEDLIST
           || prop.getType() == PropertyType.LINKLIST) {
         result = new ArrayList<>();
-        doc.setProperty(propName, result);
+        entity.setProperty(propName, result);
       } else if (prop.getType() == PropertyType.EMBEDDEDSET
           || prop.getType() == PropertyType.LINKSET) {
         result = new HashSet<>();
-        doc.setProperty(propName, result);
+        entity.setProperty(propName, result);
       }
     }
     return result;
   }
 
-  private SchemaClass calculateLinkedTypeForThisItem(ResultInternal doc, CommandContext ctx) {
-    if (doc.isEntity()) {
-      var elem = doc.toEntity();
+  private SchemaClass calculateLinkedTypeForThisItem(ResultInternal entity, CommandContext ctx) {
+    if (entity.isEntity()) {
+      var elem = entity.toEntity();
 
     }
     return null;
   }
 
-  private PropertyType calculateTypeForThisItem(ResultInternal doc, String propertyName,
+  private PropertyType calculateTypeForThisItem(ResultInternal entity, String propertyName,
       CommandContext ctx) {
-    Entity elem = doc.toEntity();
+    Entity elem = entity.toEntity();
     SchemaClass clazz = elem.getSchemaType().orElse(null);
     if (clazz == null) {
       return null;
@@ -224,33 +224,33 @@ public class SQLUpdateItem extends SimpleNode {
   }
 
   public void applyOperation(
-      ResultInternal doc, SQLIdentifier attrName, Object rightValue, CommandContext ctx) {
+      ResultInternal entity, SQLIdentifier attrName, Object rightValue, CommandContext ctx) {
 
     switch (operator) {
       case OPERATOR_EQ:
         Object newValue = convertResultToDocument(rightValue);
-        newValue = convertToPropertyType(doc, attrName, newValue, ctx);
-        doc.setProperty(attrName.getStringValue(), cleanValue(newValue));
+        newValue = convertToPropertyType(entity, attrName, newValue, ctx);
+        entity.setProperty(attrName.getStringValue(), cleanValue(newValue));
         break;
       case OPERATOR_MINUSASSIGN:
-        doc.setProperty(
+        entity.setProperty(
             attrName.getStringValue(),
-            calculateNewValue(doc, ctx, SQLMathExpression.Operator.MINUS));
+            calculateNewValue(entity, ctx, SQLMathExpression.Operator.MINUS));
         break;
       case OPERATOR_PLUSASSIGN:
-        doc.setProperty(
+        entity.setProperty(
             attrName.getStringValue(),
-            calculateNewValue(doc, ctx, SQLMathExpression.Operator.PLUS));
+            calculateNewValue(entity, ctx, SQLMathExpression.Operator.PLUS));
         break;
       case OPERATOR_SLASHASSIGN:
-        doc.setProperty(
+        entity.setProperty(
             attrName.getStringValue(),
-            calculateNewValue(doc, ctx, SQLMathExpression.Operator.SLASH));
+            calculateNewValue(entity, ctx, SQLMathExpression.Operator.SLASH));
         break;
       case OPERATOR_STARASSIGN:
-        doc.setProperty(
+        entity.setProperty(
             attrName.getStringValue(),
-            calculateNewValue(doc, ctx, SQLMathExpression.Operator.STAR));
+            calculateNewValue(entity, ctx, SQLMathExpression.Operator.STAR));
         break;
     }
   }
@@ -269,8 +269,8 @@ public class SQLUpdateItem extends SimpleNode {
 
   public static Object convertToPropertyType(
       ResultInternal res, SQLIdentifier attrName, Object newValue, CommandContext ctx) {
-    Entity doc = res.toEntity();
-    Optional<SchemaClass> optSchema = doc.getSchemaType();
+    Entity entity = res.toEntity();
+    Optional<SchemaClass> optSchema = entity.getSchemaType();
     if (!optSchema.isPresent()) {
       return newValue;
     }
@@ -383,7 +383,7 @@ public class SQLUpdateItem extends SimpleNode {
   }
 
   private Object calculateNewValue(
-      ResultInternal doc, CommandContext ctx, SQLMathExpression.Operator explicitOperator) {
+      ResultInternal entity, CommandContext ctx, SQLMathExpression.Operator explicitOperator) {
     SQLExpression leftEx = new SQLExpression(left.copy());
     if (leftModifier != null) {
       ((SQLBaseExpression) leftEx.mathExpression).modifier = leftModifier.copy();
@@ -392,7 +392,7 @@ public class SQLUpdateItem extends SimpleNode {
     mathExp.addChildExpression(leftEx.getMathExpression());
     mathExp.addChildExpression(new SQLParenthesisExpression(right.copy()));
     mathExp.addOperator(explicitOperator);
-    return mathExp.execute(doc, ctx);
+    return mathExp.execute(entity, ctx);
   }
 
   public SQLIdentifier getLeft() {

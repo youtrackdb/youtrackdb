@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseSessionAbstract;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -13,7 +13,7 @@ import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.R
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerBinary;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerSchemaAware2CSV;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializerFactory;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;

@@ -29,7 +29,7 @@ import com.jetbrains.youtrack.db.internal.core.db.record.TrackedMultiValue;
 import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,53 +45,53 @@ import java.util.Set;
 public class ClassIndexManager {
 
   public static void checkIndexesAfterCreate(
-      EntityImpl document, DatabaseSessionInternal database) {
-    document = checkForLoading(database, document);
-    processIndexOnCreate(database, document);
+      EntityImpl entity, DatabaseSessionInternal database) {
+    entity = checkForLoading(database, entity);
+    processIndexOnCreate(database, entity);
   }
 
-  public static void reIndex(DatabaseSessionInternal session, EntityImpl document,
+  public static void reIndex(DatabaseSessionInternal session, EntityImpl entity,
       Index index) {
-    document = checkForLoading(session, document);
-    addIndexEntry(session, document, document.getIdentity(), index);
+    entity = checkForLoading(session, entity);
+    addIndexEntry(session, entity, entity.getIdentity(), index);
   }
 
   public static void processIndexOnCreate(DatabaseSessionInternal database,
-      EntityImpl document) {
-    final SchemaImmutableClass cls = DocumentInternal.getImmutableSchemaClass(database, document);
+      EntityImpl entity) {
+    final SchemaImmutableClass cls = EntityInternalUtils.getImmutableSchemaClass(database, entity);
     if (cls != null) {
       final Collection<Index> indexes = cls.getRawIndexes();
-      addIndexesEntries(database, document, indexes);
+      addIndexesEntries(database, entity, indexes);
     }
   }
 
   public static void checkIndexesAfterUpdate(
-      EntityImpl iDocument, DatabaseSessionInternal database) {
-    iDocument = checkForLoading(database, iDocument);
-    processIndexOnUpdate(database, iDocument);
+      EntityImpl entity, DatabaseSessionInternal database) {
+    entity = checkForLoading(database, entity);
+    processIndexOnUpdate(database, entity);
   }
 
   public static void processIndexOnUpdate(DatabaseSessionInternal database,
-      EntityImpl iDocument) {
-    final SchemaImmutableClass cls = DocumentInternal.getImmutableSchemaClass(database, iDocument);
+      EntityImpl entity) {
+    final SchemaImmutableClass cls = EntityInternalUtils.getImmutableSchemaClass(database, entity);
     if (cls == null) {
       return;
     }
 
     final Collection<Index> indexes = cls.getRawIndexes();
     if (!indexes.isEmpty()) {
-      final Set<String> dirtyFields = new HashSet<>(Arrays.asList(iDocument.getDirtyFields()));
+      final Set<String> dirtyFields = new HashSet<>(Arrays.asList(entity.getDirtyFields()));
       if (!dirtyFields.isEmpty()) {
         for (final Index index : indexes) {
-          processIndexUpdate(database, iDocument, dirtyFields, index);
+          processIndexUpdate(database, entity, dirtyFields, index);
         }
       }
     }
   }
 
   public static void checkIndexesAfterDelete(
-      EntityImpl iDocument, DatabaseSessionInternal database) {
-    processIndexOnDelete(database, iDocument);
+      EntityImpl entity, DatabaseSessionInternal database) {
+    processIndexOnDelete(database, entity);
   }
 
   private static void processCompositeIndexUpdate(
@@ -394,30 +394,30 @@ public class ClassIndexManager {
 
   public static void processIndexUpdate(
       DatabaseSessionInternal session,
-      EntityImpl iDocument,
+      EntityImpl entity,
       Set<String> dirtyFields,
       Index index) {
     if (index.getDefinition() instanceof CompositeIndexDefinition) {
-      processCompositeIndexUpdate(session, index, dirtyFields, iDocument);
+      processCompositeIndexUpdate(session, index, dirtyFields, entity);
     } else {
-      processSingleIndexUpdate(index, dirtyFields, iDocument, session);
+      processSingleIndexUpdate(index, dirtyFields, entity, session);
     }
   }
 
   public static void addIndexesEntries(
-      DatabaseSessionInternal session, EntityImpl document, final Collection<Index> indexes) {
+      DatabaseSessionInternal session, EntityImpl entity, final Collection<Index> indexes) {
     // STORE THE RECORD IF NEW, OTHERWISE ITS RID
-    final Identifiable rid = document.getIdentity();
+    final Identifiable rid = entity.getIdentity();
 
     for (final Index index : indexes) {
-      addIndexEntry(session, document, rid, index);
+      addIndexEntry(session, entity, rid, index);
     }
   }
 
   private static void addIndexEntry(
-      DatabaseSessionInternal session, EntityImpl document, Identifiable rid, Index index) {
+      DatabaseSessionInternal session, EntityImpl entity, Identifiable rid, Index index) {
     final IndexDefinition indexDefinition = index.getDefinition();
-    final Object key = indexDefinition.getDocumentValueToIndex(session, document);
+    final Object key = indexDefinition.getDocumentValueToIndex(session, entity);
     if (key instanceof Collection) {
       for (final Object keyItem : (Collection<?>) key) {
         if (!indexDefinition.isNullValuesIgnored() || keyItem != null) {
@@ -430,8 +430,8 @@ public class ClassIndexManager {
   }
 
   public static void processIndexOnDelete(DatabaseSessionInternal database,
-      EntityImpl iDocument) {
-    final SchemaImmutableClass cls = DocumentInternal.getImmutableSchemaClass(database, iDocument);
+      EntityImpl entity) {
+    final SchemaImmutableClass cls = EntityInternalUtils.getImmutableSchemaClass(database, entity);
     if (cls == null) {
       return;
     }
@@ -439,7 +439,7 @@ public class ClassIndexManager {
     final Collection<Index> indexes = new ArrayList<>(cls.getRawIndexes());
 
     if (!indexes.isEmpty()) {
-      final Set<String> dirtyFields = new HashSet<>(Arrays.asList(iDocument.getDirtyFields()));
+      final Set<String> dirtyFields = new HashSet<>(Arrays.asList(entity.getDirtyFields()));
 
       if (!dirtyFields.isEmpty()) {
         // REMOVE INDEX OF ENTRIES FOR THE OLD VALUES
@@ -450,9 +450,9 @@ public class ClassIndexManager {
 
           final boolean result;
           if (index.getDefinition() instanceof CompositeIndexDefinition) {
-            result = processCompositeIndexDelete(database, index, dirtyFields, iDocument);
+            result = processCompositeIndexDelete(database, index, dirtyFields, entity);
           } else {
-            result = processSingleIndexDelete(database, index, dirtyFields, iDocument);
+            result = processSingleIndexDelete(database, index, dirtyFields, entity);
           }
 
           if (result) {
@@ -464,8 +464,8 @@ public class ClassIndexManager {
 
     // REMOVE INDEX OF ENTRIES FOR THE NON CHANGED ONLY VALUES
     for (final Index index : indexes) {
-      final Object key = index.getDefinition().getDocumentValueToIndex(database, iDocument);
-      deleteIndexKey(database, index, iDocument, key);
+      final Object key = index.getDefinition().getDocumentValueToIndex(database, entity);
+      deleteIndexKey(database, index, entity, key);
     }
   }
 

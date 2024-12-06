@@ -34,16 +34,16 @@ public class EntityImplEmbedded extends EntityImpl {
 
   @Override
   public EntityImplEmbedded copy() {
-    var doc = new EntityImplEmbedded();
-    RecordInternal.unsetDirty(doc);
-    var newDoc = (EntityImplEmbedded) copyTo(doc);
-    newDoc.dirty = true;
-    return newDoc;
+    var entity = new EntityImplEmbedded();
+    RecordInternal.unsetDirty(entity);
+    var newEntity = (EntityImplEmbedded) copyTo(entity);
+    newEntity.dirty = true;
+    return newEntity;
   }
 
   @Override
   public void save() {
-    throw new UnsupportedOperationException("Cannot save embedded document");
+    throw new UnsupportedOperationException("Cannot save embedded entity");
   }
 
   @Override
@@ -80,11 +80,11 @@ public class EntityImplEmbedded extends EntityImpl {
 
   @Override
   public void unload() {
-    throw new UnsupportedOperationException("Cannot unload embedded document");
+    throw new UnsupportedOperationException("Cannot unload embedded entity");
   }
 
   @Override
   public EntityImpl reset() {
-    throw new UnsupportedOperationException("Cannot reset embedded document");
+    throw new UnsupportedOperationException("Cannot reset embedded entity");
   }
 }

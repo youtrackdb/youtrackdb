@@ -54,21 +54,21 @@ public interface EdgeInternal extends Edge, EntityInternal {
 
   @Override
   default boolean isUnloaded() {
-    var baseDocument = getBaseDocument();
-    if (baseDocument != null) {
-      return baseDocument.isUnloaded();
+    var baseEntity = getBaseDocument();
+    if (baseEntity != null) {
+      return baseEntity.isUnloaded();
     }
     return true;
   }
 
   @Override
   default boolean exists() {
-    var baseDocument = getBaseDocument();
-    if (baseDocument == null) {
+    var baseEntity = getBaseDocument();
+    if (baseEntity == null) {
       return false;
     }
 
-    return baseDocument.exists();
+    return baseEntity.exists();
   }
 
   @Override
@@ -81,12 +81,12 @@ public interface EdgeInternal extends Edge, EntityInternal {
   @Override
   default boolean hasProperty(final String propertyName) {
     checkPropertyName(propertyName);
-    var baseDocument = getBaseDocument();
-    if (baseDocument == null) {
+    var baseEntity = getBaseDocument();
+    if (baseEntity == null) {
       return false;
     }
 
-    return baseDocument.hasProperty(propertyName);
+    return baseEntity.hasProperty(propertyName);
   }
 
   @Override
@@ -107,101 +107,101 @@ public interface EdgeInternal extends Edge, EntityInternal {
   default Identifiable getLinkProperty(String name) {
     checkPropertyName(name);
 
-    var baseDocument = getBaseDocument();
-    if (baseDocument == null) {
+    var baseEntity = getBaseDocument();
+    if (baseEntity == null) {
       return null;
     }
 
-    return baseDocument.getLinkProperty(name);
+    return baseEntity.getLinkProperty(name);
   }
 
   @Override
   default Set<String> getPropertyNamesInternal() {
-    var baseDocument = getBaseDocument();
-    if (baseDocument == null) {
+    var baseEntity = getBaseDocument();
+    if (baseEntity == null) {
       return Collections.emptySet();
     }
-    return baseDocument.getPropertyNamesInternal();
+    return baseEntity.getPropertyNamesInternal();
   }
 
   default <RET> RET getPropertyInternal(String name) {
-    var baseDocument = getBaseDocument();
-    if (baseDocument == null) {
+    var baseEntity = getBaseDocument();
+    if (baseEntity == null) {
       return null;
     }
 
-    return baseDocument.getPropertyInternal(name);
+    return baseEntity.getPropertyInternal(name);
   }
 
   @Override
   default <RET> RET getPropertyInternal(String name, boolean lazyLoading) {
-    var baseDocument = getBaseDocument();
-    if (baseDocument == null) {
+    var baseEntity = getBaseDocument();
+    if (baseEntity == null) {
       return null;
     }
 
-    return baseDocument.getPropertyInternal(name, lazyLoading);
+    return baseEntity.getPropertyInternal(name, lazyLoading);
   }
 
   @Override
   default <RET> RET getPropertyOnLoadValue(String name) {
-    var baseDocument = getBaseDocument();
-    if (baseDocument == null) {
+    var baseEntity = getBaseDocument();
+    if (baseEntity == null) {
       return null;
     }
 
-    return baseDocument.getPropertyOnLoadValue(name);
+    return baseEntity.getPropertyOnLoadValue(name);
   }
 
   @Nullable
   @Override
   default Identifiable getLinkPropertyInternal(String name) {
-    var baseDocument = getBaseDocument();
-    if (baseDocument == null) {
+    var baseEntity = getBaseDocument();
+    if (baseEntity == null) {
       return null;
     }
 
-    return baseDocument.getLinkPropertyInternal(name);
+    return baseEntity.getLinkPropertyInternal(name);
   }
 
   @Override
   default void setPropertyInternal(String name, Object value) {
-    var baseDocument = getBaseDocument();
-    if (baseDocument == null) {
+    var baseEntity = getBaseDocument();
+    if (baseEntity == null) {
       promoteToRegularEdge();
-      baseDocument = getBaseDocument();
+      baseEntity = getBaseDocument();
 
-      if (baseDocument == null) {
-        throw new UnsupportedOperationException("This edge is not backed by a document.");
+      if (baseEntity == null) {
+        throw new UnsupportedOperationException("This edge is not backed by a entity.");
       }
     }
 
-    baseDocument.setPropertyInternal(name, value);
+    baseEntity.setPropertyInternal(name, value);
   }
 
   @Override
   default void setPropertyInternal(String name, Object value, PropertyType... type) {
-    var baseDocument = getBaseDocument();
-    if (baseDocument == null) {
+    var baseEntity = getBaseDocument();
+    if (baseEntity == null) {
       promoteToRegularEdge();
 
-      baseDocument = getBaseDocument();
-      if (baseDocument == null) {
-        throw new UnsupportedOperationException("This edge is not backed by a document.");
+      baseEntity = getBaseDocument();
+      if (baseEntity == null) {
+        throw new UnsupportedOperationException("This edge is not backed by a entity.");
       }
     }
 
-    baseDocument.setPropertyInternal(name, value, type);
+    baseEntity.setPropertyInternal(name, value, type);
   }
 
   @Override
   default <RET> RET removePropertyInternal(String name) {
-    var baseDocument = getBaseDocument();
-    if (baseDocument == null) {
-      throw new UnsupportedOperationException("This edge is not backed by a document.");
+    var baseEntity = getBaseDocument();
+    if (baseEntity == null) {
+      throw new UnsupportedOperationException("This edge is not backed by a entity.");
     }
 
-    return baseDocument.removePropertyInternal(name);
+    return baseEntity.removePropertyInternal(name);
   }
 
   void promoteToRegularEdge();

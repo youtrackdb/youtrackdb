@@ -111,8 +111,8 @@ import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordVersionHelper;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.index.CompositeKeySerializer;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.sharding.auto.AutoShardingIndexEngine;
@@ -2294,7 +2294,7 @@ public abstract class AbstractPaginatedStorage
             // TRY TO FIX CLUSTER ID TO THE DEFAULT CLUSTER ID DEFINED IN SCHEMA CLASS
 
             final SchemaImmutableClass class_ =
-                DocumentInternal.getImmutableSchemaClass(((EntityImpl) record));
+                EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record));
             if (class_ != null) {
               clusterId = class_.getClusterForNewInstance((EntityImpl) record);
               clusterOverrides.put(recordOperation, clusterId);
@@ -5462,12 +5462,12 @@ public abstract class AbstractPaginatedStorage
           break;
         }
         case RecordOperation.DELETED: {
-          if (rec instanceof EntityImpl doc) {
-            doc.incrementLoading();
+          if (rec instanceof EntityImpl entity) {
+            entity.incrementLoading();
             try {
-              RidBagDeleter.deleteAllRidBags(doc);
+              RidBagDeleter.deleteAllRidBags(entity);
             } finally {
-              doc.decrementLoading();
+              entity.decrementLoading();
             }
           }
           doDeleteRecord(atomicOperation, rid, rec.getVersionNoLoad(), cluster);
@@ -5482,8 +5482,8 @@ public abstract class AbstractPaginatedStorage
 
     // RESET TRACKING
     if (rec instanceof EntityImpl && ((EntityImpl) rec).isTrackingChanges()) {
-      DocumentInternal.clearTrackData(((EntityImpl) rec));
-      DocumentInternal.clearTransactionTrackData(((EntityImpl) rec));
+      EntityInternalUtils.clearTrackData(((EntityImpl) rec));
+      EntityInternalUtils.clearTransactionTrackData(((EntityImpl) rec));
     }
     RecordInternal.unsetDirty(rec);
   }

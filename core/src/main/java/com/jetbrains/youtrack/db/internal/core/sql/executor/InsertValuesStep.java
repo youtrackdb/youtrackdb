@@ -43,7 +43,7 @@ public class InsertValuesStep extends AbstractExecutionStep {
             if (!(result instanceof ResultInternal)) {
               if (!result.isEntity()) {
                 throw new CommandExecutionException(
-                    "Error executing INSERT, cannot modify element: " + result);
+                    "Error executing INSERT, cannot modify entity: " + result);
               }
               result = new UpdatableResult(ctx.getDatabase(), result.toEntity());
             }

@@ -28,11 +28,11 @@ import com.jetbrains.youtrack.db.internal.core.exception.InvalidIndexEngineIdExc
 import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyAccess;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityResourceProperty;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyAccess;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.operator.QueryOperatorEquality;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.AbstractPaginatedStorage;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionIndexChangesPerKey;
@@ -241,7 +241,7 @@ public interface IndexInternal extends Index {
         if (!(item instanceof EntityImpl)) {
           return item;
         }
-        PropertyAccess access = DocumentInternal.getPropertyAccess((EntityImpl) item);
+        PropertyAccess access = EntityInternalUtils.getPropertyAccess((EntityImpl) item);
         if (access != null && !access.isReadable(indexProp)) {
           return null;
         }

@@ -1,4 +1,4 @@
-package com.jetbrains.youtrack.db.internal.client.remote.db.document;
+package com.jetbrains.youtrack.db.internal.client.remote.db;
 
 import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;

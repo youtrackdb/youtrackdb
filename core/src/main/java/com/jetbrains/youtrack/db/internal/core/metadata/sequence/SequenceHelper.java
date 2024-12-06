@@ -29,10 +29,10 @@ public class SequenceHelper {
 
   public static final SEQUENCE_TYPE DEFAULT_SEQUENCE_TYPE = SEQUENCE_TYPE.CACHED;
 
-  public static Sequence createSequence(SEQUENCE_TYPE sequenceType, EntityImpl document) {
+  public static Sequence createSequence(SEQUENCE_TYPE sequenceType, EntityImpl entity) {
     return switch (sequenceType) {
-      case ORDERED -> new SequenceOrdered(document);
-      case CACHED -> new SequenceCached(document);
+      case ORDERED -> new SequenceOrdered(entity);
+      case CACHED -> new SequenceCached(entity);
     };
   }
 
@@ -48,8 +48,8 @@ public class SequenceHelper {
     return SEQUENCE_TYPE.valueOf(typeAsString);
   }
 
-  public static Sequence createSequence(EntityImpl document) {
-    SEQUENCE_TYPE sequenceType = Sequence.getSequenceType(document);
-    return createSequence(sequenceType, document);
+  public static Sequence createSequence(EntityImpl entity) {
+    SEQUENCE_TYPE sequenceType = Sequence.getSequenceType(entity);
+    return createSequence(sequenceType, entity);
   }
 }

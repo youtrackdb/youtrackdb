@@ -23,45 +23,44 @@ package com.jetbrains.youtrack.db.internal.core.db;
 import com.jetbrains.youtrack.db.internal.core.command.CommandRequest;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
-import com.jetbrains.youtrack.db.internal.core.db.document.QueryDatabaseState;
 import com.jetbrains.youtrack.db.internal.core.db.record.CurrentStorageComponentsFactory;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;
 import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.exception.TransactionException;
+import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorClass;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
+import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaView;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
+import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceAction;
+import com.jetbrains.youtrack.db.internal.core.query.Query;
+import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EdgeInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
-import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
-import com.jetbrains.youtrack.db.internal.core.storage.Storage;
-import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction;
-import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
-import com.jetbrains.youtrack.db.internal.enterprise.EnterpriseEndpoint;
-import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
-import com.jetbrains.youtrack.db.internal.core.metadata.sequence.SequenceAction;
-import com.jetbrains.youtrack.db.internal.core.query.Query;
-import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.BinarySerializerFactory;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ExecutionPlan;
+import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.storage.RecordMetadata;
+import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageInfo;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
+import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransaction;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionData;
 import com.jetbrains.youtrack.db.internal.core.tx.FrontendTransactionNoTx;
+import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
+import com.jetbrains.youtrack.db.internal.enterprise.EnterpriseEndpoint;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -112,7 +111,7 @@ public interface DatabaseSessionInternal extends DatabaseSession {
   byte getRecordType();
 
   /**
-   * @return serializer which is used for document serialization.
+   * @return serializer which is used for entity serialization.
    */
   RecordSerializer getSerializer();
 

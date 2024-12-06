@@ -22,7 +22,7 @@ public abstract class Identity extends EntityWrapper {
     super(iClassName);
   }
 
-  public Identity(EntityImpl iDocument) {
-    super(iDocument);
+  public Identity(EntityImpl entity) {
+    super(entity);
   }
 }

@@ -6,8 +6,8 @@ import static org.junit.Assert.assertNull;
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.hook.DocumentHookAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.UUID;
@@ -78,16 +78,16 @@ public class CheckHookCallCountTest extends DbTestBase {
           }
 
           @Override
-          public void onRecordAfterCreate(EntityImpl iDocument) {
-            onRecordAfterRead(iDocument);
+          public void onRecordAfterCreate(EntityImpl entity) {
+            onRecordAfterRead(entity);
           }
 
           @Override
-          public void onRecordAfterRead(EntityImpl iDocument) {
-            String script = "select sum(a, b) as value from " + iDocument.getIdentity();
+          public void onRecordAfterRead(EntityImpl entity) {
+            String script = "select sum(a, b) as value from " + entity.getIdentity();
             try (ResultSet calculated = database.query(script)) {
               if (calculated.hasNext()) {
-                iDocument.field("c", calculated.next().<Object>getProperty("value"));
+                entity.field("c", calculated.next().<Object>getProperty("value"));
               }
             }
           }
@@ -130,7 +130,7 @@ public class CheckHookCallCountTest extends DbTestBase {
     }
 
     @Override
-    public void onRecordAfterRead(EntityImpl iDocument) {
+    public void onRecordAfterRead(EntityImpl entity) {
       readCount++;
     }
   }

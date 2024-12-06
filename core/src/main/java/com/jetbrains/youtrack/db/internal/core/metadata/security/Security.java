@@ -46,7 +46,7 @@ public interface Security {
   /**
    * Record level security: allows a user to access to a record.
    *
-   * @param iDocument      EntityImpl instance to give access
+   * @param entity      EntityImpl instance to give access
    * @param iOperationType Operation type to use based on the permission to allow:
    *                       <ul>
    *                         <li>ALLOW_ALL, to provide full access (RUD)
@@ -59,13 +59,13 @@ public interface Security {
    */
   @Deprecated
   Identifiable allowUser(
-      final EntityImpl iDocument, final RestrictedOperation iOperationType,
+      final EntityImpl entity, final RestrictedOperation iOperationType,
       final String iUserName);
 
   /**
    * Record level security: allows a role to access to a record.
    *
-   * @param iDocument      EntityImpl instance to give access
+   * @param entity      EntityImpl instance to give access
    * @param iOperationType Operation type to use based on the permission to allow:
    *                       <ul>
    *                         <li>ALLOW_ALL, to provide full access (RUD)
@@ -78,13 +78,13 @@ public interface Security {
    */
   @Deprecated
   Identifiable allowRole(
-      final EntityImpl iDocument, final RestrictedOperation iOperationType,
+      final EntityImpl entity, final RestrictedOperation iOperationType,
       final String iRoleName);
 
   /**
    * Record level security: deny a user to access to a record.
    *
-   * @param iDocument      EntityImpl instance to give access
+   * @param entity      EntityImpl instance to give access
    * @param iOperationType Operation type to use based on the permission to deny:
    *                       <ul>
    *                         <li>ALLOW_ALL, to provide full access (RUD)
@@ -97,13 +97,13 @@ public interface Security {
    */
   @Deprecated
   Identifiable denyUser(
-      final EntityImpl iDocument, final RestrictedOperation iOperationType,
+      final EntityImpl entity, final RestrictedOperation iOperationType,
       final String iUserName);
 
   /**
    * Record level security: deny a role to access to a record.
    *
-   * @param iDocument      EntityImpl instance to give access
+   * @param entity      EntityImpl instance to give access
    * @param iOperationType Operation type to use based on the permission to deny:
    *                       <ul>
    *                         <li>ALLOW_ALL, to provide full access (RUD)
@@ -116,7 +116,7 @@ public interface Security {
    */
   @Deprecated
   Identifiable denyRole(
-      final EntityImpl iDocument, final RestrictedOperation iOperationType,
+      final EntityImpl entity, final RestrictedOperation iOperationType,
       final String iRoleName);
 
   @Deprecated

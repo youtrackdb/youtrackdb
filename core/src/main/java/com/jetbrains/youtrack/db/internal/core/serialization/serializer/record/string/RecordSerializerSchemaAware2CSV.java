@@ -34,8 +34,8 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -106,7 +106,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
     pos = iContent.indexOf(StringSerializerHelper.CLASS_SEPARATOR);
     if (pos > -1 && (pos < posFirstValue || posFirstValue == -1)) {
       if ((record.getIdentity().getClusterId() < 0 || database == null)) {
-        DocumentInternal.fillClassNameIfNeeded(((EntityImpl) iRecord),
+        EntityInternalUtils.fillClassNameIfNeeded(((EntityImpl) iRecord),
             iContent.substring(0, pos));
       }
       iContent = iContent.substring(pos + 1);
@@ -168,8 +168,8 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
           boolean setFieldType = false;
 
           // SEARCH FOR A CONFIGURED PROPERTY
-          if (DocumentInternal.getImmutableSchemaClass(record) != null) {
-            prop = DocumentInternal.getImmutableSchemaClass(record).getProperty(fieldName);
+          if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
+            prop = EntityInternalUtils.getImmutableSchemaClass(record).getProperty(fieldName);
           } else {
             prop = null;
           }
@@ -281,7 +281,7 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
           final Object value =
               fieldFromStream(db, iRecord, type, linkedClass, linkedType, fieldName, fieldValue);
           if ("@class".equals(fieldName)) {
-            DocumentInternal.fillClassNameIfNeeded(((EntityImpl) iRecord), value.toString());
+            EntityInternalUtils.fillClassNameIfNeeded(((EntityImpl) iRecord), value.toString());
           } else {
             record.field(fieldName, value, type);
           }
@@ -326,8 +326,8 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
   public byte[] writeClassOnly(Record iSource) {
     final EntityImpl record = (EntityImpl) iSource;
     StringBuilder iOutput = new StringBuilder();
-    if (DocumentInternal.getImmutableSchemaClass(record) != null) {
-      iOutput.append(DocumentInternal.getImmutableSchemaClass(record).getStreamableName());
+    if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
+      iOutput.append(EntityInternalUtils.getImmutableSchemaClass(record).getStreamableName());
       iOutput.append(StringSerializerHelper.CLASS_SEPARATOR);
     }
     return iOutput.toString().getBytes(StandardCharsets.UTF_8);
@@ -348,8 +348,8 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
           "Cannot marshall a record of type " + iRecord.getClass().getSimpleName());
     }
 
-    if (DocumentInternal.getImmutableSchemaClass(record) != null) {
-      iOutput.append(DocumentInternal.getImmutableSchemaClass(record).getStreamableName());
+    if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
+      iOutput.append(EntityInternalUtils.getImmutableSchemaClass(record).getStreamableName());
       iOutput.append(StringSerializerHelper.CLASS_SEPARATOR);
     }
 
@@ -370,8 +370,8 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
       }
 
       // SEARCH FOR A CONFIGURED PROPERTY
-      if (DocumentInternal.getImmutableSchemaClass(record) != null) {
-        prop = DocumentInternal.getImmutableSchemaClass(record).getProperty(fieldName);
+      if (EntityInternalUtils.getImmutableSchemaClass(record) != null) {
+        prop = EntityInternalUtils.getImmutableSchemaClass(record).getProperty(fieldName);
       } else {
         prop = null;
       }
@@ -577,10 +577,10 @@ public class RecordSerializerSchemaAware2CSV extends RecordSerializerCSVAbstract
 
     // GET THE OVERSIZE IF ANY
     final float overSize;
-    if (DocumentInternal.getImmutableSchemaClass(record) != null)
+    if (EntityInternalUtils.getImmutableSchemaClass(record) != null)
     // GET THE CONFIGURED OVERSIZE SETTED PER CLASS
     {
-      overSize = DocumentInternal.getImmutableSchemaClass(record).getOverSize();
+      overSize = EntityInternalUtils.getImmutableSchemaClass(record).getOverSize();
     } else {
       overSize = 0;
     }

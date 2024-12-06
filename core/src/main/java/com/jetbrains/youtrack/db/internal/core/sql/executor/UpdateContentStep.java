@@ -9,7 +9,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableCl
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLInputParameter;
@@ -82,7 +82,7 @@ public class UpdateContentStep extends AbstractExecutionStep {
     }
 
     SchemaClass recordClass =
-        DocumentInternal.getImmutableSchemaClass(ctx.getDatabase(), record.getRecord());
+        EntityInternalUtils.getImmutableSchemaClass(ctx.getDatabase(), record.getRecord());
     if (recordClass != null && recordClass.isSubClassOf("V")) {
       for (String fieldName : record.getPropertyNamesInternal()) {
         if (fieldName.startsWith("in_") || fieldName.startsWith("out_")) {
@@ -102,29 +102,29 @@ public class UpdateContentStep extends AbstractExecutionStep {
         }
       }
     }
-    EntityImpl doc = record.getRecord();
+    EntityImpl entity = record.getRecord();
     if (json != null) {
-      doc.merge(json.toDocument(record, ctx), false, false);
+      entity.merge(json.toDocument(record, ctx), false, false);
     } else if (inputParameter != null) {
       Object val = inputParameter.getValue(ctx.getInputParameters());
       if (val instanceof Entity) {
-        doc.merge(((Entity) val).getRecord(), false, false);
+        entity.merge(((Entity) val).getRecord(), false, false);
       } else if (val instanceof Map<?, ?> map) {
         var mapDoc = new EntityImpl();
         //noinspection unchecked
         mapDoc.fromMap((Map<String, ?>) map);
-        doc.merge(mapDoc, false, false);
+        entity.merge(mapDoc, false, false);
       } else {
         throw new CommandExecutionException("Invalid value for UPDATE CONTENT: " + val);
       }
     }
     if (fieldsToPreserve != null) {
-      doc.merge(fieldsToPreserve, true, false);
+      entity.merge(fieldsToPreserve, true, false);
     }
     if (preDefaultValues != null) {
       for (Map.Entry<String, Object> val : preDefaultValues.entrySet()) {
-        if (!doc.containsField(val.getKey())) {
-          doc.setProperty(val.getKey(), val.getValue());
+        if (!entity.containsField(val.getKey())) {
+          entity.setProperty(val.getKey(), val.getValue());
         }
       }
     }

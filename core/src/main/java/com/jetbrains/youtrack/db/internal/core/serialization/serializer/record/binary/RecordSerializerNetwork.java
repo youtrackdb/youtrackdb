@@ -37,10 +37,10 @@ public class RecordSerializerNetwork implements RecordSerializer {
   public static final RecordSerializerNetwork INSTANCE = new RecordSerializerNetwork();
   private static final byte CURRENT_RECORD_VERSION = 0;
 
-  private final DocumentSerializer[] serializerByVersion;
+  private final EntitySerializer[] serializerByVersion;
 
   public RecordSerializerNetwork() {
-    serializerByVersion = new DocumentSerializer[1];
+    serializerByVersion = new EntitySerializer[1];
     serializerByVersion[0] = new RecordSerializerNetworkV0();
   }
 

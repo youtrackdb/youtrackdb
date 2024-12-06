@@ -32,11 +32,11 @@ public class CheckRecordTypeStep extends AbstractExecutionStep {
     if (!result.isEntity()) {
       throw new CommandExecutionException("record " + result + " is not an instance of " + clazz);
     }
-    Entity doc = result.toEntity();
-    if (doc == null) {
+    Entity entity = result.toEntity();
+    if (entity == null) {
       throw new CommandExecutionException("record " + result + " is not an instance of " + clazz);
     }
-    Optional<SchemaClass> schema = doc.getSchemaType();
+    Optional<SchemaClass> schema = entity.getSchemaType();
 
     if (schema.isEmpty() || !schema.get().isSubClassOf(clazz)) {
       throw new CommandExecutionException("record " + result + " is not an instance of " + clazz);

@@ -1,7 +1,7 @@
 package com.jetbrains.youtrack.db.internal.core.metadata.security;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.exception.SecurityAccessException;
 import org.junit.Assert;
 import org.junit.Test;

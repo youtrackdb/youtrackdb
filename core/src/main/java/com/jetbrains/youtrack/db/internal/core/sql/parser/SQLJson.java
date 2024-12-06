@@ -64,11 +64,11 @@ public class SQLJson extends SimpleNode {
 
   public EntityImpl toDocument(Identifiable source, CommandContext ctx) {
     String className = getClassNameForDocument(ctx);
-    EntityImpl doc;
+    EntityImpl entity;
     if (className != null) {
-      doc = new EntityImpl(className);
+      entity = new EntityImpl(className);
     } else {
-      doc = new EntityImpl();
+      entity = new EntityImpl();
     }
     for (SQLJsonItem item : items) {
       String name = item.getLeftValue();
@@ -81,10 +81,10 @@ public class SQLJson extends SimpleNode {
       } else {
         value = item.right.execute(source, ctx);
       }
-      doc.field(name, value);
+      entity.field(name, value);
     }
 
-    return doc;
+    return entity;
   }
 
   private EntityImpl toDocument(Result source, CommandContext ctx, String className) {
@@ -159,31 +159,31 @@ public class SQLJson extends SimpleNode {
   }
 
   public Map<String, Object> toMap(Identifiable source, CommandContext ctx) {
-    Map<String, Object> doc = new LinkedHashMap<String, Object>();
+    Map<String, Object> map = new LinkedHashMap<String, Object>();
     for (SQLJsonItem item : items) {
       String name = item.getLeftValue();
       if (name == null) {
         continue;
       }
       Object value = item.right.execute(source, ctx);
-      doc.put(name, value);
+      map.put(name, value);
     }
 
-    return doc;
+    return map;
   }
 
   public Map<String, Object> toMap(Result source, CommandContext ctx) {
-    Map<String, Object> doc = new LinkedHashMap<String, Object>();
+    Map<String, Object> map = new LinkedHashMap<String, Object>();
     for (SQLJsonItem item : items) {
       String name = item.getLeftValue();
       if (name == null) {
         continue;
       }
       Object value = item.right.execute(source, ctx);
-      doc.put(name, value);
+      map.put(name, value);
     }
 
-    return doc;
+    return map;
   }
 
   private String getClassNameForDocument(CommandContext ctx) {

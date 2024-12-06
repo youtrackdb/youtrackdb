@@ -64,7 +64,7 @@ import javax.annotation.Nonnull;
  * <p>Could be tree based and embedded representation.<br>
  *
  * <ul>
- *   <li><b>Embedded</b> stores its content directly to the document that owns it.<br>
+ *   <li><b>Embedded</b> stores its content directly to the entity that owns it.<br>
  *       It better fits for cases when only small amount of links are stored to the bag.<br>
  *   <li><b>Tree-based</b> implementation stores its content in a separate data structure called
  *       {@link SBTreeBonsai}.<br>
@@ -381,7 +381,7 @@ public class RidBag
   public void setOwner(RecordElement owner) {
     if ((!(owner instanceof EntityImpl) && owner != null)
         || (owner != null && ((EntityImpl) owner).isEmbedded())) {
-      throw new DatabaseException("RidBag are supported only at document root");
+      throw new DatabaseException("RidBag are supported only at entity root");
     }
     delegate.setOwner(owner);
   }
@@ -548,8 +548,8 @@ public class RidBag
     delegate.enableTracking(parent);
   }
 
-  public void disableTracking(RecordElement document) {
-    delegate.disableTracking(document);
+  public void disableTracking(RecordElement entity) {
+    delegate.disableTracking(entity);
   }
 
   @Override

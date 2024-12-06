@@ -74,12 +74,12 @@ public abstract class Sequence {
   private static final String FIELD_ORDER_TYPE = "otype";
   private static final String FIELD_RECYCLABLE = "recycle";
   // initialy set this value to true, so those one who read it can pull upper limit value from
-  // document
+  // entity
 
   private static final String FIELD_NAME = "name";
   private static final String FIELD_TYPE = "type";
 
-  protected RID docRid = new ChangeableRecordId();
+  protected RID entityRid = new ChangeableRecordId();
 
   private final ReentrantLock updateLock = new ReentrantLock();
 
@@ -220,19 +220,19 @@ public abstract class Sequence {
 
   private int maxRetry = DEF_MAX_RETRY;
 
-  protected Sequence(EntityImpl document) {
-    Objects.requireNonNull(document);
-    docRid = document.getIdentity();
+  protected Sequence(EntityImpl entity) {
+    Objects.requireNonNull(entity);
+    entityRid = entity.getIdentity();
   }
 
   protected Sequence(CreateParams params, @Nonnull String name) {
     Objects.requireNonNull(name);
     var db = getDatabase();
 
-    docRid =
+    entityRid =
         db.computeInTx(
             () -> {
-              var document = new EntityImpl(CLASS_NAME);
+              var entity = new EntityImpl(CLASS_NAME);
 
               CreateParams currentParams;
               if (params == null) {
@@ -241,119 +241,119 @@ public abstract class Sequence {
                 currentParams = params;
               }
 
-              initSequence(document, currentParams);
-              setName(document, name);
-              document.save();
+              initSequence(entity, currentParams);
+              setName(entity, name);
+              entity.save();
 
-              return document.getIdentity();
+              return entity.getIdentity();
             });
   }
 
-  private void initSequence(EntityImpl document, Sequence.CreateParams params) {
-    setStart(document, params.start);
-    setIncrement(document, params.increment);
+  private void initSequence(EntityImpl entity, Sequence.CreateParams params) {
+    setStart(entity, params.start);
+    setIncrement(entity, params.increment);
     if (params.currentValue == null) {
-      setValue(document, params.start);
+      setValue(entity, params.start);
     } else {
-      setValue(document, params.currentValue);
+      setValue(entity, params.currentValue);
     }
-    setLimitValue(document, params.limitValue);
-    setOrderType(document, params.orderType);
-    setRecyclable(document, params.recyclable);
+    setLimitValue(entity, params.limitValue);
+    setOrderType(entity, params.orderType);
+    setRecyclable(entity, params.recyclable);
 
-    setSequenceType(document);
+    setSequenceType(entity);
   }
 
   public boolean updateParams(CreateParams params) throws DatabaseException {
     var db = getDatabase();
-    var doc = db.<EntityImpl>load(docRid);
-    var result = updateParams(doc, params, false);
-    doc.save();
+    var entity = db.<EntityImpl>load(entityRid);
+    var result = updateParams(entity, params, false);
+    entity.save();
     return result;
   }
 
-  boolean updateParams(EntityImpl document, CreateParams params, boolean executeViaDistributed)
+  boolean updateParams(EntityImpl entity, CreateParams params, boolean executeViaDistributed)
       throws DatabaseException {
     boolean any = false;
 
-    if (params.start != null && this.getStart(document) != params.start) {
-      this.setStart(document, params.start);
+    if (params.start != null && this.getStart(entity) != params.start) {
+      this.setStart(entity, params.start);
       any = true;
     }
 
-    if (params.increment != null && this.getIncrement(document) != params.increment) {
-      this.setIncrement(document, params.increment);
+    if (params.increment != null && this.getIncrement(entity) != params.increment) {
+      this.setIncrement(entity, params.increment);
       any = true;
     }
 
-    if (params.limitValue != null && !params.limitValue.equals(this.getLimitValue(document))) {
-      this.setLimitValue(document, params.limitValue);
+    if (params.limitValue != null && !params.limitValue.equals(this.getLimitValue(entity))) {
+      this.setLimitValue(entity, params.limitValue);
       any = true;
     }
 
-    if (params.orderType != null && this.getOrderType(document) != params.orderType) {
-      this.setOrderType(document, params.orderType);
+    if (params.orderType != null && this.getOrderType(entity) != params.orderType) {
+      this.setOrderType(entity, params.orderType);
       any = true;
     }
 
-    if (params.recyclable != null && this.getRecyclable(document) != params.recyclable) {
-      this.setRecyclable(document, params.recyclable);
+    if (params.recyclable != null && this.getRecyclable(entity) != params.recyclable) {
+      this.setRecyclable(entity, params.recyclable);
       any = true;
     }
 
     if (params.turnLimitOff != null && params.turnLimitOff) {
-      this.setLimitValue(document, null);
+      this.setLimitValue(entity, null);
     }
 
-    if (params.currentValue != null && getValue(document) != params.currentValue) {
-      this.setValue(document, params.currentValue);
+    if (params.currentValue != null && getValue(entity) != params.currentValue) {
+      this.setValue(entity, params.currentValue);
     }
 
     return any;
   }
 
-  protected static long getValue(EntityImpl doc) {
-    if (!doc.hasProperty(FIELD_VALUE)) {
-      throw new SequenceException("Value property not found in document");
+  protected static long getValue(EntityImpl entity) {
+    if (!entity.hasProperty(FIELD_VALUE)) {
+      throw new SequenceException("Value property not found in entity");
     }
-    return doc.getProperty(FIELD_VALUE);
+    return entity.getProperty(FIELD_VALUE);
   }
 
-  protected void setValue(EntityImpl document, long value) {
-    document.setProperty(FIELD_VALUE, value);
+  protected void setValue(EntityImpl entity, long value) {
+    entity.setProperty(FIELD_VALUE, value);
   }
 
-  protected int getIncrement(EntityImpl document) {
-    return document.getProperty(FIELD_INCREMENT);
+  protected int getIncrement(EntityImpl entity) {
+    return entity.getProperty(FIELD_INCREMENT);
   }
 
-  protected void setLimitValue(EntityImpl document, Long limitValue) {
-    document.setProperty(FIELD_LIMIT_VALUE, limitValue);
+  protected void setLimitValue(EntityImpl entity, Long limitValue) {
+    entity.setProperty(FIELD_LIMIT_VALUE, limitValue);
   }
 
-  protected Long getLimitValue(EntityImpl document) {
-    return document.getProperty(FIELD_LIMIT_VALUE);
+  protected Long getLimitValue(EntityImpl entity) {
+    return entity.getProperty(FIELD_LIMIT_VALUE);
   }
 
-  protected void setOrderType(EntityImpl document, SequenceOrderType orderType) {
-    document.setProperty(FIELD_ORDER_TYPE, orderType.getValue());
+  protected void setOrderType(EntityImpl entity, SequenceOrderType orderType) {
+    entity.setProperty(FIELD_ORDER_TYPE, orderType.getValue());
   }
 
-  protected SequenceOrderType getOrderType(EntityImpl document) {
-    Byte val = document.getProperty(FIELD_ORDER_TYPE);
+  protected SequenceOrderType getOrderType(EntityImpl entity) {
+    Byte val = entity.getProperty(FIELD_ORDER_TYPE);
     return val == null ? SequenceOrderType.ORDER_POSITIVE : SequenceOrderType.fromValue(val);
   }
 
-  protected void setIncrement(EntityImpl document, int value) {
-    document.setProperty(FIELD_INCREMENT, value);
+  protected void setIncrement(EntityImpl entity, int value) {
+    entity.setProperty(FIELD_INCREMENT, value);
   }
 
-  protected long getStart(EntityImpl document) {
-    return document.getProperty(FIELD_START);
+  protected long getStart(EntityImpl entity) {
+    return entity.getProperty(FIELD_START);
   }
 
-  protected void setStart(EntityImpl document, long value) {
-    document.setProperty(FIELD_START, value);
+  protected void setStart(EntityImpl entity, long value) {
+    entity.setProperty(FIELD_START, value);
   }
 
   public int getMaxRetry() {
@@ -365,40 +365,40 @@ public abstract class Sequence {
   }
 
   public String getName() {
-    return getSequenceName(getDatabase().load(docRid));
+    return getSequenceName(getDatabase().load(entityRid));
   }
 
-  protected void setName(EntityImpl doc, final String name) {
-    doc.setProperty(FIELD_NAME, name);
+  protected void setName(EntityImpl entity, final String name) {
+    entity.setProperty(FIELD_NAME, name);
   }
 
-  protected boolean getRecyclable(EntityImpl document) {
-    return document.getProperty(FIELD_RECYCLABLE);
+  protected boolean getRecyclable(EntityImpl entity) {
+    return entity.getProperty(FIELD_RECYCLABLE);
   }
 
-  protected void setRecyclable(EntityImpl document, final boolean recyclable) {
-    document.setProperty(FIELD_RECYCLABLE, recyclable);
+  protected void setRecyclable(EntityImpl entity, final boolean recyclable) {
+    entity.setProperty(FIELD_RECYCLABLE, recyclable);
   }
 
-  private void setSequenceType(EntityImpl document) {
-    document.setProperty(FIELD_TYPE, getSequenceType());
+  private void setSequenceType(EntityImpl entity) {
+    entity.setProperty(FIELD_TYPE, getSequenceType());
   }
 
   protected final DatabaseSessionInternal getDatabase() {
     return DatabaseRecordThreadLocal.instance().get();
   }
 
-  public static String getSequenceName(final EntityImpl iDocument) {
-    return iDocument.getProperty(FIELD_NAME);
+  public static String getSequenceName(final EntityImpl entity) {
+    return entity.getProperty(FIELD_NAME);
   }
 
-  public static SEQUENCE_TYPE getSequenceType(final EntityImpl document) {
-    String sequenceTypeStr = document.field(FIELD_TYPE);
+  public static SEQUENCE_TYPE getSequenceType(final EntityImpl entity) {
+    String sequenceTypeStr = entity.field(FIELD_TYPE);
     if (sequenceTypeStr != null) {
       return SEQUENCE_TYPE.valueOf(sequenceTypeStr);
     }
 
-    throw new SequenceException("Sequence type not found in document");
+    throw new SequenceException("Sequence type not found in entity");
   }
 
   public static void initClass(DatabaseSession session, SchemaClassImpl sequenceClass) {
@@ -473,9 +473,9 @@ public abstract class Sequence {
                   try {
                     return db.computeInTx(
                         () -> {
-                          var doc = docRid.<EntityImpl>getRecord();
-                          var result = callable.call(db, doc);
-                          doc.save();
+                          var entity = entityRid.<EntityImpl>getRecord();
+                          var result = callable.call(db, entity);
+                          entity.save();
                           return result;
                         });
                   } catch (ConcurrentModificationException ignore) {
@@ -525,9 +525,9 @@ public abstract class Sequence {
                 try {
                   return db.computeInTx(
                       () -> {
-                        var doc = docRid.<EntityImpl>getRecord();
-                        var result = callable.call(db, doc);
-                        doc.save();
+                        var entity = entityRid.<EntityImpl>getRecord();
+                        var result = callable.call(db, entity);
+                        entity.save();
                         return result;
                       });
                 } catch (Exception e) {
@@ -564,6 +564,6 @@ public abstract class Sequence {
   @FunctionalInterface
   public interface SequenceCallable {
 
-    long call(DatabaseSession db, EntityImpl doc);
+    long call(DatabaseSession db, EntityImpl entity);
   }
 }

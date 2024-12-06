@@ -24,7 +24,7 @@ import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItem;
@@ -75,15 +75,15 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
       pop();
     } else {
       final Record targetRec = target.getRecord();
-      if (!(targetRec instanceof EntityImpl targetDoc))
+      if (!(targetRec instanceof EntityImpl targeEntity))
       // SKIP IT
       {
         return pop();
       }
 
       var database = command.getContext().getDatabase();
-      if (targetDoc.isNotBound(database)) {
-        targetDoc = database.bindToSession(targetDoc);
+      if (targeEntity.isNotBound(database)) {
+        targeEntity = database.bindToSession(targeEntity);
       }
 
       // MATCH!
@@ -98,7 +98,7 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
             || SQLFilterItemFieldAny.FULL_NAME.equalsIgnoreCase(cfgField)) {
 
           // ADD ALL THE DOCUMENT FIELD
-          Collections.addAll(fields, targetDoc.fieldNames());
+          Collections.addAll(fields, targeEntity.fieldNames());
           break;
 
         } else {
@@ -118,7 +118,7 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
                   - 1;
           if (pos > -1) {
             // FOUND <CLASS>.<FIELD>
-            final SchemaClass cls = DocumentInternal.getImmutableSchemaClass(targetDoc);
+            final SchemaClass cls = EntityInternalUtils.getImmutableSchemaClass(targeEntity);
             if (cls == null)
             // JUMP IT BECAUSE NO SCHEMA
             {
@@ -149,7 +149,7 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
 
       processFields(fields.iterator());
 
-      if (targetDoc.isEmbedded()) {
+      if (targeEntity.isEmbedded()) {
         return null;
       }
     }
@@ -158,10 +158,10 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
   }
 
   private void processFields(Iterator<Object> target) {
-    EntityImpl doc = this.target.getRecord();
+    EntityImpl entity = this.target.getRecord();
     var database = command.getContext().getDatabase();
-    if (doc.isNotBound(database)) {
-      doc = database.bindToSession(doc);
+    if (entity.isNotBound(database)) {
+      entity = database.bindToSession(entity);
     }
 
     while (target.hasNext()) {
@@ -171,9 +171,9 @@ public class TraverseRecordProcess extends TraverseAbstractProcess<Identifiable>
       if (field instanceof SQLFilterItem) {
         var context = new BasicCommandContext();
         context.setParent(command.getContext());
-        fieldValue = ((SQLFilterItem) field).getValue(doc, null, context);
+        fieldValue = ((SQLFilterItem) field).getValue(entity, null, context);
       } else {
-        fieldValue = doc.rawField(field.toString());
+        fieldValue = entity.rawField(field.toString());
       }
 
       if (fieldValue != null) {

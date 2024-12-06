@@ -25,14 +25,14 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.index.CompositeIndexDefinition;
-import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.index.IndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.index.IndexDefinitionMultiValue;
 import com.jetbrains.youtrack.db.internal.core.index.IndexInternal;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemField;
 import java.util.Iterator;
@@ -112,7 +112,7 @@ public class QueryOperatorContains extends QueryOperatorEqualityNotNulls {
             Object record = iRecord.getRecord();
             if (record instanceof EntityImpl) {
               Property property =
-                  DocumentInternal.getImmutableSchemaClass(((EntityImpl) record))
+                  EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) record))
                       .getProperty(fieldName);
               if (property != null && property.getType().isMultiValue()) {
                 type = property.getLinkedType();

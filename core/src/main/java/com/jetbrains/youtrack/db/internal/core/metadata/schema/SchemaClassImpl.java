@@ -505,43 +505,43 @@ public abstract class SchemaClassImpl implements SchemaClass {
     }
   }
 
-  public void fromStream(EntityImpl document) {
+  public void fromStream(EntityImpl entity) {
     subclasses = null;
     superClasses.clear();
 
-    name = document.field("name");
-    if (document.containsField("shortName")) {
-      shortName = document.field("shortName");
+    name = entity.field("name");
+    if (entity.containsField("shortName")) {
+      shortName = entity.field("shortName");
     } else {
       shortName = null;
     }
-    if (document.containsField("description")) {
-      description = document.field("description");
+    if (entity.containsField("description")) {
+      description = entity.field("description");
     } else {
       description = null;
     }
-    defaultClusterId = document.field("defaultClusterId");
-    if (document.containsField("strictMode")) {
-      strictMode = document.field("strictMode");
+    defaultClusterId = entity.field("defaultClusterId");
+    if (entity.containsField("strictMode")) {
+      strictMode = entity.field("strictMode");
     } else {
       strictMode = false;
     }
 
-    if (document.containsField("abstract")) {
-      abstractClass = document.field("abstract");
+    if (entity.containsField("abstract")) {
+      abstractClass = entity.field("abstract");
     } else {
       abstractClass = false;
     }
 
-    if (document.field("overSize") != null) {
-      overSize = document.field("overSize");
+    if (entity.field("overSize") != null) {
+      overSize = entity.field("overSize");
     } else {
       overSize = 0f;
     }
 
-    final Object cc = document.field("clusterIds");
+    final Object cc = entity.field("clusterIds");
     if (cc instanceof Collection<?>) {
-      final Collection<Integer> coll = document.field("clusterIds");
+      final Collection<Integer> coll = entity.field("clusterIds");
       clusterIds = new int[coll.size()];
       int i = 0;
       for (final Integer item : coll) {
@@ -562,7 +562,7 @@ public abstract class SchemaClassImpl implements SchemaClass {
     PropertyImpl prop;
 
     final Map<String, Property> newProperties = new HashMap<String, Property>();
-    final Collection<EntityImpl> storedProperties = document.field("properties");
+    final Collection<EntityImpl> storedProperties = entity.field("properties");
 
     if (storedProperties != null) {
       for (Identifiable id : storedProperties) {
@@ -583,58 +583,58 @@ public abstract class SchemaClassImpl implements SchemaClass {
 
     properties.clear();
     properties.putAll(newProperties);
-    customFields = document.field("customFields", PropertyType.EMBEDDEDMAP);
+    customFields = entity.field("customFields", PropertyType.EMBEDDEDMAP);
     clusterSelection =
-        owner.getClusterSelectionFactory().getStrategy(document.field("clusterSelection"));
+        owner.getClusterSelectionFactory().getStrategy(entity.field("clusterSelection"));
   }
 
   protected abstract PropertyImpl createPropertyInstance();
 
   public EntityImpl toStream() {
-    EntityImpl document = new EntityImpl();
-    document.field("name", name);
-    document.field("shortName", shortName);
-    document.field("description", description);
-    document.field("defaultClusterId", defaultClusterId);
-    document.field("clusterIds", clusterIds);
-    document.field("clusterSelection", clusterSelection.getName());
-    document.field("overSize", overSize);
-    document.field("strictMode", strictMode);
-    document.field("abstract", abstractClass);
+    EntityImpl entity = new EntityImpl();
+    entity.field("name", name);
+    entity.field("shortName", shortName);
+    entity.field("description", description);
+    entity.field("defaultClusterId", defaultClusterId);
+    entity.field("clusterIds", clusterIds);
+    entity.field("clusterSelection", clusterSelection.getName());
+    entity.field("overSize", overSize);
+    entity.field("strictMode", strictMode);
+    entity.field("abstract", abstractClass);
 
     final Set<EntityImpl> props = new LinkedHashSet<EntityImpl>();
     for (final Property p : properties.values()) {
       props.add(((PropertyImpl) p).toStream());
     }
-    document.field("properties", props, PropertyType.EMBEDDEDSET);
+    entity.field("properties", props, PropertyType.EMBEDDEDSET);
 
     if (superClasses.isEmpty()) {
       // Single super class is deprecated!
-      document.field("superClass", null, PropertyType.STRING);
-      document.field("superClasses", null, PropertyType.EMBEDDEDLIST);
+      entity.field("superClass", null, PropertyType.STRING);
+      entity.field("superClasses", null, PropertyType.EMBEDDEDLIST);
     } else {
       // Single super class is deprecated!
-      document.field("superClass", superClasses.get(0).getName(), PropertyType.STRING);
+      entity.field("superClass", superClasses.get(0).getName(), PropertyType.STRING);
       List<String> superClassesNames = new ArrayList<String>();
       for (SchemaClassImpl superClass : superClasses) {
         superClassesNames.add(superClass.getName());
       }
-      document.field("superClasses", superClassesNames, PropertyType.EMBEDDEDLIST);
+      entity.field("superClasses", superClassesNames, PropertyType.EMBEDDEDLIST);
     }
 
-    document.field(
+    entity.field(
         "customFields",
         customFields != null && customFields.size() > 0 ? customFields : null,
         PropertyType.EMBEDDEDMAP);
 
-    return document;
+    return entity;
   }
 
   @Override
-  public int getClusterForNewInstance(final EntityImpl doc) {
+  public int getClusterForNewInstance(final EntityImpl entity) {
     acquireSchemaReadLock();
     try {
-      return clusterSelection.getCluster(this, doc);
+      return clusterSelection.getCluster(this, entity);
     } finally {
       releaseSchemaReadLock();
     }
@@ -1861,43 +1861,43 @@ public abstract class SchemaClassImpl implements SchemaClass {
   }
 
   public EntityImpl toNetworkStream() {
-    EntityImpl document = new EntityImpl();
-    document.setTrackingChanges(false);
-    document.field("name", name);
-    document.field("shortName", shortName);
-    document.field("description", description);
-    document.field("defaultClusterId", defaultClusterId);
-    document.field("clusterIds", clusterIds);
-    document.field("clusterSelection", clusterSelection.getName());
-    document.field("overSize", overSize);
-    document.field("strictMode", strictMode);
-    document.field("abstract", abstractClass);
+    EntityImpl entity = new EntityImpl();
+    entity.setTrackingChanges(false);
+    entity.field("name", name);
+    entity.field("shortName", shortName);
+    entity.field("description", description);
+    entity.field("defaultClusterId", defaultClusterId);
+    entity.field("clusterIds", clusterIds);
+    entity.field("clusterSelection", clusterSelection.getName());
+    entity.field("overSize", overSize);
+    entity.field("strictMode", strictMode);
+    entity.field("abstract", abstractClass);
 
     final Set<EntityImpl> props = new LinkedHashSet<EntityImpl>();
     for (final Property p : properties.values()) {
       props.add(((PropertyImpl) p).toNetworkStream());
     }
-    document.field("properties", props, PropertyType.EMBEDDEDSET);
+    entity.field("properties", props, PropertyType.EMBEDDEDSET);
 
     if (superClasses.isEmpty()) {
       // Single super class is deprecated!
-      document.field("superClass", null, PropertyType.STRING);
-      document.field("superClasses", null, PropertyType.EMBEDDEDLIST);
+      entity.field("superClass", null, PropertyType.STRING);
+      entity.field("superClasses", null, PropertyType.EMBEDDEDLIST);
     } else {
       // Single super class is deprecated!
-      document.field("superClass", superClasses.get(0).getName(), PropertyType.STRING);
+      entity.field("superClass", superClasses.get(0).getName(), PropertyType.STRING);
       List<String> superClassesNames = new ArrayList<String>();
       for (SchemaClassImpl superClass : superClasses) {
         superClassesNames.add(superClass.getName());
       }
-      document.field("superClasses", superClassesNames, PropertyType.EMBEDDEDLIST);
+      entity.field("superClasses", superClassesNames, PropertyType.EMBEDDEDLIST);
     }
 
-    document.field(
+    entity.field(
         "customFields",
         customFields != null && customFields.size() > 0 ? customFields : null,
         PropertyType.EMBEDDEDMAP);
 
-    return document;
+    return entity;
   }
 }

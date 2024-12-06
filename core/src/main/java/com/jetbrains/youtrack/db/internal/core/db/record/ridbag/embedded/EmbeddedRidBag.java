@@ -35,8 +35,8 @@ import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBagDelegate;
 import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.exception.SerializationException;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.binary.impl.LinkSerializer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.Change;
@@ -143,7 +143,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
     @Override
     public void remove() {
       if (currentRemoved) {
-        throw new IllegalStateException("Current element has already been removed");
+        throw new IllegalStateException("Current entity has already been removed");
       }
 
       if (currentIndex == -1) {
@@ -162,7 +162,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
 
     private void swapValueOnCurrent(Identifiable newValue) {
       if (currentRemoved) {
-        throw new IllegalStateException("Current element has already been removed");
+        throw new IllegalStateException("Current entity has already been removed");
       }
 
       if (currentIndex == -1) {
@@ -227,9 +227,9 @@ public class EmbeddedRidBag implements RidBagDelegate {
   public void setOwner(RecordElement owner) {
     if (owner != null && this.owner != null && !this.owner.equals(owner)) {
       throw new IllegalStateException(
-          "This data structure is owned by document "
+          "This data structure is owned by entity "
               + owner
-              + " if you want to use it in other document create new rid bag instance and copy"
+              + " if you want to use it in other entity create new rid bag instance and copy"
               + " content of current one.");
     }
     if (this.owner != null) {
@@ -548,7 +548,7 @@ public class EmbeddedRidBag implements RidBagDelegate {
     }
   }
 
-  public void disableTracking(final RecordElement document) {
+  public void disableTracking(final RecordElement entity) {
     if (tracker.isEnabled()) {
       tracker.disable();
       this.dirty = false;

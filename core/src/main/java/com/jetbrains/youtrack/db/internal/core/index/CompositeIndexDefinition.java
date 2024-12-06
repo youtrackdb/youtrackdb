@@ -146,7 +146,7 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
    * {@inheritDoc}
    */
   public Object getDocumentValueToIndex(
-      DatabaseSessionInternal session, final EntityImpl iDocument) {
+      DatabaseSessionInternal session, final EntityImpl entity) {
     final List<CompositeKey> compositeKeys = new ArrayList<>(10);
     final CompositeKey firstKey = new CompositeKey();
     boolean containsCollection = false;
@@ -154,7 +154,7 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
     compositeKeys.add(firstKey);
 
     for (final IndexDefinition indexDefinition : indexDefinitions) {
-      final Object result = indexDefinition.getDocumentValueToIndex(session, iDocument);
+      final Object result = indexDefinition.getDocumentValueToIndex(session, entity);
 
       if (result == null && isNullValuesIgnored()) {
         return null;
@@ -428,28 +428,28 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
    * {@inheritDoc}
    */
   @Override
-  public @Nonnull EntityImpl toStream(@Nonnull EntityImpl document) {
-    serializeToStream(document);
-    return document;
+  public @Nonnull EntityImpl toStream(@Nonnull EntityImpl entity) {
+    serializeToStream(entity);
+    return entity;
   }
 
   @Override
-  protected void serializeToStream(EntityImpl document) {
-    super.serializeToStream(document);
+  protected void serializeToStream(EntityImpl entity) {
+    super.serializeToStream(entity);
 
     final List<EntityImpl> inds = new ArrayList<>(indexDefinitions.size());
     final List<String> indClasses = new ArrayList<>(indexDefinitions.size());
 
-    document.setPropertyInternal("className", className);
+    entity.setPropertyInternal("className", className);
     for (final IndexDefinition indexDefinition : indexDefinitions) {
-      final EntityImpl indexDocument = indexDefinition.toStream(new EntityImpl());
-      inds.add(indexDocument);
+      final EntityImpl indexEntity = indexDefinition.toStream(new EntityImpl());
+      inds.add(indexEntity);
 
       indClasses.add(indexDefinition.getClass().getName());
     }
-    document.setPropertyInternal("indexDefinitions", inds, PropertyType.EMBEDDEDLIST);
-    document.setPropertyInternal("indClasses", indClasses, PropertyType.EMBEDDEDLIST);
-    document.setPropertyInternal("nullValuesIgnored", isNullValuesIgnored());
+    entity.setPropertyInternal("indexDefinitions", inds, PropertyType.EMBEDDEDLIST);
+    entity.setPropertyInternal("indClasses", indClasses, PropertyType.EMBEDDEDLIST);
+    entity.setPropertyInternal("nullValuesIgnored", isNullValuesIgnored());
   }
 
   /**
@@ -503,19 +503,19 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
     return "`" + next + "`";
   }
 
-  public void fromStream(@Nonnull EntityImpl document) {
-    serializeFromStream(document);
+  public void fromStream(@Nonnull EntityImpl entity) {
+    serializeFromStream(entity);
   }
 
   @Override
-  protected void serializeFromStream(EntityImpl document) {
-    super.serializeFromStream(document);
+  protected void serializeFromStream(EntityImpl entity) {
+    super.serializeFromStream(entity);
 
     try {
-      className = document.field("className");
+      className = entity.field("className");
 
-      final List<EntityImpl> inds = document.field("indexDefinitions");
-      final List<String> indClasses = document.field("indClasses");
+      final List<EntityImpl> inds = entity.field("indexDefinitions");
+      final List<String> indClasses = entity.field("indClasses");
 
       indexDefinitions.clear();
 
@@ -523,11 +523,11 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
 
       for (int i = 0; i < indClasses.size(); i++) {
         final Class<?> clazz = Class.forName(indClasses.get(i));
-        final EntityImpl indDoc = inds.get(i);
+        final EntityImpl indEntity = inds.get(i);
 
         final IndexDefinition indexDefinition =
             (IndexDefinition) clazz.getDeclaredConstructor().newInstance();
-        indexDefinition.fromStream(indDoc);
+        indexDefinition.fromStream(indEntity);
 
         indexDefinitions.add(indexDefinition);
         collate.addCollate(indexDefinition.getCollate());
@@ -537,7 +537,7 @@ public class CompositeIndexDefinition extends AbstractIndexDefinition {
         }
       }
 
-      setNullValuesIgnored(!Boolean.FALSE.equals(document.<Boolean>field("nullValuesIgnored")));
+      setNullValuesIgnored(!Boolean.FALSE.equals(entity.<Boolean>field("nullValuesIgnored")));
     } catch (final ClassNotFoundException
                    | InvocationTargetException
                    | InstantiationException

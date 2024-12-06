@@ -369,11 +369,11 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
               ((OClassDistributed) schemaClass).getClusterForNewInstance(this, (ODocument) record));
         } else {
           throw new ODatabaseException(
-              "Cannot save (4) document " + record + ": no class or cluster defined");
+              "Cannot save (4) entity " + record + ": no class or cluster defined");
         }
       } else {
         throw new ODatabaseException(
-            "Cannot save (5) document " + record + ": no class or cluster defined");
+            "Cannot save (5) entity " + record + ": no class or cluster defined");
       }
     } else if (record instanceof ODocument) {
       schemaClass = ((ODocument) record).getSchemaClass();

@@ -27,5 +27,5 @@ public interface OServerPluginConfigurable {
 
   EntityImpl getConfig();
 
-  void changeConfig(EntityImpl document);
+  void changeConfig(EntityImpl entity);
 }

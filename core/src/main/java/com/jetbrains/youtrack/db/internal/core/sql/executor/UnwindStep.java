@@ -45,24 +45,24 @@ public class UnwindStep extends AbstractExecutionStep {
     return ExecutionStream.resultIterator(unwind(db, res, unwindFields).iterator());
   }
 
-  private static Collection<Result> unwind(DatabaseSessionInternal db, final Result doc,
+  private static Collection<Result> unwind(DatabaseSessionInternal db, final Result entity,
       final List<String> unwindFields) {
     final List<Result> result = new ArrayList<>();
 
     if (unwindFields.isEmpty()) {
-      result.add(doc);
+      result.add(entity);
     } else {
       String firstField = unwindFields.get(0);
       final List<String> nextFields = unwindFields.subList(1, unwindFields.size());
 
-      Object fieldValue = doc.getProperty(firstField);
+      Object fieldValue = entity.getProperty(firstField);
       if (fieldValue == null || fieldValue instanceof EntityImpl) {
-        result.addAll(unwind(db, doc, nextFields));
+        result.addAll(unwind(db, entity, nextFields));
         return result;
       }
 
       if (!(fieldValue instanceof Iterable) && !fieldValue.getClass().isArray()) {
-        result.addAll(unwind(db, doc, nextFields));
+        result.addAll(unwind(db, entity, nextFields));
         return result;
       }
 
@@ -74,7 +74,7 @@ public class UnwindStep extends AbstractExecutionStep {
       }
       if (!iterator.hasNext()) {
         ResultInternal unwindedDoc = new ResultInternal(db);
-        copy(doc, unwindedDoc);
+        copy(entity, unwindedDoc);
 
         unwindedDoc.setProperty(firstField, null);
         result.addAll(unwind(db, unwindedDoc, nextFields));
@@ -82,7 +82,7 @@ public class UnwindStep extends AbstractExecutionStep {
         do {
           Object o = iterator.next();
           ResultInternal unwindedDoc = new ResultInternal(db);
-          copy(doc, unwindedDoc);
+          copy(entity, unwindedDoc);
           unwindedDoc.setProperty(firstField, o);
           result.addAll(unwind(db, unwindedDoc, nextFields));
         } while (iterator.hasNext());

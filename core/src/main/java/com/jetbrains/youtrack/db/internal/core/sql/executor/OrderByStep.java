@@ -68,7 +68,7 @@ public class OrderByStep extends AbstractExecutionStep {
       cachedResult.add(item);
       if (maxElementsAllowed >= 0 && maxElementsAllowed < cachedResult.size()) {
         throw new CommandExecutionException(
-            "Limit of allowed elements for in-heap ORDER BY in a single query exceeded ("
+            "Limit of allowed entities for in-heap ORDER BY in a single query exceeded ("
                 + maxElementsAllowed
                 + ") . You can set "
                 + GlobalConfiguration.QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP.getKey()

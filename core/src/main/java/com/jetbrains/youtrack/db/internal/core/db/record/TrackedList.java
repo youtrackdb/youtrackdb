@@ -23,7 +23,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.SimpleMultiValueTracker;
 import java.io.Serial;
 import java.io.Serializable;
@@ -108,7 +108,7 @@ public class TrackedList<T> extends ArrayList<T>
 
     if (oldValue != null && !oldValue.equals(element)) {
       if (oldValue instanceof EntityImpl) {
-        DocumentInternal.removeOwner((EntityImpl) oldValue, this);
+        EntityInternalUtils.removeOwner((EntityImpl) oldValue, this);
       }
 
       addOwnerToEmbeddedDoc(element);
@@ -129,7 +129,7 @@ public class TrackedList<T> extends ArrayList<T>
   private void addOwnerToEmbeddedDoc(T e) {
     if (embeddedCollection && e instanceof EntityImpl && !((EntityImpl) e).getIdentity()
         .isValid()) {
-      DocumentInternal.addOwner((EntityImpl) e, this);
+      EntityInternalUtils.addOwner((EntityImpl) e, this);
     }
     if (e instanceof EntityImpl) {
       RecordInternal.track(sourceRecord, (EntityImpl) e);
@@ -155,7 +155,7 @@ public class TrackedList<T> extends ArrayList<T>
 
   private void updateEvent(int index, T oldValue, T newValue) {
     if (oldValue instanceof EntityImpl) {
-      DocumentInternal.removeOwner((EntityImpl) oldValue, this);
+      EntityInternalUtils.removeOwner((EntityImpl) oldValue, this);
     }
 
     addOwnerToEmbeddedDoc(newValue);
@@ -169,7 +169,7 @@ public class TrackedList<T> extends ArrayList<T>
 
   private void removeEvent(int index, T removed) {
     if (removed instanceof EntityImpl) {
-      DocumentInternal.removeOwner((EntityImpl) removed, this);
+      EntityInternalUtils.removeOwner((EntityImpl) removed, this);
     }
     if (tracker.isEnabled()) {
       tracker.remove(index, removed);

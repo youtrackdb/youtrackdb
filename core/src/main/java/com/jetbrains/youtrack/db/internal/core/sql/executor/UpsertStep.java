@@ -43,9 +43,9 @@ public class UpsertStep extends AbstractExecutionStep {
 
   private Result createNewRecord(
       CommandContext ctx, SQLFromClause commandTarget, SQLWhereClause initialFilter) {
-    EntityImpl doc;
+    EntityImpl entity;
     if (commandTarget.getItem().getIdentifier() != null) {
-      doc = new EntityImpl(commandTarget.getItem().getIdentifier().getStringValue());
+      entity = new EntityImpl(commandTarget.getItem().getIdentifier().getStringValue());
     } else if (commandTarget.getItem().getCluster() != null) {
       SQLCluster cluster = commandTarget.getItem().getCluster();
       Integer clusterId = cluster.getClusterNumber();
@@ -57,20 +57,20 @@ public class UpsertStep extends AbstractExecutionStep {
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClassByClusterId(clusterId);
-      doc = new EntityImpl(clazz);
+      entity = new EntityImpl(clazz);
     } else {
       throw new CommandExecutionException(
           "Cannot execute UPSERT on target '" + commandTarget + "'");
     }
 
-    UpdatableResult result = new UpdatableResult(ctx.getDatabase(), doc);
+    UpdatableResult result = new UpdatableResult(ctx.getDatabase(), entity);
     if (initialFilter != null) {
       setContent(result, initialFilter);
     }
     return result;
   }
 
-  private void setContent(ResultInternal doc, SQLWhereClause initialFilter) {
+  private void setContent(ResultInternal res, SQLWhereClause initialFilter) {
     List<SQLAndBlock> flattened = initialFilter.flatten();
     if (flattened.isEmpty()) {
       return;
@@ -80,7 +80,7 @@ public class UpsertStep extends AbstractExecutionStep {
     }
     SQLAndBlock andCond = flattened.get(0);
     for (SQLBooleanExpression condition : andCond.getSubBlocks()) {
-      condition.transformToUpdateItem().ifPresent(x -> x.applyUpdate(doc, ctx));
+      condition.transformToUpdateItem().ifPresent(x -> x.applyUpdate(res, ctx));
     }
   }
 

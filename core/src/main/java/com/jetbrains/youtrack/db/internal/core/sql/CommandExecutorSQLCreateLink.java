@@ -31,8 +31,8 @@ import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;
 import java.util.ArrayList;
@@ -256,8 +256,8 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
 
     try {
       // BROWSE ALL THE RECORDS OF THE SOURCE CLASS
-      for (EntityImpl doc : db.browseClass(sourceClass.getName())) {
-        value = doc.field(sourceField);
+      for (EntityImpl entity : db.browseClass(sourceClass.getName())) {
+        value = entity.field(sourceField);
 
         if (value != null) {
           if (value instanceof EntityImpl || value instanceof RID) {
@@ -315,22 +315,22 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
                   target.field(linkName, coll);
                   coll.add((EntityImpl) oldValue);
                 }
-                coll.add(doc);
+                coll.add(entity);
               } else {
                 if (linkType != null) {
                   if (linkType == PropertyType.LINKSET) {
                     value = new LinkSet(target);
-                    ((Set<Identifiable>) value).add(doc);
+                    ((Set<Identifiable>) value).add(entity);
                   } else if (linkType == PropertyType.LINKLIST) {
                     value = new LinkList(target);
-                    ((LinkList) value).add(doc);
+                    ((LinkList) value).add(entity);
                   } else
                   // IGNORE THE TYPE, SET IT AS LINK
                   {
-                    value = doc;
+                    value = entity;
                   }
                 } else {
-                  value = doc;
+                  value = entity;
                 }
 
                 target.field(linkName, value);
@@ -340,8 +340,8 @@ public class CommandExecutorSQLCreateLink extends CommandExecutorSQLAbstract {
 
             } else {
               // SET THE REFERENCE
-              doc.field(linkName, value);
-              doc.save();
+              entity.field(linkName, value);
+              entity.save();
             }
 
             total++;

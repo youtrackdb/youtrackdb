@@ -24,7 +24,6 @@ import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBListenerAbstract;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
-import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageExistsException;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;

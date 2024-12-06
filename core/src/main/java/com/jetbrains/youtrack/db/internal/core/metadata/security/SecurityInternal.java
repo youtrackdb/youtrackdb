@@ -22,39 +22,39 @@ public interface SecurityInternal {
   @Deprecated
   Identifiable allowUser(
       DatabaseSession session,
-      EntityImpl iDocument,
+      EntityImpl entity,
       RestrictedOperation iOperationType,
       String iUserName);
 
   @Deprecated
   Identifiable allowRole(
       DatabaseSession session,
-      EntityImpl iDocument,
+      EntityImpl entity,
       RestrictedOperation iOperationType,
       String iRoleName);
 
   @Deprecated
   Identifiable denyUser(
       DatabaseSessionInternal session,
-      EntityImpl iDocument,
+      EntityImpl entity,
       RestrictedOperation iOperationType,
       String iUserName);
 
   @Deprecated
   Identifiable denyRole(
       DatabaseSessionInternal session,
-      EntityImpl iDocument,
+      EntityImpl entity,
       RestrictedOperation iOperationType,
       String iRoleName);
 
   @Deprecated
   Identifiable allowIdentity(
-      DatabaseSession session, EntityImpl iDocument, String iAllowFieldName,
+      DatabaseSession session, EntityImpl entity, String iAllowFieldName,
       Identifiable iId);
 
   @Deprecated
   Identifiable disallowIdentity(
-      DatabaseSessionInternal session, EntityImpl iDocument, String iAllowFieldName,
+      DatabaseSessionInternal session, EntityImpl entity, String iAllowFieldName,
       Identifiable iId);
 
   SecurityUserIml authenticate(DatabaseSessionInternal session, String iUsername,
@@ -159,24 +159,24 @@ public interface SecurityInternal {
 
   /**
    * For property-level security. Returns the list of the properties that are hidden (ie. not
-   * allowed to be read) for current session, regarding a specific document
+   * allowed to be read) for current session, regarding a specific entity
    *
    * @param session  the db session
-   * @param document the document to filter
+   * @param entity the entity to filter
    * @return the list of the properties that are hidden (ie. not allowed to be read) on current
-   * document for current session
+   * entity for current session
    */
-  Set<String> getFilteredProperties(DatabaseSessionInternal session, EntityImpl document);
+  Set<String> getFilteredProperties(DatabaseSessionInternal session, EntityImpl entity);
 
   /**
    * For property-level security
    *
    * @param session
-   * @param document     current document to check for proeprty-level security
+   * @param entity     current entity to check for proeprty-level security
    * @param propertyName the property to check for write access
    * @return
    */
-  boolean isAllowedWrite(DatabaseSessionInternal session, EntityImpl document,
+  boolean isAllowedWrite(DatabaseSessionInternal session, EntityImpl entity,
       String propertyName);
 
   boolean canCreate(DatabaseSessionInternal session, Record record);

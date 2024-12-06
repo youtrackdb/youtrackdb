@@ -97,12 +97,12 @@ public class VertexEntityImpl extends EntityImpl implements VertexInternal {
   public VertexEntityImpl copy() {
     checkForBinding();
 
-    var newDoc = new VertexEntityImpl();
-    RecordInternal.unsetDirty(newDoc);
-    copyTo(newDoc);
-    newDoc.dirty = true;
+    var newEntity = new VertexEntityImpl();
+    RecordInternal.unsetDirty(newEntity);
+    copyTo(newEntity);
+    newEntity.dirty = true;
 
-    return newDoc;
+    return newEntity;
   }
 
   @Override

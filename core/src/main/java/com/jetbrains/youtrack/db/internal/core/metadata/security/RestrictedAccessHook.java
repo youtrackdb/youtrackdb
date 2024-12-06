@@ -25,7 +25,7 @@ import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import java.util.Set;
 
 /**
@@ -35,8 +35,8 @@ import java.util.Set;
 public class RestrictedAccessHook {
 
   public static boolean onRecordBeforeCreate(
-      final EntityImpl iDocument, DatabaseSessionInternal database) {
-    final SchemaImmutableClass cls = DocumentInternal.getImmutableSchemaClass(database, iDocument);
+      final EntityImpl entity, DatabaseSessionInternal database) {
+    final SchemaImmutableClass cls = EntityInternalUtils.getImmutableSchemaClass(database, entity);
     if (cls != null && cls.isRestricted()) {
       String fieldNames = cls.getCustom(SecurityShared.ONCREATE_FIELD);
       if (fieldNames == null) {
@@ -72,7 +72,7 @@ public class RestrictedAccessHook {
 
       if (identity != null && identity.getIdentity().isValid()) {
         for (String f : fields) {
-          database.getSharedContext().getSecurity().allowIdentity(database, iDocument, f, identity);
+          database.getSharedContext().getSecurity().allowIdentity(database, entity, f, identity);
         }
         return true;
       }
@@ -83,10 +83,10 @@ public class RestrictedAccessHook {
   @SuppressWarnings("unchecked")
   public static boolean isAllowed(
       DatabaseSessionInternal database,
-      final EntityImpl iDocument,
+      final EntityImpl ent,
       final RestrictedOperation iAllowOperation,
       final boolean iReadOriginal) {
-    final SchemaImmutableClass cls = DocumentInternal.getImmutableSchemaClass(database, iDocument);
+    final SchemaImmutableClass cls = EntityInternalUtils.getImmutableSchemaClass(database, ent);
     if (cls != null && cls.isRestricted()) {
 
       if (database.getUser() == null) {
@@ -106,26 +106,26 @@ public class RestrictedAccessHook {
         }
       }
 
-      final EntityImpl doc;
+      final EntityImpl entity;
       if (iReadOriginal)
       // RELOAD TO AVOID HACKING OF "_ALLOW" FIELDS
       {
         try {
-          doc = database.load(iDocument.getIdentity());
+          entity = database.load(ent.getIdentity());
         } catch (RecordNotFoundException e) {
           return false;
         }
 
       } else {
-        doc = iDocument;
+        entity = ent;
       }
 
       return database
           .getMetadata()
           .getSecurity()
           .isAllowed(
-              doc.field(RestrictedOperation.ALLOW_ALL.getFieldName()),
-              doc.field(iAllowOperation.getFieldName()));
+              entity.field(RestrictedOperation.ALLOW_ALL.getFieldName()),
+              entity.field(iAllowOperation.getFieldName()));
     }
 
     return true;

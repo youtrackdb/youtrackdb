@@ -542,14 +542,14 @@ public class OTableFormatter {
         columns.put(c, getColumnSize(fetched, rec, c, columns.get(c)));
       }
 
-      if (rec instanceof EntityImpl doc) {
-        doc.setLazyLoad(false);
+      if (rec instanceof EntityImpl entity) {
+        entity.setLazyLoad(false);
         // PARSE ALL THE DOCUMENT'S FIELDS
-        for (String fieldName : doc.getPropertyNames()) {
-          columns.put(fieldName, getColumnSize(fetched, doc, fieldName, columns.get(fieldName)));
+        for (String fieldName : entity.getPropertyNames()) {
+          columns.put(fieldName, getColumnSize(fetched, entity, fieldName, columns.get(fieldName)));
         }
 
-        if (!hasClass && doc.getClassName() != null) {
+        if (!hasClass && entity.getClassName() != null) {
           hasClass = true;
         }
 

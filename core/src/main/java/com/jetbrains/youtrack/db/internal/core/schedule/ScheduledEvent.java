@@ -67,8 +67,8 @@ public class ScheduledEvent extends EntityWrapper {
   /**
    * Creates a scheduled event object from a configuration.
    */
-  public ScheduledEvent(final EntityImpl doc, DatabaseSession session) {
-    super(doc);
+  public ScheduledEvent(final EntityImpl entity, DatabaseSession session) {
+    super(entity);
     running = new AtomicBoolean(false);
     nextExecutionId = new AtomicLong(getNextExecutionId(session));
     getFunction(session);
@@ -171,8 +171,8 @@ public class ScheduledEvent extends EntityWrapper {
   }
 
   @Override
-  public void fromStream(DatabaseSessionInternal session, final EntityImpl iDocument) {
-    super.fromStream(session, iDocument);
+  public void fromStream(DatabaseSessionInternal session, final EntityImpl entity) {
+    super.fromStream(session, entity);
     try {
       cron.buildExpression(getRule(session));
     } catch (ParseException e) {
@@ -186,14 +186,14 @@ public class ScheduledEvent extends EntityWrapper {
   }
 
   private Function getFunctionSafe(DatabaseSession session) {
-    var document = getDocument(session);
+    var entity = getDocument(session);
     if (function == null) {
-      final Object funcDoc = document.field(PROP_FUNC);
+      final Object funcDoc = entity.field(PROP_FUNC);
       if (funcDoc != null) {
         if (funcDoc instanceof Function) {
           function = (Function) funcDoc;
           // OVERWRITE FUNCTION ID
-          document.field(PROP_FUNC, function.getId(session));
+          entity.field(PROP_FUNC, function.getId(session));
         } else if (funcDoc instanceof EntityImpl) {
           function = new Function((EntityImpl) funcDoc);
         } else if (funcDoc instanceof RecordId) {

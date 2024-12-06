@@ -23,8 +23,8 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -168,9 +168,9 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
 
               for (Object o : MultiValue.getMultiValueIterable(v)) {
                 if (o instanceof Map) {
-                  final EntityImpl doc =
+                  final EntityImpl entity =
                       createDocumentFromMap(embeddedType, (Map<String, Object>) o);
-                  set.add(doc);
+                  set.add(entity);
                 } else if (o instanceof Identifiable) {
                   set.add(((Identifiable) o).getRecord());
                 } else {
@@ -191,9 +191,9 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
 
               for (Object o : MultiValue.getMultiValueIterable(v)) {
                 if (o instanceof Map) {
-                  final EntityImpl doc =
+                  final EntityImpl entity =
                       createDocumentFromMap(embeddedType, (Map<String, Object>) o);
-                  set.add(doc);
+                  set.add(entity);
                 } else if (o instanceof Identifiable) {
                   set.add(((Identifiable) o).getRecord());
                 } else {
@@ -212,9 +212,9 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
 
               for (Map.Entry<String, Object> entry : ((Map<String, Object>) v).entrySet()) {
                 if (entry.getValue() instanceof Map) {
-                  final EntityImpl doc =
+                  final EntityImpl entity =
                       createDocumentFromMap(embeddedType, (Map<String, Object>) entry.getValue());
-                  map.put(entry.getKey(), doc);
+                  map.put(entry.getKey(), entity);
                 } else if (entry.getValue() instanceof Identifiable) {
                   map.put(entry.getKey(), ((Identifiable) entry.getValue()).getRecord());
                 } else {
@@ -232,13 +232,13 @@ public abstract class CommandExecutorSQLSetAware extends CommandExecutorSQLAbstr
   }
 
   private EntityImpl createDocumentFromMap(SchemaClass embeddedType, Map<String, Object> o) {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl entity = new EntityImpl();
     if (embeddedType != null) {
-      doc.setClassName(embeddedType.getName());
+      entity.setClassName(embeddedType.getName());
     }
 
-    doc.fromMap(o);
-    return doc;
+    entity.fromMap(o);
+    return entity;
   }
 
   @Override

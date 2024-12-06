@@ -28,9 +28,9 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncryption;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 
-public interface DocumentSerializer {
+public interface EntitySerializer {
 
-  void serialize(DatabaseSessionInternal session, EntityImpl document, BytesContainer bytes);
+  void serialize(DatabaseSessionInternal session, EntityImpl entity, BytesContainer bytes);
 
   int serializeValue(
       DatabaseSessionInternal session, BytesContainer bytes,
@@ -40,9 +40,9 @@ public interface DocumentSerializer {
       ImmutableSchema schema,
       PropertyEncryption encryption);
 
-  void deserialize(DatabaseSessionInternal db, EntityImpl document, BytesContainer bytes);
+  void deserialize(DatabaseSessionInternal db, EntityImpl entity, BytesContainer bytes);
 
-  void deserializePartial(DatabaseSessionInternal db, EntityImpl document, BytesContainer bytes,
+  void deserializePartial(DatabaseSessionInternal db, EntityImpl entity, BytesContainer bytes,
       String[] iFields);
 
   Object deserializeValue(DatabaseSessionInternal session, BytesContainer bytes, PropertyType type,

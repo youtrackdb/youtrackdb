@@ -26,7 +26,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 
 /**
  * Hook abstract class that calls separate methods for EntityImpl records.
@@ -54,152 +54,152 @@ public abstract class DocumentHookAbstract implements RecordHook {
   }
 
   /**
-   * It's called just before to create the new document.
+   * It's called just before to create the new entity.
    *
-   * @param iDocument The document to create
-   * @return True if the document has been modified and a new marshalling is required, otherwise
+   * @param entity The entity to create
+   * @return True if the entity has been modified and a new marshalling is required, otherwise
    * false
    */
-  public RESULT onRecordBeforeCreate(final EntityImpl iDocument) {
+  public RESULT onRecordBeforeCreate(final EntityImpl entity) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
   /**
-   * It's called just after the document is created.
+   * It's called just after the entity is created.
    *
-   * @param iDocument The document is going to be created
+   * @param entity The entity is going to be created
    */
-  public void onRecordAfterCreate(final EntityImpl iDocument) {
+  public void onRecordAfterCreate(final EntityImpl entity) {
   }
 
   /**
-   * It's called just after the document creation was failed.
+   * It's called just after the entity creation was failed.
    *
-   * @param iDocument The document just created
+   * @param entity The entity just created
    */
-  public void onRecordCreateFailed(final EntityImpl iDocument) {
+  public void onRecordCreateFailed(final EntityImpl entity) {
   }
 
   /**
-   * It's called just after the document creation was replicated on another node.
+   * It's called just after the entity creation was replicated on another node.
    *
-   * @param iDocument The document just created
+   * @param entity The entity just created
    */
-  public void onRecordCreateReplicated(final EntityImpl iDocument) {
+  public void onRecordCreateReplicated(final EntityImpl entity) {
   }
 
   /**
-   * It's called just before to read the document.
+   * It's called just before to read the entity.
    *
-   * @param iDocument The document to read
-   * @return True if the document has been modified and a new marshalling is required, otherwise
+   * @param entity The entity to read
+   * @return True if the entity has been modified and a new marshalling is required, otherwise
    * false
    */
-  public RESULT onRecordBeforeRead(final EntityImpl iDocument) {
+  public RESULT onRecordBeforeRead(final EntityImpl entity) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
   /**
-   * It's called just after the document is read.
+   * It's called just after the entity is read.
    *
-   * @param iDocument The document just read
+   * @param entity The entity just read
    */
-  public void onRecordAfterRead(final EntityImpl iDocument) {
+  public void onRecordAfterRead(final EntityImpl entity) {
   }
 
   /**
-   * It's called just after the document read was failed.
+   * It's called just after the entity read was failed.
    *
-   * @param iDocument The document just created
+   * @param entity The entity just created
    */
-  public void onRecordReadFailed(final EntityImpl iDocument) {
+  public void onRecordReadFailed(final EntityImpl entity) {
   }
 
   /**
-   * It's called just after the document read was replicated on another node.
+   * It's called just after the entity read was replicated on another node.
    *
-   * @param iDocument The document just created
+   * @param entity The entity just created
    */
-  public void onRecordReadReplicated(final EntityImpl iDocument) {
+  public void onRecordReadReplicated(final EntityImpl entity) {
   }
 
   /**
-   * It's called just before to update the document.
+   * It's called just before to update the entity.
    *
-   * @param iDocument The document to update
-   * @return True if the document has been modified and a new marshalling is required, otherwise
+   * @param entity The entity to update
+   * @return True if the entity has been modified and a new marshalling is required, otherwise
    * false
    */
-  public RESULT onRecordBeforeUpdate(final EntityImpl iDocument) {
+  public RESULT onRecordBeforeUpdate(final EntityImpl entity) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
   /**
-   * It's called just after the document is updated.
+   * It's called just after the entity is updated.
    *
-   * @param iDocument The document just updated
+   * @param entity The entity just updated
    */
-  public void onRecordAfterUpdate(final EntityImpl iDocument) {
+  public void onRecordAfterUpdate(final EntityImpl entity) {
   }
 
   /**
-   * It's called just after the document updated was failed.
+   * It's called just after the entity updated was failed.
    *
-   * @param iDocument The document is going to be updated
+   * @param entity The entity is going to be updated
    */
-  public void onRecordUpdateFailed(final EntityImpl iDocument) {
+  public void onRecordUpdateFailed(final EntityImpl entity) {
   }
 
   /**
-   * It's called just after the document updated was replicated.
+   * It's called just after the entity updated was replicated.
    *
-   * @param iDocument The document is going to be updated
+   * @param entity The entity is going to be updated
    */
-  public void onRecordUpdateReplicated(final EntityImpl iDocument) {
+  public void onRecordUpdateReplicated(final EntityImpl entity) {
   }
 
   /**
-   * It's called just before to delete the document.
+   * It's called just before to delete the entity.
    *
-   * @param iDocument The document to delete
-   * @return True if the document has been modified and a new marshalling is required, otherwise
+   * @param entity The entity to delete
+   * @return True if the entity has been modified and a new marshalling is required, otherwise
    * false
    */
-  public RESULT onRecordBeforeDelete(final EntityImpl iDocument) {
+  public RESULT onRecordBeforeDelete(final EntityImpl entity) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
   /**
-   * It's called just after the document is deleted.
+   * It's called just after the entity is deleted.
    *
-   * @param iDocument The document just deleted
+   * @param entity The entity just deleted
    */
-  public void onRecordAfterDelete(final EntityImpl iDocument) {
+  public void onRecordAfterDelete(final EntityImpl entity) {
   }
 
   /**
-   * It's called just after the document deletion was failed.
+   * It's called just after the entity deletion was failed.
    *
-   * @param iDocument The document is going to be deleted
+   * @param entity The entity is going to be deleted
    */
-  public void onRecordDeleteFailed(final EntityImpl iDocument) {
+  public void onRecordDeleteFailed(final EntityImpl entity) {
   }
 
   /**
-   * It's called just after the document deletion was replicated.
+   * It's called just after the entity deletion was replicated.
    *
-   * @param iDocument The document is going to be deleted
+   * @param entity The entity is going to be deleted
    */
-  public void onRecordDeleteReplicated(final EntityImpl iDocument) {
+  public void onRecordDeleteReplicated(final EntityImpl entity) {
   }
 
-  public void onRecordFinalizeUpdate(final EntityImpl document) {
+  public void onRecordFinalizeUpdate(final EntityImpl entity) {
   }
 
-  public void onRecordFinalizeCreation(final EntityImpl document) {
+  public void onRecordFinalizeCreation(final EntityImpl entity) {
   }
 
-  public void onRecordFinalizeDeletion(final EntityImpl document) {
+  public void onRecordFinalizeDeletion(final EntityImpl entity) {
   }
 
   public RESULT onTrigger(final TYPE iType, final Record iRecord) {
@@ -207,85 +207,85 @@ public abstract class DocumentHookAbstract implements RecordHook {
       return RESULT.RECORD_NOT_CHANGED;
     }
 
-    if (!(iRecord instanceof EntityImpl document)) {
+    if (!(iRecord instanceof EntityImpl entity)) {
       return RESULT.RECORD_NOT_CHANGED;
     }
 
-    if (!filterBySchemaClass(document)) {
+    if (!filterBySchemaClass(entity)) {
       return RESULT.RECORD_NOT_CHANGED;
     }
 
     switch (iType) {
       case BEFORE_CREATE:
-        return onRecordBeforeCreate(document);
+        return onRecordBeforeCreate(entity);
 
       case AFTER_CREATE:
-        onRecordAfterCreate(document);
+        onRecordAfterCreate(entity);
         break;
 
       case CREATE_FAILED:
-        onRecordCreateFailed(document);
+        onRecordCreateFailed(entity);
         break;
 
       case CREATE_REPLICATED:
-        onRecordCreateReplicated(document);
+        onRecordCreateReplicated(entity);
         break;
 
       case BEFORE_READ:
-        return onRecordBeforeRead(document);
+        return onRecordBeforeRead(entity);
 
       case AFTER_READ:
-        onRecordAfterRead(document);
+        onRecordAfterRead(entity);
         break;
 
       case READ_FAILED:
-        onRecordReadFailed(document);
+        onRecordReadFailed(entity);
         break;
 
       case READ_REPLICATED:
-        onRecordReadReplicated(document);
+        onRecordReadReplicated(entity);
         break;
 
       case BEFORE_UPDATE:
-        return onRecordBeforeUpdate(document);
+        return onRecordBeforeUpdate(entity);
 
       case AFTER_UPDATE:
-        onRecordAfterUpdate(document);
+        onRecordAfterUpdate(entity);
         break;
 
       case UPDATE_FAILED:
-        onRecordUpdateFailed(document);
+        onRecordUpdateFailed(entity);
         break;
 
       case UPDATE_REPLICATED:
-        onRecordUpdateReplicated(document);
+        onRecordUpdateReplicated(entity);
         break;
 
       case BEFORE_DELETE:
-        return onRecordBeforeDelete(document);
+        return onRecordBeforeDelete(entity);
 
       case AFTER_DELETE:
-        onRecordAfterDelete(document);
+        onRecordAfterDelete(entity);
         break;
 
       case DELETE_FAILED:
-        onRecordDeleteFailed(document);
+        onRecordDeleteFailed(entity);
         break;
 
       case DELETE_REPLICATED:
-        onRecordDeleteReplicated(document);
+        onRecordDeleteReplicated(entity);
         break;
 
       case FINALIZE_CREATION:
-        onRecordFinalizeCreation(document);
+        onRecordFinalizeCreation(entity);
         break;
 
       case FINALIZE_UPDATE:
-        onRecordFinalizeUpdate(document);
+        onRecordFinalizeUpdate(entity);
         break;
 
       case FINALIZE_DELETION:
-        onRecordFinalizeDeletion(document);
+        onRecordFinalizeDeletion(entity);
         break;
 
       default:
@@ -319,13 +319,13 @@ public abstract class DocumentHookAbstract implements RecordHook {
     return this;
   }
 
-  protected boolean filterBySchemaClass(final EntityImpl iDocument) {
+  protected boolean filterBySchemaClass(final EntityImpl entity) {
     if (includeClasses == null && excludeClasses == null) {
       return true;
     }
 
     final SchemaClass clazz =
-        DocumentInternal.getImmutableSchemaClass((DatabaseSessionInternal) database, iDocument);
+        EntityInternalUtils.getImmutableSchemaClass((DatabaseSessionInternal) database, entity);
     if (clazz == null) {
       return false;
     }

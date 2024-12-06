@@ -26,11 +26,11 @@ public class RoundRobinClusterSelectionStrategy implements ClusterSelectionStrat
   public static final String NAME = "round-robin";
   private final AtomicLong pointer = new AtomicLong(0);
 
-  public int getCluster(final SchemaClass iClass, final EntityImpl doc) {
-    return getCluster(iClass, iClass.getClusterIds(), doc);
+  public int getCluster(final SchemaClass iClass, final EntityImpl entity) {
+    return getCluster(iClass, iClass.getClusterIds(), entity);
   }
 
-  public int getCluster(final SchemaClass clazz, final int[] clusters, final EntityImpl doc) {
+  public int getCluster(final SchemaClass clazz, final int[] clusters, final EntityImpl entity) {
     if (clusters.length == 1)
     // ONLY ONE: RETURN THE FIRST ONE
     {

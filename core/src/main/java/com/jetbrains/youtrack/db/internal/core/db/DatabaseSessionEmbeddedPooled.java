@@ -19,7 +19,6 @@
  */
 package com.jetbrains.youtrack.db.internal.core.db;
 
-import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseSessionEmbedded;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 
 /**

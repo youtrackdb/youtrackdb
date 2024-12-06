@@ -5,7 +5,7 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.query.live.LiveQueryHookV2;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 
 /**
@@ -37,7 +37,7 @@ public class CopyRecordContentBeforeUpdateStep extends AbstractExecutionStep {
       prevValue.setProperty("@version", rec.getVersion());
       if (rec instanceof EntityImpl) {
         prevValue.setProperty(
-            "@class", DocumentInternal.getImmutableSchemaClass(((EntityImpl) rec)).getName());
+            "@class", EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) rec)).getName());
       }
       if (!result.toEntity().getIdentity().isNew()) {
         for (String propName : result.getPropertyNames()) {

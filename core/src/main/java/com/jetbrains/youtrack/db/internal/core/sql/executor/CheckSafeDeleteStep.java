@@ -5,7 +5,7 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 
 /**
@@ -34,7 +34,7 @@ public class CheckSafeDeleteStep extends AbstractExecutionStep {
   private Result mapResult(Result result, CommandContext ctx) {
     if (result.isEntity()) {
       var elem = result.toEntity();
-      SchemaClass clazz = DocumentInternal.getImmutableSchemaClass((EntityImpl) elem);
+      SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass((EntityImpl) elem);
       if (clazz != null) {
         if (clazz.getName().equalsIgnoreCase("V") || clazz.isSubClassOf("V")) {
           throw new CommandExecutionException(

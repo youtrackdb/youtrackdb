@@ -19,10 +19,10 @@
 package com.orientechnologies.lucene.tx;
 
 import com.jetbrains.youtrack.db.internal.common.exception.BaseException;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.orientechnologies.lucene.engine.LuceneIndexEngine;
 import com.orientechnologies.lucene.exception.LuceneIndexException;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,7 +55,7 @@ public class OLuceneTxChangesMultiRid extends OLuceneTxChangesAbstract {
       writer.addDocument(doc);
     } catch (IOException e) {
       throw BaseException.wrapException(
-          new LuceneIndexException("unable to add document to changes index"), e);
+          new LuceneIndexException("unable to add entity to changes index"), e);
     }
   }
 
@@ -75,7 +75,7 @@ public class OLuceneTxChangesMultiRid extends OLuceneTxChangesAbstract {
     } catch (final IOException e) {
       throw BaseException.wrapException(
           new LuceneIndexException(
-              "Error while deleting documents in transaction from lucene index"),
+              "Error while deleting entities in transaction from lucene index"),
           e);
     }
   }

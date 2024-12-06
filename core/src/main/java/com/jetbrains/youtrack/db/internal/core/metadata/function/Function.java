@@ -29,8 +29,8 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.RetryQueryException;
-import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.type.EntityWrapper;
 import java.util.LinkedHashMap;
@@ -58,10 +58,10 @@ public class Function extends EntityWrapper {
   /**
    * Creates a new function wrapping the saved document.
    *
-   * @param iDocument Document to assign
+   * @param entity Document to assign
    */
-  public Function(final EntityImpl iDocument) {
-    super(iDocument);
+  public Function(final EntityImpl entity) {
+    super(entity);
   }
 
   /**

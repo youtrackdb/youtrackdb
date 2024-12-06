@@ -20,7 +20,7 @@ import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.method.misc.AbstractSQLMethod;
 
 /**
@@ -49,21 +49,21 @@ public class SQLMethodFromJSON extends AbstractSQLMethod {
     if (iThis instanceof String) {
       if (iParams.length > 0) {
         try {
-          final EntityImpl doc = new EntityImpl().fromJSON(iThis.toString(),
+          final EntityImpl entity = new EntityImpl().fromJSON(iThis.toString(),
               iParams[0].toString());
           if (iParams[0].toString().contains("embedded")) {
-            DocumentInternal.addOwner(doc, iCurrentRecord.getRecord());
+            EntityInternalUtils.addOwner(entity, iCurrentRecord.getRecord());
           }
 
-          return doc;
+          return entity;
         } catch (RecordNotFoundException e) {
           return null;
         }
       }
 
-      var doc = new EntityImpl();
-      doc.fromJSON(iThis.toString());
-      return doc;
+      var entity = new EntityImpl();
+      entity.fromJSON(iThis.toString());
+      return entity;
     }
 
     return null;

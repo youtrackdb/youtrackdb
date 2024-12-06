@@ -30,8 +30,8 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
  */
 public class SequenceOrdered extends Sequence {
 
-  public SequenceOrdered(final EntityImpl document) {
-    super(document);
+  public SequenceOrdered(final EntityImpl entity) {
+    super(entity);
   }
 
   public SequenceOrdered(Sequence.CreateParams params, String name) {
@@ -41,40 +41,40 @@ public class SequenceOrdered extends Sequence {
   @Override
   public long nextWork() throws SequenceLimitReachedException {
     return callRetry(
-        (db, doc) -> {
+        (db, entity) -> {
           long newValue;
-          Long limitValue = getLimitValue(doc);
-          var increment = getIncrement(doc);
+          Long limitValue = getLimitValue(entity);
+          var increment = getIncrement(entity);
 
-          if (getOrderType(doc) == SequenceOrderType.ORDER_POSITIVE) {
-            newValue = getValue(doc) + increment;
+          if (getOrderType(entity) == SequenceOrderType.ORDER_POSITIVE) {
+            newValue = getValue(entity) + increment;
             if (limitValue != null && newValue > limitValue) {
-              if (getRecyclable(doc)) {
-                newValue = getStart(doc);
+              if (getRecyclable(entity)) {
+                newValue = getStart(entity);
               } else {
                 throw new SequenceLimitReachedException("Limit reached");
               }
             }
           } else {
-            newValue = getValue(doc) - increment;
+            newValue = getValue(entity) - increment;
             if (limitValue != null && newValue < limitValue) {
-              if (getRecyclable(doc)) {
-                newValue = getStart(doc);
+              if (getRecyclable(entity)) {
+                newValue = getStart(entity);
               } else {
                 throw new SequenceLimitReachedException("Limit reached");
               }
             }
           }
 
-          setValue(doc, newValue);
-          if (limitValue != null && !getRecyclable(doc)) {
+          setValue(entity, newValue);
+          if (limitValue != null && !getRecyclable(entity)) {
             float tillEnd = (float) Math.abs(limitValue - newValue) / increment;
-            float delta = (float) Math.abs(limitValue - getStart(doc)) / increment;
+            float delta = (float) Math.abs(limitValue - getStart(entity)) / increment;
             // warning on 1%
             if (tillEnd <= (delta / 100.f) || tillEnd <= 1) {
               String warningMessage =
                   "Non-recyclable sequence: "
-                      + getSequenceName(doc)
+                      + getSequenceName(entity)
                       + " reaching limt, current value: "
                       + newValue
                       + " limit value: "
@@ -92,15 +92,15 @@ public class SequenceOrdered extends Sequence {
 
   @Override
   protected long currentWork() {
-    return callRetry((db, doc) -> getValue(doc), "current");
+    return callRetry((db, entity) -> getValue(entity), "current");
   }
 
   @Override
   public long resetWork() {
     return callRetry(
-        (db, doc) -> {
-          long newValue = getStart(doc);
-          setValue(doc, newValue);
+        (db, entity) -> {
+          long newValue = getStart(entity);
+          setValue(entity, newValue);
           return newValue;
         },
         "reset");

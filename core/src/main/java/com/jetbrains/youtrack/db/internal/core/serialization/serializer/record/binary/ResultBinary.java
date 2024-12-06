@@ -37,7 +37,7 @@ import javax.annotation.Nullable;
  */
 public class ResultBinary implements Result {
 
-  private final DocumentSerializer serializer;
+  private final EntitySerializer serializer;
   @Nullable
   private final RecordId id;
   private final byte[] bytes;
@@ -52,7 +52,7 @@ public class ResultBinary implements Result {
       byte[] bytes,
       int offset,
       int fieldLength,
-      DocumentSerializer serializer) {
+      EntitySerializer serializer) {
     this.schema = schema;
     this.id = null;
     this.bytes = bytes;
@@ -68,7 +68,7 @@ public class ResultBinary implements Result {
       byte[] bytes,
       int offset,
       int fieldLength,
-      DocumentSerializer serializer,
+      EntitySerializer serializer,
       @Nullable RecordId id) {
     schema = db.getMetadata().getImmutableSchemaSnapshot();
     this.id = id;
@@ -202,11 +202,11 @@ public class ResultBinary implements Result {
   }
 
   private EntityImpl toDocument() {
-    EntityImpl doc = new EntityImpl();
+    EntityImpl entity = new EntityImpl();
     BytesContainer bytes = new BytesContainer(this.bytes);
     bytes.skip(offset);
 
-    serializer.deserialize(db, doc, bytes);
-    return doc;
+    serializer.deserialize(db, entity, bytes);
+    return entity;
   }
 }

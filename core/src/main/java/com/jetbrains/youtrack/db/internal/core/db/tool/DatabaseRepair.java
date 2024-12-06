@@ -60,22 +60,22 @@ public class DatabaseRepair extends DatabaseTool {
 
   protected long removeBrokenLinks() {
     long fixedLinks = 0L;
-    long modifiedDocuments = 0L;
+    long modifiedEntities = 0L;
     long errors = 0L;
 
     message("\n- Removing broken links...");
     for (String clusterName : database.getClusterNames()) {
       for (Record rec : database.browseCluster(clusterName)) {
         try {
-          if (rec instanceof EntityImpl doc) {
+          if (rec instanceof EntityImpl entity) {
             boolean changed = false;
 
-            for (String fieldName : doc.fieldNames()) {
-              final Object fieldValue = doc.rawField(fieldName);
+            for (String fieldName : entity.fieldNames()) {
+              final Object fieldValue = entity.rawField(fieldName);
 
               if (fieldValue instanceof Identifiable) {
                 if (fixLink(fieldValue)) {
-                  doc.field(fieldName, (Identifiable) null);
+                  entity.field(fieldName, (Identifiable) null);
                   fixedLinks++;
                   changed = true;
                   if (verbose) {
@@ -85,7 +85,7 @@ public class DatabaseRepair extends DatabaseTool {
                             + " in field '"
                             + fieldName
                             + "' (rid="
-                            + doc.getIdentity()
+                            + entity.getIdentity()
                             + ")");
                   }
                 }
@@ -106,7 +106,7 @@ public class DatabaseRepair extends DatabaseTool {
                               + " in collection of field '"
                               + fieldName
                               + "' (rid="
-                              + doc.getIdentity()
+                              + entity.getIdentity()
                               + ")");
                     }
                   }
@@ -115,11 +115,11 @@ public class DatabaseRepair extends DatabaseTool {
             }
 
             if (changed) {
-              modifiedDocuments++;
-              doc.save();
+              modifiedEntities++;
+              entity.save();
 
               if (verbose) {
-                message("\n-- updated document " + doc.getIdentity());
+                message("\n-- updated entity " + entity.getIdentity());
               }
             }
           }
@@ -129,7 +129,7 @@ public class DatabaseRepair extends DatabaseTool {
       }
     }
 
-    message("\n-- Done! Fixed links: " + fixedLinks + ", modified documents: " + modifiedDocuments);
+    message("\n-- Done! Fixed links: " + fixedLinks + ", modified entities: " + modifiedEntities);
     return errors;
   }
 

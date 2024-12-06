@@ -144,14 +144,14 @@ public class IndexFullText extends IndexMultiValues {
 
   @Override
   public EntityImpl updateConfiguration(DatabaseSessionInternal session) {
-    EntityImpl document = super.updateConfiguration(session);
-    document.field(CONFIG_SEPARATOR_CHARS, separatorChars);
-    document.field(CONFIG_IGNORE_CHARS, ignoreChars);
-    document.field(CONFIG_STOP_WORDS, stopWords);
-    document.field(CONFIG_MIN_WORD_LEN, minWordLength);
-    document.field(CONFIG_INDEX_RADIX, indexRadix);
+    EntityImpl entity = super.updateConfiguration(session);
+    entity.field(CONFIG_SEPARATOR_CHARS, separatorChars);
+    entity.field(CONFIG_IGNORE_CHARS, ignoreChars);
+    entity.field(CONFIG_STOP_WORDS, stopWords);
+    entity.field(CONFIG_MIN_WORD_LEN, minWordLength);
+    entity.field(CONFIG_INDEX_RADIX, indexRadix);
 
-    return document;
+    return entity;
   }
 
   public boolean canBeUsedInEqualityOperators() {
@@ -202,7 +202,7 @@ public class IndexFullText extends IndexMultiValues {
     StringSerializerHelper.split(words, iKey, 0, -1, separatorChars);
 
     final StringBuilder buffer = new StringBuilder(64);
-    // FOREACH WORD CREATE THE LINK TO THE CURRENT DOCUMENT
+    // FOREACH WORD CREATE THE LINK TO THE CURRENT ENTITY
 
     char c;
     boolean ignore;

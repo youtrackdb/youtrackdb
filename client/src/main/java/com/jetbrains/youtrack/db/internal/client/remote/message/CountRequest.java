@@ -72,7 +72,7 @@ public final class CountRequest implements BinaryRequest<CountResponse> {
 
   @Override
   public String getDescription() {
-    return "Count cluster elements";
+    return "Count cluster entities";
   }
 
   public int[] getClusterIds() {

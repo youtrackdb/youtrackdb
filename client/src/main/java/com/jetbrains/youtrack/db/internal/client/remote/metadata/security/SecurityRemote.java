@@ -21,7 +21,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUserIml
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +44,7 @@ public class SecurityRemote implements SecurityInternal {
   @Override
   public Identifiable allowRole(
       final DatabaseSession session,
-      final EntityImpl iDocument,
+      final EntityImpl entity,
       final RestrictedOperation iOperation,
       final String iRoleName) {
     final RID role = getRoleRID(session, iRoleName);
@@ -52,13 +52,13 @@ public class SecurityRemote implements SecurityInternal {
       throw new IllegalArgumentException("Role '" + iRoleName + "' not found");
     }
 
-    return allowIdentity(session, iDocument, iOperation.getFieldName(), role);
+    return allowIdentity(session, entity, iOperation.getFieldName(), role);
   }
 
   @Override
   public Identifiable allowUser(
       final DatabaseSession session,
-      final EntityImpl iDocument,
+      final EntityImpl entity,
       final RestrictedOperation iOperation,
       final String iUserName) {
     final RID user = getUserRID(session, iUserName);
@@ -66,13 +66,13 @@ public class SecurityRemote implements SecurityInternal {
       throw new IllegalArgumentException("User '" + iUserName + "' not found");
     }
 
-    return allowIdentity(session, iDocument, iOperation.getFieldName(), user);
+    return allowIdentity(session, entity, iOperation.getFieldName(), user);
   }
 
   @Override
   public Identifiable denyUser(
       final DatabaseSessionInternal session,
-      final EntityImpl iDocument,
+      final EntityImpl entity,
       final RestrictedOperation iOperation,
       final String iUserName) {
     final RID user = getUserRID(session, iUserName);
@@ -80,13 +80,13 @@ public class SecurityRemote implements SecurityInternal {
       throw new IllegalArgumentException("User '" + iUserName + "' not found");
     }
 
-    return disallowIdentity(session, iDocument, iOperation.getFieldName(), user);
+    return disallowIdentity(session, entity, iOperation.getFieldName(), user);
   }
 
   @Override
   public Identifiable denyRole(
       final DatabaseSessionInternal session,
-      final EntityImpl iDocument,
+      final EntityImpl entity,
       final RestrictedOperation iOperation,
       final String iRoleName) {
     final RID role = getRoleRID(session, iRoleName);
@@ -94,17 +94,17 @@ public class SecurityRemote implements SecurityInternal {
       throw new IllegalArgumentException("Role '" + iRoleName + "' not found");
     }
 
-    return disallowIdentity(session, iDocument, iOperation.getFieldName(), role);
+    return disallowIdentity(session, entity, iOperation.getFieldName(), role);
   }
 
   @Override
   public Identifiable allowIdentity(
-      DatabaseSession session, EntityImpl iDocument, String iAllowFieldName,
+      DatabaseSession session, EntityImpl entity, String iAllowFieldName,
       Identifiable iId) {
-    Set<Identifiable> field = iDocument.field(iAllowFieldName);
+    Set<Identifiable> field = entity.field(iAllowFieldName);
     if (field == null) {
-      field = new TrackedSet<>(iDocument);
-      iDocument.field(iAllowFieldName, field);
+      field = new TrackedSet<>(entity);
+      entity.field(iAllowFieldName, field);
     }
     field.add(iId);
 
@@ -140,9 +140,9 @@ public class SecurityRemote implements SecurityInternal {
 
   @Override
   public Identifiable disallowIdentity(
-      DatabaseSessionInternal session, EntityImpl iDocument, String iAllowFieldName,
+      DatabaseSessionInternal session, EntityImpl entity, String iAllowFieldName,
       Identifiable iId) {
-    Set<Identifiable> field = iDocument.field(iAllowFieldName);
+    Set<Identifiable> field = entity.field(iAllowFieldName);
     if (field != null) {
       field.remove(iId);
     }
@@ -234,10 +234,10 @@ public class SecurityRemote implements SecurityInternal {
   }
 
   public Role getRole(final DatabaseSession session, final Identifiable iRole) {
-    final EntityImpl doc = session.load(iRole.getIdentity());
-    SchemaImmutableClass clazz = DocumentInternal.getImmutableSchemaClass(doc);
+    final EntityImpl entity = session.load(iRole.getIdentity());
+    SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
     if (clazz != null && clazz.isOrole()) {
-      return new Role(session, doc);
+      return new Role(session, entity);
     }
 
     return null;
@@ -365,12 +365,12 @@ public class SecurityRemote implements SecurityInternal {
 
   @Override
   public Set<String> getFilteredProperties(DatabaseSessionInternal session,
-      EntityImpl document) {
+      EntityImpl entity) {
     return Collections.emptySet();
   }
 
   @Override
-  public boolean isAllowedWrite(DatabaseSessionInternal session, EntityImpl document,
+  public boolean isAllowedWrite(DatabaseSessionInternal session, EntityImpl entity,
       String propertyName) {
     return true;
   }

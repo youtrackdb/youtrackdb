@@ -66,10 +66,10 @@ public class SQLMethodToJSON extends AbstractSQLMethod {
       return iParams.length == 1 ? record.toJSON(format) : record.toJSON();
     } else if (iThis instanceof Map) {
 
-      final EntityImpl doc = new EntityImpl();
+      final EntityImpl entity = new EntityImpl();
       //noinspection unchecked
-      doc.fromMap((Map<String, Object>) iThis);
-      return iParams.length == 1 ? doc.toJSON(format) : doc.toJSON();
+      entity.fromMap((Map<String, Object>) iThis);
+      return iParams.length == 1 ? entity.toJSON(format) : entity.toJSON();
     } else if (MultiValue.isMultiValue(iThis)) {
       StringBuilder builder = new StringBuilder();
       builder.append("[");

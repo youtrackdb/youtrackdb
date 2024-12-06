@@ -223,11 +223,11 @@ public class SQLFilterCondition {
     return null;
   }
 
-  public Collate getCollate(Identifiable doc) {
+  public Collate getCollate(Identifiable identifiable) {
     if (left instanceof SQLFilterItemField) {
-      return ((SQLFilterItemField) left).getCollate(doc);
+      return ((SQLFilterItemField) left).getCollate(identifiable);
     } else if (right instanceof SQLFilterItemField) {
-      return ((SQLFilterItemField) right).getCollate(doc);
+      return ((SQLFilterItemField) right).getCollate(identifiable);
     }
     return null;
   }

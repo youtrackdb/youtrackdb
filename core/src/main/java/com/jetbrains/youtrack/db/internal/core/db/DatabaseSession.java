@@ -32,9 +32,9 @@ import com.jetbrains.youtrack.db.internal.core.exception.SchemaException;
 import com.jetbrains.youtrack.db.internal.core.exception.TransactionException;
 import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
@@ -318,7 +318,7 @@ public interface DatabaseSession extends AutoCloseable {
     }
 
     throw new DatabaseException(
-        "Record with id " + id + " is not an element, but a " + record.getClass().getSimpleName());
+        "Record with id " + id + " is not an entity, but a " + record.getClass().getSimpleName());
   }
 
   /**

@@ -16,8 +16,8 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableCl
 import com.jetbrains.youtrack.db.internal.core.record.Direction;
 import com.jetbrains.youtrack.db.internal.core.record.Edge;
 import com.jetbrains.youtrack.db.internal.core.record.Vertex;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.jetbrains.youtrack.db.internal.core.storage.impl.local.StorageRecoverEventListener;
 import java.util.Collection;
@@ -525,7 +525,7 @@ public class GraphRepair {
       {
         broken = true;
       } else {
-        final SchemaImmutableClass immutableClass = DocumentInternal.getImmutableSchemaClass(
+        final SchemaImmutableClass immutableClass = EntityInternalUtils.getImmutableSchemaClass(
             record);
         if (immutableClass == null
             || (!immutableClass.isVertexType() && !immutableClass.isEdgeType()))

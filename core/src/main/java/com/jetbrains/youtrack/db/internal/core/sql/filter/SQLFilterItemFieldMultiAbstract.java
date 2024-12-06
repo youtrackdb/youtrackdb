@@ -55,19 +55,19 @@ public abstract class SQLFilterItemFieldMultiAbstract extends SQLFilterItemAbstr
 
   public Object getValue(
       final Identifiable iRecord, Object iCurrentResult, CommandContext iContext) {
-    final EntityImpl doc = ((EntityImpl) iRecord);
+    final EntityImpl entity = ((EntityImpl) iRecord);
 
     if (names.size() == 1) {
       return transformValue(
           iRecord, iContext, DocumentHelper.getIdentifiableValue(iRecord, names.get(0)));
     }
 
-    final String[] fieldNames = doc.fieldNames();
+    final String[] fieldNames = entity.fieldNames();
     final Object[] values = new Object[fieldNames.length];
 
     collates.clear();
     for (int i = 0; i < values.length; ++i) {
-      values[i] = doc.field(fieldNames[i]);
+      values[i] = entity.field(fieldNames[i]);
       collates.add(getCollateForField(clazz, fieldNames[i]));
     }
 

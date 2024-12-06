@@ -13,8 +13,8 @@ import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DirtyManager;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.RecordSerializerNetworkFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -48,7 +48,7 @@ public class MessageHelperTest {
       bags.add(new RecordId(id, 0));
       doc.field("bag", bags);
 
-      DocumentInternal.fillClassNameIfNeeded(doc, "Test");
+      EntityInternalUtils.fillClassNameIfNeeded(doc, "Test");
       RecordInternal.setIdentity(doc, new RecordId(id, 1));
       RecordInternal.setVersion(doc, 1);
 

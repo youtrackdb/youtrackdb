@@ -209,26 +209,26 @@ public class CompositeKey
 
   @Override
   public EntityImpl toDocument() {
-    final EntityImpl document = new EntityImpl();
+    final EntityImpl entity = new EntityImpl();
     for (int i = 0; i < keys.size(); i++) {
-      document.field("key" + i, keys.get(i));
+      entity.field("key" + i, keys.get(i));
     }
 
-    return document;
+    return entity;
   }
 
   @Override
-  public void fromDocument(EntityImpl document) {
-    document.setLazyLoad(false);
+  public void fromDocument(EntityImpl entity) {
+    entity.setLazyLoad(false);
 
-    final String[] fieldNames = document.fieldNames();
+    final String[] fieldNames = entity.fieldNames();
 
     final SortedMap<Integer, Object> keyMap = new TreeMap<>();
 
     for (String fieldName : fieldNames) {
       if (fieldName.startsWith("key")) {
         final String keyIndex = fieldName.substring(3);
-        keyMap.put(Integer.valueOf(keyIndex), document.field(fieldName));
+        keyMap.put(Integer.valueOf(keyIndex), entity.field(fieldName));
       }
     }
 
@@ -236,7 +236,7 @@ public class CompositeKey
     keys.addAll(keyMap.values());
   }
 
-  // Alternative (de)serialization methods that avoid converting the CompositeKey to a document.
+  // Alternative (de)serialization methods that avoid converting the CompositeKey to a entity.
   public void toStream(RecordSerializerNetworkV37 serializer, DataOutput out) throws IOException {
     int l = keys.size();
     out.writeInt(l);

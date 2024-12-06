@@ -9,15 +9,15 @@ import static org.junit.Assert.assertTrue;
 
 import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.CreateDatabaseUtil;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import java.util.HashMap;
@@ -46,7 +46,7 @@ public class DocumentTest extends DbTestBase {
             .setFieldType("string", PropertyType.STRING)
             .setFieldType("binary", PropertyType.BINARY);
     var owner = new EntityImpl();
-    DocumentInternal.addOwner(doc2, owner);
+    EntityInternalUtils.addOwner(doc2, owner);
 
     assertEquals(doc2.<Object>field("integer2"), 123);
     assertEquals(doc2.field("string"), "YouTrackDB");
@@ -394,7 +394,7 @@ public class DocumentTest extends DbTestBase {
     EntityImpl doc = new EntityImpl();
     byte[] bytes = new byte[]{0, 1, 2, 3, 4, 5};
     doc.field("bytes", bytes);
-    DocumentInternal.clearTrackData(doc);
+    EntityInternalUtils.clearTrackData(doc);
     RecordInternal.unsetDirty(doc);
     assertFalse(doc.isDirty());
     assertNull(doc.getOriginalValue("bytes"));

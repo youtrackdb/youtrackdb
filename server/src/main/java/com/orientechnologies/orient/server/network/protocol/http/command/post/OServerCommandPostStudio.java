@@ -26,8 +26,8 @@ import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerStringAbstract;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -299,20 +299,20 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
       final Map<String, String> fields)
       throws IOException {
     if ("edit".equals(operation)) {
-      iRequest.getData().commandInfo = "Studio edit document";
+      iRequest.getData().commandInfo = "Studio edit entity";
 
       if (rid == null) {
         throw new IllegalArgumentException("Record ID not found in request");
       }
 
-      EntityImpl doc = new EntityImpl(className, new RecordId(rid));
+      EntityImpl entity = new EntityImpl(className, new RecordId(rid));
       // BIND ALL CHANGED FIELDS
       for (Entry<String, String> f : fields.entrySet()) {
-        final Object oldValue = doc.rawField(f.getKey());
+        final Object oldValue = entity.rawField(f.getKey());
         String userValue = f.getValue();
 
         if (userValue != null && userValue.equals("undefined")) {
-          doc.removeField(f.getKey());
+          entity.removeField(f.getKey());
         } else {
           Object newValue = RecordSerializerStringAbstract.getTypeValue(db, userValue);
 
@@ -333,11 +333,11 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
             continue;
           }
 
-          doc.field(f.getKey(), newValue);
+          entity.field(f.getKey(), newValue);
         }
       }
 
-      doc.save();
+      entity.save();
       iResponse.send(
           OHttpUtils.STATUS_OK_CODE,
           OHttpUtils.STATUS_OK_DESCRIPTION,
@@ -345,32 +345,32 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
           "Record " + rid + " updated successfully.",
           null);
     } else if ("add".equals(operation)) {
-      iRequest.getData().commandInfo = "Studio create document";
+      iRequest.getData().commandInfo = "Studio create entity";
 
-      final EntityImpl doc = new EntityImpl(className);
+      final EntityImpl entity = new EntityImpl(className);
 
       // BIND ALL CHANGED FIELDS
       for (Entry<String, String> f : fields.entrySet()) {
-        doc.field(f.getKey(), f.getValue());
+        entity.field(f.getKey(), f.getValue());
       }
 
-      doc.save();
+      entity.save();
       iResponse.send(
           201,
           "OK",
           OHttpUtils.CONTENT_TEXT_PLAIN,
-          "Record " + doc.getIdentity() + " updated successfully.",
+          "Record " + entity.getIdentity() + " updated successfully.",
           null);
 
     } else if ("del".equals(operation)) {
-      iRequest.getData().commandInfo = "Studio delete document";
+      iRequest.getData().commandInfo = "Studio delete entity";
 
       if (rid == null) {
         throw new IllegalArgumentException("Record ID not found in request");
       }
 
-      final EntityImpl doc = new RecordId(rid).getRecord();
-      doc.delete();
+      final EntityImpl entity = new RecordId(rid).getRecord();
+      entity.delete();
       iResponse.send(
           OHttpUtils.STATUS_OK_CODE,
           OHttpUtils.STATUS_OK_DESCRIPTION,

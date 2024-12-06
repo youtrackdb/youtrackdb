@@ -133,11 +133,11 @@ public class SQLCreateLinkStatement extends SQLSimpleExecStatement {
       EntityImpl target;
 
       // BROWSE ALL THE RECORDS OF THE SOURCE CLASS
-      for (EntityImpl doc : db.browseClass(documentSourceClass.getName())) {
+      for (EntityImpl entity : db.browseClass(documentSourceClass.getName())) {
         if (breakExec) {
           break;
         }
-        Object value = doc.getProperty(sourceField.getStringValue());
+        Object value = entity.getProperty(sourceField.getStringValue());
 
         if (value != null) {
           if (value instanceof EntityImpl || value instanceof RID) {
@@ -198,22 +198,22 @@ public class SQLCreateLinkStatement extends SQLSimpleExecStatement {
                   target.setProperty(linkName, coll);
                   coll.add((EntityImpl) oldValue);
                 }
-                coll.add(doc);
+                coll.add(entity);
               } else {
                 if (txLinkType != null) {
                   if (txLinkType == PropertyType.LINKSET) {
                     value = new LinkSet(target);
-                    ((Set<Identifiable>) value).add(doc);
+                    ((Set<Identifiable>) value).add(entity);
                   } else if (txLinkType == PropertyType.LINKLIST) {
                     value = new LinkList(target);
-                    ((LinkList) value).add(doc);
+                    ((LinkList) value).add(entity);
                   } else
                   // IGNORE THE TYPE, SET IT AS LINK
                   {
-                    value = doc;
+                    value = entity;
                   }
                 } else {
-                  value = doc;
+                  value = entity;
                 }
 
                 target.setProperty(linkName, value);
@@ -223,8 +223,8 @@ public class SQLCreateLinkStatement extends SQLSimpleExecStatement {
             } else {
 
               // SET THE REFERENCE
-              doc.setProperty(linkName, value);
-              doc.save();
+              entity.setProperty(linkName, value);
+              entity.save();
             }
 
             total[0]++;

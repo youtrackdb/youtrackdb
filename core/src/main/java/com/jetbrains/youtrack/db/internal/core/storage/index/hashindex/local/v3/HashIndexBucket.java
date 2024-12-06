@@ -378,7 +378,7 @@ public final class HashIndexBucket<K, V> extends DurablePage
     @Override
     public HashTable.Entry<K, V> next() {
       if (currentIndex >= size()) {
-        throw new NoSuchElementException("Iterator was reached last element");
+        throw new NoSuchElementException("Iterator was reached last entity");
       }
 
       final HashTable.Entry<K, V> entry = getEntry(currentIndex);

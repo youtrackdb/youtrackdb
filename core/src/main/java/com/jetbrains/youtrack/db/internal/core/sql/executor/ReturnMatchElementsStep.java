@@ -16,11 +16,11 @@ public class ReturnMatchElementsStep extends AbstractUnrollStep {
   }
 
   @Override
-  protected Collection<Result> unroll(Result doc, CommandContext iContext) {
+  protected Collection<Result> unroll(Result res, CommandContext iContext) {
     List<Result> result = new ArrayList<>();
-    for (String s : doc.getPropertyNames()) {
+    for (String s : res.getPropertyNames()) {
       if (!s.startsWith(MatchExecutionPlanner.DEFAULT_ALIAS_PREFIX)) {
-        Object elem = doc.getProperty(s);
+        Object elem = res.getProperty(s);
         if (elem instanceof Identifiable) {
           ResultInternal newelem = new ResultInternal(iContext.getDatabase(),
               (Identifiable) elem);

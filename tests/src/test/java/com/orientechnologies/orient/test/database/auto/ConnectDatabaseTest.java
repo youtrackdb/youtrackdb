@@ -20,8 +20,8 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;

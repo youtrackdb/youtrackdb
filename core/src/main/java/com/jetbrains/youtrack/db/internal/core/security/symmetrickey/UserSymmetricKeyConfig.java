@@ -86,8 +86,8 @@ public class UserSymmetricKeyConfig implements SymmetricKeyConfig {
         && !keystoreKeyAlias.isEmpty();
   }
 
-  public UserSymmetricKeyConfig(final EntityImpl doc) {
-    EntityImpl props = doc.field("properties");
+  public UserSymmetricKeyConfig(final EntityImpl entity) {
+    EntityImpl props = entity.field("properties");
 
     if (props == null) {
       throw new SecurityException("UserSymmetricKeyConfig() OUser properties is null");

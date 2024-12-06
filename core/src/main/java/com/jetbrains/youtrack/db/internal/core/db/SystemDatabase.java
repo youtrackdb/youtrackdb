@@ -118,11 +118,11 @@ public class SystemDatabase {
     }
   }
 
-  public EntityImpl save(final EntityImpl document) {
-    return save(document, null);
+  public EntityImpl save(final EntityImpl entity) {
+    return save(entity, null);
   }
 
-  public EntityImpl save(final EntityImpl document, final String clusterName) {
+  public EntityImpl save(final EntityImpl entity, final String clusterName) {
     final DatabaseSessionInternal currentDB = DatabaseRecordThreadLocal.instance()
         .getIfDefined();
     try {
@@ -130,9 +130,9 @@ public class SystemDatabase {
       final DatabaseSessionInternal db = openSystemDatabase();
       try {
         if (clusterName != null) {
-          return db.save(document, clusterName);
+          return db.save(entity, clusterName);
         } else {
-          return db.save(document);
+          return db.save(entity);
         }
       } finally {
         db.close();

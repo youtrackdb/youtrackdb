@@ -34,14 +34,14 @@ public abstract class SchemaViewImpl extends SchemaClassImpl implements SchemaVi
   }
 
   @Override
-  public void fromStream(EntityImpl document) {
-    super.fromStream(document);
-    String query = document.getProperty("query");
+  public void fromStream(EntityImpl entity) {
+    super.fromStream(entity);
+    String query = entity.getProperty("query");
     this.cfg = new ViewConfig(getName(), query);
-    this.cfg.setUpdatable(Boolean.TRUE.equals(document.getProperty("updatable")));
+    this.cfg.setUpdatable(Boolean.TRUE.equals(entity.getProperty("updatable")));
 
-    if (document.getProperty("indexes") instanceof List) {
-      List<Map<String, Object>> idxData = document.getProperty("indexes");
+    if (entity.getProperty("indexes") instanceof List) {
+      List<Map<String, Object>> idxData = entity.getProperty("indexes");
       for (Map<String, Object> idx : idxData) {
         String type = (String) idx.get("type");
         String engine = (String) idx.get("engine");
@@ -78,26 +78,26 @@ public abstract class SchemaViewImpl extends SchemaClassImpl implements SchemaVi
         }
       }
     }
-    if (document.getProperty("updateIntervalSeconds") instanceof Integer) {
-      cfg.setUpdateIntervalSeconds(document.getProperty("updateIntervalSeconds"));
+    if (entity.getProperty("updateIntervalSeconds") instanceof Integer) {
+      cfg.setUpdateIntervalSeconds(entity.getProperty("updateIntervalSeconds"));
     }
-    if (document.getProperty("updateStrategy") instanceof String) {
-      cfg.setUpdateStrategy(document.getProperty("updateStrategy"));
+    if (entity.getProperty("updateStrategy") instanceof String) {
+      cfg.setUpdateStrategy(entity.getProperty("updateStrategy"));
     }
-    if (document.getProperty("watchClasses") instanceof List) {
-      cfg.setWatchClasses(document.getProperty("watchClasses"));
+    if (entity.getProperty("watchClasses") instanceof List) {
+      cfg.setWatchClasses(entity.getProperty("watchClasses"));
     }
-    if (document.getProperty("originRidField") instanceof String) {
-      cfg.setOriginRidField(document.getProperty("originRidField"));
+    if (entity.getProperty("originRidField") instanceof String) {
+      cfg.setOriginRidField(entity.getProperty("originRidField"));
     }
-    if (document.getProperty("nodes") instanceof List) {
-      cfg.setNodes(document.getProperty("nodes"));
+    if (entity.getProperty("nodes") instanceof List) {
+      cfg.setNodes(entity.getProperty("nodes"));
     }
-    if (document.getProperty("activeIndexNames") instanceof Set) {
-      activeIndexNames = document.getProperty("activeIndexNames");
+    if (entity.getProperty("activeIndexNames") instanceof Set) {
+      activeIndexNames = entity.getProperty("activeIndexNames");
     }
-    if (document.getProperty("lastRefreshTime") != null) {
-      lastRefreshTime = document.getProperty("lastRefreshTime");
+    if (entity.getProperty("lastRefreshTime") != null) {
+      lastRefreshTime = entity.getProperty("lastRefreshTime");
     }
   }
 

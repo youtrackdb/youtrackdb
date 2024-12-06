@@ -289,9 +289,9 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
     Set<String> candidateClasses = new HashSet<>();
 
-    var doc = getBaseDocument();
+    var entity = getBaseDocument();
     for (var prefix : prefixes) {
-      for (String fieldName : doc.calculatePropertyNames()) {
+      for (String fieldName : entity.calculatePropertyNames()) {
         if (fieldName.startsWith(prefix)) {
           if (fieldName.equals(prefix)) {
             candidateClasses.add(EdgeInternal.CLASS_NAME);
@@ -321,20 +321,20 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
     labels = resolveAliases(schema, labels);
     Collection<String> fieldNames = null;
-    var doc = getBaseDocument();
+    var entity = getBaseDocument();
     if (labels != null && labels.length > 0) {
       // EDGE LABELS: CREATE FIELD NAME TABLE (FASTER THAN EXTRACT FIELD NAMES FROM THE DOCUMENT)
       var toLoadFieldNames = getEdgeFieldNames(schema, direction, labels);
 
       if (toLoadFieldNames != null) {
         // EARLY FETCH ALL THE FIELDS THAT MATTERS
-        doc.deserializeFields(toLoadFieldNames.toArray(new String[]{}));
+        entity.deserializeFields(toLoadFieldNames.toArray(new String[]{}));
         fieldNames = toLoadFieldNames;
       }
     }
 
     if (fieldNames == null) {
-      fieldNames = doc.calculatePropertyNames();
+      fieldNames = entity.calculatePropertyNames();
     }
 
     var iterables = new ArrayList<Iterable<Edge>>(fieldNames.size());
@@ -349,7 +349,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
       Object fieldValue;
 
-      fieldValue = doc.getPropertyInternal(fieldName);
+      fieldValue = entity.getPropertyInternal(fieldName);
 
       if (fieldValue != null) {
         if (fieldValue instanceof Identifiable) {
@@ -569,8 +569,8 @@ public interface VertexInternal extends Vertex, EntityInternal {
   @Override
   default RID moveTo(final String className, final String clusterName) {
 
-    final EntityImpl baseDoc = getBaseDocument();
-    var db = baseDoc.getSession();
+    final EntityImpl baseEntity = getBaseDocument();
+    var db = baseEntity.getSession();
     if (!db.getTransaction().isActive()) {
       throw new DatabaseException("This operation is allowed only inside a transaction");
     }
@@ -582,31 +582,31 @@ public interface VertexInternal extends Vertex, EntityInternal {
     final RID oldIdentity = getIdentity().copy();
 
     final Record oldRecord = oldIdentity.getRecord();
-    var doc = baseDoc.copy();
-    RecordInternal.setIdentity(doc, new ChangeableRecordId());
+    var entity = baseEntity.copy();
+    RecordInternal.setIdentity(entity, new ChangeableRecordId());
 
     // DELETE THE OLD RECORD FIRST TO AVOID ISSUES WITH UNIQUE CONSTRAINTS
-    copyRidBags(db, oldRecord, doc);
+    copyRidBags(db, oldRecord, entity);
     detachRidbags(oldRecord);
     db.delete(oldRecord);
 
-    var delegate = new VertexDelegate(doc);
+    var delegate = new VertexDelegate(entity);
     final Iterable<Edge> outEdges = delegate.getEdges(Direction.OUT);
     final Iterable<Edge> inEdges = delegate.getEdges(Direction.IN);
     if (className != null) {
-      doc.setClassName(className);
+      entity.setClassName(className);
     }
 
     // SAVE THE NEW VERTEX
-    doc.setDirty();
+    entity.setDirty();
 
-    RecordInternal.setIdentity(doc, new ChangeableRecordId());
-    db.save(doc, clusterName);
+    RecordInternal.setIdentity(entity, new ChangeableRecordId());
+    db.save(entity, clusterName);
     if (db.getTransaction().getEntryCount() == 2) {
       System.out.println("WTF");
-      db.save(doc, clusterName);
+      db.save(entity, clusterName);
     }
-    final RID newIdentity = doc.getIdentity();
+    final RID newIdentity = entity.getIdentity();
 
     // CONVERT OUT EDGES
     for (Edge oe : outEdges) {
@@ -626,7 +626,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
       // link to itself
       EntityImpl inRecord;
       if (inVLink.equals(oldIdentity)) {
-        inRecord = doc;
+        inRecord = entity;
       } else {
         inRecord = inVLink.getRecord();
       }
@@ -659,7 +659,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
       EntityImpl outRecord;
       if (outVLink.equals(oldIdentity)) {
-        outRecord = doc;
+        outRecord = entity;
       } else {
         outRecord = outVLink.getRecord();
       }
@@ -676,22 +676,22 @@ public interface VertexInternal extends Vertex, EntityInternal {
     }
 
     // FINAL SAVE
-    db.save(doc);
+    db.save(entity);
     return newIdentity;
   }
 
   private static void detachRidbags(Record oldRecord) {
-    EntityImpl oldDoc = (EntityImpl) oldRecord;
-    for (String field : oldDoc.getPropertyNamesInternal()) {
+    EntityImpl oldEntity = (EntityImpl) oldRecord;
+    for (String field : oldEntity.getPropertyNamesInternal()) {
       if (field.equalsIgnoreCase(EdgeInternal.DIRECTION_OUT)
           || field.equalsIgnoreCase(EdgeInternal.DIRECTION_IN)
           || field.startsWith(DIRECTION_OUT_PREFIX)
           || field.startsWith(DIRECTION_IN_PREFIX)
           || field.startsWith("OUT_")
           || field.startsWith("IN_")) {
-        Object val = oldDoc.rawField(field);
+        Object val = oldEntity.rawField(field);
         if (val instanceof RidBag) {
-          oldDoc.removePropertyInternal(field);
+          oldEntity.removePropertyInternal(field);
         }
       }
     }
@@ -713,15 +713,15 @@ public interface VertexInternal extends Vertex, EntityInternal {
 
   private static void copyRidBags(DatabaseSessionInternal db, Record oldRecord,
       EntityImpl newDoc) {
-    EntityImpl oldDoc = (EntityImpl) oldRecord;
-    for (String field : oldDoc.getPropertyNamesInternal()) {
+    EntityImpl oldEntity = (EntityImpl) oldRecord;
+    for (String field : oldEntity.getPropertyNamesInternal()) {
       if (field.equalsIgnoreCase(EdgeInternal.DIRECTION_OUT)
           || field.equalsIgnoreCase(EdgeInternal.DIRECTION_IN)
           || field.startsWith(DIRECTION_OUT_PREFIX)
           || field.startsWith(DIRECTION_IN_PREFIX)
           || field.startsWith("OUT_")
           || field.startsWith("IN_")) {
-        Object val = oldDoc.rawField(field);
+        Object val = oldEntity.rawField(field);
         if (val instanceof RidBag bag) {
           if (!bag.isEmbedded()) {
             RidBag newBag = new RidBag(db);
@@ -867,7 +867,7 @@ public interface VertexInternal extends Vertex, EntityInternal {
     PropertyType outType = fromVertex.fieldType(fieldName);
     Object found = fromVertex.getPropertyInternal(fieldName);
 
-    final SchemaClass linkClass = DocumentInternal.getImmutableSchemaClass(fromVertex);
+    final SchemaClass linkClass = EntityInternalUtils.getImmutableSchemaClass(fromVertex);
     if (linkClass == null) {
       throw new IllegalArgumentException("Class not found in source vertex: " + fromVertex);
     }

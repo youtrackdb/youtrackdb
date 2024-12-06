@@ -61,14 +61,14 @@ public interface FetchContext {
 
   void onBeforeDocument(
       final EntityImpl iRecord,
-      final EntityImpl iDocument,
+      final EntityImpl entity,
       final String iFieldName,
       final Object iUserObject)
       throws FetchException;
 
   void onAfterDocument(
       final EntityImpl iRootRecord,
-      final EntityImpl iDocument,
+      final EntityImpl entity,
       final String iFieldName,
       final Object iUserObject)
       throws FetchException;

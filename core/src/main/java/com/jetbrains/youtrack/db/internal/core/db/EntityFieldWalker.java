@@ -17,26 +17,25 @@
  *
  *
  */
-package com.jetbrains.youtrack.db.internal.core.db.document;
+package com.jetbrains.youtrack.db.internal.core.db;
 
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.IdentifiableMultiValue;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * This class allows to walk through all fields of single document using instance of
+ * This class allows to walk through all fields of single entity using instance of
  * {@link EntityPropertiesVisitor} class.
  *
- * <p>Only current document and embedded documents will be walked. Which means that all embedded
+ * <p>Only current entity and embedded documents will be walked. Which means that all embedded
  * collections will be visited too and all embedded documents which are contained in this
  * collections also will be visited.
  *
@@ -45,7 +44,7 @@ import java.util.Set;
  * will return new value original value will be updated but returned result will not be visited by
  * {@link EntityPropertiesVisitor} instance.
  *
- * <p>If currently processed value is collection or map of embedded documents or embedded document
+ * <p>If currently processed value is collection or map of embedded documents or embedded entity
  * itself then method {@link EntityPropertiesVisitor#goDeeper(PropertyType, PropertyType, Object)}
  * is called, if it returns false then this collection will not be visited by
  * {@link EntityPropertiesVisitor} instance.
@@ -57,44 +56,41 @@ import java.util.Set;
 public class EntityFieldWalker {
 
   public EntityImpl walkDocument(
-      DatabaseSessionInternal session, EntityImpl document, EntityPropertiesVisitor fieldWalker) {
+      DatabaseSessionInternal session, EntityImpl entity, EntityPropertiesVisitor fieldWalker) {
     final Set<EntityImpl> walked = Collections.newSetFromMap(new IdentityHashMap<>());
 
-    EntityImpl doc;
-    if (document.getIdentity().isValid()) {
-      doc = session.bindToSession(document);
-    } else {
-      doc = document;
+    if (entity.getIdentity().isValid()) {
+      entity = session.bindToSession(entity);
     }
 
-    walkDocument(session, doc, fieldWalker, walked);
+    walkDocument(session, entity, fieldWalker, walked);
     walked.clear();
-    return doc;
+    return entity;
   }
 
   private void walkDocument(
       DatabaseSessionInternal session,
-      EntityImpl document,
+      EntityImpl entity,
       EntityPropertiesVisitor fieldWalker,
       Set<EntityImpl> walked) {
-    if (document.isUnloaded()) {
-      throw new IllegalStateException("Document is unloaded");
+    if (entity.isUnloaded()) {
+      throw new IllegalStateException("Entity is unloaded");
     }
 
-    if (walked.contains(document)) {
+    if (walked.contains(entity)) {
       return;
     }
 
-    walked.add(document);
-    boolean oldLazyLoad = document.isLazyLoad();
-    document.setLazyLoad(false);
+    walked.add(entity);
+    boolean oldLazyLoad = entity.isLazyLoad();
+    entity.setLazyLoad(false);
 
     final boolean updateMode = fieldWalker.updateMode();
 
-    final SchemaClass clazz = DocumentInternal.getImmutableSchemaClass(document);
-    for (String fieldName : document.fieldNames()) {
+    final SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
+    for (String fieldName : entity.fieldNames()) {
 
-      final PropertyType concreteType = document.fieldType(fieldName);
+      final PropertyType concreteType = entity.fieldType(fieldName);
       PropertyType fieldType = concreteType;
 
       PropertyType linkedType = null;
@@ -106,13 +102,13 @@ public class EntityFieldWalker {
         }
       }
 
-      Object fieldValue = document.field(fieldName, fieldType);
+      Object fieldValue = entity.field(fieldName, fieldType);
       Object newValue = fieldWalker.visitField(session, fieldType, linkedType, fieldValue);
 
       boolean updated;
       if (updateMode) {
         updated =
-            updateFieldValueIfChanged(document, fieldName, fieldValue, newValue, concreteType);
+            updateFieldValueIfChanged(entity, fieldName, fieldValue, newValue, concreteType);
       } else {
         updated = false;
       }
@@ -120,7 +116,7 @@ public class EntityFieldWalker {
       // exclude cases when:
       // 1. value was updated.
       // 2. we use link types.
-      // 3. document is not not embedded.
+      // 3. entity is not not embedded.
       if (!updated
           && fieldValue != null
           && !(PropertyType.LINK.equals(fieldType)
@@ -131,13 +127,13 @@ public class EntityFieldWalker {
         if (fieldWalker.goDeeper(fieldType, linkedType, fieldValue)) {
           if (fieldValue instanceof Map) {
             walkMap(session, (Map) fieldValue, fieldType, fieldWalker, walked);
-          } else if (fieldValue instanceof EntityImpl doc) {
-            if (PropertyType.EMBEDDED.equals(fieldType) || doc.isEmbedded()) {
-              var fdoc = (EntityImpl) fieldValue;
-              if (fdoc.isUnloaded()) {
-                throw new IllegalStateException("Document is unloaded");
+          } else if (fieldValue instanceof EntityImpl e) {
+            if (PropertyType.EMBEDDED.equals(fieldType) || e.isEmbedded()) {
+              var fEntity = (EntityImpl) fieldValue;
+              if (fEntity.isUnloaded()) {
+                throw new IllegalStateException("Entity is unloaded");
               }
-              walkDocument(session, fdoc, fieldWalker);
+              walkDocument(session, fEntity, fieldWalker);
             }
           } else if (MultiValue.isIterable(fieldValue)) {
             walkIterable(
@@ -152,12 +148,12 @@ public class EntityFieldWalker {
       }
 
       if (!fieldWalker.goFurther(fieldType, linkedType, fieldValue, newValue)) {
-        document.setLazyLoad(oldLazyLoad);
+        entity.setLazyLoad(oldLazyLoad);
         return;
       }
     }
 
-    document.setLazyLoad(oldLazyLoad);
+    entity.setLazyLoad(oldLazyLoad);
   }
 
   private void walkMap(
@@ -167,9 +163,9 @@ public class EntityFieldWalker {
       EntityPropertiesVisitor fieldWalker,
       Set<EntityImpl> walked) {
     for (Object value : map.values()) {
-      if (value instanceof EntityImpl doc) {
+      if (value instanceof EntityImpl entity) {
         // only embedded documents are walked
-        if (PropertyType.EMBEDDEDMAP.equals(fieldType) || doc.isEmbedded()) {
+        if (PropertyType.EMBEDDEDMAP.equals(fieldType) || entity.isEmbedded()) {
           walkDocument(session, (EntityImpl) value, fieldWalker, walked);
         }
       }
@@ -183,11 +179,11 @@ public class EntityFieldWalker {
       EntityPropertiesVisitor fieldWalker,
       Set<EntityImpl> walked) {
     for (Object value : iterable) {
-      if (value instanceof EntityImpl doc) {
+      if (value instanceof EntityImpl entity) {
         // only embedded documents are walked
         if (PropertyType.EMBEDDEDLIST.equals(fieldType)
             || PropertyType.EMBEDDEDSET.equals(fieldType)
-            || doc.isEmbedded()) {
+            || entity.isEmbedded()) {
           walkDocument(session, (EntityImpl) value, fieldWalker, walked);
         }
       }
@@ -195,13 +191,13 @@ public class EntityFieldWalker {
   }
 
   private static boolean updateFieldValueIfChanged(
-      EntityImpl document,
+      EntityImpl entity,
       String fieldName,
       Object fieldValue,
       Object newValue,
       PropertyType concreteType) {
     if (fieldValue != newValue) {
-      document.field(fieldName, newValue, concreteType);
+      entity.field(fieldName, newValue, concreteType);
       return true;
     }
 

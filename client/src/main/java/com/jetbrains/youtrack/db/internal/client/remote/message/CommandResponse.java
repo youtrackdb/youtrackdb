@@ -161,11 +161,11 @@ public final class CommandResponse implements BinaryResponse {
         if (result instanceof EntityWrapper) {
           // RECORD
           channel.writeByte((byte) 'r');
-          final EntityImpl doc = ((EntityWrapper) result).getDocument(session);
+          final EntityImpl entity = ((EntityWrapper) result).getDocument(session);
           if (listener != null) {
-            listener.result(session, doc);
+            listener.result(session, entity);
           }
-          MessageHelper.writeIdentifiable(session, channel, doc, recordSerializer);
+          MessageHelper.writeIdentifiable(session, channel, entity, recordSerializer);
         } else {
           if (!isRecordResultSet) {
             writeSimpleValue(session, channel, listener, result, protocolVersion, recordSerializer);
@@ -256,19 +256,19 @@ public final class CommandResponse implements BinaryResponse {
 
     if (protocolVersion >= ChannelBinaryProtocol.PROTOCOL_VERSION_35) {
       channel.writeByte((byte) 'w');
-      EntityImpl document = new EntityImpl();
-      document.field("result", result);
-      MessageHelper.writeIdentifiable(session, channel, document, recordSerializer);
+      EntityImpl entity = new EntityImpl();
+      entity.field("result", result);
+      MessageHelper.writeIdentifiable(session, channel, entity, recordSerializer);
       if (listener != null) {
-        listener.linkdedBySimpleValue(document);
+        listener.linkdedBySimpleValue(entity);
       }
     } else {
       channel.writeByte((byte) 'a');
       final StringBuilder value = new StringBuilder(64);
       if (listener != null) {
-        EntityImpl document = new EntityImpl();
-        document.field("result", result);
-        listener.linkdedBySimpleValue(document);
+        EntityImpl entity = new EntityImpl();
+        entity.field("result", result);
+        listener.linkdedBySimpleValue(entity);
       }
       RecordSerializerStringAbstract.fieldTypeToString(
           value, PropertyType.getTypeByClass(result.getClass()), result);
@@ -330,9 +330,9 @@ public final class CommandResponse implements BinaryResponse {
       } else {
         result = readSynchResult(network, database, temporaryResults);
         if (live) {
-          final EntityImpl doc = ((List<EntityImpl>) result).get(0);
-          final Integer token = doc.field("token");
-          final Boolean unsubscribe = doc.field("unsubscribe");
+          final EntityImpl entity = ((List<EntityImpl>) result).get(0);
+          final Integer token = entity.field("token");
+          final Boolean unsubscribe = entity.field("unsubscribe");
           if (token != null) {
             //
             //            StorageRemote storage = (StorageRemote) database.getStorage();

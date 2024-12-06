@@ -47,12 +47,12 @@ public class SQLMethodValues extends AbstractSQLMethod {
     if (ioResult instanceof Map) {
       return ((Map<?, ?>) ioResult).values();
     }
-    if (ioResult instanceof EntityImpl doc) {
-      var propertyNames = doc.getPropertyNames();
+    if (ioResult instanceof EntityImpl entity) {
+      var propertyNames = entity.getPropertyNames();
       var result = new ArrayList<>(propertyNames.size());
 
       for (String propertyName : propertyNames) {
-        result.add(doc.getProperty(propertyName));
+        result.add(entity.getProperty(propertyName));
       }
 
       return result;

@@ -22,7 +22,7 @@ package com.jetbrains.youtrack.db.internal.core.sql.operator;
 import com.jetbrains.youtrack.db.internal.core.command.CommandContext;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.DocumentSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.EntitySerializer;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
 
 /**
@@ -61,7 +61,7 @@ public abstract class QueryOperatorEqualityNotNulls extends QueryOperatorEqualit
       final Object iLeft,
       final Object iRight,
       CommandContext iContext,
-      final DocumentSerializer serializer) {
+      final EntitySerializer serializer) {
     if (iLeft == null || iRight == null) {
       return false;
     }

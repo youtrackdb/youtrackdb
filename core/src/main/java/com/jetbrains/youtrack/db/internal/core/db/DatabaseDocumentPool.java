@@ -17,11 +17,7 @@
  *
  *
  */
-package com.jetbrains.youtrack.db.internal.core.db.document;
-
-import com.jetbrains.youtrack.db.internal.core.db.DatabasePoolBase;
-import com.jetbrains.youtrack.db.internal.core.db.PartitionedDatabasePool;
-import com.jetbrains.youtrack.db.internal.core.db.PartitionedDatabasePoolFactory;
+package com.jetbrains.youtrack.db.internal.core.db;
 
 /**
  * @deprecated use {@link PartitionedDatabasePool} or

@@ -51,7 +51,7 @@ import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DirtyManager;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.schedule.ScheduledEvent;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.StorageProxy;
@@ -202,7 +202,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
             if (entry.record instanceof EntityImpl) {
               if (iPolymorphic) {
                 if (iClass.isSuperClassOf(
-                    DocumentInternal.getImmutableSchemaClass(((EntityImpl) entry.record)))) {
+                    EntityInternalUtils.getImmutableSchemaClass(((EntityImpl) entry.record)))) {
                   result.add(entry);
                 }
               } else {
@@ -275,7 +275,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
 
     for (Entry<String, FrontendTransactionIndexChanges> indexEntry : indexEntries.entrySet()) {
       final EntityImpl indexDoc = new EntityImpl().setTrackingChanges(false);
-      DocumentInternal.addOwner(indexDoc, result);
+      EntityInternalUtils.addOwner(indexDoc, result);
 
       result.field(indexEntry.getKey(), indexDoc, PropertyType.EMBEDDED);
 
@@ -556,7 +556,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
             }
 
             if (rec instanceof EntityImpl) {
-              DocumentInternal.convertAllMultiValuesToTrackedVersions((EntityImpl) rec);
+              EntityInternalUtils.convertAllMultiValuesToTrackedVersions((EntityImpl) rec);
             }
             if (rec == passedRecord) {
               addRecord(rec, RecordOperation.CREATED, clusterName);
@@ -584,7 +584,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
             }
 
             if (rec instanceof EntityImpl) {
-              DocumentInternal.convertAllMultiValuesToTrackedVersions((EntityImpl) rec);
+              EntityInternalUtils.convertAllMultiValuesToTrackedVersions((EntityImpl) rec);
             }
             if (rec == passedRecord) {
               final byte operation =
@@ -727,7 +727,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
 
         // RESET TRACKING
         if (record instanceof EntityImpl && ((EntityImpl) record).isTrackingChanges()) {
-          DocumentInternal.clearTrackData(((EntityImpl) record));
+          EntityInternalUtils.clearTrackData(((EntityImpl) record));
         }
       } catch (final Exception e) {
         switch (status) {
@@ -804,8 +804,8 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
       var record = txEntry.record;
 
       if (!record.isUnloaded()) {
-        if (record instanceof EntityImpl document) {
-          DocumentInternal.clearTransactionTrackData(document);
+        if (record instanceof EntityImpl entity) {
+          EntityInternalUtils.clearTransactionTrackData(entity);
         }
 
         RecordInternal.unsetDirty(record);
@@ -950,7 +950,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
       for (TransactionIndexEntry e : entry.getEntriesAsList()) {
 
         final EntityImpl changeDoc = new EntityImpl().setAllowChainedAccess(false);
-        DocumentInternal.addOwner(changeDoc, indexDoc);
+        EntityInternalUtils.addOwner(changeDoc, indexDoc);
 
         // SERIALIZE OPERATION
         changeDoc.field("o", e.getOperation().ordinal());
@@ -971,7 +971,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
     }
     EntityImpl res = new EntityImpl();
     res.setTrackingChanges(false);
-    DocumentInternal.addOwner(res, indexDoc);
+    EntityInternalUtils.addOwner(res, indexDoc);
     return res.setAllowChainedAccess(false)
         .field("k", keyContainer, PropertyType.EMBEDDED)
         .field("ops", operations, PropertyType.EMBEDDEDLIST);
@@ -1223,23 +1223,23 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
 
     switch (change.type) {
       case RecordOperation.CREATED: {
-        final EntityImpl doc = (EntityImpl) change.record;
-        LiveQueryHook.addOp(doc, RecordOperation.CREATED, database);
-        LiveQueryHookV2.addOp(database, doc, RecordOperation.CREATED);
-        final SchemaImmutableClass clazz = DocumentInternal.getImmutableSchemaClass(doc);
+        final EntityImpl entity = (EntityImpl) change.record;
+        LiveQueryHook.addOp(entity, RecordOperation.CREATED, database);
+        LiveQueryHookV2.addOp(database, entity, RecordOperation.CREATED);
+        final SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
         if (clazz != null) {
           ClassIndexManager.processIndexOnCreate(database, rec);
           if (clazz.isFunction()) {
-            database.getSharedContext().getFunctionLibrary().createdFunction(doc);
+            database.getSharedContext().getFunctionLibrary().createdFunction(entity);
           }
           if (clazz.isSequence()) {
             ((SequenceLibraryProxy) database.getMetadata().getSequenceLibrary())
                 .getDelegate()
-                .onSequenceCreated(database, doc);
+                .onSequenceCreated(database, entity);
           }
           if (clazz.isScheduler()) {
             database.getMetadata().getScheduler()
-                .scheduleEvent(database, new ScheduledEvent(doc, database));
+                .scheduleEvent(database, new ScheduledEvent(entity, database));
           }
         }
       }
@@ -1249,7 +1249,7 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
         EntityImpl updateDoc = (EntityImpl) updateRecord;
         LiveQueryHook.addOp(updateDoc, RecordOperation.UPDATED, database);
         LiveQueryHookV2.addOp(database, updateDoc, RecordOperation.UPDATED);
-        final SchemaImmutableClass clazz = DocumentInternal.getImmutableSchemaClass(updateDoc);
+        final SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(updateDoc);
         if (clazz != null) {
           ClassIndexManager.processIndexOnUpdate(database, updateDoc);
           if (clazz.isFunction()) {
@@ -1259,12 +1259,12 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
       }
       break;
       case RecordOperation.DELETED: {
-        final EntityImpl doc = (EntityImpl) change.record;
-        final SchemaImmutableClass clazz = DocumentInternal.getImmutableSchemaClass(doc);
+        final EntityImpl entity = (EntityImpl) change.record;
+        final SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
         if (clazz != null) {
           ClassIndexManager.processIndexOnDelete(database, rec);
           if (clazz.isFunction()) {
-            database.getSharedContext().getFunctionLibrary().droppedFunction(doc);
+            database.getSharedContext().getFunctionLibrary().droppedFunction(entity);
             database
                 .getSharedContext()
                 .getYouTrackDB()
@@ -1274,15 +1274,15 @@ public class TransactionOptimistic extends FrontendTransactionAbstract implement
           if (clazz.isSequence()) {
             ((SequenceLibraryProxy) database.getMetadata().getSequenceLibrary())
                 .getDelegate()
-                .onSequenceDropped(database, doc);
+                .onSequenceDropped(database, entity);
           }
           if (clazz.isScheduler()) {
-            final String eventName = doc.field(ScheduledEvent.PROP_NAME);
+            final String eventName = entity.field(ScheduledEvent.PROP_NAME);
             database.getSharedContext().getScheduler().removeEventInternal(eventName);
           }
         }
-        LiveQueryHook.addOp(doc, RecordOperation.DELETED, database);
-        LiveQueryHookV2.addOp(database, doc, RecordOperation.DELETED);
+        LiveQueryHook.addOp(entity, RecordOperation.DELETED, database);
+        LiveQueryHookV2.addOp(database, entity, RecordOperation.DELETED);
       }
       break;
       default:

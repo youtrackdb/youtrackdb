@@ -7,7 +7,7 @@ import com.jetbrains.youtrack.db.internal.core.exception.CommandExecutionExcepti
 import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.VertexInternal;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.resultset.ExecutionStream;
 import java.util.Collection;
@@ -104,7 +104,7 @@ public class UpdateEdgePointersStep extends AbstractExecutionStep {
     }
     try {
       EntityImpl record = ((Identifiable) iRecord).getRecord();
-      return (!DocumentInternal.getImmutableSchemaClass(record)
+      return (!EntityInternalUtils.getImmutableSchemaClass(record)
           .isSubClassOf(SchemaClass.VERTEX_CLASS_NAME));
     } catch (RecordNotFoundException rnf) {
       return true;

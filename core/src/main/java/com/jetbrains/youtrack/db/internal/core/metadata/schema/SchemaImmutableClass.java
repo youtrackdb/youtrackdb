@@ -373,8 +373,8 @@ public class SchemaImmutableClass implements SchemaClass {
   }
 
   @Override
-  public int getClusterForNewInstance(final EntityImpl doc) {
-    return clusterSelection.getCluster(this, doc);
+  public int getClusterForNewInstance(final EntityImpl entity) {
+    return clusterSelection.getCluster(this, entity);
   }
 
   @Override

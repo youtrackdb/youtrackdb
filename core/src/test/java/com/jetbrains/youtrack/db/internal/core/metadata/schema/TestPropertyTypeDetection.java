@@ -17,7 +17,7 @@ import com.jetbrains.youtrack.db.internal.core.id.ChangeableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.DocumentSerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import java.io.Serializable;
@@ -223,7 +223,7 @@ public class TestPropertyTypeDetection extends DbTestBase {
     assertEquals(PropertyType.LINKSET, PropertyType.getTypeByValue(linkSet2));
 
     EntityImpl document = new EntityImpl();
-    DocumentInternal.addOwner(document, new EntityImpl());
+    EntityInternalUtils.addOwner(document, new EntityImpl());
     assertEquals(PropertyType.EMBEDDED, PropertyType.getTypeByValue(document));
   }
 

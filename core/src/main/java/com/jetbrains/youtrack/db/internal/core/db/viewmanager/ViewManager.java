@@ -9,7 +9,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.LiveQueryResultListener;
 import com.jetbrains.youtrack.db.internal.core.db.ScenarioThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseSessionEmbedded;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionEmbedded;
 import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
@@ -534,15 +534,6 @@ public class ViewManager {
       return;
     }
     item.decrementAndGet();
-  }
-
-  public void recordAdded(
-      SchemaImmutableClass clazz, EntityImpl doc,
-      DatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
-    if (viewsExist) {
-      lastChangePerClass.put(
-          clazz.getName().toLowerCase(Locale.ENGLISH), System.currentTimeMillis());
-    }
   }
 
   public void recordUpdated(

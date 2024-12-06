@@ -128,9 +128,9 @@ public class RemoteTreeRidBag implements RidBagDelegate {
   public void setOwner(RecordElement owner) {
     if (owner != null && this.owner != null && !this.owner.equals(owner)) {
       throw new IllegalStateException(
-          "This data structure is owned by document "
+          "This data structure is owned by entity "
               + owner
-              + " if you want to use it in other document create new rid bag instance and copy"
+              + " if you want to use it in other entity create new rid bag instance and copy"
               + " content of current one.");
     }
     this.owner = owner;
@@ -155,9 +155,9 @@ public class RemoteTreeRidBag implements RidBagDelegate {
     DatabaseSessionInternal database = DatabaseRecordThreadLocal.instance().get();
     List<Identifiable> set;
     try (ResultSet result =
-        database.query("select list(@this.field(?)) as elements from ?", fieldName, ownerRecord)) {
+        database.query("select list(@this.field(?)) as entities from ?", fieldName, ownerRecord)) {
       if (result.hasNext()) {
-        set = (result.next().getProperty("elements"));
+        set = (result.next().getProperty("entities"));
       } else {
         set = ((List<Identifiable>) (List) Collections.emptyList());
       }
@@ -347,7 +347,7 @@ public class RemoteTreeRidBag implements RidBagDelegate {
     }
   }
 
-  public void disableTracking(RecordElement document) {
+  public void disableTracking(RecordElement entity) {
     if (tracker.isEnabled()) {
       this.tracker.disable();
       this.dirty = false;

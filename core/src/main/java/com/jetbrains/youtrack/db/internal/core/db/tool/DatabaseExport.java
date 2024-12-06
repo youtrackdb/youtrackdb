@@ -35,8 +35,8 @@ import com.jetbrains.youtrack.db.internal.core.index.RuntimeKeyIndexDefinition;
 import com.jetbrains.youtrack.db.internal.core.iterator.RecordIteratorCluster;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
@@ -194,11 +194,11 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
 
           while (it.hasNext()) {
             rec = (RecordAbstract) it.next();
-            if (rec instanceof EntityImpl doc) {
+            if (rec instanceof EntityImpl entity) {
               // CHECK IF THE CLASS OF THE DOCUMENT IS INCLUDED
               final String className =
-                  doc.getClassName() != null
-                      ? doc.getClassName().toUpperCase(Locale.ENGLISH)
+                  entity.getClassName() != null
+                      ? entity.getClassName().toUpperCase(Locale.ENGLISH)
                       : null;
             }
 
@@ -425,10 +425,10 @@ public class DatabaseExport extends DatabaseImpExpAbstract {
 
       final var metadata = index.getMetadata();
       if (metadata != null) {
-        var doc = new EntityImpl();
-        doc.fromMap(metadata);
+        var entity = new EntityImpl();
+        entity.fromMap(metadata);
 
-        writer.writeAttribute(4, true, "metadata", doc);
+        writer.writeAttribute(4, true, "metadata", entity);
       }
 
       final EntityImpl configuration = index.getConfiguration(database);

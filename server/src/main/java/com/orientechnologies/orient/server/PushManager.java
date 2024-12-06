@@ -1,13 +1,5 @@
 package com.orientechnologies.orient.server;
 
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.internal.common.thread.ThreadPoolExecutors;
-import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.MetadataUpdateListener;
-import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
-import com.jetbrains.youtrack.db.internal.core.index.IndexManagerShared;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.BinaryPushResponse;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushDistributedConfigurationRequest;
@@ -16,6 +8,14 @@ import com.jetbrains.youtrack.db.internal.client.remote.message.PushIndexManager
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSchemaRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushSequencesRequest;
 import com.jetbrains.youtrack.db.internal.client.remote.message.PushStorageConfigurationRequest;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.common.thread.ThreadPoolExecutors;
+import com.jetbrains.youtrack.db.internal.core.config.StorageConfiguration;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.MetadataUpdateListener;
+import com.jetbrains.youtrack.db.internal.core.index.IndexManagerAbstract;
+import com.jetbrains.youtrack.db.internal.core.index.IndexManagerShared;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.orientechnologies.orient.server.network.protocol.binary.NetworkProtocolBinary;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -136,18 +136,18 @@ public class PushManager implements MetadataUpdateListener {
   @Override
   public void onSchemaUpdate(DatabaseSessionInternal session, String database,
       SchemaShared schema) {
-    var document = schema.toNetworkStream();
-    document.setup(null);
-    PushSchemaRequest request = new PushSchemaRequest(document);
+    var entity = schema.toNetworkStream();
+    entity.setup(null);
+    PushSchemaRequest request = new PushSchemaRequest(entity);
     this.schema.send(session, database, request, this);
   }
 
   @Override
   public void onIndexManagerUpdate(DatabaseSessionInternal session, String database,
       IndexManagerAbstract indexManager) {
-    var document = ((IndexManagerShared) indexManager).toNetworkStream(session);
-    document.setup(null);
-    PushIndexManagerRequest request = new PushIndexManagerRequest(document);
+    var entity = ((IndexManagerShared) indexManager).toNetworkStream(session);
+    entity.setup(null);
+    PushIndexManagerRequest request = new PushIndexManagerRequest(entity);
     this.indexManager.send(session, database, request, this);
   }
 

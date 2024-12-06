@@ -64,7 +64,7 @@ public class StringSerializerEmbedded implements StringSerializer {
       LogManager.instance()
           .debug(
               this,
-              "Class name provided in embedded document " + className + " does not exist.",
+              "Class name provided in embedded entity " + className + " does not exist.",
               e);
     }
 

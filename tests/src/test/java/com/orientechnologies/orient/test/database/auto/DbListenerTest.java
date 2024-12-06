@@ -22,8 +22,8 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
-import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
 import com.jetbrains.youtrack.db.internal.core.hook.DocumentHookAbstract;
+import com.jetbrains.youtrack.db.internal.core.hook.RecordHook;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -69,10 +69,10 @@ public class DbListenerTest extends DocumentDBBaseTest {
             }
 
             @Override
-            public void onRecordAfterUpdate(EntityImpl iDocument) {
+            public void onRecordAfterUpdate(EntityImpl entity) {
               List<String> changedFields = new ArrayList<>();
-              Collections.addAll(changedFields, iDocument.getDirtyFields());
-              changes.put(iDocument, changedFields);
+              Collections.addAll(changedFields, entity.getDirtyFields());
+              changes.put(entity, changedFields);
             }
           });
     }

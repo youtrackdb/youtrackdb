@@ -360,7 +360,7 @@ public class SQLArrayRangeSelector extends SimpleNode {
     }
     if (from == null || to == null) {
       throw new CommandExecutionException(
-          "Invalid range expression: " + this + " one of the elements is null");
+          "Invalid range expression: " + this + " one of the entities is null");
     }
     if (included) {
       to++;
@@ -396,7 +396,7 @@ public class SQLArrayRangeSelector extends SimpleNode {
       }
     } else {
       throw new CommandExecutionException(
-          "Trying to remove elements from "
+          "Trying to remove entities from "
               + currentValue
               + " ("
               + currentValue.getClass().getSimpleName()

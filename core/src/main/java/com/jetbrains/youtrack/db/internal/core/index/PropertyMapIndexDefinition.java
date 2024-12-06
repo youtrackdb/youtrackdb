@@ -66,8 +66,8 @@ public class PropertyMapIndexDefinition extends PropertyIndexDefinition
   }
 
   @Override
-  public Object getDocumentValueToIndex(DatabaseSessionInternal session, EntityImpl iDocument) {
-    return createValue(session, iDocument.<Object>field(field));
+  public Object getDocumentValueToIndex(DatabaseSessionInternal session, EntityImpl entity) {
+    return createValue(session, entity.<Object>field(field));
   }
 
   @Override
@@ -109,15 +109,15 @@ public class PropertyMapIndexDefinition extends PropertyIndexDefinition
   }
 
   @Override
-  protected void serializeToStream(EntityImpl document) {
-    super.serializeToStream(document);
-    document.setPropertyInternal("mapIndexBy", indexBy.toString());
+  protected void serializeToStream(EntityImpl entity) {
+    super.serializeToStream(entity);
+    entity.setPropertyInternal("mapIndexBy", indexBy.toString());
   }
 
   @Override
-  protected void serializeFromStream(EntityImpl document) {
-    super.serializeFromStream(document);
-    indexBy = INDEX_BY.valueOf(document.field("mapIndexBy"));
+  protected void serializeFromStream(EntityImpl entity) {
+    super.serializeFromStream(entity);
+    indexBy = INDEX_BY.valueOf(entity.field("mapIndexBy"));
   }
 
   private Collection<?> extractMapParams(Map<?, ?> map) {

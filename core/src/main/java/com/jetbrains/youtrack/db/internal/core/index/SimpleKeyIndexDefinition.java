@@ -119,14 +119,14 @@ public class SimpleKeyIndexDefinition extends AbstractIndexDefinition {
   }
 
   @Override
-  public @Nonnull EntityImpl toStream(@Nonnull EntityImpl document) {
-    serializeToStream(document);
-    return document;
+  public @Nonnull EntityImpl toStream(@Nonnull EntityImpl entity) {
+    serializeToStream(entity);
+    return entity;
   }
 
   @Override
-  protected void serializeToStream(EntityImpl document) {
-    super.serializeToStream(document);
+  protected void serializeToStream(EntityImpl entity) {
+    super.serializeToStream(entity);
 
     final List<String> keyTypeNames = new ArrayList<>(keyTypes.length);
 
@@ -134,30 +134,30 @@ public class SimpleKeyIndexDefinition extends AbstractIndexDefinition {
       keyTypeNames.add(keyType.toString());
     }
 
-    document.field("keyTypes", keyTypeNames, PropertyType.EMBEDDEDLIST);
+    entity.field("keyTypes", keyTypeNames, PropertyType.EMBEDDEDLIST);
     if (collate instanceof CompositeCollate) {
       List<String> collatesNames = new ArrayList<>();
       for (Collate curCollate : ((CompositeCollate) this.collate).getCollates()) {
         collatesNames.add(curCollate.getName());
       }
-      document.field("collates", collatesNames, PropertyType.EMBEDDEDLIST);
+      entity.field("collates", collatesNames, PropertyType.EMBEDDEDLIST);
     } else {
-      document.field("collate", collate.getName());
+      entity.field("collate", collate.getName());
     }
 
-    document.field("nullValuesIgnored", isNullValuesIgnored());
+    entity.field("nullValuesIgnored", isNullValuesIgnored());
   }
 
   @Override
-  public void fromStream(@Nonnull EntityImpl document) {
-    serializeFromStream(document);
+  public void fromStream(@Nonnull EntityImpl entity) {
+    serializeFromStream(entity);
   }
 
   @Override
-  protected void serializeFromStream(EntityImpl document) {
-    super.serializeFromStream(document);
+  protected void serializeFromStream(EntityImpl entity) {
+    super.serializeFromStream(entity);
 
-    final List<String> keyTypeNames = document.field("keyTypes");
+    final List<String> keyTypeNames = entity.field("keyTypes");
     keyTypes = new PropertyType[keyTypeNames.size()];
 
     int i = 0;
@@ -165,11 +165,11 @@ public class SimpleKeyIndexDefinition extends AbstractIndexDefinition {
       keyTypes[i] = PropertyType.valueOf(keyTypeName);
       i++;
     }
-    String collate = document.field("collate");
+    String collate = entity.field("collate");
     if (collate != null) {
       setCollate(collate);
     } else {
-      final List<String> collatesNames = document.field("collates");
+      final List<String> collatesNames = entity.field("collates");
       if (collatesNames != null) {
         CompositeCollate collates = new CompositeCollate(this);
         for (String collateName : collatesNames) {
@@ -179,11 +179,11 @@ public class SimpleKeyIndexDefinition extends AbstractIndexDefinition {
       }
     }
 
-    setNullValuesIgnored(!Boolean.FALSE.equals(document.<Boolean>field("nullValuesIgnored")));
+    setNullValuesIgnored(!Boolean.FALSE.equals(entity.<Boolean>field("nullValuesIgnored")));
   }
 
   public Object getDocumentValueToIndex(
-      DatabaseSessionInternal session, final EntityImpl iDocument) {
+      DatabaseSessionInternal session, final EntityImpl entity) {
     throw new IndexException("This method is not supported in given index definition.");
   }
 

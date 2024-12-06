@@ -19,7 +19,7 @@ import com.jetbrains.youtrack.db.internal.core.exception.TransactionException;
 import com.jetbrains.youtrack.db.internal.core.index.ClassIndexManager;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.DocumentSerializerDelta;
 import com.jetbrains.youtrack.db.internal.core.tx.TransactionOptimistic;
 import java.util.ArrayList;
@@ -85,7 +85,7 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
               }
 
               updated.deserializeFields();
-              DocumentInternal.clearTransactionTrackData(updated);
+              EntityInternalUtils.clearTransactionTrackData(updated);
               DocumentSerializerDelta delta = DocumentSerializerDelta.instance();
               delta.deserializeDelta(getDatabase(), operation.getRecord(), updated);
               entry = new RecordOperation(updated, RecordOperation.UPDATED);
@@ -189,7 +189,7 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
         unmarshallRecord(record);
         if (record instanceof EntityImpl) {
           // Force conversion of value to class for trigger default values.
-          DocumentInternal.autoConvertValueToClass(getDatabase(), (EntityImpl) record);
+          EntityInternalUtils.autoConvertValueToClass(getDatabase(), (EntityImpl) record);
         }
       }
       for (Record record : updatedRecords.values()) {
@@ -356,7 +356,7 @@ public class TransactionOptimisticServer extends TransactionOptimistic {
       }
       // RESET TRACKING
       if (record instanceof EntityImpl && ((EntityImpl) record).isTrackingChanges()) {
-        DocumentInternal.clearTrackData(((EntityImpl) record));
+        EntityInternalUtils.clearTrackData(((EntityImpl) record));
       }
 
     } catch (Exception e) {

@@ -9,9 +9,9 @@ import com.jetbrains.youtrack.db.internal.core.db.record.LinkSet;
 import com.jetbrains.youtrack.db.internal.core.db.record.ridbag.RidBag;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DirtyManager;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -101,7 +101,7 @@ public class DirtyManagerTest extends DbTestBase {
     set.add(doc2);
     doc.field("set", set);
 
-    DocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
+    EntityInternalUtils.convertAllMultiValuesToTrackedVersions(doc);
     DirtyManager manager = RecordInternal.getDirtyManager(doc);
     assertEquals(3, manager.getNewRecords().size());
   }
@@ -122,7 +122,7 @@ public class DirtyManagerTest extends DbTestBase {
     doc.field("set", set);
     doc.removeField("set");
 
-    DocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
+    EntityInternalUtils.convertAllMultiValuesToTrackedVersions(doc);
     DirtyManager manager = RecordInternal.getDirtyManager(doc);
     assertEquals(1, manager.getNewRecords().size());
   }
@@ -139,7 +139,7 @@ public class DirtyManagerTest extends DbTestBase {
     EntityImpl doc2 = new EntityImpl();
     set.add(doc2);
     doc.field("set", set);
-    DocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
+    EntityInternalUtils.convertAllMultiValuesToTrackedVersions(doc);
     DirtyManager manager = RecordInternal.getDirtyManager(doc1);
     DirtyManager manager2 = RecordInternal.getDirtyManager(doc2);
     assertTrue(manager2.isSame(manager));
@@ -154,7 +154,7 @@ public class DirtyManagerTest extends DbTestBase {
     EntityImpl doc1 = new EntityImpl();
     map.put("some", doc1);
     doc.field("list", map);
-    DocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
+    EntityInternalUtils.convertAllMultiValuesToTrackedVersions(doc);
     DirtyManager manager = RecordInternal.getDirtyManager(doc1);
     assertEquals(2, manager.getNewRecords().size());
   }
@@ -171,7 +171,7 @@ public class DirtyManagerTest extends DbTestBase {
 
     doc.field("list", map, PropertyType.EMBEDDEDMAP);
 
-    DocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
+    EntityInternalUtils.convertAllMultiValuesToTrackedVersions(doc);
     DirtyManager manager = RecordInternal.getDirtyManager(doc);
     assertEquals(1, manager.getNewRecords().size());
   }
@@ -191,7 +191,7 @@ public class DirtyManagerTest extends DbTestBase {
     set.add(doc2);
     doc.field("set", set, PropertyType.EMBEDDEDSET);
 
-    DocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
+    EntityInternalUtils.convertAllMultiValuesToTrackedVersions(doc);
     DirtyManager manager = RecordInternal.getDirtyManager(doc);
     assertEquals(1, manager.getNewRecords().size());
   }
@@ -204,7 +204,7 @@ public class DirtyManagerTest extends DbTestBase {
     EntityImpl doc1 = new EntityImpl();
     bag.add(doc1);
     doc.field("bag", bag);
-    DocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
+    EntityInternalUtils.convertAllMultiValuesToTrackedVersions(doc);
     DirtyManager manager = RecordInternal.getDirtyManager(doc1);
     assertEquals(2, manager.getNewRecords().size());
   }
@@ -223,7 +223,7 @@ public class DirtyManagerTest extends DbTestBase {
     emb.setProperty("lst", lst, PropertyType.EMBEDDEDLIST);
     EntityImpl link = new EntityImpl();
     embedInList.setProperty("set", link, PropertyType.LINK);
-    DocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
+    EntityInternalUtils.convertAllMultiValuesToTrackedVersions(doc);
     DirtyManager manager = RecordInternal.getDirtyManager(doc);
 
     assertEquals(2, manager.getNewRecords().size());
@@ -243,7 +243,7 @@ public class DirtyManagerTest extends DbTestBase {
     embeddedInSet.setProperty("list", lst, PropertyType.EMBEDDEDLIST);
     set.add(embeddedInSet);
     doc.setProperty("set", set, PropertyType.EMBEDDEDSET);
-    DocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
+    EntityInternalUtils.convertAllMultiValuesToTrackedVersions(doc);
     DirtyManager manager = RecordInternal.getDirtyManager(doc);
     DirtyManager managerNested = RecordInternal.getDirtyManager(embeddedInSet);
     assertTrue(manager.isSame(managerNested));
@@ -262,7 +262,7 @@ public class DirtyManagerTest extends DbTestBase {
     Set<Object> set = new HashSet<Object>();
     set.add(lst);
     doc.setProperty("set", set, PropertyType.EMBEDDEDSET);
-    DocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
+    EntityInternalUtils.convertAllMultiValuesToTrackedVersions(doc);
     DirtyManager manager = RecordInternal.getDirtyManager(doc);
     assertEquals(2, manager.getNewRecords().size());
   }
@@ -281,7 +281,7 @@ public class DirtyManagerTest extends DbTestBase {
     Set<Object> set = new HashSet<Object>();
     set.add(lst);
     doc.setProperty("set", set, PropertyType.EMBEDDEDSET);
-    DocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
+    EntityInternalUtils.convertAllMultiValuesToTrackedVersions(doc);
     DirtyManager manager = RecordInternal.getDirtyManager(doc);
     assertEquals(2, manager.getNewRecords().size());
   }
@@ -298,7 +298,7 @@ public class DirtyManagerTest extends DbTestBase {
     Map<String, Object> map = new HashMap<String, Object>();
     map.put("some", lst);
     doc.setProperty("set", map, PropertyType.EMBEDDEDMAP);
-    DocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
+    EntityInternalUtils.convertAllMultiValuesToTrackedVersions(doc);
     DirtyManager manager = RecordInternal.getDirtyManager(doc);
     assertEquals(2, manager.getNewRecords().size());
   }
@@ -311,7 +311,7 @@ public class DirtyManagerTest extends DbTestBase {
     EntityImpl link = new EntityImpl();
     set.add(link);
     doc.field("set", set);
-    DocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
+    EntityInternalUtils.convertAllMultiValuesToTrackedVersions(doc);
     DirtyManager manager = RecordInternal.getDirtyManager(doc);
     assertEquals(2, manager.getNewRecords().size());
   }
@@ -357,7 +357,7 @@ public class DirtyManagerTest extends DbTestBase {
         };
     doc.field("linkeds", linkeds, PropertyType.LINKLIST);
 
-    DocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
+    EntityInternalUtils.convertAllMultiValuesToTrackedVersions(doc);
     DirtyManager manager = RecordInternal.getDirtyManager(doc);
     assertEquals(4, manager.getNewRecords().size());
   }
@@ -370,7 +370,7 @@ public class DirtyManagerTest extends DbTestBase {
     EntityImpl link = new EntityImpl();
     map.put("bla", link);
     doc.field("map", map, PropertyType.LINKMAP);
-    DocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
+    EntityInternalUtils.convertAllMultiValuesToTrackedVersions(doc);
     DirtyManager manager = RecordInternal.getDirtyManager(doc);
     assertEquals(2, manager.getNewRecords().size());
   }
@@ -390,7 +390,7 @@ public class DirtyManagerTest extends DbTestBase {
 
     doc.field("embeddedMap", embeddedMap, PropertyType.EMBEDDEDMAP);
 
-    DocumentInternal.convertAllMultiValuesToTrackedVersions(doc);
+    EntityInternalUtils.convertAllMultiValuesToTrackedVersions(doc);
     DirtyManager manager = RecordInternal.getDirtyManager(doc);
     assertEquals(2, manager.getNewRecords().size());
   }

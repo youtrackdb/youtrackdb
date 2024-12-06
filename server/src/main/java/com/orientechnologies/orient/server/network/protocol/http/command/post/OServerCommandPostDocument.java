@@ -49,15 +49,15 @@ public class OServerCommandPostDocument extends OServerCommandDocumentAbstract {
       d =
           db.computeInTx(
               () -> {
-                EntityImpl doc = new EntityImpl();
-                doc.fromJSON(iRequest.getContent());
-                RecordInternal.setVersion(doc, 0);
+                EntityImpl entity = new EntityImpl();
+                entity.fromJSON(iRequest.getContent());
+                RecordInternal.setVersion(entity, 0);
 
                 // ASSURE TO MAKE THE RECORD ID INVALID
-                ((RecordId) doc.getIdentity()).setClusterPosition(RID.CLUSTER_POS_INVALID);
+                ((RecordId) entity.getIdentity()).setClusterPosition(RID.CLUSTER_POS_INVALID);
 
-                doc.save();
-                return doc;
+                entity.save();
+                return entity;
               });
 
       d = db.bindToSession(d);

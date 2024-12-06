@@ -668,29 +668,29 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
         final Function f = functionLibrary.getFunction(procedureNamePattern);
 
         for (String p : f.getParameters(database)) {
-          final ResultInternal doc = new ResultInternal(database);
-          doc.setProperty("PROCEDURE_CAT", database.getName());
-          doc.setProperty("PROCEDURE_SCHEM", database.getName());
-          doc.setProperty("PROCEDURE_NAME", f.getName(database));
-          doc.setProperty("COLUMN_NAME", p);
-          doc.setProperty("COLUMN_TYPE", procedureColumnIn);
-          doc.setProperty("DATA_TYPE", java.sql.Types.OTHER);
-          doc.setProperty("SPECIFIC_NAME", f.getName(database));
+          final ResultInternal entity = new ResultInternal(database);
+          entity.setProperty("PROCEDURE_CAT", database.getName());
+          entity.setProperty("PROCEDURE_SCHEM", database.getName());
+          entity.setProperty("PROCEDURE_NAME", f.getName(database));
+          entity.setProperty("COLUMN_NAME", p);
+          entity.setProperty("COLUMN_TYPE", procedureColumnIn);
+          entity.setProperty("DATA_TYPE", java.sql.Types.OTHER);
+          entity.setProperty("SPECIFIC_NAME", f.getName(database));
 
-          resultSet.add(doc);
+          resultSet.add(entity);
         }
 
-        final ResultInternal doc = new ResultInternal(database);
+        final ResultInternal entity = new ResultInternal(database);
 
-        doc.setProperty("PROCEDURE_CAT", database.getName());
-        doc.setProperty("PROCEDURE_SCHEM", database.getName());
-        doc.setProperty("PROCEDURE_NAME", f.getName(database));
-        doc.setProperty("COLUMN_NAME", "return");
-        doc.setProperty("COLUMN_TYPE", procedureColumnReturn);
-        doc.setProperty("DATA_TYPE", java.sql.Types.OTHER);
-        doc.setProperty("SPECIFIC_NAME", f.getName(database));
+        entity.setProperty("PROCEDURE_CAT", database.getName());
+        entity.setProperty("PROCEDURE_SCHEM", database.getName());
+        entity.setProperty("PROCEDURE_NAME", f.getName(database));
+        entity.setProperty("COLUMN_NAME", "return");
+        entity.setProperty("COLUMN_TYPE", procedureColumnReturn);
+        entity.setProperty("DATA_TYPE", java.sql.Types.OTHER);
+        entity.setProperty("SPECIFIC_NAME", f.getName(database));
 
-        resultSet.add(doc);
+        resultSet.add(entity);
       }
     }
 
@@ -727,16 +727,16 @@ public class YouTrackDbJdbcDatabaseMetaData implements DatabaseMetaData {
           || tableNamePattern.equals("%")
           || tableNamePattern.equalsIgnoreCase(className))) {
 
-        ResultInternal doc = new ResultInternal(database);
+        ResultInternal entity = new ResultInternal(database);
 
-        doc.setProperty("TABLE_CAT", database.getName());
-        doc.setProperty("TABLE_SCHEM", database.getName());
-        doc.setProperty("TABLE_NAME", className);
-        doc.setProperty("TABLE_TYPE", type);
-        doc.setProperty("REMARKS", null);
-        doc.setProperty("TYPE_NAME", null);
-        doc.setProperty("REF_GENERATION", null);
-        resultSet.add(doc);
+        entity.setProperty("TABLE_CAT", database.getName());
+        entity.setProperty("TABLE_SCHEM", database.getName());
+        entity.setProperty("TABLE_NAME", className);
+        entity.setProperty("TABLE_TYPE", type);
+        entity.setProperty("REMARKS", null);
+        entity.setProperty("TYPE_NAME", null);
+        entity.setProperty("REF_GENERATION", null);
+        resultSet.add(entity);
       }
     }
 

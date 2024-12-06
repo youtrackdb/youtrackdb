@@ -24,5 +24,5 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 
 public interface IndexCallback {
 
-  Object getDocumentValueToIndex(DatabaseSessionInternal session, EntityImpl iDocument);
+  Object getDocumentValueToIndex(DatabaseSessionInternal session, EntityImpl entity);
 }

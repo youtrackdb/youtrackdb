@@ -23,8 +23,8 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -54,26 +54,26 @@ public class OServerCommandDeleteDocument extends OServerCommandDocumentAbstract
 
       db.executeInTx(
           () -> {
-            final EntityImpl doc = recordId.getRecord();
+            final EntityImpl entity = recordId.getRecord();
 
             // UNMARSHALL DOCUMENT WITH REQUEST CONTENT
             if (iRequest.getContent() != null)
             // GET THE VERSION FROM THE DOCUMENT
             {
-              doc.fromJSON(iRequest.getContent());
+              entity.fromJSON(iRequest.getContent());
             } else {
               if (iRequest.getIfMatch() != null)
               // USE THE IF-MATCH HTTP HEADER AS VERSION
               {
-                RecordInternal.setVersion(doc, Integer.parseInt(iRequest.getIfMatch()));
+                RecordInternal.setVersion(entity, Integer.parseInt(iRequest.getIfMatch()));
               } else
               // IGNORE THE VERSION
               {
-                RecordInternal.setVersion(doc, -1);
+                RecordInternal.setVersion(entity, -1);
               }
             }
 
-            final SchemaClass cls = DocumentInternal.getImmutableSchemaClass(doc);
+            final SchemaClass cls = EntityInternalUtils.getImmutableSchemaClass(entity);
             if (cls != null) {
               if (cls.isSubClassOf("V"))
               // DELETE IT AS VERTEX
@@ -84,10 +84,10 @@ public class OServerCommandDeleteDocument extends OServerCommandDocumentAbstract
               {
                 db.command("DELETE EDGE ?", recordId).close();
               } else {
-                doc.delete();
+                entity.delete();
               }
             } else {
-              doc.delete();
+              entity.delete();
             }
           });
 

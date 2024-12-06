@@ -45,21 +45,21 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Property;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.RecordAbstract;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.Blob;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityEntry;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImplEmbedded;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.RecordFlat;
 import com.jetbrains.youtrack.db.internal.core.serialization.DocumentSerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.RecordSerializer;
 import com.jetbrains.youtrack.db.internal.core.storage.index.sbtreebonsai.local.BonsaiBucketPointer;
+import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.Change;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.ChangeSerializationHelper;
-import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.BonsaiCollectionPointer;
 import com.jetbrains.youtrack.db.internal.core.storage.ridbag.sbtree.SBTreeCollectionManager;
 import com.jetbrains.youtrack.db.internal.core.util.DateHelper;
 import java.io.Serializable;
@@ -91,11 +91,11 @@ public class RecordSerializerNetworkV37 implements RecordSerializer {
   }
 
   public void deserializePartial(
-      DatabaseSessionInternal db, final EntityImpl document, final BytesContainer bytes,
+      DatabaseSessionInternal db, final EntityImpl entity, final BytesContainer bytes,
       final String[] iFields) {
     final String className = readString(bytes);
     if (!className.isEmpty()) {
-      DocumentInternal.fillClassNameIfNeeded(document, className);
+      EntityInternalUtils.fillClassNameIfNeeded(entity, className);
     }
 
     String fieldName;
@@ -110,12 +110,12 @@ public class RecordSerializerNetworkV37 implements RecordSerializer {
       if (type == null) {
         value = null;
       } else {
-        value = deserializeValue(db, bytes, type, document);
+        value = deserializeValue(db, bytes, type, entity);
       }
-      if (DocumentInternal.rawContainsField(document, fieldName)) {
+      if (EntityInternalUtils.rawContainsField(entity, fieldName)) {
         continue;
       }
-      DocumentInternal.rawField(document, fieldName, value, type);
+      EntityInternalUtils.rawField(entity, fieldName, value, type);
 
       for (String field : iFields) {
         if (field.equals(fieldName)) {
@@ -128,11 +128,11 @@ public class RecordSerializerNetworkV37 implements RecordSerializer {
     }
   }
 
-  public void deserialize(DatabaseSessionInternal db, final EntityImpl document,
+  public void deserialize(DatabaseSessionInternal db, final EntityImpl entity,
       final BytesContainer bytes) {
     final String className = readString(bytes);
     if (!className.isEmpty()) {
-      DocumentInternal.fillClassNameIfNeeded(document, className);
+      EntityInternalUtils.fillClassNameIfNeeded(entity, className);
     }
 
     String fieldName;
@@ -146,21 +146,21 @@ public class RecordSerializerNetworkV37 implements RecordSerializer {
       if (type == null) {
         value = null;
       } else {
-        value = deserializeValue(db, bytes, type, document);
+        value = deserializeValue(db, bytes, type, entity);
       }
-      if (DocumentInternal.rawContainsField(document, fieldName)) {
+      if (EntityInternalUtils.rawContainsField(entity, fieldName)) {
         continue;
       }
-      DocumentInternal.rawField(document, fieldName, value, type);
+      EntityInternalUtils.rawField(entity, fieldName, value, type);
     }
 
-    RecordInternal.clearSource(document);
+    RecordInternal.clearSource(entity);
   }
 
-  public void serialize(final EntityImpl document, final BytesContainer bytes) {
-    RecordInternal.checkForBinding(document);
-    serializeClass(document, bytes);
-    final Collection<Entry<String, EntityEntry>> fields = fetchEntries(document);
+  public void serialize(final EntityImpl entity, final BytesContainer bytes) {
+    RecordInternal.checkForBinding(entity);
+    serializeClass(entity, bytes);
+    final Collection<Entry<String, EntityEntry>> fields = fetchEntries(entity);
     VarIntSerializer.write(bytes, fields.size());
     for (Entry<String, EntityEntry> entry : fields) {
       EntityEntry docEntry = entry.getValue();
@@ -175,15 +175,15 @@ public class RecordSerializerNetworkV37 implements RecordSerializer {
                   + " with the Result binary serializer");
         }
         writeOType(bytes, bytes.alloc(1), type);
-        serializeValue(bytes, value, type, getLinkedType(document, type, entry.getKey()));
+        serializeValue(bytes, value, type, getLinkedType(entity, type, entry.getKey()));
       } else {
         writeOType(bytes, bytes.alloc(1), null);
       }
     }
   }
 
-  protected Collection<Entry<String, EntityEntry>> fetchEntries(EntityImpl document) {
-    return DocumentInternal.filteredEntries(document);
+  protected Collection<Entry<String, EntityEntry>> fetchEntries(EntityImpl entity) {
+    return EntityInternalUtils.filteredEntries(entity);
   }
 
   public String[] getFieldNames(DatabaseSessionInternal db, EntityImpl reference,
@@ -209,14 +209,14 @@ public class RecordSerializerNetworkV37 implements RecordSerializer {
     return result.toArray(new String[result.size()]);
   }
 
-  protected SchemaClass serializeClass(final EntityImpl document, final BytesContainer bytes) {
-    final SchemaClass clazz = DocumentInternal.getImmutableSchemaClass(document);
+  protected SchemaClass serializeClass(final EntityImpl entity, final BytesContainer bytes) {
+    final SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
     String name = null;
     if (clazz != null) {
       name = clazz.getName();
     }
     if (name == null) {
-      name = document.getClassName();
+      name = entity.getClassName();
     }
 
     if (name != null) {
@@ -303,7 +303,7 @@ public class RecordSerializerNetworkV37 implements RecordSerializer {
             throw new RuntimeException(e);
           }
         } else {
-          DocumentInternal.addOwner((EntityImpl) value, owner);
+          EntityInternalUtils.addOwner((EntityImpl) value, owner);
         }
 
         break;
@@ -576,12 +576,12 @@ public class RecordSerializerNetworkV37 implements RecordSerializer {
     return found;
   }
 
-  private PropertyType getLinkedType(EntityImpl document, PropertyType type, String key) {
+  private PropertyType getLinkedType(EntityImpl entity, PropertyType type, String key) {
     if (type != PropertyType.EMBEDDEDLIST && type != PropertyType.EMBEDDEDSET
         && type != PropertyType.EMBEDDEDMAP) {
       return null;
     }
-    SchemaClass immutableClass = DocumentInternal.getImmutableSchemaClass(document);
+    SchemaClass immutableClass = EntityInternalUtils.getImmutableSchemaClass(entity);
     if (immutableClass != null) {
       Property prop = immutableClass.getProperty(key);
       if (prop != null) {
@@ -957,9 +957,9 @@ public class RecordSerializerNetworkV37 implements RecordSerializer {
       } else {
         final BytesContainer container = new BytesContainer();
 
-        EntityImpl doc = (EntityImpl) iSource;
+        EntityImpl entity = (EntityImpl) iSource;
         // SERIALIZE RECORD
-        serialize(doc, container);
+        serialize(entity, container);
         return container.fitBytes();
       }
     }

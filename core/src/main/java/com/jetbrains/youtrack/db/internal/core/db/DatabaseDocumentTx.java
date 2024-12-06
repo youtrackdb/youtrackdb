@@ -1,6 +1,6 @@
-package com.jetbrains.youtrack.db.internal.core.db.document;
+package com.jetbrains.youtrack.db.internal.core.db;
 
-import static com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTxInternal.closeAllOnShutdown;
+import static com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTxInternal.closeAllOnShutdown;
 
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBManager;
 import com.jetbrains.youtrack.db.internal.core.cache.LocalRecordCache;
@@ -9,18 +9,6 @@ import com.jetbrains.youtrack.db.internal.core.command.script.CommandScriptExcep
 import com.jetbrains.youtrack.db.internal.core.config.ContextConfiguration;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.conflict.RecordConflictStrategy;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseListener;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
-import com.jetbrains.youtrack.db.internal.core.db.LiveQueryMonitor;
-import com.jetbrains.youtrack.db.internal.core.db.LiveQueryResultListener;
-import com.jetbrains.youtrack.db.internal.core.db.SharedContext;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDB;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilder;
-import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.db.record.CurrentStorageComponentsFactory;
 import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.dictionary.Dictionary;

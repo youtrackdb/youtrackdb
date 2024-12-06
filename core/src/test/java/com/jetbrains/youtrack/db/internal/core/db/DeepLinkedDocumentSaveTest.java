@@ -1,4 +1,4 @@
-package com.jetbrains.youtrack.db.internal.core.db.document;
+package com.jetbrains.youtrack.db.internal.core.db;
 
 import static org.junit.Assert.assertEquals;
 

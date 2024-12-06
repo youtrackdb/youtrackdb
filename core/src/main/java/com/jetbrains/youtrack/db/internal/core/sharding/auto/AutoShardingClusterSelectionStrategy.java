@@ -86,13 +86,13 @@ public class AutoShardingClusterSelectionStrategy implements ClusterSelectionStr
     clusters = clazz.getClusterIds();
   }
 
-  public int getCluster(final SchemaClass iClass, int[] clusters, final EntityImpl doc) {
+  public int getCluster(final SchemaClass iClass, int[] clusters, final EntityImpl entity) {
     // Ignore the subselection.
-    return getCluster(iClass, doc);
+    return getCluster(iClass, entity);
   }
 
-  public int getCluster(final SchemaClass clazz, final EntityImpl doc) {
-    final Object fieldValue = doc.field(indexedFields.get(0));
+  public int getCluster(final SchemaClass clazz, final EntityImpl entity) {
+    final Object fieldValue = entity.field(indexedFields.get(0));
 
     return clusters[
         ((AutoShardingIndexEngine) indexEngine)

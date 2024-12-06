@@ -107,10 +107,10 @@ public class SQLFunctionSymmetricDifference extends SQLFunctionMultiValueAbstrac
   @Override
   public Set<Object> getResult() {
     if (returnDistributedResult()) {
-      final Map<String, Object> doc = new HashMap<String, Object>();
-      doc.put("result", context);
-      doc.put("rejected", rejected);
-      return Collections.singleton(doc);
+      final Map<String, Object> map = new HashMap<String, Object>();
+      map.put("result", context);
+      map.put("rejected", rejected);
+      return Collections.singleton(map);
     } else {
       return super.getResult();
     }

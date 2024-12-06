@@ -35,7 +35,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaImmutableClass;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentHelper;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerCSVAbstract;
@@ -160,9 +160,9 @@ public class SQLHelper {
       // IT'S A DOCUMENT
       // TODO: IMPROVE THIS CASE AVOIDING DOUBLE PARSING
       {
-        var document = new EntityImpl();
-        document.fromJSON(iValue);
-        fieldValue = document;
+        var entity = new EntityImpl();
+        entity.fromJSON(iValue);
+        fieldValue = entity;
       } else {
         fieldValue = map;
       }
@@ -351,7 +351,7 @@ public class SQLHelper {
   }
 
   public static Object resolveFieldValue(
-      DatabaseSession session, final EntityImpl iDocument,
+      DatabaseSession session, final EntityImpl entity,
       final String iFieldName,
       final Object iFieldValue,
       final CommandParameters iArguments,
@@ -370,9 +370,9 @@ public class SQLHelper {
 
     if (iFieldValue instanceof EntityImpl && !((EntityImpl) iFieldValue).getIdentity()
         .isValid())
-    // EMBEDDED DOCUMENT
+    // EMBEDDED entity
     {
-      DocumentInternal.addOwner((EntityImpl) iFieldValue, iDocument);
+      EntityInternalUtils.addOwner((EntityImpl) iFieldValue, entity);
     }
 
     // can't use existing getValue with iContext
@@ -380,14 +380,14 @@ public class SQLHelper {
       return null;
     }
     if (iFieldValue instanceof SQLFilterItem) {
-      return ((SQLFilterItem) iFieldValue).getValue(iDocument, null, iContext);
+      return ((SQLFilterItem) iFieldValue).getValue(entity, null, iContext);
     }
 
     return iFieldValue;
   }
 
   public static EntityImpl bindParameters(
-      final EntityImpl iDocument,
+      final EntityImpl entity,
       final Map<String, Object> iFields,
       final CommandParameters iArguments,
       final CommandContext iContext) {
@@ -401,11 +401,11 @@ public class SQLHelper {
       fields.add(new Pair<String, Object>(entry.getKey(), entry.getValue()));
     }
 
-    return bindParameters(iDocument, fields, iArguments, iContext);
+    return bindParameters(entity, fields, iArguments, iContext);
   }
 
   public static EntityImpl bindParameters(
-      final EntityImpl iDocument,
+      final EntityImpl e,
       final List<Pair<String, Object>> iFields,
       final CommandParameters iArguments,
       final CommandContext iContext) {
@@ -425,7 +425,7 @@ public class SQLHelper {
               .execute(iContext.getDatabase());
 
           // CHECK FOR CONVERSIONS
-          SchemaImmutableClass immutableClass = DocumentInternal.getImmutableSchemaClass(iDocument);
+          SchemaImmutableClass immutableClass = EntityInternalUtils.getImmutableSchemaClass(e);
           if (immutableClass != null) {
             final Property prop = immutableClass.getProperty(fieldName);
             if (prop != null) {
@@ -461,17 +461,17 @@ public class SQLHelper {
                   .isPersistent()) {
                 // TEMPORARY / EMBEDDED
                 final Record rec = ((Identifiable) o).getRecord();
-                if (rec != null && rec instanceof EntityImpl doc) {
+                if (rec != null && rec instanceof EntityImpl entity) {
                   // CHECK FOR ONE FIELD ONLY
-                  if (doc.fields() == 1) {
-                    singleFieldName = doc.fieldNames()[0];
-                    tempColl.add(doc.field(singleFieldName));
+                  if (entity.fields() == 1) {
+                    singleFieldName = entity.fieldNames()[0];
+                    tempColl.add(entity.field(singleFieldName));
                   } else {
                     // TRANSFORM IT IN EMBEDDED
-                    doc.getIdentity().reset();
-                    DocumentInternal.addOwner(doc, iDocument);
-                    DocumentInternal.addOwner(doc, iDocument);
-                    tempColl.add(doc);
+                    entity.getIdentity().reset();
+                    EntityInternalUtils.addOwner(entity, e);
+                    EntityInternalUtils.addOwner(entity, e);
+                    tempColl.add(entity);
                   }
                 }
               } else {
@@ -484,11 +484,11 @@ public class SQLHelper {
         }
       }
 
-      iDocument.field(
+      e.field(
           fieldName,
-          resolveFieldValue(iContext.getDatabase(), iDocument, fieldName, fieldValue, iArguments,
+          resolveFieldValue(iContext.getDatabase(), e, fieldName, fieldValue, iArguments,
               iContext));
     }
-    return iDocument;
+    return e;
   }
 }

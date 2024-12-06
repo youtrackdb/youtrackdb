@@ -1,11 +1,11 @@
 package com.orientechnologies.spatial;
 
-import com.jetbrains.youtrack.db.internal.core.db.PartitionedDatabasePool;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTx;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTx;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.db.PartitionedDatabasePool;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
 import com.jetbrains.youtrack.db.internal.core.sql.query.SQLSynchQuery;

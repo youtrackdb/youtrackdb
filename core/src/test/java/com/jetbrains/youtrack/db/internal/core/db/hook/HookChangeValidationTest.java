@@ -6,8 +6,8 @@ import com.jetbrains.youtrack.db.internal.DbTestBase;
 import com.jetbrains.youtrack.db.internal.core.exception.ValidationException;
 import com.jetbrains.youtrack.db.internal.core.hook.DocumentHookAbstract;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,15 +25,15 @@ public class HookChangeValidationTest extends DbTestBase {
     db.registerHook(
         new DocumentHookAbstract() {
           @Override
-          public RESULT onRecordBeforeCreate(EntityImpl doc) {
-            doc.removeField("property1");
-            doc.removeField("property2");
-            doc.removeField("property3");
+          public RESULT onRecordBeforeCreate(EntityImpl entity) {
+            entity.removeField("property1");
+            entity.removeField("property2");
+            entity.removeField("property3");
             return RESULT.RECORD_CHANGED;
           }
 
           @Override
-          public RESULT onRecordBeforeUpdate(EntityImpl doc) {
+          public RESULT onRecordBeforeUpdate(EntityImpl entity) {
             return RESULT.RECORD_NOT_CHANGED;
           }
 
@@ -67,15 +67,15 @@ public class HookChangeValidationTest extends DbTestBase {
     db.registerHook(
         new DocumentHookAbstract() {
           @Override
-          public RESULT onRecordBeforeCreate(EntityImpl doc) {
+          public RESULT onRecordBeforeCreate(EntityImpl entity) {
             return RESULT.RECORD_NOT_CHANGED;
           }
 
           @Override
-          public RESULT onRecordBeforeUpdate(EntityImpl doc) {
-            doc.removeField("property1");
-            doc.removeField("property2");
-            doc.removeField("property3");
+          public RESULT onRecordBeforeUpdate(EntityImpl entity) {
+            entity.removeField("property1");
+            entity.removeField("property2");
+            entity.removeField("property3");
             return RESULT.RECORD_CHANGED;
           }
 

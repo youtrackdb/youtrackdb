@@ -36,12 +36,12 @@ import com.jetbrains.youtrack.db.internal.core.metadata.MetadataDefault;
 import com.jetbrains.youtrack.db.internal.core.metadata.MetadataInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClassImpl;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaShared;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityResourceProperty;
-import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
+import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sharding.auto.AutoShardingIndexFactory;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
@@ -99,10 +99,10 @@ public class IndexManagerShared implements IndexManagerAbstract {
         identity =
             new RecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId());
         // RELOAD IT
-        EntityImpl document = database.load(identity);
-        fromStream(database, document);
-        RecordInternal.unsetDirty(document);
-        document.unload();
+        EntityImpl entity = database.load(identity);
+        fromStream(database, entity);
+        RecordInternal.unsetDirty(entity);
+        entity.unload();
       } finally {
         releaseExclusiveLock(database);
       }
@@ -114,8 +114,8 @@ public class IndexManagerShared implements IndexManagerAbstract {
     try {
       session.executeInTx(
           () -> {
-            EntityImpl document = session.load(identity);
-            fromStream(session, document);
+            EntityImpl entity = session.load(identity);
+            fromStream(session, entity);
           });
     } finally {
       releaseExclusiveLock(session);
@@ -182,11 +182,11 @@ public class IndexManagerShared implements IndexManagerAbstract {
   public void create(DatabaseSessionInternal database) {
     acquireExclusiveLock();
     try {
-      EntityImpl document =
+      EntityImpl entity =
           database.computeInTx(
               () -> database.save(new EntityImpl(), MetadataDefault.CLUSTER_INTERNAL_NAME));
-      identity = document.getIdentity();
-      database.getStorage().setIndexMgrRecordId(document.getIdentity().toString());
+      identity = entity.getIdentity();
+      database.getStorage().setIndexMgrRecordId(entity.getIdentity().toString());
     } finally {
       releaseExclusiveLock(database);
     }
@@ -564,7 +564,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
    * @param indexDefinition   metadata that describes index structure
    * @param clusterIdsToIndex ids of clusters that index should track for changes.
    * @param progressListener  listener to track task progress.
-   * @param metadata          document with additional properties that can be used by index engine.
+   * @param metadata          entity with additional properties that can be used by index engine.
    * @return a newly created index instance
    */
   public Index createIndex(
@@ -596,7 +596,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
    * @param indexDefinition   metadata that describes index structure
    * @param clusterIdsToIndex ids of clusters that index should track for changes.
    * @param progressListener  listener to track task progress.
-   * @param metadata          document with additional properties that can be used by index engine.
+   * @param metadata          entity with additional properties that can be used by index engine.
    * @param algorithm         tip to an index factory what algorithm to use
    * @return a newly created index instance
    */
@@ -851,17 +851,17 @@ public class IndexManagerShared implements IndexManagerAbstract {
   public EntityImpl toStream(DatabaseSessionInternal session) {
     internalAcquireExclusiveLock();
     try {
-      EntityImpl document = session.load(identity);
-      final TrackedSet<EntityImpl> indexes = new TrackedSet<>(document);
+      EntityImpl entity = session.load(identity);
+      final TrackedSet<EntityImpl> indexes = new TrackedSet<>(entity);
 
       for (final Index i : this.indexes.values()) {
         var indexInternal = (IndexInternal) i;
         indexes.add(indexInternal.updateConfiguration(session));
       }
-      document.field(CONFIG_INDEXES, indexes, PropertyType.EMBEDDEDSET);
-      document.setDirty();
+      entity.field(CONFIG_INDEXES, indexes, PropertyType.EMBEDDEDSET);
+      entity.setDirty();
 
-      return document;
+      return entity;
     } finally {
       internalReleaseExclusiveLock();
     }
@@ -926,18 +926,18 @@ public class IndexManagerShared implements IndexManagerAbstract {
     return false;
   }
 
-  protected void fromStream(DatabaseSessionInternal session, EntityImpl document) {
+  protected void fromStream(DatabaseSessionInternal session, EntityImpl entity) {
     internalAcquireExclusiveLock();
     try {
       final Map<String, Index> oldIndexes = new HashMap<>(indexes);
       clearMetadata(session);
 
-      final Collection<EntityImpl> indexDocuments = document.field(CONFIG_INDEXES);
+      final Collection<EntityImpl> indexEntities = entity.field(CONFIG_INDEXES);
 
-      if (indexDocuments != null) {
+      if (indexEntities != null) {
         IndexInternal index;
         boolean configUpdated = false;
-        Iterator<EntityImpl> indexConfigurationIterator = indexDocuments.iterator();
+        Iterator<EntityImpl> indexConfigurationIterator = indexEntities.iterator();
         while (indexConfigurationIterator.hasNext()) {
           final EntityImpl d = indexConfigurationIterator.next();
           try {
@@ -995,7 +995,7 @@ public class IndexManagerShared implements IndexManagerAbstract {
         }
 
         if (configUpdated) {
-          document.field(CONFIG_INDEXES, indexDocuments);
+          entity.field(CONFIG_INDEXES, indexEntities);
           save(session);
         }
       }
@@ -1054,19 +1054,19 @@ public class IndexManagerShared implements IndexManagerAbstract {
   }
 
   public EntityImpl toNetworkStream(DatabaseSessionInternal session) {
-    EntityImpl document = new EntityImpl(session);
+    EntityImpl entity = new EntityImpl(session);
     internalAcquireExclusiveLock();
     try {
-      document.setTrackingChanges(false);
-      final TrackedSet<EntityImpl> indexes = new TrackedSet<>(document);
+      entity.setTrackingChanges(false);
+      final TrackedSet<EntityImpl> indexes = new TrackedSet<>(entity);
 
       for (final Index i : this.indexes.values()) {
         var indexInternal = (IndexInternal) i;
         indexes.add(indexInternal.updateConfiguration(session));
       }
 
-      document.field(CONFIG_INDEXES, indexes, PropertyType.EMBEDDEDSET);
-      return document;
+      entity.field(CONFIG_INDEXES, indexes, PropertyType.EMBEDDEDSET);
+      return entity;
     } finally {
       internalReleaseExclusiveLock();
     }
@@ -1086,8 +1086,8 @@ public class IndexManagerShared implements IndexManagerAbstract {
 
   private void internalSave(DatabaseSessionInternal session) {
     session.begin();
-    EntityImpl document = toStream(session);
-    document.save();
+    EntityImpl entity = toStream(session);
+    entity.save();
     session.commit();
   }
 }

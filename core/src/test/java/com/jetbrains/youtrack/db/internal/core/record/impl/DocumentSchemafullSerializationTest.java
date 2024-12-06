@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import com.jetbrains.youtrack.db.internal.BaseMemoryInternalDatabase;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
-import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseSessionAbstract;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionAbstract;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
@@ -123,7 +123,7 @@ public abstract class DocumentSchemafullSerializationTest extends BaseMemoryInte
     super.afterTest();
     DatabaseSessionAbstract.setDefaultSerializer(
         RecordSerializerFactory.instance()
-            .getFormat(GlobalConfiguration.DB_DOCUMENT_SERIALIZER.getValueAsString()));
+            .getFormat(GlobalConfiguration.DB_ENTITY_SERIALIZER.getValueAsString()));
   }
 
   @Test

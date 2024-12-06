@@ -8,9 +8,9 @@ import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.id.ImmutableRecordId;
 import com.jetbrains.youtrack.db.internal.core.id.RecordId;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Token;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.TokenException;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.binary.BinaryToken;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.binary.BinaryTokenPayloadImpl;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.binary.BinaryTokenSerializer;
@@ -383,12 +383,12 @@ public class OTokenHandlerImpl implements OTokenHandler {
   }
 
   protected YouTrackDBJwtHeader deserializeWebHeader(final byte[] decodedHeader) {
-    final EntityImpl doc = new EntityImpl();
-    doc.fromJSON(new String(decodedHeader, StandardCharsets.UTF_8));
+    final EntityImpl entity = new EntityImpl();
+    entity.fromJSON(new String(decodedHeader, StandardCharsets.UTF_8));
     final YouTrackDBJwtHeader header = new YouTrackDBJwtHeader();
-    header.setType(doc.field("typ"));
-    header.setAlgorithm(doc.field("alg"));
-    header.setKeyId(doc.field("kid"));
+    header.setType(entity.field("typ"));
+    header.setAlgorithm(entity.field("alg"));
+    header.setKeyId(entity.field("kid"));
     return header;
   }
 
@@ -396,21 +396,21 @@ public class OTokenHandlerImpl implements OTokenHandler {
     if (!"YouTrackDB".equals(type)) {
       throw new SystemException("Payload class not registered:" + type);
     }
-    final EntityImpl doc = new EntityImpl();
-    doc.fromJSON(new String(decodedPayload, StandardCharsets.UTF_8));
+    final EntityImpl entity = new EntityImpl();
+    entity.fromJSON(new String(decodedPayload, StandardCharsets.UTF_8));
     final OrientJwtPayload payload = new OrientJwtPayload();
-    payload.setUserName(doc.field("username"));
-    payload.setIssuer(doc.field("iss"));
-    payload.setExpiry(doc.field("exp"));
-    payload.setIssuedAt(doc.field("iat"));
-    payload.setNotBefore(doc.field("nbf"));
-    payload.setDatabase(doc.field("sub"));
-    payload.setAudience(doc.field("aud"));
-    payload.setTokenId(doc.field("jti"));
-    final int cluster = doc.field("uidc");
-    final long pos = doc.field("uidp");
+    payload.setUserName(entity.field("username"));
+    payload.setIssuer(entity.field("iss"));
+    payload.setExpiry(entity.field("exp"));
+    payload.setIssuedAt(entity.field("iat"));
+    payload.setNotBefore(entity.field("nbf"));
+    payload.setDatabase(entity.field("sub"));
+    payload.setAudience(entity.field("aud"));
+    payload.setTokenId(entity.field("jti"));
+    final int cluster = entity.field("uidc");
+    final long pos = entity.field("uidp");
     payload.setUserRid(new RecordId(cluster, pos));
-    payload.setDatabaseType(doc.field("bdtyp"));
+    payload.setDatabaseType(entity.field("bdtyp"));
     return payload;
   }
 
@@ -419,11 +419,11 @@ public class OTokenHandlerImpl implements OTokenHandler {
       throw new IllegalArgumentException("Token header is null");
     }
 
-    EntityImpl doc = new EntityImpl();
-    doc.field("typ", header.getType());
-    doc.field("alg", header.getAlgorithm());
-    doc.field("kid", header.getKeyId());
-    return doc.toJSON().getBytes(StandardCharsets.UTF_8);
+    EntityImpl entity = new EntityImpl();
+    entity.field("typ", header.getType());
+    entity.field("alg", header.getAlgorithm());
+    entity.field("kid", header.getKeyId());
+    return entity.toJSON().getBytes(StandardCharsets.UTF_8);
   }
 
   protected byte[] serializeWebPayload(final JwtPayload payload) throws Exception {
@@ -431,19 +431,19 @@ public class OTokenHandlerImpl implements OTokenHandler {
       throw new IllegalArgumentException("Token payload is null");
     }
 
-    final EntityImpl doc = new EntityImpl();
-    doc.field("username", payload.getUserName());
-    doc.field("iss", payload.getIssuer());
-    doc.field("exp", payload.getExpiry());
-    doc.field("iat", payload.getIssuedAt());
-    doc.field("nbf", payload.getNotBefore());
-    doc.field("sub", payload.getDatabase());
-    doc.field("aud", payload.getAudience());
-    doc.field("jti", payload.getTokenId());
-    doc.field("uidc", payload.getUserRid().getClusterId());
-    doc.field("uidp", payload.getUserRid().getClusterPosition());
-    doc.field("bdtyp", payload.getDatabaseType());
-    return doc.toJSON().getBytes(StandardCharsets.UTF_8);
+    final EntityImpl entity = new EntityImpl();
+    entity.field("username", payload.getUserName());
+    entity.field("iss", payload.getIssuer());
+    entity.field("exp", payload.getExpiry());
+    entity.field("iat", payload.getIssuedAt());
+    entity.field("nbf", payload.getNotBefore());
+    entity.field("sub", payload.getDatabase());
+    entity.field("aud", payload.getAudience());
+    entity.field("jti", payload.getTokenId());
+    entity.field("uidc", payload.getUserRid().getClusterId());
+    entity.field("uidp", payload.getUserRid().getClusterPosition());
+    entity.field("bdtyp", payload.getDatabaseType());
+    return entity.toJSON().getBytes(StandardCharsets.UTF_8);
   }
 
   protected JwtPayload createPayloadServerUser(SecurityUser serverUser) {

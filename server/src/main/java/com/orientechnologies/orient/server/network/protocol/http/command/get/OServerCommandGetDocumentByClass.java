@@ -42,7 +42,7 @@ public class OServerCommandGetDocumentByClass extends OServerCommandAuthenticate
 
     final String fetchPlan = urlParts.length > 4 ? urlParts[4] : null;
 
-    iRequest.getData().commandInfo = "Load document";
+    iRequest.getData().commandInfo = "Load entity";
 
     final Record rec;
     try (DatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {

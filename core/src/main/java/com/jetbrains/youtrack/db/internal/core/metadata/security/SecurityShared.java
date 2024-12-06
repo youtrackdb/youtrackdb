@@ -48,7 +48,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.Authentica
 import com.jetbrains.youtrack.db.internal.core.metadata.sequence.Sequence;
 import com.jetbrains.youtrack.db.internal.core.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.GlobalUser;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
@@ -147,7 +147,7 @@ public class SecurityShared implements SecurityInternal {
   @Override
   public Identifiable allowRole(
       final DatabaseSession session,
-      final EntityImpl iDocument,
+      final EntityImpl entity,
       final RestrictedOperation iOperation,
       final String iRoleName) {
     return session.computeInTx(
@@ -157,14 +157,14 @@ public class SecurityShared implements SecurityInternal {
             throw new IllegalArgumentException("Role '" + iRoleName + "' not found");
           }
 
-          return allowIdentity(session, iDocument, iOperation.getFieldName(), role);
+          return allowIdentity(session, entity, iOperation.getFieldName(), role);
         });
   }
 
   @Override
   public Identifiable allowUser(
       final DatabaseSession session,
-      final EntityImpl iDocument,
+      final EntityImpl entity,
       final RestrictedOperation iOperation,
       final String iUserName) {
     return session.computeInTx(
@@ -174,21 +174,21 @@ public class SecurityShared implements SecurityInternal {
             throw new IllegalArgumentException("User '" + iUserName + "' not found");
           }
 
-          return allowIdentity(session, iDocument, iOperation.getFieldName(), user);
+          return allowIdentity(session, entity, iOperation.getFieldName(), user);
         });
   }
 
   public Identifiable allowIdentity(
       final DatabaseSession session,
-      final EntityImpl iDocument,
+      final EntityImpl entity,
       final String iAllowFieldName,
       final Identifiable iId) {
     return session.computeInTx(
         () -> {
-          Set<Identifiable> field = iDocument.field(iAllowFieldName);
+          Set<Identifiable> field = entity.field(iAllowFieldName);
           if (field == null) {
-            field = new TrackedSet<>(iDocument);
-            iDocument.field(iAllowFieldName, field);
+            field = new TrackedSet<>(entity);
+            entity.field(iAllowFieldName, field);
           }
           field.add(iId);
 
@@ -199,7 +199,7 @@ public class SecurityShared implements SecurityInternal {
   @Override
   public Identifiable denyUser(
       final DatabaseSessionInternal session,
-      final EntityImpl iDocument,
+      final EntityImpl entity,
       final RestrictedOperation iOperation,
       final String iUserName) {
     return session.computeInTx(
@@ -209,14 +209,14 @@ public class SecurityShared implements SecurityInternal {
             throw new IllegalArgumentException("User '" + iUserName + "' not found");
           }
 
-          return disallowIdentity(session, iDocument, iOperation.getFieldName(), user);
+          return disallowIdentity(session, entity, iOperation.getFieldName(), user);
         });
   }
 
   @Override
   public Identifiable denyRole(
       final DatabaseSessionInternal session,
-      final EntityImpl iDocument,
+      final EntityImpl entity,
       final RestrictedOperation iOperation,
       final String iRoleName) {
     return session.computeInTx(
@@ -226,16 +226,16 @@ public class SecurityShared implements SecurityInternal {
             throw new IllegalArgumentException("Role '" + iRoleName + "' not found");
           }
 
-          return disallowIdentity(session, iDocument, iOperation.getFieldName(), role);
+          return disallowIdentity(session, entity, iOperation.getFieldName(), role);
         });
   }
 
   public Identifiable disallowIdentity(
       final DatabaseSessionInternal session,
-      final EntityImpl iDocument,
+      final EntityImpl entity,
       final String iAllowFieldName,
       final Identifiable iId) {
-    Set<Identifiable> field = iDocument.field(iAllowFieldName);
+    Set<Identifiable> field = entity.field(iAllowFieldName);
     if (field != null) {
       field.remove(iId);
     }
@@ -438,11 +438,11 @@ public class SecurityShared implements SecurityInternal {
 
   public Role getRole(final DatabaseSession session, final Identifiable iRole) {
     try {
-      final EntityImpl doc = iRole.getRecord();
-      SchemaImmutableClass clazz = DocumentInternal.getImmutableSchemaClass(doc);
+      final EntityImpl entity = iRole.getRecord();
+      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
 
       if (clazz != null && clazz.isOrole()) {
-        return new Role(session, doc);
+        return new Role(session, entity);
       }
     } catch (RecordNotFoundException rnf) {
       return null;
@@ -563,16 +563,16 @@ public class SecurityShared implements SecurityInternal {
       DatabaseSessionInternal session, SecurityRole role, String resource,
       SecurityPolicyImpl policy) {
     var currentResource = normalizeSecurityResource(session, resource);
-    Entity roleDoc = session.load(role.getIdentity(session).getIdentity());
+    Entity roleEntity = session.load(role.getIdentity(session).getIdentity());
     validatePolicyWithIndexes(session, currentResource);
-    Map<String, Identifiable> policies = roleDoc.getProperty("policies");
+    Map<String, Identifiable> policies = roleEntity.getProperty("policies");
     if (policies == null) {
       policies = new HashMap<>();
-      roleDoc.setProperty("policies", policies);
+      roleEntity.setProperty("policies", policies);
     }
 
     policies.put(currentResource, policy.getElement(session));
-    session.save(roleDoc);
+    session.save(roleEntity);
     if (session.getUser() != null && session.getUser()
         .hasRole(session, role.getName(session), true)) {
       session.reloadUser();
@@ -653,14 +653,14 @@ public class SecurityShared implements SecurityInternal {
   public void removeSecurityPolicy(DatabaseSession session, Role role, String resource) {
     var sessionInternal = (DatabaseSessionInternal) session;
     String calculatedResource = normalizeSecurityResource(session, resource);
-    final Entity roleDoc = session.load(role.getIdentity(session).getIdentity());
-    Map<String, Identifiable> policies = roleDoc.getProperty("policies");
+    final Entity roleEntity = session.load(role.getIdentity(session).getIdentity());
+    Map<String, Identifiable> policies = roleEntity.getProperty("policies");
     if (policies == null) {
       return;
     }
     policies.remove(calculatedResource);
 
-    roleDoc.save();
+    roleEntity.save();
 
     updateAllFilteredProperties(sessionInternal);
     initPredicateSecurityOptimizations(sessionInternal);
@@ -1430,11 +1430,11 @@ public class SecurityShared implements SecurityInternal {
 
   @Override
   public Set<String> getFilteredProperties(DatabaseSessionInternal session,
-      EntityImpl document) {
+      EntityImpl entity) {
     if (session.getUser() == null) {
       return Collections.emptySet();
     }
-    SchemaImmutableClass clazz = DocumentInternal.getImmutableSchemaClass(document);
+    SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
     if (clazz == null) {
       return Collections.emptySet();
     }
@@ -1455,7 +1455,7 @@ public class SecurityShared implements SecurityInternal {
         }
       }
     }
-    Set<String> props = document.getPropertyNamesInternal();
+    Set<String> props = entity.getPropertyNamesInternal();
     Set<String> result = new HashSet<>();
 
     var sessionInternal = session;
@@ -1466,7 +1466,7 @@ public class SecurityShared implements SecurityInternal {
               this,
               "database.class.`" + clazz.getName() + "`.`" + prop + "`",
               SecurityPolicy.Scope.READ);
-      if (!SecurityEngine.evaluateSecuirtyPolicyPredicate(session, predicate, document)) {
+      if (!SecurityEngine.evaluateSecuirtyPolicyPredicate(session, predicate, entity)) {
         result.add(prop);
       }
     }
@@ -1474,7 +1474,7 @@ public class SecurityShared implements SecurityInternal {
   }
 
   @Override
-  public boolean isAllowedWrite(DatabaseSessionInternal session, EntityImpl document,
+  public boolean isAllowedWrite(DatabaseSessionInternal session, EntityImpl entity,
       String propertyName) {
 
     if (session.getUser() == null) {
@@ -1484,10 +1484,10 @@ public class SecurityShared implements SecurityInternal {
 
     String className;
     SchemaClass clazz = null;
-    if (document instanceof EntityImpl) {
-      className = document.getClassName();
+    if (entity instanceof EntityImpl) {
+      className = entity.getClassName();
     } else {
-      clazz = document.getSchemaType().orElse(null);
+      clazz = entity.getSchemaType().orElse(null);
       className = clazz == null ? null : clazz.getName();
     }
     if (className == null) {
@@ -1508,14 +1508,14 @@ public class SecurityShared implements SecurityInternal {
     }
 
     var sessionInternal = session;
-    if (document.getIdentity().isNew()) {
+    if (entity.getIdentity().isNew()) {
       SQLBooleanExpression predicate =
           SecurityEngine.getPredicateForSecurityResource(
               sessionInternal,
               this,
               "database.class.`" + className + "`.`" + propertyName + "`",
               SecurityPolicy.Scope.CREATE);
-      return SecurityEngine.evaluateSecuirtyPolicyPredicate(session, predicate, document);
+      return SecurityEngine.evaluateSecuirtyPolicyPredicate(session, predicate, entity);
     } else {
 
       SQLBooleanExpression readPredicate =
@@ -1524,7 +1524,7 @@ public class SecurityShared implements SecurityInternal {
               this,
               "database.class.`" + className + "`.`" + propertyName + "`",
               SecurityPolicy.Scope.READ);
-      if (!SecurityEngine.evaluateSecuirtyPolicyPredicate(session, readPredicate, document)) {
+      if (!SecurityEngine.evaluateSecuirtyPolicyPredicate(session, readPredicate, entity)) {
         return false;
       }
 
@@ -1534,7 +1534,7 @@ public class SecurityShared implements SecurityInternal {
               this,
               "database.class.`" + className + "`.`" + propertyName + "`",
               SecurityPolicy.Scope.BEFORE_UPDATE);
-      ResultInternal originalRecord = calculateOriginalValue(document,
+      ResultInternal originalRecord = calculateOriginalValue(entity,
           session);
 
       if (!SecurityEngine.evaluateSecuirtyPolicyPredicate(
@@ -1548,7 +1548,7 @@ public class SecurityShared implements SecurityInternal {
               this,
               "database.class.`" + className + "`.`" + propertyName + "`",
               SecurityPolicy.Scope.AFTER_UPDATE);
-      return SecurityEngine.evaluateSecuirtyPolicyPredicate(session, predicate, document);
+      return SecurityEngine.evaluateSecuirtyPolicyPredicate(session, predicate, entity);
     }
   }
 
@@ -1605,7 +1605,7 @@ public class SecurityShared implements SecurityInternal {
 
     var sessionInternal = session;
     if (record instanceof Entity) {
-      SchemaImmutableClass clazz = DocumentInternal.getImmutableSchemaClass((EntityImpl) record);
+      SchemaImmutableClass clazz = EntityInternalUtils.getImmutableSchemaClass((EntityImpl) record);
       if (clazz == null) {
         return true;
       }
@@ -1704,18 +1704,17 @@ public class SecurityShared implements SecurityInternal {
     return calculateBefore(record.getRecord(), db);
   }
 
-  public static ResultInternal calculateBefore(EntityImpl iDocument,
+  public static ResultInternal calculateBefore(EntityImpl entity,
       DatabaseSessionInternal db) {
-    // iDocument = db.load(iDocument.getIdentity(), null, true);
     ResultInternal result = new ResultInternal(db);
-    for (String prop : iDocument.getPropertyNamesInternal()) {
-      result.setProperty(prop, unboxRidbags(iDocument.getProperty(prop)));
+    for (String prop : entity.getPropertyNamesInternal()) {
+      result.setProperty(prop, unboxRidbags(entity.getProperty(prop)));
     }
-    result.setProperty("@rid", iDocument.getIdentity());
-    result.setProperty("@class", iDocument.getClassName());
-    result.setProperty("@version", iDocument.getVersion());
-    for (String prop : iDocument.getDirtyFields()) {
-      result.setProperty(prop, convert(iDocument.getOriginalValue(prop)));
+    result.setProperty("@rid", entity.getIdentity());
+    result.setProperty("@class", entity.getClassName());
+    result.setProperty("@version", entity.getVersion());
+    for (String prop : entity.getDirtyFields()) {
+      result.setProperty(prop, convert(entity.getOriginalValue(prop)));
     }
     return result;
   }

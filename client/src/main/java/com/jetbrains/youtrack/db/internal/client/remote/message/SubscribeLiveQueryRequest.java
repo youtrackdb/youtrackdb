@@ -58,10 +58,10 @@ public class SubscribeLiveQueryRequest implements BinaryRequest<SubscribeLiveQue
       RecordSerializer serializer)
       throws IOException {
     this.query = channel.readString();
-    EntityImpl paramsDoc = new EntityImpl();
+    EntityImpl paramsEntity = new EntityImpl();
     byte[] bytes = channel.readBytes();
-    serializer.fromStream(db, bytes, paramsDoc, null);
-    this.params = paramsDoc.field("params");
+    serializer.fromStream(db, bytes, paramsEntity, null);
+    this.params = paramsEntity.field("params");
     this.namedParams = channel.readBoolean();
   }
 

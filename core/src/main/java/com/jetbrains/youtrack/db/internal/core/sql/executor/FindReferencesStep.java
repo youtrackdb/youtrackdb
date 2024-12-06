@@ -199,9 +199,9 @@ public class FindReferencesStep extends AbstractExecutionStep {
       result.add(prefix);
     } else if (!value.getIdentity().isValid() && value.getRecord() instanceof EntityImpl) {
       // embedded document
-      EntityImpl doc = value.getRecord();
-      for (String fieldName : doc.fieldNames()) {
-        Object fieldValue = doc.field(fieldName);
+      EntityImpl entity = value.getRecord();
+      for (String fieldName : entity.fieldNames()) {
+        Object fieldValue = entity.field(fieldName);
         result.addAll(checkObject(iSourceRIDs, fieldValue, iRootObject, prefix + "." + fieldName));
       }
     }

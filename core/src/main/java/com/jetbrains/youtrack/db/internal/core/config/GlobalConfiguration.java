@@ -590,7 +590,7 @@ public enum GlobalConfiguration {
       true),
 
   DOCUMENT_BINARY_MAPPING(
-      "document.binaryMapping", "Mapping approach for binary fields", Integer.class, 0),
+      "entity.binaryMapping", "Mapping approach for binary fields", Integer.class, 0),
 
   // DATABASE
   DB_POOL_MIN("db.pool.min", "Default database pool minimum size", Integer.class, 1),
@@ -1196,7 +1196,7 @@ public enum GlobalConfiguration {
 
   QUERY_MAX_HEAP_ELEMENTS_ALLOWED_PER_OP(
       "query.maxHeapElementsAllowedPerOp",
-      "Maximum number of elements (records) allowed in a single query for memory-intensive"
+      "Maximum number of entities (records) allowed in a single query for memory-intensive"
           + " operations (eg. ORDER BY in heap). If exceeded, the query fails with an"
           + " CommandExecutionException. Negative number means no limit.This setting is intended"
           + " as a safety measure against excessive resource consumption from a single query (eg."
@@ -1564,9 +1564,9 @@ public enum GlobalConfiguration {
       1000,
       false),
 
-  DB_DOCUMENT_SERIALIZER(
-      "db.document.serializer",
-      "The default record serializer used by the document database",
+  DB_ENTITY_SERIALIZER(
+      "db.entity.serializer",
+      "The default record serializer used by the database",
       String.class,
       RecordSerializerBinary.NAME),
 

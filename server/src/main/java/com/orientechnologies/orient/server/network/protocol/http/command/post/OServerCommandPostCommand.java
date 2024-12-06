@@ -22,15 +22,15 @@ package com.orientechnologies.orient.server.network.protocol.http.command.post;
 import com.jetbrains.youtrack.db.internal.core.command.BasicCommandContext;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseStats;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseStats;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.SQLEngine;
 import com.jetbrains.youtrack.db.internal.core.sql.executor.ResultSet;
-import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.DDLStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLFetchPlan;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLLimit;
+import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLMatchStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLSelectStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLStatement;
 import com.jetbrains.youtrack.db.internal.core.sql.parser.SQLTraverseStatement;
@@ -73,15 +73,15 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
       // CONTENT REPLACES TEXT
       if (iRequest.getContent().startsWith("{")) {
         // JSON PAYLOAD
-        final EntityImpl doc = new EntityImpl();
-        doc.fromJSON(iRequest.getContent());
-        text = doc.field("command");
-        params = doc.field("parameters");
-        if (doc.containsField("mode")) {
-          mode = doc.field("mode");
+        final EntityImpl entity = new EntityImpl();
+        entity.fromJSON(iRequest.getContent());
+        text = entity.field("command");
+        params = entity.field("parameters");
+        if (entity.containsField("mode")) {
+          mode = entity.field("mode");
         }
 
-        if ("false".equalsIgnoreCase("" + doc.field("returnExecutionPlan"))) {
+        if ("false".equalsIgnoreCase("" + entity.field("returnExecutionPlan"))) {
           returnExecutionPlan = false;
         }
 

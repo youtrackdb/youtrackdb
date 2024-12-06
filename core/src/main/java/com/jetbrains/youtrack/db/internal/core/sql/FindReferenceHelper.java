@@ -76,11 +76,11 @@ public class FindReferenceHelper {
 
     final List<EntityImpl> result = new ArrayList<EntityImpl>();
     for (Entry<RID, Set<RID>> entry : map.entrySet()) {
-      final EntityImpl doc = new EntityImpl();
-      result.add(doc);
+      final EntityImpl entity = new EntityImpl();
+      result.add(entity);
 
-      doc.field("rid", entry.getKey());
-      doc.field("referredBy", entry.getValue());
+      entity.field("rid", entry.getKey());
+      entity.field("referredBy", entry.getValue());
     }
 
     return result;
@@ -170,10 +170,10 @@ public class FindReferenceHelper {
     if (iSourceRIDs.contains(value.getIdentity())) {
       map.get(value.getIdentity()).add(iRootObject.getIdentity());
     } else if (!value.getIdentity().isValid() && value.getRecord() instanceof EntityImpl) {
-      // embedded document
-      EntityImpl doc = value.getRecord();
-      for (String fieldName : doc.fieldNames()) {
-        Object fieldValue = doc.field(fieldName);
+      // embedded entity
+      EntityImpl entity = value.getRecord();
+      for (String fieldName : entity.fieldNames()) {
+        Object fieldValue = entity.field(fieldName);
         checkObject(iSourceRIDs, map, fieldValue, iRootObject);
       }
     }

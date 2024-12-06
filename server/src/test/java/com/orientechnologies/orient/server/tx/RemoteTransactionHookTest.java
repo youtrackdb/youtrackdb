@@ -178,35 +178,35 @@ public class RemoteTransactionHookTest extends DbTestBase {
     }
 
     @Override
-    public RESULT onRecordBeforeCreate(EntityImpl iDocument) {
+    public RESULT onRecordBeforeCreate(EntityImpl entity) {
       beforeCreate++;
       return RESULT.RECORD_NOT_CHANGED;
     }
 
     @Override
-    public void onRecordAfterCreate(EntityImpl iDocument) {
+    public void onRecordAfterCreate(EntityImpl entity) {
       afterCreate++;
     }
 
     @Override
-    public RESULT onRecordBeforeUpdate(EntityImpl iDocument) {
+    public RESULT onRecordBeforeUpdate(EntityImpl entity) {
       beforeUpdate++;
       return RESULT.RECORD_NOT_CHANGED;
     }
 
     @Override
-    public void onRecordAfterUpdate(EntityImpl iDocument) {
+    public void onRecordAfterUpdate(EntityImpl entity) {
       afterUpdate++;
     }
 
     @Override
-    public RESULT onRecordBeforeDelete(EntityImpl iDocument) {
+    public RESULT onRecordBeforeDelete(EntityImpl entity) {
       beforeDelete++;
       return RESULT.RECORD_NOT_CHANGED;
     }
 
     @Override
-    public void onRecordAfterDelete(EntityImpl iDocument) {
+    public void onRecordAfterDelete(EntityImpl entity) {
       afterDelete++;
     }
 

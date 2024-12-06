@@ -8,9 +8,9 @@ public class PropertyAccess {
 
   private final Set<String> filtered;
 
-  public PropertyAccess(DatabaseSessionInternal session, EntityImpl document,
+  public PropertyAccess(DatabaseSessionInternal session, EntityImpl entity,
       SecurityInternal security) {
-    filtered = security.getFilteredProperties(session, document);
+    filtered = security.getFilteredProperties(session, entity);
   }
 
   public PropertyAccess(Set<String> filtered) {

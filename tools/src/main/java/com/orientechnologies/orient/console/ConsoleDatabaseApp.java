@@ -25,7 +25,7 @@ import com.jetbrains.youtrack.db.internal.client.remote.DatabaseImportRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.ServerAdmin;
 import com.jetbrains.youtrack.db.internal.client.remote.StorageRemote;
 import com.jetbrains.youtrack.db.internal.client.remote.YouTrackDBRemote;
-import com.jetbrains.youtrack.db.internal.client.remote.db.document.DatabaseSessionRemote;
+import com.jetbrains.youtrack.db.internal.client.remote.db.DatabaseSessionRemote;
 import com.jetbrains.youtrack.db.internal.common.collection.MultiValue;
 import com.jetbrains.youtrack.db.internal.common.console.ConsoleApplication;
 import com.jetbrains.youtrack.db.internal.common.console.ConsoleProperties;
@@ -1351,7 +1351,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       @ConsoleParameter(
           name = "text",
           description =
-              "The javascript to execute. Use 'db' to reference to a document database, 'gdb'"
+              "The javascript to execute. Use 'db' to reference to a database, 'gdb'"
                   + " for a graph database") final String iText) {
     if (iText == null) {
       return;
@@ -1397,7 +1397,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       @ConsoleParameter(
           name = "text",
           description =
-              "The javascript to execute. Use 'db' to reference to a document database, 'gdb'"
+              "The javascript to execute. Use 'db' to reference to a database, 'gdb'"
                   + " for a graph database") final String iText) {
     checkForRemoteServer();
 
@@ -3475,7 +3475,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
       if (rec.getClassName() != null || rec.getIdentity().isValid()) {
         message(
             String.format(
-                "\nDOCUMENT @class:%s @rid:%s @version:%d",
+                "\nENTITY @class:%s @rid:%s @version:%d",
                 rec.getClassName(), rec.getIdentity().toString(), rec.getVersion()));
       }
 

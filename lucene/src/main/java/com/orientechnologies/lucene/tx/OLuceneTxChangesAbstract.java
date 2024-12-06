@@ -55,7 +55,7 @@ public abstract class OLuceneTxChangesAbstract implements OLuceneTxChanges {
       //      LogManager.instance().error(this, "Error during searcher index instantiation on new
       // documents", e);
       throw BaseException.wrapException(
-          new LuceneIndexException("Error during searcher index instantiation on new documents"),
+          new LuceneIndexException("Error during searcher index instantiation on new entities"),
           e);
     }
   }
@@ -69,7 +69,7 @@ public abstract class OLuceneTxChangesAbstract implements OLuceneTxChanges {
       return search.totalHits;
     } catch (IOException e) {
       LogManager.instance()
-          .error(this, "Error during searcher index instantiation on deleted documents ", e);
+          .error(this, "Error during searcher index instantiation on deleted entities ", e);
     }
     return 0;
   }

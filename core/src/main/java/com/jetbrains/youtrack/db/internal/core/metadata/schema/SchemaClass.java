@@ -172,7 +172,7 @@ public interface SchemaClass extends Comparable<SchemaClass> {
 
   boolean existsProperty(String iPropertyName);
 
-  int getClusterForNewInstance(EntityImpl doc);
+  int getClusterForNewInstance(EntityImpl entity);
 
   int getDefaultClusterId();
 

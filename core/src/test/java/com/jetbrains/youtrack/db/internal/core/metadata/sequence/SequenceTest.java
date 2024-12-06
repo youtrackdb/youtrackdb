@@ -671,7 +671,7 @@ public class SequenceTest {
     db.commit();
 
     db.begin();
-    Sequence newSeq = new SequenceCached(myseq.docRid.getRecord());
+    Sequence newSeq = new SequenceCached(myseq.entityRid.getRecord());
     long val = newSeq.current();
     assertThat(val).isEqualTo(5);
     db.commit();

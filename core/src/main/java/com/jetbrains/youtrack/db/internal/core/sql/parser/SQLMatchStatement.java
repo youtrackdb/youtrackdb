@@ -22,7 +22,7 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLResultsetDelegate;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandExecutorSQLSelect;
 import com.jetbrains.youtrack.db.internal.core.sql.CommandSQLParsingException;
@@ -138,9 +138,9 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     }
 
     public EntityImpl toDoc() {
-      EntityImpl doc = new EntityImpl();
-      doc.fromMap(matched);
-      return doc;
+      EntityImpl entity = new EntityImpl();
+      entity.fromMap(matched);
+      return entity;
     }
   }
 
@@ -1048,7 +1048,8 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
     try {
       Record record = identifiable.getRecord();
       if (record instanceof EntityImpl) {
-        SchemaClass schemaClass = DocumentInternal.getImmutableSchemaClass(((EntityImpl) record));
+        SchemaClass schemaClass = EntityInternalUtils.getImmutableSchemaClass(
+            ((EntityImpl) record));
         if (schemaClass == null) {
           return false;
         }
@@ -1164,7 +1165,7 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
       MatchContext matchContext, SQLAsynchQuery<EntityImpl> request, CommandContext ctx) {
 
     var db = ctx.getDatabase();
-    EntityImpl doc = null;
+    EntityImpl entity = null;
     if (returnsElements()) {
       for (Map.Entry<String, Identifiable> entry : matchContext.matched.entrySet()) {
         if (isExplicitAlias(entry.getKey()) && entry.getValue() != null) {
@@ -1196,24 +1197,24 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
         }
       }
     } else if (returnsPatterns()) {
-      doc = db.newInstance();
-      doc.setTrackingChanges(false);
+      entity = db.newInstance();
+      entity.setTrackingChanges(false);
       for (Map.Entry<String, Identifiable> entry : matchContext.matched.entrySet()) {
         if (isExplicitAlias(entry.getKey())) {
-          doc.field(entry.getKey(), entry.getValue());
+          entity.field(entry.getKey(), entry.getValue());
         }
       }
     } else if (returnsPaths()) {
-      doc = db.newInstance();
-      doc.setTrackingChanges(false);
+      entity = db.newInstance();
+      entity.setTrackingChanges(false);
       for (Map.Entry<String, Identifiable> entry : matchContext.matched.entrySet()) {
-        doc.field(entry.getKey(), entry.getValue());
+        entity.field(entry.getKey(), entry.getValue());
       }
     } else if (returnsJson()) {
-      doc = jsonToDoc(matchContext, ctx);
+      entity = jsonToDoc(matchContext, ctx);
     } else {
-      doc = db.newInstance();
-      doc.setTrackingChanges(false);
+      entity = db.newInstance();
+      entity.setTrackingChanges(false);
       int i = 0;
 
       EntityImpl mapDoc = new EntityImpl();
@@ -1232,17 +1233,17 @@ public class SQLMatchStatement extends SQLStatement implements CommandExecutor,
         // Force Embedded Document
         if (executed instanceof EntityImpl && !((EntityImpl) executed).getIdentity()
             .isValid()) {
-          doc.setProperty(returnAlias.getStringValue(), executed, PropertyType.EMBEDDED);
+          entity.setProperty(returnAlias.getStringValue(), executed, PropertyType.EMBEDDED);
         } else {
-          doc.setProperty(returnAlias.getStringValue(), executed);
+          entity.setProperty(returnAlias.getStringValue(), executed);
         }
         i++;
       }
-      doc.setTrackingChanges(true);
+      entity.setTrackingChanges(true);
     }
 
-    if (request.getResultListener() != null && doc != null) {
-      return addSingleResult(request, (BasicCommandContext) ctx, doc);
+    if (request.getResultListener() != null && entity != null) {
+      return addSingleResult(request, (BasicCommandContext) ctx, entity);
     }
 
     return true;

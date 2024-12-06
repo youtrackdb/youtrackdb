@@ -147,7 +147,7 @@ public class LiveQueryHook {
     }
   }
 
-  public static void addOp(EntityImpl iDocument, byte iType, DatabaseSession database) {
+  public static void addOp(EntityImpl entity, byte iType, DatabaseSession database) {
     var db = database;
     LiveQueryOps ops = getOpsReference((DatabaseSessionInternal) db);
     if (!ops.queueThread.hasListeners()) {
@@ -156,7 +156,7 @@ public class LiveQueryHook {
     if (Boolean.FALSE.equals(database.getConfiguration().getValue(QUERY_LIVE_SUPPORT))) {
       return;
     }
-    RecordOperation result = new RecordOperation(iDocument, iType);
+    RecordOperation result = new RecordOperation(entity, iType);
     synchronized (ops.pendingOps) {
       List<RecordOperation> list = ops.pendingOps.get(db);
       if (list == null) {

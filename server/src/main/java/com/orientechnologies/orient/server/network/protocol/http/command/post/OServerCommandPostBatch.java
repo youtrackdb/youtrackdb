@@ -132,19 +132,19 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
 
         if (type.equals("c")) {
           // CREATE
-          final EntityImpl doc = getRecord(operation);
-          doc.save();
-          lastResult = doc;
+          final EntityImpl entity = getRecord(operation);
+          entity.save();
+          lastResult = entity;
         } else if (type.equals("u")) {
           // UPDATE
-          final EntityImpl doc = getRecord(operation);
-          doc.save();
-          lastResult = doc;
+          final EntityImpl entity = getRecord(operation);
+          entity.save();
+          lastResult = entity;
         } else if (type.equals("d")) {
           // DELETE
-          final EntityImpl doc = getRecord(operation);
-          db.delete(doc.getIdentity());
-          lastResult = doc.getIdentity();
+          final EntityImpl entity = getRecord(operation);
+          db.delete(entity.getIdentity());
+          lastResult = entity.getIdentity();
         } else if (type.equals("cmd")) {
           // COMMAND
           final String language = (String) operation.get("language");
@@ -256,15 +256,15 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
   public EntityImpl getRecord(Map<Object, Object> operation) {
     Object record = operation.get("record");
 
-    EntityImpl doc;
+    EntityImpl entity;
     if (record instanceof Map<?, ?>)
     // CONVERT MAP IN DOCUMENT
     {
-      doc = new EntityImpl((Map<String, Object>) record);
+      entity = new EntityImpl((Map<String, Object>) record);
     } else {
-      doc = (EntityImpl) record;
+      entity = (EntityImpl) record;
     }
-    return doc;
+    return entity;
   }
 
   @Override

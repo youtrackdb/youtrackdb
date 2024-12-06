@@ -23,9 +23,9 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
  */
 public interface ClusterSelectionStrategy {
 
-  int getCluster(final SchemaClass iClass, final EntityImpl doc);
+  int getCluster(final SchemaClass iClass, final EntityImpl entity);
 
-  int getCluster(final SchemaClass iClass, int[] selection, final EntityImpl doc);
+  int getCluster(final SchemaClass iClass, int[] selection, final EntityImpl entity);
 
   String getName();
 }

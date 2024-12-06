@@ -119,7 +119,7 @@ public class SimulateOperationsAgainstServer {
       final int iProperties) {
     final ODatabaseDocument db = getDatabase(dbUrl);
     try {
-      log(threadId, iCycle, dbUrl, " creating document: class=" + className);
+      log(threadId, iCycle, dbUrl, " creating entity: class=" + className);
 
       ODocument doc = new ODocument(className);
       for (int i = 0; i < iProperties; ++i) {

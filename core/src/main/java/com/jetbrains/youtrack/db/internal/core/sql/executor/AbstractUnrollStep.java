@@ -28,6 +28,6 @@ public abstract class AbstractUnrollStep extends AbstractExecutionStep {
     return ExecutionStream.resultIterator(unroll(res, ctx).iterator());
   }
 
-  protected abstract Collection<Result> unroll(final Result doc,
+  protected abstract Collection<Result> unroll(final Result result,
       final CommandContext iContext);
 }

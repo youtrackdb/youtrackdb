@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Filter the content by excluding only some fields. If the content is a document, then creates a
+ * Filter the content by excluding only some fields. If the content is a entity, then creates a
  * copy without the excluded fields. If it's a collection of documents it acts against on each
  * single entry.
  *
@@ -105,7 +105,7 @@ public class SQLMethodExclude extends AbstractSQLMethod {
         }
       }
       if (iThis instanceof EntityImpl) {
-        // ACT ON SINGLE DOCUMENT
+        // ACT ON SINGLE ENTITY
         return copy(db, (EntityImpl) iThis, iParams);
       } else {
         if (iThis instanceof Map) {
@@ -135,18 +135,18 @@ public class SQLMethodExclude extends AbstractSQLMethod {
     return null;
   }
 
-  private static Object copy(DatabaseSessionInternal db, final EntityImpl document,
+  private static Object copy(DatabaseSessionInternal db, final EntityImpl entity,
       final Object[] iFieldNames) {
     var result = new ResultInternal(db);
 
-    var propertyNames = new HashSet<>(document.getPropertyNames());
+    var propertyNames = new HashSet<>(entity.getPropertyNames());
     for (Object iFieldName : iFieldNames) {
       if (iFieldName != null) {
         final String fieldName = iFieldName.toString();
         if (fieldName.endsWith("*")) {
           final String fieldPart = fieldName.substring(0, fieldName.length() - 1);
 
-          for (String propertyName : document.getPropertyNames()) {
+          for (String propertyName : entity.getPropertyNames()) {
             if (propertyName.startsWith(fieldPart)) {
               propertyNames.remove(propertyName);
             }
@@ -158,7 +158,7 @@ public class SQLMethodExclude extends AbstractSQLMethod {
     }
 
     for (String propertyName : propertyNames) {
-      result.setProperty(propertyName, document.getProperty(propertyName));
+      result.setProperty(propertyName, entity.getProperty(propertyName));
     }
 
     return result;

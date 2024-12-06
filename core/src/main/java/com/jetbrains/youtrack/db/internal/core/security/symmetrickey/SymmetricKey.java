@@ -574,24 +574,24 @@ public class SymmetricKey {
       String json = new String(decoded, StandardCharsets.UTF_8);
 
       // Convert the JSON content to an EntityImpl to make parsing it easier.
-      final EntityImpl doc = new EntityImpl().fromJSON(json, "noMap");
+      final EntityImpl entity = new EntityImpl().fromJSON(json, "noMap");
 
       // Set a default in case the JSON document does not contain an "algorithm" property.
       String algorithm = secretKeyAlgorithm;
 
-      if (doc.containsField("algorithm")) {
-        algorithm = doc.field("algorithm");
+      if (entity.containsField("algorithm")) {
+        algorithm = entity.field("algorithm");
       }
 
       // Set a default in case the JSON document does not contain a "transform" property.
       String transform = defaultCipherTransformation;
 
-      if (doc.containsField("transform")) {
-        transform = doc.field("transform");
+      if (entity.containsField("transform")) {
+        transform = entity.field("transform");
       }
 
-      String payloadBase64 = doc.field("payload");
-      String ivBase64 = doc.field("iv");
+      String payloadBase64 = entity.field("payload");
+      String ivBase64 = entity.field("iv");
 
       byte[] payload = null;
       byte[] iv = null;

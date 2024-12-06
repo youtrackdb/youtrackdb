@@ -45,7 +45,7 @@ public class CopyDocumentStep extends AbstractExecutionStep {
     String spaces = ExecutionStepInternal.getIndent(depth, indent);
     StringBuilder result = new StringBuilder();
     result.append(spaces);
-    result.append("+ COPY DOCUMENT");
+    result.append("+ COPY ENTITY");
     if (profilingEnabled) {
       result.append(" (").append(getCostFormatted()).append(")");
     }

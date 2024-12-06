@@ -39,8 +39,8 @@ public class ScheduledEventBuilder extends EntityWrapper {
   /**
    * Creates a scheduled event object from a configuration.
    */
-  public ScheduledEventBuilder(final EntityImpl doc) {
-    super(doc);
+  public ScheduledEventBuilder(final EntityImpl entity) {
+    super(entity);
   }
 
   public ScheduledEventBuilder setFunction(DatabaseSession session, final Function function) {

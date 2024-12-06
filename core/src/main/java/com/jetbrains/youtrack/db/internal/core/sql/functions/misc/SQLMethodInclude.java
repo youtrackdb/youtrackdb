@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Filter the content by including only some fields. If the content is a document, then creates a
+ * Filter the content by including only some fields. If the content is a entity, then creates a
  * copy with only the included fields. If it's a collection of documents it acts against on each
  * single entry.
  *
@@ -99,7 +99,7 @@ public class SQLMethodInclude extends AbstractSQLMethod {
         iThis = result.asEntity();
       }
       if (iThis instanceof EntityImpl) {
-        // ACT ON SINGLE DOCUMENT
+        // ACT ON SINGLE ENTITY
         return copy((EntityImpl) iThis, iParams);
       } else if (iThis instanceof Map) {
         // ACT ON MAP
@@ -125,8 +125,8 @@ public class SQLMethodInclude extends AbstractSQLMethod {
     return null;
   }
 
-  private Object copy(final EntityImpl document, final Object[] iFieldNames) {
-    final EntityImpl doc = new EntityImpl();
+  private Object copy(final EntityImpl entity, final Object[] iFieldNames) {
+    final EntityImpl ent = new EntityImpl();
     for (int i = 0; i < iFieldNames.length; ++i) {
       if (iFieldNames[i] != null) {
 
@@ -135,26 +135,26 @@ public class SQLMethodInclude extends AbstractSQLMethod {
         if (fieldName.endsWith("*")) {
           final String fieldPart = fieldName.substring(0, fieldName.length() - 1);
           final List<String> toInclude = new ArrayList<String>();
-          for (String f : document.fieldNames()) {
+          for (String f : entity.fieldNames()) {
             if (f.startsWith(fieldPart)) {
               toInclude.add(f);
             }
           }
 
           for (String f : toInclude) {
-            doc.field(fieldName, document.<Object>field(f));
+            ent.field(fieldName, entity.<Object>field(f));
           }
 
         } else {
-          doc.field(fieldName, document.<Object>field(fieldName));
+          ent.field(fieldName, entity.<Object>field(fieldName));
         }
       }
     }
-    return doc;
+    return ent;
   }
 
   private Object copy(final Map map, final Object[] iFieldNames) {
-    final EntityImpl doc = new EntityImpl();
+    final EntityImpl entity = new EntityImpl();
     for (int i = 0; i < iFieldNames.length; ++i) {
       if (iFieldNames[i] != null) {
         final String fieldName = iFieldNames[i].toString();
@@ -169,14 +169,14 @@ public class SQLMethodInclude extends AbstractSQLMethod {
           }
 
           for (String f : toInclude) {
-            doc.field(fieldName, map.get(f));
+            entity.field(fieldName, map.get(f));
           }
 
         } else {
-          doc.field(fieldName, map.get(fieldName));
+          entity.field(fieldName, map.get(fieldName));
         }
       }
     }
-    return doc;
+    return entity;
   }
 }

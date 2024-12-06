@@ -286,7 +286,7 @@ public class SQLTarget extends BaseParser {
                             .getConfiguration()
                             .getIndexMgrRecordId()));
           } else {
-            throw new QueryParsingException("Metadata element not supported: " + metadataTarget);
+            throw new QueryParsingException("Metadata entity not supported: " + metadataTarget);
           }
 
         } else if (subjectToMatch.startsWith(CommandExecutorSQLAbstract.DICTIONARY_PREFIX)) {

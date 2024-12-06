@@ -49,8 +49,8 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.PropertyEncrypt
 import com.jetbrains.youtrack.db.internal.core.record.RecordInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityEntry;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImplEmbedded;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.DocumentSerializable;
 import com.jetbrains.youtrack.db.internal.core.serialization.SerializableStream;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.HelperClasses.MapRecordInfo;
@@ -70,7 +70,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 
-public class RecordSerializerBinaryV1 implements DocumentSerializer {
+public class RecordSerializerBinaryV1 implements EntitySerializer {
 
   private final BinaryComparatorV0 comparator = new BinaryComparatorV0();
 
@@ -105,7 +105,7 @@ public class RecordSerializerBinaryV1 implements DocumentSerializer {
     return false;
   }
 
-  public void deserializePartial(DatabaseSessionInternal db, EntityImpl document,
+  public void deserializePartial(DatabaseSessionInternal db, EntityImpl entity,
       BytesContainer bytes, String[] iFields) {
     // TRANSFORMS FIELDS FOM STRINGS TO BYTE[]
     final byte[][] fields = new byte[iFields.length][];
@@ -143,7 +143,7 @@ public class RecordSerializerBinaryV1 implements DocumentSerializer {
         }
       } else {
         // LOAD GLOBAL PROPERTY BY ID
-        final GlobalProperty prop = getGlobalProperty(document, len);
+        final GlobalProperty prop = getGlobalProperty(entity, len);
         found = checkIfPropertyNameMatchSome(prop, iFields);
 
         fieldLength = VarIntSerializer.readAsInteger(bytes);
@@ -155,12 +155,12 @@ public class RecordSerializerBinaryV1 implements DocumentSerializer {
         if (fieldLength != 0) {
           int headerCursor = bytes.offset;
           bytes.offset = currentValuePos;
-          final Object value = deserializeValue(db, bytes, type, document);
+          final Object value = deserializeValue(db, bytes, type, entity);
           bytes.offset = headerCursor;
-          DocumentInternal.rawField(document, fieldName, value, type);
+          EntityInternalUtils.rawField(entity, fieldName, value, type);
         } else {
           // If pos us 0 the value is null just set it.
-          DocumentInternal.rawField(document, fieldName, null, null);
+          EntityInternalUtils.rawField(entity, fieldName, null, null);
         }
         if (++unmarshalledFields == iFields.length)
         // ALL REQUESTED FIELDS UNMARSHALLED: EXIT
@@ -265,7 +265,7 @@ public class RecordSerializerBinaryV1 implements DocumentSerializer {
     return null;
   }
 
-  public void deserialize(DatabaseSessionInternal db, final EntityImpl document,
+  public void deserialize(DatabaseSessionInternal db, final EntityImpl entity,
       final BytesContainer bytes) {
     int headerLength = VarIntSerializer.readAsInteger(bytes);
     int headerStart = bytes.offset;
@@ -287,47 +287,47 @@ public class RecordSerializerBinaryV1 implements DocumentSerializer {
         type = pointerAndType.getSecondVal();
       } else {
         // LOAD GLOBAL PROPERTY BY ID
-        prop = getGlobalProperty(document, len);
+        prop = getGlobalProperty(entity, len);
         fieldName = prop.getName();
         fieldLength = VarIntSerializer.readAsInteger(bytes);
         type = getPropertyTypeFromStream(prop, bytes);
       }
 
-      if (!DocumentInternal.rawContainsField(document, fieldName)) {
+      if (!EntityInternalUtils.rawContainsField(entity, fieldName)) {
         if (fieldLength != 0) {
           int headerCursor = bytes.offset;
 
           bytes.offset = cumulativeSize;
-          final Object value = deserializeValue(db, bytes, type, document);
+          final Object value = deserializeValue(db, bytes, type, entity);
           if (bytes.offset > last) {
             last = bytes.offset;
           }
           bytes.offset = headerCursor;
-          DocumentInternal.rawField(document, fieldName, value, type);
+          EntityInternalUtils.rawField(entity, fieldName, value, type);
         } else {
-          DocumentInternal.rawField(document, fieldName, null, null);
+          EntityInternalUtils.rawField(entity, fieldName, null, null);
         }
       }
 
       cumulativeSize += fieldLength;
     }
 
-    RecordInternal.clearSource(document);
+    RecordInternal.clearSource(entity);
 
     if (last > bytes.offset) {
       bytes.offset = last;
     }
   }
 
-  public void deserializeWithClassName(DatabaseSessionInternal db, final EntityImpl document,
+  public void deserializeWithClassName(DatabaseSessionInternal db, final EntityImpl entity,
       final BytesContainer bytes) {
 
     final String className = readString(bytes);
     if (!className.isEmpty()) {
-      DocumentInternal.fillClassNameIfNeeded(document, className);
+      EntityInternalUtils.fillClassNameIfNeeded(entity, className);
     }
 
-    deserialize(db, document, bytes);
+    deserialize(db, entity, bytes);
   }
 
   public String[] getFieldNames(EntityImpl reference, final BytesContainer bytes,
@@ -360,7 +360,7 @@ public class RecordSerializerBinaryV1 implements DocumentSerializer {
       } else {
         // LOAD GLOBAL PROPERTY BY ID
         final int id = (len * -1) - 1;
-        prop = DocumentInternal.getGlobalPropertyById(reference, id);
+        prop = EntityInternalUtils.getGlobalPropertyById(reference, id);
         if (prop == null) {
           throw new SerializationException(
               "Missing property definition for property id '" + id + "'");
@@ -381,12 +381,12 @@ public class RecordSerializerBinaryV1 implements DocumentSerializer {
   private void serializeValues(
       DatabaseSessionInternal session, final BytesContainer headerBuffer,
       final BytesContainer valuesBuffer,
-      final EntityImpl document,
+      final EntityImpl entity,
       Set<Entry<String, EntityEntry>> fields,
       final Map<String, Property> props,
       ImmutableSchema schema,
       PropertyEncryption encryption) {
-    SchemaClass oClass = DocumentInternal.getImmutableSchemaClass(document);
+    SchemaClass oClass = EntityInternalUtils.getImmutableSchemaClass(entity);
     for (Entry<String, EntityEntry> field : fields) {
       EntityEntry docEntry = field.getValue();
       if (!field.getValue().exists()) {
@@ -463,7 +463,7 @@ public class RecordSerializerBinaryV1 implements DocumentSerializer {
   }
 
   private void serializeDocument(
-      DatabaseSessionInternal session, final EntityImpl document,
+      DatabaseSessionInternal session, final EntityImpl entity,
       final BytesContainer bytes,
       final SchemaClass clazz,
       ImmutableSchema schema,
@@ -471,12 +471,12 @@ public class RecordSerializerBinaryV1 implements DocumentSerializer {
     // allocate space for header length
 
     final Map<String, Property> props = clazz != null ? clazz.propertiesMap(session) : null;
-    final Set<Entry<String, EntityEntry>> fields = DocumentInternal.rawEntries(document);
+    final Set<Entry<String, EntityEntry>> fields = EntityInternalUtils.rawEntries(entity);
 
     BytesContainer valuesBuffer = new BytesContainer();
     BytesContainer headerBuffer = new BytesContainer();
 
-    serializeValues(session, headerBuffer, valuesBuffer, document, fields, props, schema,
+    serializeValues(session, headerBuffer, valuesBuffer, entity, fields, props, schema,
         encryption);
     int headerLength = headerBuffer.offset;
     // write header length as soon as possible
@@ -485,25 +485,25 @@ public class RecordSerializerBinaryV1 implements DocumentSerializer {
     merge(bytes, headerBuffer, valuesBuffer);
   }
 
-  public void serializeWithClassName(DatabaseSessionInternal session, final EntityImpl document,
+  public void serializeWithClassName(DatabaseSessionInternal session, final EntityImpl entity,
       final BytesContainer bytes) {
-    ImmutableSchema schema = DocumentInternal.getImmutableSchema(document);
-    final SchemaClass clazz = DocumentInternal.getImmutableSchemaClass(document);
-    if (clazz != null && document.isEmbedded()) {
+    ImmutableSchema schema = EntityInternalUtils.getImmutableSchema(entity);
+    final SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
+    if (clazz != null && entity.isEmbedded()) {
       writeString(bytes, clazz.getName());
     } else {
       writeEmptyString(bytes);
     }
-    PropertyEncryption encryption = DocumentInternal.getPropertyEncryption(document);
-    serializeDocument(session, document, bytes, clazz, schema, encryption);
+    PropertyEncryption encryption = EntityInternalUtils.getPropertyEncryption(entity);
+    serializeDocument(session, entity, bytes, clazz, schema, encryption);
   }
 
-  public void serialize(DatabaseSessionInternal session, final EntityImpl document,
+  public void serialize(DatabaseSessionInternal session, final EntityImpl entity,
       final BytesContainer bytes) {
-    ImmutableSchema schema = DocumentInternal.getImmutableSchema(document);
-    PropertyEncryption encryption = DocumentInternal.getPropertyEncryption(document);
-    final SchemaClass clazz = DocumentInternal.getImmutableSchemaClass(document);
-    serializeDocument(session, document, bytes, clazz, schema, encryption);
+    ImmutableSchema schema = EntityInternalUtils.getImmutableSchema(entity);
+    PropertyEncryption encryption = EntityInternalUtils.getPropertyEncryption(entity);
+    final SchemaClass clazz = EntityInternalUtils.getImmutableSchemaClass(entity);
+    serializeDocument(session, entity, bytes, clazz, schema, encryption);
   }
 
   public boolean isSerializingClassNameByDefault() {
@@ -784,11 +784,11 @@ public class RecordSerializerBinaryV1 implements DocumentSerializer {
   public Object deserializeValue(
       DatabaseSessionInternal session, final BytesContainer bytes, final PropertyType type,
       final RecordElement owner) {
-    RecordElement doc = owner;
-    while (!(doc instanceof EntityImpl) && doc != null) {
-      doc = doc.getOwner();
+    RecordElement entity = owner;
+    while (!(entity instanceof EntityImpl) && entity != null) {
+      entity = entity.getOwner();
     }
-    ImmutableSchema schema = DocumentInternal.getImmutableSchema((EntityImpl) doc);
+    ImmutableSchema schema = EntityInternalUtils.getImmutableSchema((EntityImpl) entity);
     return deserializeValue(session, bytes, type, owner, true, -1, false, schema);
   }
 
@@ -1199,9 +1199,9 @@ public class RecordSerializerBinaryV1 implements DocumentSerializer {
         throw new RuntimeException(e);
       }
     } else {
-      var doc = (EntityImpl) value;
-      DocumentInternal.addOwner(doc, owner);
-      RecordInternal.unsetDirty(doc);
+      var entity = (EntityImpl) value;
+      EntityInternalUtils.addOwner(entity, owner);
+      RecordInternal.unsetDirty(entity);
     }
 
     return value;

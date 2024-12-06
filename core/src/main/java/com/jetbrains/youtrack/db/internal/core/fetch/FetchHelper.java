@@ -31,7 +31,7 @@ import com.jetbrains.youtrack.db.internal.core.id.RecordId;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.Record;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.string.RecordSerializerJSON;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -151,7 +151,7 @@ public class FetchHelper {
         depthLevel = iFieldDepthLevel;
       }
 
-      fieldValue = DocumentInternal.getRawProperty(record, fieldName);
+      fieldValue = EntityInternalUtils.getRawProperty(record, fieldName);
       if (fieldValue == null
           || !(fieldValue instanceof Identifiable)
           && (!(fieldValue instanceof Iterable<?>)
@@ -491,7 +491,7 @@ public class FetchHelper {
       depthLevel = fieldDepthLevel;
     }
 
-    fieldValue = DocumentInternal.getRawProperty(record, fieldName);
+    fieldValue = EntityInternalUtils.getRawProperty(record, fieldName);
     final PropertyType fieldType = record.fieldType(fieldName);
     boolean fetch =
         !format.contains("shallow")
@@ -548,7 +548,7 @@ public class FetchHelper {
       depthLevel = fieldDepthLevel;
     }
 
-    fieldValue = DocumentInternal.getRawProperty(record, fieldName);
+    fieldValue = EntityInternalUtils.getRawProperty(record, fieldName);
     final PropertyType fieldType = record.fieldType(fieldName);
     boolean fetch =
         !format.contains("shallow")
@@ -818,17 +818,17 @@ public class FetchHelper {
       RecordSerializerJSON.FormatSettings settings) {
     if (fieldValue instanceof EntityImpl[] linked) {
       context.onBeforeArray(rootRecord, fieldName, iUserObject, linked);
-      for (final EntityImpl document : linked) {
+      for (final EntityImpl entity : linked) {
         // GO RECURSIVELY
-        final int fieldDepthLevel = parsedRecords.getInt(document.getIdentity());
-        if (!document.getIdentity().isValid()
+        final int fieldDepthLevel = parsedRecords.getInt(entity.getIdentity());
+        if (!entity.getIdentity().isValid()
             || (fieldDepthLevel > -1 && fieldDepthLevel == iLevelFromRoot)) {
-          removeParsedFromMap(parsedRecords, document);
-          context.onBeforeDocument(rootRecord, document, fieldName, iUserObject);
+          removeParsedFromMap(parsedRecords, entity);
+          context.onBeforeDocument(rootRecord, entity, fieldName, iUserObject);
           final Object userObject =
-              iListener.fetchLinked(rootRecord, iUserObject, fieldName, document, context);
+              iListener.fetchLinked(rootRecord, iUserObject, fieldName, entity, context);
           processRecord(
-              document,
+              entity,
               userObject,
               iFetchPlan,
               iCurrentLevel,
@@ -839,10 +839,10 @@ public class FetchHelper {
               iListener,
               context,
               getTypesFormat(settings.keepTypes)); // ""
-          context.onAfterDocument(rootRecord, document, fieldName, iUserObject);
+          context.onAfterDocument(rootRecord, entity, fieldName, iUserObject);
         } else {
           iListener.parseLinkedCollectionValue(
-              rootRecord, document, iUserObject, fieldName, context);
+              rootRecord, entity, iUserObject, fieldName, context);
         }
       }
       context.onAfterArray(rootRecord, fieldName, iUserObject);

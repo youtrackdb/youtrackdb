@@ -114,20 +114,20 @@ public class SequenceLibraryImpl {
     final Sequence seq = getSequence(database, iName);
     if (seq != null) {
       try {
-        database.delete(seq.docRid);
+        database.delete(seq.entityRid);
         sequences.remove(iName.toUpperCase(Locale.ENGLISH));
       } catch (NeedRetryException e) {
-        var rec = database.load(seq.docRid);
+        var rec = database.load(seq.entityRid);
         rec.delete();
       }
     }
   }
 
   public void onSequenceCreated(
-      final DatabaseSessionInternal database, final EntityImpl iDocument) {
+      final DatabaseSessionInternal database, final EntityImpl entity) {
     init(database);
 
-    String name = Sequence.getSequenceName(iDocument);
+    String name = Sequence.getSequenceName(entity);
     if (name == null) {
       return;
     }
@@ -140,15 +140,15 @@ public class SequenceLibraryImpl {
       return;
     }
 
-    final Sequence sequence = SequenceHelper.createSequence(iDocument);
+    final Sequence sequence = SequenceHelper.createSequence(entity);
 
     sequences.put(name, sequence);
     onSequenceLibraryUpdate(database);
   }
 
   public void onSequenceDropped(
-      final DatabaseSessionInternal database, final EntityImpl iDocument) {
-    String name = Sequence.getSequenceName(iDocument);
+      final DatabaseSessionInternal database, final EntityImpl entity) {
+    String name = Sequence.getSequenceName(entity);
     if (name == null) {
       return;
     }

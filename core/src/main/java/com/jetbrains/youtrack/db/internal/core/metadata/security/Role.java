@@ -111,7 +111,7 @@ public class Role extends Identity implements SecurityRole {
   }
 
   /**
-   * Create the role by reading the source document.
+   * Create the role by reading the source entity.
    */
   public Role(DatabaseSession session, final EntityImpl iSource) {
     fromStream((DatabaseSessionInternal) session, iSource);
@@ -173,9 +173,9 @@ public class Role extends Identity implements SecurityRole {
 
     setDocument(session, iSource);
 
-    var document = getDocument(session);
+    var entity = getDocument(session);
     try {
-      final Number modeField = document.field("mode");
+      final Number modeField = entity.field("mode");
       if (modeField == null) {
         mode = ALLOW_MODES.DENY_ALL_BUT;
       } else if (modeField.byteValue() == STREAM_ALLOW) {
@@ -189,12 +189,12 @@ public class Role extends Identity implements SecurityRole {
       mode = ALLOW_MODES.DENY_ALL_BUT;
     }
 
-    final Identifiable role = document.field("inheritedRole");
+    final Identifiable role = entity.field("inheritedRole");
     parentRole =
         role != null ? session.getMetadata().getSecurity().getRole(role) : null;
 
     boolean rolesNeedToBeUpdated = false;
-    Object loadedRules = document.field("rules");
+    Object loadedRules = entity.field("rules");
     if (loadedRules instanceof Map) {
       loadOldVersionOfRules((Map<String, Number>) loadedRules);
     } else {
@@ -409,7 +409,7 @@ public class Role extends Identity implements SecurityRole {
   @Deprecated
   public Role setMode(final ALLOW_MODES iMode) {
     //    this.mode = iMode;
-    //    document.field("mode", mode == ALLOW_MODES.ALLOW_ALL_BUT ? STREAM_ALLOW : STREAM_DENY);
+    //    entity.field("mode", mode == ALLOW_MODES.ALLOW_ALL_BUT ? STREAM_ALLOW : STREAM_DENY);
     return this;
   }
 

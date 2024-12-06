@@ -26,7 +26,7 @@ public class WhileMatchStep extends AbstractUnrollStep {
   }
 
   @Override
-  protected Collection<Result> unroll(Result doc, CommandContext iContext) {
+  protected Collection<Result> unroll(Result res, CommandContext iContext) {
     body.reset(iContext);
     List<Result> result = new ArrayList<>();
     ExecutionStream block = body.start();

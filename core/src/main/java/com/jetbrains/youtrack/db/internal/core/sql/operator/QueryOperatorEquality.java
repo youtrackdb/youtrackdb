@@ -25,7 +25,7 @@ import com.jetbrains.youtrack.db.internal.core.db.record.Identifiable;
 import com.jetbrains.youtrack.db.internal.core.query.QueryRuntimeValueMulti;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.BinaryField;
-import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.DocumentSerializer;
+import com.jetbrains.youtrack.db.internal.core.serialization.serializer.record.binary.EntitySerializer;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterCondition;
 import com.jetbrains.youtrack.db.internal.core.sql.filter.SQLFilterItemFieldAll;
 
@@ -67,7 +67,7 @@ public abstract class QueryOperatorEquality extends QueryOperator {
       final BinaryField iFirstField,
       final BinaryField iSecondField,
       final CommandContext iContext,
-      final DocumentSerializer serializer) {
+      final EntitySerializer serializer) {
     final Object left = serializer.deserializeValue(iContext.getDatabase(), iFirstField.bytes,
         iFirstField.type, null);
     final Object right = serializer.deserializeValue(iContext.getDatabase(), iSecondField.bytes,
@@ -84,7 +84,7 @@ public abstract class QueryOperatorEquality extends QueryOperator {
       final Object iLeft,
       final Object iRight,
       CommandContext iContext,
-      final DocumentSerializer serializer) {
+      final EntitySerializer serializer) {
 
     if (iLeft instanceof BinaryField && iRight instanceof BinaryField)
     // BINARY COMPARISON

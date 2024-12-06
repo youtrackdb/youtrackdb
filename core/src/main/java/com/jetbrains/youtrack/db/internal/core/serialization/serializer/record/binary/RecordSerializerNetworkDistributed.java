@@ -5,7 +5,7 @@ import com.jetbrains.youtrack.db.internal.core.exception.DatabaseException;
 import com.jetbrains.youtrack.db.internal.core.exception.RecordNotFoundException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityEntry;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.record.impl.DocumentInternal;
+import com.jetbrains.youtrack.db.internal.core.record.impl.EntityInternalUtils;
 import java.util.Collection;
 import java.util.Map;
 
@@ -33,7 +33,7 @@ public class RecordSerializerNetworkDistributed extends RecordSerializerNetworkV
     VarIntSerializer.write(bytes, link.getIdentity().getClusterPosition());
   }
 
-  protected Collection<Map.Entry<String, EntityEntry>> fetchEntries(EntityImpl document) {
-    return DocumentInternal.rawEntries(document);
+  protected Collection<Map.Entry<String, EntityEntry>> fetchEntries(EntityImpl entity) {
+    return EntityInternalUtils.rawEntries(entity);
   }
 }

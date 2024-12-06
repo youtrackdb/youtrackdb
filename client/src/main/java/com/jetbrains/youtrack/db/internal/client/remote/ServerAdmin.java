@@ -22,7 +22,7 @@ package com.jetbrains.youtrack.db.internal.client.remote;
 import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseType;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfig;
-import com.jetbrains.youtrack.db.internal.core.db.document.DatabaseDocumentTxInternal;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseDocumentTxInternal;
 import com.jetbrains.youtrack.db.internal.core.exception.StorageException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.io.IOException;
@@ -131,7 +131,7 @@ public class ServerAdmin {
   }
 
   /**
-   * Returns the server information in form of document.
+   * Returns the server information in form of entity.
    *
    * @throws IOException
    */

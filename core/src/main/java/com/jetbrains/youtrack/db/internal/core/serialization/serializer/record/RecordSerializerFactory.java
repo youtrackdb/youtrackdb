@@ -52,11 +52,11 @@ public class RecordSerializerFactory {
     register(RecordSerializerNetworkV37Client.NAME, RecordSerializerNetworkV37Client.INSTANCE);
 
     defaultRecordSerializer =
-        getFormat(GlobalConfiguration.DB_DOCUMENT_SERIALIZER.getValueAsString());
+        getFormat(GlobalConfiguration.DB_ENTITY_SERIALIZER.getValueAsString());
     if (defaultRecordSerializer == null) {
       throw new DatabaseException(
           "Impossible to find serializer with name "
-              + GlobalConfiguration.DB_DOCUMENT_SERIALIZER.getValueAsString());
+              + GlobalConfiguration.DB_ENTITY_SERIALIZER.getValueAsString());
     }
   }
 

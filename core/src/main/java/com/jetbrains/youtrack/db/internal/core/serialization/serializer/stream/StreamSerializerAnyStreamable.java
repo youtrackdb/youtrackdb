@@ -65,7 +65,7 @@ public class StreamSerializerAnyStreamable {
 
     if (classNameSize <= 0) {
       final String message =
-          "Class signature not found in ANY element: " + Arrays.toString(iStream);
+          "Class signature not found in ANY entity: " + Arrays.toString(iStream);
       LogManager.instance().error(this, message, null);
 
       throw new SerializationException(message);
