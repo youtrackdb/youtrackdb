@@ -87,7 +87,7 @@ public class LuceneAutomaticBackupRestoreTest {
     FileUtils.deleteRecursively(tempFolder);
     Assert.assertTrue(tempFolder.mkdirs());
 
-    System.setProperty("YOU_TRACK_DB_HOME", tempFolder.getCanonicalPath());
+    System.setProperty("YOUTRACKDB_HOME", tempFolder.getCanonicalPath());
 
     String path = tempFolder.getCanonicalPath() + File.separator + "databases";
     server =

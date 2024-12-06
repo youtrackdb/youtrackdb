@@ -19,7 +19,7 @@ public abstract class OSingleYouTrackDBServerBaseIT {
   @ClassRule
   public static GenericContainer container =
       new GenericContainer("orientdb/orientdb:latest")
-          .withEnv("YOU_TRACK_DB_ROOT_PASSWORD", "root")
+          .withEnv("YOUTRACKDB_ROOT_PASSWORD", "root")
           .withExposedPorts(2480, 2424)
           .waitingFor(Wait.forListeningPort());
 

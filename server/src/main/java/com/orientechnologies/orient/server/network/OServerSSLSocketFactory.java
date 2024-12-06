@@ -89,7 +89,7 @@ public class OServerSSLSocketFactory extends OServerSocketFactory {
     if (!keyStoreFile.isAbsolute()) {
       keyStoreFile =
           new File(
-              SystemVariableResolver.resolveSystemVariables("${YOU_TRACK_DB_HOME}"), keyStorePath);
+              SystemVariableResolver.resolveSystemVariables("${YOUTRACKDB_HOME}"), keyStorePath);
     }
 
     if (trustStorePath != null) {
@@ -97,7 +97,7 @@ public class OServerSSLSocketFactory extends OServerSocketFactory {
       if (!trustStoreFile.isAbsolute()) {
         trustStoreFile =
             new File(
-                SystemVariableResolver.resolveSystemVariables("${YOU_TRACK_DB_HOME}"),
+                SystemVariableResolver.resolveSystemVariables("${YOUTRACKDB_HOME}"),
                 trustStorePath);
       }
     }

@@ -183,7 +183,7 @@
               <systemPropertyVariables>
                 <youtrackdb.config.file>target/test-classes/orientdb-server-config.xml
                 </youtrackdb.config.file>
-                <YOU_TRACK_DB_HOME>${project.build.directory}/remote-server</YOU_TRACK_DB_HOME>
+                <YOUTRACKDB_HOME>${project.build.directory}/remote-server</YOUTRACKDB_HOME>
               </systemPropertyVariables>
               <suiteXmlFiles>
                 <suiteXmlFile>

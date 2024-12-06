@@ -1287,7 +1287,7 @@ public class StorageConfigurationImpl implements SerializableStream, StorageConf
         // @COMPATIBILITY 0.9.25
         int pos = fileName.indexOf("/databases");
         if (pos > -1) {
-          fileName = "${" + YouTrackDBManager.YOU_TRACK_DB_HOME + "}" + fileName.substring(pos);
+          fileName = "${" + YouTrackDBManager.YOUTRACKDB_HOME + "}" + fileName.substring(pos);
         }
       }
 

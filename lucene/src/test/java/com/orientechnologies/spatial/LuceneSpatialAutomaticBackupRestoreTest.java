@@ -92,7 +92,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
         };
     server.startup();
 
-    System.setProperty("YOU_TRACK_DB_HOME", tempFolder.getAbsolutePath());
+    System.setProperty("YOUTRACKDB_HOME", tempFolder.getAbsolutePath());
 
     String path = tempFolder.getAbsolutePath() + File.separator + "databases";
     youTrackDB = server.getContext();

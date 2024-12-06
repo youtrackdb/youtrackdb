@@ -30,8 +30,8 @@ done
 # Get standard environment variables
 PRGDIR=`dirname "$PRG"`
 
-# Only set YOU_TRACK_DB_HOME if not already set
-[ -f "$ORIENTDB_HOME"/bin/server.sh ] || YOU_TRACK_DB_HOME=`cd "$PRGDIR/.." ; pwd`
+# Only set YOUTRACKDB_HOME if not already set
+[ -f "$ORIENTDB_HOME"/bin/server.sh ] || YOUTRACKDB_HOME=`cd "$PRGDIR/.." ; pwd`
 cd "$ORIENTDB_HOME/bin"
 
 if [ ! -f "${CONFIG_FILE}" ]

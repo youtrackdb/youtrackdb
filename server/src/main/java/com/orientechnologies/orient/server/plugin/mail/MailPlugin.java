@@ -26,8 +26,8 @@ import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
-import com.orientechnologies.orient.server.plugin.ServerPluginAbstract;
 import com.orientechnologies.orient.server.plugin.OServerPluginConfigurable;
+import com.orientechnologies.orient.server.plugin.ServerPluginAbstract;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -46,7 +46,7 @@ public class MailPlugin extends ServerPluginAbstract
 
   private final Map<String, OMailProfile> profiles = new HashMap<String, OMailProfile>();
 
-  private final String configFile = "${YOU_TRACK_DB_HOME}/config/mail.json";
+  private final String configFile = "${YOUTRACKDB_HOME}/config/mail.json";
 
   public MailPlugin() {
   }

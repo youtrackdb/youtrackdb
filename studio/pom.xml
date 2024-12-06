@@ -139,7 +139,7 @@
 							<arguments>
 								<argument>
 									${project.build.directory}/orientdb-community-${project.version}/bin/server.sh</argument>
-                <argument>-DYOU_TRACK_DB_ROOT_PASSWORD=root</argument>
+                <argument>-DYOUTRACKDB_ROOT_PASSWORD=root</argument>
 							</arguments>
 						</configuration>
 					</execution>

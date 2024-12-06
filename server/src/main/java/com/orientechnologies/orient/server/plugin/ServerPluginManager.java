@@ -75,7 +75,7 @@ public class ServerPluginManager implements Service {
     boolean dynamic = true;
     boolean loadAtStartup = true;
     directory =
-        SystemVariableResolver.resolveSystemVariables("${YOU_TRACK_DB_HOME}", ".") + "/plugins/";
+        SystemVariableResolver.resolveSystemVariables("${YOUTRACKDB_HOME}", ".") + "/plugins/";
 
     if (server.getConfiguration() != null && server.getConfiguration().properties != null) {
       for (OServerEntryConfiguration p : server.getConfiguration().properties) {
@@ -318,7 +318,7 @@ public class ServerPluginManager implements Service {
   }
 
   private void updatePlugins() {
-    // load plugins.directory from server configuration or default to $YOU_TRACK_DB_HOME/plugins
+    // load plugins.directory from server configuration or default to $YOUTRACKDB_HOME/plugins
     final File pluginsDirectory = new File(directory);
     if (!pluginsDirectory.exists()) {
       pluginsDirectory.mkdirs();

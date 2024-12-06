@@ -32,8 +32,8 @@ public class OServerShutdownMainTest {
   public void startupOServer() throws Exception {
 
     LogManager.instance().setConsoleLevel(Level.OFF.getName());
-    prevPassword = System.setProperty("YOU_TRACK_DB_ROOT_PASSWORD", "rootPassword");
-    prevOrientHome = System.setProperty("YOU_TRACK_DB_HOME", "./target/testhome");
+    prevPassword = System.setProperty("YOUTRACKDB_ROOT_PASSWORD", "rootPassword");
+    prevOrientHome = System.setProperty("YOUTRACKDB_HOME", "./target/testhome");
 
     OServerConfiguration conf = new OServerConfiguration();
     conf.network = new OServerNetworkConfiguration();
@@ -65,10 +65,10 @@ public class OServerShutdownMainTest {
     YouTrackDBManager.instance().startup();
 
     if (prevOrientHome != null) {
-      System.setProperty("YOU_TRACK_DB_HOME", prevOrientHome);
+      System.setProperty("YOUTRACKDB_HOME", prevOrientHome);
     }
     if (prevPassword != null) {
-      System.setProperty("YOU_TRACK_DB_ROOT_PASSWORD", prevPassword);
+      System.setProperty("YOUTRACKDB_ROOT_PASSWORD", prevPassword);
     }
   }
 

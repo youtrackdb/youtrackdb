@@ -26,6 +26,7 @@ import com.jetbrains.youtrack.db.internal.core.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.ImmutableUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Role;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.Rule.ResourceGeneric;
@@ -33,9 +34,8 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.Security;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityInternal;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityRole;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityShared;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.ImmutableUser;
-import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.SecuritySystemUserIml;
+import com.jetbrains.youtrack.db.internal.core.metadata.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.AuthenticationInfo;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.authenticator.DatabaseUserAuthenticator;
@@ -866,7 +866,7 @@ public class DefaultSecuritySystem implements SecuritySystem {
         configEntity.field(section, sectionEntity);
         String configFile =
             SystemVariableResolver.resolveSystemVariables(
-                "${YOU_TRACK_DB_HOME}/config/security.json");
+                "${YOUTRACKDB_HOME}/config/security.json");
 
         String ssf = GlobalConfiguration.SERVER_SECURITY_FILE.getValueAsString();
         if (ssf != null) {
@@ -882,7 +882,7 @@ public class DefaultSecuritySystem implements SecuritySystem {
     }
   }
 
-  // "${YOU_TRACK_DB_HOME}/config/security.json"
+  // "${YOUTRACKDB_HOME}/config/security.json"
   private EntityImpl loadConfig(final String cfgPath) {
     EntityImpl securityEntity = null;
 

@@ -3296,7 +3296,7 @@ public class ConsoleDatabaseApp extends ConsoleApplication
   protected void printApplicationInfo() {
     message(
         "\nYouTrackDB console v." + YouTrackDBConstants.getVersion() + " "
-            + YouTrackDBConstants.YOU_TRACK_DB_URL);
+            + YouTrackDBConstants.YOUTRACKDB_URL);
     message("\nType 'help' to display all the supported commands.");
   }
 

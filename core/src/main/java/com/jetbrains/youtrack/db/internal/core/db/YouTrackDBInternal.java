@@ -79,9 +79,8 @@ public interface YouTrackDBInternal extends AutoCloseable, SchedulerInternal {
    */
   static YouTrackDBInternal remote(String[] hosts, YouTrackDBConfig configuration) {
     YouTrackDBInternal factory;
-
     try {
-      String className = "com.orientechnologies.orient.client.remote.YouTrackDBRemote";
+      String className = "com.jetbrains.youtrack.db.internal.client.remote.YouTrackDBRemote";
       ClassLoader loader;
       if (configuration != null) {
         loader = configuration.getClassLoader();

@@ -159,7 +159,7 @@ public class DatabaseHelper {
 
   @Deprecated
   protected static String getServerRootPassword(final String iDirectory) throws IOException {
-    String passwd = System.getProperty("YOU_TRACK_DB_ROOT_PASSWORD");
+    String passwd = System.getProperty("YOUTRACKDB_ROOT_PASSWORD");
     if (passwd != null) {
       return passwd;
     }
@@ -225,7 +225,7 @@ public class DatabaseHelper {
       file =
           new File(
               SystemVariableResolver.resolveSystemVariables(
-                  "${" + YouTrackDBManager.YOU_TRACK_DB_HOME
+                  "${" + YouTrackDBManager.YOUTRACKDB_HOME
                       + "}/config/youtrackdb-server-config.xml"));
     }
     if (!file.exists()) {

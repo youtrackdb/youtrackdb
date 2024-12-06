@@ -27,9 +27,9 @@ import com.jetbrains.youtrack.db.internal.core.engine.local.EngineLocalPaginated
 import com.jetbrains.youtrack.db.internal.core.engine.memory.EngineMemory;
 import com.jetbrains.youtrack.db.internal.core.id.RID;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
+import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.Schema;
 import com.jetbrains.youtrack.db.internal.core.metadata.schema.SchemaClass;
-import com.jetbrains.youtrack.db.internal.core.metadata.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -47,7 +47,7 @@ public class LuceneInsertMultithreadTest {
   private static String buildDirectory;
   private static final String dbName;
   private static final DatabaseType databaseType;
-  private static final YouTrackDB YOU_TRACK_DB;
+  private static final YouTrackDB YOUTRACKDB;
 
   static {
     System.getProperty("buildDirectory", ".");
@@ -67,7 +67,7 @@ public class LuceneInsertMultithreadTest {
     }
 
     dbName = "multiThread";
-    YOU_TRACK_DB = new YouTrackDB(storageType + ":" + buildDirectory,
+    YOUTRACKDB = new YouTrackDB(storageType + ":" + buildDirectory,
         YouTrackDBConfig.defaultConfig());
   }
 
@@ -77,14 +77,14 @@ public class LuceneInsertMultithreadTest {
 
   @Test
   public void testConcurrentInsertWithIndex() throws Exception {
-    if (YOU_TRACK_DB.exists(dbName)) {
-      YOU_TRACK_DB.drop(dbName);
+    if (YOUTRACKDB.exists(dbName)) {
+      YOUTRACKDB.drop(dbName);
     }
-    YOU_TRACK_DB.execute(
+    YOUTRACKDB.execute(
         "create database ? " + databaseType + " users(admin identified by 'admin' role admin)",
         dbName);
     Schema schema;
-    try (DatabaseSessionInternal databaseDocumentTx = (DatabaseSessionInternal) YOU_TRACK_DB.open(
+    try (DatabaseSessionInternal databaseDocumentTx = (DatabaseSessionInternal) YOUTRACKDB.open(
         dbName, "admin", "admin")) {
       schema = databaseDocumentTx.getMetadata().getSchema();
 
@@ -120,7 +120,7 @@ public class LuceneInsertMultithreadTest {
           .isEqualTo(THREADS * CYCLE);
       databaseDocumentTx.commit();
     }
-    YOU_TRACK_DB.drop(dbName);
+    YOUTRACKDB.drop(dbName);
   }
 
   public static class LuceneInsertThread implements Runnable {
@@ -134,7 +134,7 @@ public class LuceneInsertMultithreadTest {
     @Override
     public void run() {
 
-      try (DatabaseSession db = YOU_TRACK_DB.open(dbName, "admin", "admin")) {
+      try (DatabaseSession db = YOUTRACKDB.open(dbName, "admin", "admin")) {
         db.begin();
         for (int i = 0; i < cycle; i++) {
           EntityImpl doc = new EntityImpl("City");
@@ -166,7 +166,7 @@ public class LuceneInsertMultithreadTest {
     @Override
     public void run() {
       Schema schema;
-      try (DatabaseSessionInternal databaseDocumentTx = (DatabaseSessionInternal) YOU_TRACK_DB.open(
+      try (DatabaseSessionInternal databaseDocumentTx = (DatabaseSessionInternal) YOUTRACKDB.open(
           dbName, "admin", "admin")) {
         schema = databaseDocumentTx.getMetadata().getSchema();
 

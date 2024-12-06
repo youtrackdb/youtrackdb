@@ -24,7 +24,7 @@ public class AbstractRemoteTest {
   @Before
   public void setup() throws Exception {
 
-    System.setProperty("YOU_TRACK_DB_HOME", SERVER_DIRECTORY);
+    System.setProperty("YOUTRACKDB_HOME", SERVER_DIRECTORY);
 
     InputStream stream =
         ClassLoader.getSystemResourceAsStream("abstract-orientdb-server-config.xml");

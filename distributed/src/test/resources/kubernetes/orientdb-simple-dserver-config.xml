@@ -5,10 +5,10 @@
       class="com.orientechnologies.orient.server.hazelcast.OHazelcastPlugin">
       <parameters>
         <parameter value="true" name="enabled"/>
-        <parameter value="${YOU_TRACK_DB_HOME}/config/hazelcast.xml"
+        <parameter value="${YOUTRACKDB_HOME}/config/hazelcast.xml"
           name="configuration.hazelcast"/>
         <parameter name="configuration.db.default"
-          value="${YOU_TRACK_DB_HOME}/config/default-distributed-db-config.json"/>
+          value="${YOUTRACKDB_HOME}/config/default-distributed-db-config.json"/>
       </parameters>
     </handler>
     <handler

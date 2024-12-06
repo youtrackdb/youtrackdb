@@ -7,7 +7,7 @@ import java.util.Properties;
 
 public class YouTrackDBConstants {
 
-  public static final String YOU_TRACK_DB_URL = "https://github.com/youtrackdb/youtrackdb";
+  public static final String YOUTRACKDB_URL = "https://github.com/youtrackdb/youtrackdb";
 
   private static final Properties properties = new Properties();
 

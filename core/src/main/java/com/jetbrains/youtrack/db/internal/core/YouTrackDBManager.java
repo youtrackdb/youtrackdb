@@ -66,7 +66,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class YouTrackDBManager extends ListenerManger<YouTrackDBListener> {
 
-  public static final String YOU_TRACK_DB_HOME = "YOU_TRACK_DB_HOME";
+  public static final String YOUTRACKDB_HOME = "YOUTRACKDB_HOME";
   public static final String URL_SYNTAX =
       "<engine>:<db-type>:<db-name>[?<db-param>=<db-value>[&]]*";
 

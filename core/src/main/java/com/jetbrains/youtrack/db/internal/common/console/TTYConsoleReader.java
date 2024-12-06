@@ -67,7 +67,7 @@ public class TTYConsoleReader implements ConsoleReader {
   private static final int MAX_HISTORY_ENTRIES = 50;
   private static final Object signalLock = new Object();
   private static final String HISTORY_FILE_NAME = ".oxgendb_history";
-  private static final String YOU_TRACK_DB_HOME_DIR = ".oxgendb";
+  private static final String YOUTRACKDB_HOME_DIR = ".oxgendb";
   private static int cachedConsoleWidth = -1; // -1 for no cached value, -2 to indicate the error
 
   static {
@@ -588,7 +588,7 @@ public class TTYConsoleReader implements ConsoleReader {
 
   private File getHistoryFile(boolean read) {
 
-    final Path youTrackDBDir = Paths.get(System.getProperty("user.home"), YOU_TRACK_DB_HOME_DIR);
+    final Path youTrackDBDir = Paths.get(System.getProperty("user.home"), YOUTRACKDB_HOME_DIR);
     try {
       Files.createDirectories(youTrackDBDir);
     } catch (IOException e) {

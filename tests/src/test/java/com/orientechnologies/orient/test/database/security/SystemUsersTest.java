@@ -13,11 +13,11 @@ public class SystemUsersTest {
   public void test() {
     final String buildDirectory = System.getProperty("buildDirectory", ".");
     System.setProperty(
-        "YOU_TRACK_DB_HOME",
+        "YOUTRACKDB_HOME",
         buildDirectory + File.separator + SystemUsersTest.class.getSimpleName());
 
     LogManager.instance()
-        .info(this, "YOU_TRACK_DB_HOME: " + System.getProperty("YOU_TRACK_DB_HOME"));
+        .info(this, "YOUTRACKDB_HOME: " + System.getProperty("YOUTRACKDB_HOME"));
 
     YouTrackDB orient =
         new YouTrackDB(

@@ -36,7 +36,7 @@ public class ServerSecurityConfig implements SecurityConfig {
   public String getConfigurationFile() {
     // Default
     String configFile =
-        SystemVariableResolver.resolveSystemVariables("${YOU_TRACK_DB_HOME}/config/security.json");
+        SystemVariableResolver.resolveSystemVariables("${YOUTRACKDB_HOME}/config/security.json");
 
     String ssf =
         server

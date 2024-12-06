@@ -34,8 +34,8 @@ import com.jetbrains.youtrack.db.internal.core.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
-import com.orientechnologies.orient.server.plugin.ServerPluginAbstract;
 import com.orientechnologies.orient.server.plugin.OServerPluginConfigurable;
+import com.orientechnologies.orient.server.plugin.ServerPluginAbstract;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -74,7 +74,7 @@ public class AutomaticBackup extends ServerPluginAbstract implements OServerPlug
     EXPORT
   }
 
-  private String configFile = "${YOU_TRACK_DB_HOME}/config/automatic-backup.json";
+  private String configFile = "${YOUTRACKDB_HOME}/config/automatic-backup.json";
   private Date firstTime = null;
   private long delay = -1;
   private int bufferSize = 1048576;

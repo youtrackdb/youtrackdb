@@ -19,9 +19,9 @@ done
 # Get standard environment variables
 PRGDIR=`dirname "$PRG"`
 
-# Only set YOU_TRACK_DB_HOME if not already set
-[ -f "$ORIENTDB_HOME"/lib/orientdb-tools-@VERSION@.jar ] || YOU_TRACK_DB_HOME=`cd "$PRGDIR/.." ; pwd`
-export YOU_TRACK_DB_HOME
+# Only set YOUTRACKDB_HOME if not already set
+[ -f "$ORIENTDB_HOME"/lib/orientdb-tools-@VERSION@.jar ] || YOUTRACKDB_HOME=`cd "$PRGDIR/.." ; pwd`
+export YOUTRACKDB_HOME
 
 
 # Set JavaHome if it exists

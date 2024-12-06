@@ -45,9 +45,9 @@ public class AutomaticBackupTest {
 
   public AutomaticBackupTest() throws IllegalArgumentException, SecurityException {
 
-    // SET THE YOU_TRACK_DB_HOME DIRECTORY TO CHECK JSON FILE CREATION
+    // SET THE YOUTRACKDB_HOME DIRECTORY TO CHECK JSON FILE CREATION
     tempDirectory = new File("target/testhome").getAbsolutePath();
-    System.setProperty("YOU_TRACK_DB_HOME", tempDirectory);
+    System.setProperty("YOUTRACKDB_HOME", tempDirectory);
 
     server =
         new OServer(false) {
@@ -91,7 +91,7 @@ public class AutomaticBackupTest {
     final File f =
         new File(
             SystemVariableResolver.resolveSystemVariables(
-                "${YOU_TRACK_DB_HOME}/config/automatic-backup.json"));
+                "${YOUTRACKDB_HOME}/config/automatic-backup.json"));
     if (f.exists()) {
       f.delete();
     }

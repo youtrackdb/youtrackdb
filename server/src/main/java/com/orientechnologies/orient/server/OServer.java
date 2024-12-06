@@ -84,7 +84,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class OServer {
 
-  private static final String ROOT_PASSWORD_VAR = "YOU_TRACK_DB_ROOT_PASSWORD";
+  private static final String ROOT_PASSWORD_VAR = "YOUTRACKDB_ROOT_PASSWORD";
   private static ThreadGroup threadGroup;
   private static final Map<String, OServer> distributedServers =
       new ConcurrentHashMap<String, OServer>();
@@ -138,7 +138,7 @@ public class OServer {
 
     serverRootDirectory =
         SystemVariableResolver.resolveSystemVariables(
-            "${" + YouTrackDBManager.YOU_TRACK_DB_HOME + "}", ".");
+            "${" + YouTrackDBManager.YOUTRACKDB_HOME + "}", ".");
 
     LogManager.instance().installCustomFormatter();
 
@@ -1014,7 +1014,6 @@ public class OServer {
       return;
     }
 
-    // YOU_TRACK_DB_ROOT_PASSWORD ENV OR JVM SETTING
     String rootPassword = SystemVariableResolver.resolveVariable(ROOT_PASSWORD_VAR);
 
     if (rootPassword != null) {
@@ -1062,7 +1061,7 @@ public class OServer {
               "$ANSI{yellow | To avoid this message set the environment variable or JVM     |}"));
       System.out.println(
           AnsiCode.format(
-              "$ANSI{yellow | setting YOU_TRACK_DB_ROOT_PASSWORD to the root password to use.   |}"));
+              "$ANSI{yellow | setting YOUTRACKDB_ROOT_PASSWORD to the root password to use.   |}"));
       System.out.println(
           AnsiCode.format(
               "$ANSI{yellow +---------------------------------------------------------------+}"));
@@ -1125,7 +1124,7 @@ public class OServer {
       LogManager.instance()
           .info(
               this,
-              "Found YOU_TRACK_DB_ROOT_PASSWORD variable, using this value as root's password",
+              "Found YOUTRACKDB_ROOT_PASSWORD variable, using this value as root's password",
               rootPassword);
     }
 
