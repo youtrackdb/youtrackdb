@@ -1,7 +1,5 @@
 #
 # /*
-#  * Copyright 2015 Orient Technologies.
-#  *
 #  * Licensed under the Apache License, Version 2.0 (the "License");
 #  * you may not use this file except in compliance with the License.
 #  * You may obtain a copy of the License at
@@ -18,5 +16,5 @@
 
 
 
-com.orientechnologies.lucene.functions.OLuceneFunctionsFactory
-com.orientechnologies.spatial.functions.OSpatialFunctionsFactory
+com.jetbrains.youtrack.db.internal.lucene.functions.LuceneFunctionsFactory
+com.jetbrains.youtrack.db.internal.spatial.functions.SpatialFunctionsFactory

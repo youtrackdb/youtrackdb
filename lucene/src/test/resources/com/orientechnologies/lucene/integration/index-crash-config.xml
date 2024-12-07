@@ -14,7 +14,7 @@
     <user name="guest" password="guest" resources="connect,server.listDatabases"/>
   </users>
   <properties>
-    <entry value="." name="orient.home"/>
+    <entry value="." name="youtrackdb.home"/>
   </properties>
   <isAfterFirstTime>true</isAfterFirstTime>
 </orient-server>

@@ -17,8 +17,5 @@
         <module name="youtrackdb-client" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="orientdb-object" target="17" />
-    </bytecodeTargetLevel>
   </component>
 </project>
