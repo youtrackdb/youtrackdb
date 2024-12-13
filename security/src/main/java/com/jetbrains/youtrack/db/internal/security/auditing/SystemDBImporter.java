@@ -11,20 +11,20 @@
  *
  * <p>*
  */
-package com.orientechnologies.security.auditing;
+package com.jetbrains.youtrack.db.internal.security.auditing;
 
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.record.Entity;
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.record.Entity;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.List;
 
-public class OSystemDBImporter extends Thread {
+public class SystemDBImporter extends Thread {
 
   private boolean enabled = false;
   private List<String> databaseList;
@@ -38,7 +38,7 @@ public class OSystemDBImporter extends Thread {
     return enabled;
   }
 
-  public OSystemDBImporter(final YouTrackDBInternal context, final EntityImpl jsonConfig) {
+  public SystemDBImporter(final YouTrackDBInternal context, final EntityImpl jsonConfig) {
     super(YouTrackDBEnginesManager.instance().getThreadGroup(),
         "YouTrackDB Auditing Log Importer Thread");
 
@@ -61,7 +61,7 @@ public class OSystemDBImporter extends Thread {
         sleepPeriod = jsonConfig.field("sleepPeriod");
       }
     } catch (Exception ex) {
-      LogManager.instance().error(this, "OSystemDBImporter()", ex);
+      LogManager.instance().error(this, "SystemDBImporter()", ex);
     }
 
     setDaemon(true);

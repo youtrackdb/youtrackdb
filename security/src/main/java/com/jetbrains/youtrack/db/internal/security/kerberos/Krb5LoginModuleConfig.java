@@ -11,7 +11,7 @@
  *
  * <p>*
  */
-package com.orientechnologies.security.kerberos;
+package com.jetbrains.youtrack.db.internal.security.kerberos;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +21,7 @@ import javax.security.auth.login.Configuration;
 /**
  * Custom Kerberos login configuration.
  */
-public class OKrb5LoginModuleConfig extends Configuration {
+public class Krb5LoginModuleConfig extends Configuration {
 
   final String loginModule = "com.sun.security.auth.module.Krb5LoginModule";
 
@@ -31,7 +31,7 @@ public class OKrb5LoginModuleConfig extends Configuration {
     return appConfigEntries;
   }
 
-  public OKrb5LoginModuleConfig(String principal, String keyTabPath) {
+  public Krb5LoginModuleConfig(String principal, String keyTabPath) {
     if (keyTabPath != null) {
       final Map<String, Object> options = new HashMap<String, Object>();
 

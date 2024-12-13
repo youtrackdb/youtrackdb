@@ -11,7 +11,7 @@
  *
  * <p>*
  */
-package com.orientechnologies.security.syslog;
+package com.jetbrains.youtrack.db.internal.security.syslog;
 
 import com.cloudbees.syslog.Facility;
 import com.cloudbees.syslog.MessageFormat;

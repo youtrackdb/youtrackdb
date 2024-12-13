@@ -11,10 +11,10 @@
  *
  * <p>*
  */
-package com.orientechnologies.security.kerberos;
+package com.jetbrains.youtrack.db.internal.security.kerberos;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.orientechnologies.security.ldap.OLDAPLibrary;
+import com.jetbrains.youtrack.db.internal.security.ldap.LDAPLibrary;
 import java.security.PrivilegedAction;
 import javax.security.auth.Subject;
 import org.ietf.jgss.GSSContext;
@@ -26,7 +26,7 @@ import org.ietf.jgss.Oid;
 /**
  * Kerberos Authentication Library
  */
-public class OKerberosLibrary {
+public class KerberosLibrary {
   /*
   	// Returns the principal if successful, otherwise null.
   	public static String authenticate(Subject subject, final String servicePrincipal, final String principal, final byte [] ticket)
@@ -39,20 +39,20 @@ public class OKerberosLibrary {
   			{
   				client = getSPNegoSource(subject, servicePrincipal, ticket);
 
-  				LogManager.instance().info(null, "OKerberosLibrary.authenticate() getSPNegoSource() principal: %s, client: %s", principal, client);
+  				LogManager.instance().info(null, "KerberosLibrary.authenticate() getSPNegoSource() principal: %s, client: %s", principal, client);
   			}
   			else
   			{
   				client = getKerberosSource(subject, servicePrincipal, ticket);
 
-  				LogManager.instance().info(null, "OKerberosLibrary.authenticate() getKerberosSource() principal: %s, client: %s", principal, client);
+  				LogManager.instance().info(null, "KerberosLibrary.authenticate() getKerberosSource() principal: %s, client: %s", principal, client);
   			}
 
   //			if(client != null && principal != null && client.equals(principal.toLowerCase())) return true;
   		}
   		catch(Exception ex)
   		{
-  			LogManager.instance().info(null, "OKerberosLibrary.authenticate() Exception: ", ex);
+  			LogManager.instance().info(null, "KerberosLibrary.authenticate() Exception: ", ex);
   		}
 
   		return client;
@@ -73,12 +73,12 @@ public class OKerberosLibrary {
 
     						GSSCredential serverCredsX = managerX.createCredential(null, GSSCredential.DEFAULT_LIFETIME, (Oid)null, GSSCredential.INITIATE_ONLY);
 
-    						LogManager.instance().info(null, "OKerberosLibrary.getSPNegoSource() Kerberos credentialX name = "
+    						LogManager.instance().info(null, "KerberosLibrary.getSPNegoSource() Kerberos credentialX name = "
     						+ serverCredsX.getName().toString());
     					}
     					catch(Exception exX)
     					{
-    						LogManager.instance().error(null, "OKerberosLibrary.getSPNegoSource() ExceptionX: ", exX);
+    						LogManager.instance().error(null, "KerberosLibrary.getSPNegoSource() ExceptionX: ", exX);
     					}
 
 
@@ -94,8 +94,8 @@ public class OKerberosLibrary {
       if (useNativeJgss) {
         LogManager.instance()
             .info(
-                OKerberosLibrary.class,
-                "OKerberosLibrary.checkNativeJGSS() Using Native JGSS, Principal = " + principal);
+                KerberosLibrary.class,
+                "KerberosLibrary.checkNativeJGSS() Using Native JGSS, Principal = " + principal);
 
         int usage = GSSCredential.INITIATE_ONLY;
 
@@ -112,8 +112,8 @@ public class OKerberosLibrary {
 
         LogManager.instance()
             .info(
-                OKerberosLibrary.class,
-                "OKerberosLibrary.checkNativeJGSS() calling createCredential() for Kerberos OID");
+                KerberosLibrary.class,
+                "KerberosLibrary.checkNativeJGSS() calling createCredential() for Kerberos OID");
 
         // null: indicates using the default principal.
         GSSCredential kerbCreds =
@@ -122,8 +122,8 @@ public class OKerberosLibrary {
 
         LogManager.instance()
             .info(
-                OKerberosLibrary.class,
-                "OKerberosLibrary.checkNativeJGSS() Kerberos credential name = "
+                KerberosLibrary.class,
+                "KerberosLibrary.checkNativeJGSS() Kerberos credential name = "
                     + kerbCreds.getName().toString());
 
         // SPNEGO
@@ -131,8 +131,8 @@ public class OKerberosLibrary {
 
         LogManager.instance()
             .info(
-                OLDAPLibrary.class,
-                "OKerberosLibrary.checkNativeJGSS() calling createCredential() for SPNEGO OID");
+                LDAPLibrary.class,
+                "KerberosLibrary.checkNativeJGSS() calling createCredential() for SPNEGO OID");
 
         // null: indicates using the default principal.
         GSSCredential spnegoCreds =
@@ -141,13 +141,13 @@ public class OKerberosLibrary {
 
         LogManager.instance()
             .info(
-                OLDAPLibrary.class,
-                "OKerberosLibrary.checkNativeJGSS() Kerberos credential name = "
+                LDAPLibrary.class,
+                "KerberosLibrary.checkNativeJGSS() Kerberos credential name = "
                     + spnegoCreds.getName().toString());
       }
     } catch (Exception ex) {
       LogManager.instance()
-          .error(OKerberosLibrary.class, "OKerberosLibrary.checkNativeJGSS() Exception: ", ex);
+          .error(KerberosLibrary.class, "KerberosLibrary.checkNativeJGSS() Exception: ", ex);
     }
   }
 
@@ -184,8 +184,8 @@ public class OKerberosLibrary {
 
               LogManager.instance()
                   .info(
-                      OKerberosLibrary.class,
-                      "OKerberosLibrary.getSPNegoSource() Kerberos credential name = "
+                      KerberosLibrary.class,
+                      "KerberosLibrary.getSPNegoSource() Kerberos credential name = "
                           + serverCreds.getName().toString());
 
               // Default acceptor.
@@ -200,7 +200,7 @@ public class OKerberosLibrary {
                   LogManager.instance()
                       .info(
                           this,
-                          "OKerberosLibrary.getSPNegoSource() context srcName = "
+                          "KerberosLibrary.getSPNegoSource() context srcName = "
                               + context.getSrcName());
 
                   source = context.getSrcName().toString();
@@ -211,12 +211,12 @@ public class OKerberosLibrary {
                 LogManager.instance()
                     .error(
                         this,
-                        "OKerberosLibrary.getSPNegoSource() Could not create a GSSContext",
+                        "KerberosLibrary.getSPNegoSource() Could not create a GSSContext",
                         null);
               }
             } catch (Exception ex) {
               LogManager.instance()
-                  .error(this, "OKerberosLibrary.getSPNegoSource() Exception: ", ex);
+                  .error(this, "KerberosLibrary.getSPNegoSource() Exception: ", ex);
             }
 
             return source;
@@ -251,8 +251,8 @@ public class OKerberosLibrary {
 
               LogManager.instance()
                   .info(
-                      OKerberosLibrary.class,
-                      "OKerberosLibrary.getKerberosSource() Kerberos credential name = "
+                      KerberosLibrary.class,
+                      "KerberosLibrary.getKerberosSource() Kerberos credential name = "
                           + serverCreds.getName().toString());
 
               // Default acceptor.
@@ -275,8 +275,8 @@ public class OKerberosLibrary {
             } catch (Exception ex) {
               LogManager.instance()
                   .error(
-                      OKerberosLibrary.class,
-                      "OKerberosLibrary.getKerberosSource() Exception: ",
+                      KerberosLibrary.class,
+                      "KerberosLibrary.getKerberosSource() Exception: ",
                       ex);
             }
 

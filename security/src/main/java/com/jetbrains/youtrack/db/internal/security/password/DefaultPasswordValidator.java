@@ -11,7 +11,7 @@
  *
  * <p>*
  */
-package com.orientechnologies.security.password;
+package com.jetbrains.youtrack.db.internal.security.password;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;

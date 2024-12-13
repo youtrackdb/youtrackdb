@@ -11,16 +11,16 @@
  *
  * <p>*
  */
-package com.orientechnologies.security;
+package com.jetbrains.youtrack.db.internal.security;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.security.auditing.DefaultAuditing;
+import com.jetbrains.youtrack.db.internal.security.kerberos.KerberosAuthenticator;
+import com.jetbrains.youtrack.db.internal.security.ldap.LDAPImporter;
+import com.jetbrains.youtrack.db.internal.security.password.DefaultPasswordValidator;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.ServerPluginAbstract;
-import com.orientechnologies.security.auditing.DefaultAuditing;
-import com.orientechnologies.security.kerberos.KerberosAuthenticator;
-import com.orientechnologies.security.ldap.OLDAPImporter;
-import com.orientechnologies.security.password.DefaultPasswordValidator;
 
 public class SecurityPlugin extends ServerPluginAbstract {
 
@@ -55,7 +55,7 @@ public class SecurityPlugin extends ServerPluginAbstract {
         server.getSecurity().registerSecurityClass(DefaultAuditing.class);
         server.getSecurity().registerSecurityClass(DefaultPasswordValidator.class);
         server.getSecurity().registerSecurityClass(KerberosAuthenticator.class);
-        server.getSecurity().registerSecurityClass(OLDAPImporter.class);
+        server.getSecurity().registerSecurityClass(LDAPImporter.class);
       }
     } catch (Throwable th) {
       LogManager.instance().error(this, "registerSecurityComponents() ", th);
@@ -68,7 +68,7 @@ public class SecurityPlugin extends ServerPluginAbstract {
         server.getSecurity().unregisterSecurityClass(DefaultAuditing.class);
         server.getSecurity().unregisterSecurityClass(DefaultPasswordValidator.class);
         server.getSecurity().unregisterSecurityClass(KerberosAuthenticator.class);
-        server.getSecurity().unregisterSecurityClass(OLDAPImporter.class);
+        server.getSecurity().unregisterSecurityClass(LDAPImporter.class);
       }
     } catch (Throwable th) {
       LogManager.instance().error(this, "unregisterSecurityComponents()", th);

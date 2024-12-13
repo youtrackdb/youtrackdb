@@ -11,21 +11,21 @@
  *
  * <p>*
  */
-package com.orientechnologies.security.ldap;
+package com.jetbrains.youtrack.db.internal.security.ldap;
 
-import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.api.DatabaseSession;
-import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.query.Result;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
 import com.jetbrains.youtrack.db.api.schema.Property;
 import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.common.log.LogManager;
+import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityAuthenticator;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityComponent;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
-import com.jetbrains.youtrack.db.api.query.Result;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -42,7 +42,7 @@ import javax.security.auth.Subject;
 /**
  * Provides an LDAP importer.
  */
-public class OLDAPImporter implements SecurityComponent {
+public class LDAPImporter implements SecurityComponent {
 
   private final String oldapUserClass = "_OLDAPUser";
 
@@ -71,7 +71,7 @@ public class OLDAPImporter implements SecurityComponent {
       try (DatabaseSessionInternal odb = context.openNoAuthenticate(db.getName(), "internal")) {
         verifySchema(odb);
       } catch (Exception ex) {
-        LogManager.instance().error(this, "OLDAPImporter.active() Database: %s", ex, db.getName());
+        LogManager.instance().error(this, "LDAPImporter.active() Database: %s", ex, db.getName());
       }
     }
 
@@ -139,7 +139,7 @@ public class OLDAPImporter implements SecurityComponent {
                 if (dbDomainDoc.containsField("domain")) {
                   domain = dbDomainDoc.field("domain");
 
-                  // If authenticator is null, it defaults to OLDAPImporter's primary
+                  // If authenticator is null, it defaults to LDAPImporter's primary
                   // SecurityAuthenticator.
                   String authenticator = null;
 
@@ -148,7 +148,7 @@ public class OLDAPImporter implements SecurityComponent {
                   }
 
                   if (dbDomainDoc.containsField("servers")) {
-                    final List<OLDAPServer> ldapServerList = new ArrayList<OLDAPServer>();
+                    final List<LDAPServer> ldapServerList = new ArrayList<LDAPServer>();
 
                     final List<EntityImpl> ldapServers = dbDomainDoc.field("servers");
 
@@ -161,7 +161,7 @@ public class OLDAPImporter implements SecurityComponent {
                         isAlias = ldapServerDoc.field("isAlias");
                       }
 
-                      OLDAPServer server = OLDAPServer.validateURL(url, isAlias);
+                      LDAPServer server = LDAPServer.validateURL(url, isAlias);
 
                       if (server != null) {
                         ldapServerList.add(server);
@@ -265,7 +265,7 @@ public class OLDAPImporter implements SecurityComponent {
         LogManager.instance().error(this, "Import LDAP contains no \"databases\" property", null);
       }
     } catch (Exception ex) {
-      LogManager.instance().error(this, "OLDAPImporter.config()", ex);
+      LogManager.instance().error(this, "LDAPImporter.config()", ex);
     }
   }
 
@@ -313,7 +313,7 @@ public class OLDAPImporter implements SecurityComponent {
         prop.setNotNull(odb, true);
       }
     } catch (Exception ex) {
-      LogManager.instance().error(this, "OLDAPImporter.verifySchema()", ex);
+      LogManager.instance().error(this, "LDAPImporter.verifySchema()", ex);
     }
   }
 
@@ -354,14 +354,14 @@ public class OLDAPImporter implements SecurityComponent {
     }
 
     private final String authenticator;
-    private final List<OLDAPServer> ldapServers;
+    private final List<LDAPServer> ldapServers;
     private final List<User> users;
 
     public String getAuthenticator() {
       return authenticator;
     }
 
-    public List<OLDAPServer> getLDAPServers() {
+    public List<LDAPServer> getLDAPServers() {
       return ldapServers;
     }
 
@@ -371,7 +371,7 @@ public class OLDAPImporter implements SecurityComponent {
 
     public DatabaseDomain(
         final String domain,
-        final List<OLDAPServer> ldapServers,
+        final List<LDAPServer> ldapServers,
         final List<User> userList,
         String authenticator) {
       this.domain = domain;
@@ -461,12 +461,12 @@ public class OLDAPImporter implements SecurityComponent {
    */
   private synchronized void importLDAP() {
     if (security == null) {
-      LogManager.instance().error(this, "OLDAPImporter.importLDAP() ServerSecurity is null", null);
+      LogManager.instance().error(this, "LDAPImporter.importLDAP() ServerSecurity is null", null);
       return;
     }
 
     if (debug) {
-      LogManager.instance().info(this, "OLDAPImporter.importLDAP() \n");
+      LogManager.instance().info(this, "LDAPImporter.importLDAP() \n");
     }
 
     for (Map.Entry<String, Database> dbEntry : databaseMap.entrySet()) {
@@ -499,7 +499,7 @@ public class OLDAPImporter implements SecurityComponent {
               Subject ldapSubject = getLDAPSubject(dd.getAuthenticator());
 
               if (ldapSubject != null) {
-                DirContext dc = OLDAPLibrary.openContext(ldapSubject, dd.getLDAPServers(), debug);
+                DirContext dc = LDAPLibrary.openContext(ldapSubject, dd.getLDAPServers(), debug);
 
                 if (dc != null) {
                   deleteUsers = true;
@@ -518,12 +518,12 @@ public class OLDAPImporter implements SecurityComponent {
                       LogManager.instance()
                           .info(
                               this,
-                              "OLDAPImporter.importLDAP() Calling retrieveUsers for Database: %s,"
+                              "LDAPImporter.importLDAP() Calling retrieveUsers for Database: %s,"
                                   + " Filter: %s",
                               db.getName(),
                               user.getFilter());
 
-                      OLDAPLibrary.retrieveUsers(
+                      LDAPLibrary.retrieveUsers(
                           dc, user.getBaseDN(), user.getFilter(), usersRetrieved, debug);
 
                       if (!usersRetrieved.isEmpty()) {
@@ -533,7 +533,7 @@ public class OLDAPImporter implements SecurityComponent {
                           LogManager.instance()
                               .info(
                                   this,
-                                  "OLDAPImporter.importLDAP() Database: %s, Filter: %s, UPN: %s",
+                                  "LDAPImporter.importLDAP() Database: %s, Filter: %s, UPN: %s",
                                   db.getName(),
                                   user.getFilter(),
                                   upn);
@@ -555,7 +555,7 @@ public class OLDAPImporter implements SecurityComponent {
                         LogManager.instance()
                             .info(
                                 this,
-                                "OLDAPImporter.importLDAP() No users found at BaseDN: %s, Filter:"
+                                "LDAPImporter.importLDAP() No users found at BaseDN: %s, Filter:"
                                     + " %s, for Database: %s",
                                 user.getBaseDN(),
                                 user.getFilter(),
@@ -569,7 +569,7 @@ public class OLDAPImporter implements SecurityComponent {
                   LogManager.instance()
                       .error(
                           this,
-                          "OLDAPImporter.importLDAP() Could not obtain an LDAP DirContext for"
+                          "LDAPImporter.importLDAP() Could not obtain an LDAP DirContext for"
                               + " Database %s",
                           null,
                           db.getName());
@@ -578,14 +578,14 @@ public class OLDAPImporter implements SecurityComponent {
                 LogManager.instance()
                     .error(
                         this,
-                        "OLDAPImporter.importLDAP() Could not obtain an LDAP Subject for Database"
+                        "LDAPImporter.importLDAP() Could not obtain an LDAP Subject for Database"
                             + " %s",
                         null,
                         db.getName());
               }
             } catch (Exception ex) {
               LogManager.instance()
-                  .error(this, "OLDAPImporter.importLDAP() Database: %s", ex, db.getName());
+                  .error(this, "LDAPImporter.importLDAP() Database: %s", ex, db.getName());
             }
           }
 
@@ -607,7 +607,7 @@ public class OLDAPImporter implements SecurityComponent {
           }
         }
       } catch (Exception ex) {
-        LogManager.instance().error(this, "OLDAPImporter.importLDAP()", ex);
+        LogManager.instance().error(this, "LDAPImporter.importLDAP()", ex);
       }
     }
   }
@@ -641,7 +641,7 @@ public class OLDAPImporter implements SecurityComponent {
           LogManager.instance()
               .error(
                   this,
-                  "OLDAPImporter.retrieveLDAPUsers() Roles is missing for entry Database: %s,"
+                  "LDAPImporter.retrieveLDAPUsers() Roles is missing for entry Database: %s,"
                       + " Domain: %s",
                   null,
                   odb.getName(),
@@ -652,7 +652,7 @@ public class OLDAPImporter implements SecurityComponent {
       LogManager.instance()
           .error(
               this,
-              "OLDAPImporter.retrieveLDAPUsers() Database: %s, Domain: %s",
+              "LDAPImporter.retrieveLDAPUsers() Database: %s, Domain: %s",
               ex,
               odb.getName(),
               domain);
@@ -680,7 +680,7 @@ public class OLDAPImporter implements SecurityComponent {
             LogManager.instance()
                 .info(
                     this,
-                    "OLDAPImporter.retrieveAllUsers() Database: %s, User: %s",
+                    "LDAPImporter.retrieveAllUsers() Database: %s, User: %s",
                     odb.getName(),
                     name);
           }
@@ -688,7 +688,7 @@ public class OLDAPImporter implements SecurityComponent {
       }
     } catch (Exception ex) {
       LogManager.instance()
-          .error(this, "OLDAPImporter.retrieveAllUsers() Database: %s", ex, odb.getName());
+          .error(this, "LDAPImporter.retrieveAllUsers() Database: %s", ex, odb.getName());
     }
   }
 
@@ -700,13 +700,13 @@ public class OLDAPImporter implements SecurityComponent {
         LogManager.instance()
             .info(
                 this,
-                "OLDAPImporter.deleteUsers() Deleted User: %s from Database: %s",
+                "LDAPImporter.deleteUsers() Deleted User: %s from Database: %s",
                 user,
                 odb.getName());
       }
     } catch (Exception ex) {
       LogManager.instance()
-          .error(this, "OLDAPImporter.deleteUsers() Database: %s", ex, odb.getName());
+          .error(this, "LDAPImporter.deleteUsers() Database: %s", ex, odb.getName());
     }
   }
 
@@ -730,7 +730,7 @@ public class OLDAPImporter implements SecurityComponent {
       }
     } catch (Exception ex) {
       LogManager.instance()
-          .error(this, "OLDAPImporter.importUsers() Database: %s", ex, odb.getName());
+          .error(this, "LDAPImporter.importUsers() Database: %s", ex, odb.getName());
     }
   }
 
@@ -784,7 +784,7 @@ public class OLDAPImporter implements SecurityComponent {
 
       return true;
     } catch (Exception ex) {
-      LogManager.instance().error(this, "OLDAPImporter.upsertDbUser()", ex);
+      LogManager.instance().error(this, "LDAPImporter.upsertDbUser()", ex);
     }
 
     return false;

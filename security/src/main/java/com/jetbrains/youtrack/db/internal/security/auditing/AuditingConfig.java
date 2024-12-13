@@ -11,13 +11,13 @@
  *
  * <p>*
  */
-package com.orientechnologies.security.auditing;
+package com.jetbrains.youtrack.db.internal.security.auditing;
 
 import com.jetbrains.youtrack.db.internal.common.parser.VariableParser;
 import com.jetbrains.youtrack.db.internal.common.parser.VariableParserListener;
 import com.jetbrains.youtrack.db.internal.core.security.AuditingOperation;
 
-public abstract class OAuditingConfig {
+public abstract class AuditingConfig {
 
   public boolean isEnabled(AuditingOperation operation) {
     return false;

@@ -11,12 +11,12 @@
  *
  * <p>*
  */
-package com.orientechnologies.security.ldap;
+package com.jetbrains.youtrack.db.internal.security.ldap;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class OLDAPServer {
+public class LDAPServer {
 
   private final String scheme;
   private final String host;
@@ -40,15 +40,15 @@ public class OLDAPServer {
     return isAlias;
   }
 
-  public OLDAPServer(final String scheme, final String host, int port, boolean isAlias) {
+  public LDAPServer(final String scheme, final String host, int port, boolean isAlias) {
     this.scheme = scheme;
     this.host = host;
     this.port = port;
     this.isAlias = isAlias;
   }
 
-  public static OLDAPServer validateURL(final String url, boolean isAlias) {
-    OLDAPServer server = null;
+  public static LDAPServer validateURL(final String url, boolean isAlias) {
+    LDAPServer server = null;
 
     try {
       URI uri = new URI(url);
@@ -60,7 +60,7 @@ public class OLDAPServer {
         port = 389; // Default to standard LDAP port.
       }
 
-      server = new OLDAPServer(scheme, host, port, isAlias);
+      server = new LDAPServer(scheme, host, port, isAlias);
     } catch (URISyntaxException se) {
 
     }

@@ -11,7 +11,7 @@
  *
  * <p>*
  */
-package com.orientechnologies.security.ldap;
+package com.jetbrains.youtrack.db.internal.security.ldap;
 
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import java.net.InetAddress;
@@ -32,10 +32,10 @@ import javax.security.auth.Subject;
 /**
  * LDAP Library
  */
-public class OLDAPLibrary {
+public class LDAPLibrary {
 
   public static DirContext openContext(
-      final Subject subject, final List<OLDAPServer> ldapServers, final boolean debug) {
+      final Subject subject, final List<LDAPServer> ldapServers, final boolean debug) {
     return Subject.doAs(
         subject,
         new PrivilegedAction<DirContext>() {
@@ -51,7 +51,7 @@ public class OLDAPLibrary {
             // Authenticate by using already established Kerberos credentials
             env.put(Context.SECURITY_AUTHENTICATION, "GSSAPI");
 
-            for (OLDAPServer ldap : ldapServers) {
+            for (LDAPServer ldap : ldapServers) {
               try {
                 String url = ldap.getURL();
 
@@ -67,8 +67,8 @@ public class OLDAPLibrary {
                 if (debug) {
                   LogManager.instance()
                       .info(
-                          OLDAPLibrary.class,
-                          "OLDAPLibrary.openContext() Trying ProviderURL: " + url);
+                          LDAPLibrary.class,
+                          "LDAPLibrary.openContext() Trying ProviderURL: " + url);
                 }
 
                 // Create initial context
@@ -76,7 +76,7 @@ public class OLDAPLibrary {
                 break;
               } catch (Exception ex) {
                 LogManager.instance()
-                    .error(OLDAPLibrary.class, "OLDAPLibrary.openContext() Exception: ", ex);
+                    .error(LDAPLibrary.class, "LDAPLibrary.openContext() Exception: ", ex);
               }
             }
 
@@ -89,7 +89,7 @@ public class OLDAPLibrary {
   // a reverse
   // look-up of its IP address to resolve the real hostname to use.  This is often used with DNS
   // round-robin.
-  private static String getRealURL(OLDAPServer ldap, final boolean debug)
+  private static String getRealURL(LDAPServer ldap, final boolean debug)
       throws UnknownHostException {
     String realURL = ldap.getURL();
 
@@ -97,8 +97,8 @@ public class OLDAPLibrary {
       if (debug) {
         LogManager.instance()
             .info(
-                OLDAPLibrary.class,
-                "OLDAPLibrary.getRealURL() Alias hostname = " + ldap.getHostname());
+                LDAPLibrary.class,
+                "LDAPLibrary.getRealURL() Alias hostname = " + ldap.getHostname());
       }
 
       // Get the returned IP address from the alias.
@@ -108,8 +108,8 @@ public class OLDAPLibrary {
       if (debug) {
         LogManager.instance()
             .info(
-                OLDAPLibrary.class,
-                "OLDAPLibrary.getRealURL() IP Address = " + ipAddress.getHostAddress());
+                LDAPLibrary.class,
+                "LDAPLibrary.getRealURL() IP Address = " + ipAddress.getHostAddress());
       }
 
       // Now that we have the IP address, use it to get the real hostname.
@@ -119,15 +119,15 @@ public class OLDAPLibrary {
       if (debug) {
         LogManager.instance()
             .info(
-                OLDAPLibrary.class,
-                "OLDAPLibrary.getRealURL() Real hostname = " + realAddress.getHostName());
+                LDAPLibrary.class,
+                "LDAPLibrary.getRealURL() Real hostname = " + realAddress.getHostName());
       }
 
       realURL = ldap.getURL(realAddress.getHostName());
 
       if (debug) {
         LogManager.instance()
-            .info(OLDAPLibrary.class, "OLDAPLibrary.getRealURL() Real URL = " + realURL);
+            .info(LDAPLibrary.class, "LDAPLibrary.getRealURL() Real URL = " + realURL);
       }
     }
 
@@ -161,12 +161,12 @@ public class OLDAPLibrary {
       } else {
         if (debug) {
           LogManager.instance()
-              .error(OLDAPLibrary.class, "OLDAPLibrary.retrieveUsers() DirContext is null", null);
+              .error(LDAPLibrary.class, "LDAPLibrary.retrieveUsers() DirContext is null", null);
         }
       }
     } catch (Exception ex) {
       LogManager.instance()
-          .error(OLDAPLibrary.class, "OLDAPLibrary.retrieveUsers() Exception: ", ex);
+          .error(LDAPLibrary.class, "LDAPLibrary.retrieveUsers() Exception: ", ex);
     }
   }
 
@@ -180,7 +180,7 @@ public class OLDAPLibrary {
         			// userPrincipalName
         			String upn = getUserPrincipalName(attrs);
 
-        			if(debug) LogManager.instance().info(null, "OLDAPLibrary.addPrincipal() userPrincipalName: " + upn);
+        			if(debug) LogManager.instance().info(null, "LDAPLibrary.addPrincipal() userPrincipalName: " + upn);
 
         			if(upn != null)
         			{
@@ -196,7 +196,7 @@ public class OLDAPLibrary {
       }
     } catch (Exception ex) {
       LogManager.instance()
-          .error(OLDAPLibrary.class, "OLDAPLibrary.addPrincipal() Exception: ", ex);
+          .error(LDAPLibrary.class, "LDAPLibrary.addPrincipal() Exception: ", ex);
     }
   }
 
@@ -210,8 +210,8 @@ public class OLDAPLibrary {
       if (debug) {
         LogManager.instance()
             .info(
-                OLDAPLibrary.class,
-                "OLDAPLibrary.traverse() startingDN: %s, memberOfFilter: %s",
+                LDAPLibrary.class,
+                "LDAPLibrary.traverse() startingDN: %s, memberOfFilter: %s",
                 startingDN,
                 memberOfFilter);
       }
@@ -222,8 +222,8 @@ public class OLDAPLibrary {
         if (debug) {
           LogManager.instance()
               .info(
-                  OLDAPLibrary.class,
-                  "OLDAPLibrary.traverse() Found attributes for startingDN: %s",
+                  LDAPLibrary.class,
+                  "LDAPLibrary.traverse() Found attributes for startingDN: %s",
                   startingDN);
         }
 
@@ -239,8 +239,8 @@ public class OLDAPLibrary {
           if (debug) {
             LogManager.instance()
                 .info(
-                    OLDAPLibrary.class,
-                    "OLDAPLibrary.traverse() startingDN: %s has no \"member\" attributes.",
+                    LDAPLibrary.class,
+                    "LDAPLibrary.traverse() startingDN: %s has no \"member\" attributes.",
                     startingDN);
           }
         }
@@ -248,14 +248,14 @@ public class OLDAPLibrary {
         if (debug) {
           LogManager.instance()
               .error(
-                  OLDAPLibrary.class,
-                  "OLDAPLibrary.traverse() Unable to find attributes for startingDN: %s",
+                  LDAPLibrary.class,
+                  "LDAPLibrary.traverse() Unable to find attributes for startingDN: %s",
                   null,
                   startingDN);
         }
       }
     } catch (Exception ex) {
-      LogManager.instance().error(OLDAPLibrary.class, "OLDAPLibrary.traverse() Exception: ", ex);
+      LogManager.instance().error(LDAPLibrary.class, "LDAPLibrary.traverse() Exception: ", ex);
     }
   }
 
@@ -272,8 +272,8 @@ public class OLDAPLibrary {
         if (debug) {
           LogManager.instance()
               .info(
-                  OLDAPLibrary.class,
-                  "OLDAPLibrary.findMembers() Found attributes for startingDN: %s",
+                  LDAPLibrary.class,
+                  "LDAPLibrary.findMembers() Found attributes for startingDN: %s",
                   startingDN);
         }
 
@@ -281,8 +281,8 @@ public class OLDAPLibrary {
           if (debug) {
             LogManager.instance()
                 .info(
-                    OLDAPLibrary.class,
-                    "OLDAPLibrary.findMembers() Found group for startingDN: %s",
+                    LDAPLibrary.class,
+                    "LDAPLibrary.findMembers() Found group for startingDN: %s",
                     startingDN);
           }
 
@@ -298,8 +298,8 @@ public class OLDAPLibrary {
           if (debug) {
             LogManager.instance()
                 .info(
-                    OLDAPLibrary.class,
-                    "OLDAPLibrary.findMembers() Found user for startingDN: %s",
+                    LDAPLibrary.class,
+                    "LDAPLibrary.findMembers() Found user for startingDN: %s",
                     startingDN);
           }
 
@@ -310,8 +310,8 @@ public class OLDAPLibrary {
             if (debug) {
               LogManager.instance()
                   .info(
-                      OLDAPLibrary.class,
-                      "OLDAPLibrary.findMembers() StartingDN: "
+                      LDAPLibrary.class,
+                      "LDAPLibrary.findMembers() StartingDN: "
                           + startingDN
                           + ", userPrincipalName: "
                           + upn);
@@ -330,14 +330,14 @@ public class OLDAPLibrary {
       } else {
         LogManager.instance()
             .error(
-                OLDAPLibrary.class,
-                "OLDAPLibrary.findMembers() Unable to find attributes for startingDN: %s",
+                LDAPLibrary.class,
+                "LDAPLibrary.findMembers() Unable to find attributes for startingDN: %s",
                 null,
                 startingDN);
       }
     } catch (Exception ex) {
       LogManager.instance()
-          .error(OLDAPLibrary.class, "OLDAPLibrary.findMembers() Exception: ", ex);
+          .error(LDAPLibrary.class, "LDAPLibrary.findMembers() Exception: ", ex);
     }
   }
 
@@ -376,7 +376,7 @@ public class OLDAPLibrary {
       }
     } catch (Exception ex) {
       LogManager.instance()
-          .error(OLDAPLibrary.class, "OLDAPLibrary fillAttributeList(" + name + ")", ex);
+          .error(LDAPLibrary.class, "LDAPLibrary fillAttributeList(" + name + ")", ex);
     }
   }
 
@@ -389,7 +389,7 @@ public class OLDAPLibrary {
       }
     } catch (Exception ex) {
       LogManager.instance()
-          .error(OLDAPLibrary.class, "OLDAPLibrary.getFirstValue(" + name + ") ", ex);
+          .error(LDAPLibrary.class, "LDAPLibrary.getFirstValue(" + name + ") ", ex);
     }
 
     return null;
@@ -438,10 +438,10 @@ public class OLDAPLibrary {
       } else {
         LogManager.instance()
             .error(
-                OLDAPLibrary.class, "OLDAPLibrary.isMemberOf() Has no 'memberOf' attribute.", null);
+                LDAPLibrary.class, "LDAPLibrary.isMemberOf() Has no 'memberOf' attribute.", null);
       }
     } catch (Exception ex) {
-      LogManager.instance().error(OLDAPLibrary.class, "OLDAPLibrary.isMemberOf()", ex);
+      LogManager.instance().error(LDAPLibrary.class, "LDAPLibrary.isMemberOf()", ex);
     }
 
     return false;
@@ -453,7 +453,7 @@ public class OLDAPLibrary {
     if ((upn.startsWith("kerberos:") || upn.startsWith("Kerberos:")) && upn.length() > 9) {
       if (debug) {
         LogManager.instance()
-            .info(OLDAPLibrary.class, "OLDAPLibrary.removeKerberos() upn before: %s", upn);
+            .info(LDAPLibrary.class, "LDAPLibrary.removeKerberos() upn before: %s", upn);
       }
 
       upn = upn.substring(9);
@@ -461,7 +461,7 @@ public class OLDAPLibrary {
 
       if (debug) {
         LogManager.instance()
-            .info(OLDAPLibrary.class, "OLDAPLibrary.removeKerberos() upn after: %s", upn);
+            .info(LDAPLibrary.class, "LDAPLibrary.removeKerberos() upn after: %s", upn);
       }
     }
 

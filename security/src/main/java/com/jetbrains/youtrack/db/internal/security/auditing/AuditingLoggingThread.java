@@ -11,11 +11,11 @@
  *
  * <p>*
  */
-package com.orientechnologies.security.auditing;
+package com.jetbrains.youtrack.db.internal.security.auditing;
 
-import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.api.schema.Schema;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.AuditingOperation;
@@ -25,7 +25,7 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Thread that logs asynchronously.
  */
-public class OAuditingLoggingThread extends Thread {
+public class AuditingLoggingThread extends Thread {
 
   private final String databaseName;
   private final BlockingQueue<EntityImpl> auditingQueue;
@@ -36,7 +36,7 @@ public class OAuditingLoggingThread extends Thread {
   private final String className;
   private final SecuritySystem security;
 
-  public OAuditingLoggingThread(
+  public AuditingLoggingThread(
       final String iDatabaseName,
       final BlockingQueue auditingQueue,
       final YouTrackDBInternal context,

@@ -11,7 +11,7 @@
  *
  * <p>*
  */
-package com.orientechnologies.security.auditing;
+package com.jetbrains.youtrack.db.internal.security.auditing;
 
 import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.api.record.Record;
@@ -45,33 +45,33 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class AuditingHook extends RecordHookAbstract implements SessionListener {
 
-  private final Map<String, OAuditingClassConfig> classes =
-      new HashMap<String, OAuditingClassConfig>(20);
-  private final OAuditingLoggingThread auditingThread;
+  private final Map<String, AuditingClassConfig> classes =
+      new HashMap<String, AuditingClassConfig>(20);
+  private final AuditingLoggingThread auditingThread;
 
   private final Map<DatabaseSession, List<EntityImpl>> operations = new ConcurrentHashMap<>();
   private volatile LinkedBlockingQueue<EntityImpl> auditingQueue;
-  private final Set<OAuditingCommandConfig> commands = new HashSet<OAuditingCommandConfig>();
+  private final Set<AuditingCommandConfig> commands = new HashSet<AuditingCommandConfig>();
   private boolean onGlobalCreate;
   private boolean onGlobalRead;
   private boolean onGlobalUpdate;
   private boolean onGlobalDelete;
-  private OAuditingClassConfig defaultConfig = new OAuditingClassConfig();
-  private OAuditingSchemaConfig schemaConfig;
+  private AuditingClassConfig defaultConfig = new AuditingClassConfig();
+  private AuditingSchemaConfig schemaConfig;
   private EntityImpl iConfiguration;
 
-  private static class OAuditingCommandConfig {
+  private static class AuditingCommandConfig {
 
     public String regex;
     public String message;
 
-    public OAuditingCommandConfig(final EntityImpl cfg) {
+    public AuditingCommandConfig(final EntityImpl cfg) {
       regex = cfg.field("regex");
       message = cfg.field("message");
     }
   }
 
-  private static class OAuditingClassConfig {
+  private static class AuditingClassConfig {
 
     public boolean polymorphic = true;
     public boolean onCreateEnabled = false;
@@ -84,10 +84,10 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
     public boolean onDeleteEnabled = false;
     public String onDeleteMessage;
 
-    public OAuditingClassConfig() {
+    public AuditingClassConfig() {
     }
 
-    public OAuditingClassConfig(final EntityImpl cfg) {
+    public AuditingClassConfig(final EntityImpl cfg) {
       if (cfg.containsField("polymorphic")) {
         polymorphic = cfg.field("polymorphic");
       }
@@ -130,7 +130,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
   }
 
   // Handles the auditing-config "schema" configuration.
-  private class OAuditingSchemaConfig extends OAuditingConfig {
+  private class AuditingSchemaConfig extends AuditingConfig {
 
     private boolean onCreateClassEnabled = false;
     private final String onCreateClassMessage;
@@ -138,7 +138,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
     private boolean onDropClassEnabled = false;
     private final String onDropClassMessage;
 
-    public OAuditingSchemaConfig(final EntityImpl cfg) {
+    public AuditingSchemaConfig(final EntityImpl cfg) {
       if (cfg.containsField("onCreateClassEnabled")) {
         onCreateClassEnabled = cfg.field("onCreateClassEnabled");
       }
@@ -196,7 +196,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
     final EntityImpl classesCfg = iConfiguration.field("classes");
     if (classesCfg != null) {
       for (String c : classesCfg.fieldNames()) {
-        final OAuditingClassConfig cfg = new OAuditingClassConfig(classesCfg.field(c));
+        final AuditingClassConfig cfg = new AuditingClassConfig(classesCfg.field(c));
         if (c.equals("*")) {
           defaultConfig = cfg;
         } else {
@@ -223,18 +223,18 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
     if (commandCfg != null) {
 
       for (EntityImpl cfg : commandCfg) {
-        commands.add(new OAuditingCommandConfig(cfg));
+        commands.add(new AuditingCommandConfig(cfg));
       }
     }
 
     final EntityImpl schemaCfgDoc = iConfiguration.field("schema");
     if (schemaCfgDoc != null) {
-      schemaConfig = new OAuditingSchemaConfig(schemaCfgDoc);
+      schemaConfig = new AuditingSchemaConfig(schemaCfgDoc);
     }
 
     auditingQueue = new LinkedBlockingQueue<EntityImpl>();
     auditingThread =
-        new OAuditingLoggingThread(
+        new AuditingLoggingThread(
             DatabaseRecordThreadLocal.instance().get().getName(),
             auditingQueue,
             system.getContext(),
@@ -246,7 +246,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
   public AuditingHook(final SecuritySystem server) {
     auditingQueue = new LinkedBlockingQueue<EntityImpl>();
     auditingThread =
-        new OAuditingLoggingThread(
+        new AuditingLoggingThread(
             SystemDatabase.SYSTEM_DB_NAME, auditingQueue, server.getContext(), server);
 
     auditingThread.start();
@@ -352,7 +352,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
       return;
     }
 
-    for (OAuditingCommandConfig cfg : commands) {
+    for (AuditingCommandConfig cfg : commands) {
       if (command.matches(cfg.regex)) {
         final DatabaseSessionInternal db = DatabaseRecordThreadLocal.instance().get();
 
@@ -393,7 +393,7 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
       return;
     }
 
-    final OAuditingClassConfig cfg = getAuditConfiguration(iRecord);
+    final AuditingClassConfig cfg = getAuditConfiguration(iRecord);
     if (cfg == null)
     // SKIP
     {
@@ -489,8 +489,8 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
             });
   }
 
-  private OAuditingClassConfig getAuditConfiguration(final Record iRecord) {
-    OAuditingClassConfig cfg = null;
+  private AuditingClassConfig getAuditConfiguration(final Record iRecord) {
+    AuditingClassConfig cfg = null;
 
     if (iRecord instanceof EntityImpl) {
       SchemaClass cls = ((EntityImpl) iRecord).getSchemaClass();
@@ -536,8 +536,8 @@ public class AuditingHook extends RecordHookAbstract implements SessionListener 
   }
 
   /*
-    private OAuditingClassConfig getAuditConfiguration(SchemaClass cls) {
-      OAuditingClassConfig cfg = null;
+    private AuditingClassConfig getAuditConfiguration(SchemaClass cls) {
+      AuditingClassConfig cfg = null;
 
       if (cls != null) {
 

@@ -11,22 +11,22 @@
  *
  * <p>*
  */
-package com.orientechnologies.security.auditing;
+package com.jetbrains.youtrack.db.internal.security.auditing;
 
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.schema.Schema;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseLifecycleListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseRecordThreadLocal;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SystemDatabase;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
-import com.jetbrains.youtrack.db.api.schema.Schema;
-import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.internal.core.security.AuditingService;
 import com.jetbrains.youtrack.db.internal.core.security.AuditingOperation;
+import com.jetbrains.youtrack.db.internal.core.security.AuditingService;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
 import com.orientechnologies.orient.server.OServerAware;
 import com.orientechnologies.orient.server.distributed.ODistributedLifecycleListener;
@@ -65,15 +65,15 @@ public class DefaultAuditing
   protected static final String DEFAULT_FILE_AUDITING_DB_CONFIG = "default-auditing-config.json";
   protected static final String FILE_AUDITING_DB_CONFIG = "auditing-config.json";
 
-  private OAuditingDistribConfig distribConfig;
+  private AuditingDistribConfig distribConfig;
 
-  private OSystemDBImporter systemDbImporter;
+  private SystemDBImporter systemDbImporter;
 
   private SecuritySystem security;
 
   public static final String IMPORTER_FLAG = "AUDITING_IMPORTER";
 
-  private class OAuditingDistribConfig extends OAuditingConfig {
+  private class AuditingDistribConfig extends AuditingConfig {
 
     private boolean onNodeJoinedEnabled = false;
     private String onNodeJoinedMessage = "The node ${node} has joined";
@@ -81,7 +81,7 @@ public class DefaultAuditing
     private boolean onNodeLeftEnabled = false;
     private String onNodeLeftMessage = "The node ${node} has left";
 
-    public OAuditingDistribConfig(final EntityImpl cfg) {
+    public AuditingDistribConfig(final EntityImpl cfg) {
       if (cfg.containsField("onNodeJoinedEnabled")) {
         onNodeJoinedEnabled = cfg.field("onNodeJoinedEnabled");
       }
@@ -541,13 +541,13 @@ public class DefaultAuditing
 
       if (jsonConfig.containsField("distributed")) {
         EntityImpl distribDoc = jsonConfig.field("distributed");
-        distribConfig = new OAuditingDistribConfig(distribDoc);
+        distribConfig = new AuditingDistribConfig(distribDoc);
       }
 
       if (jsonConfig.containsField("systemImport")) {
         EntityImpl sysImport = jsonConfig.field("systemImport");
 
-        systemDbImporter = new OSystemDBImporter(context, sysImport);
+        systemDbImporter = new SystemDBImporter(context, sysImport);
       }
     } catch (Exception ex) {
       LogManager.instance().error(this, "config()", ex);

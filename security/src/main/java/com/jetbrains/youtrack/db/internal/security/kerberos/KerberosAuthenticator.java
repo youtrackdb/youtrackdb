@@ -11,14 +11,14 @@
  *
  * <p>*
  */
-package com.orientechnologies.security.kerberos;
+package com.jetbrains.youtrack.db.internal.security.kerberos;
 
+import com.jetbrains.youtrack.db.api.schema.PropertyType;
+import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
-import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.internal.core.metadata.security.ImmutableUser;
-import com.jetbrains.youtrack.db.api.security.SecurityUser;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
 import com.jetbrains.youtrack.db.internal.core.security.authenticator.SecurityAuthenticatorAbstract;
@@ -100,7 +100,7 @@ public class KerberosAuthenticator extends SecurityAuthenticatorAbstract {
       if (isDebug()) {
         LogManager.instance().info(this, "** Authenticating username: %s", username);
 
-        if (OKerberosLibrary.isServiceTicket(password)) {
+        if (KerberosLibrary.isServiceTicket(password)) {
           LogManager.instance().info(this, "** Authenticating password: SERVICE TICKET");
         } else {
           LogManager.instance().info(this, "** Authenticating password: %s", password);
@@ -108,8 +108,8 @@ public class KerberosAuthenticator extends SecurityAuthenticatorAbstract {
       }
 
       if (password != null) {
-        if (OKerberosLibrary.isServiceTicket(password)) {
-          // We can't call OKerberosLibrary.authenticate() twice with the same service ticket.
+        if (KerberosLibrary.isServiceTicket(password)) {
+          // We can't call KerberosLibrary.authenticate() twice with the same service ticket.
           // If we do, the call to context.acceptSecContext() will think it's a replay attack.
           // OServer.openDatabase() will end up calling this method twice if its call to
           // database.open() fails.
@@ -147,17 +147,17 @@ public class KerberosAuthenticator extends SecurityAuthenticatorAbstract {
 
             //						byte [] ticket = java.util.Base64.getDecoder().decode(password);
 
-            //						principal = OKerberosLibrary.authenticate(serviceSubject, servicePrincipal,
+            //						principal = KerberosLibrary.authenticate(serviceSubject, servicePrincipal,
             // username, ticket);
 
             try {
               synchronized (authenticateSync) {
-                if (OKerberosLibrary.isSPNegoTicket(ticket)) {
+                if (KerberosLibrary.isSPNegoTicket(ticket)) {
                   principal =
-                      OKerberosLibrary.getSPNegoSource(spnegoSubject, spnegoPrincipal, ticket);
+                      KerberosLibrary.getSPNegoSource(spnegoSubject, spnegoPrincipal, ticket);
                 } else {
                   principal =
-                      OKerberosLibrary.getKerberosSource(serviceSubject, servicePrincipal, ticket);
+                      KerberosLibrary.getKerberosSource(serviceSubject, servicePrincipal, ticket);
                 }
               }
             } catch (Exception e) {
@@ -169,7 +169,7 @@ public class KerberosAuthenticator extends SecurityAuthenticatorAbstract {
               LogManager.instance()
                   .info(
                       this,
-                      "KerberosAuthenticator.authenticate() OKerberosLibrary.authenticate()"
+                      "KerberosAuthenticator.authenticate() KerberosLibrary.authenticate()"
                           + " returned "
                           + principal);
             }
@@ -355,7 +355,7 @@ public class KerberosAuthenticator extends SecurityAuthenticatorAbstract {
     }
 
     try {
-      Configuration cfg = new OKrb5LoginModuleConfig(servicePrincipal, serviceKTName);
+      Configuration cfg = new Krb5LoginModuleConfig(servicePrincipal, serviceKTName);
 
       LogManager.instance()
           .info(this, "createServiceSubject() Service Principal: " + servicePrincipal);
@@ -366,7 +366,7 @@ public class KerberosAuthenticator extends SecurityAuthenticatorAbstract {
       serviceSubject = lc.getSubject();
 
       if (serviceSubject != null) {
-        OKerberosLibrary.checkNativeJGSS(serviceSubject, servicePrincipal, false);
+        KerberosLibrary.checkNativeJGSS(serviceSubject, servicePrincipal, false);
 
         LogManager.instance().info(this, "** Created Kerberos Service Subject **");
       }
@@ -391,7 +391,7 @@ public class KerberosAuthenticator extends SecurityAuthenticatorAbstract {
     }
 
     try {
-      Configuration cfg = new OKrb5LoginModuleConfig(spnegoPrincipal, spnegoKTName);
+      Configuration cfg = new Krb5LoginModuleConfig(spnegoPrincipal, spnegoKTName);
 
       LogManager.instance()
           .info(this, "createSpnegoSubject() SPNEGO Principal: " + spnegoPrincipal);
@@ -402,7 +402,7 @@ public class KerberosAuthenticator extends SecurityAuthenticatorAbstract {
       spnegoSubject = lc.getSubject();
 
       if (spnegoSubject != null) {
-        OKerberosLibrary.checkNativeJGSS(spnegoSubject, spnegoPrincipal, false);
+        KerberosLibrary.checkNativeJGSS(spnegoSubject, spnegoPrincipal, false);
 
         LogManager.instance().info(this, "** Created Kerberos SPNEGO Subject **");
       }
@@ -446,7 +446,7 @@ public class KerberosAuthenticator extends SecurityAuthenticatorAbstract {
       clientSubject = lc.getSubject();
 
       if (clientSubject != null) {
-        OKerberosLibrary.checkNativeJGSS(clientSubject, clientPrincipal, true);
+        KerberosLibrary.checkNativeJGSS(clientSubject, clientPrincipal, true);
 
         LogManager.instance().info(this, "** Created Kerberos Client Subject **");
       }
