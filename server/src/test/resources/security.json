@@ -21,18 +21,18 @@
       },
       {
         "name": "ServerConfig",
-        "class": "com.orientechnologies.orient.server.security.authenticator.ServerConfigAuthenticator",
+        "class": "com.jetbrains.youtrack.db.internal.server.security.authenticator.ServerConfigAuthenticator",
         "enabled": true
       },
       {
         "name": "SystemAuthenticator",
-        "class": "com.orientechnologies.orient.server.security.authenticator.SystemUserAuthenticator",
+        "class": "com.jetbrains.youtrack.db.internal.server.security.authenticator.SystemUserAuthenticator",
         "enabled": true
       }
     ]
   },
   "auditing": {
-    "class": "com.orientechnologies.security.auditing.DefaultAuditing",
+    "class": "com.jetbrains.youtrack.db.internal.security.auditing.DefaultAuditing",
     "enabled": false
   }
 }

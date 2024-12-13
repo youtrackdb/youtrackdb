@@ -23,8 +23,8 @@ import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
 import com.jetbrains.youtrack.db.internal.core.security.authenticator.SecurityAuthenticatorAbstract;
 import com.jetbrains.youtrack.db.internal.core.security.kerberos.Krb5ClientLoginModuleConfig;
-import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
-import com.orientechnologies.orient.server.security.SecurityAuthenticatorException;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
+import com.jetbrains.youtrack.db.internal.server.security.SecurityAuthenticatorException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
@@ -111,7 +111,7 @@ public class KerberosAuthenticator extends SecurityAuthenticatorAbstract {
         if (KerberosLibrary.isServiceTicket(password)) {
           // We can't call KerberosLibrary.authenticate() twice with the same service ticket.
           // If we do, the call to context.acceptSecContext() will think it's a replay attack.
-          // OServer.openDatabase() will end up calling this method twice if its call to
+          // YouTrackDBServer.openDatabase() will end up calling this method twice if its call to
           // database.open() fails.
           // So, we store the hash of the service ticket and the principal retrieved from the
           // service ticket in an TicketItem,
@@ -307,7 +307,7 @@ public class KerberosAuthenticator extends SecurityAuthenticatorAbstract {
     // databaseName + "\"";
     //		else header = "WWW-Authenticate: Negotiate realm=\"YouTrackDB Server\"";
 
-    header = OHttpUtils.HEADER_AUTHENTICATE_NEGOTIATE; // "WWW-Authenticate: Negotiate";
+    header = HttpUtils.HEADER_AUTHENTICATE_NEGOTIATE; // "WWW-Authenticate: Negotiate";
 
     //		if(databaseName != null) header = "WWW-Authenticate: Negotiate\nWWW-Authenticate: Basic
     // realm=\"YouTrackDB db-" + databaseName + "\"";

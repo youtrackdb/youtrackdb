@@ -1,8 +1,6 @@
 #!/bin/sh
 # YouTrackDB service script
 #
-# Copyright (c) YouTrackDB LTD (http://http://orientdb.com/)
-
 # chkconfig: 2345 20 80
 # description: OrientDb init script
 # processname: orientdb.sh

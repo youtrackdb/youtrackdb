@@ -59,8 +59,8 @@ public class OServerConfiguration {
   public OServerSecurityConfiguration security;
 
   @XmlElementWrapper
-  @XmlElementRef(type = OServerEntryConfiguration.class)
-  public OServerEntryConfiguration[] properties;
+  @XmlElementRef(type = ServerEntryConfiguration.class)
+  public ServerEntryConfiguration[] properties;
 
   @XmlElementRef(type = OServerDistributedConfiguration.class)
   public OServerDistributedConfiguration distributed;
@@ -120,7 +120,7 @@ public class OServerConfiguration {
       return null;
     }
 
-    for (OServerEntryConfiguration p : properties) {
+    for (ServerEntryConfiguration p : properties) {
       if (p.name.equals(iName)) {
         return p.value;
       }

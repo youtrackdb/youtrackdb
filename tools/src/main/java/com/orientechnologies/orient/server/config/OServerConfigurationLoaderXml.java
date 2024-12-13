@@ -19,9 +19,9 @@
  */
 package com.orientechnologies.orient.server.config;
 
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
@@ -88,7 +88,7 @@ public class OServerConfigurationLoaderXml {
       // AUTO CONFIGURE SYSTEM CONFIGURATION
       GlobalConfiguration config;
       if (obj.properties != null) {
-        for (OServerEntryConfiguration prop : obj.properties) {
+        for (ServerEntryConfiguration prop : obj.properties) {
           try {
             config = GlobalConfiguration.findByKey(prop.name);
             if (config != null) {

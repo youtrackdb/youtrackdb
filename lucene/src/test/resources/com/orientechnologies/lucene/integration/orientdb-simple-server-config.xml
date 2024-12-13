@@ -13,7 +13,7 @@
       </parameters>
     </handler>
     <handler
-      class="com.orientechnologies.orient.server.handler.ServerSideScriptInterpreter">
+      class="com.jetbrains.youtrack.db.internal.server.handler.ServerSideScriptInterpreter">
       <parameters>
         <parameter value="false" name="enabled"/>
       </parameters>
@@ -22,7 +22,7 @@
   <network>
     <protocols>
       <protocol
-        implementation="com.orientechnologies.orient.server.network.protocol.binary.NetworkProtocolBinary"
+        implementation="com.jetbrains.youtrack.db.internal.server.network.protocol.binary.NetworkProtocolBinary"
         name="binary"/>
     </protocols>
     <listeners>

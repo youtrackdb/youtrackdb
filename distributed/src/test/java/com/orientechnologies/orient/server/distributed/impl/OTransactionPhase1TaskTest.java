@@ -18,7 +18,6 @@ import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.distributed.ODistributedRequestId;
 import com.orientechnologies.orient.server.distributed.impl.task.OTransactionPhase1Task;
 import com.orientechnologies.orient.server.distributed.impl.task.OTransactionPhase1TaskResult;
-import com.orientechnologies.orient.server.distributed.impl.task.transaction.*;
 import java.io.IOException;
 import java.util.*;
 import java.util.ArrayList;

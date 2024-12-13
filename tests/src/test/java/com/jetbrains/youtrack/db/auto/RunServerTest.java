@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.auto;
 
-import com.orientechnologies.orient.server.OServer;
+import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
@@ -8,11 +8,11 @@ import org.testng.annotations.Test;
 @Test
 public class RunServerTest {
 
-  private OServer server;
+  private YouTrackDBServer server;
 
   @BeforeSuite
   public void before() throws Exception {
-    server = new OServer(false);
+    server = new YouTrackDBServer(false);
     server.startup(
         RunServerTest.class.getClassLoader().getResourceAsStream("youtrackdb-server-config.xml"));
     server.activate();

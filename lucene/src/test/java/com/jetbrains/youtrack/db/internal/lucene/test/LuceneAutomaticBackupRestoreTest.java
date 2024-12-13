@@ -21,18 +21,18 @@ package com.jetbrains.youtrack.db.internal.lucene.test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jetbrains.youtrack.db.api.YouTrackDB;
+import com.jetbrains.youtrack.db.api.query.ResultSet;
+import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImport;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.jetbrains.youtrack.db.api.query.ResultSet;
-import com.orientechnologies.orient.server.OServer;
+import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
+import com.jetbrains.youtrack.db.internal.server.handler.AutomaticBackup;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
-import com.orientechnologies.orient.server.handler.AutomaticBackup;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -71,7 +71,7 @@ public class LuceneAutomaticBackupRestoreTest {
   private String BACKUPDIR = null;
   private String BACKUFILE = null;
 
-  private OServer server;
+  private YouTrackDBServer server;
   private DatabaseSessionInternal db;
 
   @Before
@@ -91,7 +91,7 @@ public class LuceneAutomaticBackupRestoreTest {
 
     String path = tempFolder.getCanonicalPath() + File.separator + "databases";
     server =
-        new OServer(false) {
+        new YouTrackDBServer(false) {
           @Override
           public Map<String, String> getAvailableStorageNames() {
             HashMap<String, String> result = new HashMap<>();

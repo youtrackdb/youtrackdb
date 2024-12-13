@@ -8,7 +8,7 @@ import com.jetbrains.youtrack.db.api.schema.PropertyType;
 import com.jetbrains.youtrack.db.api.schema.SchemaClass;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
-import com.orientechnologies.orient.server.OServer;
+import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,13 +16,13 @@ import org.junit.Test;
 
 public class LuceneCreateIndexIntegrationTest {
 
-  private OServer server0;
+  private YouTrackDBServer server0;
   private YouTrackDB remote;
 
   @Before
   public void before() throws Exception {
     server0 =
-        OServer.startFromClasspathConfig(
+        YouTrackDBServer.startFromClasspathConfig(
             "com/orientechnologies/lucene/integration/orientdb-simple-server-config.xml");
     remote = new YouTrackDBImpl("remote:localhost", "root", "test",
         YouTrackDBConfig.defaultConfig());

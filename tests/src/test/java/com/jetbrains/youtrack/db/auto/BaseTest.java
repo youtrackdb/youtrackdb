@@ -9,7 +9,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBConfigBuilderImpl;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.orientechnologies.orient.server.OServer;
+import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
 import java.util.Locale;
 import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
@@ -26,7 +26,7 @@ public abstract class BaseTest<T extends DatabaseSessionInternal> {
 
   public static final String SERVER_PASSWORD =
       "D2AFD02F20640EC8B7A5140F34FCA49D2289DB1F0D0598BB9DE8AAA75A0792F3";
-  private OServer server;
+  private YouTrackDBServer server;
 
   public static final String DEFAULT_DB_NAME = "demo";
 
@@ -67,7 +67,7 @@ public abstract class BaseTest<T extends DatabaseSessionInternal> {
   public void beforeSuite() {
     try {
       if (remoteDB && server == null) {
-        server = new OServer(false);
+        server = new YouTrackDBServer(false);
         server.startup(
             BaseTest.class.getClassLoader().getResourceAsStream("youtrackdb-server-config.xml"));
         server.activate();

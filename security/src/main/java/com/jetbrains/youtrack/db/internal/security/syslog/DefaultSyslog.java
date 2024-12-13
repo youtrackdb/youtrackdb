@@ -20,9 +20,9 @@ import com.cloudbees.syslog.SyslogMessage;
 import com.cloudbees.syslog.sender.UdpSyslogMessageSender;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.security.Syslog;
-import com.orientechnologies.orient.server.OServer;
+import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
+import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginAbstract;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
-import com.orientechnologies.orient.server.plugin.ServerPluginAbstract;
 
 /**
  * Provides a default implementation for syslog access.
@@ -57,7 +57,7 @@ public class DefaultSyslog extends ServerPluginAbstract implements Syslog {
   }
 
   @Override
-  public void config(OServer oServer, OServerParameterConfiguration[] iParams) {
+  public void config(YouTrackDBServer youTrackDBServer, OServerParameterConfiguration[] iParams) {
     enabled = false;
 
     for (OServerParameterConfiguration param : iParams) {

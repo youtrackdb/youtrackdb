@@ -39,6 +39,6 @@ public class OServerCommandConfiguration {
   public boolean stateful;
 
   @XmlElementWrapper(required = false)
-  @XmlElementRef(type = OServerEntryConfiguration.class)
-  public OServerEntryConfiguration[] parameters;
+  @XmlElementRef(type = ServerEntryConfiguration.class)
+  public ServerEntryConfiguration[] parameters;
 }

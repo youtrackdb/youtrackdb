@@ -13,8 +13,8 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.SessionPoolImpl;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
-import com.orientechnologies.orient.server.OServer;
-import com.orientechnologies.orient.server.OServerMain;
+import com.jetbrains.youtrack.db.internal.server.ServerMain;
+import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
 import java.io.File;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -187,7 +187,7 @@ public class LuceneIndexCrashRestoreIT {
     System.out.println("START AGAIN");
 
     // start embedded
-    OServer server = OServerMain.create(true);
+    YouTrackDBServer server = ServerMain.create(true);
     server.setServerRootDirectory(BUILD_DIRECTORY);
 
     InputStream conf = RemoteDBRunner.class.getResourceAsStream("index-crash-config.xml");
@@ -286,7 +286,7 @@ public class LuceneIndexCrashRestoreIT {
       GlobalConfiguration.WAL_FUZZY_CHECKPOINT_INTERVAL.setValue(100000000);
 
       //      System.out.println("create server instance");
-      OServer server = OServerMain.create();
+      YouTrackDBServer server = ServerMain.create();
       InputStream conf = RemoteDBRunner.class.getResourceAsStream("index-crash-config.xml");
 
       LogManager.instance().installCustomFormatter();
