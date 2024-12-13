@@ -1,6 +1,6 @@
 package com.jetbrains.youtrack.db.internal.server.network;
 
-import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -31,7 +31,7 @@ class DefaultServerSocketFactory extends ServerSocketFactory {
   }
 
   @Override
-  public void config(String name, OServerParameterConfiguration[] iParameters) {
+  public void config(String name, ServerParameterConfiguration[] iParameters) {
     super.config(name, iParameters);
   }
 

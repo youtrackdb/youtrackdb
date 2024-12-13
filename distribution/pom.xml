@@ -106,7 +106,7 @@
                 <argument>-Dtx.nonTxReadsWarningMode=SILENT</argument>
                 <argument>-classpath</argument>
                 <classpath/>
-                <argument>com.orientechnologies.orient.console.ConsoleDatabaseApp</argument>
+                <argument>com.jetbrains.youtrack.db.internal.console.ConsoleDatabaseApp</argument>
                 <argument>connect env embedded:${basedir}/target/databases/ root root;</argument>
                 <argument>create database demodb plocal users (admin identified by 'admin' role admin, reader identified by 'reader' role reader, writer identified by 'writer' role writer);</argument>
                 <argument>open demodb admin admin;</argument>

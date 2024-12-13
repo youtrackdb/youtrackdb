@@ -5,12 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
+import com.jetbrains.youtrack.db.internal.server.config.ServerConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerNetworkConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerNetworkListenerConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerNetworkProtocolConfiguration;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.binary.NetworkProtocolBinary;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.NetworkProtocolHttpDb;
-import com.orientechnologies.orient.server.config.OServerConfiguration;
-import com.orientechnologies.orient.server.config.OServerNetworkConfiguration;
-import com.orientechnologies.orient.server.config.OServerNetworkListenerConfiguration;
-import com.orientechnologies.orient.server.config.OServerNetworkProtocolConfiguration;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -35,17 +35,17 @@ public class YouTrackDBServerShutdownMainTest {
     prevPassword = System.setProperty("YOUTRACKDB_ROOT_PASSWORD", "rootPassword");
     prevOrientHome = System.setProperty("YOUTRACKDB_HOME", "./target/testhome");
 
-    OServerConfiguration conf = new OServerConfiguration();
-    conf.network = new OServerNetworkConfiguration();
+    ServerConfiguration conf = new ServerConfiguration();
+    conf.network = new ServerNetworkConfiguration();
 
-    conf.network.protocols = new ArrayList<OServerNetworkProtocolConfiguration>();
+    conf.network.protocols = new ArrayList<ServerNetworkProtocolConfiguration>();
     conf.network.protocols.add(
-        new OServerNetworkProtocolConfiguration("binary", NetworkProtocolBinary.class.getName()));
+        new ServerNetworkProtocolConfiguration("binary", NetworkProtocolBinary.class.getName()));
     conf.network.protocols.add(
-        new OServerNetworkProtocolConfiguration("http", NetworkProtocolHttpDb.class.getName()));
+        new ServerNetworkProtocolConfiguration("http", NetworkProtocolHttpDb.class.getName()));
 
-    conf.network.listeners = new ArrayList<OServerNetworkListenerConfiguration>();
-    conf.network.listeners.add(new OServerNetworkListenerConfiguration());
+    conf.network.listeners = new ArrayList<ServerNetworkListenerConfiguration>();
+    conf.network.listeners.add(new ServerNetworkListenerConfiguration());
 
     server = new YouTrackDBServer(false);
     server.startup(conf);

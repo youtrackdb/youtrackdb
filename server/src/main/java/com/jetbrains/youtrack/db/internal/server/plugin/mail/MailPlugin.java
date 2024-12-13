@@ -25,9 +25,9 @@ import com.jetbrains.youtrack.db.internal.core.command.script.ScriptInjection;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
+import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 import com.jetbrains.youtrack.db.internal.server.plugin.OServerPluginConfigurable;
 import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginAbstract;
-import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -53,7 +53,7 @@ public class MailPlugin extends ServerPluginAbstract
 
   @Override
   public void config(final YouTrackDBServer youTrackDBServer,
-      final OServerParameterConfiguration[] iParams) {
+      final ServerParameterConfiguration[] iParams) {
     YouTrackDBInternal.extract(youTrackDBServer.getContext()).getScriptManager()
         .registerInjection(this);
   }

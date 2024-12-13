@@ -20,9 +20,9 @@
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.all;
 
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
+import com.jetbrains.youtrack.db.internal.server.config.ServerCommandConfiguration;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
-import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import java.io.IOException;
 
 public class ServerCommandFunction extends ServerCommandAbstractLogic {
@@ -32,7 +32,7 @@ public class ServerCommandFunction extends ServerCommandAbstractLogic {
   public ServerCommandFunction() {
   }
 
-  public ServerCommandFunction(final OServerCommandConfiguration iConfig) {
+  public ServerCommandFunction(final ServerCommandConfiguration iConfig) {
   }
 
   @Override

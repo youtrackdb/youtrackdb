@@ -26,11 +26,11 @@ import com.jetbrains.youtrack.db.api.record.Direction;
 import com.jetbrains.youtrack.db.api.record.Edge;
 import com.jetbrains.youtrack.db.api.record.Vertex;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
+import com.jetbrains.youtrack.db.internal.server.config.ServerCommandConfiguration;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedDbAbstract;
-import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -45,7 +45,7 @@ public class ServerCommandGetGephi extends ServerCommandAuthenticatedDbAbstract 
   public ServerCommandGetGephi() {
   }
 
-  public ServerCommandGetGephi(final OServerCommandConfiguration iConfig) {
+  public ServerCommandGetGephi(final ServerCommandConfiguration iConfig) {
   }
 
   @Override

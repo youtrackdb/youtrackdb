@@ -7,8 +7,8 @@ import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.core.sql.functions.CustomSQLFunctionFactory;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
+import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginAbstract;
-import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -30,7 +30,7 @@ public class CustomSQLFunctionPlugin extends ServerPluginAbstract {
   }
 
   @Override
-  public void config(YouTrackDBServer youTrackDBServer, OServerParameterConfiguration[] iParams) {
+  public void config(YouTrackDBServer youTrackDBServer, ServerParameterConfiguration[] iParams) {
     configuration = new EntityImpl();
 
     final File configFile =

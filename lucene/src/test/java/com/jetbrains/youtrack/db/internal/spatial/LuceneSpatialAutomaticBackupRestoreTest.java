@@ -30,8 +30,8 @@ import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImport;
 import com.jetbrains.youtrack.db.internal.core.index.Index;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
+import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 import com.jetbrains.youtrack.db.internal.server.handler.AutomaticBackup;
-import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -192,7 +192,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
 
     final AutomaticBackup aBackup = new AutomaticBackup();
 
-    final OServerParameterConfiguration[] config = new OServerParameterConfiguration[]{};
+    final ServerParameterConfiguration[] config = new ServerParameterConfiguration[]{};
 
     aBackup.config(server, config);
     final CountDownLatch latch = new CountDownLatch(1);

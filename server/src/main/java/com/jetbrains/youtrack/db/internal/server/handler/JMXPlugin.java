@@ -26,8 +26,8 @@ import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBConstants;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
+import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginAbstract;
-import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import java.lang.management.ManagementFactory;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -42,8 +42,8 @@ public class JMXPlugin extends ServerPluginAbstract {
 
   @Override
   public void config(final YouTrackDBServer youTrackDBServer,
-      final OServerParameterConfiguration[] iParams) {
-    for (OServerParameterConfiguration param : iParams) {
+      final ServerParameterConfiguration[] iParams) {
+    for (ServerParameterConfiguration param : iParams) {
       if (param.name.equalsIgnoreCase("enabled")) {
         if (!Boolean.parseBoolean(param.value))
         // DISABLE IT

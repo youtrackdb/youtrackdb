@@ -19,11 +19,11 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command;
 
+import com.jetbrains.youtrack.db.internal.server.config.ServerConfiguration;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpSession;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
-import com.orientechnologies.orient.server.config.OServerConfiguration;
 import java.io.IOException;
 import java.util.Map;
 
@@ -103,7 +103,7 @@ public abstract class ServerCommandAuthenticatedServerAbstract extends ServerCom
   }
 
   protected boolean checkGuestAccess() {
-    return server.getSecurity().isAuthorized(null, OServerConfiguration.GUEST_USER, resource);
+    return server.getSecurity().isAuthorized(null, ServerConfiguration.GUEST_USER, resource);
   }
 
   protected void sendNotAuthorizedResponse(

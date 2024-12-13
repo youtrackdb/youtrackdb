@@ -41,6 +41,7 @@ import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.NetworkProto
 import com.jetbrains.youtrack.db.internal.enterprise.channel.text.SocketChannelTextServer;
 import com.jetbrains.youtrack.db.internal.server.ClientConnection;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
+import com.jetbrains.youtrack.db.internal.server.config.ServerCommandConfiguration;
 import com.jetbrains.youtrack.db.internal.server.network.ServerNetworkListener;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.NetworkProtocol;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommand;
@@ -91,7 +92,6 @@ import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.p
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.put.ServerCommandPutIndex;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.multipart.HttpMultipartBaseInputStream;
 import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginHelper;
-import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -1052,7 +1052,7 @@ public abstract class NetworkProtocolHttpAbstract extends NetworkProtocol
     cmdManager.registerCommand(new ServerCommandGetSSO());
     cmdManager.registerCommand(new ServerCommandGetPing());
 
-    for (OServerCommandConfiguration c : iListener.getStatefulCommands()) {
+    for (ServerCommandConfiguration c : iListener.getStatefulCommands()) {
       try {
         cmdManager.registerCommand(ServerNetworkListener.createCommand(server, c));
       } catch (Exception e) {

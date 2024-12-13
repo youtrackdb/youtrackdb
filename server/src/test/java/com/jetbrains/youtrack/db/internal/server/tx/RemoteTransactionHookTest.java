@@ -16,7 +16,7 @@ import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBImpl;
 import com.jetbrains.youtrack.db.internal.core.hook.DocumentHookAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
-import com.orientechnologies.orient.server.config.OServerHookConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerHookConfiguration;
 import java.io.File;
 import org.junit.After;
 import org.junit.Before;
@@ -36,7 +36,7 @@ public class RemoteTransactionHookTest extends DbTestBase {
     server = new YouTrackDBServer(false);
     server.setServerRootDirectory(SERVER_DIRECTORY);
     server.startup(getClass().getResourceAsStream("youtrackdb-server-config.xml"));
-    OServerHookConfiguration hookConfig = new OServerHookConfiguration();
+    ServerHookConfiguration hookConfig = new ServerHookConfiguration();
     hookConfig.clazz = CountCallHookServer.class.getName();
     server.getHookManager().addHook(hookConfig);
     server.activate();

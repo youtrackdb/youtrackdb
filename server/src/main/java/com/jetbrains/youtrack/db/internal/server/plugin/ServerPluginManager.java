@@ -19,16 +19,16 @@
  */
 package com.jetbrains.youtrack.db.internal.server.plugin;
 
+import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
 import com.jetbrains.youtrack.db.internal.common.util.Service;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
-import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
-import com.orientechnologies.orient.server.config.ServerEntryConfiguration;
-import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerEntryConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 import com.jetbrains.youtrack.db.internal.server.network.ServerNetworkListener;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.NetworkProtocolHttpAbstract;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.get.ServerCommandGetStaticContent;
@@ -288,7 +288,7 @@ public class ServerPluginManager implements Service {
   protected ServerPlugin startPluginClass(
       final String iClassName,
       URLClassLoader pluginClassLoader,
-      final OServerParameterConfiguration[] params)
+      final ServerParameterConfiguration[] params)
       throws Exception {
 
     final Class<? extends ServerPlugin> classToLoad =
@@ -298,7 +298,7 @@ public class ServerPluginManager implements Service {
     // CONFIG()
     final Method configMethod =
         classToLoad.getDeclaredMethod(
-            "config", YouTrackDBServer.class, OServerParameterConfiguration[].class);
+            "config", YouTrackDBServer.class, ServerParameterConfiguration[].class);
 
     callListenerBeforeConfig(instance, params);
 
@@ -405,14 +405,14 @@ public class ServerPluginManager implements Service {
         if (pluginClass != null) {
           // CREATE PARAMETERS
           parameters = properties.field("parameters");
-          final List<OServerParameterConfiguration> params =
-              new ArrayList<OServerParameterConfiguration>();
+          final List<ServerParameterConfiguration> params =
+              new ArrayList<ServerParameterConfiguration>();
           for (String paramName : parameters.keySet()) {
             params.add(
-                new OServerParameterConfiguration(paramName, (String) parameters.get(paramName)));
+                new ServerParameterConfiguration(paramName, (String) parameters.get(paramName)));
           }
-          final OServerParameterConfiguration[] pluginParams =
-              params.toArray(new OServerParameterConfiguration[params.size()]);
+          final ServerParameterConfiguration[] pluginParams =
+              params.toArray(new ServerParameterConfiguration[params.size()]);
 
           pluginInstance = startPluginClass(pluginClass, pluginClassLoader, pluginParams);
         } else {
@@ -457,7 +457,7 @@ public class ServerPluginManager implements Service {
   }
 
   public void callListenerBeforeConfig(
-      final ServerPlugin plugin, final OServerParameterConfiguration[] cfg) {
+      final ServerPlugin plugin, final ServerParameterConfiguration[] cfg) {
     for (OPluginLifecycleListener l : pluginListeners) {
       try {
         l.onBeforeConfig(plugin, cfg);
@@ -468,7 +468,7 @@ public class ServerPluginManager implements Service {
   }
 
   public void callListenerAfterConfig(
-      final ServerPlugin plugin, final OServerParameterConfiguration[] cfg) {
+      final ServerPlugin plugin, final ServerParameterConfiguration[] cfg) {
     for (OPluginLifecycleListener l : pluginListeners) {
       try {
         l.onAfterConfig(plugin, cfg);

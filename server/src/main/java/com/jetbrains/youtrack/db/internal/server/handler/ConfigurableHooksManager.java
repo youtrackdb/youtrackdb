@@ -27,9 +27,9 @@ import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseLifecycleListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.orientechnologies.orient.server.config.OServerConfiguration;
-import com.orientechnologies.orient.server.config.OServerHookConfiguration;
-import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerHookConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -43,20 +43,20 @@ import java.util.List;
  * <p><hooks> <hook class="HookClass"> <parameters> <parameter name="foo" value="bar" />
  * </parameters> </hook> </hooks> In case any parameters is defined the hook class should have a
  * method with following signature: public void config(YouTrackDBServer oServer,
- * OServerParameterConfiguration[] iParams)
+ * ServerParameterConfiguration[] iParams)
  */
 public class ConfigurableHooksManager implements DatabaseLifecycleListener {
 
-  private List<OServerHookConfiguration> configuredHooks;
+  private List<ServerHookConfiguration> configuredHooks;
 
-  public ConfigurableHooksManager(final OServerConfiguration iCfg) {
+  public ConfigurableHooksManager(final ServerConfiguration iCfg) {
     configuredHooks = iCfg.hooks;
     if (configuredHooks != null && !configuredHooks.isEmpty()) {
       YouTrackDBEnginesManager.instance().addDbLifecycleListener(this);
     }
   }
 
-  public void addHook(OServerHookConfiguration configuration) {
+  public void addHook(ServerHookConfiguration configuration) {
     if (this.configuredHooks == null) {
       configuredHooks = new ArrayList<>();
       YouTrackDBEnginesManager.instance().addDbLifecycleListener(this);
@@ -77,7 +77,7 @@ public class ConfigurableHooksManager implements DatabaseLifecycleListener {
   public void onOpen(DatabaseSessionInternal iDatabase) {
     if (!iDatabase.isRemote()) {
       var db = iDatabase;
-      for (OServerHookConfiguration hook : configuredHooks) {
+      for (ServerHookConfiguration hook : configuredHooks) {
         try {
           final RecordHook.HOOK_POSITION pos = RecordHook.HOOK_POSITION.valueOf(hook.position);
           Class<?> klass = Class.forName(hook.clazz);
@@ -97,7 +97,7 @@ public class ConfigurableHooksManager implements DatabaseLifecycleListener {
           if (hook.parameters != null && hook.parameters.length > 0) {
             try {
               final Method m =
-                  h.getClass().getDeclaredMethod("config", OServerParameterConfiguration[].class);
+                  h.getClass().getDeclaredMethod("config", ServerParameterConfiguration[].class);
               m.invoke(h, new Object[]{hook.parameters});
             } catch (Exception e) {
               LogManager.instance()
@@ -105,7 +105,7 @@ public class ConfigurableHooksManager implements DatabaseLifecycleListener {
                       this,
                       "[configure] Failed to configure hook '%s'. Parameters specified but hook don"
                           + " support parameters. Should have a method config with parameters"
-                          + " OServerParameterConfiguration[] ",
+                          + " ServerParameterConfiguration[] ",
                       hook.clazz);
             }
           }

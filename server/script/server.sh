@@ -51,7 +51,7 @@ cd "$ORIENTDB_HOME/bin"
 
 if [ ! -f "${CONFIG_FILE}" ]
 then
-  CONFIG_FILE=$ORIENTDB_HOME/config/orientdb-server-config.xml
+  CONFIG_FILE=$ORIENTDB_HOME/config/youtrackdb-server-config.xml
 fi
 
 # Raspberry Pi check (Java VM does not run with -server argument on ARMv6)
@@ -69,7 +69,7 @@ fi
 export JAVA
 
 if [ -z "$ORIENTDB_LOG_CONF" ] ; then
-    ORIENTDB_LOG_CONF=$ORIENTDB_HOME/config/orientdb-server-log.properties
+    ORIENTDB_LOG_CONF=$ORIENTDB_HOME/config/youtrackdb-server-log.properties
 fi
 
 if [ -z "$ORIENTDB_WWW_PATH" ] ; then
@@ -123,5 +123,5 @@ exec "$JAVA" $JAVA_OPTS \
     -Dyoutrackdb.config.file="$CONFIG_FILE" \
     -Dorientdb.www.path="$ORIENTDB_WWW_PATH" \
     -Dorientdb.build.number="@BUILD@" \
-    -cp "$ORIENTDB_HOME/lib/orientdb-server-@VERSION@.jar:$ORIENTDB_HOME/lib/*:$ORIENTDB_HOME/plugins/*" \
+    -cp "$ORIENTDB_HOME/lib/youtrackdb-server-@VERSION@.jar:$ORIENTDB_HOME/lib/*:$ORIENTDB_HOME/plugins/*" \
     $ARGS com.orientechnologies.orient.server.OServerMain

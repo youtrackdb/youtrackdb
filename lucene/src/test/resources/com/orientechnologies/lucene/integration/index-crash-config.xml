@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<orient-server>
+<youtrackdb-server>
   <network>
     <protocols>
       <protocol name="binary"
@@ -17,4 +17,4 @@
     <entry value="." name="youtrackdb.home"/>
   </properties>
   <isAfterFirstTime>true</isAfterFirstTime>
-</orient-server>
+</youtrackdb-server>

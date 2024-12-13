@@ -19,19 +19,19 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network;
 
+import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
+import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.api.exception.BaseException;
 import com.jetbrains.youtrack.db.internal.common.exception.SystemException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
-import com.jetbrains.youtrack.db.api.config.ContextConfiguration;
-import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.StringSerializerHelper;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.SocketChannel;
 import com.jetbrains.youtrack.db.internal.enterprise.channel.binary.NetworkProtocolException;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
-import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommand;
-import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
-import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerCommandConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.NetworkProtocol;
+import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommand;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.BindException;
@@ -51,8 +51,8 @@ public class ServerNetworkListener extends Thread {
   private InetSocketAddress inboundAddr;
   private final Class<? extends NetworkProtocol> protocolType;
   private volatile boolean active = true;
-  private final List<OServerCommandConfiguration> statefulCommands =
-      new ArrayList<OServerCommandConfiguration>();
+  private final List<ServerCommandConfiguration> statefulCommands =
+      new ArrayList<ServerCommandConfiguration>();
   private final List<ServerCommand> statelessCommands = new ArrayList<ServerCommand>();
   private int socketBufferSize;
   private ContextConfiguration configuration;
@@ -66,8 +66,8 @@ public class ServerNetworkListener extends Thread {
       final String iHostPortRange,
       final String iProtocolName,
       final Class<? extends NetworkProtocol> iProtocol,
-      final OServerParameterConfiguration[] iParameters,
-      final OServerCommandConfiguration[] iCommands) {
+      final ServerParameterConfiguration[] iParameters,
+      final ServerCommandConfiguration[] iCommands) {
     super(
         iServer.getThreadGroup(),
         "YouTrackDB " + iProtocol.getSimpleName() + " listen at " + iHostName + ":"
@@ -141,12 +141,12 @@ public class ServerNetworkListener extends Thread {
 
   @SuppressWarnings("unchecked")
   public static ServerCommand createCommand(
-      final YouTrackDBServer server, final OServerCommandConfiguration iCommand) {
+      final YouTrackDBServer server, final ServerCommandConfiguration iCommand) {
     try {
       final Constructor<ServerCommand> c =
           (Constructor<ServerCommand>)
               Class.forName(iCommand.implementation)
-                  .getConstructor(OServerCommandConfiguration.class);
+                  .getConstructor(ServerCommandConfiguration.class);
       final ServerCommand cmd = c.newInstance(iCommand);
       cmd.configure(server);
       return cmd;
@@ -161,7 +161,7 @@ public class ServerNetworkListener extends Thread {
     }
   }
 
-  public List<OServerCommandConfiguration> getStatefulCommands() {
+  public List<ServerCommandConfiguration> getStatefulCommands() {
     return statefulCommands;
   }
 
@@ -186,13 +186,13 @@ public class ServerNetworkListener extends Thread {
   }
 
   public ServerNetworkListener registerStatefulCommand(
-      final OServerCommandConfiguration iCommand) {
+      final ServerCommandConfiguration iCommand) {
     statefulCommands.add(iCommand);
     return this;
   }
 
   public ServerNetworkListener unregisterStatefulCommand(
-      final OServerCommandConfiguration iCommand) {
+      final ServerCommandConfiguration iCommand) {
     statefulCommands.remove(iCommand);
     return this;
   }
@@ -347,7 +347,7 @@ public class ServerNetworkListener extends Thread {
     }
 
     // SEARCH IN STATEFUL COMMANDS
-    for (OServerCommandConfiguration cmd : statefulCommands) {
+    for (ServerCommandConfiguration cmd : statefulCommands) {
       if (cmd.implementation.equals(iCommandClass.getName())) {
         return cmd;
       }
@@ -425,13 +425,13 @@ public class ServerNetworkListener extends Thread {
    */
   private void readParameters(
       final ContextConfiguration iServerConfig,
-      final OServerParameterConfiguration[] iParameters) {
+      final ServerParameterConfiguration[] iParameters) {
     configuration = new ContextConfiguration(iServerConfig);
 
     // SET PARAMETERS
     if (iParameters != null) {
       // CONVERT PARAMETERS IN MAP TO INTIALIZE THE CONTEXT-CONFIGURATION
-      for (OServerParameterConfiguration param : iParameters) {
+      for (ServerParameterConfiguration param : iParameters) {
         configuration.setValue(param.name, param.value);
       }
     }

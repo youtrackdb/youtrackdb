@@ -33,9 +33,9 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseExport;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
+import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 import com.jetbrains.youtrack.db.internal.server.plugin.OServerPluginConfigurable;
 import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginAbstract;
-import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -91,12 +91,12 @@ public class AutomaticBackup extends ServerPluginAbstract implements OServerPlug
 
   @Override
   public void config(final YouTrackDBServer iServer,
-      final OServerParameterConfiguration[] iParams) {
+      final ServerParameterConfiguration[] iParams) {
     serverInstance = iServer;
 
     configuration = new EntityImpl();
 
-    for (OServerParameterConfiguration param : iParams) {
+    for (ServerParameterConfiguration param : iParams) {
       if (param.name.equalsIgnoreCase("config") && param.value.trim().length() > 0) {
         configFile = param.value.trim();
 

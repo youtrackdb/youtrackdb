@@ -19,7 +19,7 @@
    ~  */
    -->
 
-<orient-server>
+<youtrackdb-server>
   <handlers>
     <!-- JMX SERVER, TO TURN ON SET THE 'ENABLED' PARAMETER TO 'true' -->
     <handler class="com.jetbrains.youtrack.db.internal.server.handler.JMXPlugin">
@@ -134,4 +134,4 @@
     <entry name="profiler.enabled" value="false"/>
     <!-- <entry name="profiler.config" value="30,10,10" /> -->
   </properties>
-</orient-server>
+</youtrackdb-server>

@@ -6,8 +6,8 @@ import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
 import com.jetbrains.youtrack.db.internal.core.hook.DocumentHookAbstract;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.orientechnologies.orient.server.config.OServerConfigurationManager;
-import com.orientechnologies.orient.server.config.OServerHookConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerConfigurationManager;
+import com.jetbrains.youtrack.db.internal.server.config.ServerHookConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -62,13 +62,13 @@ public class HookInstallServerTest {
     server = new YouTrackDBServer(false);
     server.setServerRootDirectory(SERVER_DIRECTORY);
 
-    OServerConfigurationManager ret =
-        new OServerConfigurationManager(
+    ServerConfigurationManager ret =
+        new ServerConfigurationManager(
             this.getClass()
                 .getClassLoader()
                 .getResourceAsStream(
                     "com/jetbrains/youtrack/db/internal/server/network/youtrackdb-server-config.xml"));
-    OServerHookConfiguration hc = new OServerHookConfiguration();
+    ServerHookConfiguration hc = new ServerHookConfiguration();
     hc.clazz = MyHook.class.getName();
     ret.getConfiguration().hooks = new ArrayList<>();
     ret.getConfiguration().hooks.add(hc);

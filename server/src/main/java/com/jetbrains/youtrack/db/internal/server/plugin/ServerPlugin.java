@@ -22,7 +22,7 @@ package com.jetbrains.youtrack.db.internal.server.plugin;
 import com.jetbrains.youtrack.db.internal.common.util.Service;
 import com.jetbrains.youtrack.db.internal.server.ClientConnection;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
-import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.NetworkProtocol;
 
 /**
@@ -60,7 +60,7 @@ public interface ServerPlugin extends Service {
   /**
    * Configures the handler. Called at startup.
    */
-  void config(YouTrackDBServer youTrackDBServer, OServerParameterConfiguration[] iParams);
+  void config(YouTrackDBServer youTrackDBServer, ServerParameterConfiguration[] iParams);
 
   default void onSocketAccepted(NetworkProtocol protocol) {
   }

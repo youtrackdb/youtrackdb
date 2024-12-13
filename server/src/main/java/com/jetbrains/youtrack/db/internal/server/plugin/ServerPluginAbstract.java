@@ -21,7 +21,7 @@ package com.jetbrains.youtrack.db.internal.server.plugin;
 
 import com.jetbrains.youtrack.db.internal.server.ClientConnection;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
-import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 
 /**
  * Abstract class to make ServerHandler implementation easier.
@@ -46,7 +46,7 @@ public abstract class ServerPluginAbstract implements ServerPlugin {
   }
 
   @Override
-  public void config(YouTrackDBServer youTrackDBServer, OServerParameterConfiguration[] iParams) {
+  public void config(YouTrackDBServer youTrackDBServer, ServerParameterConfiguration[] iParams) {
   }
 
   @Override

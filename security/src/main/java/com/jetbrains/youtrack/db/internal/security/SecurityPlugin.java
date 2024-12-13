@@ -19,15 +19,15 @@ import com.jetbrains.youtrack.db.internal.security.kerberos.KerberosAuthenticato
 import com.jetbrains.youtrack.db.internal.security.ldap.LDAPImporter;
 import com.jetbrains.youtrack.db.internal.security.password.DefaultPasswordValidator;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
+import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginAbstract;
-import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 
 public class SecurityPlugin extends ServerPluginAbstract {
 
   private YouTrackDBServer server;
 
   @Override
-  public void config(YouTrackDBServer server, OServerParameterConfiguration[] iParams) {
+  public void config(YouTrackDBServer server, ServerParameterConfiguration[] iParams) {
     this.server = server;
   }
 

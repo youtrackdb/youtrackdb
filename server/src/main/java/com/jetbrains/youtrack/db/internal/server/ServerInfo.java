@@ -23,7 +23,7 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.core.serialization.serializer.JSONWriter;
 import com.jetbrains.youtrack.db.internal.core.storage.Storage;
 import com.jetbrains.youtrack.db.internal.core.storage.disk.LocalPaginatedStorage;
-import com.orientechnologies.orient.server.config.ServerEntryConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerEntryConfiguration;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.NetworkProtocolData;
 import java.io.IOException;
 import java.io.StringWriter;

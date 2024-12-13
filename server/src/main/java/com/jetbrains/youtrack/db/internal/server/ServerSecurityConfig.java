@@ -1,19 +1,19 @@
 package com.jetbrains.youtrack.db.internal.server;
 
-import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
 import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
+import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
 import com.jetbrains.youtrack.db.internal.core.security.SecurityConfig;
 import com.jetbrains.youtrack.db.internal.core.security.Syslog;
-import com.orientechnologies.orient.server.config.OServerConfigurationManager;
+import com.jetbrains.youtrack.db.internal.server.config.ServerConfigurationManager;
 import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginInfo;
 
 public class ServerSecurityConfig implements SecurityConfig {
 
   private final YouTrackDBServer server;
-  private final OServerConfigurationManager serverCfg;
+  private final ServerConfigurationManager serverCfg;
   private Syslog sysLog;
 
-  public ServerSecurityConfig(YouTrackDBServer server, OServerConfigurationManager serverCfg) {
+  public ServerSecurityConfig(YouTrackDBServer server, ServerConfigurationManager serverCfg) {
     super();
     this.server = server;
     this.serverCfg = serverCfg;

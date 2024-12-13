@@ -17,16 +17,16 @@
  */
 package com.jetbrains.youtrack.db.internal.server.plugin;
 
-import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 
 /**
  * Interface for monitoring plugin events.
  */
 public interface OPluginLifecycleListener {
 
-  void onBeforeConfig(final ServerPlugin plugin, final OServerParameterConfiguration[] cfg);
+  void onBeforeConfig(final ServerPlugin plugin, final ServerParameterConfiguration[] cfg);
 
-  void onAfterConfig(final ServerPlugin plugin, final OServerParameterConfiguration[] cfg);
+  void onAfterConfig(final ServerPlugin plugin, final ServerParameterConfiguration[] cfg);
 
   void onBeforeStartup(final ServerPlugin plugin);
 

@@ -3,15 +3,15 @@ package com.jetbrains.youtrack.db.internal.server;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.common.io.FileUtils;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.YouTrackDBEnginesManager;
-import com.jetbrains.youtrack.db.api.DatabaseSession;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
-import com.orientechnologies.orient.server.config.OServerConfiguration;
-import com.orientechnologies.orient.server.config.ServerUserConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerUserConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -44,7 +44,7 @@ public class ServerDatabaseOperationsTest {
       IllegalAccessException,
       InstantiationException {
     LogManager.instance().setConsoleLevel(Level.OFF.getName());
-    OServerConfiguration conf = new OServerConfiguration();
+    ServerConfiguration conf = new ServerConfiguration();
 
     conf.handlers = new ArrayList<>();
     ServerUserConfiguration rootUser = new ServerUserConfiguration();

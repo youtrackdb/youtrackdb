@@ -19,17 +19,17 @@
  */
 package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.post;
 
+import com.jetbrains.youtrack.db.internal.server.config.ServerCommandConfiguration;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpGraphResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
-import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
 
 public class ServerCommandPostCommandGraph extends ServerCommandPostCommand {
 
   public ServerCommandPostCommandGraph() {
   }
 
-  public ServerCommandPostCommandGraph(final OServerCommandConfiguration iConfig) {
+  public ServerCommandPostCommandGraph(final ServerCommandConfiguration iConfig) {
   }
 
   @Override

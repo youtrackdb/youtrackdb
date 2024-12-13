@@ -21,10 +21,10 @@ package com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.
 
 import com.jetbrains.youtrack.db.internal.core.db.SystemDatabase;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
+import com.jetbrains.youtrack.db.internal.server.config.ServerConfiguration;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.command.ServerCommandAuthenticatedServerAbstract;
-import com.orientechnologies.orient.server.config.OServerConfiguration;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,7 +64,7 @@ public class ServerCommandGetListDatabases extends ServerCommandAuthenticatedSer
     if (server.getSecurity() != null
         && server
         .getSecurity()
-        .isAuthorized(null, OServerConfiguration.GUEST_USER, "server.listDatabases.system")) {
+        .isAuthorized(null, ServerConfiguration.GUEST_USER, "server.listDatabases.system")) {
       storageNames.add(SystemDatabase.SYSTEM_DB_NAME);
     }
 

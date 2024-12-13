@@ -22,7 +22,6 @@ package com.jetbrains.youtrack.db.api.schema;
 import com.jetbrains.youtrack.db.internal.common.comparator.DefaultComparator;
 import com.jetbrains.youtrack.db.internal.core.collate.CaseInsensitiveCollate;
 import com.jetbrains.youtrack.db.internal.core.collate.DefaultCollate;
-
 import java.io.Serializable;
 
 /**
@@ -30,10 +29,9 @@ import java.io.Serializable;
  */
 public interface Collate extends Serializable {
 
-  static Collate caseInsensitive() {
+  static Collate caseInsensitiveCollate() {
     return new CaseInsensitiveCollate();
   }
-
   static Collate defaultCollate() {
     return new DefaultCollate();
   }

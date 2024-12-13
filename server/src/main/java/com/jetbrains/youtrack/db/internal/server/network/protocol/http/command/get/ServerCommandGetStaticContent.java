@@ -23,11 +23,11 @@ import com.jetbrains.youtrack.db.api.config.GlobalConfiguration;
 import com.jetbrains.youtrack.db.internal.common.io.IOUtils;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.common.util.CallableFunction;
+import com.jetbrains.youtrack.db.internal.server.config.ServerCommandConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerEntryConfiguration;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpResponse;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.HttpUtils;
 import com.jetbrains.youtrack.db.internal.server.network.protocol.http.OHttpRequest;
-import com.orientechnologies.orient.server.config.OServerCommandConfiguration;
-import com.orientechnologies.orient.server.config.ServerEntryConfiguration;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -88,7 +88,7 @@ public class ServerCommandGetStaticContent extends ServerCommandConfigurableAbst
     super(DEF_PATTERN);
   }
 
-  public ServerCommandGetStaticContent(final OServerCommandConfiguration iConfiguration) {
+  public ServerCommandGetStaticContent(final ServerCommandConfiguration iConfiguration) {
     super(iConfiguration.pattern);
 
     // LOAD HTTP CACHE CONFIGURATION

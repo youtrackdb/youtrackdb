@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<orient-server>
+<youtrackdb-server>
   <handlers>
     <handler
       class="com.orientechnologies.orient.graph.handler.OGraphServerHandler">
@@ -87,4 +87,4 @@
     <entry value="info" name="log.console.level"/>
     <entry value="fine" name="log.file.level"/>
   </properties>
-</orient-server>
+</youtrackdb-server>

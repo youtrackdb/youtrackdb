@@ -42,9 +42,9 @@ shift
 goto setArgs
 
 :doneSetArgs
-if NOT exist "%CONFIG_FILE%" set CONFIG_FILE=%YOUTRACKDB_HOME%/config/orientdb-server-config.xml
+if NOT exist "%CONFIG_FILE%" set CONFIG_FILE=%YOUTRACKDB_HOME%/config/youtrackdb-server-config.xml
 
-set LOG_FILE=%YOUTRACKDB_HOME%/config/orientdb-server-log.properties
+set LOG_FILE=%YOUTRACKDB_HOME%/config/youtrackdb-server-log.properties
 set LOG_LEVEL=warning
 set WWW_PATH=%YOUTRACKDB_HOME%/www
 set JAVA_OPTS=-Djava.awt.headless=true

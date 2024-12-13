@@ -23,8 +23,8 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseLifecycleListener;
 import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
+import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginAbstract;
-import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 
 /**
  * <p>Not needed anymore, keeping the class for backward compatibilty
@@ -44,9 +44,9 @@ public class LiveQueryPlugin extends ServerPluginAbstract implements DatabaseLif
 
   @Override
   public void config(final YouTrackDBServer iServer,
-      final OServerParameterConfiguration[] iParams) {
+      final ServerParameterConfiguration[] iParams) {
     super.config(iServer, iParams);
-    for (OServerParameterConfiguration param : iParams) {
+    for (ServerParameterConfiguration param : iParams) {
       if (param.name.equalsIgnoreCase("enabled")) {
         if (Boolean.parseBoolean(param.value)) {
           enabled = true;

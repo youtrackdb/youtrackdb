@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<orient-server>
+<youtrackdb-server>
   <handlers>
     <handler class="com.jetbrains.youtrack.db.internal.server.handler.JMXPlugin">
       <parameters>
@@ -72,4 +72,4 @@
     <entry name="log.file.level" value="fine"/>
   </properties>
   <isAfterFirstTime>true</isAfterFirstTime>
-</orient-server>
+</youtrackdb-server>

@@ -19,14 +19,14 @@
  */
 package com.jetbrains.youtrack.db.internal.server.handler;
 
+import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import com.jetbrains.youtrack.db.internal.common.log.LogManager;
 import com.jetbrains.youtrack.db.internal.core.command.ScriptInterceptor;
 import com.jetbrains.youtrack.db.internal.core.command.script.CommandExecutorScript;
 import com.jetbrains.youtrack.db.internal.core.command.script.CommandScript;
-import com.jetbrains.youtrack.db.api.exception.SecurityException;
 import com.jetbrains.youtrack.db.internal.core.db.YouTrackDBInternal;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
-import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginAbstract;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -45,10 +45,10 @@ public class ServerSideScriptInterpreter extends ServerPluginAbstract {
   private YouTrackDBServer server;
 
   @Override
-  public void config(final YouTrackDBServer iServer, OServerParameterConfiguration[] iParams) {
+  public void config(final YouTrackDBServer iServer, ServerParameterConfiguration[] iParams) {
 
     this.server = iServer;
-    for (OServerParameterConfiguration param : iParams) {
+    for (ServerParameterConfiguration param : iParams) {
       if (param.name.equalsIgnoreCase("enabled")) {
         if (Boolean.parseBoolean(param.value))
         // ENABLE IT

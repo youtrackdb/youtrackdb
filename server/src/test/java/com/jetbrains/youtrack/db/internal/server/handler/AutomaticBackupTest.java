@@ -10,7 +10,7 @@ import com.jetbrains.youtrack.db.internal.core.db.DatabaseSessionInternal;
 import com.jetbrains.youtrack.db.internal.core.db.tool.DatabaseImport;
 import com.jetbrains.youtrack.db.internal.core.record.impl.EntityImpl;
 import com.jetbrains.youtrack.db.internal.server.YouTrackDBServer;
-import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -147,7 +147,7 @@ public class AutomaticBackupTest {
 
     final AutomaticBackup aBackup = new AutomaticBackup();
 
-    final OServerParameterConfiguration[] config = new OServerParameterConfiguration[]{};
+    final ServerParameterConfiguration[] config = new ServerParameterConfiguration[]{};
 
     aBackup.config(server, config);
 
@@ -196,7 +196,7 @@ public class AutomaticBackupTest {
 
     final AutomaticBackup aBackup = new AutomaticBackup();
 
-    final OServerParameterConfiguration[] config = new OServerParameterConfiguration[]{};
+    final ServerParameterConfiguration[] config = new ServerParameterConfiguration[]{};
 
     aBackup.config(server, config);
 
@@ -219,17 +219,17 @@ public class AutomaticBackupTest {
 
     final AutomaticBackup aBackup = new AutomaticBackup();
 
-    final OServerParameterConfiguration[] config =
-        new OServerParameterConfiguration[]{
-            new OServerParameterConfiguration("enabled", "true"),
-            new OServerParameterConfiguration(
+    final ServerParameterConfiguration[] config =
+        new ServerParameterConfiguration[]{
+            new ServerParameterConfiguration("enabled", "true"),
+            new ServerParameterConfiguration(
                 "firstTime",
                 new SimpleDateFormat("HH:mm:ss").format(
                     new Date(System.currentTimeMillis() + 5000))),
-            new OServerParameterConfiguration("delay", "1d"),
-            new OServerParameterConfiguration("mode", "FULL_BACKUP"),
-            new OServerParameterConfiguration("target.directory", BACKUPDIR),
-            new OServerParameterConfiguration("target.fileName", "fullBackup.zip")
+            new ServerParameterConfiguration("delay", "1d"),
+            new ServerParameterConfiguration("mode", "FULL_BACKUP"),
+            new ServerParameterConfiguration("target.directory", BACKUPDIR),
+            new ServerParameterConfiguration("target.fileName", "fullBackup.zip")
         };
 
     aBackup.config(server, config);
@@ -279,7 +279,7 @@ public class AutomaticBackupTest {
 
     final AutomaticBackup aBackup = new AutomaticBackup();
 
-    final OServerParameterConfiguration[] config = new OServerParameterConfiguration[]{};
+    final ServerParameterConfiguration[] config = new ServerParameterConfiguration[]{};
 
     try {
       aBackup.config(server, config);
@@ -299,12 +299,12 @@ public class AutomaticBackupTest {
   //
   // final AutomaticBackup aBackup = new AutomaticBackup();
   //
-  // final OServerParameterConfiguration[] config = new OServerParameterConfiguration[] {
-  // new OServerParameterConfiguration("firstTime",
+  // final ServerParameterConfiguration[] config = new ServerParameterConfiguration[] {
+  // new ServerParameterConfiguration("firstTime",
   // new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis() + 2000))),
-  // new OServerParameterConfiguration("delay", "1d"), new OServerParameterConfiguration("mode",
+  // new ServerParameterConfiguration("delay", "1d"), new ServerParameterConfiguration("mode",
   // "INCREMENTAL_BACKUP"),
-  // new OServerParameterConfiguration("target.directory", BACKUPDIR) };
+  // new ServerParameterConfiguration("target.directory", BACKUPDIR) };
   //
   // aBackup.config(server, config);
   //
@@ -332,17 +332,17 @@ public class AutomaticBackupTest {
 
     final AutomaticBackup aBackup = new AutomaticBackup();
 
-    final OServerParameterConfiguration[] config =
-        new OServerParameterConfiguration[]{
-            new OServerParameterConfiguration("enabled", "true"),
-            new OServerParameterConfiguration(
+    final ServerParameterConfiguration[] config =
+        new ServerParameterConfiguration[]{
+            new ServerParameterConfiguration("enabled", "true"),
+            new ServerParameterConfiguration(
                 "firstTime",
                 new SimpleDateFormat("HH:mm:ss").format(
                     new Date(System.currentTimeMillis() + 5000))),
-            new OServerParameterConfiguration("delay", "1d"),
-            new OServerParameterConfiguration("mode", "EXPORT"),
-            new OServerParameterConfiguration("target.directory", BACKUPDIR),
-            new OServerParameterConfiguration("target.fileName", "fullExport.json.gz")
+            new ServerParameterConfiguration("delay", "1d"),
+            new ServerParameterConfiguration("mode", "EXPORT"),
+            new ServerParameterConfiguration("target.directory", BACKUPDIR),
+            new ServerParameterConfiguration("target.fileName", "fullExport.json.gz")
         };
 
     aBackup.config(server, config);

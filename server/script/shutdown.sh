@@ -36,7 +36,7 @@ cd "$ORIENTDB_HOME/bin"
 
 if [ ! -f "${CONFIG_FILE}" ]
 then
-  CONFIG_FILE=$ORIENTDB_HOME/config/orientdb-server-config.xml
+  CONFIG_FILE=$ORIENTDB_HOME/config/youtrackdb-server-config.xml
 fi
 
 # Set JavaHome if it exists
@@ -46,7 +46,7 @@ else
    JAVA=java
 fi
 
-LOG_FILE=$ORIENTDB_HOME/config/orientdb-server-log.properties
+LOG_FILE=$ORIENTDB_HOME/config/youtrackdb-server-log.properties
 JAVA_OPTS=-Djava.awt.headless=true
 
 if [ -z "$ORIENTDB_PID" ] ; then
@@ -71,7 +71,7 @@ else
       echo "wait for OrientDB server to shutdown"
 
       while true ; do
-        ps auxw | grep java | grep $ORIENTDB_HOME/lib/orientdb-server > /dev/null || break
+        ps auxw | grep java | grep $ORIENTDB_HOME/lib/youtrackdb-server > /dev/null || break
         sleep 1;
       done
     fi

@@ -16,9 +16,9 @@
 package com.jetbrains.youtrack.db.internal.server.network;
 
 import com.jetbrains.youtrack.db.api.exception.BaseException;
-import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
 import com.jetbrains.youtrack.db.api.exception.ConfigurationException;
-import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
+import com.jetbrains.youtrack.db.internal.common.parser.SystemVariableResolver;
+import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -57,10 +57,10 @@ public class ServerSSLSocketFactory extends ServerSocketFactory {
   }
 
   @Override
-  public void config(String name, final OServerParameterConfiguration[] iParameters) {
+  public void config(String name, final ServerParameterConfiguration[] iParameters) {
 
     super.config(name, iParameters);
-    for (OServerParameterConfiguration param : iParameters) {
+    for (ServerParameterConfiguration param : iParameters) {
       if (param.name.equalsIgnoreCase(PARAM_NETWORK_SSL_CLIENT_AUTH)) {
         clientAuth = Boolean.parseBoolean(param.value);
       } else if (param.name.equalsIgnoreCase(PARAM_NETWORK_SSL_KEYSTORE)) {

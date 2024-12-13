@@ -45,6 +45,16 @@ import com.jetbrains.youtrack.db.internal.core.metadata.security.auth.TokenAuthI
 import com.jetbrains.youtrack.db.internal.core.security.InvalidPasswordException;
 import com.jetbrains.youtrack.db.internal.core.security.ParsedToken;
 import com.jetbrains.youtrack.db.internal.core.security.SecuritySystem;
+import com.jetbrains.youtrack.db.internal.server.config.ServerConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerConfigurationManager;
+import com.jetbrains.youtrack.db.internal.server.config.ServerEntryConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerHandlerConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerNetworkListenerConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerNetworkProtocolConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerParameterConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerSocketFactoryConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerStorageConfiguration;
+import com.jetbrains.youtrack.db.internal.server.config.ServerUserConfiguration;
 import com.jetbrains.youtrack.db.internal.server.distributed.ODistributedServerManager;
 import com.jetbrains.youtrack.db.internal.server.handler.ConfigurableHooksManager;
 import com.jetbrains.youtrack.db.internal.server.network.ServerNetworkListener;
@@ -57,16 +67,6 @@ import com.jetbrains.youtrack.db.internal.server.plugin.ServerPlugin;
 import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginInfo;
 import com.jetbrains.youtrack.db.internal.server.plugin.ServerPluginManager;
 import com.jetbrains.youtrack.db.internal.server.token.TokenHandlerImpl;
-import com.orientechnologies.orient.server.config.OServerConfiguration;
-import com.orientechnologies.orient.server.config.OServerConfigurationManager;
-import com.orientechnologies.orient.server.config.OServerHandlerConfiguration;
-import com.orientechnologies.orient.server.config.OServerNetworkListenerConfiguration;
-import com.orientechnologies.orient.server.config.OServerNetworkProtocolConfiguration;
-import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
-import com.orientechnologies.orient.server.config.OServerSocketFactoryConfiguration;
-import com.orientechnologies.orient.server.config.OServerStorageConfiguration;
-import com.orientechnologies.orient.server.config.ServerEntryConfiguration;
-import com.orientechnologies.orient.server.config.ServerUserConfiguration;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -95,7 +95,7 @@ public class YouTrackDBServer {
   protected ReentrantLock lock = new ReentrantLock();
   protected volatile boolean running = false;
   protected volatile boolean rejectRequests = true;
-  protected OServerConfigurationManager serverCfg;
+  protected ServerConfigurationManager serverCfg;
   protected ContextConfiguration contextConfiguration;
   protected ServerShutdownHook shutdownHook;
   protected Map<String, Class<? extends NetworkProtocol>> networkProtocols =
@@ -303,9 +303,9 @@ public class YouTrackDBServer {
   }
 
   public YouTrackDBServer startup() throws ConfigurationException {
-    String config = OServerConfiguration.DEFAULT_CONFIG_FILE;
-    if (System.getProperty(OServerConfiguration.PROPERTY_CONFIG_FILE) != null) {
-      config = System.getProperty(OServerConfiguration.PROPERTY_CONFIG_FILE);
+    String config = ServerConfiguration.DEFAULT_CONFIG_FILE;
+    if (System.getProperty(ServerConfiguration.PROPERTY_CONFIG_FILE) != null) {
+      config = System.getProperty(ServerConfiguration.PROPERTY_CONFIG_FILE);
     }
 
     YouTrackDBEnginesManager.instance().startup();
@@ -318,7 +318,7 @@ public class YouTrackDBServer {
   public YouTrackDBServer startup(final File iConfigurationFile) throws ConfigurationException {
     // Startup function split to allow pre-activation changes
     try {
-      serverCfg = new OServerConfigurationManager(iConfigurationFile);
+      serverCfg = new ServerConfigurationManager(iConfigurationFile);
       return startupFromConfiguration();
 
     } catch (IOException e) {
@@ -338,15 +338,15 @@ public class YouTrackDBServer {
       throw new ConfigurationException("Configuration file is null");
     }
 
-    serverCfg = new OServerConfigurationManager(iInputStream);
+    serverCfg = new ServerConfigurationManager(iInputStream);
 
     // Startup function split to allow pre-activation changes
     return startupFromConfiguration();
   }
 
-  public YouTrackDBServer startup(final OServerConfiguration iConfiguration)
+  public YouTrackDBServer startup(final ServerConfiguration iConfiguration)
       throws IllegalArgumentException, SecurityException, IOException {
-    serverCfg = new OServerConfigurationManager(iConfiguration);
+    serverCfg = new ServerConfigurationManager(iConfiguration);
     return startupFromConfiguration();
   }
 
@@ -455,7 +455,7 @@ public class YouTrackDBServer {
         l.onBeforeActivate();
       }
 
-      final OServerConfiguration configuration = serverCfg.getConfiguration();
+      final ServerConfiguration configuration = serverCfg.getConfiguration();
 
       tokenHandler =
           new TokenHandlerImpl(
@@ -464,7 +464,7 @@ public class YouTrackDBServer {
       if (configuration.network != null) {
         // REGISTER/CREATE SOCKET FACTORIES
         if (configuration.network.sockets != null) {
-          for (OServerSocketFactoryConfiguration f : configuration.network.sockets) {
+          for (ServerSocketFactoryConfiguration f : configuration.network.sockets) {
             Class<? extends ServerSocketFactory> fClass =
                 (Class<? extends ServerSocketFactory>) loadClass(f.implementation);
             ServerSocketFactory factory = fClass.newInstance();
@@ -478,13 +478,13 @@ public class YouTrackDBServer {
         }
 
         // REGISTER PROTOCOLS
-        for (OServerNetworkProtocolConfiguration p : configuration.network.protocols) {
+        for (ServerNetworkProtocolConfiguration p : configuration.network.protocols) {
           networkProtocols.put(
               p.name, (Class<? extends NetworkProtocol>) loadClass(p.implementation));
         }
 
         // STARTUP LISTENERS
-        for (OServerNetworkListenerConfiguration l : configuration.network.listeners) {
+        for (ServerNetworkListenerConfiguration l : configuration.network.listeners) {
           networkListeners.add(
               new ServerNetworkListener(
                   this,
@@ -794,7 +794,7 @@ public class YouTrackDBServer {
     return serverCfg.getConfiguration().getStoragePath(iURL) != null;
   }
 
-  public OServerConfiguration getConfiguration() {
+  public ServerConfiguration getConfiguration() {
     return serverCfg.getConfiguration();
   }
 
@@ -940,7 +940,7 @@ public class YouTrackDBServer {
   }
 
   protected void initFromConfiguration() {
-    final OServerConfiguration cfg = serverCfg.getConfiguration();
+    final ServerConfiguration cfg = serverCfg.getConfiguration();
 
     // FILL THE CONTEXT CONFIGURATION WITH SERVER'S PARAMETERS
     contextConfiguration = new ContextConfiguration();
@@ -959,7 +959,7 @@ public class YouTrackDBServer {
   }
 
   protected void loadUsers() throws IOException {
-    final OServerConfiguration configuration = serverCfg.getConfiguration();
+    final ServerConfiguration configuration = serverCfg.getConfiguration();
 
     if (configuration.isAfterFirstTime) {
       return;
@@ -974,12 +974,12 @@ public class YouTrackDBServer {
    * Load configured storages.
    */
   protected void loadStorages() {
-    final OServerConfiguration configuration = serverCfg.getConfiguration();
+    final ServerConfiguration configuration = serverCfg.getConfiguration();
 
     if (configuration.storages == null) {
       return;
     }
-    for (OServerStorageConfiguration stg : configuration.storages) {
+    for (ServerStorageConfiguration stg : configuration.storages) {
       if (stg.loadOnStartup) {
         String url = stg.path;
         if (url.endsWith("/")) {
@@ -1025,8 +1025,8 @@ public class YouTrackDBServer {
       }
     }
     boolean existsRoot =
-        existsSystemUser(OServerConfiguration.DEFAULT_ROOT_USER)
-            || serverCfg.existsUser(OServerConfiguration.DEFAULT_ROOT_USER);
+        existsSystemUser(ServerConfiguration.DEFAULT_ROOT_USER)
+            || serverCfg.existsUser(ServerConfiguration.DEFAULT_ROOT_USER);
 
     if (rootPassword == null && !existsRoot) {
       try {
@@ -1133,15 +1133,15 @@ public class YouTrackDBServer {
     if (!existsRoot) {
       context.execute(
           "CREATE SYSTEM USER "
-              + OServerConfiguration.DEFAULT_ROOT_USER
+              + ServerConfiguration.DEFAULT_ROOT_USER
               + " IDENTIFIED BY ? ROLE root",
           rootPassword);
     }
 
-    if (!existsSystemUser(OServerConfiguration.GUEST_USER)) {
+    if (!existsSystemUser(ServerConfiguration.GUEST_USER)) {
       context.execute(
-          "CREATE SYSTEM USER " + OServerConfiguration.GUEST_USER + " IDENTIFIED BY ? ROLE guest",
-          OServerConfiguration.DEFAULT_GUEST_PASSWORD);
+          "CREATE SYSTEM USER " + ServerConfiguration.GUEST_USER + " IDENTIFIED BY ? ROLE guest",
+          ServerConfiguration.DEFAULT_GUEST_PASSWORD);
     }
   }
 
@@ -1161,18 +1161,18 @@ public class YouTrackDBServer {
     pluginManager.startup();
 
     // PLUGINS CONFIGURED IN XML
-    final OServerConfiguration configuration = serverCfg.getConfiguration();
+    final ServerConfiguration configuration = serverCfg.getConfiguration();
 
     if (configuration.handlers != null) {
       // ACTIVATE PLUGINS
       final List<ServerPlugin> plugins = new ArrayList<ServerPlugin>();
 
-      for (OServerHandlerConfiguration h : configuration.handlers) {
+      for (ServerHandlerConfiguration h : configuration.handlers) {
         if (h.parameters != null) {
           // CHECK IF IT'S ENABLED
           boolean enabled = true;
 
-          for (OServerParameterConfiguration p : h.parameters) {
+          for (ServerParameterConfiguration p : h.parameters) {
             if (p.name.equals("enabled")) {
               enabled = false;
 

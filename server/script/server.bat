@@ -65,9 +65,9 @@ goto setArgs
 :doneSetArgs
 
 
-if NOT exist "%CONFIG_FILE%" set CONFIG_FILE=%YOUTRACKDB_HOME%/config/orientdb-server-config.xml
+if NOT exist "%CONFIG_FILE%" set CONFIG_FILE=%YOUTRACKDB_HOME%/config/youtrackdb-server-config.xml
 
-set LOG_FILE=%YOUTRACKDB_HOME%/config/orientdb-server-log.properties
+set LOG_FILE=%YOUTRACKDB_HOME%/config/youtrackdb-server-log.properties
 set WWW_PATH=%YOUTRACKDB_HOME%/www
 set ORIENTDB_SETTINGS=-Dprofiler.enabled=true
 set JAVA_OPTS_SCRIPT= -Djna.nosys=true -XX:+HeapDumpOnOutOfMemoryError -Djava.awt.headless=true -Dfile.encoding=UTF8 -Drhino.opt.level=9
